@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width"/>
+  <title>College Admin Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <style>
+    :root {
+      --glass: rgba(255,255,255,0.81);
+      --card-bg: rgba(255,255,255,0.98);
+      --border: #e9eaf1;
+      --primary: #2540af;
+      --primary-fade: #2540af22;
+      --primary-dark: #192a6b;
+      --accent: #f6508a;
+      --green: #3dd598;
+      --yellow: #faad14;
+      --red: #ff4d4f;
+      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.19);
+      --radius: 18px;
+    }
+    body {
+      font-family: 'Poppins',sans-serif;
+      background: linear-gradient(120deg, #e0ecfc 0%, #f4f5fa 100%);
+      margin: 0;
+      min-height: 100vh;
+    }
+    .profile-container {
+      max-width: 990px;
+      margin: 38px auto;
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 34px 30px 28px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .profile-actions button {
+      padding: 9px 24px;
+      border-radius: 100px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s, box-shadow .18s;
+      box-shadow: 0 2px 10px #eee;
+      background: #f5f8ff;
+      color: var(--primary-dark);
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .profile-actions button:hover { background: #f0f4fa; color: var(--primary-dark);}
+    .profile-actions .logout-btn {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 2px 14px #ffdde1a1;
+    }
+    .profile-actions .logout-btn:hover { background: #c82333; color: #fff;}
+    .profile-actions .back-btn {
+      background: #f8fafc;
+      color: var(--primary-dark);
+      border: 1px solid #d4e2ff;
+    }
+    .profile-actions .back-btn:hover { background: #f3f6fa; color: var(--primary-dark);}
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .profile-photo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .profile-photo {
+      flex-shrink: 0;
+      width: 120px;
+      height: 120px;
+      border-radius: 25%;
+      background: #f8fafc;
+      border: 3.5px solid #ddeafd;
+      box-shadow: 0 3px 18px 2px #8bb7ff22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: box-shadow .15s;
+    }
+    .profile-photo:hover { box-shadow: 0 4px 30px #b7cfff52; }
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 23%;
+    }
+    .profile-photo-change-btn {
+      margin-top: 8px;
+      padding: 7px 19px;
+      border-radius: 20px;
+      border: 1.3px solid #b1c8f9;
+      background: #e5efff;
+      color: var(--primary-dark);
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .profile-photo-change-btn:hover {
+      background: #d5e6ff;
+      color: #1b2e73;
+      border: 1.3px solid #99b8f7;
+    }
+    .profile-photo-save-btn:hover {
+      background: #218838;
+      border: 1.3px solid #1e7e34;
+    }
+    .profile-title {
+      flex: 1 1 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .profile-title-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 13px;
+      flex-wrap: wrap;
+      margin-bottom: 1px;
+    }
+    .profile-title .name {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+    .profile-title .institution-id {
+      background: #d5e7ff;
+      color: var(--primary-dark);
+      border-radius: 8px;
+      font-size: 1.03rem;
+      font-weight: 600;
+      padding: 4px 14px 4px 11px;
+      letter-spacing: .03em;
+      margin-bottom: 2px;
+      margin-left: 4px;
+      box-shadow: 0 2px 9px #e4f0ffa5;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .profile-title .institution-id i {
+      color: #859de6;
+      margin-right: 5px;
+      font-size: 1.04em;
+    }
+    .profile-title .type-badge {
+      display: inline-block;
+      padding: 7px 20px 7px 14px;
+      background: var(--primary-fade);
+      color: var(--primary-dark);
+      border-radius: 20px;
+      font-size: 1.06rem;
+      font-weight: 600;
+      margin-right: 10px;
+      box-shadow: 0 2px 12px #ddeafd;
+      letter-spacing: 0.03em;
+      position: relative;
+      margin-bottom: 0;
+    }
+    .profile-title .type-badge i {
+      margin-right: 6px;
+      color: var(--primary-dark);
+    }
+    .profile-title .website-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-left: 7px;
+      transition: color .17s;
+      position: relative;
+      top: 2px;
+    }
+    .profile-title .website-link:hover { color: var(--primary); text-decoration: underline; }
+    .profile-body {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .info-card {
+      flex: 1 1 330px;
+      min-width: 280px;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 4px 18px #e5ecf8a5;
+      padding: 24px 28px 21px 28px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      border: 1.5px solid #f1f6ff;
+      transition: box-shadow .18s;
+    }
+    .info-card:hover {
+      box-shadow: 0 8px 30px 2px #a9c4ff4d;
+      border: 1.5px solid #c0d8ff;
+    }
+    .info-section-title {
+      color: var(--primary);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .info-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .info-label {
+      min-width: 135px;
+      font-weight: 600;
+      color: #33476e;
+      font-size: 1.01rem;
+      display: inline-block;
+      margin-right: 2px;
+      padding-top: 7px;
+    }
+    .info-value, .info-input, .info-select {
+      font-weight: 500;
+      color: #313a4c;
+      font-size: 1.06rem;
+      background: #f8fafc;
+      border: 1.1px solid #e6eafe;
+      border-radius: 8px;
+      padding: 7px 13px;
+      min-width: 110px;
+      flex: 1 1 140px;
+      transition: border .13s;
+      outline: none;
+      margin-top: -3px;
+    }
+    .info-input:disabled, .info-select:disabled {
+      color: #9196aa;
+      background: #f6f7fa;
+      border: 1.1px solid #e2e3eb;
+      cursor: not-allowed;
+    }
+    .info-row .info-value {
+      background: transparent;
+      border: none;
+      padding-left: 0;
+      min-width: 0;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.93rem;
+      font-weight: 600;
+      border-radius: 9px;
+      padding: 4px 13px;
+      background: #eaf7fa;
+      color: #329e99;
+      margin-right: 7px;
+      border: 1.1px solid #b6e4e1;
+      margin-bottom: 3px;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 0.98rem;
+      font-weight: 700;
+      border-radius: 9px;
+      padding: 5px 14px;
+      margin-right: 7px;
+      margin-bottom: 3px;
+      color: #fff;
+    }
+    .status-annual { background: #5cbdfb; }
+    .status-3m     { background: #f6508a; }
+    .status-6m     { background: #faad14; color: #252222;}
+    .status-expired { background: #ff4d4f; }
+    .status-active  { background: #1ecb89;}
+    .status-due     { background: #ffbe30; color: #50452a;}
+    .status-paid    { background: #54c884; }
+    .update-action-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    .update-form-btn {
+      padding: 12px 38px;
+      border-radius: 30px;
+      background: linear-gradient(90deg, #2540af 0%, #5cbdfb 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.07rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 13px #bedcff33;
+      margin: 0 6px;
+      transition: background .13s;
+    }
+    .update-form-btn:hover { background: linear-gradient(90deg, #5cbdfb 0%, #2540af 100%);}
+    .update-form-btn.cancel-btn {
+      background: #f8fafc;
+      color: var(--primary-dark);
+      border: 1.2px solid #b1c8f9;
+      font-weight: 700;
+    }
+    .update-form-btn.cancel-btn:hover {
+      background: #f3f6fa;
+      color: #1b2e73;
+      border: 1.2px solid #99b8f7;
+    }
+    .photo-popup-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(40,52,105,0.15);
+      z-index: 2002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-popup {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 46px #193e7a28;
+      padding: 0;
+      min-width: 0;
+      max-width: 92vw;
+      max-height: 93vh;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-popup img {
+      display: block;
+      max-width: 480px;
+      max-height: 74vh;
+      width: auto;
+      height: auto;
+      border-radius: 19px;
+      margin: 0;
+      background: #fff;
+    }
+    .photo-popup .close-photo-btn {
+      position: absolute;
+      top: 11px; right: 13px;
+      background: #eee;
+      color: #2540af;
+      border: none;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      cursor: pointer;
+      font-size: 1.45rem;
+      z-index: 3;
+      box-shadow: 0 2px 11px #e1eafd45;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .14s;
+    }
+    .photo-popup .close-photo-btn:hover {
+      background: #e0e8ff;
+      color: #f6508a;
+    }
+    .info-row input[type="email"].info-input {
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      white-space: normal;
+      overflow-x: auto;
+      text-overflow: ellipsis;
+      word-break: break-all;
+    }
+
+    /* User-friendly popup styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .popup-overlay.show .popup-container {
+      transform: scale(1);
+    }
+
+    .popup-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .popup-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .popup-icon.success {
+      background: #28a745;
+    }
+
+    .popup-icon.error {
+      background: #dc3545;
+    }
+
+    .popup-icon.info {
+      background: #17a2b8;
+    }
+
+    .popup-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .popup-body {
+      padding: 20px 24px;
+    }
+
+    .popup-message {
+      font-size: 16px;
+      color: #555;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .popup-footer {
+      padding: 16px 24px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .popup-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 80px;
+    }
+
+    .popup-btn-primary {
+      background: #007bff;
+      color: #fff;
+    }
+
+    .popup-btn-primary:hover {
+      background: #0056b3;
+    }
+
+    .popup-btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .popup-btn-secondary:hover {
+      background: #545b62;
+    }
+
+    /* --- Responsive for small/medium screens --- */
+    @media (max-width: 1060px) {
+      .profile-actions {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 13px;
+        padding: 0 2vw;
+        flex-wrap: wrap;
+      }
+      .profile-actions button {
+        min-width: 90px;
+        padding: 9px 10px;
+        font-size: 0.97rem;
+      }
+      .profile-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        /* margin-bottom: 5px; */
+      }
+      .profile-photo-box {
+        align-items: center;
+        margin-bottom: 0;
+      }
+      .profile-title {
+        gap: 3px;
+      }
+      .profile-title .name { font-size: 1.16rem; }
+      .profile-title .institution-id { font-size: 0.94rem; }
+      .profile-title .type-badge { font-size: 1.01rem; }
+      .profile-title .website-link { font-size: 0.97rem; margin-bottom: 0; }
+      .profile-title-row { margin-bottom: 1px; }
+      .profile-summary-wrap {
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+      .info-card { margin-top: 0; padding: 14px 4vw 12px 4vw; }
+      /* Remove extra space after website and pull up institution details */
+      .profile-body {
+        margin-top: 0;
+        padding-top: 0;
+        gap: 12px;
+        transform:translateY(-130px);
+      }
+      .update-action-row{
+            transform:translateY(-130px);
+      }
+    }
+    @media (max-width: 700px) {
+      .profile-container { padding: 11px 0 0 0;}
+      .profile-header { gap: 8px;}
+      .info-card { padding: 9px 2vw 7px 2vw;}
+      .profile-title .name { font-size: 1.01rem; }
+      .profile-title .website-link { font-size: 0.94rem;}
+    }
+    @media (max-width: 480px) {
+      .profile-actions button { font-size: 0.94rem; padding: 10px 2vw;}
+      .info-label { min-width: 86px;}
+      .info-card { min-width: 0;}
+      .photo-popup img { max-width: 98vw; max-height: 69vh;}
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-actions">
+      <button class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <button class="update-btn"><i class="fa-solid fa-pen-to-square"></i> Update</button>
+      <button class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </div>
+    <div class="profile-header">
+      <div class="profile-photo-box">
+        <div class="profile-photo" id="profilePhoto">
+          <img id="profileImg" src="" alt="Institution Photo" style="display: none;">
+          <div id="imagePlaceholder" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f8fafc; color: #666; font-size: 0.9rem;">
+            <i class="fas fa-image"></i> Loading...
+          </div>
+        </div>
+        <button class="profile-photo-change-btn" id="changePhotoBtn">Change Profile Image</button>
+        <button class="profile-photo-save-btn" id="savePhotoBtn" style="display:none; margin-top: 8px; padding: 7px 19px; border-radius: 20px; border: 1.3px solid #28a745; background: #28a745; color: #fff; font-size: 0.97rem; font-weight: 600; cursor: pointer; transition: background .12s;">
+          <i class="fas fa-save"></i> Save Image
+        </button>
+        <input type="file" id="profileImgInput" accept="image/*" style="display:none;">
+      </div>
+      <div class="profile-title">
+        <div class="profile-title-row">
+          <div class="name">
+            <span id="institutionName">Loading...</span>
+            <span class="institution-id" id="institutionId"><i class="fa-solid fa-id-badge"></i> Loading...</span>
+          </div>
+        </div>
+        <span class="type-badge" id="institutionType"><i class="fa-solid fa-school"></i> Loading...</span>
+        <a class="website-link" id="websiteLink" href="#" target="_blank" rel="noopener">
+          <i class="fa-solid fa-globe"></i> Loading...
+        </a>
+      </div>
+    </div>
+    <div class="profile-body">
+      <div class="info-card">
+        <div class="info-section-title"><i class="fa-solid fa-building-columns"></i> Institution Details</div>
+        <form class="info-form" id="institutionForm" autocomplete="off">
+          <div class="info-row">
+            <div class="info-label">Institution Name:</div>
+            <input class="info-input" type="text" id="inputInstitutionName" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Institution Id:</div>
+            <input class="info-input" type="text" id="inputInstitutionId" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Institution Type:</div>
+            <select class="info-select" id="inputInstitutionType" disabled required>
+              <option value="">Loading...</option>
+              <option value="School">School</option>
+              <option value="College">College</option>
+              <option value="University">University</option>
+            </select>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Address Line:</div>
+            <input class="info-input" type="text" id="inputAddress" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Town/City:</div>
+            <input class="info-input" type="text" id="inputCity" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">State:</div>
+            <input class="info-input" type="text" id="inputState" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Country:</div>
+            <input class="info-input" type="text" id="inputCountry" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Pin Code:</div>
+            <input class="info-input" type="number" id="inputPincode" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Website URL:</div>
+            <input class="info-input" type="text" id="inputWebsite" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Institution Head Name:</div>
+            <input class="info-input" type="text" id="inputHead" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Designation:</div>
+            <input class="info-input" type="text" id="inputDesignation" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Contact Number 1:</div>
+            <input class="info-input" type="number" id="inputContact1" value="" disabled required>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Contact Number 2:</div>
+            <input class="info-input" type="number" id="inputContact2" value="" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Email:</div>
+            <input class="info-input" type="email" id="inputEmail" value="" disabled required>
+          </div>
+        </form>
+      </div>
+      <div class="info-card">
+        <div class="info-section-title"><i class="fa-solid fa-crown"></i> Subscription Details</div>
+        <form class="info-form" id="subscriptionForm" autocomplete="off">
+          <div class="info-row">
+            <div class="info-label">Subscription:</div>
+            <select class="info-select" id="inputSubscription" disabled>
+              <option>Annual</option>
+              <option>3 months</option>
+              <option>6 months</option>
+            </select>
+            <span class="status-badge status-annual" id="statusAnnual">Annual</span>
+            <span class="status-badge status-active">Active</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Student Limit:</div>
+            <input class="info-input" type="number" id="inputStudentLimit" value="1200" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Purchase Date:</div>
+            <input class="info-input" type="date" id="inputPurchaseDate" value="2024-01-01" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Expiry Date:</div>
+            <input class="info-input" type="date" id="inputExpiryDate" value="2024-12-31" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Total Amount:</div>
+            <input class="info-input" type="number" id="inputTotalAmount" value="20000" disabled>
+            <span class="badge">₹20,000</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Paid Amount:</div>
+            <input class="info-input" type="number" id="inputPaidAmount" value="20000" disabled>
+            <span class="badge" style="background:#d4f8e8;color:#16a34a;border:1.2px solid #84e1bb;">₹20,000</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Last Paid Date:</div>
+            <input class="info-input" type="date" id="inputLastPaidDate" value="2024-01-05" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Paid Date:</div>
+            <input class="info-input" type="date" id="inputPaidDate" value="2024-01-05" disabled>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Due Amount:</div>
+            <input class="info-input" type="number" id="inputDueAmount" value="0" disabled>
+            <span class="badge status-due">₹0</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Due Date:</div>
+            <input class="info-input" type="date" id="inputDueDate" value="" disabled>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="update-action-row" id="editActionRow" style="display:none;">
+      <button class="update-form-btn" id="saveBtn">Update</button>
+      <button class="update-form-btn cancel-btn" id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+  <div id="photoPopupBg" class="photo-popup-bg" style="display:none;">
+    <div class="photo-popup">
+      <button class="close-photo-btn" id="closePhotoBtn">&times;</button>
+      <img id="popupPhotoImg" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=500&q=80" alt="Institution Photo">
+    </div>
+  </div>
+
+  <!-- User-friendly popup -->
+  <div id="popupOverlay" class="popup-overlay">
+    <div class="popup-container">
+      <div class="popup-header">
+        <div id="popupIcon" class="popup-icon">
+          <i id="popupIconClass"></i>
+        </div>
+        <h3 id="popupTitle" class="popup-title">Title</h3>
+      </div>
+      <div class="popup-body">
+        <p id="popupMessage" class="popup-message">Message</p>
+      </div>
+      <div class="popup-footer">
+        <button id="popupOkBtn" class="popup-btn popup-btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // API Configuration
+    const COLLEGE_API = 'https://fowh69kcfd.execute-api.ap-south-1.amazonaws.com/dev/addCollege';
+    
+    // ⚡ Speed Optimization: Performance Monitor
+    const performanceMonitor = {
+      timers: new Map(),
+      startTimer: function(name) {
+        this.timers.set(name, performance.now());
+        console.log(`🚀 Starting ${name}...`);
+      },
+      endTimer: function(name) {
+        const startTime = this.timers.get(name);
+        if (startTime) {
+          const duration = performance.now() - startTime;
+          console.log(`✅ ${name} completed in ${duration.toFixed(2)}ms`);
+          this.timers.delete(name);
+          return duration;
+        }
+        return 0;
+      }
+    };
+
+    // ⚡ Speed Optimization: Smart Caching System
+    const cache = new Map();
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    const cacheManager = {
+      set: function(key, data) {
+        cache.set(key, {
+          data: data,
+          timestamp: Date.now()
+        });
+        console.log(`💾 Cached data for key: ${key}`);
+      },
+      get: function(key) {
+        const cached = cache.get(key);
+        if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+          console.log(`⚡ Using cached data for key: ${key}`);
+          return cached.data;
+        }
+        if (cached) {
+          cache.delete(key);
+          console.log(`🗑️ Cache expired for key: ${key}`);
+        }
+        return null;
+      },
+      clear: function() {
+        cache.clear();
+        console.log('🧹 Cache cleared');
+      }
+    };
+
+    // ⚡ Speed Optimization: Loading Manager
+    const loadingManager = {
+      showLoading: function(element, text = 'Loading...') {
+        if (element) {
+          element.dataset.originalText = element.textContent;
+          element.textContent = text;
+          element.disabled = true;
+        }
+      },
+      hideLoading: function(element, successText = null) {
+        if (element) {
+          element.disabled = false;
+          if (successText) {
+            element.textContent = successText;
+            setTimeout(() => {
+              element.textContent = element.dataset.originalText || 'Loading...';
+            }, 2000);
+          } else {
+            element.textContent = element.dataset.originalText || 'Loading...';
+          }
+        }
+      }
+    };
+    
+    const profileImg = document.getElementById('profileImg');
+    const popupPhotoImg = document.getElementById('popupPhotoImg');
+    const profilePhoto = document.getElementById('profilePhoto');
+    const photoPopupBg = document.getElementById('photoPopupBg');
+    const closePhotoBtn = document.getElementById('closePhotoBtn');
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+    const savePhotoBtn = document.getElementById('savePhotoBtn');
+    const profileImgInput = document.getElementById('profileImgInput');
+    
+    // Store the selected file for saving
+    let selectedImageFile = null;
+
+    // User-friendly popup system
+    const popupManager = {
+      show: function(title, message, type = 'info') {
+        const overlay = document.getElementById('popupOverlay');
+        const icon = document.getElementById('popupIcon');
+        const iconClass = document.getElementById('popupIconClass');
+        const titleEl = document.getElementById('popupTitle');
+        const messageEl = document.getElementById('popupMessage');
+        const okBtn = document.getElementById('popupOkBtn');
+
+        // Set content
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Set icon and type
+        icon.className = `popup-icon ${type}`;
+        switch(type) {
+          case 'success':
+            iconClass.className = 'fas fa-check';
+            break;
+          case 'error':
+            iconClass.className = 'fas fa-times';
+            break;
+          case 'info':
+          default:
+            iconClass.className = 'fas fa-info';
+            break;
+        }
+
+        // Show popup
+        overlay.classList.add('show');
+
+        // Focus OK button for accessibility
+        setTimeout(() => okBtn.focus(), 100);
+      },
+
+      hide: function() {
+        const overlay = document.getElementById('popupOverlay');
+        overlay.classList.remove('show');
+      }
+    };
+
+    // Popup event listeners
+    document.getElementById('popupOkBtn').addEventListener('click', () => {
+      popupManager.hide();
+    });
+
+    document.getElementById('popupOverlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('popupOverlay')) {
+        popupManager.hide();
+      }
+    });
+
+    // Close popup with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('popupOverlay').classList.contains('show')) {
+        popupManager.hide();
+      }
+    });
+
+    // Function to get current admin ID from session
+    function getCurrentAdminId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && userData.user && userData.user.admin_id) {
+          return userData.user.admin_id;
+        }
+      }
+      return null;
+    }
+
+    // ⚡ Speed Optimization: Fast College Data Loading
+    async function loadRealCollegeData() {
+      try {
+        performanceMonitor.startTimer('Load College Data');
+        
+        const adminId = getCurrentAdminId();
+        if (!adminId) {
+          console.error('❌ Admin ID not found in session');
+          return;
+        }
+
+        // ⚡ Speed Optimization: Check cache first
+        const cacheKey = `college_data_${adminId}`;
+        const cachedData = cacheManager.get(cacheKey);
+        if (cachedData) {
+          console.log('⚡ Using cached college data for instant loading');
+          populateProfileData(cachedData);
+          performanceMonitor.endTimer('Load College Data');
+          return;
+        }
+
+        console.log('🔍 Fetching college data for admin_id:', adminId);
+        
+        // ⚡ Speed Optimization: Aggressive timeout for faster failure
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await fetch(COLLEGE_API, { 
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('📊 College API Response:', data);
+
+        if (data.success && data.colleges && data.colleges.length > 0) {
+          // ⚡ Speed Optimization: Optimized filtering with pre-computed admin_id string
+          const adminIdStr = adminId.toString();
+          const collegeData = data.colleges.find(college => 
+            college.admin_id && college.admin_id.toString() === adminIdStr
+          );
+
+          if (collegeData) {
+            console.log('✅ Found college data:', collegeData);
+            
+            // ⚡ Speed Optimization: Cache the result for future requests
+            cacheManager.set(cacheKey, collegeData);
+            
+            // ⚡ Speed Optimization: Batch DOM updates
+            populateProfileData(collegeData);
+            
+            performanceMonitor.endTimer('Load College Data');
+          } else {
+            console.log('❌ No college found for admin_id:', adminId);
+            console.log('Available admin_ids:', data.colleges.map(c => c.admin_id));
+            performanceMonitor.endTimer('Load College Data');
+          }
+        } else {
+          console.log('❌ No colleges found in API response');
+          performanceMonitor.endTimer('Load College Data');
+        }
+
+      } catch (error) {
+        console.error('❌ Error loading college data:', error);
+        performanceMonitor.endTimer('Load College Data');
+        
+        // ⚡ Speed Optimization: Show error state in UI
+        showErrorState();
+      }
+    }
+
+    // ⚡ Speed Optimization: Error state display
+    function showErrorState() {
+      document.getElementById('institutionName').textContent = 'Error loading data';
+      document.getElementById('institutionId').innerHTML = '<i class="fa-solid fa-id-badge"></i> Error';
+      document.getElementById('institutionType').innerHTML = '<i class="fa-solid fa-school"></i> Error';
+      document.getElementById('websiteLink').innerHTML = '<i class="fa-solid fa-globe"></i> Error';
+    }
+
+    // ⚡ Speed Optimization: Batch DOM Updates for Profile Data
+    function populateProfileData(collegeData) {
+      try {
+        performanceMonitor.startTimer('Populate Profile Data');
+        
+        // ⚡ Speed Optimization: Pre-compute all values to avoid repeated calculations
+        const precomputedData = {
+          institutionName: collegeData.institution_name || 'Institution',
+          institutionId: collegeData.institution_id || 'N/A',
+          institutionType: collegeData.institution_type || 'Institution',
+          websiteUrl: collegeData.website_url || '#',
+          urlText: (collegeData.website_url || '').replace(/^https?:\/\//, ''),
+          imageUrl: collegeData.institution_image?.url || null,
+          purchaseDate: collegeData.purchase_date ? new Date(collegeData.purchase_date).toISOString().split('T')[0] : '',
+          expiryDate: collegeData.expiry_date ? new Date(collegeData.expiry_date).toISOString().split('T')[0] : '',
+          paidDate: collegeData.paid_date?.date || ''
+        };
+
+        // Truncate URL text if too long
+        if (precomputedData.urlText.length > 35) {
+          precomputedData.urlText = precomputedData.urlText.slice(0, 34) + '...';
+        }
+
+        // ⚡ Speed Optimization: Batch DOM updates using document fragment
+        const updates = [
+          // Profile header updates
+          () => document.getElementById('institutionName').textContent = precomputedData.institutionName,
+          () => document.getElementById('institutionId').innerHTML = `<i class="fa-solid fa-id-badge"></i> ${precomputedData.institutionId}`,
+          () => document.getElementById('institutionType').innerHTML = `<i class="fa-solid fa-school"></i> ${precomputedData.institutionType}`,
+          () => {
+            const websiteLink = document.getElementById('websiteLink');
+            websiteLink.href = precomputedData.websiteUrl;
+            websiteLink.innerHTML = `<i class="fa-solid fa-globe"></i> ${precomputedData.urlText}`;
+          },
+
+          // Form field updates
+          () => document.getElementById('inputInstitutionName').value = collegeData.institution_name || '',
+          () => document.getElementById('inputInstitutionId').value = collegeData.institution_id || '',
+          () => document.getElementById('inputInstitutionType').value = collegeData.institution_type || 'College',
+          () => document.getElementById('inputAddress').value = collegeData.address_line || '',
+          () => document.getElementById('inputCity').value = collegeData.town_city || '',
+          () => document.getElementById('inputState').value = collegeData.state || '',
+          () => document.getElementById('inputCountry').value = collegeData.country || '',
+          () => document.getElementById('inputPincode').value = collegeData.pincode || '',
+          () => document.getElementById('inputWebsite').value = collegeData.website_url || '',
+          () => document.getElementById('inputHead').value = collegeData.head_name || '',
+          () => document.getElementById('inputDesignation').value = collegeData.designation || '',
+          () => document.getElementById('inputContact1').value = collegeData.contact1 || '',
+          () => document.getElementById('inputContact2').value = collegeData.contact2 || '',
+          () => document.getElementById('inputEmail').value = collegeData.email || '',
+
+          // Subscription details
+          () => document.getElementById('inputSubscription').value = collegeData.subscription_plan || 'Annual',
+          () => document.getElementById('inputStudentLimit').value = collegeData.student_limit || '',
+          () => document.getElementById('inputPurchaseDate').value = precomputedData.purchaseDate,
+          () => document.getElementById('inputExpiryDate').value = precomputedData.expiryDate,
+          () => {
+            document.getElementById('inputLastPaidDate').value = precomputedData.paidDate;
+            document.getElementById('inputPaidDate').value = precomputedData.paidDate;
+          },
+          () => document.getElementById('inputTotalAmount').value = collegeData.total_amount || '',
+          () => document.getElementById('inputPaidAmount').value = collegeData.paid_amount || '',
+          () => document.getElementById('inputDueAmount').value = collegeData.balance || ''
+        ];
+
+        // ⚡ Speed Optimization: Execute all updates in batch
+        updates.forEach(update => {
+          try {
+            update();
+          } catch (e) {
+            console.warn('DOM update failed:', e);
+          }
+        });
+
+        // ⚡ Speed Optimization: Handle image update separately for better performance
+        if (precomputedData.imageUrl) {
+          const profileImg = document.getElementById('profileImg');
+          const popupPhotoImg = document.getElementById('popupPhotoImg');
+          const imagePlaceholder = document.getElementById('imagePlaceholder');
+          
+          if (profileImg && popupPhotoImg) {
+            profileImg.src = precomputedData.imageUrl;
+            popupPhotoImg.src = precomputedData.imageUrl;
+            profileImg.style.display = 'block';
+            if (imagePlaceholder) imagePlaceholder.style.display = 'none';
+            console.log('🖼️ Updated institution image:', precomputedData.imageUrl);
+          }
+        }
+
+        // Update status badges
+        updateStatusBadges(collegeData);
+
+        performanceMonitor.endTimer('Populate Profile Data');
+        console.log('✅ Profile data populated successfully');
+
+      } catch (error) {
+        console.error('❌ Error populating profile data:', error);
+        performanceMonitor.endTimer('Populate Profile Data');
+      }
+    }
+
+    // Function to update status badges based on subscription data
+    function updateStatusBadges(collegeData) {
+      const statusAnnual = document.getElementById('statusAnnual');
+      if (statusAnnual) {
+        statusAnnual.textContent = collegeData.subscription_plan || 'Annual';
+        statusAnnual.className = 'status-badge';
+        
+        // Add appropriate status class
+        const plan = (collegeData.subscription_plan || '').toLowerCase();
+        if (plan.includes('annual') || plan.includes('annua')) {
+          statusAnnual.classList.add('status-annual');
+        } else if (plan.includes('3')) {
+          statusAnnual.classList.add('status-3m');
+        } else if (plan.includes('6')) {
+          statusAnnual.classList.add('status-6m');
+        } else {
+          statusAnnual.classList.add('status-annual');
+        }
+      }
+
+      // Update active status based on expiry date
+      const activeBadge = document.querySelector('.status-active');
+      if (activeBadge && collegeData.expiry_date) {
+        const expiryDate = new Date(collegeData.expiry_date);
+        const today = new Date();
+        
+        if (expiryDate > today) {
+          activeBadge.textContent = 'Active';
+          activeBadge.className = 'status-badge status-active';
+        } else {
+          activeBadge.textContent = 'Expired';
+          activeBadge.className = 'status-badge status-expired';
+        }
+      }
+    }
+
+    profilePhoto.onclick = function() {
+      popupPhotoImg.src = profileImg.src;
+      photoPopupBg.style.display = "flex";
+    };
+    closePhotoBtn.onclick = function() {
+      photoPopupBg.style.display = "none";
+    };
+    photoPopupBg.onclick = function(e) {
+      if(e.target === photoPopupBg) photoPopupBg.style.display = "none";
+    };
+
+    changePhotoBtn.onclick = function() {
+      profileImgInput.click();
+    };
+
+    savePhotoBtn.onclick = async function() {
+      if (!selectedImageFile) {
+        popupManager.show('No Image Selected', 'Please select an image to save.', 'error');
+        return;
+      }
+
+      // Show loading state
+      const originalText = this.innerHTML;
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      try {
+        const adminId = getCurrentAdminId();
+        if (!adminId) {
+          throw new Error('Admin ID not found in session');
+        }
+
+        // Convert file to base64
+        const base64Image = await convertFileToBase64(selectedImageFile);
+
+        // Prepare update data with only the image
+        const updateData = {
+          admin_id: adminId,
+          institutionImage: base64Image
+        };
+
+        console.log('🖼️ Saving new profile image...');
+
+        // Send PUT request to update only the image
+        const response = await fetch(COLLEGE_API, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        const result = await response.json();
+        console.log('📊 Image save response:', result);
+
+        if (response.ok && result.success) {
+          // Hide save button
+          savePhotoBtn.style.display = 'none';
+          selectedImageFile = null;
+          
+          // ⚡ Speed Optimization: Clear cache after image update
+          const adminId = getCurrentAdminId();
+          if (adminId) {
+            cacheManager.clear(); // Clear all cache to ensure fresh data
+            console.log('🧹 Cache cleared after image update');
+          }
+          
+          // Show success message
+          popupManager.show('Success', 'Profile image updated successfully!', 'success');
+          console.log('✅ Profile image saved successfully');
+
+        } else {
+          throw new Error(result.message || 'Image save failed');
+        }
+
+      } catch (error) {
+        console.error('❌ Error saving profile image:', error);
+        popupManager.show('Save Failed', `Failed to save image: ${error.message}`, 'error');
+      } finally {
+        // Reset button state
+        this.disabled = false;
+        this.innerHTML = originalText;
+      }
+    };
+    profileImgInput.onchange = function(e) {
+      if(e.target.files && e.target.files[0]) {
+        selectedImageFile = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          profileImg.src = ev.target.result;
+          popupPhotoImg.src = ev.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+        
+        // Show save button when image is selected
+        savePhotoBtn.style.display = 'block';
+        console.log('📸 New image selected, save button shown');
+      }
+    };
+
+    document.querySelector('.back-btn').onclick = function() {
+      window.location.href = './admindashboard.html';
+    };
+    document.querySelector('.logout-btn').onclick = function() {
+      window.location.href = './login.html';
+    };
+
+    const formEditableFields = [
+      'inputInstitutionName', 'inputAddress', 'inputCity', 'inputState', 'inputCountry',
+      'inputPincode', 'inputWebsite', 'inputHead', 'inputDesignation', 'inputContact1', 'inputContact2'
+    ];
+
+    let beforeEditState = {};
+    function setEditable(editable) {
+      formEditableFields.forEach(id => {
+        document.getElementById(id).disabled = !editable;
+      });
+    }
+    document.querySelector('.update-btn').onclick = function() {
+      beforeEditState = {};
+      formEditableFields.forEach(id=>{
+        beforeEditState[id] = document.getElementById(id).value;
+      });
+      setEditable(true);
+      document.getElementById('editActionRow').style.display = "flex";
+      this.style.display = "none";
+    };
+    document.getElementById('cancelBtn').onclick = function() {
+      formEditableFields.forEach(id=>{
+        document.getElementById(id).value = beforeEditState[id];
+      });
+      setEditable(false);
+      document.getElementById('editActionRow').style.display = "none";
+      document.querySelector('.update-btn').style.display = "";
+    };
+    document.getElementById('saveBtn').onclick = async function(e) {
+      e.preventDefault();
+      
+      let valid = true;
+      formEditableFields.forEach(id=>{
+        if(document.getElementById(id).hasAttribute('required') && !document.getElementById(id).value.trim()) valid = false;
+      });
+      if(!valid) {
+        popupManager.show('Validation Error', 'Please fill all required fields.', 'error');
+        return;
+      }
+
+      // Show loading state
+      const saveBtn = this;
+      const originalText = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Updating...';
+
+      try {
+        const adminId = getCurrentAdminId();
+        if (!adminId) {
+          throw new Error('Admin ID not found in session');
+        }
+
+        // Prepare update data
+        const updateData = {
+          admin_id: adminId,
+          institutionName: document.getElementById('inputInstitutionName').value,
+          institutionId: document.getElementById('inputInstitutionId').value,
+          institutionType: document.getElementById('inputInstitutionType').value,
+          websiteUrl: document.getElementById('inputWebsite').value,
+          headName: document.getElementById('inputHead').value,
+          designation: document.getElementById('inputDesignation').value,
+          address: document.getElementById('inputAddress').value,
+          city: document.getElementById('inputCity').value,
+          state: document.getElementById('inputState').value,
+          country: document.getElementById('inputCountry').value,
+          pincode: document.getElementById('inputPincode').value,
+          contact1: document.getElementById('inputContact1').value,
+          contact2: document.getElementById('inputContact2').value,
+          email: document.getElementById('inputEmail').value
+        };
+
+        // Note: Image updates are handled separately by the save image button
+
+        console.log('🔄 Updating college data:', updateData);
+
+        // Send PUT request to update college
+        const response = await fetch(COLLEGE_API, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        const result = await response.json();
+        console.log('📊 Update response:', result);
+
+        if (response.ok && result.success) {
+          // Update UI elements
+          document.getElementById('institutionName').textContent = updateData.institutionName;
+          document.getElementById('institutionId').innerHTML = `<i class="fa-solid fa-id-badge"></i> ${updateData.institutionId}`;
+          document.getElementById('institutionType').innerHTML = `<i class="fa-solid fa-school"></i> ${updateData.institutionType}`;
+          
+          // Update website link
+          document.getElementById('websiteLink').href = updateData.websiteUrl;
+          let urlText = updateData.websiteUrl.replace(/^https?:\/\//, '');
+          if (urlText.length > 35) urlText = urlText.slice(0, 34) + '...';
+          document.getElementById('websiteLink').innerHTML = `<i class="fa-solid fa-globe"></i> ${urlText}`;
+
+          // Note: Profile image updates are handled separately
+
+          // Reset form state
+          setEditable(false);
+          document.getElementById('editActionRow').style.display = "none";
+          document.querySelector('.update-btn').style.display = "";
+
+          // ⚡ Speed Optimization: Clear cache after successful update
+          const adminId = getCurrentAdminId();
+          if (adminId) {
+            cacheManager.clear(); // Clear all cache to ensure fresh data
+            console.log('🧹 Cache cleared after profile update');
+          }
+
+          // Show success message
+          popupManager.show('Success', 'Profile updated successfully!', 'success');
+          console.log('✅ Profile update completed successfully');
+
+        } else {
+          throw new Error(result.message || 'Update failed');
+        }
+
+      } catch (error) {
+        console.error('❌ Error updating profile:', error);
+        popupManager.show('Update Failed', `Failed to update profile: ${error.message}`, 'error');
+      } finally {
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
+    };
+
+    // Helper function to convert file to base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    setEditable(false);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              popupManager.show('Access Denied', `This module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`, 'error');
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+
+            // Load real college data from API
+            loadRealCollegeData();
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

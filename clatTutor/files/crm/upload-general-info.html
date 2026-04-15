@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM - General Info Upload Sample</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+    .card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    .hint {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid .full {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="file"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #cfd8e3;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fff;
+    }
+    button {
+      margin-top: 14px;
+      background: #0b63f6;
+      color: #fff;
+      border: none;
+      padding: 11px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    pre {
+      margin-top: 14px;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .success {
+      color: #0a7a39;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+    .error {
+      color: #b42318;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+  </style>
+  <script src="../js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body>
+  <div class="card">
+    <h1>General Info + S3 Image Upload (Sample)</h1>
+    <p class="hint">
+      Flow: choose file -> upload to S3 -> save only S3 key in `general_info.img_url`.
+    </p>
+
+    <form id="uploadForm">
+      <div class="grid">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" type="text" required placeholder="Ravi Kumar">
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" required placeholder="ravi@example.com">
+        </div>
+        <div>
+          <label for="phone">Phone</label>
+          <input id="phone" type="number" required placeholder="9876543210">
+        </div>
+        <div class="full">
+          <label for="fileInput">Choose image/document/pdf</label>
+          <input id="fileInput" type="file" required>
+        </div>
+      </div>
+      <button id="submitBtn" type="submit">Upload and Save</button>
+    </form>
+
+    <div id="message"></div>
+    <pre id="resultBox" hidden></pre>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const message = document.getElementById('message');
+    const resultBox = document.getElementById('resultBox');
+    const API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/general_info';
+
+    const setMessage = (text, isError) => {
+      message.textContent = text;
+      message.className = isError ? 'error' : 'success';
+    };
+
+    const showResult = (obj) => {
+      resultBox.hidden = false;
+      resultBox.textContent = JSON.stringify(obj, null, 2);
+    };
+
+    const toSafeFileName = (name) => name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      resultBox.hidden = true;
+      resultBox.textContent = '';
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const file = document.getElementById('fileInput').files[0];
+
+      if (!name || !email || !phone || !file) {
+        setMessage('Please fill all required fields and select a file.', true);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+
+      try {
+        const now = Date.now();
+        const fileName = `student-images/${now}-${toSafeFileName(file.name)}`;
+        const fileType = file.type || 'application/octet-stream';
+
+        const signedRes = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'get_upload_url',
+            fileName,
+            fileType
+          })
+        });
+
+        const signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to get signed upload URL');
+        }
+
+        const putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file
+        });
+        if (!putRes.ok) {
+          throw new Error(`S3 upload failed with status ${putRes.status}`);
+        }
+
+        const saveRes = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            phone: Number(phone),
+            img_url: signedData.key || fileName
+          })
+        });
+        const saveData = await saveRes.json();
+        if (!saveRes.ok) {
+          throw new Error(saveData.message || 'Failed to save general info');
+        }
+
+        setMessage('Success: file uploaded to S3 and record saved in database.', false);
+        showResult({
+          signedUrlResponse: signedData,
+          dbResponse: saveData
+        });
+      } catch (err) {
+        setMessage(`Error: ${err.message}`, true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Upload and Save';
+      }
+    });
+  </script>
+</body>
+</html>

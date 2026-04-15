@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Educational Games Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+      --orange: #f97316;
+      --pink: #ec4899;
+      --cyan: #06b6d4;
+      --lime: #84cc16;
+      --drawer-bg: rgba(0, 0, 0, 0.8);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw; }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; padding: 10px 6px; transition: transform 0.2s; }
+    .sidebar .brand img { width: 100%; height: 50px; border-radius: 3px; border: 1.5px solid #fff; background: #fff; object-fit: contain; box-shadow: 0 2px 5px #26bf6720; transition: transform 0.2s, box-shadow 0.2s; }
+    .sidebar .brand:hover img { transform: scale(1.05); box-shadow: 0 4px 12px #26bf6740; }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a { color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center; padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s; font-weight: 500; gap: 13px; position: relative; overflow: hidden; }
+    .sidebar ul li a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar ul li a:hover::before { width: 100%; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;}
+    .sidebar .logout a { color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s; position: relative; overflow: hidden; }
+    .sidebar .logout a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar .logout a:hover::before { width: 100%; }
+    .sidebar .logout a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .main-content { margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh; background: transparent; display: flex; flex-direction: column; position: relative; padding: 0; transition: margin-left 0.28s; z-index: 1; }
+    .top-bar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(26, 26, 26, 0.9); backdrop-filter: blur(10px); border-bottom: 1.3px solid var(--border); padding: 10px 32px 10px 32px; font-size: 1.32rem; font-weight: 700; letter-spacing: 0.01em; color: var(--accent); position: relative; z-index: 2; }
+    .top-bar .fa-gamepad { font-size: 2.1rem; color: var(--accent);}
+    .sidebar-hamburger { display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff; color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010; cursor: pointer; transition: background 0.18s, color 0.18s;}
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3;}
+    .sidebar-hamburger .fa-times { display: none;}
+    .sidebar-hamburger.menu-open .fa-bars { display: none;}
+    .sidebar-hamburger.menu-open .fa-times { display: inline;}
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block;}
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: auto;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Games Hub Styles */
+    .games-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .games-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .games-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+    }
+
+    .games-subtitle {
+      font-size: 1.1rem;
+      color: var(--subtle);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .game-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--purple), var(--blue));
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .game-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent);
+    }
+
+    .game-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-icon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border-radius: 20px;
+    }
+
+    .game-icon.treasure-hunt {
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+      color: #1a1a1a;
+    }
+
+    .game-icon.timeline {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: white;
+    }
+
+    .game-icon.quiz-ladder {
+      background: linear-gradient(135deg, var(--green), var(--lime));
+      color: white;
+    }
+
+    .game-icon.case-detective {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+    }
+
+    .game-icon.wisdom-spin {
+      background: linear-gradient(135deg, var(--accent), var(--warning));
+      color: #1a1a1a;
+    }
+
+    .game-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 12px;
+    }
+
+    .game-description {
+      color: var(--subtle);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .game-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .game-feature {
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .play-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .play-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--subtle);
+      font-size: 0.85rem;
+    }
+
+    .stat i {
+      color: var(--accent);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .games-container {
+        padding: 20px;
+      }
+      .games-title {
+        font-size: 2rem;
+      }
+      .games-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .game-card {
+        padding: 25px;
+      }
+      .game-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .games-container {
+        padding: 15px;
+      }
+      .games-title {
+        font-size: 1.8rem;
+      }
+      .game-card {
+        padding: 20px;
+      }
+      .game-title {
+        font-size: 1.3rem;
+      }
+      .play-button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html" class="active"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+         <img src="./assets/games.png" alt="Educational Games Hub" style="width: 24px; height: 24px;">
+         Educational Games Hub
+        <button class="theme-toggle" id="themeToggle">
+          ☀️
+        </button>
+      </div>
+
+      <div class="games-container">
+        <div class="games-header">
+          <h1 class="games-title">🎮 Educational Games Hub</h1>
+          <p class="games-subtitle">Transform learning into an exciting adventure with our collection of educational games designed to make studying fun and engaging!</p>
+        </div>
+
+        <div class="games-grid">
+          <!-- Subject Treasure Hunt -->
+          <div class="game-card" onclick="launchGame('treasure-hunt')">
+            <div class="game-icon treasure-hunt">
+              🗺️
+            </div>
+            <h3 class="game-title">Subject Treasure Hunt</h3>
+            <p class="game-description">Embark on a gamified learning quest! Each subject becomes a map with locked sections. Solve concept-based questions to unlock new areas and discover hidden treasures.</p>
+            <div class="game-features">
+              <span class="game-feature">🎯 Gamified Learning</span>
+              <span class="game-feature">🏆 Badges & Certificates</span>
+              <span class="game-feature">📚 All Subjects</span>
+            </div>
+            <button class="play-button">
+              Start Adventure
+            </button>
+            <div class="game-stats">
+              <div class="stat">
+                👥
+                <span>1.2k players</span>
+              </div>
+              <div class="stat">
+                ⭐
+                <span>4.8/5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fix the Timeline -->
+          <div class="game-card" onclick="launchGame('timeline')">
+            <div class="game-icon timeline">
+              ⏰
+            </div>
+            <h3 class="game-title">Fix the Timeline</h3>
+            <p class="game-description">Drag and drop puzzle game! Arrange historical events, scientific processes, and literary timelines in the correct chronological order. Perfect for History, Science, and Literature.</p>
+            <div class="game-features">
+              <span class="game-feature">🧩 Drag & Drop</span>
+              <span class="game-feature">⏰ Chronological Order</span>
+              <span class="game-feature">📖 Multiple Subjects</span>
+            </div>
+            <button class="play-button">
+              Fix Timeline
+            </button>
+            <div class="game-stats">
+              <div class="stat">
+                👥
+                <span>856 players</span>
+              </div>
+              <div class="stat">
+                ⭐
+                <span>4.6/5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quiz Ladder Challenge -->
+          <div class="game-card" onclick="launchGame('quiz-ladder')">
+            <div class="game-icon quiz-ladder">
+              🪜
+            </div>
+            <h3 class="game-title">Quiz Ladder Challenge</h3>
+            <p class="game-description">Climb the knowledge ladder! Answer 10 progressively harder questions. Get 3 wrong and you fall off! Perfect for general knowledge and aptitude testing.</p>
+            <div class="game-features">
+              <span class="game-feature">🪜 10 Steps</span>
+              <span class="game-feature">📈 Progressive Difficulty</span>
+              <span class="game-feature">🏆 Competition Ready</span>
+            </div>
+            <button class="play-button">
+              Climb Ladder
+            </button>
+            <div class="game-stats">
+              <div class="stat">
+                👥
+                <span>2.1k players</span>
+              </div>
+              <div class="stat">
+                ⭐
+                <span>4.9/5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Case Detective -->
+          <div class="game-card" onclick="launchGame('case-detective')">
+            <div class="game-icon case-detective">
+              🔍
+            </div>
+            <h3 class="game-title">Case Detective</h3>
+            <p class="game-description">Solve mysterious cases through logical reasoning! Analyze clues, make inferences, and use your observation skills to crack the case. Great for critical thinking!</p>
+            <div class="game-features">
+              <span class="game-feature">🔍 Mystery Solving</span>
+              <span class="game-feature">🧠 Logical Reasoning</span>
+              <span class="game-feature">📊 Data Analysis</span>
+            </div>
+            <button class="play-button">
+              Solve Cases
+            </button>
+            <div class="game-stats">
+              <div class="stat">
+                👥
+                <span>1.5k players</span>
+              </div>
+              <div class="stat">
+                ⭐
+                <span>4.7/5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Wisdom Spin -->
+          <div class="game-card" onclick="launchGame('wisdom-spin')">
+            <div class="game-icon wisdom-spin">
+              🎯
+            </div>
+            <h3 class="game-title">Daily Wisdom Spin</h3>
+            <p class="game-description">Spin the wheel of wisdom once daily! Get motivational quotes, mini challenges, shortcut tips, or fun facts. Perfect for quick 5-minute learning breaks.</p>
+            <div class="game-features">
+              <span class="game-feature">🎡 Daily Spin</span>
+              <span class="game-feature">💡 Quick Tips</span>
+              <span class="game-feature">⭐ Wisdom Points</span>
+            </div>
+            <button class="play-button">
+              Spin Today
+            </button>
+            <div class="game-stats">
+              <div class="stat">
+                👥
+                <span>3.2k players</span>
+              </div>
+              <div class="stat">
+                ⭐
+                <span>4.9/5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = true;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#0f0f0f');
+        document.documentElement.style.setProperty('--card', '#1a1a1a');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        themeIcon.textContent = '☀️';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8fafc');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8fafc');
+        themeIcon.textContent = '🌙';
+      }
+    });
+
+    // Game launch functionality
+    function launchGame(gameType) {
+      const gamePages = {
+        'treasure-hunt': './treasure-hunt.html',
+        'timeline': './timeline.html',
+        'quiz-ladder': './quiz-ladder.html',
+        'case-detective': './case-detective.html',
+        'wisdom-spin': './wisdom-spin.html'
+      };
+      
+      const gamePage = gamePages[gameType];
+      if (gamePage) {
+        window.location.href = gamePage;
+      }
+    }
+
+    // Add hover effects and animations
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-8px) scale(1.02)';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

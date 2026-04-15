@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>BC360</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="./announcement.css">
+</head>
+<style>
+  :root {
+  --primary-color: #3A1C71;
+  --secondary-color: #D76D77;
+  --accent-color: #FFAF7B;
+  --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+  --card-bg: #ffffff;
+  --bg-color: #f0f2f7;
+  --text-color: #333;
+  --transition-speed: 0.3s;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+  overflow-y: hidden;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.layout-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 1001;
+  padding: 5px 10px;
+  background: transparent;
+}
+.sidebar-open .top-bar { z-index: 500; }
+.responsive-select {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  background-color: transparent;
+  color: #333;
+}
+@media (max-width: 991px) {
+  .responsive-select { padding: 4px; font-size: 0.8rem; }
+}
+@media (max-width: 480px) {
+  .responsive-select { padding: 3px; font-size: 0.75rem; }
+}
+#menuToggle {
+  display: block;
+  font-size: 1.8rem;
+  color: #555;
+  background-color: rgba(0,0,0,0.1);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  border: none;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  position: relative;
+  z-index: 1101;
+}
+#menuToggle:hover { background-color: rgba(0,0,0,0.3); }
+#menuToggle .fa-times { display: none; }
+#menuToggle.open .fa-bars { display: none; }
+#menuToggle.open .fa-times { display: inline; }
+@media (min-width: 992px) {
+  #menuToggle { display: none; }
+}
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: var(--sidebar-gradient);
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: left var(--transition-speed) ease;
+  height: 100vh;
+  position: relative;
+  z-index: 1000;
+  min-width: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Custom scrollbar for main content */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+@media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 1200;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    transition: left var(--transition-speed);
+  }
+  .sidebar.open {
+    left: 0;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.11);
+  }
+  
+  .main-content {
+    margin-left: 0;
+    height: calc(100vh - 70px);
+    padding: 10px;
+  }
+}
+/* Overlay for sidebar in small/medium screens */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30,30,40,0.22);
+  z-index: 1100;
+  transition: opacity 0.2s;
+}
+.sidebar-overlay.active { display: block; }
+.sidebar .top { flex-shrink: 0; }
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+.sidebar .brand:hover {
+  transform: translateX(5px);
+}
+.sidebar .brand i {
+  font-size: 1.2rem;
+  margin-right: 8px;
+  color: #fff;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.sidebar .brand:hover i {
+  transform: scale(1.1);
+  color: #fff;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar ul li { margin: 20px 0; }
+.sidebar ul li a {
+  color: #fff;
+  font-size: 1rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 4px;
+  transition: all 0.22s ease;
+  background: none;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar ul li a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  transition: width 0.3s ease;
+}
+.sidebar ul li a:hover::before {
+  width: 100%;
+}
+.sidebar ul li a.active { 
+  background: rgba(255,255,255,0.15); 
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.sidebar ul li a:not(.active):hover { 
+  background: rgba(255,255,255,0.15); 
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.sidebar ul li a i {
+  margin-right: 10px;
+  font-size: 1.3rem;
+  width: 25px;
+  text-align: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.sidebar ul li a:hover i {
+  transform: scale(1.1);
+  color: #fff;
+}
+/* PNG Icon Styling for Sidebar */
+.sidebar ul li a img.sidebar-icon {
+  margin-right: 10px;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+.sidebar ul li a:hover img.sidebar-icon {
+  transform: scale(1.1);
+}
+.sidebar .brand img.sidebar-icon {
+  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.sidebar ul li:last-child { margin-top: 10px; }
+.sidebar ul li a .fa-trophy { color: #FFD700; }
+.sidebar .logout {
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 20px;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+.sidebar .logout a {
+  color: #fff;
+  font-size: 1rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  transition: all 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar .logout a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  transition: width 0.3s ease;
+}
+.sidebar .logout a:hover::before {
+  width: 100%;
+}
+.sidebar .logout a:hover { 
+  background: rgba(255,255,255,0.15); 
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.sidebar .logout a i {
+  transition: transform 0.2s ease;
+}
+.sidebar .logout a:hover i {
+  transform: scale(1.1);
+}
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  padding: 10px 10px 20px 0px !important;
+  margin-top: 50px;
+  margin-left: 40px !important;
+  transition: margin-left var(--transition-speed) ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: calc(100vh - 50px);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
+}
+.no-announcement {
+  background: var(--card-bg);
+  padding: 40px 32px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  font-size: 2rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  text-align: center;
+  min-width: 300px;
+}
+@media (max-width: 600px) {
+  .no-announcement {
+    font-size: 1.2rem;
+    padding: 30px 10px;
+    min-width: 180px;
+  }
+  .main-content { padding: 10px; }
+}
+@media (max-width: 991px) {
+  .sidebar.open ~ .top-bar .responsive-select {
+    z-index: 1 !important;
+    position: relative !important;
+  }
+}
+
+/* PAGE TITLE */
+.page-title {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+.page-title h1 {
+  color: var(--primary-color);
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-title h1 i {
+  color: var(--secondary-color);
+}
+.page-title p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* LOADING STATE */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+.loading-spinner {
+  text-align: center;
+  color: var(--primary-color);
+}
+.loading-spinner i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+.loading-spinner p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* ANNOUNCEMENTS GRID */
+.announcements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin-top: 0;
+}
+
+/* ANNOUNCEMENT CARD (A4 Sheet Format) */
+.announcement-card {
+  background: #fff;
+  border: 4px solid #3498db;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 15px;
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  overflow: hidden;
+}
+
+.announcement-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Template-specific watermarks */
+.announcement-card::before {
+  content: attr(data-watermark);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  color: #3498db;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+/* Template-specific top icons */
+.card-top-icon {
+  position: absolute;
+  font-size: 28px;
+  color: #d35400;
+  opacity: 0.8;
+  z-index: 1;
+}
+.card-top-left-icon {
+  top: 15px;
+  left: 15px;
+}
+.card-top-right-icon {
+  top: 15px;
+  right: 15px;
+}
+
+/* Card Header */
+.card-header {
+  text-align: center;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-header img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 10px;
+  border-radius: 4px;
+}
+
+.card-header h1 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.card-header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Card Title */
+.card-title {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.card-title h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #0056b3;
+  font-weight: 600;
+}
+
+/* Card Content */
+.card-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.card-content p {
+  text-align: justify;
+  color: #555;
+  line-height: 1.5;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* Card Footer */
+.card-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.card-signatures {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+}
+
+.card-signature {
+  text-align: center;
+  font-size: 12px;
+}
+
+.card-signature img {
+  width: 80px;
+  height: 40px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.card-signature .line {
+  border-top: 1px solid #333;
+  padding-top: 3px;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.card-signature p {
+  margin: 0;
+  font-size: 10px;
+}
+
+/* View Full Button */
+.view-full-btn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-full-btn:hover {
+  background: var(--accent-color);
+  transform: scale(1.05);
+}
+
+/* FULL VIEW MODAL */
+.full-view-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.full-view-content {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  position: relative;
+  animation: slideIn 0.3s ease;
+  margin: 20px 0;
+}
+
+.full-view-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-button {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+.full-view-body {
+  padding: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-title {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+  
+  .page-title h1 {
+    font-size: 1.5rem;
+  }
+  
+  .page-title p {
+    font-size: 0.9rem;
+  }
+  
+  .announcements-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 100%;
+  }
+  
+  .announcement-card {
+    min-height: 400px;
+    padding: 15px;
+  }
+  
+  .card-header h1 {
+    font-size: 18px;
+  }
+  
+  .card-title h2 {
+    font-size: 20px;
+  }
+  
+  .card-content p {
+    font-size: 13px;
+  }
+  
+  .card-signatures {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .full-view-modal {
+    padding: 10px;
+    align-items: flex-start;
+  }
+  
+  .full-view-content {
+    margin: 10px 0;
+    max-height: calc(100vh - 20px);
+    border-radius: 8px;
+  }
+  
+  .full-view-header {
+    padding: 12px 15px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .back-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .full-view-body {
+    padding: 15px;
+  }
+  
+  .full-view-announcement {
+    padding: 15px !important;
+  }
+  
+  .full-view-announcement h1 {
+    font-size: 20px !important;
+  }
+  
+  .full-view-announcement h2 {
+    font-size: 22px !important;
+  }
+  
+  .full-view-announcement img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .full-view-announcement .fas {
+    font-size: 28px !important;
+  }
+  
+  .full-view-announcement div[style*="font-size: 100px"] {
+    font-size: 60px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .announcements-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .main-content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .announcements-grid {
+    gap: 10px;
+  }
+  
+  .announcement-card {
+    padding: 10px;
+    min-height: 350px;
+  }
+  
+  .card-header h1 {
+    font-size: 16px;
+  }
+  
+  .card-title h2 {
+    font-size: 18px;
+  }
+  
+  .view-full-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .main-content {
+    padding: 8px;
+  }
+  
+  .full-view-modal {
+    padding: 5px;
+  }
+  
+  .full-view-content {
+    margin: 5px 0;
+    max-height: calc(100vh - 10px);
+    border-radius: 6px;
+  }
+  
+  .full-view-header {
+    padding: 10px 12px;
+    border-radius: 6px 6px 0 0;
+  }
+  
+  .back-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .full-view-body {
+    padding: 12px;
+  }
+  
+  .full-view-announcement {
+    padding: 12px !important;
+  }
+  
+  .full-view-announcement h1 {
+    font-size: 18px !important;
+  }
+  
+  .full-view-announcement h2 {
+    font-size: 20px !important;
+  }
+  
+  .full-view-announcement img {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  
+  .full-view-announcement .fas {
+    font-size: 24px !important;
+  }
+  
+  .full-view-announcement div[style*="font-size: 100px"] {
+    font-size: 50px !important;
+  }
+  
+  .full-view-announcement div[style*="display: flex"] {
+    flex-direction: column !important;
+  }
+  
+  .full-view-announcement div[style*="width: 48%"] {
+    width: 100% !important;
+    margin-bottom: 15px !important;
+  }
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+</style>
+<body>
+  <div class="layout-container">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <i class="fas fa-bars" id="menuToggle"></i>
+    </div>
+
+  <!-- SIDEBAR (same as teacher code, no change to links) -->
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        <span>Admin Panel</span>
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html" class="active"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon">Publish Achievements</a></li>
+        <li><a href="./internship.html"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT: Dynamic Announcement Display -->
+  <div class="main-content">
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1><i class="fas fa-bullhorn"></i> All Announcements</h1>
+      <p>View and manage your institution's announcements</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-container">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading announcements...</p>
+      </div>
+    </div>
+
+    <!-- Announcements Grid -->
+    <div id="announcementsGrid" class="announcements-grid" style="display: none;">
+      <!-- Dynamic announcements will be inserted here -->
+    </div>
+
+    <!-- No Announcements State -->
+    <div id="noAnnouncementsState" class="no-announcement" style="display: none;">
+      No Announcement Published Yet
+    </div>
+  </div>
+
+  <!-- Full View Modal -->
+  <div id="fullViewModal" class="full-view-modal" style="display: none;">
+    <div class="full-view-content">
+      <div class="full-view-header">
+        <button id="backButton" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back to List
+        </button>
+      </div>
+      <div id="fullViewBody" class="full-view-body">
+        <!-- Full announcement content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // API Configuration
+    const ANNOUNCEMENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/announcement';
+    
+    // Function to get current admin ID from user session
+    function getCurrentAdminId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && (userData.admin_id || (userData.user && userData.user.admin_id))) {
+          return userData.admin_id || userData.user?.admin_id;
+        }
+      }
+      return null;
+    }
+
+    // Get institution name from session
+    function getInstitutionName() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && userData.institution_name) {
+          return userData.institution_name;
+        }
+        if (userData && userData.user && userData.user.institution_name) {
+          return userData.user.institution_name;
+        }
+      }
+      return 'Institution';
+    }
+
+    // Template configuration mapping
+    const TEMPLATE_CONFIG = {
+      'cultural': {
+        watermark: 'BC360',
+        leftIcon: 'fas fa-person-dancing',
+        rightIcon: 'fas fa-theater-masks',
+        bgColor: '#3498db'
+      },
+      'exam': {
+        watermark: 'EXAM',
+        leftIcon: 'fas fa-book',
+        rightIcon: 'fas fa-pencil-alt',
+        bgColor: '#3498db'
+      },
+      'college/school fest': {
+        watermark: 'FESTIVAL',
+        leftIcon: 'fas fa-music',
+        rightIcon: 'fas fa-theater-masks',
+        bgColor: '#3498db'
+      },
+      'general': {
+        watermark: 'ANNOUNCEMENT',
+        leftIcon: 'fas fa-info-circle',
+        rightIcon: 'fas fa-bullhorn',
+        bgColor: '#3498db'
+      },
+      'holiday': {
+        watermark: 'HOLIDAY',
+        leftIcon: 'fas fa-umbrella-beach',
+        rightIcon: 'fas fa-sun',
+        bgColor: '#3498db'
+      },
+      'important notice': {
+        watermark: 'IMPORTANT',
+        leftIcon: 'fas fa-exclamation-triangle',
+        rightIcon: 'fas fa-bullhorn',
+        bgColor: '#3498db'
+      },
+      'parents-teacher-meeting': {
+        watermark: 'PTM',
+        leftIcon: 'fas fa-users',
+        rightIcon: 'fas fa-chalkboard-teacher',
+        bgColor: '#3498db'
+      },
+      'sports': {
+        watermark: 'BC360',
+        leftIcon: 'fas fa-person-running',
+        rightIcon: 'fas fa-futbol',
+        bgColor: '#3498db'
+      }
+    };
+
+    // Load announcements from API
+    async function loadAnnouncements() {
+      try {
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) {
+          console.log('❌ Admin ID not found, showing no announcements');
+          showNoAnnouncements();
+          return;
+        }
+
+        console.log('🚀 Loading announcements for admin:', currentAdminId);
+        
+        const response = await fetch(`${ANNOUNCEMENT_API}?admin_id=${currentAdminId}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📊 Loaded announcements:', data);
+          
+          if (data.success && data.announcements && data.announcements.length > 0) {
+            // Sort announcements by newest first (created_at descending)
+            const sortedAnnouncements = data.announcements.sort((a, b) => 
+              new Date(b.created_at) - new Date(a.created_at)
+            );
+            displayAnnouncements(sortedAnnouncements);
+          } else {
+            showNoAnnouncements();
+          }
+        } else {
+          console.error('❌ Failed to load announcements:', response.status);
+          showNoAnnouncements();
+        }
+      } catch (error) {
+        console.error('❌ Error loading announcements:', error);
+        showNoAnnouncements();
+      }
+    }
+
+    // Display announcements in grid
+    function displayAnnouncements(announcements) {
+      const grid = document.getElementById('announcementsGrid');
+      const loadingState = document.getElementById('loadingState');
+      const noAnnouncementsState = document.getElementById('noAnnouncementsState');
+      
+      // Hide loading and no announcements states
+      loadingState.style.display = 'none';
+      noAnnouncementsState.style.display = 'none';
+      
+      // Clear existing content
+      grid.innerHTML = '';
+      
+      // Create announcement cards
+      announcements.forEach((announcement, index) => {
+        const card = createAnnouncementCard(announcement, index);
+        grid.appendChild(card);
+      });
+      
+      // Show grid
+      grid.style.display = 'grid';
+    }
+
+    // Create individual announcement card
+    function createAnnouncementCard(announcement, index) {
+      const template = TEMPLATE_CONFIG[announcement.announcement_type] || TEMPLATE_CONFIG['general'];
+      
+      const card = document.createElement('div');
+      card.className = 'announcement-card';
+      card.setAttribute('data-watermark', template.watermark);
+      card.style.borderColor = template.bgColor;
+      
+      // Format date
+      const date = new Date(announcement.select_Date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      card.innerHTML = `
+        <!-- Top Icons -->
+        <i class="${template.leftIcon} card-top-icon card-top-left-icon"></i>
+        <i class="${template.rightIcon} card-top-icon card-top-right-icon"></i>
+        
+        <!-- Header -->
+        <div class="card-header">
+          <img src="../announcement-templates/BC360-logo.jpg" alt="College Logo" onerror="this.style.display='none'">
+          <h1>${getInstitutionName()}</h1>
+          <p>Posted by Admin</p>
+        </div>
+        
+        <!-- Title -->
+        <div class="card-title">
+          <h2>${announcement.title}</h2>
+        </div>
+        
+        <!-- Content -->
+        <div class="card-content">
+          <p>${announcement.details}</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="card-footer">
+          <div class="card-signatures">
+            <div class="card-signature">
+              ${announcement.principle_signature ? `<img src="${announcement.principle_signature}" alt="Principal Signature" onerror="this.style.display='none'">` : ''}
+              <div class="line">Principal's Signature</div>
+              <p>${announcement.principle}</p>
+            </div>
+            <div class="card-signature">
+              ${announcement.cordinate_signature ? `<img src="${announcement.cordinate_signature}" alt="Coordinator Signature" onerror="this.style.display='none'">` : ''}
+              <div class="line">Coordinator's Signature</div>
+              <p>${announcement.co_ordinator}</p>
+            </div>
+          </div>
+          <button class="view-full-btn" onclick="openFullView(${index})">
+            <i class="fas fa-eye"></i> View Full
+          </button>
+        </div>
+      `;
+      
+      // Store announcement data for full view
+      card.dataset.announcementData = JSON.stringify(announcement);
+      
+      return card;
+    }
+
+    // Show no announcements state
+    function showNoAnnouncements() {
+      const loadingState = document.getElementById('loadingState');
+      const noAnnouncementsState = document.getElementById('noAnnouncementsState');
+      const grid = document.getElementById('announcementsGrid');
+      
+      loadingState.style.display = 'none';
+      grid.style.display = 'none';
+      noAnnouncementsState.style.display = 'block';
+    }
+
+    // Open full view modal
+    function openFullView(index) {
+      const card = document.querySelectorAll('.announcement-card')[index];
+      const announcementData = JSON.parse(card.dataset.announcementData);
+      
+      const modal = document.getElementById('fullViewModal');
+      const modalBody = document.getElementById('fullViewBody');
+      
+      // Create full view content using template design
+      modalBody.innerHTML = createFullViewContent(announcementData);
+      
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      // Scroll to top of modal
+      setTimeout(() => {
+        modal.scrollTop = 0;
+      }, 100);
+    }
+
+    // Create full view content
+    function createFullViewContent(announcement) {
+      const template = TEMPLATE_CONFIG[announcement.announcement_type] || TEMPLATE_CONFIG['general'];
+      const date = new Date(announcement.select_Date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      return `
+        <div class="full-view-announcement" style="max-width: 100%; width: 100%; background: #fff; border: 4px solid ${template.bgColor}; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.15); padding: 20px; position: relative; overflow: hidden;">
+          <!-- Watermark -->
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; color: ${template.bgColor}; opacity: 0.1; pointer-events: none; z-index: -1; white-space: nowrap; font-weight: bold;">${template.watermark}</div>
+          
+          <!-- Top Icons -->
+          <i class="${template.leftIcon}" style="position: absolute; font-size: 36px; color: #d35400; opacity: 0.8; top: 15px; left: 15px; z-index: 1;"></i>
+          <i class="${template.rightIcon}" style="position: absolute; font-size: 36px; color: #d35400; opacity: 0.8; top: 15px; right: 15px; z-index: 1;"></i>
+          
+          <!-- Header -->
+          <div style="text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; position: relative; z-index: 1;">
+            <img src="../announcement-templates/BC360-logo.jpg" alt="College Logo" style="width: 60px; height: 60px; object-fit: cover; display: block; margin: 0 auto 10px;" onerror="this.style.display='none'">
+            <h1 style="margin: 0; font-size: 24px; color: #333;">${getInstitutionName()}</h1>
+            <p style="margin: 4px 0 0; font-size: 14px; color: #666;">Posted by Admin</p>
+          </div>
+          
+          <!-- Title -->
+          <div style="text-align: center; margin: 20px 0; position: relative; z-index: 1;">
+            <h2 style="margin: 0; font-size: 26px; color: #0056b3;">${announcement.title}</h2>
+          </div>
+          
+          <!-- Content -->
+          <div style="text-align: justify; color: #555; line-height: 1.6; font-size: 16px; margin-bottom: 20px; position: relative; z-index: 1;">
+            <p>${announcement.details}</p>
+          </div>
+          
+          <!-- Footer with Signatures -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 40px; font-size: 16px; color: #333; position: relative; z-index: 1;">
+            <div style="width: 48%; text-align: center; margin-bottom: 20px;">
+              ${announcement.principle_signature ? `<img src="${announcement.principle_signature}" alt="Principal's Signature" style="width: 130px; display: block; margin: 10px auto;" onerror="this.style.display='none'">` : ''}
+              <p style="margin-top: 20px; border-top: 1px solid #333; padding-top: 5px; font-weight: bold;">Principal's Signature</p>
+              <p>${announcement.principle}</p>
+            </div>
+            <div style="width: 48%; text-align: center; margin-bottom: 20px;">
+              ${announcement.cordinate_signature ? `<img src="${announcement.cordinate_signature}" alt="Coordinator's Signature" style="width: 130px; display: block; margin: 10px auto;" onerror="this.style.display='none'">` : ''}
+              <p style="margin-top: 20px; border-top: 1px solid #333; padding-top: 5px; font-weight: bold;">Coordinator's Signature</p>
+              <p>${announcement.co_ordinator}</p>
+            </div>
+          </div>
+          
+          <!-- Event Details -->
+          <div style="text-align: center; margin-top: 40px; font-size: 16px; color: #333; position: relative; z-index: 1;">
+            <p>Date: ${date}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Close full view modal
+    function closeFullView() {
+      const modal = document.getElementById('fullViewModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Sidebar toggle with body class toggle for responsive adjustment
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    let isOpen = false;
+    menuToggle?.addEventListener('click', () => {
+      if (!isOpen) {
+        sidebar.classList.add('open');
+        document.body.classList.add('sidebar-open');
+        menuToggle.classList.remove('fa-bars');
+        menuToggle.classList.add('fa-times');
+        isOpen = true;
+      } else {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('sidebar-open');
+        menuToggle.classList.remove('fa-times');
+        menuToggle.classList.add('fa-bars');
+        isOpen = false;
+      }
+    });
+
+    // Back button event listener
+    document.getElementById('backButton')?.addEventListener('click', closeFullView);
+
+    // Close modal on outside click
+    document.getElementById('fullViewModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'fullViewModal') {
+        closeFullView();
+      }
+    });
+
+    // Ensure only one .active class (just defensive, in case someone sets more than one)
+    window.addEventListener('DOMContentLoaded', () => {
+      // Only keep the active on the link with href='./announcement.html'
+      document.querySelectorAll('.sidebar ul li a').forEach(link => {
+        if (
+          link.getAttribute('href') === './announcement.html'
+        ) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      // Load announcements when page loads
+      loadAnnouncements();
+    });
+
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+  </div>
+</body>
+</html>

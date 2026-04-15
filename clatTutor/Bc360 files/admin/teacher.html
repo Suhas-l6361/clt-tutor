@@ -1,0 +1,3015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>BC360</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"></noscript>
+  <style>
+    :root {
+      --primary-color: #3A1C71;
+      --secondary-color: #D76D77;
+      --accent-color: #FFAF7B;
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #ffffff;
+      --bg-color: #f0f2f7;
+      --text-color: #333;
+      --transition-speed: 0.3s;
+    }
+
+    /* Custom Alert Modal */
+    .alert-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    /* BC360 Loading Popup */
+    .loading-popup {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    .loading-content {
+      background: #ffffff;
+      margin: 20% auto;
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 300px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #333;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e9ecef;
+      border-top: 4px solid #3A1C71;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #3A1C71;
+    }
+
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .alert-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .alert-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .alert-icon.success { color: #28a745; }
+    .alert-icon.error { color: #dc3545; }
+    .alert-icon.warning { color: #ffc107; }
+    .alert-icon.info { color: #17a2b8; }
+
+    .alert-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .alert-message {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .alert-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .alert-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 100px;
+    }
+
+    .alert-btn.ok {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .alert-btn.ok:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .alert-btn.cancel {
+      background: #6c757d;
+      color: white;
+    }
+
+    .alert-btn.cancel:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .alert-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s ease;
+    }
+
+    .alert-close:hover {
+      color: #333;
+    }
+
+    /* Loading Modal */
+    .loading-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      animation: fadeIn 0.3s;
+    }
+
+    .loading-content {
+      background-color: #fff;
+      margin: 20% auto;
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 300px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      animation: dropDown 1.5s infinite;
+    }
+
+    @keyframes dropDown {
+      0% { transform: translateY(-20px); opacity: 0; }
+      50% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(20px); opacity: 0; }
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      min-height: 100vh;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+
+    /* TOP BAR */
+   /* TOP BAR */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      z-index: 1001;
+      padding: 5px 10px;
+    }
+    /* When sidebar is open on small/medium screens, lower the top bar */
+    .sidebar-open .top-bar {
+      z-index: 500;
+    }
+    /* Responsive Select (for language and search dropdowns) */
+    .responsive-select {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      background-color: transparent;
+      color: #333;
+    }
+    @media (max-width: 991px) {
+      .responsive-select {
+        padding: 4px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .responsive-select {
+        padding: 3px;
+        font-size: 0.75rem;
+      }
+    }
+    /* Hamburger Icon */
+    #menuToggle {
+      display: block;
+      font-size: 1.8rem;
+      color: #555;
+      background-color: rgba(0,0,0,0.1);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      margin-left: 10px;
+    }
+    #menuToggle:hover {
+      background-color: rgba(0,0,0,0.3);
+    }
+    /* Hide hamburger on big screens */
+    @media (min-width: 992px) {
+      #menuToggle {
+        display: none;
+      }
+    }
+    /* SIDEBAR (same as teacher code) */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left var(--transition-speed) ease;
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 1000;
+      /* Smooth scrolling on mobile */
+      -webkit-overflow-scrolling: touch;
+      /* Custom scrollbar styling */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.5);
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i {
+      font-size: 1.2rem;
+      margin-right: 8px;
+      color: #fff;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      margin: 20px 0;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      margin-right: 10px;
+      font-size: 1.3rem;
+      width: 25px;
+      text-align: center;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li:last-child {
+      margin-top: 10px;
+    }
+    .sidebar ul li a .fa-trophy {
+      color: #FFD700;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Sidebar Overlay for Mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      display: block;
+    }
+    
+    /* Prevent body scroll when sidebar is open on mobile */
+    body.sidebar-open {
+      overflow: hidden;
+    }
+    
+    @media (max-width: 991px) {
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100%;
+        z-index: 999;
+        overflow-y: auto;
+        max-height: 100vh;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+    }
+    /* MAIN CONTENT */
+    .main-content {
+      margin-left: 260px;
+      padding: 20px;
+      transition: margin-left var(--transition-speed) ease;
+      overflow-y: auto;
+      margin-top: 50px; /* So content sits below the fixed top bar */
+      min-height: 100vh;
+    }
+    /* On desktop, main content should be offset by sidebar width */
+    @media (min-width: 992px) {
+      .main-content {
+        margin-left: 260px;
+      }
+    }
+    /* On mobile, no offset when sidebar is hidden */
+    @media (max-width: 991px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background var(--transition-speed);
+    }
+    .tab-btn:hover,
+    .tab-btn.active {
+      background: var(--secondary-color);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .section-content {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      margin-bottom: 25px;
+      border: 1px solid #e9ecef;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .section-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    }
+    
+    .section-content:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    }
+    /* Form Styling for Search Forms */
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .form-control,
+    .form-select,
+    .responsive-select {
+      padding: 14px 18px;
+      border: 2px solid #e1e5e9;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: linear-gradient(145deg, #ffffff, #f8f9fa);
+      color: #2c3e50;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .form-control:focus,
+    .form-select:focus,
+    .responsive-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1), inset 0 1px 3px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    /* Teacher Joining Form */
+    .form-columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .column {
+      flex: 1;
+    }
+    .mb-3 {
+      margin-bottom: 15px;
+    }
+    .form-label {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      display: block;
+      font-weight: 600;
+    }
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #4a1c8a 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(58, 28, 113, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(58, 28, 113, 0.4);
+    }
+    .btn-lg {
+      padding: 12px 20px;
+      font-size: 1rem;
+    }
+    
+    /* Reset Button Styling */
+    .btn-reset {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-reset:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+    
+    /* Secondary Button Styling */
+    .btn-secondary {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 10px;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+    
+    /* Form Buttons Container */
+    .form-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    /* Custom Searchable Select Styling */
+    .custom-select-container {
+      position: relative;
+      width: 100%;
+    }
+    
+    .custom-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid var(--primary-color);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .dropdown-options {
+      padding: 0;
+    }
+    
+    .dropdown-option {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      color: #2c3e50;
+    }
+    
+    .dropdown-option:hover {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #4a1c8a 100%);
+      color: white;
+    }
+    
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+    
+    .dropdown-option.highlighted {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #4a1c8a 100%);
+      color: white;
+    }
+    
+    .btn-icon {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--primary-color);
+      margin-left: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-icon:hover {
+      background: rgba(58, 28, 113, 0.1);
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px rgba(58, 28, 113, 0.2);
+    }
+
+    .edit-btn:hover {
+      color: #28a745;
+    }
+
+    .delete-btn:hover {
+      color: #dc3545;
+    }
+
+    /* Table Responsive Container */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto; /* key for horizontal scroll */
+    }
+    /* Teacher List */
+    .teacher-list {
+      width: 100%;
+      min-width: 600px; /* Force table to be wide enough for scroll */
+      border-collapse: collapse;
+      margin-top: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      background: white;
+    }
+    .teacher-list th,
+    .teacher-list td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: left;
+      font-size: 0.9rem;
+      white-space: nowrap; /* Prevent text wrapping, so scroll is triggered */
+    }
+    .teacher-list th {
+      background: linear-gradient(135deg, #3A1C71 0%, #4a2a8a 100%);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    .teacher-row {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    .teacher-row:hover {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .details-row td {
+      padding: 0 !important;
+      border-bottom: none !important;
+    }
+    .teacher-details {
+      padding: 10px 20px;
+      background: #f9f9f9;
+      border-left: 3px solid var(--primary-color);
+      border-radius: 4px;
+    }
+
+    /* Modal for Editing Teacher */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background: #fff;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border: 1px solid #e9ecef;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+
+    /* Print Styles (optional) */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #teacherList, #teacherList * {
+        visibility: visible;
+      }
+      #teacherList {
+        position: absolute; 
+        left: 0; 
+        top: 0; 
+        width: 100%;
+      }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    overflow-y: auto;   /* <-- ADD THIS */
+    max-height: 100vh;  /* <-- AND THIS (prevents overflow below screen) */
+    -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+    @media (max-width: 768px) {
+      .tab-btn {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+    }
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 200px;
+        padding: 15px;
+      }
+      .sidebar .brand {
+        font-size: 1rem;
+      }
+      .sidebar .brand i {
+        font-size: 1.2rem;
+        margin-right: 6px;
+      }
+      .form-columns {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes slideIn {
+      from {transform: translateY(-20px);}
+      to {transform: translateY(0);}
+    }
+    
+    /* Enhanced State-City Dropdown Animations */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Simple form styling */
+    .form-control {
+      transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+      border-color: #3A1C71;
+      box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1);
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /* Responsive Design Improvements */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .card {
+        margin-bottom: 15px;
+        padding: 15px;
+      }
+      
+      .card-header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .card-title {
+        font-size: 1.2rem;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-control {
+        padding: 10px;
+        font-size: 14px;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+      
+      .btn-icon {
+        padding: 8px;
+        font-size: 14px;
+      }
+      
+      /* Improved dropdown sizing for small screens */
+      select.form-control {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      select.form-control option {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      
+      /* Table improvements for small screens */
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .table th,
+      .table td {
+        padding: 8px 6px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      
+      .table th {
+        font-size: 11px;
+        font-weight: 600;
+      }
+      
+      /* Modal improvements */
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        max-width: none;
+        padding: 20px;
+      }
+      
+      .modal-header {
+        padding: 15px 20px;
+      }
+      
+      .modal-body {
+        padding: 20px;
+      }
+      
+      .modal-footer {
+        padding: 15px 20px;
+      }
+      
+      /* Search section improvements */
+      .search-section {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .search-section select {
+        width: 100%;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 5px;
+      }
+      
+      .card {
+        padding: 10px;
+      }
+      
+      .card-header {
+        padding: 10px;
+      }
+      
+      .card-title {
+        font-size: 1.1rem;
+      }
+      
+      .form-control {
+        padding: 8px;
+        font-size: 13px;
+      }
+      
+      .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+      
+      .table th,
+      .table td {
+        padding: 6px 4px;
+        font-size: 11px;
+      }
+      
+      .table th {
+        font-size: 10px;
+      }
+      
+      /* Even smaller dropdowns for mobile */
+      select.form-control {
+        max-height: 150px;
+      }
+      
+      select.form-control option {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      /* Improved responsive design for search section */
+      .search-section {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+      }
+
+      .search-section .form-group {
+        width: 100%;
+      }
+
+      .search-section .btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+      }
+
+      /* Responsive table improvements */
+      .table-responsive {
+        overflow-x: auto;
+        font-size: 12px;
+      }
+
+      .teacher-list th,
+      .teacher-list td {
+        padding: 8px 6px;
+        min-width: 80px;
+      }
+
+      .teacher-list th:first-child,
+      .teacher-list td:first-child {
+        min-width: 60px;
+      }
+
+      /* Responsive modal improvements */
+      .modal-content {
+        width: 95%;
+        margin: 5% auto;
+        padding: 20px;
+      }
+
+      .form-columns {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      /* Responsive tabs */
+      .tabs {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .tab-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+
+      /* Responsive searchable dropdown */
+      .dropdown-options {
+        max-height: 150px;
+      }
+
+      .dropdown-option {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      /* Medium screen improvements */
+      .search-section {
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .search-section .form-group {
+        width: 100%;
+      }
+
+      .search-section .btn {
+        width: 100%;
+        padding: 12px 20px;
+      }
+
+      /* Table improvements for medium screens */
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      .teacher-list th,
+      .teacher-list td {
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+
+      /* Form improvements */
+      .form-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      /* Modal improvements */
+      .modal-content {
+        width: 90%;
+        margin: 10% auto;
+        padding: 25px;
+      }
+
+      /* Responsive tabs */
+      .tabs {
+        gap: 10px;
+      }
+
+      .tab-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+
+    /* Search Section Styling */
+    .search-section {
+      display: flex;
+      gap: 15px;
+      align-items: end;
+      margin-bottom: 20px;
+      padding: 25px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 16px;
+      border: 1px solid #e9ecef;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+
+    .search-section:hover {
+      box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .search-section .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .search-section label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .search-section .btn {
+      padding: 10px 24px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .search-section .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(58, 28, 113, 0.2);
+    }
+    
+    /* Responsive design for search section */
+    @media (max-width: 768px) {
+      .search-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 15px;
+      }
+      
+      .search-section .form-group {
+        margin-bottom: 10px;
+      }
+      
+      .search-section button {
+        width: 100%;
+        margin-left: 0 !important;
+      }
+    }
+
+    /* Searchable Dropdown Styling */
+    .searchable-dropdown {
+      position: relative;
+      width: 100%;
+    }
+
+    .searchable-dropdown input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background-color: white;
+    }
+
+    .searchable-dropdown input:focus {
+      border-color: #3A1C71;
+      box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1);
+      outline: none;
+    }
+
+    .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-options.show {
+      display: block;
+    }
+
+    .dropdown-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid #f8f9fa;
+    }
+
+    .dropdown-option:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dropdown-option.selected {
+      background-color: #3A1C71;
+      color: white;
+    }
+
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- BC360 Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BC360</div>
+      <div class="loading-subtext">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="alertModal" class="alert-modal">
+    <div class="alert-content">
+      <div class="alert-icon" id="alertIcon"></div>
+      <div class="alert-title" id="alertTitle"></div>
+      <div class="alert-message" id="alertMessage"></div>
+      <div class="alert-buttons" id="alertButtons">
+        <button class="alert-btn" id="alertOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <!-- Hamburger (shown on medium/small screens only) -->
+    <i class="fas fa-bars" id="menuToggle"></i>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        <span>Admin Panel</span>
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html" class="active"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon">Publish Achievements</a></li>
+        <li><a href="./internship.html"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay (for mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="addTeacher">Add Teacher</button>
+      <button class="tab-btn" data-tab="viewTeachers">View Teachers Data</button>
+    </div>
+
+    <!-- ADD TEACHER TAB -->
+    <div id="addTeacher" class="tab-content active">
+      <div class="section-content">
+        <h2><i class="fas fa-user-plus"></i> Teacher Joining Form</h2>
+        <form id="teacherForm" autocomplete="off">
+          <div class="form-columns">
+            <!-- LEFT COLUMN -->
+            <div class="column">
+              <div class="mb-3">
+                <label for="teacher_name" class="form-label">Teacher Name:</label>
+                <input
+                  type="text"
+                  id="teacher_name"
+                  name="teacher_name"
+                  class="form-control"
+                  required
+                  placeholder="Enter teacher name"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="designation" class="form-label">Designation:</label>
+                <select id="designation" name="designation" class="form-select" required>
+                  <option value="" disabled selected>Select Designation</option>
+                  <option value="professor">Professor</option>
+                  <option value="assistant_professor">Assistant Professor</option>
+                  <option value="lecturer">Lecturer</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="qualification" class="form-label">Qualification:</label>
+                <input
+                  type="text"
+                  id="qualification"
+                  name="qualification"
+                  class="form-control"
+                  required
+                  placeholder="Enter qualification"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  required
+                  placeholder="Enter email"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="contact_number" class="form-label">Contact Number:</label>
+                <input
+                  type="tel"
+                  id="contact_number"
+                  name="contact_number"
+                  class="form-control"
+                  required
+                  placeholder="Enter contact number"
+                  maxlength="10"
+                  pattern="[0-9]{10}"
+                  title="Please enter exactly 10 digits"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="gender" class="form-label">Gender:</label>
+                <select id="gender" name="gender" class="form-select" required>
+                  <option value="" disabled selected>Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+            </div>
+            <!-- RIGHT COLUMN -->
+            <div class="column">
+              <div class="mb-3">
+                <label for="teacher_state" class="form-label">State:</label>
+                <input type="text" id="teacher_state" name="teacher_state" class="form-control" placeholder="Enter state name..." required>
+              </div>
+              <div class="mb-3">
+                <label for="teacher_city" class="form-label">City:</label>
+                <input type="text" id="teacher_city" name="teacher_city" class="form-control" placeholder="Enter city name..." required>
+              </div>
+              <div class="mb-3">
+                <label for="address_line" class="form-label">Address:</label>
+                <input
+                  type="text"
+                  id="address_line"
+                  name="address_line"
+                  class="form-control"
+                  required
+                  placeholder="Enter address"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="experience_years" class="form-label">Years of Experience:</label>
+                <input
+                  type="number"
+                  id="experience_years"
+                  name="experience_years"
+                  class="form-control"
+                  required
+                  placeholder="Enter years of experience"
+                  min="0"
+                  step="0.1"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="previous_institution" class="form-label">Previous School/College:</label>
+                <input
+                  type="text"
+                  id="previous_institution"
+                  name="previous_institution"
+                  class="form-control"
+                  required
+                  placeholder="Enter previous school/college"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="teaching_type" class="form-label">Teaching Type:</label>
+                <select id="teaching_type" name="teaching_type" class="form-select" required>
+                  <option value="" disabled selected>Select Teaching Type</option>
+                  <option value="1-10th">1-10th</option>
+                  <option value="PUC">PUC</option>
+                  <option value="Degree">Degree</option>
+                  <option value="Masters">Masters</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-buttons">
+            <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+            <button type="button" class="btn btn-reset btn-lg" id="resetFormBtn">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- VIEW TEACHERS DATA TAB -->
+    <div id="viewTeachers" class="tab-content">
+      <div class="section-content">
+        <h2><i class="fas fa-list"></i> Teachers Data</h2>
+        <!-- Teacher Search Form -->
+        <form id="teacherSearchForm">
+          <div class="search-section">
+            <div class="form-group">
+              <label for="searchTeacherName">Search Teacher</label>
+              <div class="searchable-dropdown">
+                <input type="text" id="searchTeacherName" placeholder="Type to search teachers..." class="form-control">
+                <div class="dropdown-options" id="teacherDropdownOptions"></div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="teacherSearchBtn">Search</button>
+            <button type="button" class="btn btn-secondary" id="showAllTeachersBtn">Show All</button>
+          </div>
+        </form>
+        <!-- Table Section (initially hidden) -->
+        <div class="table-responsive" id="teacherTableSection" style="display: none;">
+          <table class="teacher-list" id="teachersTable">
+            <thead>
+              <tr>
+                <th>Teacher ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Designation</th>
+                <th>Qualification</th>
+                <th>Gender</th>
+                <th>State</th>
+                <th>City</th>
+                <th>Experience</th>
+                <th>Teaching Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Teacher data will be loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- MODAL POPUP FOR EDITING TEACHER -->
+  <div id="editTeacherModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeEditModal">&times;</span>
+      <h3>Edit Teacher Details</h3>
+      <form id="editTeacherForm">
+        <div class="form-group">
+          <label for="editTeacherName">Teacher Name</label>
+          <input type="text" id="editTeacherName" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherEmail">Email</label>
+          <input type="email" id="editTeacherEmail" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherPhone">Phone</label>
+          <input type="text" id="editTeacherPhone" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherDesignation">Designation</label>
+          <input type="text" id="editTeacherDesignation" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherQualification">Qualification</label>
+          <input type="text" id="editTeacherQualification" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherGender">Gender</label>
+          <select id="editTeacherGender" required>
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editTeacherState">State</label>
+          <input type="text" id="editTeacherState" class="form-control" placeholder="Enter state name..." required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherCity">City</label>
+          <input type="text" id="editTeacherCity" class="form-control" placeholder="Enter city name..." required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherExperience">Experience (years)</label>
+          <input type="number" id="editTeacherExperience" min="0" required />
+        </div>
+        <div class="form-group">
+          <label for="editTeacherTeachingType">Teaching Type</label>
+          <select id="editTeacherTeachingType" required>
+            <option value="">Select Teaching Type</option>
+            <option value="School">School</option>
+            <option value="PUC">PUC</option>
+            <option value="Degree">Degree</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Masters">Masters</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Teacher</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Helper function to send teacher emails
+    async function sendTeacherEmails(teacherData, teacherId, password, emailMessage = '') {
+      console.log('Sending teacher emails...');
+      let teacherWelcomeSent = false;
+      let teacherCredentialsSent = false;
+      
+      // Prepare email data for teacher
+      const teacherWelcomeData = {
+        email: teacherData.email,
+        name: teacherData.teacher_name
+      };
+      
+      const teacherCredentialsData = {
+        recipientEmail: teacherData.email,
+        recipientName: teacherData.teacher_name,
+        userId: teacherId,
+        password: password
+      };
+      
+      // Send teacher emails in parallel
+      console.log('📧 Sending teacher emails with data:', {
+        welcome: teacherWelcomeData,
+        credentials: teacherCredentialsData
+      });
+      
+      const emailPromises = [
+        // Teacher Welcome Email
+        fetch(WELCOME_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(teacherWelcomeData)
+        }).then(async (response) => {
+          console.log('📧 Welcome email response status:', response.status);
+          const result = await response.json();
+          console.log('📧 Welcome email response:', result);
+          if (response.ok && result.success) {
+            console.log('✅ Teacher welcome email sent successfully');
+            teacherWelcomeSent = true;
+          } else {
+            console.error('❌ Teacher welcome email failed:', result);
+          }
+          return { type: 'teacher_welcome', success: response.ok && result.success };
+        }).catch((error) => {
+          console.error('❌ Teacher welcome email error:', error);
+          return { type: 'teacher_welcome', success: false };
+        }),
+        
+        // Teacher Credentials Email
+        fetch(CREDENTIALS_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(teacherCredentialsData)
+        }).then(async (response) => {
+          console.log('📧 Credentials email response status:', response.status);
+          const result = await response.json();
+          console.log('📧 Credentials email response:', result);
+          if (response.ok && result.success) {
+            console.log('✅ Teacher credentials email sent successfully');
+            teacherCredentialsSent = true;
+          } else {
+            console.error('❌ Teacher credentials email failed:', result);
+          }
+          return { type: 'teacher_credentials', success: response.ok && result.success };
+        }).catch((error) => {
+          console.error('❌ Teacher credentials email error:', error);
+          return { type: 'teacher_credentials', success: false };
+        })
+      ];
+      
+      // Wait for teacher emails to complete
+      const emailResults = await Promise.allSettled(emailPromises);
+      console.log('📊 Teacher email results:', emailResults);
+      
+      // Analyze results
+      const successfulEmails = emailResults.filter(result => 
+        result.status === 'fulfilled' && result.value.success
+      ).length;
+      
+      const failedEmails = emailResults.filter(result => 
+        result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)
+      );
+      
+      console.log(`📊 Email Summary: ${successfulEmails}/2 successful, ${failedEmails.length} failed`);
+      
+      if (failedEmails.length > 0) {
+        console.error('❌ Failed email details:', failedEmails);
+      }
+      
+      // Prepare email status message
+      const totalEmails = 2;
+      const sentEmails = [teacherWelcomeSent, teacherCredentialsSent].filter(Boolean).length;
+      
+      if (sentEmails === totalEmails) {
+        return `${emailMessage}\n\n📧 Teacher welcome email and credentials have been sent to: ${teacherData.email}\n\n✅ Please check your email for teacher login instructions.`;
+      } else if (sentEmails > 0) {
+        return `${emailMessage}\n\n📧 ${sentEmails}/${totalEmails} teacher emails sent to: ${teacherData.email}\n\n⚠️ Some emails may not have been delivered. Please save credentials securely.`;
+      } else {
+        return `${emailMessage}\n\n📧 Email service is currently unavailable.\n\n⚠️ Please save these credentials securely as emails won't be sent.\n\n🔍 Check browser console for detailed error logs.`;
+      }
+    }
+
+    // API Configuration
+    const ADD_TEACHER_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addTeacher';
+    const GET_TEACHERS_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addTeacher';
+    const WELCOME_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/welcomeMessage';
+    const CREDENTIALS_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/credentials';
+
+    // Custom Alert Function
+    function showAlert(title, message, type = 'info', showCancel = false) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('alertModal');
+        const icon = document.getElementById('alertIcon');
+        const titleEl = document.getElementById('alertTitle');
+        const messageEl = document.getElementById('alertMessage');
+        const buttons = document.getElementById('alertButtons');
+
+        // Set icon based on type
+        let iconClass = 'fas fa-info-circle info';
+        switch (type) {
+          case 'success':
+            iconClass = 'fas fa-check-circle success';
+            break;
+          case 'error':
+            iconClass = 'fas fa-exclamation-circle error';
+            break;
+          case 'warning':
+            iconClass = 'fas fa-exclamation-triangle warning';
+            break;
+        }
+
+        icon.className = `alert-icon ${iconClass}`;
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Show/hide cancel button
+        if (showCancel) {
+          buttons.innerHTML = `
+            <button class="alert-btn cancel" id="alertCancel">Cancel</button>
+            <button class="alert-btn ok" id="alertOkBtn">OK</button>
+          `;
+        } else {
+          buttons.innerHTML = `
+            <button class="alert-btn ok" id="alertOkBtn">OK</button>
+          `;
+        }
+
+        modal.style.display = 'block';
+
+        const handleClose = (result) => {
+          modal.style.display = 'none';
+          resolve(result);
+        };
+
+        // Re-get the OK button reference after changing innerHTML
+        const okBtn = document.getElementById('alertOkBtn');
+        const cancelBtn = document.getElementById('alertCancel');
+        
+        okBtn.onclick = () => handleClose(true);
+        if (cancelBtn) {
+          cancelBtn.onclick = () => handleClose(false);
+        }
+        
+        // Close on outside click
+        modal.onclick = (e) => {
+          if (e.target === modal) handleClose(false);
+        };
+      });
+    }
+
+    // Loading Modal Functions
+    function showLoading() {
+      document.getElementById('loadingPopup').style.display = 'block';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingPopup').style.display = 'none';
+    }
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let isOpen = false;
+    
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+      menuToggle.classList.remove('fa-bars');
+      menuToggle.classList.add('fa-times');
+      isOpen = true;
+    }
+    
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+      menuToggle.classList.remove('fa-times');
+      menuToggle.classList.add('fa-bars');
+      isOpen = false;
+    }
+    
+    menuToggle?.addEventListener('click', () => {
+      if (!isOpen) {
+        openSidebar();
+      } else {
+        closeSidebar();
+      }
+    });
+    
+    // Close sidebar when clicking overlay
+    sidebarOverlay?.addEventListener('click', () => {
+      closeSidebar();
+    });
+    
+    // Close sidebar when clicking any link on mobile
+    sidebar.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 991) {
+          closeSidebar();
+        }
+      });
+    });
+
+    // Tabs Switching
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+      });
+    });
+
+    // Email validation function
+    function validateEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Phone number validation function
+    function validatePhone(phone) {
+      const phoneRegex = /^\d{10}$/;
+      return phoneRegex.test(phone);
+    }
+
+    // Teacher Joining Form with Backend Integration
+    document.getElementById('teacherForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const email = formData.get('email');
+      
+      // Validate email format
+      if (!validateEmail(email)) {
+        await showAlert('Error', 'Please enter a valid email address (e.g., example@email.com)', 'error');
+        return;
+      }
+      
+      // Validate phone number format
+      const phone = formData.get('contact_number');
+      if (!validatePhone(phone)) {
+        await showAlert('Error', 'Please enter a valid 10-digit phone number (e.g., 9876543210)', 'error');
+        return;
+      }
+      
+      // Get current authenticated admin data
+      const userData = window.UserSession ? window.UserSession.getUserData() : null;
+      if (!userData || !userData.isAuthenticated) {
+        await showAlert('Error', 'Session expired. Please login again.', 'error');
+        window.location.href = '../login.html';
+        return;
+      }
+
+      console.log('Full userData object:', userData);
+      console.log('Available properties:', Object.keys(userData));
+
+      const teacherData = {
+        teacher_name: formData.get('teacher_name'),
+        designation: formData.get('designation'),
+        qualification: formData.get('qualification'),
+        email: email,
+        phone: formData.get('contact_number'),
+        gender: formData.get('gender'),
+        state: formData.get('teacher_state'),
+        city: formData.get('teacher_city'),
+        address: formData.get('address_line'),
+        experience_years: formData.get('experience_years'),
+        previous_institution: formData.get('previous_institution'),
+        teaching_type: formData.get('teaching_type'),
+        institution_name: userData.user.institution_name,
+        institution_id: userData.user.institution_id
+      };
+
+      console.log('Submitting teacher data with institution info:', {
+        institution_name: userData.user.institution_name,
+        institution_id: userData.user.institution_id
+      });
+
+      try {
+        showLoading();
+        
+        console.log('Step 1: Adding teacher to primary API (addTeacher)...');
+        
+        // STEP 1: Call primary API first to get teacher_id and password
+        const response = await fetch(ADD_TEACHER_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(teacherData)
+        });
+
+        console.log('Primary API Response status:', response.status);
+        console.log('Primary API Response ok:', response.ok);
+        
+        const result = await response.json();
+        console.log('Primary API Response data:', result);
+
+        if (response.ok && result.success) {
+          // STEP 2: Store in secondary teacher table with SAME credentials from primary API
+          console.log('Step 2: Adding teacher to secondary API (/teacher) with SAME credentials...');
+          
+          try {
+            const secondaryTeacherData = {
+              teacher_id: result.teacher_id,  // ✅ Use the SAME teacher_id from primary API
+              password: result.password,      // ✅ Use the SAME password from primary API
+              institution_name: userData.user.institution_name,
+              institution_id: userData.user.institution_id,
+              teacher_name: teacherData.teacher_name,
+              phone: teacherData.phone,
+              email: teacherData.email
+            };
+
+            console.log('Secondary API data with SAME credentials:', secondaryTeacherData);
+            
+            const secondaryResponse = await fetch('https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(secondaryTeacherData)
+            });
+
+            console.log('Secondary API Response status:', secondaryResponse.status);
+            console.log('Secondary API Response ok:', secondaryResponse.ok);
+            
+            const secondaryResult = await secondaryResponse.json();
+            console.log('Secondary API Response data:', secondaryResult);
+
+            if (secondaryResponse.ok && secondaryResult.success) {
+              // Both APIs succeeded with SAME credentials
+              console.log('✅ Both APIs succeeded with SAME teacher_id and password!');
+              
+              hideLoading();
+              
+              let successMessage = `Teacher added successfully!\n\n📋 Registration Details:\n• Teacher ID: ${result.teacher_id}\n• Password: ${result.password}\n\n✅ Teacher data synchronized with both systems using the same credentials.`;
+              
+              successMessage += '\n\n📧 Sending welcome email and credentials...';
+              
+              await showAlert('Success!', successMessage, 'success');
+              
+              // Send emails in background (non-blocking)
+              sendTeacherEmails(teacherData, result.teacher_id, result.password, '').then((emailMessage) => {
+                console.log('📧 Email sending completed:', emailMessage);
+              }).catch((error) => {
+                console.error('📧 Email sending failed:', error);
+              });
+              
+              this.reset();
+              document.getElementById('teacher_state').value = '';
+              document.getElementById('teacher_city').value = '';
+              loadTeachers();
+            } else {
+              // Primary succeeded but secondary failed
+              console.warn('⚠️ Secondary API failed:', secondaryResult.message);
+              
+              hideLoading();
+              
+              let warningMessage = `Teacher added to primary system successfully!\n\n📋 Registration Details:\n• Teacher ID: ${result.teacher_id}\n• Password: ${result.password}\n\n⚠️ However, secondary system failed: ${secondaryResult.message || 'Unknown error'}`;
+              
+              await showAlert('Partial Success', warningMessage, 'warning');
+              
+              // Send emails anyway since primary succeeded
+              sendTeacherEmails(teacherData, result.teacher_id, result.password, '').then((emailMessage) => {
+                console.log('📧 Email sending completed:', emailMessage);
+              }).catch((error) => {
+                console.error('📧 Email sending failed:', error);
+              });
+              
+              this.reset();
+              document.getElementById('teacher_state').value = '';
+              document.getElementById('teacher_city').value = '';
+              loadTeachers();
+            }
+          } catch (secondaryError) {
+            // Primary succeeded but secondary API call failed
+            console.error('Secondary API error:', secondaryError);
+            
+            hideLoading();
+            
+            let warningMessage = `Teacher added to primary system successfully!\n\n📋 Registration Details:\n• Teacher ID: ${result.teacher_id}\n• Password: ${result.password}\n\n⚠️ However, there was an issue with the secondary system. Please contact support.`;
+            
+            await showAlert('Partial Success', warningMessage, 'warning');
+            
+            // Send emails anyway since primary succeeded
+            sendTeacherEmails(teacherData, result.teacher_id, result.password, '').then((emailMessage) => {
+              console.log('📧 Email sending completed:', emailMessage);
+            }).catch((error) => {
+              console.error('📧 Email sending failed:', error);
+            });
+            
+            this.reset();
+            document.getElementById('teacher_state').value = '';
+            document.getElementById('teacher_city').value = '';
+            loadTeachers();
+          }
+        } else {
+          // Primary API failed
+          hideLoading();
+          
+          const errorMessage = result.message || 'Failed to add teacher';
+          
+          if (response.status === 409) {
+            // Handle duplicate email/phone conflicts
+            if (errorMessage.toLowerCase().includes('email address already exists') || errorMessage.toLowerCase().includes('email')) {
+              await showAlert('Error', 'This email address is already registered. Please use a different email.', 'error');
+            } else if (errorMessage.toLowerCase().includes('phone number already exists') || errorMessage.toLowerCase().includes('phone')) {
+              await showAlert('Error', 'This phone number is already registered. Please use a different phone number.', 'error');
+            } else {
+              await showAlert('Error', errorMessage, 'error');
+            }
+          } else if (response.status === 400) {
+            // Handle validation errors
+            await showAlert('Error', errorMessage, 'error');
+          } else {
+            // Handle other errors
+            await showAlert('Error', 'Unable to add teacher at the moment. Please try again later.', 'error');
+          }
+        }
+      } catch (error) {
+        hideLoading();
+        console.error('Error adding teacher:', error);
+        
+        // Handle JSON parsing errors or network errors
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          await showAlert('Error', 'Invalid response from server. Please try again.', 'error');
+        } else if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
+          await showAlert('Error', 'Service temporarily unavailable. Please try again in a few moments.', 'error');
+        } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+          await showAlert('Error', 'Network error. Please check your connection and try again.', 'error');
+        } else {
+          await showAlert('Error', 'Unable to add teacher at the moment. Please try again later.', 'error');
+        }
+      }
+    });
+
+    // Dynamic State & City Population for Teacher Form
+    const locationData = {
+      "India": {
+        "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Nellore", "Prakasam", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari"],
+        "Arunachal Pradesh": ["Tawang", "West Kameng", "East Kameng", "Papum Pare", "Kurung Kumey"],
+        "Assam": ["Kamrup Metropolitan", "Nagaon", "Dhubri", "Barpeta", "Silchar"],
+        "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Purnia"],
+        "Chhattisgarh": ["Raipur", "Bilaspur", "Durg", "Bhilai", "Jagdalpur"],
+        "Goa": ["North Goa", "South Goa"],
+        "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
+        "Haryana": ["Faridabad", "Gurgaon", "Panipat", "Hisar", "Ambala"],
+        "Himachal Pradesh": ["Shimla", "Mandi", "Kullu", "Solan", "Kangra"],
+        "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh"],
+        "Karnataka": [
+          "Bagalkot", "Ballari", "Belagavi", "Bengaluru Urban", "Bengaluru Rural", "Bidar",
+          "Chamarajanagar", "Chikkaballapur", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada",
+          "Davangere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu",
+          "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga",
+          "Tumakuru", "Udupi", "Uttara Kannada", "Vijayapura", "Yadgir"
+        ],
+        "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Kollam", "Ernakulam"],
+        "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Ujjain", "Jabalpur"],
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Aurangabad", "Solapur", "Kolhapur", "Amravati", "Jalna"],
+        "Punjab": ["Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Bathinda"],
+        "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Ajmer", "Bikaner"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli"],
+        "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam"],
+        "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi"],
+        "Uttarakhand": ["Dehradun", "Haridwar", "Nainital", "Uttarkashi"],
+        "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Siliguri", "Durgapur"]
+      }
+    };
+    // Fallback arrays in case of missing data
+    const fallbackStates = ["State 1", "State 2", "State 3"];
+    const fallbackCities = ["City 1", "City 2", "City 3"];
+    // Populate teacher state dropdown (default country "India")
+    const teacherStateSelect = document.getElementById("teacher_state");
+    const teacherCitySelect = document.getElementById("teacher_city");
+    function populateTeacherStates() {
+      let states = [];
+      if (locationData["India"]) {
+        states = Object.keys(locationData["India"]);
+      } else {
+        states = fallbackStates;
+      }
+      teacherStateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
+      states.forEach(state => {
+        const option = document.createElement("option");
+        option.value = state;
+        option.textContent = state;
+        teacherStateSelect.appendChild(option);
+      });
+      teacherStateSelect.disabled = false;
+    }
+    function populateTeacherCities(state) {
+      let cities = [];
+      if (locationData["India"] && locationData["India"][state]) {
+        cities = locationData["India"][state];
+      } else {
+        cities = fallbackCities;
+      }
+      teacherCitySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+      cities.forEach(city => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        teacherCitySelect.appendChild(option);
+      });
+      teacherCitySelect.disabled = false;
+    }
+    populateTeacherStates();
+    teacherStateSelect.addEventListener("change", function() {
+      populateTeacherCities(this.value);
+    });
+
+    // Global variable for current editing row
+    let currentEditingRow = null;
+
+    // Close Edit Modal
+    document.getElementById('closeEditModal').addEventListener('click', () => {
+      document.getElementById('editTeacherModal').style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+      const editModal = document.getElementById('editTeacherModal');
+      if (event.target === editModal) {
+        editModal.style.display = 'none';
+      }
+    });
+    // Update Teacher in Modal
+    document.getElementById('editTeacherForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      showLoading();
+      
+      try {
+        const teacherData = JSON.parse(currentEditingRow.getAttribute('data-teacher'));
+        // Get current authenticated admin data
+        const userData = window.UserSession ? window.UserSession.getUserData() : null;
+        if (!userData || !userData.isAuthenticated) {
+          hideLoading();
+          await showAlert('Error', 'Session expired. Please login again.', 'error');
+          window.location.href = '../login.html';
+          return;
+        }
+
+        const updatedData = {
+          teacher_id: teacherData.teacher_id,
+          teacher_name: document.getElementById('editTeacherName').value,
+          email: document.getElementById('editTeacherEmail').value,
+          phone: document.getElementById('editTeacherPhone').value,
+          designation: document.getElementById('editTeacherDesignation').value,
+          qualification: document.getElementById('editTeacherQualification').value,
+          gender: document.getElementById('editTeacherGender').value,
+          state: document.getElementById('editTeacherState').value,
+          city: document.getElementById('editTeacherCity').value,
+          experience_years: document.getElementById('editTeacherExperience').value,
+          teaching_type: document.getElementById('editTeacherTeachingType').value,
+          address: teacherData.address || '',
+          previous_institution: teacherData.previous_schoold || '',
+          institution_name: userData.user.institution_name,
+          institution_id: userData.user.institution_id
+        };
+
+        // Validate phone number
+        if (!validatePhone(updatedData.phone)) {
+          hideLoading();
+          await showAlert('Error', 'Please enter a valid 10-digit phone number (e.g., 9876543210)', 'error');
+          return;
+        }
+
+        const response = await fetch(ADD_TEACHER_API, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Update the row data
+          currentEditingRow.setAttribute('data-teacher', JSON.stringify({
+            ...teacherData,
+            ...updatedData
+          }));
+
+          // Update the table cells
+          currentEditingRow.cells[0].innerText = teacherData.teacher_id || 'N/A';
+          currentEditingRow.cells[1].innerText = updatedData.teacher_name || 'N/A';
+          currentEditingRow.cells[2].innerText = updatedData.email || 'N/A';
+          currentEditingRow.cells[3].innerText = updatedData.phone || 'N/A';
+          currentEditingRow.cells[4].innerText = updatedData.designation || 'N/A';
+          currentEditingRow.cells[5].innerText = updatedData.qualification || 'N/A';
+          currentEditingRow.cells[6].innerText = updatedData.gender || 'N/A';
+          currentEditingRow.cells[7].innerText = updatedData.state || 'N/A';
+          currentEditingRow.cells[8].innerText = updatedData.city || 'N/A';
+          currentEditingRow.cells[9].innerText = updatedData.experience_years || 'N/A';
+          currentEditingRow.cells[10].innerText = updatedData.teaching_type || 'N/A';
+
+          // Update dropdowns if needed
+          await loadTeachers();
+
+          document.getElementById('editTeacherModal').style.display = 'none';
+          hideLoading();
+          await showAlert('Success', 'Teacher updated successfully', 'success');
+        } else {
+          // Handle different error scenarios
+          const errorMessage = result.message || 'Failed to update teacher';
+          
+          if (response.status === 409) {
+            await showAlert('Error', errorMessage, 'error');
+          } else if (response.status === 400) {
+            await showAlert('Error', errorMessage, 'error');
+          } else if (response.status === 404) {
+            await showAlert('Error', 'Teacher not found', 'error');
+          } else {
+            await showAlert('Error', errorMessage, 'error');
+          }
+        }
+      } catch (error) {
+        console.error('Error updating teacher:', error);
+        
+        // Handle JSON parsing errors or network errors
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          await showAlert('Error', 'Invalid response from server. Please try again.', 'error');
+        } else if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
+          await showAlert('Error', 'Service temporarily unavailable. Please try again in a few moments.', 'error');
+        } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+          await showAlert('Error', 'Network error. Please check your connection and try again.', 'error');
+        } else {
+          await showAlert('Error', 'Unable to update teacher at the moment. Please try again later.', 'error');
+        }
+      } finally {
+        hideLoading();
+      }
+    });
+
+    // Load Teachers from Backend
+    async function loadTeachers() {
+      showLoading();
+      try {
+        const response = await fetch(GET_TEACHERS_API, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.teachers) {
+          updateTeachersTable(result.teachers);
+          updateTeacherDropdowns(result.teachers);
+        } else {
+          // Handle different error scenarios
+          const errorMessage = result.message || 'Failed to load teachers';
+          
+          if (response.status === 500) {
+            await showAlert('Error', 'Unable to load teachers at the moment. Please try again later.', 'error');
+          } else {
+            await showAlert('Error', errorMessage, 'error');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading teachers:', error);
+        
+        // Handle JSON parsing errors or network errors
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          await showAlert('Error', 'Invalid response from server. Please try again.', 'error');
+        } else if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
+          await showAlert('Error', 'Service temporarily unavailable. Please try again in a few moments.', 'error');
+        } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+          await showAlert('Error', 'Network error. Please check your connection and try again.', 'error');
+        } else {
+          await showAlert('Error', 'Unable to load teachers at the moment. Please try again later.', 'error');
+        }
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Update Teachers Table
+    function updateTeachersTable(teachers) {
+      const tbody = document.querySelector('#teachersTable tbody');
+      tbody.innerHTML = '';
+
+      // Show table section by default when teachers are loaded
+      document.getElementById('teacherTableSection').style.display = 'block';
+
+      if (teachers.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = '<td colspan="11" style="text-align:center; padding: 20px;">No teachers found</td>';
+        tbody.appendChild(noDataRow);
+        return;
+      }
+
+      teachers.forEach(teacher => {
+        const row = document.createElement('tr');
+        row.className = 'teacher-row';
+        row.setAttribute('data-teacher', JSON.stringify({
+          teacher_id: teacher.teacher_id,
+          teacher_name: teacher.teacher_name,
+          email: teacher.email,
+          phone: teacher.phone,
+          designation: teacher.designation,
+          qualification: teacher.qualification,
+          gender: teacher.gender,
+          state: teacher.state,
+          city: teacher.city,
+          address: teacher.address,
+          experience: teacher.experience,
+          previous_schoold: teacher.previous_schoold,
+          Teaching_type: teacher.Teaching_type,
+          created_at: teacher.created_at
+        }));
+
+        row.innerHTML = `
+          <td>${teacher.teacher_id || 'N/A'}</td>
+          <td>${teacher.teacher_name || 'N/A'}</td>
+          <td>${teacher.email || 'N/A'}</td>
+          <td>${teacher.phone || 'N/A'}</td>
+          <td>${teacher.designation || 'N/A'}</td>
+          <td>${teacher.qualification || 'N/A'}</td>
+          <td>${teacher.gender || 'N/A'}</td>
+          <td>${teacher.state || 'N/A'}</td>
+          <td>${teacher.city || 'N/A'}</td>
+          <td>${teacher.experience || 'N/A'}</td>
+          <td>${teacher.Teaching_type || 'N/A'}</td>
+          <td>
+            <button class="btn-icon edit-btn" title="Edit Teacher"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete-btn" title="Delete Teacher"><i class="fas fa-trash"></i></button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Reattach event listeners
+      attachTableEventListeners();
+    }
+
+    // Update Teacher Dropdowns
+    function updateTeacherDropdowns(teachers) {
+      // Store teachers data globally for search functionality
+      window.teachersData = teachers;
+
+      // Initialize searchable dropdown functionality
+      initializeSearchableDropdown();
+    }
+
+    // Initialize Searchable Dropdown
+    function initializeSearchableDropdown() {
+      const searchInput = document.getElementById('searchTeacherName');
+      const dropdownOptions = document.getElementById('teacherDropdownOptions');
+      let selectedIndex = -1;
+
+      // Clear input and dropdown
+      searchInput.value = '';
+      dropdownOptions.innerHTML = '';
+
+      // Input event for searching
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const teachers = window.teachersData || [];
+        
+        // Filter teachers based on search term
+        const filteredTeachers = teachers.filter(teacher => 
+          teacher.teacher_name.toLowerCase().includes(searchTerm)
+        );
+
+        // Update dropdown options
+        dropdownOptions.innerHTML = '';
+        
+        if (searchTerm.length > 0 && filteredTeachers.length > 0) {
+          filteredTeachers.forEach((teacher, index) => {
+            const option = document.createElement('div');
+            option.className = 'dropdown-option';
+            option.textContent = teacher.teacher_name;
+            option.setAttribute('data-teacher-name', teacher.teacher_name);
+            
+            option.addEventListener('click', function() {
+              searchInput.value = teacher.teacher_name;
+              dropdownOptions.classList.remove('show');
+              selectedIndex = -1;
+            });
+
+            option.addEventListener('mouseenter', function() {
+              // Remove previous selection
+              dropdownOptions.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.remove('selected');
+              });
+              this.classList.add('selected');
+              selectedIndex = index;
+            });
+
+            dropdownOptions.appendChild(option);
+          });
+          
+          dropdownOptions.classList.add('show');
+        } else {
+          dropdownOptions.classList.remove('show');
+        }
+      });
+
+      // Focus event
+      searchInput.addEventListener('focus', function() {
+        const teachers = window.teachersData || [];
+        if (teachers.length > 0) {
+          // Show all teachers when input is focused
+          dropdownOptions.innerHTML = '';
+          
+          teachers.forEach((teacher, index) => {
+            const option = document.createElement('div');
+            option.className = 'dropdown-option';
+            option.textContent = teacher.teacher_name;
+            option.setAttribute('data-teacher-name', teacher.teacher_name);
+            
+            option.addEventListener('click', function() {
+              searchInput.value = teacher.teacher_name;
+              dropdownOptions.classList.remove('show');
+              selectedIndex = -1;
+            });
+
+            option.addEventListener('mouseenter', function() {
+              // Remove previous selection
+              dropdownOptions.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.remove('selected');
+              });
+              this.classList.add('selected');
+              selectedIndex = index;
+            });
+
+            dropdownOptions.appendChild(option);
+          });
+          
+          dropdownOptions.classList.add('show');
+        }
+      });
+
+      // Keyboard navigation
+      searchInput.addEventListener('keydown', function(e) {
+        const options = dropdownOptions.querySelectorAll('.dropdown-option');
+        
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = Math.min(selectedIndex + 1, options.length - 1);
+          updateSelection(options);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = Math.max(selectedIndex - 1, -1);
+          updateSelection(options);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (selectedIndex >= 0 && options[selectedIndex]) {
+            const teacherName = options[selectedIndex].getAttribute('data-teacher-name');
+            this.value = teacherName;
+            dropdownOptions.classList.remove('show');
+            selectedIndex = -1;
+          }
+        } else if (e.key === 'Escape') {
+          dropdownOptions.classList.remove('show');
+          selectedIndex = -1;
+        }
+      });
+
+      // Click outside to close dropdown
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdownOptions.contains(e.target)) {
+          dropdownOptions.classList.remove('show');
+          selectedIndex = -1;
+        }
+      });
+
+      function updateSelection(options) {
+        options.forEach((option, index) => {
+          if (index === selectedIndex) {
+            option.classList.add('selected');
+            option.scrollIntoView({ block: 'nearest' });
+          } else {
+            option.classList.remove('selected');
+          }
+        });
+      }
+    }
+
+    // Show Teacher Details Function
+    async function showTeacherDetails(teacherData) {
+      const detailsHTML = `
+        <div style="text-align: left; max-width: 500px;">
+          <h3 style="color: #3A1C71; margin-bottom: 20px; border-bottom: 2px solid #D76D77; padding-bottom: 10px;">
+            <i class="fas fa-user-tie"></i> Teacher Details
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div><strong>Teacher ID:</strong></div>
+            <div>${teacherData.teacher_id || 'N/A'}</div>
+            
+            <div><strong>Name:</strong></div>
+            <div>${teacherData.teacher_name || 'N/A'}</div>
+            
+            <div><strong>Email:</strong></div>
+            <div>${teacherData.email || 'N/A'}</div>
+            
+            <div><strong>Phone:</strong></div>
+            <div>${teacherData.phone || 'N/A'}</div>
+            
+            <div><strong>Designation:</strong></div>
+            <div>${teacherData.designation || 'N/A'}</div>
+            
+            <div><strong>Qualification:</strong></div>
+            <div>${teacherData.qualification || 'N/A'}</div>
+            
+            <div><strong>Gender:</strong></div>
+            <div>${teacherData.gender || 'N/A'}</div>
+            
+            <div><strong>State:</strong></div>
+            <div>${teacherData.state || 'N/A'}</div>
+            
+            <div><strong>City:</strong></div>
+            <div>${teacherData.city || 'N/A'}</div>
+            
+            <div><strong>Experience:</strong></div>
+            <div>${teacherData.experience || 'N/A'} years</div>
+            
+            <div><strong>Teaching Type:</strong></div>
+            <div>${teacherData.Teaching_type || 'N/A'}</div>
+          </div>
+          <div style="text-align: center; margin-top: 20px;">
+            <small style="color: #666;">
+              <i class="fas fa-calendar-alt"></i> 
+              Created: ${teacherData.created_at ? new Date(teacherData.created_at).toLocaleDateString() : 'N/A'}
+            </small>
+          </div>
+        </div>
+      `;
+      
+      await showAlert('Teacher Information', detailsHTML, 'info');
+    }
+
+    // Attach Event Listeners to Table
+    function attachTableEventListeners() {
+      // Edit Button
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.teacher-row');
+          currentEditingRow = row;
+          const teacherData = JSON.parse(row.getAttribute('data-teacher'));
+          document.getElementById('editTeacherName').value = teacherData.teacher_name || '';
+          document.getElementById('editTeacherEmail').value = teacherData.email || '';
+          document.getElementById('editTeacherPhone').value = teacherData.phone || '';
+          document.getElementById('editTeacherDesignation').value = teacherData.designation || '';
+          document.getElementById('editTeacherQualification').value = teacherData.qualification || '';
+          document.getElementById('editTeacherGender').value = teacherData.gender || '';
+          document.getElementById('editTeacherState').value = teacherData.state || '';
+          document.getElementById('editTeacherCity').value = teacherData.city || '';
+          document.getElementById('editTeacherExperience').value = teacherData.experience || '';
+          document.getElementById('editTeacherTeachingType').value = teacherData.Teaching_type || '';
+          document.getElementById('editTeacherModal').style.display = 'block';
+        });
+      });
+
+      // Delete Button
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.teacher-row');
+          const teacherData = row.getAttribute('data-teacher') ? JSON.parse(row.getAttribute('data-teacher')) : {};
+          
+          const confirmed = await showAlert(
+            'Delete Teacher',
+            `Are you sure you want to delete ${teacherData.teacher_name || 'this teacher'}?`,
+            'warning',
+            true
+          );
+          
+          if (confirmed) {
+            try {
+              showLoading();
+              
+              console.log('Deleting teacher with ID:', teacherData.teacher_id);
+              console.log('Teacher data:', teacherData);
+              
+              const response = await fetch(ADD_TEACHER_API, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  teacher_id: teacherData.teacher_id
+                })
+              });
+
+              console.log('Response status:', response.status);
+              console.log('Response ok:', response.ok);
+              
+              const result = await response.json();
+              console.log('Response result:', result);
+              
+              if (response.ok && result.success) {
+                // Remove the row from the table
+                row.remove();
+                
+                // Update the global teachers data
+                if (window.teachersData) { 
+                  window.teachersData = window.teachersData.filter(teacher => teacher.teacher_id !== teacherData.teacher_id);
+                }
+                
+                // Update the searchable dropdown
+                updateTeacherDropdowns(window.teachersData || []);
+                
+                hideLoading();
+                await showAlert('Success', 'Teacher deleted successfully', 'success');
+              } else {
+                let errorMessage = 'Failed to delete teacher';
+                if (result.message) {
+                  errorMessage = result.message;
+                } else if (response.status === 404) {
+                  errorMessage = 'Teacher not found';
+                } else if (response.status === 400) {
+                  errorMessage = 'Invalid request';
+                }
+                hideLoading();
+                await showAlert('Error', errorMessage, 'error');
+              }
+            } catch (error) {
+              console.error('Error deleting teacher:', error);
+              let errorMessage = 'Failed to delete teacher';
+              
+              if (error.name === 'SyntaxError') {
+                errorMessage = 'Invalid response from server';
+              } else if (error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your connection.';
+              }
+              
+              hideLoading();
+              await showAlert('Error', errorMessage, 'error');
+            }
+          }
+        });
+      });
+    }
+
+
+
+    // Teacher Search Functionality for View Teachers Data Tab
+    document.getElementById('teacherSearchBtn').addEventListener('click', async function() {
+      const selectedTeacher = document.getElementById('searchTeacherName').value;
+      
+      if (!selectedTeacher) {
+        await showAlert('Warning', 'Please select a teacher to search.', 'warning');
+        return;
+      }
+      
+      const teacherRows = document.querySelectorAll('#teachersTable tbody tr');
+      let matchFound = false;
+      
+      teacherRows.forEach(row => {
+        const teacherData = row.getAttribute('data-teacher') ? JSON.parse(row.getAttribute('data-teacher')) : {};
+        if (teacherData.teacher_name === selectedTeacher) {
+          row.style.display = '';
+          matchFound = true;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Show table section
+      document.getElementById('teacherTableSection').style.display = 'block';
+      
+      // If no match found, display a "No records found" row.
+      const tbody = document.querySelector('#teachersTable tbody');
+      const existingNoRecordRow = document.getElementById('teacherNoRecordRow');
+      if (!matchFound) {
+        if (!existingNoRecordRow) {
+          const noRow = document.createElement('tr');
+          noRow.id = 'teacherNoRecordRow';
+          noRow.innerHTML = '<td colspan="11" style="text-align:center;">No records found.</td>';
+          tbody.appendChild(noRow);
+        }
+        await showAlert('Info', 'No teacher found with the selected name.', 'info');
+      } else {
+        if (existingNoRecordRow) {
+          existingNoRecordRow.remove();
+        }
+        await showAlert('Success', `Found teacher: ${selectedTeacher}`, 'success');
+      }
+    });
+
+    // Show All Teachers Functionality
+    document.getElementById('showAllTeachersBtn').addEventListener('click', function() {
+      // Clear the search input
+      document.getElementById('searchTeacherName').value = '';
+      
+      // Show all teacher rows
+      const teacherRows = document.querySelectorAll('#teachersTable tbody tr');
+      teacherRows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      // Remove any "No records found" row
+      const existingNoRecordRow = document.getElementById('teacherNoRecordRow');
+      if (existingNoRecordRow) {
+        existingNoRecordRow.remove();
+      }
+      
+      // Hide dropdown options
+      const dropdownOptions = document.getElementById('teacherDropdownOptions');
+      dropdownOptions.classList.remove('show');
+      
+      // Show table section
+      document.getElementById('teacherTableSection').style.display = 'block';
+    });
+
+
+    // Enhanced Reset Form Functionality
+    document.getElementById('resetFormBtn').addEventListener('click', function() {
+      const form = document.getElementById('teacherForm');
+      form.reset();
+      
+      // Reset form fields
+      document.getElementById('teacher_state').value = '';
+      document.getElementById('teacher_city').value = '';
+      
+      // Clear any validation states
+      const inputs = form.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.classList.remove('is-invalid');
+        input.classList.remove('is-valid');
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+      });
+    });
+
+    // Simple form validation for state and city
+    function validateStateCity() {
+      const stateValue = document.getElementById('teacher_state').value.trim();
+      const cityValue = document.getElementById('teacher_city').value.trim();
+      
+      let isValid = true;
+      
+      // Validate state
+      if (!stateValue) {
+        document.getElementById('teacher_state').style.borderColor = '#dc3545';
+        isValid = false;
+      } else {
+        document.getElementById('teacher_state').style.borderColor = '#28a745';
+      }
+      
+      // Validate city
+      if (!cityValue) {
+        document.getElementById('teacher_city').style.borderColor = '#dc3545';
+        isValid = false;
+      } else {
+        document.getElementById('teacher_city').style.borderColor = '#28a745';
+      }
+      
+      return isValid;
+    }
+
+    // Phone number input restriction - only allow digits
+    document.getElementById('contact_number').addEventListener('input', function(e) {
+      // Remove any non-digit characters
+      this.value = this.value.replace(/\D/g, '');
+      
+      // Limit to 10 digits
+      if (this.value.length > 10) {
+        this.value = this.value.slice(0, 10);
+      }
+    });
+
+    // Real-time phone number validation
+    document.getElementById('contact_number').addEventListener('blur', function() {
+      const phone = this.value.trim();
+      if (phone && !validatePhone(phone)) {
+        this.style.borderColor = '#dc3545';
+        this.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+      } else {
+        this.style.borderColor = '';
+        this.style.boxShadow = '';
+      }
+    });
+
+    // Real-time email validation
+    document.getElementById('email').addEventListener('blur', function() {
+      const email = this.value.trim();
+      if (email && !validateEmail(email)) {
+        this.style.borderColor = '#dc3545';
+        this.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+      } else {
+        this.style.borderColor = '';
+        this.style.boxShadow = '';
+      }
+    });
+
+    // Add validation to form submission
+    document.getElementById('teacherForm').addEventListener('submit', function(e) {
+      if (!validateStateCity()) {
+        e.preventDefault();
+        alert('Please fill in both State and City fields');
+        return false;
+      }
+    });
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTeachers();
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {   
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

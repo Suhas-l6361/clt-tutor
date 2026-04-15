@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #3A1C71;
+      --primary-dark: #512da8;
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #fff;
+      --bg-color: #f0f2f7;
+      --input-bg: #f8fafc;
+      --border: #e9eaf1;
+      --danger: #FF6B6B;
+      --button-blue: #23384e;
+      --button-blue-hover: #0e2233;
+      --brand: #244285;
+      --brand-light: #4267b2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      color: #333;
+      min-height: 100vh;
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      height: 100vh;
+      z-index: 2000;
+      box-shadow: 2px 0 16px 0 rgba(32,40,84,0.04);
+      overflow-y: auto;
+      max-height: 100vh;
+      transition: left 0.3s;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 30px 0 16px 16px;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i {
+      font-size: 1.3rem; 
+      margin-right: 10px;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul { list-style: none; }
+    .sidebar ul li { margin: 20px 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px 10px 10px 22px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i { 
+      margin-right: 10px; 
+      font-size: 1.3rem; 
+      width: 25px; 
+      text-align: center; 
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li a .fa-trophy { color: #FFD700; }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+      margin-bottom: 20px;
+      padding-left: 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px 10px 22px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    @media (max-width: 991px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: 260px;
+        height: 100vh;
+        z-index: 2002;
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+      .sidebar.open { left: 0; }
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,30,40,0.22);
+      z-index: 1999;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 50px;
+      z-index: 3000;
+      padding: 8px 16px;
+      background: transparent;
+      pointer-events: none;
+    }
+    .history-btn {
+      margin-right: 10px;
+      padding: 6px 16px;
+      border-radius: 4px;
+      border: 1px solid #3A1C71;
+      font-size: 0.9rem;
+      background-color: #3A1C71;
+      color: #fff;
+      cursor: pointer;
+      pointer-events: auto;
+      position: relative;
+      z-index: 10;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .history-btn:hover {
+      background-color: #512da8;
+      border-color: #512da8;
+    }
+    
+    .responsive-select {
+      margin-right: 10px;
+      padding: 6px 20px 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.96rem;
+      background-color: #fff;
+      color: #333;
+      appearance: none;
+      pointer-events: auto;
+      position: relative;
+      z-index: 10;
+      transition: z-index 0.2s;
+    }
+    #menuToggle {
+      display: none;
+      font-size: 1.95rem;
+      color: #3A1C71;
+      background: #fff;
+      border: none;
+      border-radius: 5px;
+      margin-left: 5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      z-index: 4000;
+      pointer-events: auto;
+      transition: background 0.22s;
+    }
+    #menuToggle.menu-open {
+      background: #ffe6ee;
+      color: #f92b5d;
+    }
+    #menuToggle .fa-times { display: none; }
+    #menuToggle.menu-open .fa-bars { display: none; }
+    #menuToggle.menu-open .fa-times { display: inline; }
+    @media (max-width: 1150px) {
+      .history-btn {
+        top: 10px;
+        margin-bottom: 10px;
+      }
+      .top-bar {
+        padding-bottom: 20px;
+      }
+      .top-bar > div:first-child {
+        margin-bottom: 10px;
+      }
+      .timetable-container {
+        margin-top: 20px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .history-btn {
+        top: 20px;
+        margin-bottom: 20px;
+      }
+      .top-bar {
+        padding-bottom: 30px;
+      }
+      .top-bar > div:first-child {
+        margin-bottom: 20px;
+      }
+    }
+    
+    @media (max-width: 991px) {
+      #menuToggle { display: inline-block;}
+      .top-bar { pointer-events: auto;}
+    }
+    @media (max-width: 991px) {
+      .top-bar { position: relative; z-index: 0 !important;}
+      .sidebar.open ~ .top-bar .responsive-select {
+        z-index: 0 !important;
+        position: relative !important;
+        pointer-events: none;
+      }
+    }
+    .main-content {
+      margin-left: 260px;
+      width: calc(100vw - 260px);
+      min-height: 100vh;
+      padding: 58px 0 0 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      background: var(--bg-color);
+      transition: margin-left 0.28s;
+    }
+    @media (max-width: 991px) {
+      .main-content {margin-left: 0; width: 100vw;}
+    }
+    @media (max-width: 650px) {
+      .main-content {padding: 52px 0 0 0;}
+    }
+    .timetable-container {
+      width: 100%;
+      max-width: 840px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 40px 4px rgba(60,36,124,0.08);
+      padding: 32px 28px 30px 28px;
+      margin: 40px 18px 40px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 2px solid #edeaff;
+      position: relative;
+      z-index: 1;
+      background: #fff;
+    }
+    @media (max-width: 900px) {
+      .timetable-container {max-width: 98vw;}
+    }
+    @media (max-width: 600px) {
+      .timetable-container {padding: 13px 3vw 18px 3vw;}
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .header-logo img {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 2px solid #2a5298;
+      background: #e0ecfc;
+      object-fit: cover;
+    }
+    .header-logo .brand {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--brand);
+    }
+    .header-logo .sub {
+      color: var(--brand-light);
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+    .title-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 22px;
+      gap: 10px;
+    }
+    .title-bar i {
+      font-size: 1.4rem;
+      color: #3c5ba9;
+    }
+    .title-bar span {
+      font-size: 1.15rem;
+      color: #294578;
+      font-weight: 600;
+    }
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      min-width: 110px;
+      color: #395493;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: block;
+      font-size: 1rem;
+    }
+    .form-row {
+      flex: 1 1 210px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .input, select, .class-checkbox-label {
+      padding: 10px 12px;
+      border: 1px solid #bed2f8;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: #f5f8ff;
+      margin-top: 4px;
+    }
+    select { min-width: 60px; }
+    .class-checkbox-group {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .class-checkbox-label {
+      display: flex;
+      align-items: center;
+      background: #eaf1fc;
+      border: 1px solid #aac8ff;
+      padding: 6px 12px 6px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.97rem;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .class-checkbox-label input[type="checkbox"] {
+      margin-right: 6px;
+    }
+    .btn-row-table {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-top: 13px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+    .btn-add {
+      background: linear-gradient(90deg, #3c8edb 0%, #244285 100%);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(44,94,219,0.08);
+      transition: background 0.2s;
+    }
+    .btn-add:hover {
+      background: linear-gradient(90deg, #4267b2 0%, #244285 100%);
+    }
+    .btn-send {
+      background: linear-gradient(90deg, #25ad60 0%, #247539 100%);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(44,94,219,0.10);
+      transition: background 0.2s;
+    }
+    .btn-send:hover {
+      background: linear-gradient(90deg, #20a858 0%, #1f6d34 100%);
+    }
+    .success-msg {
+      margin-top: 8px;
+      color: #1b943b;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .timetable-section {
+      margin-top: 26px;
+      border-radius: 12px;
+      background: #f5f8ff;
+      box-shadow: 0 2px 10px rgba(44,94,219,0.04);
+      padding: 22px 10px 18px 10px;
+    }
+    .timetable-section h3 {
+      color: #2a5298;
+      font-size: 1.08rem;
+      margin-bottom: 13px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .tt-table-wrapper {
+      overflow-x: auto;
+      border-radius: 7px;
+      background: #fff;
+      padding: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid #c6d6f6;
+      padding: 8px 9px;
+      font-size: 0.99rem;
+      text-align: center;
+    }
+    th {
+      background: #e0ecfc;
+      color: #1e3562;
+      font-weight: 600;
+    }
+    .edit-btn {
+      background: #fae38c;
+      border: none;
+      color: #705c00;
+      border-radius: 6px;
+      padding: 5px 13px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+      font-size: 0.96rem;
+      margin-right: 8px;
+    }
+    .edit-btn:hover {
+      background: #ffe49d;
+    }
+    .delete-btn {
+      background: #FF6B6B;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 5px 13px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+      font-size: 0.96rem;
+    }
+    .delete-btn:hover {
+      background: #d12d2d;
+    }
+    .download-btn {
+      background: linear-gradient(90deg, #ff8942 0%, #f6508a 100%);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-weight: 600;
+      padding: 10px 22px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(246,80,138,0.10);
+      margin-top: 14px;
+      margin-left: 6px;
+      transition: background 0.2s;
+    }
+    .download-btn:hover {
+      background: linear-gradient(90deg, #f6508a 0%, #ff8942 100%);
+    }
+    .popup-bg, .recipient-popup-bg, .delete-popup-bg, .history-popup-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(38, 61, 113, 0.13);
+      z-index: 3002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .history-popup-bg {
+      z-index: 3003;
+    }
+    .popup, .recipient-popup, .delete-popup, .history-popup {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(44,94,219,0.18);
+      padding: 26px 32px 26px 32px;
+      min-width: 320px;
+      position: relative;
+      z-index: 3003;
+      text-align: center;
+    }
+    
+    .history-popup {
+      min-width: 1000px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: left;
+      position: fixed;
+      top: 50%;
+      left: calc(50% + 130px); /* 260px sidebar width / 2 + 20px gap */
+      transform: translate(-50%, -50%);
+      z-index: 3004;
+    }
+    
+    /* Responsive Design for History Popup */
+    @media (max-width: 1200px) {
+      .history-popup {
+        min-width: 90vw;
+        max-width: 95vw;
+        margin: 20px;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .history-popup {
+        min-width: 95vw;
+        max-width: 98vw;
+        margin: 10px;
+        padding: 20px;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.95);
+      }
+      
+      .date-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      
+      .date-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .date-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+      }
+      
+      .history-table {
+        font-size: 12px;
+        min-width: 500px; /* Smaller minimum width for mobile */
+      }
+      
+      .history-table th,
+      .history-table td {
+        padding: 8px 6px;
+      }
+      
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .history-popup {
+        min-width: 98vw;
+        max-width: 100vw;
+        margin: 5px;
+        padding: 15px;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+      }
+      
+      .date-title {
+        font-size: 14px;
+      }
+      
+      .date-btn {
+        padding: 6px 8px;
+        font-size: 10px;
+      }
+      
+      .history-table {
+        font-size: 11px;
+        min-width: 450px; /* Even smaller for very small screens */
+      }
+      
+      .history-table th,
+      .history-table td {
+        padding: 6px 4px;
+      }
+      
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #e0e0e0;
+      }
+    }
+    .popup .close-btn, .recipient-popup .close-btn, .delete-popup .close-btn, .history-popup .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #eee;
+      color: #244285;
+      border: none;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      font-size: 1.15rem;
+    }
+    .popup label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #38507b;
+    }
+    .popup input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #aac8ff;
+      font-size: 1rem;
+    }
+    .popup .popup-btn-row,
+    .delete-popup-btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .popup-btn, .delete-btn-confirm {
+      background: #4169e1;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .popup-btn.cancel, .delete-btn-cancel {
+      background: #eee;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+    .delete-btn-confirm {background: #FF6B6B;}
+    .delete-btn-confirm:hover {background: #d12d2d;}
+    .recipient-popup h3 {
+      font-size: 1.13rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #2a5298;
+    }
+    .recipient-options {
+      display: flex;
+      justify-content: space-around;
+      gap: 9px;
+      margin-bottom: 10px;
+      margin-top: 7px;
+      flex-wrap: wrap;
+    }
+    .recipient-label {
+      padding: 8px 13px;
+      border-radius: 7px;
+      background: #eaf1fc;
+      border: 1.5px solid #aac8ff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-size: 0.98rem;
+      gap: 7px;
+      user-select: none;
+      transition: background 0.2s, border 0.2s;
+    }
+    .recipient-label.selected {
+      background: #5cbdfb;
+      border-color: #2670c2;
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      .popup, .recipient-popup, .delete-popup { min-width: 96vw; padding: 20px 2vw;}
+      .header-logo .brand { font-size: 1.05rem;}
+      .recipient-options {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .recipient-label {
+        justify-content: center;
+        padding: 10px 15px;
+      }
+    }
+    
+    @media (max-width: 768px) and (min-width: 601px) {
+      .recipient-options {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .recipient-label {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+      }
+    }
+    
+    /* History Popup Styles */
+    .history-content {
+      margin-top: 20px;
+    }
+    
+    .date-group {
+      margin-bottom: 30px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .date-header {
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .date-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .date-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .date-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .date-btn.remove {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .date-btn.remove:hover {
+      background: #c82333;
+    }
+    
+    .date-btn.edit {
+      background: #007bff;
+      color: white;
+    }
+    
+    .date-btn.edit:hover {
+      background: #0056b3;
+    }
+    
+    .date-btn.download {
+      background: #28a745;
+      color: white;
+    }
+    
+    .date-btn.download:hover {
+      background: #218838;
+    }
+    
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px; /* Ensure minimum width for content */
+    }
+    
+    .history-table th,
+    .history-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+      white-space: nowrap; /* Prevent text wrapping */
+    }
+    
+    .history-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .history-table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    /* Table container for horizontal scroll */
+    .table-container {
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+         /* BC360 Loading Popup */
+     .loading-popup {
+       display: none;
+       position: fixed;
+       z-index: 3000;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+       background-color: rgba(0,0,0,0.5);
+       animation: fadeIn 0.3s;
+     }
+
+     .loading-content {
+       background: #ffffff;
+       margin: 20% auto;
+       padding: 40px;
+       border-radius: 12px;
+       width: 90%;
+       max-width: 300px;
+       text-align: center;
+       position: relative;
+       animation: slideIn 0.3s;
+       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+       color: #333;
+     }
+
+     .loading-spinner {
+       width: 60px;
+       height: 60px;
+       border: 4px solid #e9ecef;
+       border-top: 4px solid #3A1C71;
+       border-radius: 50%;
+       animation: spin 1s linear infinite;
+       margin: 0 auto 20px;
+     }
+
+     .loading-text {
+       font-size: 1.2rem;
+       font-weight: 600;
+       margin-bottom: 10px;
+       color: #3A1C71;
+     }
+
+     .loading-subtext {
+       font-size: 0.9rem;
+       color: #666;
+     }
+
+     @keyframes spin {
+       0% { transform: rotate(0deg); }
+       100% { transform: rotate(360deg); }
+     }
+
+     @keyframes fadeIn {
+       from { opacity: 0; }
+       to { opacity: 1; }
+     }
+
+     @keyframes slideIn {
+       from { transform: translateY(-50px); opacity: 0; }
+       to { transform: translateY(0); opacity: 1; }
+     }
+
+         /* Custom Alert Styles */
+     .alert-modal {
+       display: none;
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background-color: rgba(0, 0, 0, 0.6);
+       z-index: 4000;
+     }
+     
+     .alert-modal.show {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+     }
+
+    .alert-content {
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      max-width: 450px;
+      width: 90%;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .alert-content .alert-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .alert-content .alert-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+      color: #4CAF50; /* Default success color */
+    }
+
+    .alert-content .alert-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .alert-content .alert-message {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .alert-content .alert-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .alert-content .alert-btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 100px;
+    }
+
+    .alert-content .alert-btn.ok {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .alert-content .alert-btn.ok:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    .alert-content .alert-btn.cancel {
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .alert-content .alert-btn.cancel:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.05);
+    }
+
+    .alert-content .alert-btn.error {
+      background-color: #FF6B6B;
+      color: white;
+    }
+
+    .alert-content .alert-btn.error:hover {
+      background-color: #d12d2d;
+      transform: scale(1.05);
+    }
+
+    .alert-content .alert-btn.warning {
+      background-color: #FFC107;
+      color: #333;
+    }
+
+    .alert-content .alert-btn.warning:hover {
+      background-color: #e0a800;
+      transform: scale(1.05);
+    }
+
+    .alert-content .alert-btn.info {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .alert-content .alert-btn.info:hover {
+      background-color: #1976D2;
+      transform: scale(1.05);
+    }
+
+    .alert-content .alert-btn.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .alert-content .alert-btn.success:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    /* Alert Icon Colors */
+    .alert-icon.success {
+      color: #4CAF50;
+    }
+
+    .alert-icon.error {
+      color: #FF6B6B;
+    }
+
+    .alert-icon.warning {
+      color: #FFC107;
+    }
+
+    .alert-icon.info {
+      color: #2196F3;
+    }
+
+    /* Responsive improvements for alerts */
+    @media (max-width: 480px) {
+      .alert-content {
+        max-width: 95%;
+        padding: 25px 20px;
+        margin: 20px;
+      }
+      
+      .alert-content .alert-icon {
+        font-size: 44px;
+        margin-bottom: 15px;
+      }
+      
+      .alert-content .alert-title {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      
+      .alert-content .alert-message {
+        font-size: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .alert-content .alert-buttons {
+        gap: 10px;
+      }
+      
+      .alert-content .alert-btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        min-width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        Admin Panel
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html" class="active"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon"> Publish Achievements</a></li>
+        <li><a href="./internship.html"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="top-bar" id="topBar">
+    <button class="history-btn" onclick="openHistoryPopup()">
+      <i class="fa-solid fa-history"></i> Show History
+    </button>
+    <button id="menuToggle" aria-label="Toggle Menu">
+      <i class="fas fa-bars"></i>
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="main-content" id="mainContent">
+    <div class="timetable-container">
+      <div class="header-logo">
+        <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295408_960_720.png" alt="School Logo">
+        <div>
+          <div class="brand">My Modern School</div>
+          <div class="sub">Bengaluru, Karnataka</div>
+        </div>
+      </div>
+      <div class="title-bar">
+        <i class="fa-solid fa-calendar-plus"></i>
+        <span>Create & Send Time Table</span>
+      </div>
+      <form id="timetableForm" onsubmit="event.preventDefault(); addTimeTableEntry();">
+        <div class="form-group">
+          <div class="form-row">
+            <label for="subjectCode">Subject Code</label>
+            <input class="input" id="subjectCode" type="text" required placeholder="Eg: MAT101"/>
+          </div>
+          <div class="form-row">
+            <label for="subjectName">Subject Name</label>
+            <input class="input" id="subjectName" type="text" required placeholder="Eg: Mathematics"/>
+          </div>
+          <div class="form-row">
+            <label for="teacherName">Teacher Name</label>
+            <input class="input" id="teacherName" type="text" placeholder="Eg: John Doe"/>
+          </div>
+          <div class="form-row">
+            <label for="examType">Exam Type</label>
+            <input class="input" id="examType" type="text" placeholder="1st test/internal/exam"/>
+            <small style="color: #666; font-size: 0.8em; margin-top: 4px; display: block;">
+              This will be used as the session identifier for grouping related timetable entries
+            </small>
+          </div>
+          <div class="form-row">
+            <label for="generatedSessionId">Generated Session ID</label>
+            <input class="input" id="generatedSessionId" type="text" readonly style="background-color: #f5f5f5; cursor: not-allowed;"/>
+            <small style="color: #666; font-size: 0.8em; margin-top: 4px; display: block;">
+              Auto-generated unique identifier: ExamType_YYYY-MM-DD
+            </small>
+          </div>
+          <div class="form-row">
+            <label for="dayOfWeek">Day of Week</label>
+            <select class="input" id="dayOfWeek" required>
+              <option value="">Select Day</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="examDate">Date</label>
+            <input class="input" id="examDate" type="date" required />
+          </div>
+                     <div class="form-row">
+             <label for="examTime">Time</label>
+             <input class="input" id="examTime" name="examTime" type="time" required step="900"/>
+             <select class="input" id="timePeriod" name="timePeriod">
+               <option value="AM">AM</option>
+               <option value="PM">PM</option>
+             </select>
+           </div>
+           <div class="form-row">
+             <label for="launchTime">Launch Time</label>
+             <input class="input" id="launchTime" type="checkbox" style="width: auto; margin-right: 8px;"/>
+             <span style="color: #666; font-size: 0.9em;">Check if this is a launch time event</span>
+           </div>
+        </div>
+        <div class="form-row">
+          <label>Select Class(es)</label>
+          <div class="class-checkbox-group" id="classCheckboxGroup"></div>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn-add"><i class="fa-solid fa-plus"></i> Add</button>
+        </div>
+        <div class="success-msg" id="successMsg"></div>
+      </form>
+      <div class="timetable-section">
+        <h3><i class="fa-solid fa-table"></i> Today's Created Entries Preview</h3>
+        <div class="tt-table-wrapper">
+          <table id="timetableTable">
+            <thead>
+              <tr>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+                <th>Teacher</th>
+                <th>Day</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Launch Time</th>
+                <th>Class(es)</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rows go here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-row-table">
+          <button class="btn-send" onclick="openRecipientPopup()"><i class="fa-solid fa-paper-plane"></i> Send</button>
+          <button class="download-btn" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+          <button class="download-btn" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+        </div>
+      </div>
+    </div>
+    <!-- Stream Popup -->
+    <div class="popup-bg" id="streamPopupBg" style="display:none;">
+      <div class="popup">
+        <button class="close-btn" onclick="closeStreamPopup()">&times;</button>
+        <label id="popupLabel">Specify Stream for:</label>
+        <input type="text" id="streamInput" placeholder="Eg: Science, Commerce, Arts" autocomplete="off"/>
+        <div class="popup-btn-row">
+          <button class="popup-btn" onclick="submitStream()">Submit</button>
+          <button class="popup-btn cancel" onclick="closeStreamPopup()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- Delete Confirmation Popup -->
+    <div class="delete-popup-bg" id="deletePopupBg" style="display:none;">
+      <div class="delete-popup">
+        <button class="close-btn" onclick="closeDeletePopup()">&times;</button>
+        <div style="margin-bottom:14px;color:#294578;font-weight:600;">
+          Are you sure you want to delete this time table entry?
+        </div>
+        <div class="delete-popup-btn-row">
+          <button class="delete-btn-confirm" onclick="confirmDeleteEntry()">OK</button>
+          <button class="delete-btn-cancel" onclick="closeDeletePopup()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- History Popup -->
+    <div class="history-popup-bg" id="historyPopupBg" style="display:none;">
+      <div class="history-popup">
+        <button class="close-btn" onclick="closeHistoryPopup()">&times;</button>
+        <h3>Time Table History</h3>
+        <div class="history-content" id="historyContent">
+          <!-- History content will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipient Selection Popup -->
+    <div class="recipient-popup-bg" id="recipientPopupBg" style="display:none;">
+      <div class="recipient-popup">
+        <button class="close-btn" onclick="closeRecipientPopup()">&times;</button>
+        <h3>Send Time Table To</h3>
+        <div class="recipient-options">
+          <label class="recipient-label" id="rec-teacher">
+            <input type="checkbox" id="cb-teacher" onclick="updateRecipient('teacher')" style="display:none;"/>
+            <i class="fa-solid fa-chalkboard-teacher"></i> Teacher
+          </label>
+          <label class="recipient-label" id="rec-student">
+            <input type="checkbox" id="cb-student" onclick="updateRecipient('student')" style="display:none;"/>
+            <i class="fa-solid fa-user-graduate"></i> Student
+          </label>
+          <label class="recipient-label" id="rec-parent">
+            <input type="checkbox" id="cb-parent" onclick="updateRecipient('parent')" style="display:none;"/>
+            <i class="fa-solid fa-user-friends"></i> Parent
+          </label>
+          <label class="recipient-label" id="rec-all">
+            <input type="checkbox" id="cb-all" onclick="updateRecipient('all')" style="display:none;"/>
+            <i class="fa-solid fa-users"></i> All
+          </label>
+        </div>
+        <button class="popup-btn" style="margin-top: 10px;" onclick="sendTimeTable()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BC360 Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BC360</div>
+      <div class="loading-subtext">Loading...</div>
+    </div>
+  </div>
+
+
+
+  <script>
+     // API Configuration
+   const API_BASE_URL = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/timeTable';
+  
+  // Global variables
+  let timetableData = [];
+  let editIndex = null;
+  let deleteIndex = null;
+  let classSelections = [];
+  let tempStreamClass = '';
+  let lastTimeValue = '';
+  let lastExamTypeValue = '';
+
+  // Helper function to ensure jsPDF is loaded
+  function ensureJsPDFLoaded() {
+    return new Promise((resolve, reject) => {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        resolve(window.jspdf.jsPDF);
+        return;
+      }
+      let attempts = 0;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (window.jspdf && window.jspdf.jsPDF) {
+          clearInterval(checkInterval);
+          resolve(window.jspdf.jsPDF);
+        } else if (attempts > 20) { // 2 seconds timeout
+          clearInterval(checkInterval);
+          reject(new Error('jsPDF library failed to load'));
+        }
+      }, 100);
+    });
+  }
+
+           // API Helper Functions - Fixed CORS and added better error handling
+    async function apiCall(method, data = null) {
+      try {
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors',
+          credentials: 'omit'
+        };
+
+        if (data) {
+          options.body = JSON.stringify(data);
+        }
+
+        console.log(`Making ${method} request to:`, API_BASE_URL);
+        console.log('Request data:', data);
+        console.log('Request options:', options);
+
+        const response = await fetch(API_BASE_URL, options);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        // Check if response is ok before trying to parse JSON
+        if (!response.ok) {
+          console.error('HTTP Error:', response.status, response.statusText);
+          throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('Response body:', result);
+
+        return result;
+      } catch (error) {
+        console.error('API Error Details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+        throw error;
+      }
+    }
+
+     // Load timetable data on page load
+   async function loadTimeTableData() {
+     try {
+       showLoading(); // Show loading
+       console.log('Testing API connection...');
+       const result = await apiCall('GET');
+       console.log('API connection successful:', result);
+       if (result.success) {
+         timetableData = result.time_table_entries || [];
+         renderTable();
+         console.log('Loaded timetable data:', timetableData);
+       } else {
+         console.error('Failed to load timetable data:', result.message);
+         showMessage('Failed to load timetable data', 'error');
+       }
+     } catch (error) {
+       console.error('Error loading timetable data:', error);
+       console.error('API connection failed:', error.message);
+       showMessage('Error loading timetable data. Please try again.', 'error');
+     } finally {
+       hideLoading(); // Hide loading
+     }
+   }
+
+  // Generate unique session ID based on exam type and current date
+  function generateSessionId(examType) {
+    if (!examType.trim()) return '';
+    
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    
+    // Clean the exam type to remove special characters
+    const cleanExamType = examType.trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, ' ');
+    
+    return `${cleanExamType}_${year}-${month}-${day}`;
+  }
+
+  // Update generated session ID field
+  function updateGeneratedSessionId() {
+    const examType = document.getElementById('examType').value;
+    const generatedId = generateSessionId(examType);
+    document.getElementById('generatedSessionId').value = generatedId;
+  }
+
+  // Partial reset form function (used after successful add)
+  function partialResetForm() {
+    // Only clear subject-specific fields
+    document.getElementById('subjectCode').value = '';
+    document.getElementById('subjectName').value = '';
+    document.getElementById('teacherName').value = '';
+    
+    // Keep these fields unchanged for easy multiple entry:
+    // - dayOfWeek
+    // - examType (session name)
+    // - generatedSessionId 
+    // - examDate
+    // - examTime
+    // - timePeriod
+    // - launchTime
+    // - classSelections (selected classes)
+    
+    editIndex = null; // Reset edit mode
+    console.log('✨ Partial form reset - kept exam session details');
+    
+    // Focus on subject code for next entry
+    document.getElementById('subjectCode').focus();
+  }
+
+       // Clear form function (full reset)
+  function clearForm() {
+    document.getElementById('subjectCode').value = '';
+    document.getElementById('subjectName').value = '';
+    document.getElementById('teacherName').value = '';
+    document.getElementById('dayOfWeek').value = '';
+    document.getElementById('examType').value = '';
+    document.getElementById('generatedSessionId').value = '';
+    document.getElementById('launchTime').checked = false;
+    // Keep exam type, date, time, and time period for quick entry of multiple entries
+    // Only reset these when reset button is clicked or page is refreshed
+    classSelections = [];
+    renderClassCheckboxes();
+    editIndex = null; // Reset edit mode when clearing form
+    console.log('🧹 Full form reset completed');
+  }
+
+  // Show message function
+  function showMessage(message, type = 'success') {
+    const successMsg = document.getElementById("successMsg");
+    successMsg.innerText = message;
+    successMsg.style.color = type === 'error' ? '#d12d2d' : '#1b943b';
+    setTimeout(() => { successMsg.innerText = ""; }, 3000);
+  }
+
+  // Loading functions
+  function showLoading() {
+    document.getElementById('loadingPopup').style.display = 'block';
+  }
+
+  function hideLoading() {
+    document.getElementById('loadingPopup').style.display = 'none';
+  }
+
+  // Hamburger toggle logic
+  const sidebar = document.getElementById('sidebar');
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  let menuOpen = false;
+  function openSidebar() {
+    menuOpen = true;
+    sidebar.classList.add('open');
+    menuToggle.classList.add('menu-open');
+    sidebarOverlay.classList.add('active');
+    document.body.classList.add('sidebar-open');
+  }
+  function closeSidebar() {
+    menuOpen = false;
+    sidebar.classList.remove('open');
+    menuToggle.classList.remove('menu-open');
+    sidebarOverlay.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
+  }
+  menuToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (!menuOpen) openSidebar();
+    else closeSidebar();
+  });
+  sidebarOverlay.addEventListener('click', function() {
+    closeSidebar();
+  });
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 991 && menuOpen) closeSidebar();
+  });
+  sidebar.querySelectorAll('a').forEach(a=>{
+    a.onclick=()=>{ if(window.innerWidth<=991) closeSidebar(); }
+  });
+
+  // TIMETABLE LOGIC
+  const classOptions = [
+    "Class 6","Class 7","Class 8","Class 9","Class 10",
+    "PU","Degree","Master"
+  ];
+  const streamRequired = ["PU", "Degree", "Master"];
+
+  function renderClassCheckboxes() {
+    const group = document.getElementById('classCheckboxGroup');
+    group.innerHTML = '';
+    classOptions.forEach(opt => {
+      classSelections.filter(c => c.startsWith(opt)).forEach(sel => {
+        let [main, stream] = sel.split(' - ');
+        let label = stream ? `${main} (${stream})` : main;
+        group.innerHTML += `
+          <label class="class-checkbox-label">
+            <input type="checkbox" checked onchange="toggleClassSelection('${sel}')" /> ${label}
+          </label>
+        `;
+      });
+    });
+    classOptions.forEach(opt => {
+      if (streamRequired.includes(opt)) {
+        if (!classSelections.some(c=>c.startsWith(opt))) {
+          group.innerHTML += `
+            <label class="class-checkbox-label">
+              <input type="checkbox" onchange="classCheckboxChanged(this, '${opt}')" /> ${opt}
+            </label>
+          `;
+        }
+      } else {
+        if (!classSelections.includes(opt)) {
+          group.innerHTML += `
+            <label class="class-checkbox-label">
+              <input type="checkbox" onchange="toggleClassSelection('${opt}')" /> ${opt}
+            </label>
+          `;
+        }
+      }
+    });
+  }
+  window.renderClassCheckboxes = renderClassCheckboxes;
+
+  function toggleClassSelection(value) {
+    if (classSelections.includes(value)) {
+      classSelections = classSelections.filter(cls => cls !== value);
+    } else {
+      classSelections.push(value);
+    }
+    renderClassCheckboxes();
+  }
+
+  function classCheckboxChanged(checkbox, value) {
+    if (checkbox.checked) {
+      tempStreamClass = value;
+      document.getElementById('popupLabel').textContent = `Specify Stream for: ${value}`;
+      document.getElementById('streamInput').value = '';
+      document.getElementById('streamPopupBg').style.display = 'flex';
+      checkbox.checked = false;
+    }
+  }
+  function closeStreamPopup() {
+    document.getElementById('streamPopupBg').style.display = 'none';
+    tempStreamClass = '';
+  }
+  function submitStream() {
+    const stream = document.getElementById('streamInput').value.trim();
+    if (!stream) {
+      showAlert('Stream Required', 'Please specify a stream for this class.', 'warning');
+      return;
+    }
+    classSelections.push(tempStreamClass + ' - ' + stream);
+    closeStreamPopup();
+    renderClassCheckboxes();
+  }
+
+     // Add timetable entry - Fixed version
+   async function addTimeTableEntry() {
+     const subjectCode = document.getElementById('subjectCode').value.trim();
+     const subjectName = document.getElementById('subjectName').value.trim();
+     const teacherName = document.getElementById('teacherName').value.trim();
+     const dayOfWeek = document.getElementById('dayOfWeek').value;
+     const examType = document.getElementById('examType').value;
+     const examDate = document.getElementById('examDate').value;
+     const examTime = document.getElementById('examTime').value;
+     const timePeriod = document.getElementById('timePeriod').value;
+     const launchTime = document.getElementById('launchTime').checked;
+     const classes = classSelections;
+
+           if (!subjectCode || !subjectName || !dayOfWeek || !examDate || !examTime || classes.length === 0) {
+        showMessage('Please fill all required fields and select at least one class.', 'error');
+        return;
+      }
+
+     try {
+       showLoading();
+       
+       // Get current authenticated admin's ID
+       const userData = window.UserSession.getUserData();
+       // Try different possible admin ID fields
+       const adminId = userData && userData.user && (userData.user.admin_id || userData.user.id) ? 
+                       (userData.user.admin_id || userData.user.id) : null;
+       
+       console.log("👨‍💼 DEBUG - Full userData:", userData);
+       console.log("👨‍💼 DEBUG - Available ID fields:", {
+         admin_id: userData?.user?.admin_id,
+         id: userData?.user?.id
+       });
+       console.log("👨‍💼 Using Admin ID:", adminId, "for", userData.displayName);
+       
+       if (!adminId) {
+         console.error("❌ Admin ID not found. userData.user:", userData?.user);
+         throw new Error('Unable to get admin ID. Please login again.');
+       }
+       
+       // Get session ID (generated for new, preserved for edits)
+       const generatedSessionId = document.getElementById('generatedSessionId').value;
+       const sessionId = (editIndex !== null) ? generatedSessionId : (generatedSessionId || examType || '');
+       
+       // ✅ Fix 1: Add current admin_id
+       // ✅ Fix 2: Send classes as array (backend will handle JSON conversion)  
+       // ✅ Fix 3: Send exam_time and time_period separately
+       // ✅ Fix 4: Use generated session ID for uniqueness
+       const timetableEntry = {
+         admin_id: adminId, // Use current authenticated admin's ID
+         subject_code: subjectCode,
+         subject_name: subjectName,
+         teacher_name: teacherName,
+         exam_type: sessionId, // Use session ID for grouping
+         day: dayOfWeek,
+         exam_date: examDate,
+         exam_time: examTime,
+         time_period: timePeriod,
+         launch_time: launchTime,
+         classes: classes, // Send as array, backend will convert to JSON
+         institution_id: null, // Default null for institution ID
+         institution_name: null // Default null for institution name
+       };
+
+       console.log("📤 Sending timetableEntry:", timetableEntry);
+
+       let result;
+       
+       // Check if we're editing an existing entry
+       if (editIndex !== null && timetableData[editIndex]) {
+         // Update existing entry
+         const existingEntry = timetableData[editIndex];
+         const updateData = {
+           id: existingEntry.id,
+           ...timetableEntry
+         };
+         
+         console.log("📤 Updating existing entry:", updateData);
+         result = await apiCall('PUT', updateData);
+         
+                   if (result.success) {
+            // Update local data
+            timetableData[editIndex] = {
+              ...existingEntry,
+              ...timetableEntry,
+              classes: classes,
+              updated_at: new Date().toISOString() // Add update timestamp
+            };
+            editIndex = null; // Reset edit mode
+            showMessage('Entry updated successfully', 'success');
+          }
+       } else {
+         // Add new entry
+         result = await apiCall('POST', timetableEntry);
+         
+                   if (result.success) {
+            // ✅ Add new entry to local array with proper created_at timestamp
+            const newEntry = {
+              id: result.id || Date.now(),
+              ...timetableEntry,
+              classes: classes, // Keep as array for display
+              created_at: new Date().toISOString() // Add current timestamp
+            };
+            
+            timetableData.push(newEntry);
+            showMessage('Entry added successfully! Ready for next subject.', 'success');
+          }
+       }
+
+       if (!result.success) {
+         console.error("❌ Full API error response:", result);
+         throw new Error(result.message || 'Failed to process timetable entry');
+       }
+       
+       renderTable();
+       
+       // ✅ Partial reset - keep exam session details, clear only subject details
+       partialResetForm();
+     } catch (error) {
+       console.error("❌ Error in addTimeTableEntry:", error);
+       hideLoading();
+       showMessage(`Error adding entry: ${error.message}`, 'error');
+     } finally {
+       hideLoading();
+     }
+   }
+
+  // On time or period change, remember their values
+  document.addEventListener('DOMContentLoaded', function() {
+    let etype = document.getElementById('examType');
+    let etime = document.getElementById('examTime');
+    let tperiod = document.getElementById('timePeriod');
+    etype.addEventListener('input', function() {
+      lastExamTypeValue = etype.value;
+      updateGeneratedSessionId(); // Update session ID when exam type changes
+    });
+    etime.addEventListener('input', function() {
+      lastTimeValue = etime.value;
+    });
+    tperiod.addEventListener('change', function() {
+      window.lastTimePeriod = tperiod.value;
+    });
+
+    // Load initial data
+    loadTimeTableData();
+  });
+
+  function renderTable() {
+    const tbody = document.querySelector("#timetableTable tbody");
+    tbody.innerHTML = "";
+    
+    // Filter entries created today for "Today's Created Entries Preview"
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    const todaysEntries = timetableData.filter(entry => {
+      if (!entry.created_at) return false;
+      const entryDate = new Date(entry.created_at);
+      const entryDateString = entryDate.toISOString().split('T')[0];
+      return entryDateString === todayString;
+    });
+    
+    if (todaysEntries.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="10" style="text-align: center; padding: 20px; color: #666; font-style: italic;">
+            No time table entries created today (${todayString}). Add entries for today's date above!
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    
+    const entriesToShow = todaysEntries;
+    
+    entriesToShow.forEach((entry, index) => {
+      // Find the original index in timetableData for edit/delete functions
+      const originalIndex = timetableData.findIndex(item => 
+        item.subject_code === entry.subject_code && 
+        item.exam_date === entry.exam_date
+      );
+      
+      // Format date to dd/mm/yyyy for display
+      let formattedDate = entry.exam_date;
+      if (entry.exam_date) {
+        const date = new Date(entry.exam_date);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        formattedDate = `${day}/${month}/${year}`;
+      }
+      
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${entry.subject_code}</td>
+        <td>${entry.subject_name}</td>
+        <td>${entry.teacher_name || ''}</td>
+        <td>${entry.day || ''}</td>
+        <td>${formattedDate}</td>
+        <td>${entry.time || formatTimeForDisplay(entry.exam_time, entry.time_period)}</td>
+        <td>${entry.launch_time ? '<span style="color: #28a745; font-weight: 600;">✓ Yes</span>' : '<span style="color: #6c757d;">✗ No</span>'}</td>
+        <td>${Array.isArray(entry.classes) ? entry.classes.map(c=>c.replace(' - ', ' (') + (c.includes(' - ') ? ')' : '')).join(', ') : entry.classes}</td>
+        <td>
+          <button class="edit-btn" onclick="editEntry(${originalIndex})"><i class="fa-solid fa-pen"></i> Edit</button>
+        </td>
+        <td>
+          <button class="delete-btn" onclick="openDeletePopup(${originalIndex})"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Helper function to format time for display
+  function formatTimeForDisplay(timeString, period) {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    let hrNum = parseInt(hours, 10);
+    const displayHour = hrNum % 12 || 12;
+    return `${displayHour.toString().padStart(2, '0')}:${minutes} ${period || 'AM'}`;
+  }
+
+  window.editEntry = function(index) {
+    const entry = timetableData[index];
+    document.getElementById('subjectCode').value = entry.subject_code;
+    document.getElementById('subjectName').value = entry.subject_name;
+    document.getElementById('teacherName').value = entry.teacher_name || '';
+    document.getElementById('dayOfWeek').value = entry.day || '';
+    document.getElementById('examType').value = entry.exam_type || '';
+    
+    // Format date to yyyy-MM-dd for input field (HTML date input format)
+    if (entry.exam_date) {
+      const date = new Date(entry.exam_date);
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      document.getElementById('examDate').value = `${year}-${month}-${day}`;
+    }
+    
+    // Convert time back to input format
+    const timeStr = entry.time || formatTimeForDisplay(entry.exam_time, entry.time_period);
+    let [hr, minPeriod] = timeStr.split(':');
+    let [min, period] = minPeriod.split(' ');
+    let hrNum = parseInt(hr, 10);
+    if (period === 'PM' && hrNum !== 12) hrNum += 12;
+    if (period === 'AM' && hrNum === 12) hrNum = 0;
+    document.getElementById('examTime').value = hrNum.toString().padStart(2, '0') + ':' + min;
+    document.getElementById('timePeriod').value = period;
+    
+    // Set launch time checkbox
+    document.getElementById('launchTime').checked = entry.launch_time || false;
+    
+    classSelections = Array.isArray(entry.classes) ? [...entry.classes] : [];
+    renderClassCheckboxes();
+    editIndex = index;
+    showMessage('Edit the entry and click Add to update.');
+  }
+
+  function openDeletePopup(index) {
+    deleteIndex = index;
+    document.getElementById('deletePopupBg').style.display = 'flex';
+  }
+  
+  function closeDeletePopup() {
+    document.getElementById('deletePopupBg').style.display = 'none';
+    deleteIndex = null;
+  }
+  
+  async function confirmDeleteEntry() {
+    if (deleteIndex !== null && timetableData[deleteIndex]) {
+      const entryToDelete = timetableData[deleteIndex];
+      
+      try {
+        showLoading(); // Show loading
+        const result = await apiCall('DELETE', { id: entryToDelete.id });
+        
+        if (result.success) {
+          timetableData.splice(deleteIndex, 1);
+          renderTable();
+          showMessage('Time table entry deleted successfully!');
+        } else {
+          showMessage(result.message || 'Failed to delete time table entry', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting time table entry:', error);
+        showMessage('Error deleting time table entry. Please try again.', 'error');
+      } finally {
+        hideLoading(); // Hide loading
+      }
+    }
+    closeDeletePopup();
+  }
+
+  async function downloadPDF() {
+    if (timetableData.length === 0) {
+      showAlert('No Entries Found', 'Add at least one time table entry before downloading.', 'warning');
+      return;
+    }
+    
+    try {
+      const jsPDF = await ensureJsPDFLoaded();
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Header Section - Like ICAB format
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text('MY MODERN SCHOOL', pageWidth/2, 60, {align: 'center'});
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Bengaluru, Karnataka', pageWidth/2, 85, {align: 'center'});
+    
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 0, 0); // Red color like ICAB
+    doc.text('EXAMINATIONS TIME-TABLE', pageWidth/2, 120, {align: 'center'});
+    
+    // Filter entries created today
+    const todayForPDF = new Date();
+    const todayStringForPDF = todayForPDF.toISOString().split('T')[0];
+    
+    const todaysEntries = timetableData.filter(entry => {
+      if (!entry.created_at) return false;
+      const entryDate = new Date(entry.created_at);
+      const entryDateString = entryDate.toISOString().split('T')[0];
+      return entryDateString === todayStringForPDF;
+    });
+
+    if (todaysEntries.length === 0) {
+      showAlert('No Entries Found', 'No entries created today to download.', 'warning');
+      return;
+    }
+
+    // Add today's date to header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 0, 0); // Red color
+    doc.text(`CREATED TODAY (${todayStringForPDF})`, pageWidth/2, 145, {align: 'center'});
+
+    // Table - Like ICAB format with new columns
+    const columns = [
+      { header: 'Day & Date', dataKey: 'date' },
+      { header: 'Subject Code', dataKey: 'code' },
+      { header: 'Subject Name', dataKey: 'name' },
+      { header: 'Teacher', dataKey: 'teacher' },
+      { header: 'Launch Time', dataKey: 'launch_time' },
+      { header: 'Time', dataKey: 'time' },
+      { header: 'Class(es)', dataKey: 'classes' },
+    ];
+    const rows = todaysEntries.map(row => {
+      // Format date to dd-MMM-yy, Day format like ICAB
+      let formattedDate = row.exam_date;
+      if (row.exam_date) {
+        const date = new Date(row.exam_date);
+        const day = date.getDate().toString().padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear().toString().slice(-2);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[date.getDay()];
+        formattedDate = `${day}-${month}-${year}, ${dayName}`;
+      }
+      
+      return {
+        date: formattedDate,
+        code: row.subject_code,
+        name: row.subject_name,
+        time: row.time || formatTimeForDisplay(row.exam_time, row.time_period),
+        classes: Array.isArray(row.classes) ? row.classes.map(c=>c.replace(' - ', ' (') + (c.includes(' - ') ? ')' : '')).join(', ') : row.classes
+      };
+    });
+
+    if (doc.autoTable === undefined) {
+      showAlert('PDF Plugin Error', 'PDF table plugin not loaded. Please refresh the page and try again.', 'error');
+      return;
+    }
+    let tableMargin = 40;
+    let tableWidth = pageWidth - (tableMargin * 2);
+
+    doc.autoTable({
+      startY: 170,
+      head: [columns.map(c => c.header)],
+      body: rows.map(r => columns.map(c => r[c.dataKey])),
+      margin: { left: 40, right: 40 },
+      tableWidth: pageWidth - 80,
+      theme: 'grid',
+      styles: {
+        fontSize: 10,
+        cellPadding: 6,
+        font: "helvetica",
+        textColor: [0,0,0],
+        valign: 'middle',
+        lineWidth: 1.0,
+        lineColor: [0,0,0],
+      },
+      headStyles: {
+        fillColor: [255,255,255],
+        textColor: [0,0,0],
+        fontStyle: "bold",
+        fontSize: 11,
+        halign: 'center',
+        lineWidth: 1.5,
+        lineColor: [0,0,0],
+        cellPadding: 8,
+      },
+      bodyStyles: {
+        fillColor: [255,255,255],
+        textColor: [0,0,0],
+        halign: 'left',
+        lineWidth: 1.0,
+        lineColor: [0,0,0],
+        fontSize: 10,
+      },
+      tableLineWidth: 1.5,
+      tableLineColor: [0,0,0],
+      didDrawPage: function (data) {
+        // Simple border like ICAB format
+        if (data.table && data.table.width && data.table.height && data.table.body.length > 0) {
+          doc.setDrawColor(0,0,0);
+          doc.setLineWidth(2.0);
+          doc.rect(
+            35, // offset to cover margin
+            160,
+            pageWidth - 70,
+            data.table.height + 20,
+            'S'
+          );
+          doc.setLineWidth(0.2);
+        }
+      }
+    });
+
+    // Add signature section at the bottom
+    const tableEndY = 170 + (rows.length * 30) + 50; // Approximate table end position
+    
+    // Signature line
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(1.0);
+    doc.line(100, tableEndY + 40, 200, tableEndY + 40); // Left signature line
+    
+    // Signature text
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(0,0,0);
+    doc.text('Principal', 150, tableEndY + 60, {align: 'center'});
+    doc.text('My Modern School', 150, tableEndY + 80, {align: 'center'});
+    
+    doc.text('Date:', pageWidth - 150, tableEndY + 60, {align: 'center'});
+    
+    // Add current date
+    const todayForCurrentDate = new Date();
+    const day = todayForCurrentDate.getDate().toString().padStart(2, '0');
+    const month = (todayForCurrentDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = todayForCurrentDate.getFullYear();
+    doc.text(`${day}/${month}/${year}`, pageWidth - 150, tableEndY + 80, {align: 'center'});
+
+    // Generate filename with today's date
+    doc.save(`TimeTable_Today_${todayStringForPDF}.pdf`);
+    
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      showAlert('PDF Generation Error', 'Failed to generate PDF. Please try again.', 'error');
+    }
+  }
+
+  // Export CSV function
+  function exportCSV() {
+    // Filter entries created today
+    const todayForCSV = new Date();
+    const todayStringForCSV = todayForCSV.toISOString().split('T')[0];
+    
+    const todaysEntries = timetableData.filter(entry => {
+      if (!entry.created_at) return false;
+      const entryDate = new Date(entry.created_at);
+      const entryDateString = entryDate.toISOString().split('T')[0];
+      return entryDateString === todayStringForCSV;
+    });
+
+    if (todaysEntries.length === 0) {
+      showAlert('No Entries Found', 'No entries created today to export.', 'warning');
+      return;
+    }
+
+    // Create CSV content
+    let csvContent = "Subject Code,Subject Name,Teacher Name,Day,Exam Type,Date,Time,Launch Time,Classes,Created Date\n";
+    
+    todaysEntries.forEach(entry => {
+      const teacherName = entry.teacher_name || '';
+      const day = entry.day || '';
+      const examType = entry.exam_type || '';
+      
+      // Format exam date to dd/mm/yyyy
+      let examDate = entry.exam_date;
+      if (entry.exam_date) {
+        const date = new Date(entry.exam_date);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        examDate = `${day}/${month}/${year}`;
+      }
+      
+      // Format exam time to 12-hour format
+      let timeDisplay = entry.time || formatTimeForDisplay(entry.exam_time, entry.time_period);
+      
+      // Format created date to dd/mm/yyyy HH:MM AM/PM
+      let createdDate = '';
+      if (entry.created_at) {
+        const created = new Date(entry.created_at);
+        const day = created.getDate().toString().padStart(2, '0');
+        const month = (created.getMonth() + 1).toString().padStart(2, '0');
+        const year = created.getFullYear();
+        const hours = created.getHours();
+        const minutes = created.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        createdDate = `${day}/${month}/${year} ${displayHours}:${minutes} ${ampm}`;
+      }
+      
+      const launchTime = entry.launch_time ? 'Yes' : 'No';
+      const classes = Array.isArray(entry.classes) ? entry.classes.join(', ') : entry.classes;
+      
+      csvContent += `"${entry.subject_code}","${entry.subject_name}","${teacherName}","${day}","${examType}","${examDate}","${timeDisplay}","${launchTime}","${classes}","${createdDate}"\n`;
+    });
+
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `timetable_today_${todayStringForCSV}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // AutoTable CDN (for PDF tables)
+  (function loadAutoTable(){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+    document.head.appendChild(s);
+  })();
+
+  // History Popup Logic
+  let allTimeTableData = []; // Store all data from API
+  
+  async function openHistoryPopup() {
+    showLoading();
+    try {
+      // Fetch all data from API
+      const result = await apiCall('GET');
+      if (result.success) {
+        allTimeTableData = result.time_table_entries || [];
+        renderHistoryContent();
+        document.getElementById('historyPopupBg').style.display = 'flex';
+      } else {
+        showMessage('Failed to load history data', 'error');
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+      showMessage('Error loading history data', 'error');
+    } finally {
+      hideLoading();
+    }
+  }
+  
+  function closeHistoryPopup() {
+    document.getElementById('historyPopupBg').style.display = 'none';
+  }
+  
+  function renderHistoryContent() {
+    const historyContent = document.getElementById('historyContent');
+    
+    if (allTimeTableData.length === 0) {
+      historyContent.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No time table entries found.</p>';
+      return;
+    }
+    
+    // Group entries by created_at date
+    const groupedData = {};
+    allTimeTableData.forEach(entry => {
+      if (entry.created_at) {
+        const date = new Date(entry.created_at);
+        const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        if (!groupedData[dateKey]) {
+          groupedData[dateKey] = [];
+        }
+        groupedData[dateKey].push(entry);
+      }
+    });
+    
+    // Sort dates in descending order
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
+    
+    let html = '';
+    sortedDates.forEach(dateKey => {
+      const entries = groupedData[dateKey];
+      const date = new Date(dateKey);
+      const formattedDate = date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      html += `
+        <div class="date-group">
+          <div class="date-header">
+            <div class="date-title">${formattedDate}</div>
+            <div class="date-actions">
+              <button class="date-btn download" onclick="downloadDateGroup('${dateKey}')">
+                <i class="fa-solid fa-download"></i> Download
+              </button>
+              <button class="date-btn remove" onclick="removeDateGroup('${dateKey}')">
+                <i class="fa-solid fa-trash"></i> Remove All
+              </button>
+              <button class="date-btn edit" onclick="editDateGroup('${dateKey}')">
+                <i class="fa-solid fa-edit"></i> Edit All
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Subject Code</th>
+                  <th>Subject Name</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Class(es)</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        entries.forEach(entry => {
+          // Format date for display
+          let formattedExamDate = entry.exam_date;
+          if (entry.exam_date) {
+            const examDate = new Date(entry.exam_date);
+            const day = examDate.getDate().toString().padStart(2, '0');
+            const month = (examDate.getMonth() + 1).toString().padStart(2, '0');
+            const year = examDate.getFullYear();
+            formattedExamDate = `${day}/${month}/${year}`;
+          }
+          
+          html += `
+            <tr>
+              <td>${entry.subject_code}</td>
+              <td>${entry.subject_name}</td>
+              <td>${formattedExamDate}</td>
+              <td>${entry.time || formatTimeForDisplay(entry.exam_time, entry.time_period)}</td>
+              <td>${Array.isArray(entry.classes) ? entry.classes.map(c=>c.replace(' - ', ' (') + (c.includes(' - ') ? ')' : '')).join(', ') : entry.classes}</td>
+            </tr>
+          `;
+        });
+        
+        html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+    
+    historyContent.innerHTML = html;
+  }
+  
+  async function removeDateGroup(dateKey) {
+    const confirmMessage = `Are you sure you want to remove all entries created on ${new Date(dateKey).toLocaleDateString()}?`;
+    
+    // Create a custom confirmation dialog
+    const confirmed = await showConfirmDialog('Confirm Deletion', confirmMessage);
+    if (!confirmed) {
+      return;
+    }
+    
+    showLoading();
+    try {
+      const entriesToDelete = allTimeTableData.filter(entry => {
+        if (entry.created_at) {
+          const entryDate = new Date(entry.created_at);
+          const entryDateKey = entryDate.toISOString().split('T')[0];
+          return entryDateKey === dateKey;
+        }
+        return false;
+      });
+      
+      // Delete all entries for this date
+      const deletePromises = entriesToDelete.map(entry => apiCall('DELETE', { id: entry.id }));
+      const results = await Promise.all(deletePromises);
+      
+      const allSuccess = results.every(result => result.success);
+      
+      if (allSuccess) {
+        // Remove from local data
+        allTimeTableData = allTimeTableData.filter(entry => {
+          if (entry.created_at) {
+            const entryDate = new Date(entry.created_at);
+            const entryDateKey = entryDate.toISOString().split('T')[0];
+            return entryDateKey !== dateKey;
+          }
+          return true;
+        });
+        
+        // Update main timetable data
+        timetableData = timetableData.filter(entry => {
+          if (entry.created_at) {
+            const entryDate = new Date(entry.created_at);
+            const entryDateKey = entryDate.toISOString().split('T')[0];
+            return entryDateKey !== dateKey;
+          }
+          return true;
+        });
+        
+        renderHistoryContent();
+        renderTable();
+        showMessage('All entries for this date have been removed successfully', 'success');
+      } else {
+        showMessage('Some entries failed to delete', 'error');
+      }
+    } catch (error) {
+      console.error('Error removing date group:', error);
+      showMessage('Error removing entries', 'error');
+    } finally {
+      hideLoading();
+    }
+  }
+  
+  function editDateGroup(dateKey) {
+    // Filter entries for this date and populate the main form
+    const entriesForDate = allTimeTableData.filter(entry => {
+      if (entry.created_at) {
+        const entryDate = new Date(entry.created_at);
+        const entryDateKey = entryDate.toISOString().split('T')[0];
+        return entryDateKey === dateKey;
+      }
+      return false;
+    });
+    
+    // Update main timetable data to show these entries
+    timetableData = entriesForDate;
+    renderTable();
+    
+    // Close history popup
+    closeHistoryPopup();
+    
+    // Scroll to the table
+    document.querySelector('.timetable-section').scrollIntoView({ behavior: 'smooth' });
+    
+    showMessage(`Loaded ${entriesForDate.length} entries for editing`, 'success');
+  }
+  
+  async function downloadDateGroup(dateKey) {
+    // Filter entries for this date
+    const entriesForDate = allTimeTableData.filter(entry => {
+      if (entry.created_at) {
+        const entryDate = new Date(entry.created_at);
+        const entryDateKey = entryDate.toISOString().split('T')[0];
+        return entryDateKey === dateKey;
+      }
+      return false;
+    });
+    
+    if (entriesForDate.length === 0) {
+      showMessage('No entries found for this date', 'error');
+      return;
+    }
+    
+    // Create a custom download function for this specific date group
+    try {
+      const jsPDF = await ensureJsPDFLoaded();
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Header Section - Like ICAB format
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text('MY MODERN SCHOOL', pageWidth/2, 60, {align: 'center'});
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text('Bengaluru, Karnataka', pageWidth/2, 85, {align: 'center'});
+    
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 0, 0); // Red color like ICAB
+    doc.text('EXAMINATIONS TIME-TABLE', pageWidth/2, 120, {align: 'center'});
+    
+    // Add date information
+    const date = new Date(dateKey);
+    const formattedDate = date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 0, 0); // Red color
+    doc.text(`Created on: ${formattedDate}`, pageWidth/2, 145, {align: 'center'});
+
+    // Table - Like ICAB format
+    const columns = [
+      { header: 'Day & Date', dataKey: 'date' },
+      { header: 'Subject Code', dataKey: 'code' },
+      { header: 'Subject Name', dataKey: 'name' },
+      { header: 'Time', dataKey: 'time' },
+      { header: 'Class(es)', dataKey: 'classes' },
+    ];
+    
+    const rows = entriesForDate.map(row => {
+      // Format date to dd-MMM-yy, Day format like ICAB
+      let formattedDate = row.exam_date;
+      if (row.exam_date) {
+        const date = new Date(row.exam_date);
+        const day = date.getDate().toString().padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear().toString().slice(-2);
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[date.getDay()];
+        formattedDate = `${day}-${month}-${year}, ${dayName}`;
+      }
+      
+      return {
+        date: formattedDate,
+        code: row.subject_code,
+        name: row.subject_name,
+        time: row.time || formatTimeForDisplay(row.exam_time, row.time_period),
+        classes: Array.isArray(row.classes) ? row.classes.map(c=>c.replace(' - ', ' (') + (c.includes(' - ') ? ')' : '')).join(', ') : row.classes
+      };
+    });
+
+    if (doc.autoTable === undefined) {
+      showAlert('PDF Plugin Error', 'PDF table plugin not loaded. Please refresh the page and try again.', 'error');
+      return;
+    }
+
+    doc.autoTable({
+      startY: 170,
+      head: [columns.map(c => c.header)],
+      body: rows.map(r => columns.map(c => r[c.dataKey])),
+      margin: { left: 40, right: 40 },
+      tableWidth: pageWidth - 80,
+      theme: 'grid',
+      styles: {
+        fontSize: 10,
+        cellPadding: 6,
+        font: "helvetica",
+        textColor: [0,0,0],
+        valign: 'middle',
+        lineWidth: 1.0,
+        lineColor: [0,0,0],
+      },
+      headStyles: {
+        fillColor: [255,255,255],
+        textColor: [0,0,0],
+        fontStyle: "bold",
+        fontSize: 11,
+        halign: 'center',
+        lineWidth: 1.5,
+        lineColor: [0,0,0],
+        cellPadding: 8,
+      },
+      bodyStyles: {
+        fillColor: [255,255,255],
+        textColor: [0,0,0],
+        halign: 'left',
+        lineWidth: 1.0,
+        lineColor: [0,0,0],
+        fontSize: 10,
+      },
+      tableLineWidth: 1.5,
+      tableLineColor: [0,0,0],
+      didDrawPage: function (data) {
+        // Simple border like ICAB format
+        if (data.table && data.table.width && data.table.height && data.table.body.length > 0) {
+          doc.setDrawColor(0,0,0);
+          doc.setLineWidth(2.0);
+          doc.rect(
+            35, // offset to cover margin
+            160,
+            pageWidth - 70,
+            data.table.height + 20,
+            'S'
+          );
+          doc.setLineWidth(0.2);
+        }
+      }
+    });
+
+    // Add signature section at the bottom
+    const tableEndY = 170 + (rows.length * 30) + 50; // Approximate table end position
+    
+    // Signature line
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(1.0);
+    doc.line(100, tableEndY + 40, 200, tableEndY + 40); // Left signature line
+    
+    // Signature text
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(0,0,0);
+    doc.text('Principal', 150, tableEndY + 60, {align: 'center'});
+    doc.text('My Modern School', 150, tableEndY + 80, {align: 'center'});
+    
+    doc.text('Date:', pageWidth - 150, tableEndY + 60, {align: 'center'});
+    
+    // Add current date
+    const today = new Date();
+    const day = today.getDate().toString().padStart(2, '0');
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const year = today.getFullYear();
+    doc.text(`${day}/${month}/${year}`, pageWidth - 150, tableEndY + 80, {align: 'center'});
+
+    // Generate filename with date
+    const dateForFilename = date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    }).replace(/,/g, '').replace(/\s+/g, '_');
+    
+    doc.save(`TimeTable_${dateForFilename}.pdf`);
+    
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      showAlert('PDF Generation Error', 'Failed to generate PDF. Please try again.', 'error');
+    }
+  }
+
+  // Recipient Popup Logic
+  let selectedRecipients = [];
+  function openRecipientPopup() {
+    if (timetableData.length === 0) {
+      showAlert('No Entries Found', 'Add at least one time table entry before sending.', 'warning');
+      return;
+    }
+    selectedRecipients = [];
+    ['teacher','student','parent','all'].forEach(role=>{
+      document.getElementById('rec-'+role).classList.remove('selected');
+    });
+    document.getElementById('recipientPopupBg').style.display = 'flex';
+  }
+  function closeRecipientPopup() {
+    document.getElementById('recipientPopupBg').style.display = 'none';
+  }
+  function updateRecipient(role) {
+    if (role === 'all') {
+      let allLabel = document.getElementById('rec-all');
+      let allChecked = allLabel.classList.toggle('selected');
+      ['teacher','student','parent'].forEach(r=>{
+        let lab=document.getElementById('rec-'+r);
+        if (allChecked) lab.classList.add('selected');
+        else lab.classList.remove('selected');
+      });
+      selectedRecipients = allChecked ? ['teacher','student','parent','all'] : [];
+    } else {
+      let label = document.getElementById('rec-'+role);
+      let checked = label.classList.toggle('selected');
+      if (checked) selectedRecipients.push(role);
+      else selectedRecipients = selectedRecipients.filter(r=>r!==role);
+      let allSelected = ['teacher','student','parent'].every(r=>document.getElementById('rec-'+r).classList.contains('selected'));
+      if (allSelected) document.getElementById('rec-all').classList.add('selected');
+      else document.getElementById('rec-all').classList.remove('selected');
+    }
+  }
+     async function sendTimeTable() {
+     // Filter entries created today
+     const todayForSend = new Date();
+     const todayStringForSend = todayForSend.toISOString().split('T')[0];
+     
+     const todaysEntries = timetableData.filter(entry => {
+       if (!entry.created_at) return false;
+       const entryDate = new Date(entry.created_at);
+       const entryDateString = entryDate.toISOString().split('T')[0];
+       return entryDateString === todayStringForSend;
+     });
+
+     if (todaysEntries.length === 0) {
+       showAlert('No Entries Found', 'No entries created today to send.', 'warning');
+       return;
+     }
+
+     // Filter out already sent entries
+     const unsentEntries = todaysEntries.filter(entry => {
+       return !(entry.recipient_teacher || entry.recipient_student || entry.recipient_parent || entry.recipient_all);
+     });
+
+     if (unsentEntries.length === 0) {
+       showAlert('All Entries Sent', 'All today\'s entries have already been sent.', 'info');
+       return;
+     }
+
+     let toSend = [];
+     if (document.getElementById('rec-all').classList.contains('selected')) {
+       toSend = ['Teacher','Student','Parent'];
+     } else {
+       if (document.getElementById('rec-teacher').classList.contains('selected')) toSend.push('Teacher');
+       if (document.getElementById('rec-student').classList.contains('selected')) toSend.push('Student');
+       if (document.getElementById('rec-parent').classList.contains('selected')) toSend.push('Parent');
+     }
+     if (toSend.length === 0) {
+       showAlert('Please select at least one recipient.', 'warning');
+       return;
+     }
+
+     // Close recipient popup and show loading
+     closeRecipientPopup();
+     showLoading();
+
+     try {
+       // Update only unsent entries with recipient flags
+       const updatePromises = unsentEntries.map(async (entry) => {
+         const updateData = {
+           id: entry.id,
+           subject_code: entry.subject_code,
+           subject_name: entry.subject_name,
+           exam_type: entry.exam_type || '',
+           exam_date: entry.exam_date,
+           exam_time: entry.exam_time,
+           time_period: entry.time_period || 'AM',
+           classes: entry.classes,
+           recipient_teacher: toSend.includes('Teacher'),
+           recipient_student: toSend.includes('Student'),
+           recipient_parent: toSend.includes('Parent'),
+           recipient_all: toSend.length === 3 // true if all recipients selected
+         };
+         
+         return await apiCall('PUT', updateData);
+       });
+
+       const results = await Promise.all(updatePromises);
+       const allSuccess = results.every(result => result.success);
+
+       if (allSuccess) {
+         // Update local data
+         timetableData.forEach((entry, index) => {
+           entry.recipient_teacher = toSend.includes('Teacher');
+           entry.recipient_student = toSend.includes('Student');
+           entry.recipient_parent = toSend.includes('Parent');
+           entry.recipient_all = toSend.length === 3;
+         });
+         
+         renderTable();
+         showAlert(`Timetable sent successfully! ${unsentEntries.length} entries sent to ${toSend.join(', ')}.`, 'success');
+       } else {
+         showAlert('Some entries failed to update. Please try again.', 'error');
+       }
+     } catch (error) {
+       console.error('Error sending timetable:', error);
+       showAlert('Error sending timetable. Please try again.', 'error');
+     } finally {
+       hideLoading();
+     }
+   }
+
+  // Custom Alert Function (similar to student_master.html)
+  function showAlert(title, message, type = 'info') {
+    // Create alert modal if it doesn't exist
+    let alertModal = document.getElementById('alertModal');
+    if (!alertModal) {
+      alertModal = document.createElement('div');
+      alertModal.id = 'alertModal';
+      alertModal.className = 'alert-modal';
+      alertModal.innerHTML = `
+        <div class="alert-content">
+          <span class="alert-close" id="alertClose">&times;</span>
+          <div id="alertIcon" class="alert-icon"></div>
+          <h3 id="alertTitle" class="alert-title"></h3>
+          <p id="alertMessage" class="alert-message"></p>
+          <div id="alertButtons" class="alert-buttons">
+            <button class="alert-btn ok" id="alertOkBtn">OK</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(alertModal);
+    }
+
+    const icon = document.getElementById('alertIcon');
+    const titleEl = document.getElementById('alertTitle');
+    const messageEl = document.getElementById('alertMessage');
+    const closeBtn = document.getElementById('alertClose');
+    const okBtn = document.getElementById('alertOkBtn');
+
+    // Set icon based on type
+    let iconClass = 'fas fa-info-circle info';
+    switch (type) {
+      case 'success':
+        iconClass = 'fas fa-check-circle success';
+        break;
+      case 'error':
+        iconClass = 'fas fa-exclamation-circle error';
+        break;
+      case 'warning':
+        iconClass = 'fas fa-exclamation-triangle warning';
+        break;
+    }
+
+    icon.className = `alert-icon ${iconClass}`;
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    alertModal.style.display = 'flex';
+    alertModal.classList.add('show');
+
+    const handleClose = () => {
+      alertModal.style.display = 'none';
+      alertModal.classList.remove('show');
+    };
+
+    okBtn.onclick = handleClose;
+    closeBtn.onclick = handleClose;
+    
+    // Close on outside click
+    alertModal.onclick = (e) => {
+      if (e.target === alertModal) handleClose();
+    };
+  }
+
+  // Custom Confirmation Dialog Function
+  function showConfirmDialog(title, message) {
+    return new Promise((resolve) => {
+      // Create confirmation modal if it doesn't exist
+      let confirmModal = document.getElementById('confirmModal');
+      if (!confirmModal) {
+        confirmModal = document.createElement('div');
+        confirmModal.id = 'confirmModal';
+        confirmModal.className = 'alert-modal';
+        confirmModal.innerHTML = `
+          <div class="alert-content">
+            <span class="alert-close" id="confirmClose">&times;</span>
+            <div id="confirmIcon" class="alert-icon warning"></div>
+            <h3 id="confirmTitle" class="alert-title"></h3>
+            <p id="confirmMessage" class="alert-message"></p>
+            <div id="confirmButtons" class="alert-buttons">
+              <button class="alert-btn cancel" id="confirmCancelBtn">Cancel</button>
+              <button class="alert-btn error" id="confirmOkBtn">Confirm</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(confirmModal);
+      }
+
+      const icon = document.getElementById('confirmIcon');
+      const titleEl = document.getElementById('confirmTitle');
+      const messageEl = document.getElementById('confirmMessage');
+      const closeBtn = document.getElementById('confirmClose');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+      const okBtn = document.getElementById('confirmOkBtn');
+
+      icon.className = 'alert-icon fas fa-exclamation-triangle warning';
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+
+      confirmModal.style.display = 'flex';
+      confirmModal.classList.add('show');
+
+      const handleClose = (result) => {
+        confirmModal.style.display = 'none';
+        confirmModal.classList.remove('show');
+        resolve(result);
+      };
+
+      okBtn.onclick = () => handleClose(true);
+      cancelBtn.onclick = () => handleClose(false);
+      closeBtn.onclick = () => handleClose(false);
+      
+      // Close on outside click
+      confirmModal.onclick = (e) => {
+        if (e.target === confirmModal) handleClose(false);
+      };
+    });
+  }
+  
+         // Test API connection manually
+    window.testAPI = async function() {
+      console.log('Testing API connection...');
+      try {
+        const result = await apiCall('GET');
+        console.log('API Response:', result);
+        showAlert('API Test Result', JSON.stringify(result, null, 2), 'info');
+      } catch (error) {
+        console.error('API Test Error:', error);
+        showAlert('API Test Failed', error.message, 'error');
+      }
+    };
+
+    // Simple test to check if API is reachable
+    window.simpleTest = async function() {
+      console.log('Simple API test...');
+      try {
+        const result = await apiCall('GET');
+        console.log('Simple test response:', result);
+        showAlert('API Test Success', 'API is reachable! Status: Success', 'success');
+      } catch (error) {
+        console.error('Simple test failed:', error);
+        showAlert('API Test Failed', 'API not reachable: ' + error.message, 'error');
+      }
+    };
+
+   // Initialize
+   renderClassCheckboxes();
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Scholarships</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+      --scholarship-main: #1a1a1a;
+      --scholarship-card: #2d2d2d;
+      --scholarship-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      --scholarship-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --scholarship-title: #ffffff;
+      --status-open: #10b981;
+      --status-closing: #f59e0b;
+      --status-closed: #ef4444;
+      --drawer-bg: rgba(0, 0, 0, 0.8);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw; }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; padding: 10px 6px; transition: transform 0.2s; }
+    .sidebar .brand img { width: 100%; height: 50px; border-radius: 3px; border: 1.5px solid #fff; background: #fff; object-fit: contain; box-shadow: 0 2px 5px #26bf6720; transition: transform 0.2s, box-shadow 0.2s; }
+    .sidebar .brand:hover img { transform: scale(1.05); box-shadow: 0 4px 12px #26bf6740; }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a { color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center; padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s; font-weight: 500; gap: 13px; position: relative; overflow: hidden; }
+    .sidebar ul li a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar ul li a:hover::before { width: 100%; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;}
+    .sidebar .logout a { color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s; position: relative; overflow: hidden; }
+    .sidebar .logout a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar .logout a:hover::before { width: 100%; }
+    .sidebar .logout a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .main-content { margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 0; transition: margin-left 0.28s; z-index: 1; }
+    .top-bar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(26, 26, 26, 0.9); backdrop-filter: blur(10px); border-bottom: 1.3px solid var(--border); padding: 10px 32px 10px 32px; font-size: 1.32rem; font-weight: 700; letter-spacing: 0.01em; color: var(--accent); position: relative; z-index: 2; }
+    .top-bar .fa-graduation-cap { font-size: 2.1rem; color: var(--accent);}
+    .sidebar-hamburger { display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff; color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010; cursor: pointer; transition: background 0.18s, color 0.18s;}
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3;}
+    .sidebar-hamburger .fa-times { display: none;}
+    .sidebar-hamburger.menu-open .fa-bars { display: none;}
+    .sidebar-hamburger.menu-open .fa-times { display: inline;}
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block;}
+    
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: auto;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Scholarship Center Styles */
+    .scholarship-root {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--scholarship-main);
+      border-radius: 22px;
+      padding: 36px 35px 30px 35px;
+      box-shadow: var(--scholarship-shadow);
+      min-height: 80vh;
+      border: 1px solid var(--border);
+    }
+    
+    .scholarship-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 29px;
+    }
+    
+    .scholarship-title-bar i {
+      font-size: 2rem;
+      color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+      border-radius: 17px;
+      padding: 7px 11px;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+    }
+    
+    .scholarship-title-bar .scholarship-title {
+      font-size: 1.29rem;
+      color: var(--scholarship-title);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* Filters Section */
+    .scholarship-filters {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-size: 0.9rem;
+      color: var(--label);
+      font-weight: 600;
+    }
+
+    .filter-select {
+      background: var(--scholarship-card);
+      border: 1px solid var(--border);
+      color: var(--label);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-select:hover {
+      border-color: var(--accent);
+    }
+
+    .filter-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px 12px;
+      background: var(--scholarship-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .filter-toggle:hover {
+      border-color: var(--accent);
+    }
+
+    .filter-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    /* Scholarship Table */
+    .scholarship-table-container {
+      background: var(--scholarship-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .scholarship-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .scholarship-table th {
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+      padding: 16px 12px;
+      text-align: left;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .scholarship-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--label);
+      font-size: 0.9rem;
+    }
+
+    .scholarship-table tr:hover {
+      background: rgba(251, 191, 36, 0.05);
+    }
+
+    .scholarship-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .scholarship-name {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .scholarship-offered {
+      color: var(--subtle);
+    }
+
+    .scholarship-eligibility {
+      max-width: 200px;
+      line-height: 1.4;
+    }
+
+    .scholarship-deadline {
+      font-weight: 500;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .status-open {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--status-open);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-closing {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--status-closing);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-closed {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--status-closed);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Action Buttons */
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .action-btn.apply {
+      background: var(--success);
+      color: white;
+    }
+
+    .action-btn.apply:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .action-btn.disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+    }
+
+    .action-btn.disabled:hover {
+      transform: none;
+    }
+
+
+
+    /* Detail Drawer */
+    .detail-drawer {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: var(--scholarship-card);
+      border-left: 1px solid var(--border);
+      z-index: 1000;
+      transition: right 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .detail-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .drawer-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--subtle);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .drawer-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--label);
+    }
+
+    .drawer-content {
+      padding: 24px;
+    }
+
+    .detail-section {
+      margin-bottom: 24px;
+    }
+
+    .detail-section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-section p {
+      color: var(--label);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .detail-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .detail-section li {
+      color: var(--label);
+      padding: 4px 0;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .detail-section li::before {
+      content: '•';
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    .drawer-apply-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .drawer-apply-btn:hover {
+      background: #059669;
+    }
+
+    .drawer-apply-btn.disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+    }
+
+    /* Popup Modal Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+
+    .popup-overlay.show {
+      display: flex;
+    }
+
+    .popup-modal {
+      background: var(--scholarship-card);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: popupSlideIn 0.3s ease;
+    }
+
+    @keyframes popupSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .popup-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .popup-icon.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .popup-icon.info {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--blue);
+    }
+
+    .popup-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--label);
+    }
+
+    .popup-content {
+      color: var(--label);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .popup-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .popup-btn.primary {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+
+    .popup-btn.primary:hover {
+      background: #f59e0b;
+    }
+
+    .popup-btn.secondary {
+      background: var(--border);
+      color: var(--label);
+    }
+
+    .popup-btn.secondary:hover {
+      background: var(--subtle);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .scholarship-root { padding: 22px 2vw 18px 2vw; }
+      .scholarship-filters { flex-direction: column; align-items: stretch; }
+      .filter-group { justify-content: space-between; }
+      .scholarship-table { font-size: 0.8rem; }
+      .scholarship-table th, .scholarship-table td { padding: 12px 8px; }
+      .detail-drawer { width: 100%; right: -100%; }
+      .tracking-actions { flex-direction: column; }
+    }
+    
+    @media (max-width: 480px) {
+      .scholarship-root { padding: 15px; margin: 10px; }
+      .scholarship-title-bar .scholarship-title { font-size: 1.1rem; }
+      .scholarship-table { display: block; overflow-x: auto; }
+      .scholarship-table th, .scholarship-table td { min-width: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html" class="active"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/scholarship.png" alt="Scholarship Center" style="width: 24px; height: 24px;">
+        Scholarship Center
+        <button class="theme-toggle" id="themeToggle">
+          ☀️
+        </button>
+      </div>
+
+      <div class="scholarship-root">
+        <div class="scholarship-title-bar">
+          <img src="./assets/scholarship.png" alt="Available Scholarships" style="width: 24px; height: 24px;">
+          <span class="scholarship-title">Available Scholarships</span>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="scholarship-filters">
+          <div class="filter-group">
+            <label for="academicYear">Academic Year:</label>
+            <select id="academicYear" class="filter-select">
+              <option value="2024-25">2024-25</option>
+              <option value="2023-24">2023-24</option>
+              <option value="2022-23">2022-23</option>
+            </select>
+          </div>
+          <div class="filter-toggle">
+            <input type="checkbox" id="showOpenOnly">
+            <label for="showOpenOnly">Show only Open Scholarships</label>
+          </div>
+        </div>
+
+        <!-- Scholarship Table -->
+        <div class="scholarship-table-container">
+          <table class="scholarship-table" id="scholarshipTable">
+            <thead>
+              <tr>
+                <th>Scholarship Name</th>
+                <th>Offered By</th>
+                <th>Eligibility</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="scholarshipTableBody">
+              <!-- Table rows will be populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+
+      </div>
+          </div>
+        </div>
+
+  <!-- Detail Drawer -->
+  <div class="detail-drawer" id="detailDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitle">Scholarship Details</div>
+      <button class="drawer-close" onclick="closeDrawer()">
+        ×
+      </button>
+    </div>
+    <div class="drawer-content" id="drawerContent">
+      <!-- Drawer content will be populated by JavaScript -->
+          </div>
+        </div>
+
+  <!-- Popup Modal -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-modal" id="popupModal">
+      <div class="popup-header">
+        <div class="popup-icon" id="popupIcon">
+          ✓
+          </div>
+        <div class="popup-title" id="popupTitle">Success</div>
+        </div>
+      <div class="popup-content" id="popupContent">
+        <!-- Popup content will be populated by JavaScript -->
+      </div>
+      <div class="popup-actions" id="popupActions">
+        <!-- Popup actions will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = true;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#0f0f0f');
+        document.documentElement.style.setProperty('--card', '#1a1a1a');
+        document.documentElement.style.setProperty('--scholarship-main', '#1a1a1a');
+        document.documentElement.style.setProperty('--scholarship-card', '#2d2d2d');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        document.documentElement.style.setProperty('--scholarship-title', '#ffffff');
+        themeIcon.textContent = '☀️';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8fafc');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--scholarship-main', '#ffffff');
+        document.documentElement.style.setProperty('--scholarship-card', '#f8fafc');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8fafc');
+        document.documentElement.style.setProperty('--scholarship-title', '#1e293b');
+        themeIcon.textContent = '🌙';
+      }
+    });
+
+    // Sample scholarship data
+    const scholarshipData = [
+      {
+        id: 'inspire',
+        name: 'Inspire Scholarship',
+        offeredBy: 'DST, Govt of India',
+        eligibility: '12th Science, 80%+ marks, pursuing higher education',
+        deadline: '30 Sep 2025',
+        status: 'open',
+        benefits: '₹80,000 per year for 5 years',
+        documents: ['Aadhaar Card', '12th Marksheet', 'Income Certificate', 'Caste Certificate'],
+        description: 'The INSPIRE Scholarship is a prestigious scholarship program by the Department of Science and Technology, Government of India, aimed at attracting talented students to pursue science and research careers.'
+      },
+      {
+        id: 'postmatric',
+        name: 'Post-Matric SC Scholarship',
+        offeredBy: 'State Government',
+        eligibility: 'SC category, Income < ₹2.5LPA, studying in college',
+        deadline: '20 Aug 2025',
+        status: 'closing',
+        benefits: 'Full tuition fee + ₹10,000/year maintenance',
+        documents: ['Aadhaar Card', 'Caste Certificate', 'Income Proof', 'Previous Marksheet'],
+        description: 'Post-Matric Scholarship for Scheduled Caste students provides financial assistance to pursue higher education after completing secondary education.'
+      },
+      {
+        id: 'college',
+        name: 'College Topper Award',
+        offeredBy: 'Your College',
+        eligibility: 'CGPA 9+, Top 3 rank in class',
+        deadline: '15 Sept 2025',
+        status: 'closed',
+        benefits: '₹25,000 one-time award + certificate',
+        documents: ['College ID', 'Previous Semester Marksheet', 'Character Certificate'],
+        description: 'College Topper Award recognizes academic excellence and provides financial support to meritorious students.'
+      },
+      {
+        id: 'merit',
+        name: 'Merit-cum-Means Scholarship',
+        offeredBy: 'Ministry of Education',
+        eligibility: 'Family income < ₹4.5LPA, 60%+ marks',
+        deadline: '25 Oct 2025',
+        status: 'open',
+        benefits: '₹20,000 per year for course duration',
+        documents: ['Income Certificate', 'Marksheet', 'Aadhaar Card', 'Bank Passbook'],
+        description: 'Merit-cum-Means Scholarship supports economically weaker students with good academic performance.'
+      },
+      {
+        id: 'sports',
+        name: 'Sports Excellence Scholarship',
+        offeredBy: 'Sports Authority',
+        eligibility: 'National/State level sports achievement',
+        deadline: '10 Nov 2025',
+        status: 'open',
+        benefits: '₹50,000 per year + sports equipment',
+        documents: ['Sports Certificates', 'Medical Certificate', 'Character Certificate'],
+        description: 'Sports Excellence Scholarship encourages talented athletes to pursue education while continuing their sports training.'
+      }
+    ];
+
+
+
+    // Render scholarship table
+    function renderScholarshipTable() {
+      const tbody = document.getElementById('scholarshipTableBody');
+      tbody.innerHTML = '';
+
+      scholarshipData.forEach(scholarship => {
+        const row = document.createElement('tr');
+        row.onclick = () => openDrawer(scholarship);
+        row.style.cursor = 'pointer';
+
+        const statusClass = `status-${scholarship.status}`;
+        const statusText = scholarship.status === 'open' ? '🟢 Open' : 
+                          scholarship.status === 'closing' ? '🟡 Closing Soon' : '🔴 Closed';
+
+        const actionBtn = scholarship.status === 'closed' ? 
+          '<span class="action-btn disabled">❌ Closed</span>' :
+          '<span class="action-btn apply">🔗 Apply</span>';
+
+        row.innerHTML = `
+          <td class="scholarship-name">${scholarship.name}</td>
+          <td class="scholarship-offered">${scholarship.offeredBy}</td>
+          <td class="scholarship-eligibility">${scholarship.eligibility}</td>
+          <td class="scholarship-deadline">${scholarship.deadline}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>${actionBtn}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+
+
+    // Open detail drawer
+    function openDrawer(scholarship) {
+      const drawer = document.getElementById('detailDrawer');
+      const title = document.getElementById('drawerTitle');
+      const content = document.getElementById('drawerContent');
+
+      title.textContent = scholarship.name;
+
+      const statusClass = `status-${scholarship.status}`;
+      const statusText = scholarship.status === 'open' ? '🟢 Open' : 
+                        scholarship.status === 'closing' ? '🟡 Closing Soon' : '🔴 Closed';
+
+      const applyBtn = scholarship.status === 'closed' ? 
+        '<button class="drawer-apply-btn disabled">Applications Closed</button>' :
+        '<button class="drawer-apply-btn" onclick="applyForScholarship(\'' + scholarship.id + '\')">Apply Now</button>';
+
+      content.innerHTML = `
+        <div class="detail-section">
+          <h3>🏢 Offered By</h3>
+          <p>${scholarship.offeredBy}</p>
+          </div>
+        
+        <div class="detail-section">
+          <h3>📅 Deadline</h3>
+          <p>${scholarship.deadline}</p>
+        </div>
+        
+        <div class="detail-section">
+          <h3>✅ Eligibility</h3>
+          <p>${scholarship.eligibility}</p>
+          </div>
+        
+        <div class="detail-section">
+          <h3>🎁 Benefits</h3>
+          <p>${scholarship.benefits}</p>
+        </div>
+        
+        <div class="detail-section">
+          <h3>📄 Documents Required</h3>
+          <ul>
+            ${scholarship.documents.map(doc => `<li>${doc}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div class="detail-section">
+          <h3>ℹ️ Description</h3>
+          <p>${scholarship.description}</p>
+        </div>
+        
+        <div class="detail-section">
+          <h3>🏷️ Status</h3>
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+        
+        ${applyBtn}
+      `;
+
+      drawer.classList.add('open');
+    }
+
+    // Close drawer
+    function closeDrawer() {
+      const drawer = document.getElementById('detailDrawer');
+      drawer.classList.remove('open');
+    }
+
+    // Popup functions
+    function showPopup(title, content, type = 'success', actions = null) {
+      const overlay = document.getElementById('popupOverlay');
+      const modal = document.getElementById('popupModal');
+      const icon = document.getElementById('popupIcon');
+      const popupTitle = document.getElementById('popupTitle');
+      const popupContent = document.getElementById('popupContent');
+      const popupActions = document.getElementById('popupActions');
+
+      // Set icon and type
+      if (type === 'success') {
+        icon.className = 'popup-icon success';
+        icon.innerHTML = '✓';
+      } else if (type === 'info') {
+        icon.className = 'popup-icon info';
+        icon.innerHTML = 'ℹ️';
+      }
+
+      popupTitle.textContent = title;
+      popupContent.innerHTML = content;
+
+      // Set actions
+      if (actions) {
+        popupActions.innerHTML = actions;
+      } else {
+        popupActions.innerHTML = '<button class="popup-btn primary" onclick="closePopup()">OK</button>';
+      }
+
+      overlay.classList.add('show');
+    }
+
+    function closePopup() {
+      const overlay = document.getElementById('popupOverlay');
+      overlay.classList.remove('show');
+    }
+
+    // Apply for scholarship
+    function applyForScholarship(scholarshipId) {
+      const scholarship = scholarshipData.find(s => s.id === scholarshipId);
+      if (scholarship) {
+        showPopup(
+          'Application Submitted',
+          `Your application for <strong>${scholarship.name}</strong> has been submitted successfully!<br><br>You will receive a confirmation email shortly with further instructions.`,
+          'success'
+        );
+        closeDrawer();
+        // Here you would typically make an API call to submit the application
+      }
+    }
+
+
+
+    // Filter functionality
+    document.getElementById('academicYear').addEventListener('change', function() {
+      // Filter logic would go here
+      console.log('Academic year changed to:', this.value);
+    });
+
+    document.getElementById('showOpenOnly').addEventListener('change', function() {
+      const tbody = document.getElementById('scholarshipTableBody');
+      const rows = tbody.querySelectorAll('tr');
+      
+      rows.forEach(row => {
+        if (this.checked) {
+          const statusCell = row.querySelector('.status-badge');
+          if (statusCell && !statusCell.textContent.includes('Open')) {
+            row.style.display = 'none';
+          } else {
+            row.style.display = '';
+          }
+        } else {
+          row.style.display = '';
+        }
+        });
+      });
+      
+    // Initialize page
+    function initScholarshipPage() {
+      renderScholarshipTable();
+    }
+
+    // Close popup when clicking outside
+    document.getElementById('popupOverlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePopup();
+      }
+    });
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initScholarshipPage);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

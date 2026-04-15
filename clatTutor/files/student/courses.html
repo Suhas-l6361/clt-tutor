@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My courses — Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+</head>
+<body class="app-body student-dashboard">
+  <div id="stock" style="display: none">
+    <p class="text-muted" style="margin-top: 0; margin-bottom: 1.5rem">
+      <i class="fa-solid fa-layer-group" style="color: var(--accent); margin-right: 0.35rem"></i>
+      All modules for your enrolled batch. Open a card to access videos, PDFs, and quizzes (API-ready).
+    </p>
+    <div class="course-grid" id="course-list"></div>
+
+    <div id="video-modal" class="video-modal" hidden aria-hidden="true">
+      <div class="video-modal__backdrop" data-video-modal-close tabindex="-1"></div>
+      <div
+        class="video-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="video-modal-title"
+      >
+        <div class="video-modal__head">
+          <h2 id="video-modal-title" class="video-modal__title">Module</h2>
+          <button type="button" class="video-modal__close" data-video-modal-close aria-label="Close video">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <p id="video-modal-file-hint" class="video-modal__file-hint" hidden>
+          YouTube cannot play inside this page while it is opened as a <strong>file</strong> (double-clicked from the folder).
+          Run a small web server in your project folder (e.g. <code>python -m http.server 8080</code>) and open
+          <code>http://localhost:8080/student/courses.html</code>, or deploy over <strong>HTTPS</strong>.
+          <a
+            class="video-modal__file-hint-link"
+            href="https://www.youtube.com/playlist?list=PLL7UAbmnJDJEgc4bCzJVNN2V6bhM4uCtc"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Open playlist on YouTube</a
+          >
+          instead.
+        </p>
+        <div class="video-modal__frame-wrap">
+          <iframe
+            id="video-modal-iframe"
+            class="video-modal__iframe"
+            title="YouTube video player"
+            width="560"
+            height="315"
+            src=""
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    var PLAYLIST = 'PLL7UAbmnJDJEgc4bCzJVNN2V6bhM4uCtc';
+    /* nocookie + video id loads that clip; list= adds playlist sidebar. No &index= on embed (breaks player / Error 153). */
+    function ytEmbed(videoId) {
+      return (
+        'https://www.youtube-nocookie.com/embed/' +
+        videoId +
+        '?list=' +
+        PLAYLIST +
+        '&rel=0&modestbranding=1'
+      );
+    }
+    var DEMO_COURSES = [
+      {
+        title: 'CLAT — Legal reasoning',
+        meta: '12 videos · 4 quizzes',
+        tag: 'Core',
+        pct: 62,
+        embed: ytEmbed('OvMWbfFAvHA'),
+      },
+      {
+        title: 'English & comprehension',
+        meta: '8 videos · 2 quizzes',
+        tag: 'Core',
+        pct: 40,
+        embed: ytEmbed('zX8rN_GPEx4'),
+      },
+      {
+        title: 'Logical reasoning drills',
+        meta: '6 practice sets',
+        tag: 'Practice',
+        pct: 15,
+        embed: ytEmbed('3XkRCoFgI9Q'),
+      },
+      {
+        title: 'GK & current affairs',
+        meta: 'Weekly digest + tests',
+        tag: 'Ongoing',
+        pct: 88,
+        embed: ytEmbed('NiA26NIq4cg'),
+      },
+    ];
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({
+        role: 'student',
+        active: 'courses.html',
+        title: 'My courses',
+        contentEl: stock,
+      });
+      applyStudentChrome();
+      var wrap = document.getElementById('course-list');
+      if (!wrap) return;
+      function escAttr(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;');
+      }
+
+      wrap.innerHTML = DEMO_COURSES.map(function (c) {
+        return (
+          '<div class="card course-card">' +
+          '<h4>' +
+          c.title +
+          '</h4>' +
+          '<p class="meta">' +
+          c.meta +
+          ' · <span class="badge badge-new">' +
+          c.tag +
+          '</span></p>' +
+          '<div class="progress" aria-label="Progress ' +
+          c.pct +
+          '%"><div class="progress__bar" style="width:' +
+          c.pct +
+          '%"></div></div>' +
+          '<p class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0">' +
+          c.pct +
+          '% complete</p>' +
+          '<button type="button" class="btn btn-primary btn-open-module" style="margin-top:1rem" data-embed="' +
+          escAttr(c.embed) +
+          '"><i class="fa-solid fa-play"></i> Open module</button>' +
+          '</div>'
+        );
+      }).join('');
+
+      var modal = document.getElementById('video-modal');
+      var iframe = document.getElementById('video-modal-iframe');
+      var modalTitle = document.getElementById('video-modal-title');
+      var fileHint = document.getElementById('video-modal-file-hint');
+      var isFileProtocol = window.location.protocol === 'file:';
+
+      function closeVideoModal() {
+        if (!modal || !iframe) return;
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        iframe.src = '';
+        document.body.style.overflow = '';
+        if (fileHint) fileHint.hidden = true;
+      }
+
+      function openVideoModal(embedUrl, title) {
+        if (!modal || !iframe) return;
+        modalTitle.textContent = title || 'Module';
+        if (fileHint) fileHint.hidden = !isFileProtocol;
+        if (isFileProtocol) {
+          iframe.src = '';
+        } else {
+          if (fileHint) fileHint.hidden = true;
+          iframe.src = embedUrl;
+        }
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        var closeBtn = modal.querySelector('.video-modal__close');
+        if (closeBtn) closeBtn.focus();
+      }
+
+      wrap.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-open-module');
+        if (!btn) return;
+        var card = btn.closest('.course-card');
+        var title = card ? card.querySelector('h4').textContent : 'Module';
+        var embed = btn.getAttribute('data-embed');
+        if (embed) openVideoModal(embed, title);
+      });
+
+      if (modal) {
+        modal.addEventListener('click', function (e) {
+          if (e.target.closest('[data-video-modal-close]')) closeVideoModal();
+        });
+      }
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal && !modal.hidden) closeVideoModal();
+      });
+    });
+  </script>
+</body>
+</html>

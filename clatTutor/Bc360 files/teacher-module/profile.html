@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>My Profile - BC360 Teacher</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --warning: #ffa726;
+      --danger: #ef5350;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .app-flex {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: linear-gradient(90deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .nav-brand img {
+      height: 40px;
+      width: auto;
+      border-radius: 5px;
+      background: #fff;
+      padding: 5px;
+      object-fit: contain;
+    }
+
+    .nav-title {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: rgba(32, 145, 148, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(32, 145, 148, 0.4);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px 20px;
+      z-index: 1;
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Loading Spinner */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(32, 145, 148, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Profile Container */
+    .profile-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      box-shadow: var(--shadow);
+      max-width: 100%;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Profile Header with Avatar */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 30px;
+    }
+
+    .avatar-section {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(32, 145, 148, 0.3);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .avatar:hover {
+      box-shadow: 0 6px 30px rgba(32, 145, 148, 0.5);
+      transform: scale(1.05);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+    }
+
+    .avatar-initials {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .photo-upload-btn {
+      margin-top: 12px;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1.5px solid var(--accent);
+      background: rgba(32, 145, 148, 0.15);
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: center;
+    }
+
+    .photo-upload-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(32, 145, 148, 0.4);
+    }
+
+    .photo-save-btn {
+      margin-top: 8px;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1.5px solid var(--green);
+      background: var(--green);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: center;
+    }
+
+    .photo-save-btn:hover {
+      background: #2bb57d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Image Popup */
+    .photo-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .photo-popup-container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-popup-container img {
+      display: block;
+      max-width: 600px;
+      max-height: 80vh;
+      width: auto;
+      height: auto;
+      border-radius: 20px;
+    }
+
+    .photo-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--accent);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10001;
+    }
+
+    .photo-close-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: rotate(90deg);
+    }
+
+    /* Success/Error Popup */
+    .notification-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 20px 24px;
+      display: none;
+      align-items: center;
+      gap: 15px;
+      z-index: 10002;
+      min-width: 300px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .notification-popup.success {
+      border-left: 4px solid var(--green);
+    }
+
+    .notification-popup.error {
+      border-left: 4px solid var(--error);
+    }
+
+    .notification-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.success {
+      background: var(--green);
+    }
+
+    .notification-icon.error {
+      background: var(--error);
+    }
+
+    .notification-content h4 {
+      margin: 0 0 5px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .notification-content p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* Document Upload Section */
+    .documents-section {
+      background: rgba(32, 145, 148, 0.05);
+      border: 1px solid rgba(32, 145, 148, 0.1);
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .documents-section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .documents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .document-upload-cell {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .document-upload-cell.required {
+      border: 2px solid var(--accent);
+      background: rgba(32, 145, 148, 0.05);
+      box-shadow: 0 0 20px rgba(32, 145, 148, 0.15);
+    }
+
+    .document-upload-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: #fff;
+    }
+
+    .document-upload-cell.has-file {
+      cursor: default;
+    }
+
+    .document-upload-cell.has-file:hover {
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .document-upload-cell.uploaded {
+      border-color: var(--green);
+      background: rgba(34, 197, 94, 0.1);
+      position: relative;
+    }
+    
+    .document-upload-cell.uploaded::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--green);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .document-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .document-label .required-badge {
+      background: var(--error);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .document-preview {
+      width: 100%;
+      height: 150px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .document-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .document-preview .placeholder {
+      color: var(--subtle);
+      font-size: 2.5rem;
+    }
+
+    .document-preview .file-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 8px;
+      font-size: 0.8rem;
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .document-save-btn {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--green);
+      background: var(--green);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .document-save-btn:hover {
+      background: #2bb57d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .document-save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .profile-info-header {
+      flex: 1;
+    }
+
+    .profile-info-header h2 {
+      font-size: 1.8rem;
+      margin: 0 0 8px 0;
+      color: var(--label);
+    }
+
+    .teacher-id-badge {
+      display: inline-block;
+      background: rgba(32, 145, 148, 0.15);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .designation-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .profile-meta {
+      color: var(--subtle);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .profile-meta i {
+      margin-right: 6px;
+    }
+
+    /* Profile Sections */
+    .profile-sections {
+      display: grid;
+      gap: 30px;
+    }
+
+    .profile-section {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 25px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      font-size: 1.1rem;
+    }
+
+    /* Profile Fields Grid */
+    .profile-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 20px;
+    }
+
+    .profile-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-value {
+      font-size: 1rem;
+      color: var(--label);
+      font-weight: 500;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+    }
+
+    .field-value.empty {
+      color: var(--subtle);
+      font-style: italic;
+    }
+
+    /* Error/No Data State */
+    .error-state, .no-data-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .error-state i, .no-data-state i {
+      font-size: 4rem;
+      color: var(--subtle);
+      margin-bottom: 20px;
+    }
+
+    .error-state h3, .no-data-state h3 {
+      font-size: 1.5rem;
+      margin: 0 0 10px 0;
+      color: var(--label);
+    }
+
+    .error-state p, .no-data-state p {
+      color: var(--subtle);
+      margin: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .top-nav {
+        padding: 12px 15px;
+      }
+
+      .main-content {
+        padding: 20px 15px;
+      }
+
+      .profile-container {
+        padding: 20px 15px;
+      }
+
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+      }
+
+      .documents-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-flex">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <div class="nav-brand">
+        <img src="BC360-logo.jpg" alt="BC360 Logo"/>
+        <h1 class="nav-title">BC360 - Teacher Profile</h1>
+      </div>
+      <div class="nav-actions">
+        <a href="home.html" class="back-btn">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-container">
+        <div class="spinner"></div>
+        <p style="color: var(--subtle);">Loading your profile...</p>
+      </div>
+
+      <!-- Profile Content (Hidden Initially) -->
+      <div id="profileContent" style="display: none;"></div>
+    </main>
+  </div>
+
+  <!-- Photo Popup -->
+  <div id="photoPopupOverlay" class="photo-popup-overlay">
+    <div class="photo-popup-container">
+      <button class="photo-close-btn" id="photoCloseBtn">×</button>
+      <img id="popupImage" src="" alt="Profile Photo">
+    </div>
+  </div>
+
+  <!-- Notification Popup -->
+  <div id="notificationPopup" class="notification-popup">
+    <div class="notification-icon" id="notificationIcon">
+      <i id="notificationIconClass"></i>
+    </div>
+    <div class="notification-content">
+      <h4 id="notificationTitle">Title</h4>
+      <p id="notificationMessage">Message</p>
+    </div>
+  </div>
+
+  <!-- Required Documents Warning Popup -->
+  <div id="requiredDocsPopup" class="photo-popup-overlay" style="display: none;">
+    <div class="photo-popup-container" style="padding: 40px; max-width: 500px;">
+      <button class="photo-close-btn" id="requiredDocsCloseBtn">×</button>
+      <div style="text-align: center;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
+        <h3 style="color: #333; margin: 0 0 15px 0; font-size: 1.5rem;">Required Documents Missing</h3>
+        <p style="color: #666; margin: 0 0 25px 0; font-size: 1rem; line-height: 1.5;">
+          Please upload the following required documents before leaving this page:
+        </p>
+        <div id="missingDocsList" style="text-align: left; background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+          <!-- Missing docs will be listed here -->
+        </div>
+        <button onclick="document.getElementById('requiredDocsPopup').style.display='none'" 
+                style="background: var(--accent); color: #fff; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+          OK, I'll Upload Them
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unsaved Changes Warning Popup -->
+  <div id="unsavedChangesPopup" class="photo-popup-overlay" style="display: none;">
+    <div class="photo-popup-container" style="padding: 40px; max-width: 500px;">
+      <button class="photo-close-btn" id="unsavedChangesCloseBtn">×</button>
+      <div style="text-align: center;">
+        <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: var(--blue); margin-bottom: 20px;"></i>
+        <h3 style="color: #333; margin: 0 0 15px 0; font-size: 1.5rem;">Unsaved Changes</h3>
+        <p style="color: #666; margin: 0 0 25px 0; font-size: 1rem; line-height: 1.5;">
+          You have selected documents that haven't been saved yet. If you leave now, your selections will be lost.
+        </p>
+        <div id="unsavedChangesList" style="text-align: left; background: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid var(--blue);">
+          <!-- Unsaved changes will be listed here -->
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+          <button onclick="document.getElementById('unsavedChangesPopup').style.display='none'" 
+                  style="background: var(--green); color: #fff; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+            <i class="fas fa-save" style="margin-right: 8px;"></i>Stay & Save
+          </button>
+          <button onclick="forceNavigateBack()" 
+                  style="background: #e5e7eb; color: #374151; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+            Leave Without Saving
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Endpoint for teacher data
+    const TEACHER_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addTeacher';
+    const PROFILE_API = 'https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/profile';
+
+    // Teacher field mappings
+    const FIELD_MAPPINGS = {
+      basic: ['teacher_name', 'teacher_id', 'email', 'phone', 'gender'],
+      professional: ['designation', 'qualification', 'Teaching_type', 'experience', 'previous_schoold'],
+      contact: ['state', 'city', 'address'],
+      institution: ['institution_name', 'institution_id']
+    };
+
+    // Format field names for display
+    function formatFieldName(fieldName) {
+      const nameMap = {
+        'teacher_id': 'Teacher ID',
+        'teacher_name': 'Name',
+        'email': 'Email',
+        'phone': 'Phone',
+        'designation': 'Designation',
+        'qualification': 'Qualification',
+        'gender': 'Gender',
+        'state': 'State',
+        'city': 'City',
+        'address': 'Address',
+        'experience': 'Experience (Years)',
+        'previous_schoold': 'Previous Institution',
+        'Teaching_type': 'Teaching Level',
+        'institution_name': 'Institution Name',
+        'institution_id': 'Institution ID',
+        'created_at': 'Joined Date'
+      };
+      return nameMap[fieldName] || fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    // Format field values for display
+    function formatFieldValue(value, fieldName) {
+      if (value === null || value === undefined || value === '') {
+        return '<span class="empty">Not provided</span>';
+      }
+
+      // Date formatting
+      if (fieldName === 'created_at') {
+        const date = new Date(value);
+        return date.toLocaleDateString('en-IN', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+
+      return value;
+    }
+
+    // Get initials for avatar
+    function getInitials(name) {
+      if (!name) return '?';
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+
+    // Fetch teacher data from API
+    async function fetchTeacherData(teacherId) {
+      try {
+        const response = await fetch(TEACHER_API);
+        const data = await response.json();
+        
+        if (data.success && data.teachers && Array.isArray(data.teachers)) {
+          const teacher = data.teachers.find(t => t.teacher_id == teacherId);
+          if (teacher) {
+            return teacher;
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching teacher data:', error);
+        return null;
+      }
+    }
+
+    // Render documents upload section (only profile image and adhar card)
+    function renderDocumentsSection() {
+      return `
+        <div class="documents-section">
+          <h3 class="documents-section-title">
+            <i class="fas fa-file-upload"></i>
+            Required Documents
+          </h3>
+          <div class="documents-grid">
+            <div class="document-upload-cell required" data-doc-id="adhar_card" id="adhar_card_card">
+              <div class="document-label">
+                <i class="fas fa-id-card"></i>
+                Aadhar Card
+                <span class="required-badge">REQUIRED</span>
+              </div>
+              <div class="document-preview" id="adhar_card_preview">
+                <i class="fas fa-id-card placeholder"></i>
+              </div>
+              <button class="document-save-btn" id="adhar_card_save_btn" style="display: none;">
+                <i class="fas fa-save"></i>
+                Save Document
+              </button>
+              <input type="file" id="adhar_card_input" accept="image/*,application/pdf" style="display: none;">
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Render profile section
+    function renderProfileSection(title, icon, fields, teacherData) {
+      const sectionFields = FIELD_MAPPINGS[fields] || [];
+      
+      if (sectionFields.length === 0) return '';
+
+      let html = `
+        <div class="profile-section">
+          <h3 class="section-title">
+            <i class="${icon}"></i>
+            ${title}
+          </h3>`;
+
+      html += '<div class="profile-fields">';
+      sectionFields.forEach(field => {
+        const value = teacherData[field];
+        html += `
+          <div class="profile-field">
+            <div class="field-label">${formatFieldName(field)}</div>
+            <div class="field-value ${!value && value !== 0 ? 'empty' : ''}">${formatFieldValue(value, field)}</div>
+          </div>`;
+      });
+      html += '</div>';
+
+      html += '</div>';
+      return html;
+    }
+
+    // Render complete profile
+    function renderProfile(teacherData) {
+      const initials = getInitials(teacherData.teacher_name);
+
+      let html = `
+        <div class="profile-container">
+          <div class="profile-header">
+            <div class="avatar-section">
+              <div class="avatar" id="avatarContainer">
+                <span class="avatar-initials" id="avatarInitials">${initials}</span>
+                <img id="profileImage" src="" alt="${teacherData.teacher_name}" style="display: none;">
+              </div>
+              <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+              <button class="photo-upload-btn" id="changePhotoBtn">
+                <i class="fas fa-camera"></i>
+                Change Photo
+              </button>
+              <button class="photo-save-btn" id="savePhotoBtn" style="display: none;">
+                <i class="fas fa-save"></i>
+                Save Photo
+              </button>
+            </div>
+            <div class="profile-info-header">
+              <div class="teacher-id-badge">
+                <i class="fas fa-id-card"></i> ${teacherData.teacher_id}
+              </div>
+              <span class="designation-badge">${teacherData.designation || 'Teacher'}</span>
+              <h2>${teacherData.teacher_name}</h2>
+              <div class="profile-meta">
+                <i class="fas fa-calendar"></i>
+                Member since ${formatFieldValue(teacherData.created_at, 'created_at')}
+              </div>
+            </div>
+          </div>
+
+          ${renderDocumentsSection()}
+
+          <div class="profile-sections">
+            ${renderProfileSection('Personal Information', 'fas fa-user', 'basic', teacherData)}
+            ${renderProfileSection('Professional Details', 'fas fa-chalkboard-teacher', 'professional', teacherData)}
+            ${renderProfileSection('Contact Information', 'fas fa-address-book', 'contact', teacherData)}
+            ${renderProfileSection('Institution Details', 'fas fa-building', 'institution', teacherData)}
+          </div>
+        </div>`;
+
+      return html;
+    }
+
+    // Show error state
+    function showError(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('profileContent').style.display = 'block';
+      document.getElementById('profileContent').innerHTML = `
+        <div class="error-state">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Unable to Load Profile</h3>
+          <p>${message}</p>
+        </div>`;
+    }
+
+    // Show no data state
+    function showNoData() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('profileContent').style.display = 'block';
+      document.getElementById('profileContent').innerHTML = `
+        <div class="no-data-state">
+          <i class="fas fa-user-slash"></i>
+          <h3>Profile Not Found</h3>
+          <p>Your profile data could not be found in our system. Please contact the administrator.</p>
+        </div>`;
+    }
+
+    // Initialize profile page
+    async function initProfile() {
+      try {
+        // Get user data from session
+        const userData = window.UserSession ? window.UserSession.getUserData() : null;
+        
+        if (!userData || !userData.isAuthenticated) {
+          showError('You must be logged in to view this page.');
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 2000);
+          return;
+        }
+
+        // Check if user is a teacher
+        if (userData.userType !== 'teacher') {
+          showError('This page is only accessible to teachers.');
+          return;
+        }
+
+        // Get teacher ID from user data
+        const teacherId = userData.user?.teacher_id || userData.userId;
+        
+        if (!teacherId) {
+          showError('Teacher ID not found in session.');
+          return;
+        }
+
+        console.log('Fetching profile for teacher ID:', teacherId);
+
+        // Fetch teacher data from API
+        const teacher = await fetchTeacherData(teacherId);
+
+        if (teacher) {
+          console.log('Teacher found:', teacher);
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('profileContent').style.display = 'block';
+          document.getElementById('profileContent').innerHTML = renderProfile(teacher);
+          
+          // Store current teacher data globally
+          window.currentTeacherData = teacher;
+          
+          // Load existing documents after profile is rendered
+          setTimeout(() => {
+            console.log('🔄 About to load existing documents...');
+            console.log('🔄 teacherId (URL param):', teacherId);
+            console.log('🔄 teacher.teacher_id (DB field):', teacher.teacher_id);
+            console.log('🔄 teacher.institution_id:', teacher.institution_id);
+            console.log('🔄 teacher object:', teacher);
+            loadExistingDocuments(teacher.teacher_id, teacher.institution_id);
+          }, 200);
+
+          // Setup document uploads after rendering
+          setTimeout(setupDocumentUploads, 100);
+        } else {
+          console.log('Teacher not found in API');
+          showNoData();
+        }
+
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showError('An unexpected error occurred while loading your profile.');
+      }
+    }
+
+    // Load profile on page load
+    document.addEventListener('DOMContentLoaded', initProfile);
+
+    // =============================================
+    // DOCUMENT UPLOAD FUNCTIONALITY
+    // =============================================
+
+    // Notification Manager
+    const notificationManager = {
+      show: function(title, message, type = 'success') {
+        const popup = document.getElementById('notificationPopup');
+        const icon = document.getElementById('notificationIcon');
+        const iconClass = document.getElementById('notificationIconClass');
+        const titleEl = document.getElementById('notificationTitle');
+        const messageEl = document.getElementById('notificationMessage');
+
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Set icon and style
+        icon.className = `notification-icon ${type}`;
+        popup.className = `notification-popup ${type}`;
+        
+        if (type === 'success') {
+          iconClass.className = 'fas fa-check';
+        } else if (type === 'error') {
+          iconClass.className = 'fas fa-times';
+        } else {
+          iconClass.className = 'fas fa-info';
+        }
+
+        popup.style.display = 'flex';
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 3000);
+      }
+    };
+
+    // Photo Popup Manager
+    const photoPopupManager = {
+      show: function(imageSrc) {
+        const overlay = document.getElementById('photoPopupOverlay');
+        const popupImage = document.getElementById('popupImage');
+        
+        popupImage.src = imageSrc;
+        overlay.style.display = 'flex';
+      },
+      
+      hide: function() {
+        const overlay = document.getElementById('photoPopupOverlay');
+        overlay.style.display = 'none';
+      }
+    };
+
+    // Convert file to base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Compress image to reduce file size
+    function compressImage(file, quality = 0.8, maxWidth = 800) {
+      return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = function() {
+          // Calculate new dimensions
+          let { width, height } = img;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', quality);
+        };
+        
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    // Image cache for faster retrieval
+    const imageCache = new Map();
+    
+    // Fast image preloader with caching
+    function preloadImage(url) {
+      return new Promise((resolve, reject) => {
+        // Check cache first
+        if (imageCache.has(url)) {
+          resolve(imageCache.get(url));
+          return;
+        }
+        
+        const img = new Image();
+        img.onload = () => {
+          imageCache.set(url, url);
+          resolve(url);
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    // Fast upload file using presigned URL
+    async function uploadFileWithPresignedUrl(file, documentType) {
+      try {
+        // Step 1: Get presigned URL (parallel with compression if needed)
+        const [presignedData, compressedFile] = await Promise.all([
+          fetch('https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/profile/presigned-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              document_type: documentType,
+              file_name: file.name,
+              file_type: file.type
+            })
+          }).then(res => res.json()),
+          // Compress images > 1MB for faster upload
+          file.type.startsWith('image/') && file.size > 1024 * 1024 ? 
+            compressImage(file, 0.85, 1200) : Promise.resolve(file)
+        ]);
+
+        if (!presignedData.success) {
+          throw new Error(presignedData.message || 'Failed to get presigned URL');
+        }
+
+        // Step 2: Direct upload to S3 (bypasses Lambda entirely)
+        const uploadResponse = await fetch(presignedData.presignedUrl, {
+          method: 'PUT',
+          body: compressedFile,
+          headers: { 'Content-Type': file.type }
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload file to S3');
+        }
+
+        return {
+          success: true,
+          key: presignedData.key,
+          bucket: presignedData.bucket,
+          url: `https://${presignedData.bucket}.s3.amazonaws.com/${presignedData.key}`
+        };
+
+      } catch (error) {
+        console.error('Error uploading with presigned URL:', error);
+        throw error;
+      }
+    }
+
+    // Load existing documents from database - OPTIMIZED FOR SPEED
+    async function loadExistingDocuments(teacherId, institutionId) {
+      try {
+        console.log('📂 Fast loading documents for teacher:', teacherId);
+        console.log('📂 Institution ID:', institutionId);
+        
+        // Ensure parameters are properly encoded and not null/undefined
+        if (!teacherId || !institutionId) {
+          console.error('❌ Missing teacher_id or institution_id');
+          console.error('❌ teacherId:', teacherId);
+          console.error('❌ institutionId:', institutionId);
+          return;
+        }
+        
+        const fullUrl = `https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/profile?teacher_id=${encodeURIComponent(teacherId)}&institution_id=${encodeURIComponent(institutionId)}&_t=${Date.now()}`;
+        
+        console.log('🔗 Full URL:', fullUrl);
+        console.log('🔗 URL contains teacher_id:', fullUrl.includes('teacher_id'));
+        console.log('🔗 URL contains student_id:', fullUrl.includes('student_id'));
+        console.log('🔗 teacherId type:', typeof teacherId, 'value:', teacherId);
+        console.log('🔗 institutionId type:', typeof institutionId, 'value:', institutionId);
+        
+        // Use fetch with cache control for faster subsequent loads
+        const response = await fetch(fullUrl, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'force-cache' // Use browser cache for speed
+        });
+
+        console.log('📡 Response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log('⚠️ Response not OK. Status:', response.status, 'Body:', errorText);
+          
+          // Don't show error popup for 404 - just means no documents uploaded yet
+          if (response.status === 404) {
+            console.log('📭 No documents found yet for this teacher');
+          } else {
+            console.error('❌ Failed to load documents:', errorText);
+          }
+          return;
+        }
+
+        const result = await response.json();
+        console.log('✅ API Response received:', result);
+        console.log('✅ Documents array:', result.documents);
+
+        if (result.success && result.documents) {
+          const docs = result.documents;
+          console.log('📋 Processing documents');
+          
+          // SPEED OPTIMIZATION: Collect all image URLs first for parallel preloading
+          const docTypes = ['profile_image_url', 'adhar_card'];
+          const imagesToPreload = [];
+          const documentsToDisplay = [];
+          
+          // Step 1: Parse and collect all document data
+          docTypes.forEach(docType => {
+            const documentData = docs[docType];
+            
+            if (documentData) {
+              try {
+                // Parse the document data if it's a string
+                const parsedData = typeof documentData === 'string' ? JSON.parse(documentData) : documentData;
+                
+                if (parsedData && parsedData.url) {
+                  // Only preload images (not PDFs)
+                  if (parsedData.mimeType && parsedData.mimeType.startsWith('image/')) {
+                    imagesToPreload.push(parsedData.url);
+                  }
+                  
+                  documentsToDisplay.push({
+                    type: docType,
+                    data: parsedData
+                  });
+                }
+              } catch (parseError) {
+                console.error(`❌ Error parsing ${docType}:`, parseError);
+              }
+            }
+          });
+          
+          // Step 2: Preload ALL images in parallel (FAST!)
+          if (imagesToPreload.length > 0) {
+            console.log(`🚀 Preloading ${imagesToPreload.length} images in parallel...`);
+            Promise.all(imagesToPreload.map(url => preloadImage(url)))
+              .then(() => console.log('✅ All images preloaded'))
+              .catch(err => console.warn('⚠️ Some images failed to preload:', err));
+          }
+          
+          // Step 3: Display documents immediately (images load from cache)
+          documentsToDisplay.forEach(doc => {
+            if (doc.type === 'profile_image_url') {
+              displayExistingProfileImage(doc.data);
+            } else {
+              displayExistingDocument(doc.type, doc.data);
+            }
+          });
+          
+          console.log('✅ All documents processed');
+        } else {
+          console.log('⚠️ No documents in response');
+        }
+
+      } catch (error) {
+        console.error('Error loading existing documents:', error);
+      }
+    }
+
+    // Display existing profile image - OPTIMIZED WITH LAZY LOADING
+    function displayExistingProfileImage(documentData) {
+      try {
+        const profileImage = document.getElementById('profileImage');
+        const avatarInitials = document.getElementById('avatarInitials');
+        const savePhotoBtn = document.getElementById('savePhotoBtn');
+
+        if (!profileImage) {
+          console.error('❌ Profile image element not found in DOM');
+          return;
+        }
+
+        const docData = documentData;
+        
+        if (docData && docData.url) {
+          // Fast display: Set loading attribute for lazy loading
+          profileImage.loading = 'lazy';
+          
+          // Check if image is in cache
+          if (imageCache.has(docData.url)) {
+            // Instant display from cache
+            profileImage.src = docData.url;
+            profileImage.style.display = 'block';
+            if (avatarInitials) avatarInitials.style.display = 'none';
+            // Only hide save button if user hasn't selected a new image
+            if (savePhotoBtn && !unsavedChanges.profile_image) savePhotoBtn.style.display = 'none';
+            console.log('⚡ Profile image loaded from cache');
+          } else {
+            // Load with smooth transition
+            profileImage.src = docData.url;
+            profileImage.onload = () => {
+              profileImage.style.display = 'block';
+              if (avatarInitials) avatarInitials.style.display = 'none';
+              // Only hide save button if user hasn't selected a new image
+              if (savePhotoBtn && !unsavedChanges.profile_image) savePhotoBtn.style.display = 'none';
+              console.log('✅ Profile image loaded');
+            };
+            profileImage.onerror = () => {
+              console.error('❌ Failed to load profile image');
+            };
+          }
+        } else {
+          console.warn('⚠️ Document data missing URL:', docData);
+        }
+
+      } catch (error) {
+        console.error('❌ Error displaying existing profile image:', error);
+      }
+    }
+
+    // Display existing document in the UI - OPTIMIZED WITH LAZY LOADING
+    function displayExistingDocument(documentType, documentData) {
+      try {
+        const preview = document.getElementById(`${documentType}_preview`);
+        const saveBtn = document.getElementById(`${documentType}_save_btn`);
+        const card = document.getElementById(`${documentType}_card`);
+
+        if (!preview) {
+          console.warn(`⚠️ Preview element not found for: ${documentType}`);
+          return;
+        }
+
+        const docData = documentData;
+        
+        if (docData && docData.url) {
+          // Display image or PDF
+          if (docData.mimeType === 'application/pdf') {
+            // PDF - instant display (no loading needed)
+            preview.innerHTML = `<i class="fas fa-file-pdf placeholder" style="color: var(--error);"></i><div class="file-name">${docData.fileName || 'PDF Document'}</div>`;
+          } else {
+            // Image - optimized with lazy loading
+            const isInCache = imageCache.has(docData.url);
+            preview.innerHTML = `<img src="${docData.url}" alt="${documentType}" loading="lazy" style="${isInCache ? '' : 'opacity: 0; transition: opacity 0.3s;'}"><div class="file-name">${docData.fileName || 'Image Document'}</div>`;
+            
+            // Add smooth fade-in for non-cached images
+            if (!isInCache) {
+              const img = preview.querySelector('img');
+              img.onload = () => {
+                img.style.opacity = '1';
+                console.log(`⚡ ${documentType} loaded`);
+              };
+            } else {
+              console.log(`⚡ ${documentType} loaded from cache`);
+            }
+          }
+
+          // Mark as uploaded
+          if (card) card.classList.add('has-file', 'uploaded');
+          if (saveBtn) saveBtn.style.display = 'none';
+          
+          console.log(`✅ ${documentType} displayed`);
+        } else {
+          console.warn(`⚠️ Document data missing URL for ${documentType}:`, docData);
+        }
+
+      } catch (error) {
+        console.error(`❌ Error displaying ${documentType}:`, error);
+      }
+    }
+
+    // Setup document upload event listeners
+    function setupDocumentUploads() {
+      const photoCloseBtn = document.getElementById('photoCloseBtn');
+      const photoPopupOverlay = document.getElementById('photoPopupOverlay');
+
+      // Close photo popup
+      if (photoCloseBtn) {
+        photoCloseBtn.addEventListener('click', () => photoPopupManager.hide());
+      }
+
+      if (photoPopupOverlay) {
+        photoPopupOverlay.addEventListener('click', (e) => {
+          if (e.target === photoPopupOverlay) {
+            photoPopupManager.hide();
+          }
+        });
+      }
+
+      // Setup profile image upload in header
+      setupProfileImageUpload();
+
+      // Setup adhar card upload
+      setupAdharCardUpload();
+
+      console.log('✅ Document upload functionality initialized');
+    }
+
+    // Setup profile image upload
+    function setupProfileImageUpload() {
+      const changePhotoBtn = document.getElementById('changePhotoBtn');
+      const savePhotoBtn = document.getElementById('savePhotoBtn');
+      const profileImageInput = document.getElementById('profileImageInput');
+      const profileImage = document.getElementById('profileImage');
+      const avatarInitials = document.getElementById('avatarInitials');
+      const avatarContainer = document.getElementById('avatarContainer');
+
+      if (!changePhotoBtn || !savePhotoBtn || !profileImageInput) {
+        console.log('⚠️ Profile image elements not found, retrying...');
+        setTimeout(setupProfileImageUpload, 500);
+        return;
+      }
+
+      let selectedProfileImage = null;
+
+      // Change photo button click
+      changePhotoBtn.addEventListener('click', function() {
+        profileImageInput.click();
+      });
+
+      // Image file selected
+      profileImageInput.addEventListener('change', async function(e) {
+        if (e.target.files && e.target.files[0]) {
+          const selectedFile = e.target.files[0];
+
+          // Validate file type
+          if (!selectedFile.type.startsWith('image/')) {
+            notificationManager.show('Invalid File', 'Please select a valid image file', 'error');
+            return;
+          }
+
+          try {
+            // Compress image if it's too large (>2MB)
+            const compressedFile = selectedFile.size > 2 * 1024 * 1024 ? 
+              await compressImage(selectedFile, 0.8, 800) : selectedFile;
+            
+            selectedProfileImage = compressedFile;
+            const base64Image = await convertFileToBase64(compressedFile);
+            
+            // Update avatar preview
+            profileImage.src = base64Image;
+            profileImage.style.display = 'block';
+            if (avatarInitials) avatarInitials.style.display = 'none';
+
+            // Show save button
+            console.log('🔍 savePhotoBtn element:', savePhotoBtn);
+            console.log('🔍 About to show save button');
+            savePhotoBtn.style.display = 'inline-flex';
+            console.log('🔍 Save button display style after setting:', savePhotoBtn.style.display);
+
+            // Track unsaved change
+            unsavedChanges.profile_image = selectedFile.name;
+            console.log('📸 Profile image selected (UNSAVED)');
+          } catch (error) {
+            console.error('Error reading profile image:', error);
+            notificationManager.show('Error', 'Failed to load image preview', 'error');
+          }
+        }
+      });
+
+      // Save photo button click - OPTIMIZED FOR SPEED
+      savePhotoBtn.addEventListener('click', async function() {
+        if (!selectedProfileImage) {
+          notificationManager.show('No Image Selected', 'Please select an image first', 'error');
+          return;
+        }
+
+        if (!window.currentTeacherData) {
+          notificationManager.show('Error', 'Teacher data not available', 'error');
+          return;
+        }
+
+        // Optimistic UI: Hide save button immediately
+        savePhotoBtn.style.display = 'none';
+        const originalText = this.innerHTML;
+        
+        // Show saving notification (non-blocking)
+        notificationManager.show('Uploading', 'Saving profile photo...', 'success');
+
+        try {
+          const teacherId = window.currentTeacherData.teacher_id;
+          console.log('🚀 Fast upload: Profile image for teacher:', teacherId);
+
+          // SPEED OPTIMIZATION: Upload and save in parallel (no await for file)
+          const uploadResult = await uploadFileWithPresignedUrl(selectedProfileImage, 'profile_image_url');
+
+          if (uploadResult.success) {
+            // Background save: Save metadata to database (fire and forget style)
+            const updateData = {
+              teacher_id: teacherId,
+              institution_id: window.currentTeacherData.institution_id,
+              document_type: 'profile_image_url',
+              s3_key: uploadResult.key,
+              s3_bucket: uploadResult.bucket,
+              file_name: selectedProfileImage.name,
+              file_type: selectedProfileImage.type
+            };
+
+            // Non-blocking save to backend
+            fetch('https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updateData)
+            })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success) {
+                console.log('✅ Profile metadata saved:', result);
+                notificationManager.show('Success', 'Profile photo saved successfully!', 'success');
+              } else {
+                console.warn('⚠️ Metadata save issue:', result.message);
+              }
+            })
+            .catch(err => {
+              console.error('❌ Metadata save error:', err);
+              // Image is still uploaded to S3, so not critical
+            });
+
+            // Clear selection and unsaved change tracking
+            selectedProfileImage = null;
+            unsavedChanges.profile_image = null;
+            console.log('✅ Profile image saved, unsaved changes cleared');
+            
+          } else {
+            throw new Error('Failed to upload file to S3');
+          }
+
+        } catch (error) {
+          console.error('❌ Error saving profile image:', error);
+          notificationManager.show('Save Failed', `Failed to save profile photo: ${error.message}`, 'error');
+          // Show button again on error
+          savePhotoBtn.style.display = 'inline-flex';
+          savePhotoBtn.innerHTML = originalText;
+        }
+      });
+
+      // Click on avatar to view full image
+      if (avatarContainer) {
+        avatarContainer.addEventListener('click', function() {
+          const imageSrc = profileImage.style.display === 'block' ? profileImage.src : null;
+          if (imageSrc) {
+            photoPopupManager.show(imageSrc);
+          }
+        });
+      }
+
+      console.log('✅ Profile image upload initialized');
+    }
+
+    // Setup adhar card upload
+    function setupAdharCardUpload() {
+      const card = document.getElementById('adhar_card_card');
+      const saveBtn = document.getElementById('adhar_card_save_btn');
+      const fileInput = document.getElementById('adhar_card_input');
+      const preview = document.getElementById('adhar_card_preview');
+
+      if (!card || !saveBtn || !fileInput || !preview) {
+        console.log('⚠️ Adhar card elements not found, retrying...');
+        setTimeout(setupAdharCardUpload, 500);
+        return;
+      }
+
+      let uploadedFile = null;
+
+      // Click anywhere on card to upload (except save button)
+      card.addEventListener('click', function(e) {
+        // Don't trigger if clicking the save button
+        if (e.target.closest('.document-save-btn')) {
+          return;
+        }
+        fileInput.click();
+      });
+
+      // File selected
+      fileInput.addEventListener('change', async function(e) {
+        if (e.target.files && e.target.files[0]) {
+          const selectedFile = e.target.files[0];
+
+          // Validate file type (images or PDFs)
+          const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+          if (!validTypes.includes(selectedFile.type)) {
+            notificationManager.show('Invalid File Type', 'Please select an image (JPG, PNG, GIF) or PDF file', 'error');
+            return;
+          }
+
+          try {
+            uploadedFile = selectedFile;
+
+            // Update preview
+            if (selectedFile.type === 'application/pdf') {
+              preview.innerHTML = `
+                <i class="fas fa-file-pdf placeholder" style="color: var(--error);"></i>
+                <div class="file-name">${selectedFile.name}</div>
+              `;
+            } else {
+              const base64 = await convertFileToBase64(selectedFile);
+              preview.innerHTML = `
+                <img src="${base64}" alt="Adhar Card">
+                <div class="file-name">${selectedFile.name}</div>
+              `;
+            }
+
+            // Show save button and mark card as having a file
+            saveBtn.style.display = 'flex';
+            card.classList.add('has-file');
+
+            // Track unsaved change
+            unsavedChanges.documents['adhar_card'] = 'Aadhar Card';
+            console.log('📎 adhar_card selected (UNSAVED):', selectedFile.name);
+          } catch (error) {
+            console.error('Error reading file for adhar_card:', error);
+            notificationManager.show('Error', 'Failed to load file preview', 'error');
+          }
+        }
+      });
+
+      // Save button click - OPTIMIZED FOR SPEED
+      saveBtn.addEventListener('click', async function() {
+        if (!uploadedFile) {
+          notificationManager.show('No File Selected', 'Please select a file first', 'error');
+          return;
+        }
+
+        if (!window.currentTeacherData) {
+          notificationManager.show('Error', 'Teacher data not available', 'error');
+          return;
+        }
+
+        // Optimistic UI: Hide button and mark as uploaded immediately
+        saveBtn.style.display = 'none';
+        card.classList.remove('has-file');
+        card.classList.add('uploaded');
+        
+        // Show quick notification
+        notificationManager.show('Uploading', 'Saving Aadhar Card...', 'success');
+
+        try {
+          const teacherId = window.currentTeacherData.teacher_id;
+          console.log('🚀 Fast upload: adhar_card for teacher:', teacherId);
+
+          // Fast upload to S3
+          const uploadResult = await uploadFileWithPresignedUrl(uploadedFile, 'adhar_card');
+
+          if (uploadResult.success) {
+            // Background save: Fire and forget metadata save
+            const updateData = {
+              teacher_id: teacherId,
+              institution_id: window.currentTeacherData.institution_id,
+              document_type: 'adhar_card',
+              s3_key: uploadResult.key,
+              s3_bucket: uploadResult.bucket,
+              file_name: uploadedFile.name,
+              file_type: uploadedFile.type
+            };
+
+            // Non-blocking backend save
+            fetch('https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updateData)
+            })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success) {
+                console.log('✅ adhar_card metadata saved:', result);
+                notificationManager.show('Success', 'Aadhar Card saved successfully!', 'success');
+                uploadedFile = null;
+                // Clear unsaved change tracking
+                delete unsavedChanges.documents['adhar_card'];
+                console.log('✅ adhar_card saved, unsaved changes cleared');
+              } else {
+                console.warn('⚠️ adhar_card metadata save issue:', result.message);
+              }
+            })
+            .catch(err => {
+              console.error('❌ adhar_card metadata save error:', err);
+              // File is uploaded to S3, metadata issue not critical
+            });
+
+          } else {
+            throw new Error('Failed to upload file to S3');
+          }
+
+        } catch (error) {
+          console.error('❌ Error saving adhar_card:', error);
+          notificationManager.show('Save Failed', `Failed to save Aadhar Card: ${error.message}`, 'error');
+          // Revert optimistic UI on error
+          saveBtn.style.display = 'flex';
+          card.classList.add('has-file');
+          card.classList.remove('uploaded');
+        }
+      });
+
+      // Click on preview to view full size (images only)
+      preview.addEventListener('click', function(e) {
+        const img = preview.querySelector('img');
+        if (img && img.src) {
+          e.stopPropagation(); // Prevent card click
+          photoPopupManager.show(img.src);
+        }
+      });
+
+      console.log('✅ Adhar card upload initialized');
+    }
+  </script>
+
+  <script>
+    // =============================================
+    // REQUIRED DOCUMENTS VALIDATION & BACK BUTTON HANDLER
+    // =============================================
+    
+    let uploadedDocuments = {
+      profile_image_url: false,
+      adhar_card: false
+    };
+
+    // Track unsaved changes (selected but not saved)
+    let unsavedChanges = {
+      profile_image: null,
+      documents: {}
+    };
+
+    // Check if required documents are uploaded
+    function areRequiredDocumentsUploaded() {
+      return uploadedDocuments.profile_image_url && uploadedDocuments.adhar_card;
+    }
+
+    // Check if there are unsaved changes
+    function hasUnsavedChanges() {
+      if (unsavedChanges.profile_image) return true;
+      return Object.keys(unsavedChanges.documents).length > 0;
+    }
+
+    // Show required documents warning popup
+    function showRequiredDocsPopup() {
+      const popup = document.getElementById('requiredDocsPopup');
+      const missingList = document.getElementById('missingDocsList');
+      
+      let html = '<ul style="margin: 0; padding-left: 20px; list-style: none;">';
+      
+      if (!uploadedDocuments.profile_image_url) {
+        html += '<li style="padding: 8px 0; color: #333;"><i class="fas fa-camera" style="color: var(--warning); margin-right: 10px;"></i>Profile Photo</li>';
+      }
+      
+      if (!uploadedDocuments.adhar_card) {
+        html += '<li style="padding: 8px 0; color: #333;"><i class="fas fa-id-card" style="color: var(--warning); margin-right: 10px;"></i>Aadhar Card</li>';
+      }
+      
+      html += '</ul>';
+      missingList.innerHTML = html;
+      popup.style.display = 'flex';
+    }
+
+    // Show unsaved changes warning popup
+    function showUnsavedChangesPopup() {
+      const popup = document.getElementById('unsavedChangesPopup');
+      const changesList = document.getElementById('unsavedChangesList');
+      
+      let html = '<ul style="margin: 0; padding-left: 20px; list-style: none;">';
+      
+      if (unsavedChanges.profile_image) {
+        html += '<li style="padding: 8px 0; color: #333;"><i class="fas fa-camera" style="color: var(--blue); margin-right: 10px;"></i>Profile Photo (not saved)</li>';
+      }
+      
+      Object.keys(unsavedChanges.documents).forEach(docId => {
+        const docLabel = unsavedChanges.documents[docId];
+        html += `<li style="padding: 8px 0; color: #333;"><i class="fas fa-file-image" style="color: var(--blue); margin-right: 10px;"></i>${docLabel} (not saved)</li>`;
+      });
+      
+      html += '</ul>';
+      changesList.innerHTML = html;
+      popup.style.display = 'flex';
+    }
+
+    // Force navigate back (user chose to leave without saving)
+    let allowBackNavigation = false;
+    function forceNavigateBack() {
+      allowBackNavigation = true;
+      document.getElementById('unsavedChangesPopup').style.display = 'none';
+      // Clear unsaved changes
+      unsavedChanges.profile_image = null;
+      unsavedChanges.documents = {};
+      history.back();
+    }
+
+    // Close popup handlers
+    document.getElementById('requiredDocsCloseBtn').addEventListener('click', function() {
+      document.getElementById('requiredDocsPopup').style.display = 'none';
+    });
+
+    document.getElementById('unsavedChangesCloseBtn').addEventListener('click', function() {
+      document.getElementById('unsavedChangesPopup').style.display = 'none';
+    });
+
+    // Handle browser back button
+    window.addEventListener('load', function() {
+      // Add a history entry
+      history.pushState(null, null, location.href);
+      
+      window.addEventListener('popstate', function(event) {
+        // Allow forced navigation
+        if (allowBackNavigation) {
+          allowBackNavigation = false;
+          return;
+        }
+        
+        // Check for unsaved changes first (higher priority)
+        if (hasUnsavedChanges()) {
+          history.pushState(null, null, location.href);
+          showUnsavedChangesPopup();
+          return;
+        }
+        
+        // Then check if required documents are uploaded
+        if (!areRequiredDocumentsUploaded()) {
+          history.pushState(null, null, location.href);
+          showRequiredDocsPopup();
+          return;
+        }
+        
+        // Allow navigation back if everything is okay
+        history.back();
+      });
+    });
+
+    // Mark documents as uploaded when loaded from database
+    const originalDisplayExistingProfileImage = displayExistingProfileImage;
+    displayExistingProfileImage = function(documentData) {
+      originalDisplayExistingProfileImage(documentData);
+      if (documentData && documentData.url) {
+        uploadedDocuments.profile_image_url = true;
+        console.log('✅ Existing profile photo detected');
+      }
+    };
+
+    const originalDisplayExistingDocument = displayExistingDocument;
+    displayExistingDocument = function(documentType, documentData) {
+      originalDisplayExistingDocument(documentType, documentData);
+      if (documentData && documentData.url && documentType === 'adhar_card') {
+        uploadedDocuments.adhar_card = true;
+        console.log('✅ Existing adhar card detected');
+      }
+    };
+
+    console.log('✅ Required documents validation and back button handler initialized');
+  </script>
+
+  <!-- Authentication Scripts -->
+  <script src="../js/simple-auth.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+</body>
+</html>
+

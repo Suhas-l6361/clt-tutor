@@ -1,0 +1,5167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
+  
+  <!-- Preload API endpoints for faster loading -->
+  <link rel="preconnect" href="https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com">
+  <link rel="dns-prefetch" href="https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com">
+  
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --secondary: #7c3aed;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --text-muted: #94a3b8;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .app-flex {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 1050;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+      /* Ensure sidebar is always visible on desktop */
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+
+    .sidebar ul li { margin: 0; }
+
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: margin-left 0.28s;
+      /* Ensure main content is positioned correctly */
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.menu-open {
+      pointer-events: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .top-bar .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .status .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Hamburger Menu */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 17px;
+      right: 20px;
+      z-index: 2001;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 2000;
+      transition: opacity 0.2s;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    /* Content Area */
+    .content {
+      padding: 24px 32px;
+      flex: 1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        z-index: 3001;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+        z-index: 3001;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+      .main-content.menu-open { pointer-events: none; }
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 16px;
+      }
+      
+      .top-bar {
+        padding: 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+
+    /* Assignment Management Custom Styles */
+    .assignment-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .assignment-form-card {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #3b82f610;
+      padding: 2rem;
+      animation: fadeIn 0.7s;
+    }
+
+    .assignment-form-card h2 {
+      color: #2563eb;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 1.5rem;
+    }
+
+    .assignment-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-view-submissions {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-view-submissions::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-view-submissions:hover::before {
+      left: 100%;
+    }
+
+    .btn-view-submissions:hover {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+    }
+
+    .btn-view-submissions:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+    }
+
+    .btn-view-submissions i {
+      font-size: 1rem;
+    }
+
+    .view-submissions-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .create-assignment-text {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #2563eb;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+    }
+
+    .assignment-form-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Form Styles - Simple and Mobile-Friendly */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Radio Button Styles */
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      margin-bottom: 0;
+    }
+
+    .radio-group input[type="radio"] {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .form-group input[type="file"] {
+      display: none;
+    }
+
+    .file-upload-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: 2px dashed #667eea;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 0.95rem;
+      min-height: 50px;
+    }
+
+    .file-upload-label:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+      border-color: #5a67d8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .file-upload-label:active {
+      transform: translateY(0);
+    }
+
+    .file-upload-label i {
+      font-size: 1.2rem;
+    }
+
+    .file-info {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+      display: none;
+    }
+
+    .file-info.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .file-info .file-name {
+      font-weight: 600;
+      color: #2563eb;
+    }
+
+    .file-info .file-size {
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .file-remove {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s;
+    }
+
+    .file-remove:hover {
+      background: #fecaca;
+    }
+
+    .form-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+      margin-right: 0.2rem;
+    }
+
+    .reminder-hint {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-left: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .btn-create {
+      background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.7rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #2563eb22;
+      transition: background 0.18s, transform 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+    }
+
+    .btn-create:hover {
+      background: linear-gradient(90deg, #1d4ed8 0%, #0ea5e9 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    .success-message {
+      color: #10b981;
+      font-weight: 600;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+      animation: popIn 0.5s;
+    }
+
+    /* Created Assignments View */
+    .created-assignments {
+      background: linear-gradient(135deg, #f0fdfa 0%, #e0e7ff 100%);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #06b6d410;
+      padding: 2rem;
+      animation: fadeIn 0.7s;
+      display: none;
+    }
+
+    .created-assignments.show {
+      display: block;
+    }
+
+    .created-assignments h3 {
+      color: #0ea5e9;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .assignment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .assignment-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-left: 4px solid #2563eb;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .assignment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .assignment-card h4 {
+      color: #2563eb;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      padding-right: 60px;
+    }
+
+    /* Assignment Image Gallery Styles */
+    .assignment-images {
+      margin: 12px 0;
+    }
+
+    .image-gallery-grid {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+
+    .gallery-thumb {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid #e2e8f0;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .gallery-thumb:hover {
+      border-color: #2563eb;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .assignment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .assignment-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .assignment-description {
+      color: #475569;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .assignment-attachment {
+      margin: 12px 0;
+    }
+
+    .attachment-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      background: var(--primary-light);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .attachment-link:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .assignment-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-badge.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-badge.closed {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status-badge.overdue {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status-badge.due-today {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .due-date-closed {
+      color: #dc2626 !important;
+      font-weight: 600;
+    }
+
+    /* Assignment Card Actions */
+    .assignment-actions {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .edit-action {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .edit-action:hover {
+      background: #f59e0b;
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    .delete-action {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .delete-action:hover {
+      background: #ef4444;
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    /* Edit Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .edit-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.show .edit-modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .modal-header h3 {
+      color: #2563eb;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #64748b;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .close-modal:hover {
+      background: #f1f5f9;
+      color: #ef4444;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-form .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .btn-cancel {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .btn-update {
+      background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-update:hover {
+      background: linear-gradient(90deg, #1d4ed8 0%, #0ea5e9 100%);
+      transform: translateY(-1px);
+    }
+
+    /* Delete Confirmation */
+    .delete-confirmation {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .delete-confirmation h4 {
+      color: #dc2626;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .delete-confirmation p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .delete-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    .btn-keep {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-keep:hover {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      80% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Assignment Table Styles */
+    .assignment-table-card {
+      background: linear-gradient(135deg, #f0fdfa 0%, #e0e7ff 100%);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #06b6d410;
+      padding: 2rem;
+      animation: fadeIn 0.7s;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .table-header h3 {
+      color: #0ea5e9;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .download-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+
+    .download-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .table-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .filter-btn {
+      background: #fff;
+      color: #2563eb;
+      border: 1.5px solid #2563eb;
+      border-radius: 7px;
+      padding: 0.4rem 1rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: fit-content;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .assignment-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 0.95rem;
+    }
+
+    .assignment-table th, .assignment-table td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .assignment-table th {
+      background: #f8fafc;
+      color: #2563eb;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .assignment-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .assignment-table tr:nth-child(odd) {
+      background: #fff;
+    }
+
+    .assignment-table tr:hover {
+      background: #f1f5f9;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status.submitted { color: #10b981; }
+    .status.not-submitted { color: #ef4444; }
+    .status.late { color: #f59e0b; }
+
+    .grade-input {
+      width: 60px;
+      padding: 0.3rem;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .feedback-input {
+      width: 120px;
+      padding: 0.3rem;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .edit-btn {
+      background: #fff;
+      color: #0ea5e9;
+      border: 1.5px solid #0ea5e9;
+      border-radius: 7px;
+      padding: 0.3rem 0.8rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .edit-btn:hover {
+      background: #0ea5e9;
+      color: #fff;
+    }
+
+    .view-submission-btn {
+      background: #fff;
+      color: #0ea5e9;
+      border: 1.5px solid #0ea5e9;
+      border-radius: 7px;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .view-submission-btn:hover {
+      background: #0ea5e9;
+      color: #fff;
+    }
+
+    .save-btn {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 0.3rem 0.8rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .save-btn:hover {
+      background: #059669;
+    }
+
+    .grade-save-btn, .feedback-save-btn {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 28px;
+    }
+
+    .grade-save-btn:hover, .feedback-save-btn:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .grade-save-btn:disabled, .feedback-save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .grade-input[readonly], .feedback-input[readonly] {
+      background-color: #f8f9fa;
+      border-color: #e9ecef;
+      cursor: default;
+    }
+
+    .grade-input[readonly]:focus, .feedback-input[readonly]:focus {
+      outline: none;
+      border-color: #e9ecef;
+      box-shadow: none;
+    }
+
+    /* Responsive fixes */
+    @media (max-width: 768px) {
+      .assignment-container {
+        gap: 1.5rem;
+      }
+
+      .assignment-form-card, 
+      .assignment-table-card, 
+      .created-assignments {
+        padding: 1.5rem;
+      }
+
+      .assignment-header {
+        justify-content: center;
+      }
+
+      .view-submissions-section {
+        width: 100%;
+      }
+
+      .btn-view-submissions {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+      }
+
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+      }
+
+      .table-actions {
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .download-btn {
+        flex-shrink: 0;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.85rem;
+      }
+
+      .table-filters {
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        flex-wrap: nowrap;
+        gap: 0.4rem;
+      }
+
+      .filter-btn {
+        flex-shrink: 0;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.85rem;
+      }
+
+      .assignment-table th, 
+      .assignment-table td {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.85rem;
+      }
+
+      .assignment-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .assignment-meta {
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .content {
+        padding: 12px;
+      }
+
+      .assignment-form-card, 
+      .assignment-table-card, 
+      .created-assignments {
+        padding: 1rem;
+      }
+
+      .assignment-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+      }
+
+      .create-assignment-text {
+        font-size: 1.3rem;
+      }
+
+      .btn-view-submissions {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+
+      .table-filters {
+        gap: 0.3rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+
+      .filter-btn {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.8rem;
+      }
+
+      .assignment-table th, 
+      .assignment-table td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.8rem;
+      }
+
+      .grade-input,
+      .feedback-input {
+        width: 50px;
+        font-size: 0.8rem;
+      }
+
+      .feedback-input {
+        width: 80px;
+      }
+    }
+
+    /* Attachment Modal Styles */
+    .attachment-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .attachment-modal-overlay.show {
+      display: flex !important;
+    }
+
+    .attachment-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 80vw;
+      max-height: 90vh;
+      width: 70vw;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInUp 0.3s ease-out;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .attachment-modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .attachment-modal-header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .attachment-modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .attachment-modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .attachment-modal-content {
+      padding: 20px;
+      max-height: calc(90vh - 100px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-wrap: break-word;
+    }
+
+    .attachment-modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .attachment-modal-content video {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .attachment-modal-content iframe {
+      width: 100%;
+      height: 60vh;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .attachment-modal-content .file-info {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .attachment-modal-content .file-info i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .attachment-modal-content .file-info h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      line-height: 1.4;
+    }
+
+    .attachment-modal-content .file-info p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .attachment-modal-content .download-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 12px;
+      margin-right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .attachment-modal-content .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .attachment-modal-content .view-full-btn {
+      background: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .attachment-modal-content .view-full-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4);
+    }
+
+    .multiple-files-container {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .file-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .file-item:last-child {
+      margin-bottom: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(30px) scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Large Screen Optimization */
+    @media (min-width: 1200px) {
+      .attachment-modal {
+        width: 60vw;
+        max-width: 60vw;
+      }
+      
+      .attachment-modal-content iframe {
+        height: 50vh;
+      }
+      
+      .attachment-modal-header {
+        padding: 16px 20px;
+      }
+      
+      .attachment-modal-content {
+        padding: 16px;
+      }
+    }
+
+    /* Responsive Attachment Modal */
+    @media (max-width: 768px) {
+      .attachment-modal {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 20px;
+      }
+      
+      .attachment-modal-header {
+        padding: 18px 20px;
+      }
+      
+      .attachment-modal-header h3 {
+        font-size: 1.1rem;
+      }
+      
+      .attachment-modal-content {
+        padding: 20px;
+      }
+      
+      .attachment-modal-content iframe {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .attachment-modal {
+        width: 98vw;
+        max-width: 98vw;
+        margin: 10px;
+      }
+      
+      .attachment-modal-header {
+        padding: 16px 18px;
+      }
+      
+      .attachment-modal-header h3 {
+        font-size: 1rem;
+      }
+      
+      .attachment-modal-content {
+        padding: 18px;
+      }
+      
+      .attachment-modal-content iframe {
+        height: 250px;
+      }
+    }
+
+    /* Image Modal Styles */
+    .image-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .image-modal-overlay.show {
+      display: flex !important;
+    }
+
+    .image-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 800px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInUp 0.3s ease-out;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .image-modal-header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .image-modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .image-modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .image-modal-content {
+      display: flex;
+      flex-direction: column;
+      height: calc(90vh - 80px);
+    }
+
+    .image-modal-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+
+    .image-modal-main img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-modal-thumbnails {
+      display: flex;
+      gap: 10px;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+      overflow-x: auto;
+      max-height: 100px;
+    }
+
+    .image-modal-thumbnail {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .image-modal-thumbnail.active {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .image-modal-thumbnail:hover {
+      border-color: #667eea;
+      transform: scale(1.05);
+    }
+
+    .image-modal-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-modal-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .image-nav-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .image-nav-btn:hover {
+      background: #5a6fd8;
+    }
+
+    .image-nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #imageModalCounter {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive Image Modal */
+    @media (max-width: 768px) {
+      .image-modal {
+        width: 95vw;
+        max-height: 95vh;
+      }
+      
+      .image-modal-content {
+        height: calc(95vh - 80px);
+      }
+      
+      .image-modal-main {
+        padding: 15px;
+      }
+      
+      .image-modal-thumbnails {
+        padding: 12px 15px;
+        max-height: 80px;
+      }
+      
+      .image-modal-nav {
+        padding: 12px 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .image-modal {
+        width: 98vw;
+        max-height: 98vh;
+      }
+      
+      .image-modal-content {
+        height: calc(98vh - 80px);
+      }
+      
+      .image-modal-main {
+        padding: 10px;
+      }
+      
+      .image-modal-thumbnails {
+        padding: 10px;
+        max-height: 70px;
+      }
+      
+      .image-modal-nav {
+        padding: 10px;
+      }
+      
+      .image-modal-thumbnail {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    /* BC360 Loading Popup Styles */
+    .loading-popup {
+      display: none;
+      position: fixed;
+      z-index: 20000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+    
+    .loading-popup.show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .loading-content {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 300px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #333;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e9ecef;
+      border-top: 4px solid #3A1C71;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #3A1C71;
+    }
+
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: #666;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      line-height: 1.3;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Simple Image Modal - Based on image_upload.html */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.7);
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      padding: 25px;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .image-modal-content {
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      text-align: center;
+      position: relative;
+      background: transparent;
+      padding: 0;
+      /* Perfect center alignment */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 15px; 
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(0,0,0,0.8);
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      border: 2px solid transparent;
+    }
+    
+    .close-modal:hover {
+      background: #ef4444;
+      border-color: #fff;
+      transform: scale(1.1);
+    }
+
+    .delete-image-btn {
+      position: absolute;
+      top: 15px; 
+      left: 15px;
+      font-size: 18px;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(0,0,0,0.8);
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      border: 2px solid transparent;
+    }
+    
+    .delete-image-btn:hover {
+      background: #ef4444;
+      border-color: #fff;
+      transform: scale(1.1);
+    }
+    
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: rgba(0,0,0,0.9);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+      left: 20px;
+    }
+
+    .next-btn {
+      right: 20px;
+    }
+    
+    #modalImage {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 1;
+    }
+
+    /* Modal show class for proper centering */
+    .modal.show {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Popup Overlay Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .popup {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+    
+    .popup-overlay.show .popup {
+      transform: translateY(0);
+    }
+    
+    .popup h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+      font-size: 1.2rem;
+    }
+    
+    .popup p {
+      margin: 0 0 25px 0;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .popup-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .popup-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-cancel {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    
+    .btn-cancel:hover {
+      background: #d1d5db;
+    }
+    
+    .btn-confirm, .btn-ok {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-confirm:hover, .btn-ok:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html" class="active"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html"><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <div class="title">
+          <i class="fas fa-tasks"></i>
+          Assignment Management
+        </div>
+        <div class="status">
+          <div class="indicator"></div>
+          <span>Online</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="assignment-container">
+          <!-- Create Assignment Card -->
+          <div class="assignment-form-card">
+            <div class="assignment-header">
+              <div class="view-submissions-section">
+                <button type="button" class="btn-view-submissions" onclick="scrollToAssignmentTracker()">
+                  <i class="fas fa-eye"></i> View All Submissions
+                </button>
+                <p class="create-assignment-text"><i class="fas fa-plus-circle"></i> Create Assignment</p>
+              </div>
+            </div>
+            <form id="assignmentForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="classSelect"><i class="fas fa-users"></i> Class</label>
+                  <select id="classSelect" required>
+                    <option value="">Select Class</option>
+                    <option value="6A">6th A</option>
+                    <option value="6B">6th B</option>
+                    <option value="BCom2">BCom 2nd Year</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="subjectSelect"><i class="fas fa-book"></i> Subject</label>
+                  <select id="subjectSelect" required>
+                    <option value="">Select Subject</option>
+                    <option value="math">Mathematics</option>
+                    <option value="science">Science</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="titleInput"><i class="fas fa-heading"></i> Title</label>
+                  <input type="text" id="titleInput" placeholder="e.g. Maths Worksheet – Fractions" required />
+                </div>
+                <div class="form-group">
+                  <label for="dueDate"><i class="fas fa-calendar-alt"></i> Due Date</label>
+                  <input type="date" id="dueDate" required min="2024-01-01" max="2030-12-31" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="descInput"><i class="fas fa-align-left"></i> Description</label>
+                <textarea id="descInput" rows="3" placeholder="Instructions for students..." required></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fileInput"><i class="fas fa-paperclip"></i> Attach File</label>
+                  <div class="file-upload-wrapper">
+                    <label for="fileInput" class="file-upload-label">
+                      <i class="fas fa-cloud-upload-alt"></i>
+                      Choose Files
+                    </label>
+                    <input type="file" id="fileInput" multiple />
+                    <div class="file-info" id="fileInfo"></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-upload"></i> Submission Type</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="submissionType" value="online" checked /> Online</label>
+                    <label><input type="radio" name="submissionType" value="offline" /> Offline</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label><i class="fas fa-bell"></i> Enable Reminders</label>
+                  <div class="reminder-hint">
+                    <input type="checkbox" id="reminderCheck" checked />
+                    <span>1 day before & on deadline</span>
+                  </div>
+                </div>
+                <div class="form-group" style="align-items: flex-end;">
+                  <button type="submit" class="btn-create"><i class="fas fa-save"></i> Create Homework</button>
+                </div>
+              </div>
+            </form>
+            <div id="assignmentSuccess" class="success-message" style="display:none;">
+              <i class="fas fa-check-circle"></i> Assignment Created Successfully!
+            </div>
+          </div>
+
+          <!-- Created Assignments View -->
+          <div class="created-assignments" id="createdAssignments">
+            <h3><i class="fas fa-list-alt"></i> Created Assignments</h3>
+            <div class="assignment-grid" id="assignmentGrid">
+              <!-- Assignments will be dynamically added here -->
+            </div>
+          </div>
+
+          <!-- Assignment Tracker Table -->
+          <div class="assignment-table-card">
+            <div class="table-header">
+              <h3><i class="fas fa-list"></i> Assignment Tracker</h3>
+              <div class="table-actions">
+                <button class="download-btn" id="downloadPDF" title="Download PDF Report">
+                  <i class="fas fa-download"></i> Download PDF <br>
+                </button>
+                <br><br><div class="table-filters"><br>
+                  <button class="filter-btn active" data-filter="all">All Submissions</button>
+                  <button class="filter-btn" data-filter="submitted">Submitted</button>
+                  <button class="filter-btn" data-filter="graded" onclick="filterByGraded()">Graded</button>
+                  <button class="filter-btn" data-filter="ungraded" onclick="filterByUngraded()">Ungraded</button>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="assignment-table">
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>Title</th>
+                    <th>Submitted Date</th>
+                    <th>Grade</th>
+                    <th>Feedback</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="assignmentTableBody">
+                  <!-- Student submissions will be dynamically generated here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Assignment Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="edit-modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-edit"></i> Edit Assignment</h3>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      <form class="modal-form" id="editForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editClassSelect"><i class="fas fa-users"></i> Class</label>
+            <select id="editClassSelect" required>
+              <option value="">Select Class</option>
+              <option value="6A">6th A</option>
+              <option value="6B">6th B</option>
+              <option value="BCom2">BCom 2nd Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editSubjectSelect"><i class="fas fa-book"></i> Subject</label>
+            <select id="editSubjectSelect" required>
+              <option value="">Select Subject</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="english">English</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editTitleInput"><i class="fas fa-heading"></i> Title</label>
+            <input type="text" id="editTitleInput" placeholder="e.g. Maths Worksheet – Fractions" required />
+          </div>
+          <div class="form-group">
+            <label for="editDueDate"><i class="fas fa-calendar-alt"></i> Due Date</label>
+            <input type="date" id="editDueDate" required min="2024-01-01" max="2030-12-31" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="editDescInput"><i class="fas fa-align-left"></i> Description</label>
+          <textarea id="editDescInput" rows="3" placeholder="Instructions for students..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editFileInput"><i class="fas fa-paperclip"></i> Attach File</label>
+            <div class="file-upload-wrapper">
+              <label for="editFileInput" class="file-upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Choose Files
+              </label>
+              <input type="file" id="editFileInput" multiple />
+              <div class="file-info" id="editFileInfo"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-upload"></i> Submission Type</label>
+            <div class="radio-group">
+              <label><input type="radio" name="editSubmissionType" value="online" /> Online</label>
+              <label><input type="radio" name="editSubmissionType" value="offline" /> Offline</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-bell"></i> Enable Reminders</label>
+            <div class="reminder-hint">
+              <input type="checkbox" id="editReminderCheck" />
+              <span>1 day before & on deadline</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="cancelEdit">Cancel</button>
+          <button type="submit" class="btn-update"><i class="fas fa-save"></i> Update Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="delete-confirmation">
+      <h4><i class="fas fa-exclamation-triangle"></i> Delete Assignment</h4>
+      <p>Are you sure you want to delete this assignment? This will permanently delete the assignment and ALL its files from both the database and S3 storage. This action cannot be undone.</p>
+      <div class="delete-actions">
+        <button class="btn-keep" id="keepAssignment">Keep Assignment</button>
+        <button class="btn-delete" id="confirmDelete">Delete Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BC360 Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BC360</div>
+      <div class="loading-subtext">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Attachment Modal -->
+  <div id="attachmentModal" class="attachment-modal-overlay">
+    <div class="attachment-modal">
+      <div class="attachment-modal-header">
+        <h3 id="attachmentModalTitle">Assignment Attachment</h3>
+        <button class="attachment-modal-close" onclick="closeAttachmentModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="attachment-modal-content">
+        <div id="attachmentModalBody">
+          <!-- Content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal - Based on image_upload.html -->
+  <div id="imageModal" class="modal">
+    <div class="modal-content image-modal-content">
+      <span class="close-modal" id="closeImageModal">&times;</span>
+      <button class="delete-image-btn" id="deleteImageBtn" title="Delete Image">
+        <i class="fas fa-trash"></i>
+      </button>
+             <img id="modalImage" src="" alt="Preview">
+       <button class="nav-btn prev-btn" id="prevImage" title="Previous Image">
+         <i class="fas fa-chevron-left"></i>
+       </button>
+       <button class="nav-btn next-btn" id="nextImage" title="Next Image">
+         <i class="fas fa-chevron-right"></i>
+       </button>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteImageModal" class="modal">
+    <div class="modal-content">
+      <h3><i class="fas fa-exclamation-triangle"></i> Delete Image</h3>
+      <p>Are you sure you want to delete this image? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelDeleteImage">Cancel</button>
+        <button class="btn-delete" id="confirmDeleteImage">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openMenu() {
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (menuToggle) {
+      menuToggle.onclick = function() {
+        if(sidebar.classList.contains('menu-open')) closeMenu();
+        else openMenu();
+      };
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.onclick = closeMenu;
+    }
+
+    window.addEventListener('resize', ()=> {
+      if(window.innerWidth>1150) closeMenu();
+    });
+
+    if (sidebar) {
+      Array.from(sidebar.querySelectorAll('a')).forEach(a=>{
+        a.onclick=()=>{ if(window.innerWidth<=1150) closeMenu(); };
+      });
+    }
+
+    // Assignment Management Functionality
+    const assignmentForm = document.getElementById('assignmentForm');
+    const assignmentSuccess = document.getElementById('assignmentSuccess');
+    const createdAssignments = document.getElementById('createdAssignments');
+    const assignmentGrid = document.getElementById('assignmentGrid');
+    const assignmentTableBody = document.getElementById('assignmentTableBody');
+
+    // API Configuration
+    const ASSIGNMENT_API = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev/assignment';
+    const DELETE_S3_API = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev/assignment/delete-s3';
+    const ASSIGNMENT_SUBMIT_API = 'https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/assignment_submit';
+
+
+
+
+    
+    // Store assignments with performance optimizations
+    let assignments = [];
+    
+    // Performance optimization: Simple caching
+    let assignmentsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+    
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    let renderTimeout;
+
+    // Student submissions will be loaded from API when needed
+    let studentSubmissions = [];
+    
+    // Session authentication helper
+    function getCurrentUserData() {
+      let userData = null;
+      if (window.UserSession && window.UserSession.getUserData) {
+        userData = window.UserSession.getUserData();
+      } else {
+        // Fallback: get from localStorage directly
+        const storedUser = localStorage.getItem('bc3620_user');
+        if (storedUser) {
+          try {
+            userData = JSON.parse(storedUser);
+          } catch (e) {
+            console.warn('Failed to parse stored user data:', e);
+          }
+        }
+      }
+      
+      if (!userData || !userData.isAuthenticated) {
+        console.error('No authenticated user session found');
+        return null;
+      }
+      
+      return userData;
+    }
+
+    // Create Assignment Form Handler
+    assignmentForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Check authentication first
+      const userData = getCurrentUserData();
+      if (!userData || userData.userType !== 'teacher') {
+        console.error('❌ User not authenticated or not a teacher');
+        alert('❌ Session expired. Please login again.');
+        window.location.href = '../login.html';
+        return;
+      }
+      
+      console.log('✅ User authenticated:', userData.user.teacher_name, 'from', userData.user.institution_name);
+      
+      // Show loading state
+      const submitBtn = assignmentForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+      submitBtn.disabled = true;
+      
+      // Show loading popup
+      showLoading('Creating assignment...');
+      
+      try {
+        // Handle multiple file uploads with optimized parallel processing
+        let fileUrls = [];
+        const fileInput = document.getElementById('fileInput');
+        let files = [];
+        if (window.selectedFiles && window.selectedFiles.length > 0) {
+          files = [...window.selectedFiles];
+        } else if (fileInput.files.length > 0) {
+          files = Array.from(fileInput.files);
+        }
+        if (files.length > 0) {
+          
+          // Calculate total size for warning
+          const totalSize = files.reduce((total, file) => total + file.size, 0);
+          if (totalSize > 50 * 1024 * 1024) { // 50MB warning
+            const confirmed = await showPopup('warning', 'Large Files Warning', 
+              `Total file size is ${(totalSize / 1024 / 1024).toFixed(1)}MB. Large files may take longer to upload. Continue?`);
+            if (!confirmed) return;
+          }
+          
+          // Show initial loading
+          showLoading(`Preparing to upload ${files.length} file(s)...`);
+          
+          // Upload files in parallel for better performance
+          const uploadPromises = files.map(async (file, index) => {
+            try {
+              // Generate unique filename to prevent conflicts
+              const timestamp = Date.now();
+              const randomId = Math.random().toString(36).substring(7);
+              const extension = file.name.split('.').pop();
+              const uniqueFileName = `assignments/${timestamp}-${randomId}-${index}.${extension}`;
+              
+              console.log(`Uploading file ${index + 1}/${files.length}:`, file.name, file.size, file.type);
+              
+              // Update loading message for each file
+              showLoading(`Uploading file ${index + 1}/${files.length}: ${file.name.length > 30 ? 
+                file.name.substring(0, 27) + '...' : file.name}`);
+              
+              // Detect mime type with fallback for consistent signing
+              const detectedType = (file.type && file.type.trim()) ? file.type : mimeFromName(file.name);
+              
+              // Generate upload URL with unique filename
+              const uploadUrl = await generateUploadUrl(uniqueFileName, detectedType);
+              console.log('Upload URL generated for:', uniqueFileName);
+              
+              // Upload file to S3
+              await uploadFileToS3(uploadUrl, file, detectedType);
+              
+              // Prefer backend-provided file URL shape (added in backend)
+              const regionFileUrl = `https://bc360-assignment-bucket.s3.ap-south-1.amazonaws.com/${uniqueFileName}`;
+              console.log('File uploaded successfully:', regionFileUrl);
+              
+              return regionFileUrl;
+            } catch (error) {
+              console.error(`File upload failed for ${file.name}:`, error);
+              // Return null for failed uploads, we'll filter them out later
+              return null;
+            }
+          });
+          
+          // Wait for all uploads to complete with progress tracking
+          showLoading('Uploading files in parallel...');
+          
+          // Track progress
+          let completedUploads = 0;
+          const progressPromises = uploadPromises.map(async (promise, index) => {
+            const result = await promise;
+            completedUploads++;
+            showLoading(`Uploading files... (${completedUploads}/${files.length} completed)`);
+            return result;
+          });
+          
+          const uploadResults = await Promise.all(progressPromises);
+          
+          // Filter out failed uploads and get successful URLs
+          fileUrls = uploadResults.filter(url => url !== null);
+          
+          console.log(`Upload completed: ${fileUrls.length}/${files.length} files successful`);
+          
+          if (fileUrls.length === 0 && files.length > 0) {
+            throw new Error('All file uploads failed. Please try again.');
+          }
+        }
+
+        // Get teacher_id and institution_id from session
+        console.log('Full session userData:', userData);
+        
+        // Access teacher_id and institution_id from the correct nested structure
+        let teacherId = 'T001'; // fallback
+        let institutionId = 'INST001'; // fallback
+        
+        if (userData && userData.user) {
+          // The actual user data is in userData.user
+          if (userData.user.teacher_id) {
+            teacherId = userData.user.teacher_id;
+            console.log('✅ Found teacher_id in userData.user:', teacherId);
+          }
+          else if (userData.user.id) {
+            teacherId = userData.user.id;
+            console.log('✅ Using userData.user.id as teacher_id:', teacherId);
+          }
+          
+          if (userData.user.institution_id) {
+            institutionId = userData.user.institution_id;
+            console.log('✅ Found institution_id in userData.user:', institutionId);
+          }
+        }
+        
+        console.log('🎯 Final teacher_id being used:', teacherId);
+        console.log('🎯 Final institution_id being used:', institutionId);
+        
+        // Check reminder checkbox state
+        const reminderChecked = document.getElementById('reminderCheck').checked;
+        console.log('Reminder checkbox checked:', reminderChecked);
+
+        // Debug: Log each field value before creating assignment object
+        const classValue = document.getElementById('classSelect').value;
+        const subjectValue = document.getElementById('subjectSelect').value;
+        const titleValue = document.getElementById('titleInput').value;
+        const dueDateValue = document.getElementById('dueDate').value;
+        const descriptionValue = document.getElementById('descInput').value;
+        const submissionTypeElement = document.querySelector('input[name="submissionType"]:checked');
+        const submissionTypeValue = submissionTypeElement ? submissionTypeElement.value : null;
+        
+        console.log('🔍 Form field values:');
+        console.log('  - teacher_id:', teacherId);
+        console.log('  - class:', classValue);
+        console.log('  - subject:', subjectValue);
+        console.log('  - title:', titleValue);
+        console.log('  - due_date:', dueDateValue);
+        console.log('  - description:', descriptionValue);
+        console.log('  - submissionType:', submissionTypeValue);
+        console.log('  - reminderChecked:', reminderChecked);
+
+        // Frontend validation - check all required fields
+        const missingFields = [];
+        if (!teacherId || teacherId === 'T001') missingFields.push('teacher_id (session issue)');
+        if (!classValue) missingFields.push('class');
+        if (!subjectValue) missingFields.push('subject');
+        if (!titleValue || titleValue.trim() === '') missingFields.push('title');
+        if (!dueDateValue) missingFields.push('due_date');
+        if (!descriptionValue || descriptionValue.trim() === '') missingFields.push('description');
+        if (!submissionTypeValue) missingFields.push('submissionType');
+        
+        if (missingFields.length > 0) {
+          alert(`❌ Please fill in all required fields:\n\n${missingFields.map(field => `• ${field}`).join('\n')}`);
+          console.error('❌ Missing required fields:', missingFields);
+          return;
+        }
+        
+        console.log('✅ All required fields validated successfully');
+
+        const assignment = {
+          teacher_id: teacherId, // Use actual teacher_id from session
+          institution_id: institutionId, // Use actual institution_id from session
+          class: classValue,
+          subject: subjectValue,
+          title: titleValue,
+          due_date: dueDateValue,
+          discription: descriptionValue,
+          file_url: fileUrls.length > 0 ? JSON.stringify(fileUrls) : null, // Only store if files exist
+          submissionType: submissionTypeValue,
+          is_closed: false,
+          set_remainder: reminderChecked ? 1 : 0 // Set 1 if checked, 0 if not
+        };
+
+        // Send to API
+        console.log('Sending assignment data:', assignment);
+        const response = await fetch(ASSIGNMENT_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(assignment)
+        });
+
+        console.log('API Response status:', response.status);
+        console.log('API Response headers:', response.headers);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error response:', errorText);
+          throw new Error(`Failed to create assignment: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Assignment created:', result);
+
+        // Show success message
+        assignmentSuccess.style.display = 'flex';
+        setTimeout(() => {
+          assignmentSuccess.style.display = 'none';
+        }, 3000);
+        
+        // Reset form completely
+        assignmentForm.reset();
+        
+        // Clear file input and file info
+        const fileInputElement = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        fileInputElement.value = '';
+        fileInfo.innerHTML = '';
+        fileInfo.classList.remove('show');
+        
+        // Clear buffered selection
+        if (window.selectedFiles) {
+          window.selectedFiles = [];
+        }
+        
+        // Set default date after reset
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dueDate').value = today;
+        document.getElementById('dueDate').dispatchEvent(new Event('change'));
+        
+        // Clear cache and reload assignments from API to show the newly created one
+        clearAssignmentsCache();
+        await loadAssignments(true, true); // Show loading popup and force refresh
+        
+      } catch (error) {
+        console.error('Error creating assignment:', error);
+        alert('Failed to create assignment. Please try again.');
+      } finally {
+        // Hide loading popup
+        hideLoading();
+        
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Format date to dd/mm/yyyy
+    function formatDate(dateString) {
+      if (!dateString) return 'No date';
+      
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid date';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+         // Create assignment card element (optimized for performance)
+     function createAssignmentCardElement(assignment) {
+       console.log('Adding assignment to grid:', assignment);
+       
+       const card = document.createElement('div');
+       card.className = 'assignment-card';
+      
+            // Create file attachment section if file_url exists
+      console.log('Processing assignment file_url:', assignment.file_url, 'Type:', typeof assignment.file_url);
+      
+      let fileAttachment = '';
+      let imageGallery = '';
+      
+      if (assignment.file_url) {
+        let fileUrls = [];
+        
+        // Handle different types of file_url data
+        if (Array.isArray(assignment.file_url)) {
+          // Already an array
+          fileUrls = assignment.file_url;
+          console.log('file_url is already an array:', fileUrls);
+        } else if (typeof assignment.file_url === 'string') {
+          try {
+            // Try to parse as JSON string
+            fileUrls = JSON.parse(assignment.file_url);
+            console.log('Parsed fileUrls from JSON string:', fileUrls);
+          } catch (e) {
+            console.log('JSON parse error:', e);
+            // Treat as single file URL
+            fileUrls = [assignment.file_url];
+            console.log('Treating as single file URL:', fileUrls);
+          }
+        }
+        
+          if (Array.isArray(fileUrls) && fileUrls.length > 0) {
+          // Check if there are any image files
+          const imageFiles = fileUrls.filter(url => {
+            const extension = url.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
+          });
+          
+          console.log('Image files found:', imageFiles);
+          
+          if (imageFiles.length > 0) {
+            // Create image gallery for images - show all images as thumbnails
+            imageGallery = `
+              <div class="assignment-images">
+                <div class="image-gallery-grid">
+                  ${imageFiles.map((url, index) => `
+                    <div class="gallery-thumb" data-images='${JSON.stringify(imageFiles)}' data-title="${assignment.title}" data-index="${index}" data-assignment-id="${assignment.id}" onclick="openImageModalFromData(this)">
+                      <img src="${url}" alt="Assignment Image ${index + 1}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik02MCA0MEM1My4zNzIgNDAgNDggNDUuMzcyIDQ4IDUyQzQ4IDU4LjYyOCA1My4zNzIgNjQgNjAgNjRDNjYuNjI4IDY0IDcyIDU4LjYyOCA3MiA1MkM3MiA0NS4zNzIgNjYuNjI4IDQwIDYwIDQwWiIgZmlsbD0iI0NDQyIvPgo8cGF0aCBkPSJNNDggNzJINzJDNzIuNTUyIDcyIDczIDcyLjQ0OCA3MyA3M0M3MyA3My41NTIgNzIuNTUyIDc0IDcyIDc0SDQ4QzQ3LjQ0OCA3NCA0NyA3My41NTIgNDcgNzNDNDcgNzIuNDQ4IDQ3LjQ0OCA3MiA0OCA3MloiIGZpbGw9IiNDQ0MiLz4KPC9zdmc+'" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+                  `).join('')}
+              </div>
+              </div>
+            `;
+          }
+          
+          // Create a generic attachments button for any files
+          fileAttachment = `
+            <div class="assignment-attachment">
+              <button class="attachment-link" data-files="${encodeURIComponent(JSON.stringify(fileUrls))}" data-title="${(assignment.title || 'Attachment').replace(/"/g, '&quot;') }" onclick="openAttachmentModalFromButton(this)">
+                <i class=\"fas fa-paperclip\"></i> View Attachments (${fileUrls.length})
+              </button>
+            </div>
+          `;
+        }
+      } else {
+        console.log('No file_url found');
+        fileAttachment = '';
+      }
+      
+      console.log('Generated fileAttachment:', fileAttachment);
+      
+      // Format due date
+      const formattedDueDate = formatDate(assignment.dueDate);
+      
+      // Determine status based on is_closed and due date
+      let statusText = 'Active';
+      let statusClass = 'active';
+      let dueDateClass = '';
+      
+      if (assignment.is_closed) {
+        statusText = 'Closed';
+        statusClass = 'closed';
+        dueDateClass = 'due-date-closed';
+      } else {
+        // Check if due date is today or past
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(assignment.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        
+        if (dueDate < today) {
+          statusText = 'Overdue';
+          statusClass = 'overdue';
+        } else if (dueDate.getTime() === today.getTime()) {
+          statusText = 'Due Today';
+          statusClass = 'due-today';
+        }
+      }
+      
+      card.innerHTML = `
+        <h4>${assignment.title}</h4>
+        <div class="assignment-meta">
+          <span><i class="fas fa-users"></i> ${assignment.class}</span>
+          <span><i class="fas fa-book"></i> ${assignment.subject}</span>
+          <span><i class="fas fa-calendar"></i> Due: <span class="${dueDateClass}">${formattedDueDate}</span></span>
+          <span><i class="fas fa-upload"></i> ${assignment.submissionType}</span>
+        </div>
+        <div class="assignment-description">${assignment.description || assignment.discription || ''}</div>
+        ${imageGallery}
+        ${fileAttachment}
+        <div class="assignment-status">
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="assignment-actions">
+          <button class="action-btn edit-action" data-id="${assignment.id}" data-action="edit"><i class="fas fa-pen"></i></button>
+          <button class="action-btn delete-action" data-id="${assignment.id}" data-action="delete"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
+       return card;
+     }
+
+     // Load existing assignments from API with caching
+     async function loadAssignments(showLoadingPopup = false, forceRefresh = false) {
+       let loadingDiv = null;
+       
+       try {
+         // Check cache first
+         const now = Date.now();
+         if (!forceRefresh && assignmentsCache && (now - lastCacheTime) < CACHE_DURATION) {
+           console.log('Using cached assignments data');
+           assignments = assignmentsCache;
+           renderAssignments();
+           return;
+         }
+         
+         if (showLoadingPopup) {
+           showLoading('Loading assignments...');
+         } else {
+           // Show loading state
+           loadingDiv = document.createElement('div');
+           loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading assignments...';
+           loadingDiv.style.textAlign = 'center';
+           loadingDiv.style.padding = '20px';
+           loadingDiv.style.color = 'var(--text-light)';
+           assignmentGrid.appendChild(loadingDiv);
+         }
+
+         // Fetch assignments from API with timeout
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+         
+         const response = await fetch(ASSIGNMENT_API, {
+           method: 'GET',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           signal: controller.signal
+         });
+         
+         clearTimeout(timeoutId);
+
+         if (!response.ok) {
+           throw new Error('Failed to fetch assignments');
+         }
+
+         const apiResponse = await response.json();
+         console.log('API Response:', apiResponse);
+         console.log('Response type:', typeof apiResponse);
+         console.log('Is array:', Array.isArray(apiResponse));
+
+         // Remove loading indicator
+         if (!showLoadingPopup) {
+           assignmentGrid.removeChild(loadingDiv);
+         }
+
+         // Clear existing assignments
+         assignments = [];
+         assignmentGrid.innerHTML = '';
+
+         // Handle different API response structures
+         let apiAssignments = [];
+         
+         if (Array.isArray(apiResponse)) {
+           // Direct array response
+           apiAssignments = apiResponse;
+         } else if (apiResponse && Array.isArray(apiResponse.assignments)) {
+           // Response with assignments property
+           apiAssignments = apiResponse.assignments;
+         } else if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data)) {
+           // Response with data property
+           apiAssignments = apiResponse.data;
+         } else if (apiResponse && apiResponse.success && Array.isArray(apiResponse.result)) {
+           // Response with success and result properties
+           apiAssignments = apiResponse.result;
+         } else {
+           console.log('No assignments found in response structure');
+           apiAssignments = [];
+         }
+
+         console.log('Processed assignments:', apiAssignments);
+
+        // Get current teacher's ID for filtering
+        const userData = getCurrentUserData();
+        const currentTeacherId = userData ? (userData.user.teacher_id || userData.user.id) : null;
+        console.log('🔍 Filtering assignments for teacher_id:', currentTeacherId);
+        
+        // Process assignments from API
+        if (apiAssignments && apiAssignments.length > 0) {
+          apiAssignments.forEach(assignment => {
+            // Filter assignments by current teacher_id
+            if (currentTeacherId && assignment.teacher_id && assignment.teacher_id.toString() !== currentTeacherId.toString()) {
+              console.log('🚫 Filtering out assignment:', assignment.title, 'by teacher_id:', assignment.teacher_id);
+              return; // Skip this assignment
+            }
+            
+            console.log('✅ Including assignment:', assignment.title, 'by teacher_id:', assignment.teacher_id);
+            
+            const processedAssignment = {
+              id: assignment.id,
+              class: assignment.class,
+              subject: assignment.subject,
+              title: assignment.title,
+              description: assignment.discription,
+              dueDate: assignment.due_date,
+              submissionType: assignment.submissionType,
+              is_closed: assignment.is_closed,
+              createdAt: new Date(assignment.created_at).toLocaleDateString(),
+              teacher_id: assignment.teacher_id,
+              institution_id: assignment.institution_id,
+              file_url: assignment.file_url,
+              set_remainder: assignment.set_remainder || false // Default to false if column doesn't exist
+            };
+              
+            assignments.push(processedAssignment);
+          });
+           
+          // Update cache
+          assignmentsCache = [...assignments];
+          lastCacheTime = now;
+          
+          // Check if any assignments were found after filtering
+          if (assignments.length === 0) {
+            console.log('📝 No assignments found for current teacher after filtering');
+            assignmentGrid.innerHTML = `
+              <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                <h3>No Assignments Found</h3>
+                <p>You haven't created any assignments yet. Create your first assignment to get started.</p>
+              </div>
+            `;
+          } else {
+            console.log('📝 Found', assignments.length, 'assignments for current teacher');
+            // Render assignments
+            renderAssignments();
+            createdAssignments.classList.add('show');
+          }
+         } else {
+          // Show no assignments message
+          assignmentGrid.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--text-light);">
+              <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+              <h3>No Assignments Found</h3>
+              <p>You haven't created any assignments yet. Create your first assignment to get started.</p>
+            </div>
+          `;
+         }
+         
+         if (showLoadingPopup) {
+           hideLoading();
+         }
+       } catch (error) {
+         if (error.name === 'AbortError') {
+           console.error('Loading assignments timed out');
+           error = new Error('Loading assignments timed out. Please try again.');
+         }
+         console.error('Error loading assignments:', error);
+         
+         // Remove loading indicator if it exists
+         if (loadingDiv && loadingDiv.parentNode) {
+           loadingDiv.parentNode.removeChild(loadingDiv);
+         }
+         
+         assignmentGrid.innerHTML = `
+           <div style="text-align: center; padding: 40px; color: var(--danger);">
+             <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+             <h3>Error Loading Assignments</h3>
+             <p>Failed to load assignments. Please try again.</p>
+           </div>
+         `;
+         
+         if (showLoadingPopup) {
+           hideLoading();
+         }
+       }
+     }
+
+     // Render assignments to grid
+     function renderAssignments() {
+       // Debounce rendering to avoid excessive DOM updates
+       clearTimeout(renderTimeout);
+       renderTimeout = setTimeout(() => {
+         // Clear existing grid
+         assignmentGrid.innerHTML = '';
+         
+         // Use DocumentFragment for better performance
+         const fragment = document.createDocumentFragment();
+         
+         // Add each assignment to grid
+         assignments.forEach(assignment => {
+           const card = createAssignmentCardElement(assignment);
+           fragment.appendChild(card);
+         });
+         
+         // Single DOM update
+         assignmentGrid.appendChild(fragment);
+       }, 16); // ~60fps
+     }
+
+     // Debounced filter functionality for better performance
+     function debouncedFilter() {
+       clearTimeout(searchTimeout);
+       searchTimeout = setTimeout(() => {
+         const activeFilter = document.querySelector('.filter-btn.active');
+         if (activeFilter) {
+           const filter = activeFilter.getAttribute('data-filter');
+           const rows = assignmentTableBody.querySelectorAll('tr');
+           
+           rows.forEach(row => {
+             const status = row.getAttribute('data-status');
+             if (filter === 'all' || status === filter) {
+               row.style.display = '';
+             } else {
+               row.style.display = 'none';
+             }
+           });
+         }
+       }, 100); // 100ms delay for better performance
+     }
+     
+     // Filter functionality
+     document.querySelectorAll('.filter-btn').forEach(btn => {
+       btn.addEventListener('click', function() {
+         // Update active button
+         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+         btn.classList.add('active');
+         
+         // Use debounced filter
+         debouncedFilter();
+       });
+     });
+
+     // Grade and Feedback functionality
+     assignmentTableBody.addEventListener('click', function(e) {
+       if (e.target.classList.contains('edit-btn')) {
+         const row = e.target.closest('tr');
+         const gradeInput = row.querySelector('.grade-input');
+         const feedbackInput = row.querySelector('.feedback-input');
+         const actionBtn = e.target;
+         
+         // Enable editing
+         gradeInput.readOnly = false;
+         feedbackInput.readOnly = false;
+         gradeInput.focus();
+         
+         // Change button to save
+         actionBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+         actionBtn.className = 'save-btn';
+         
+         // Add save functionality
+         actionBtn.onclick = function() {
+           gradeInput.readOnly = true;
+           feedbackInput.readOnly = true;
+           actionBtn.innerHTML = '<i class="fas fa-pen"></i> Edit';
+           actionBtn.className = 'edit-btn';
+         };
+       }
+     });
+
+     // Edit and Delete Assignment Functionality
+     let currentEditId = null;
+
+     // Handle assignment card actions
+     assignmentGrid.addEventListener('click', function(e) {
+       const actionBtn = e.target.closest('.action-btn');
+       if (!actionBtn) return;
+
+       const assignmentId = parseInt(actionBtn.getAttribute('data-id'));
+       const action = actionBtn.getAttribute('data-action');
+
+       if (action === 'edit') {
+         openEditModal(assignmentId);
+       } else if (action === 'delete') {
+         openDeleteModal(assignmentId);
+       }
+     });
+
+     // Open edit modal
+     function openEditModal(assignmentId) {
+       const assignment = assignments.find(a => a.id === assignmentId);
+       if (!assignment) return;
+
+       currentEditId = assignmentId;
+       
+        // Populate form fields
+        document.getElementById('editClassSelect').value = assignment.class;
+        document.getElementById('editSubjectSelect').value = assignment.subject;
+        document.getElementById('editTitleInput').value = assignment.title;
+        document.getElementById('editDescInput').value = assignment.description || assignment.discription || '';
+         
+         // Ensure date is properly formatted for the input
+         const dueDate = assignment.dueDate ? new Date(assignment.dueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+         document.getElementById('editDueDate').value = dueDate;
+         document.getElementById('editDueDate').dispatchEvent(new Event('change'));
+         
+         document.getElementById('editReminderCheck').checked = assignment.set_remainder;
+         
+         // Set submission type
+         document.querySelector(`input[name="editSubmissionType"][value="${assignment.submissionType}"]`).checked = true;
+       
+       // Show modal
+       document.getElementById('editModal').classList.add('show');
+     }
+
+     // Open delete modal
+     function openDeleteModal(assignmentId) {
+       currentEditId = assignmentId;
+       document.getElementById('deleteModal').classList.add('show');
+     }
+
+     // Close modals
+     function closeModals() {
+       document.getElementById('editModal').classList.remove('show');
+       document.getElementById('deleteModal').classList.remove('show');
+       currentEditId = null;
+     }
+
+     // Modal event listeners
+     document.getElementById('closeModal').addEventListener('click', closeModals);
+     document.getElementById('cancelEdit').addEventListener('click', closeModals);
+     document.getElementById('keepAssignment').addEventListener('click', closeModals);
+
+     // Close modal on overlay click
+     document.getElementById('editModal').addEventListener('click', function(e) {
+       if (e.target === this) closeModals();
+     });
+
+     document.getElementById('deleteModal').addEventListener('click', function(e) {
+       if (e.target === this) closeModals();
+     });
+
+     // Handle edit form submission
+     document.getElementById('editForm').addEventListener('submit', async function(e) {
+       e.preventDefault();
+       
+       if (currentEditId === null) return;
+
+       // Check authentication first
+       const userData = getCurrentUserData();
+       if (!userData || userData.userType !== 'teacher') {
+         console.error('❌ User not authenticated or not a teacher');
+         alert('❌ Session expired. Please login again.');
+         window.location.href = '../login.html';
+         return;
+       }
+       
+       console.log('✅ Edit: User authenticated:', userData.user.teacher_name, 'from', userData.user.institution_name);
+
+       // Show loading state
+       const updateBtn = document.querySelector('.btn-update');
+       const originalText = updateBtn.innerHTML;
+       updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+       updateBtn.disabled = true;
+
+       try {
+        // Update assignment data
+        const assignmentIndex = assignments.findIndex(a => a.id === currentEditId);
+        if (assignmentIndex === -1) return;
+
+        // Get teacher_id and institution_id from session for consistency
+        console.log('Edit: Full session userData:', userData);
+        
+        // Access teacher_id and institution_id from the correct nested structure
+        let teacherId = assignments[assignmentIndex].teacher_id || 'T001'; // fallback
+        let institutionId = assignments[assignmentIndex].institution_id || 'INST001'; // fallback
+        
+        if (userData && userData.user) {
+          // The actual user data is in userData.user
+          if (userData.user.teacher_id) {
+            teacherId = userData.user.teacher_id;
+            console.log('✅ Edit: Found teacher_id in userData.user:', teacherId);
+          }
+          else if (userData.user.id) {
+            teacherId = userData.user.id;
+            console.log('✅ Edit: Using userData.user.id as teacher_id:', teacherId);
+          }
+          
+          if (userData.user.institution_id) {
+            institutionId = userData.user.institution_id;
+            console.log('✅ Edit: Found institution_id in userData.user:', institutionId);
+          }
+        }
+        
+        console.log('🎯 Edit: Final teacher_id being used:', teacherId);
+        console.log('🎯 Edit: Final institution_id being used:', institutionId);
+        
+        // Check edit reminder checkbox state
+        const editReminderChecked = document.getElementById('editReminderCheck').checked;
+        console.log('Edit: Reminder checkbox checked:', editReminderChecked);
+
+        // Handle file uploads in edit mode (if new files are selected)
+        let updatedFileUrls = [];
+        const editFileInput = document.getElementById('editFileInput');
+        let editFiles = [];
+        if (window.editSelectedFiles && window.editSelectedFiles.length > 0) {
+          editFiles = [...window.editSelectedFiles];
+        } else if (editFileInput.files.length > 0) {
+          editFiles = Array.from(editFileInput.files);
+        }
+
+        // If new files are selected, upload them
+        if (editFiles.length > 0) {
+          showLoading('Uploading new files...');
+          
+          const editUploadPromises = editFiles.map(async (file, index) => {
+            try {
+              const timestamp = Date.now();
+              const randomId = Math.random().toString(36).substring(7);
+              const extension = file.name.split('.').pop();
+              const uniqueFileName = `assignments/${timestamp}-${randomId}-edit-${index}.${extension}`;
+              
+              const detectedType = (file.type && file.type.trim()) ? file.type : mimeFromName(file.name);
+              const uploadUrl = await generateUploadUrl(uniqueFileName, detectedType);
+              await uploadFileToS3(uploadUrl, file, detectedType);
+              
+              return `https://bc360-assignment-bucket.s3.ap-south-1.amazonaws.com/${uniqueFileName}`;
+            } catch (error) {
+              console.error(`Edit file upload failed for ${file.name}:`, error);
+              return null;
+            }
+          });
+          
+          const editUploadResults = await Promise.all(editUploadPromises);
+          updatedFileUrls = editUploadResults.filter(url => url !== null);
+          
+          console.log(`Edit: Uploaded ${updatedFileUrls.length}/${editFiles.length} files successfully`);
+        }
+
+        // Determine final file_url: use new uploads if available, otherwise keep existing
+        const finalFileUrl = updatedFileUrls.length > 0 ? 
+          JSON.stringify(updatedFileUrls) : 
+          assignments[assignmentIndex].file_url || null;
+
+        console.log('Edit: Final file_url being used:', finalFileUrl);
+
+        const updatedAssignment = {
+          id: currentEditId,
+          teacher_id: teacherId,
+          institution_id: institutionId,
+          class: document.getElementById('editClassSelect').value,
+          subject: document.getElementById('editSubjectSelect').value,
+          title: document.getElementById('editTitleInput').value,
+          due_date: document.getElementById('editDueDate').value,
+          discription: document.getElementById('editDescInput').value,
+          file_url: finalFileUrl,
+          submissionType: document.querySelector('input[name="editSubmissionType"]:checked').value,
+          is_closed: assignments[assignmentIndex].is_closed || false,
+          set_remainder: document.getElementById('editReminderCheck').checked ? 1 : 0 // Set 1 if checked, 0 if not
+        };
+
+         // Show loading for update
+         showLoading('Updating assignment...');
+         
+         // Update via API
+         const response = await fetch(ASSIGNMENT_API, {
+           method: 'PUT',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify(updatedAssignment)
+         });
+
+         if (!response.ok) {
+           throw new Error('Failed to update assignment');
+         }
+
+         const result = await response.json();
+         console.log('Assignment updated:', result);
+
+         // Update local array
+         assignments[assignmentIndex] = {
+           ...assignments[assignmentIndex],
+           class: updatedAssignment.class,
+           subject: updatedAssignment.subject,
+           title: updatedAssignment.title,
+           description: updatedAssignment.discription,
+           dueDate: updatedAssignment.due_date,
+           submissionType: updatedAssignment.submissionType,
+           set_remainder: updatedAssignment.set_remainder
+         };
+
+         // Clear cache and reload assignments
+         clearAssignmentsCache();
+         await loadAssignments(false, true); // Force refresh without loading popup
+
+         // Show success message
+         showSuccessMessage('Assignment updated successfully!');
+         
+         // Close modal
+         closeModals();
+
+       } catch (error) {
+         console.error('Error updating assignment:', error);
+         alert('Failed to update assignment. Please try again.');
+       } finally {
+         // Hide loading popup
+         hideLoading();
+         
+         // Reset button state
+         updateBtn.innerHTML = originalText;
+         updateBtn.disabled = false;
+       }
+     });
+
+     // Handle delete confirmation
+     document.getElementById('confirmDelete').addEventListener('click', async function() {
+       if (currentEditId === null) return;
+
+       // Show loading state
+       const deleteBtn = document.getElementById('confirmDelete');
+       const originalText = deleteBtn.innerHTML;
+       deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+       deleteBtn.disabled = true;
+
+       try {
+         // Show loading for delete
+         showLoading('Deleting assignment...');
+         
+         // Get assignment data from the current loaded assignments
+         const assignmentToDelete = assignments.find(a => a.id == currentEditId);
+         if (!assignmentToDelete) {
+           throw new Error('Assignment not found in current data');
+         }
+         
+         console.log('Assignment data for deletion:', assignmentToDelete);
+
+         // Extract file URLs for S3 deletion
+         let fileUrls = [];
+         if (assignmentToDelete.file_url) {
+           try {
+             if (typeof assignmentToDelete.file_url === 'string') {
+               fileUrls = JSON.parse(assignmentToDelete.file_url);
+             } else if (Array.isArray(assignmentToDelete.file_url)) {
+               fileUrls = assignmentToDelete.file_url;
+             }
+           } catch (error) {
+             console.error('Error parsing file_url:', error);
+             fileUrls = [];
+           }
+         }
+
+         console.log('Files to delete from S3:', fileUrls);
+
+         // Delete files from S3 if they exist
+         if (fileUrls.length > 0) {
+           showLoading('Deleting files from S3...');
+           
+           const s3DeletionPromises = fileUrls.map(async (fileUrl) => {
+             try {
+               // Extract S3 key from URL
+               let s3Key = null;
+               
+               if (fileUrl.includes('s3.amazonaws.com/')) {
+                 s3Key = fileUrl.split('s3.amazonaws.com/')[1];
+               } else if (fileUrl.includes('.s3.')) {
+                 const urlParts = fileUrl.split('.s3.');
+                 if (urlParts.length > 1) {
+                   s3Key = urlParts[1].split('/').slice(1).join('/');
+                 }
+               }
+               
+               if (!s3Key) {
+                 console.warn('Could not extract S3 key from URL:', fileUrl);
+                 return { success: false, error: 'Could not extract S3 key' };
+               }
+               
+               // Remove query parameters
+               s3Key = s3Key.split('?')[0];
+               
+               console.log('Deleting from S3 with key:', s3Key);
+               
+               const deleteS3Response = await fetch(DELETE_S3_API, {
+                 method: 'POST',
+                 headers: {
+                   'Content-Type': 'application/json'
+                 },
+                 body: JSON.stringify({ key: s3Key })
+               });
+
+               if (!deleteS3Response.ok) {
+                 const errorText = await deleteS3Response.text();
+                 console.error('S3 deletion failed:', errorText);
+                 return { success: false, error: errorText };
+               }
+               
+               const result = await deleteS3Response.json();
+               console.log('S3 deletion successful:', result);
+               return { success: true, key: s3Key };
+               
+             } catch (error) {
+               console.error('Error deleting file from S3:', error);
+               return { success: false, error: error.message };
+             }
+           });
+           
+           // Wait for all S3 deletions to complete
+           const s3Results = await Promise.all(s3DeletionPromises);
+           const successfulDeletions = s3Results.filter(r => r.success).length;
+           const failedDeletions = s3Results.filter(r => !r.success).length;
+           
+           console.log(`S3 deletion results: ${successfulDeletions} successful, ${failedDeletions} failed`);
+         }
+         
+         // Now delete from database
+         showLoading('Deleting assignment from database...');
+         const response = await fetch(ASSIGNMENT_API, {
+           method: 'DELETE',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ id: currentEditId })
+         });
+
+         if (!response.ok) {
+           throw new Error('Failed to delete assignment from database');
+         }
+
+         const deleteResult = await response.json();
+         console.log('Assignment deletion result:', deleteResult);
+
+         // Clear cache and reload assignments
+         clearAssignmentsCache();
+         await loadAssignments(false, true); // Force refresh without loading popup
+
+         // Show success message
+         showSuccessMessage('Assignment and all files deleted successfully!');
+         
+         // Close modal
+         closeModals();
+
+       } catch (error) {
+         console.error('Error deleting assignment:', error);
+         await showPopup('error', 'Delete Failed', `Failed to delete assignment: ${error.message}`);
+       } finally {
+         // Hide loading popup
+         hideLoading();
+         
+         // Reset button state
+         deleteBtn.innerHTML = originalText;
+         deleteBtn.disabled = false;
+       }
+     });
+
+     // Update assignment card
+     function updateAssignmentCard(assignment) {
+       const card = assignmentGrid.querySelector(`[data-id="${assignment.id}"]`).closest('.assignment-card');
+       if (!card) return;
+
+       // Format due date
+       const formattedDueDate = formatDate(assignment.dueDate);
+       
+       // Determine due date class based on is_closed status
+       const dueDateClass = assignment.is_closed ? 'due-date-closed' : '';
+
+       card.querySelector('h4').textContent = assignment.title;
+       card.querySelector('.assignment-meta').innerHTML = `
+         <span><i class="fas fa-users"></i> ${assignment.class}</span>
+         <span><i class="fas fa-book"></i> ${assignment.subject}</span>
+         <span><i class="fas fa-calendar"></i> Due: <span class="${dueDateClass}">${formattedDueDate}</span></span>
+         <span><i class="fas fa-upload"></i> ${assignment.submissionType}</span>
+       `;
+               card.querySelector('.assignment-description').textContent = assignment.description || assignment.discription || '';
+     }
+
+     // Generate upload URL for assignment files (optimized)
+     async function generateUploadUrl(fileName, fileType) {
+       try {
+         // Add timeout for faster failure detection
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+         
+         const response = await fetch(ASSIGNMENT_API, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({
+             action: 'get_upload_url',
+             fileName: fileName,
+             fileType: fileType
+           }),
+           signal: controller.signal
+         });
+
+         clearTimeout(timeoutId);
+
+         if (!response.ok) {
+           const errorText = await response.text();
+           throw new Error(`Failed to generate upload URL: ${response.status} - ${errorText}`);
+         }
+
+         const result = await response.json();
+         if (!result.uploadUrl) {
+           throw new Error('No upload URL received from server');
+         }
+         
+         return result.uploadUrl;
+       } catch (error) {
+         if (error.name === 'AbortError') {
+           throw new Error('Upload URL generation timed out. Please try again.');
+         }
+         console.error('Error generating upload URL:', error);
+         throw error;
+       }
+     }
+
+     // Upload file to S3 (optimized with timeout and better error handling)
+     async function uploadFileToS3(uploadUrl, file, contentTypeOverride) {
+       try {
+         // Add timeout for faster failure detection
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for upload
+         
+         const response = await fetch(uploadUrl, {
+           method: 'PUT',
+           body: file,
+           headers: {
+             'Content-Type': (contentTypeOverride && contentTypeOverride.trim()) ? contentTypeOverride : (file.type || 'application/octet-stream'),
+           },
+           signal: controller.signal
+         });
+
+         clearTimeout(timeoutId);
+
+         if (!response.ok) {
+           const errorText = await response.text();
+           throw new Error(`Failed to upload file: ${response.status} - ${errorText}`);
+         }
+
+         return true;
+       } catch (error) {
+         if (error.name === 'AbortError') {
+           throw new Error(`Upload timed out for file: ${file.name}`);
+         }
+         console.error('Error uploading file:', error);
+         throw error;
+       }
+     }
+
+     // Show success message
+     function showSuccessMessage(message) {
+       const successDiv = document.createElement('div');
+       successDiv.className = 'success-message';
+       successDiv.style.position = 'fixed';
+       successDiv.style.top = '20px';
+       successDiv.style.right = '20px';
+       successDiv.style.zIndex = '2000';
+       successDiv.style.background = '#10b981';
+       successDiv.style.color = '#fff';
+       successDiv.style.padding = '1rem 1.5rem';
+       successDiv.style.borderRadius = '8px';
+       successDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+       successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+       
+       document.body.appendChild(successDiv);
+       
+       setTimeout(() => {
+         successDiv.remove();
+       }, 3000);
+     }
+
+     // PDF Generation Function
+     function generateAssignmentPDF() {
+       const { jsPDF } = window.jspdf;
+       const doc = new jsPDF();
+       
+       // Add BC360 logo at the top - using embedded base64 to avoid CORS
+       try {
+         // Add a simple text header instead of base64 image
+         doc.setFontSize(16);
+         doc.text('BC360 Assignment Report', 105, 30);
+         doc.setFontSize(12);
+         doc.text('Generated on: ' + new Date().toLocaleDateString(), 105, 40);
+       } catch (e) {
+         // fallback or error handling if needed
+       }
+       
+       // Add header text below logo
+       doc.setFontSize(16);
+       doc.setFont('helvetica', 'normal');
+       doc.setTextColor(100, 100, 100);
+       doc.text('School Management System', 105, 50, { align: 'center' });
+       doc.text('Excellence in Education', 105, 58, { align: 'center' });
+       
+       // Assignment details
+       doc.setFontSize(18);
+       doc.setFont('helvetica', 'bold');
+       doc.setTextColor(0, 0, 0);
+       doc.text('Assignment Tracker Report', 105, 75, { align: 'center' });
+       
+       // Assignment information
+       doc.setFontSize(12);
+       doc.setFont('helvetica', 'normal');
+       doc.setTextColor(0, 0, 0);
+       doc.text('Assignment: Mathematics Homework - Algebra Basics', 20, 90);
+       doc.text('Class: Grade 10A', 20, 100);
+       doc.text('Subject: Mathematics', 20, 110);
+       doc.text('Due Date: July 20, 2024', 20, 120);
+       doc.text('Generated on: ' + new Date().toLocaleDateString(), 20, 130);
+       
+       // College information
+       doc.text('BC360 College', 120, 100);
+       doc.text('123 Education Street', 120, 110);
+       doc.text('City, State 12345', 120, 120);
+       doc.text('Phone: (555) 123-4567', 120, 130);
+       
+       // Student submissions table
+       const tableData = studentSubmissions.length > 0 ? studentSubmissions.map(student => [
+         student.name,
+         student.status === 'submitted' ? 'Yes' : student.status === 'late' ? 'Late' : 'No',
+         student.submissionDate,
+         student.grade || '-',
+         student.feedback || '-'
+       ]) : [['No student submissions available', '', '', '', '']];
+       
+       doc.autoTable({
+         startY: 150,
+         head: [['Student Name', 'Submitted', 'Submission Date', 'Grade', 'Feedback']],
+         body: tableData,
+         theme: 'grid',
+         headStyles: {
+           fillColor: [37, 99, 235],
+           textColor: 255,
+           fontSize: 11,
+           fontStyle: 'bold'
+         },
+         bodyStyles: {
+           fontSize: 10
+         },
+         alternateRowStyles: {
+           fillColor: [245, 245, 245]
+         },
+         margin: { top: 10 }
+       });
+       
+       // Summary statistics
+       const totalStudents = studentSubmissions.length;
+       const submittedCount = studentSubmissions.filter(s => s.status === 'submitted').length;
+       const lateCount = studentSubmissions.filter(s => s.status === 'late').length;
+       const notSubmittedCount = studentSubmissions.filter(s => s.status === 'not-submitted').length;
+       
+       const finalY = doc.lastAutoTable.finalY + 20;
+       doc.setFontSize(12);
+       doc.setFont('helvetica', 'bold');
+       doc.text('Summary:', 20, finalY);
+       
+       doc.setFontSize(10);
+       doc.setFont('helvetica', 'normal');
+       doc.text(`Total Students: ${totalStudents}`, 20, finalY + 10);
+       doc.text(`Submitted: ${submittedCount}`, 20, finalY + 20);
+       doc.text(`Late: ${lateCount}`, 20, finalY + 30);
+       doc.text(`Not Submitted: ${notSubmittedCount}`, 20, finalY + 40);
+       
+       // Save the PDF
+       doc.save('BC360_Assignment_Tracker_Report.pdf');
+     }
+     
+     // Add event listener for download button
+     document.getElementById('downloadPDF').addEventListener('click', generateAssignmentPDF);
+     
+    // Fetch and populate student submissions table from API
+    async function populateStudentTable() {
+      try {
+        console.log('populateStudentTable() called');
+        console.log('assignmentTableBody element:', assignmentTableBody);
+        
+        if (!assignmentTableBody) {
+          console.error('Assignment table body element not found!');
+          return;
+        }
+        
+        showLoading('Loading student submissions...');
+        
+        // Fetch submissions from assignment_submit API with timeout
+        console.log('Fetching from API:', ASSIGNMENT_SUBMIT_API);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        let response;
+        try {
+          response = await fetch(ASSIGNMENT_SUBMIT_API, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          console.log('API Response status:', response.status);
+          console.log('API Response ok:', response.ok);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error response:', errorText);
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log('Student submissions data:', data);
+          
+          // Extract submissions and filter for 'submitted' action only
+          const submissions = data.submissions || [];
+          console.log('Total submissions found:', submissions.length);
+          console.log('All submissions:', submissions);
+          
+          // Log each submission's action field
+          submissions.forEach((submission, index) => {
+            console.log(`Submission ${index + 1}: action = "${submission.action}"`);
+          });
+          
+          const submittedSubmissions = submissions.filter(submission => submission.action === 'submitted');
+          console.log('Filtered submitted submissions:', submittedSubmissions.length);
+          console.log('Submitted submissions:', submittedSubmissions);
+          
+          console.log('Clearing assignment table body...');
+          assignmentTableBody.innerHTML = '';
+          
+          if (submittedSubmissions.length === 0) {
+            console.log('No submitted submissions found, showing empty message');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-light);">
+                <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5; display: block;"></i>
+                <h4>No Student Submissions</h4>
+                <p>Student submissions will appear here when students submit their assignments.</p>
+              </td>
+            `;
+            assignmentTableBody.appendChild(row);
+            console.log('Empty message row added to table');
+            hideLoading();
+            return;
+          }
+          
+          console.log(`Creating ${submittedSubmissions.length} table rows...`);
+          submittedSubmissions.forEach((submission, index) => {
+            console.log(`Creating row ${index + 1} for submission:`, submission);
+            const row = document.createElement('tr');
+            row.setAttribute('data-status', 'submitted');
+            row.setAttribute('data-submission-id', submission.id);
+            
+            // Format submitted date
+            const submittedDate = new Date(submission.submited_at).toLocaleDateString();
+            
+            row.innerHTML = `
+              <td>${submission.student_id}</td>
+              <td>${submission.student_name}</td>
+              <td>${submission.class}</td>
+              <td>${submission.title}</td>
+              <td>${submittedDate}</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <input type="text" class="grade-input" value="${submission.grade || ''}" placeholder="Grade" data-field="grade" data-id="${submission.id}" ${submission.grade ? 'readonly' : ''}>
+                  <button class="save-btn grade-save-btn" data-id="${submission.id}" onclick="toggleEditSave(${submission.id}, 'grade')">
+                    <i class="fas fa-${submission.grade ? 'edit' : 'save'}"></i>
+                  </button>
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <input type="text" class="feedback-input" value="${submission.feedback || ''}" placeholder="Feedback" data-field="feedback" data-id="${submission.id}" ${submission.feedback ? 'readonly' : ''}>
+                  <button class="save-btn feedback-save-btn" data-id="${submission.id}" onclick="toggleEditSave(${submission.id}, 'feedback')">
+                    <i class="fas fa-${submission.feedback ? 'edit' : 'save'}"></i>
+                  </button>
+                </div>
+              </td>
+              <td>
+                <button class="view-submission-btn" onclick="viewSubmission(${submission.id}, '${encodeURIComponent(JSON.stringify(submission.file_url))}', '${submission.student_name}', '${submission.title}')">
+                  <i class="fas fa-eye"></i> View Submission
+                </button>
+              </td>
+            `;
+            
+            assignmentTableBody.appendChild(row);
+            console.log(`Row ${index + 1} added to table`);
+          });
+          
+          console.log('All rows created and added to table');
+          console.log('Table body HTML:', assignmentTableBody.innerHTML);
+          hideLoading();
+          console.log('Loading hidden, table should be visible now');
+          
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === 'AbortError') {
+            throw new Error('API request timed out after 10 seconds');
+          }
+          throw fetchError;
+        }
+        
+      } catch (error) {
+        console.error('Error loading student submissions:', error);
+        hideLoading();
+        
+        assignmentTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--danger);">
+              <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+              <h4>Error Loading Submissions</h4>
+              <p>${error.message}</p>
+              <button class="btn btn-primary" onclick="populateStudentTable()" style="margin-top: 10px;">
+                <i class="fas fa-refresh"></i> Retry
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Toggle Edit/Save function for grade and feedback
+    async function toggleEditSave(submissionId, field) {
+      const input = document.querySelector(`input[data-field="${field}"][data-id="${submissionId}"]`);
+      const saveBtn = document.querySelector(`.${field}-save-btn[data-id="${submissionId}"]`);
+      
+      if (!input || !saveBtn) return;
+      
+      const isReadonly = input.hasAttribute('readonly');
+      
+      if (isReadonly) {
+        // Switch to edit mode
+        input.removeAttribute('readonly');
+        input.focus();
+        saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+      } else {
+        // Save the data
+        try {
+          const value = input.value.trim();
+          
+          // Show loading state
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          saveBtn.disabled = true;
+          
+          // Get the current submission data to preserve other fields
+          // Use the submission ID directly to get more specific data
+          const tableRow = input.closest('tr');
+          const studentId = tableRow.querySelector('td:nth-child(1)').textContent;
+          const studentName = tableRow.querySelector('td:nth-child(2)').textContent;
+          const className = tableRow.querySelector('td:nth-child(3)').textContent;
+          const title = tableRow.querySelector('td:nth-child(4)').textContent;
+          
+          console.log('Getting submission data for:', { submissionId, studentId, studentName, className, title });
+          
+          // Make a more specific query to get the exact submission
+          const queryParams = new URLSearchParams({
+            student_id: studentId,
+            student_name: studentName,
+            class: className,
+            title: title,
+            action: 'submitted'
+          });
+          
+          const response = await fetch(`${ASSIGNMENT_SUBMIT_API}?${queryParams.toString()}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch current submission data');
+          }
+          
+          const data = await response.json();
+          console.log('API response data:', data);
+          
+          // Find the submission with the exact ID
+          const currentSubmission = data.submissions.find(s => s.id == submissionId);
+          
+          if (!currentSubmission) {
+            console.error('Submission not found in response:', data.submissions);
+            throw new Error(`Submission with ID ${submissionId} not found`);
+          }
+          
+          console.log('Current submission data before update:', currentSubmission);
+          console.log('Current file_url:', currentSubmission.file_url);
+          
+          // Update submission via API with all required fields
+          const updateData = {
+            id: submissionId,
+            teacher_id: currentSubmission.teacher_id,
+            institution_id: currentSubmission.institution_id,
+            class: currentSubmission.class,
+            subject: currentSubmission.subject,
+            title: currentSubmission.title,
+            student_id: currentSubmission.student_id,
+            student_name: currentSubmission.student_name,
+            file_url: currentSubmission.file_url,
+            additional_notes: currentSubmission.additional_notes,
+            grade: field === 'grade' ? value : currentSubmission.grade,
+            feedback: field === 'feedback' ? value : currentSubmission.feedback,
+            action: 'submitted' // Always keep as 'submitted' for consistency
+          };
+          
+          console.log('Update data being sent:', updateData);
+          console.log('file_url in update data:', updateData.file_url);
+          console.log('file_url type:', typeof updateData.file_url);
+          console.log('file_url is array:', Array.isArray(updateData.file_url));
+          
+          // Ensure file_url is properly formatted as a JSON string for the backend
+          if (updateData.file_url && typeof updateData.file_url === 'object') {
+            console.log('Converting file_url object to JSON string');
+            updateData.file_url = JSON.stringify(updateData.file_url);
+          }
+          
+          console.log('Final update data after file_url processing:', updateData);
+          console.log('Final file_url type:', typeof updateData.file_url);
+          
+          const updateResponse = await fetch(ASSIGNMENT_SUBMIT_API, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+          });
+          
+          if (!updateResponse.ok) {
+            const errorText = await updateResponse.text();
+            throw new Error(`Failed to update ${field}: ${errorText}`);
+          }
+          
+          const result = await updateResponse.json();
+          console.log(`${field} updated successfully:`, result);
+          console.log('Backend response file_url:', result.file_url);
+          
+          // Switch to readonly mode
+          input.setAttribute('readonly', 'readonly');
+          saveBtn.innerHTML = '<i class="fas fa-edit"></i>';
+          saveBtn.disabled = false;
+          
+          // Show success feedback briefly
+          const originalBg = saveBtn.style.backgroundColor;
+          saveBtn.style.backgroundColor = '#10b981';
+          setTimeout(() => {
+            saveBtn.style.backgroundColor = originalBg;
+          }, 1000);
+          
+        } catch (error) {
+          console.error(`Error updating ${field}:`, error);
+          
+          // Show error feedback
+          saveBtn.innerHTML = '<i class="fas fa-times"></i>';
+          saveBtn.style.backgroundColor = '#ef4444';
+          
+          setTimeout(() => {
+            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+            saveBtn.style.backgroundColor = '';
+            saveBtn.disabled = false;
+          }, 2000);
+          
+          alert(`Failed to update ${field}. Please try again.`);
+        }
+      }
+    }
+
+    // View submission function
+    function viewSubmission(submissionId, encodedFileUrls, studentName, title) {
+      try {
+        const fileUrls = JSON.parse(decodeURIComponent(encodedFileUrls));
+        const modalTitle = `${studentName}'s Submission - ${title}`;
+        
+        // Use the same attachment modal design
+        openAttachmentModal(JSON.stringify(fileUrls), modalTitle);
+        
+      } catch (error) {
+        console.error('Error viewing submission:', error);
+        alert('Error loading submission files. Please try again.');
+      }
+    }
+
+    // Filter functions for graded/ungraded submissions
+    function filterByGraded() {
+      const rows = assignmentTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const gradeInput = row.querySelector('.grade-input');
+        if (gradeInput && gradeInput.value.trim() !== '') {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Update active filter button
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn[data-filter="graded"]').classList.add('active');
+    }
+
+    function filterByUngraded() {
+      const rows = assignmentTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const gradeInput = row.querySelector('.grade-input');
+        if (gradeInput && gradeInput.value.trim() === '') {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Update active filter button
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn[data-filter="ungraded"]').classList.add('active');
+    }
+     
+         // Enhanced file upload functionality with multiple selection (keeping existing design)
+    function setupFileUpload(inputId, infoId) {
+      const fileInput = document.getElementById(inputId);
+      const fileInfo = document.getElementById(infoId);
+      
+      // Initialize global arrays if they don't exist
+      if (inputId === 'fileInput') {
+        window.selectedFiles = window.selectedFiles || [];
+      } else {
+        window.editSelectedFiles = window.editSelectedFiles || [];
+      }
+      
+      fileInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const selectedFiles = inputId === 'fileInput' ? window.selectedFiles : window.editSelectedFiles;
+        
+        // Add new files to existing selection
+        files.forEach(file => {
+          // Check file type
+          const isValidType = /\.(jpg|jpeg|png|gif|pdf|doc|docx|txt|mp4|avi|mov|webm)$/i.test(file.name);
+          if (!isValidType) {
+            showPopup('error', 'Invalid File Type', `File "${file.name}" is not supported. Please select images, videos, PDFs, or documents.`);
+            return;
+          }
+          
+          // Check file size (50MB limit)
+          const fileSizeMB = file.size / 1024 / 1024;
+          if (fileSizeMB > 50) {
+            showPopup('error', 'File Too Large', `File "${file.name}" is too large. Maximum size is 50MB.`);
+            return;
+          }
+          
+          // Add file to selection
+          selectedFiles.push(file);
+        });
+        
+        // Calculate total size
+        const totalSize = selectedFiles.reduce((total, file) => total + (file.size / 1024 / 1024), 0);
+        
+        // Show warning for large total size
+        if (totalSize > 100) {
+          showPopup('warning', 'Large Files Warning', `Total file size is ${totalSize.toFixed(1)}MB. Upload may take longer.`);
+        }
+        
+        // Display all selected files
+        if (selectedFiles.length > 0) {
+          fileInfo.innerHTML = '';
+          selectedFiles.forEach((file, index) => {
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+            const isVideo = ['mp4', 'avi', 'mov', 'webm'].includes(fileExtension);
+            
+            let fileHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">';
+            fileHTML += '<div style="display: flex; align-items: center; gap: 8px;">';
+            
+            if (isImage) {
+              // For images, create thumbnail using FileReader
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const imageHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><img src="' + e.target.result + '" alt="' + file.name + '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;"><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + index + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+                fileInfo.innerHTML += imageHTML;
+              };
+              reader.readAsDataURL(file);
+            } else if (isVideo) {
+              // For videos, create video thumbnail using FileReader
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const videoHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><video src="' + e.target.result + '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" muted></video><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + index + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+                fileInfo.innerHTML += videoHTML;
+              };
+              reader.readAsDataURL(file);
+            } else {
+              // For documents, show icon
+              let iconClass = 'fa-file';
+              if (fileExtension === 'pdf') iconClass = 'fa-file-pdf';
+              else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'fa-file-word';
+              const documentHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 50px; height: 50px; background: #e9ecef; border-radius: 4px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center;"><i class="fas ' + iconClass + '" style="color: #6c757d; font-size: 20px;"></i></div><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + index + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+              fileInfo.innerHTML += documentHTML;
+            }
+          });
+          
+          fileInfo.classList.add('show');
+        } else {
+          fileInfo.innerHTML = '';
+          fileInfo.classList.remove('show');
+        }
+        
+        // Update file input to contain all selected files
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+        
+        // Clear input for multiple selections
+        e.target.value = '';
+      });
+    }
+
+    // Remove file function for multiple selection
+    function removeFile(index, inputId) {
+      const fileInput = document.getElementById(inputId);
+      const fileInfo = document.getElementById(inputId === 'fileInput' ? 'fileInfo' : 'editFileInfo');
+      
+      // Get the correct selectedFiles array
+      let selectedFiles = inputId === 'fileInput' ? window.selectedFiles : window.editSelectedFiles;
+      
+      // Remove the file at the specified index from the selectedFiles array
+      selectedFiles.splice(index, 1);
+      
+      // Update the file input with remaining files
+      const dt = new DataTransfer();
+      selectedFiles.forEach(file => dt.items.add(file));
+      fileInput.files = dt.files;
+      
+      // Re-display the file list
+      if (selectedFiles.length > 0) {
+        fileInfo.innerHTML = '';
+        selectedFiles.forEach((file, idx) => {
+          const fileSize = (file.size / 1024 / 1024).toFixed(2);
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+          const isVideo = ['mp4', 'avi', 'mov', 'webm'].includes(fileExtension);
+          
+          let fileHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">';
+          fileHTML += '<div style="display: flex; align-items: center; gap: 8px;">';
+          
+          if (isImage) {
+            // For images, create thumbnail using FileReader
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const imageHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><img src="' + e.target.result + '" alt="' + file.name + '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;"><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + idx + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+              fileInfo.innerHTML += imageHTML;
+            };
+            reader.readAsDataURL(file);
+          } else if (isVideo) {
+            // For videos, create video thumbnail using FileReader
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const videoHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><video src="' + e.target.result + '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" muted></video><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + idx + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+              fileInfo.innerHTML += videoHTML;
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // For documents, show icon
+            let iconClass = 'fa-file';
+            if (fileExtension === 'pdf') iconClass = 'fa-file-pdf';
+            else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'fa-file-word';
+            const documentHTML = '<div style="margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;"><div style="display: flex; align-items: center; gap: 8px;"><div style="width: 50px; height: 50px; background: #e9ecef; border-radius: 4px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center;"><i class="fas ' + iconClass + '" style="color: #6c757d; font-size: 20px;"></i></div><div><div class="file-name" style="font-size: 12px; color: #333; margin-bottom: 2px;">' + file.name + '</div><div class="file-size" style="font-size: 10px; color: #666;">(' + fileSize + ' MB)</div></div></div><button type="button" class="file-remove" onclick="removeFile(' + idx + ', \'' + inputId + '\')" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px;"><i class="fas fa-times"></i></button></div>';
+            fileInfo.innerHTML += documentHTML;
+          }
+        });
+        fileInfo.classList.add('show');
+      } else {
+        fileInfo.innerHTML = '';
+        fileInfo.classList.remove('show');
+      }
+    }
+
+    // Setup file uploads
+    setupFileUpload('fileInput', 'fileInfo');
+    setupFileUpload('editFileInput', 'editFileInfo');
+
+    // Initialize with performance optimization
+    // Start with empty assignments for immediate UI response
+    assignments = [];
+    renderAssignments();
+    
+    // Load assignments from server in background
+    setTimeout(() => {
+      loadAssignments(false).catch(error => {
+        console.warn('Failed to load assignments on startup:', error);
+      });
+    }, 100);
+    
+    // Initialize Assignment Tracker
+    console.log('Initializing Assignment Tracker...');
+    
+    // Test API connectivity first
+    console.log('Testing assignment_submit API connectivity...');
+    fetch(ASSIGNMENT_SUBMIT_API + '?test=true')
+      .then(response => {
+        console.log('API test response status:', response.status);
+        if (response.ok) {
+          console.log('API is reachable, proceeding with populateStudentTable');
+          populateStudentTable();
+        } else {
+          console.error('API test failed, but trying populateStudentTable anyway');
+          populateStudentTable();
+        }
+      })
+      .catch(error => {
+        console.error('API test failed:', error);
+        console.log('Trying populateStudentTable anyway...');
+        populateStudentTable();
+      });
+
+    // Loading Modal Functions
+    function showLoading(message = 'Loading...') {
+      const subtext = document.querySelector('.loading-subtext');
+      if (subtext) subtext.textContent = message;
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.style.display = 'block';
+      loadingPopup.classList.add('show');
+    }
+
+    function hideLoading() {
+      const loadingPopup = document.getElementById('loadingPopup');
+      console.log('hideLoading() called, loadingPopup element:', loadingPopup);
+      if (loadingPopup) {
+        loadingPopup.style.display = 'none';
+        loadingPopup.classList.remove('show');
+        console.log('Loading popup hidden');
+      } else {
+        console.warn('Loading popup element not found!');
+      }
+    }
+
+    // Clear cache when assignments are modified
+    function clearAssignmentsCache() {
+      assignmentsCache = null;
+      lastCacheTime = 0;
+    }
+
+    // Attachment Modal Functions
+    function openAttachmentModal(fileUrl, title) {
+      const modal = document.getElementById('attachmentModal');
+      const modalTitle = document.getElementById('attachmentModalTitle');
+      const modalBody = document.getElementById('attachmentModalBody');
+      
+      modalTitle.textContent = title || 'Assignment Attachment';
+      
+      let content = '';
+      
+      try {
+        // Try to parse as JSON (multiple files)
+        const fileUrls = JSON.parse(fileUrl);
+        if (Array.isArray(fileUrls) && fileUrls.length > 0) {
+          // Multiple files
+          content = '<div class="multiple-files-container">';
+          fileUrls.forEach((url, index) => {
+            const fileName = url.split('/').pop() || `File ${index + 1}`;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+            const isVideo = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension);
+            const isPDF = fileExtension === 'pdf';
+            const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
+            
+            content += `
+              <div class="file-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <h4 style="margin-bottom: 10px; color: #333;">${fileName}</h4>
+            `;
+            
+            if (isImage) {
+              content += `
+                <img src="${url}" alt="${fileName}" style="max-width: 100%; height: auto; border-radius: 4px; margin-bottom: 10px;">
+                <button class="download-btn" onclick="downloadFile('${url}', '${fileName}')">
+                  <i class="fas fa-download"></i> Download Image
+                </button>
+                <button class="view-full-btn" onclick="viewFull('${url}')">
+                  <i class="fas fa-external-link-alt"></i> View Full
+                </button>
+              `;
+            } else if (isVideo) {
+              content += `
+                <video controls style="max-width: 100%; height: auto; border-radius: 4px; margin-bottom: 10px;">
+                  <source src="${url}" type="video/${fileExtension}">
+                  Your browser does not support the video tag.
+                </video>
+                <button class="download-btn" onclick="downloadFile('${url}', '${fileName}')">
+                  <i class="fas fa-download"></i> Download Video
+                </button>
+              `;
+            } else if (isPDF) {
+              content += `
+                <iframe src="${url}" style="width: 100%; height: 300px; border: none; border-radius: 4px; margin-bottom: 10px;"></iframe>
+                <button class="download-btn" onclick="downloadFile('${url}', '${fileName}')">
+                  <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="view-full-btn" onclick="viewFull('${url}')">
+                  <i class="fas fa-external-link-alt"></i> View Full
+                </button>
+              `;
+            } else if (isDocument) {
+              content += `
+                <div class="file-info">
+                  <i class="fas fa-file-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                  <h4>Document File</h4>
+                  <p>This file type cannot be previewed directly.</p>
+                  <button class="download-btn" onclick="downloadFile('${url}', '${fileName}')">
+                    <i class="fas fa-download"></i> Download Document
+                  </button>
+                </div>
+              `;
+            } else {
+              content += `
+                <div class="file-info">
+                  <i class="fas fa-file" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                  <h4>File Attachment</h4>
+                  <p>This file type cannot be previewed directly.</p>
+                  <button class="download-btn" onclick="downloadFile('${url}', '${fileName}')">
+                    <i class="fas fa-download"></i> Download File
+                  </button>
+                </div>
+              `;
+            }
+            
+            content += '</div>';
+          });
+          content += '</div>';
+        } else if (typeof fileUrls === 'string' && fileUrls.trim() !== '') {
+          // Single file (backward compatibility)
+          content = createSingleFileContent(fileUrls, title);
+        }
+             } catch (e) {
+         // If not JSON, treat as single file (backward compatibility)
+         if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim() !== '') {
+           content = createSingleFileContent(fileUrl, title);
+         }
+       }
+      
+      modalBody.innerHTML = content;
+      modal.classList.add('show');
+      
+      // Close modal when clicking outside
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeAttachmentModal();
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeAttachmentModal();
+        }
+      });
+    }
+
+    function createSingleFileContent(fileUrl, title) {
+      const fileExtension = fileUrl.split('.').pop().toLowerCase();
+      const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+      const isVideo = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(fileExtension);
+      const isPDF = fileExtension === 'pdf';
+      const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
+      
+      if (isImage) {
+        return `
+          <img src="${fileUrl}" alt="Assignment Attachment" style="max-width: 100%; height: auto;">
+          <button class="download-btn" onclick="downloadFile('${fileUrl}', '${title || 'attachment'}')">
+            <i class="fas fa-download"></i> Download Image
+          </button>
+          <button class="view-full-btn" onclick="viewFull('${fileUrl}')">
+            <i class="fas fa-external-link-alt"></i> View Full
+          </button>
+        `;
+      } else if (isVideo) {
+        return `
+          <video controls style="max-width: 100%; height: auto;">
+            <source src="${fileUrl}" type="video/${fileExtension}">
+            Your browser does not support the video tag.
+          </video>
+          <button class="download-btn" onclick="downloadFile('${fileUrl}', '${title || 'attachment'}')">
+            <i class="fas fa-download"></i> Download Video
+          </button>
+        `;
+      } else if (isPDF) {
+        return `
+          <iframe src="${fileUrl}" style="width: 100%; height: 400px; border: none;"></iframe>
+          <button class="download-btn" onclick="downloadFile('${fileUrl}', '${title || 'attachment'}')">
+            <i class="fas fa-download"></i> Download PDF
+          </button>
+          <button class="view-full-btn" onclick="viewFull('${fileUrl}')">
+            <i class="fas fa-external-link-alt"></i> View Full
+          </button>
+        `;
+      } else if (isDocument) {
+        return `
+          <div class="file-info">
+            <i class="fas fa-file-alt"></i>
+            <h4>Document File</h4>
+            <p>This file type cannot be previewed directly.</p>
+            <button class="download-btn" onclick="downloadFile('${fileUrl}', '${title || 'attachment'}')">
+              <i class="fas fa-download"></i> Download Document
+            </button>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="file-info">
+            <i class="fas fa-file"></i>
+            <h4>File Attachment</h4>
+            <p>This file type cannot be previewed directly.</p>
+            <button class="download-btn" onclick="downloadFile('${fileUrl}', '${title || 'attachment'}')">
+              <i class="fas fa-download"></i> Download File
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function closeAttachmentModal() {
+      const modal = document.getElementById('attachmentModal');
+      modal.classList.remove('show');
+    }
+
+    async function downloadFile(fileUrl, fileName) {
+      try {
+        console.log('Download request:', { fileUrl, fileName });
+        
+        // Extract S3 key from URL - handle different URL formats
+        let s3Key;
+        if (fileUrl.includes('s3.ap-south-1.amazonaws.com/')) {
+          // Format: https://bucket-name.s3.ap-south-1.amazonaws.com/key
+          s3Key = fileUrl.split('s3.ap-south-1.amazonaws.com/')[1];
+        } else if (fileUrl.includes('s3.amazonaws.com/')) {
+          // Format: https://bucket-name.s3.amazonaws.com/key
+          s3Key = fileUrl.split('s3.amazonaws.com/')[1];
+        } else if (fileUrl.includes('.s3.')) {
+          // Format: https://bucket-name.s3.region.amazonaws.com/key
+          const urlParts = fileUrl.split('.s3.');
+          if (urlParts.length > 1) {
+            s3Key = urlParts[1].split('/').slice(1).join('/');
+          }
+        } else {
+          // Fallback - try to extract filename from the end of URL
+          const urlParts = fileUrl.split('/');
+          s3Key = urlParts[urlParts.length - 1];
+          console.warn('Using fallback S3 key extraction:', s3Key);
+        }
+        
+        // Remove any query parameters
+        s3Key = s3Key.split('?')[0];
+        
+        console.log('Extracted S3 key:', s3Key);
+        
+        if (!s3Key || s3Key === 'undefined') {
+          throw new Error('Could not extract S3 key from URL');
+        }
+
+        // Try different approaches to call the download API
+        console.log('Attempting download with multiple approaches...');
+        
+        // Approach 1: Try the /download path
+        let downloadApiUrl = `${ASSIGNMENT_SUBMIT_API}/download?key=${encodeURIComponent(s3Key)}&filename=${encodeURIComponent(fileName)}`;
+        console.log('Approach 1 - Calling download API:', downloadApiUrl);
+        
+        const response = await fetch(downloadApiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        console.log('Download API response status:', response.status);
+        console.log('Download API response headers:', response.headers);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Download API error response:', errorText);
+          throw new Error(`Failed to get download URL: ${response.status} ${response.statusText}. Error: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Download response data:', data);
+        
+        // Check if this is actually a download response or submissions response
+        if (data.submissions && !data.downloadUrl) {
+          console.warn('Approach 1 failed - trying alternative approach...');
+          
+          // Approach 2: Try using query parameter instead of path
+          const alternativeUrl = `${ASSIGNMENT_SUBMIT_API}?action=download&key=${encodeURIComponent(s3Key)}&filename=${encodeURIComponent(fileName)}`;
+          console.log('Approach 2 - Calling download API with query param:', alternativeUrl);
+          
+          const altResponse = await fetch(alternativeUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (!altResponse.ok) {
+            throw new Error(`Both download approaches failed. Status: ${altResponse.status}`);
+          }
+          
+          const altData = await altResponse.json();
+          console.log('Approach 2 response:', altData);
+          
+          if (altData.submissions && !altData.downloadUrl) {
+            console.warn('Approach 2 also failed - trying POST approach...');
+            
+            // Approach 3: Try POST request with action in body
+            const postResponse = await fetch(ASSIGNMENT_SUBMIT_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'get_download_url',
+                key: s3Key,
+                filename: fileName
+              })
+            });
+            
+            if (!postResponse.ok) {
+              throw new Error(`All download approaches failed. Final status: ${postResponse.status}`);
+            }
+            
+            const postData = await postResponse.json();
+            console.log('Approach 3 (POST) response:', postData);
+            
+            if (postData.submissions && !postData.downloadUrl) {
+              throw new Error('All download approaches failed. Backend is not recognizing download requests. Please check serverless.yml configuration for /download path.');
+            }
+            
+            // Use the POST response data
+            Object.assign(data, postData);
+          } else {
+            // Use the alternative response data
+            Object.assign(data, altData);
+          }
+        }
+        
+        if (!data.downloadUrl) {
+          throw new Error('No download URL received from server');
+        }
+        
+        console.log('Starting download with URL:', data.downloadUrl);
+        
+        // Method 1: Try direct download with fetch and blob (more reliable)
+        try {
+          const downloadResponse = await fetch(data.downloadUrl);
+          if (!downloadResponse.ok) {
+            throw new Error(`Download failed: ${downloadResponse.status} ${downloadResponse.statusText}`);
+          }
+          
+          const blob = await downloadResponse.blob();
+          const url = URL.createObjectURL(blob);
+          
+          // Create download link
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName || data.filename || s3Key;
+          link.style.display = 'none';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up
+          URL.revokeObjectURL(url);
+          
+          console.log('Download completed successfully');
+        } catch (fetchError) {
+          console.warn('Fetch download failed, trying direct link method:', fetchError);
+          
+          // Method 2: Fallback to direct link (for CORS issues)
+          const link = document.createElement('a');
+          link.href = data.downloadUrl;
+          link.download = fileName || data.filename || s3Key;
+          link.style.display = 'none';
+          link.target = '_blank';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        alert('Download Failed: ' + error.message);
+      }
+    }
+
+    // Image Modal Functions - Based on image_upload.html
+    let currentImageUrls = [];
+    let currentImageIndex = 0;
+    let currentAssignmentId = null;
+    let currentAssignment = null;
+
+    function openImageModalFromData(element) {
+      try {
+        const images = JSON.parse(element.getAttribute('data-images'));
+        const title = element.getAttribute('data-title');
+        const index = parseInt(element.getAttribute('data-index'));
+        const assignmentId = element.getAttribute('data-assignment-id');
+        
+        if (Array.isArray(images) && images.length > 0) {
+          currentImageUrls = images;
+          currentImageIndex = index;
+          currentAssignmentId = assignmentId;
+          currentAssignment = assignments.find(a => a.id == assignmentId);
+          console.log('Current assignment data:', currentAssignment);
+          
+          // Use the attachment modal instead of image modal
+          openAttachmentModal(JSON.stringify(images), title);
+        }
+      } catch (error) {
+        console.error('Error opening image modal:', error);
+      }
+    }
+
+    function openImageModal(fileUrls, title, startIndex = 0) {
+      if (Array.isArray(fileUrls) && fileUrls.length > 0) {
+        currentImageUrls = fileUrls;
+        currentImageIndex = startIndex;
+        
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        
+        modalImg.src = currentImageUrls[currentImageIndex];
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        
+        // Toggle nav buttons based on number of images
+        const prevImageBtn = document.getElementById('prevImage');
+        const nextImageBtn = document.getElementById('nextImage');
+        const showNav = currentImageUrls.length > 1;
+        if (prevImageBtn && nextImageBtn) {
+          prevImageBtn.style.display = showNav ? 'flex' : 'none';
+          nextImageBtn.style.display = showNav ? 'flex' : 'none';
+        }
+        
+        // Close modal when clicking outside
+        modal.onclick = function(e) {
+          if (e.target === modal) {
+            closeImageModal();
+          }
+        };
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', handleImageModalKeyboard);
+      }
+    }
+
+    function closeImageModal() {
+      const modal = document.getElementById('imageModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+      document.removeEventListener('keydown', handleImageModalKeyboard);
+      
+      // Clear current data
+      currentImageUrls = [];
+      currentImageIndex = 0;
+      currentAssignmentId = null;
+      currentAssignment = null;
+    }
+
+    function updateModalImage() {
+      const modalImg = document.getElementById('modalImage');
+      if (currentImageUrls.length > 0 && currentImageUrls[currentImageIndex]) {
+        modalImg.src = currentImageUrls[currentImageIndex];
+      }
+    }
+
+    function handleImageModalKeyboard(e) {
+      if (currentImageUrls.length <= 1) return; // no nav when single image
+      
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        currentImageIndex = (currentImageIndex + 1) % currentImageUrls.length;
+        updateModalImage();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        currentImageIndex = (currentImageIndex - 1 + currentImageUrls.length) % currentImageUrls.length;
+        updateModalImage();
+      } else if (e.key === 'Escape') {
+        closeImageModal();
+      }
+    }
+
+    // Function to scroll to Assignment Tracker
+    function scrollToAssignmentTracker() {
+      const assignmentTracker = document.querySelector('.assignment-table-card');
+      if (assignmentTracker) {
+        assignmentTracker.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+        
+        // Add a subtle highlight effect to the tracker section
+        assignmentTracker.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.3)';
+        assignmentTracker.style.borderColor = 'var(--blue)';
+        
+        // Remove the highlight after 2 seconds
+        setTimeout(() => {
+          assignmentTracker.style.boxShadow = '';
+          assignmentTracker.style.borderColor = '';
+        }, 2000);
+      } else {
+        console.error('Assignment Tracker section not found');
+      }
+    }
+
+    // Modal event listeners - moved inside DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize date inputs with today's date
+      const today = new Date().toISOString().split('T')[0];
+      const dueDateInput = document.getElementById('dueDate');
+      const editDueDateInput = document.getElementById('editDueDate');
+      
+      if (dueDateInput) {
+        dueDateInput.value = today;
+        dueDateInput.setAttribute('min', '2024-01-01');
+        dueDateInput.setAttribute('max', '2030-12-31');
+      }
+      
+      if (editDueDateInput) {
+        editDueDateInput.value = today;
+        editDueDateInput.setAttribute('min', '2024-01-01');
+        editDueDateInput.setAttribute('max', '2030-12-31');
+      }
+
+      // Ensure image modal is hidden on page load
+      const imageModal = document.getElementById('imageModal');
+      if (imageModal) {
+        imageModal.style.display = 'none';
+        imageModal.classList.remove('show');
+      }
+
+      // Image modal event listeners
+      const closeImageModalBtn = document.getElementById('closeImageModal');
+      const prevImageBtn = document.getElementById('prevImage');
+      const nextImageBtn = document.getElementById('nextImage');
+      const deleteImageBtn = document.getElementById('deleteImageBtn');
+      
+      if (closeImageModalBtn) {
+        closeImageModalBtn.addEventListener('click', function() {
+          closeImageModal();
+        });
+      }
+      
+      if (deleteImageBtn) {
+        deleteImageBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteCurrentImage();
+        });
+      }
+      
+      if (prevImageBtn) {
+        prevImageBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (currentImageUrls.length > 0) {
+            currentImageIndex = (currentImageIndex - 1 + currentImageUrls.length) % currentImageUrls.length;
+            updateModalImage();
+          }
+        });
+      }
+      
+      if (nextImageBtn) {
+        nextImageBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (currentImageUrls.length > 0) {
+            currentImageIndex = (currentImageIndex + 1) % currentImageUrls.length;
+            updateModalImage();
+          }
+        });
+      }
+    });
+   </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+
+  <script>
+    // Minimal mime detection fallback similar to lesson planner
+    function mimeFromName(fileName) {
+      const ext = (fileName.split('.').pop() || '').toLowerCase();
+      const map = {
+        jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp',
+        svg: 'image/svg+xml',
+        pdf: 'application/pdf',
+        txt: 'text/plain', csv: 'text/csv', json: 'application/json',
+        doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        mp4: 'video/mp4', mov: 'video/quicktime', avi: 'video/x-msvideo', wmv: 'video/x-ms-wmv', webm: 'video/webm'
+      };
+      return map[ext] || 'application/octet-stream';
+    }
+  </script>
+
+  <script>
+    // Attachment Modal Functions
+    function openAttachmentModalFromButton(buttonEl) {
+      try {
+        const encoded = buttonEl.getAttribute('data-files') || '';
+        const title = buttonEl.getAttribute('data-title') || 'Attachment';
+        const json = decodeURIComponent(encoded);
+        openAttachmentModal(json, title);
+      } catch (e) {
+        console.error('Failed to open attachment from button:', e);
+      }
+    }
+  </script>
+
+  <script>
+
+    // Function to open any file URL in new tab
+    function viewFull(url) {
+      if (url && url.trim() !== '') {
+        window.open(url, '_blank');
+      } else {
+        alert('Unable to open file.');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+/**
+ * Shared student portal chrome — cream/gold sidebar, topbar, main area (matches Current Affairs theme).
+ * Include after app.css on all student/*.html pages.
+ */
+.student-dashboard .sidebar {
+  background: linear-gradient(180deg, #fff8df 0%, #fffef9 24%, #ffffff 100%);
+  border-right: 1px solid #ead9a3;
+  box-shadow: 6px 0 20px rgba(146, 98, 0, 0.07);
+}
+
+.student-dashboard .sidebar .brand {
+  margin-bottom: 0.8rem;
+  border-bottom-color: rgba(146, 98, 0, 0.2);
+}
+
+.student-dashboard .sidebar .brand__mark {
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 14px;
+  overflow: hidden;
+  animation: studentBrandFloat 4s ease-in-out infinite;
+}
+
+.student-dashboard .sidebar .brand__mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 5px;
+}
+
+.student-dashboard .sidebar .brand .logo {
+  font-family: 'Shrikhand', cursive;
+  font-size: 1.06rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #111;
+  /* app.css .logo uses inline-flex + gap — keep wordmark as one unit */
+  gap: 0;
+}
+
+.student-dashboard .sidebar .brand .logo .logo__word {
+  display: inline;
+  white-space: nowrap;
+}
+
+.student-dashboard .sidebar .brand .logo__accent {
+  color: #ffcc00;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.student-dashboard .sidebar .brand .brand-tag {
+  color: #7a5d1a;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+.student-dashboard .sidebar-nav a {
+  color: #2f3640;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.student-dashboard .sidebar-nav a > i {
+  background: #f3ecdc;
+  color: #8a5a00;
+}
+
+.student-dashboard .sidebar-nav .sd-nav-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.student-dashboard .sidebar-nav a > i.sd-has-img {
+  padding: 0;
+  overflow: hidden;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  color: inherit;
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
+}
+
+.student-dashboard .sidebar-nav a:hover {
+  background: #fff6d8;
+  border-color: #e6cf8c;
+  color: #111111;
+  box-shadow: none;
+}
+
+.student-dashboard .sidebar-nav a:hover > i {
+  background: #ffe28a;
+  color: #5f3f00;
+}
+
+.student-dashboard .sidebar-nav a.active {
+  background: linear-gradient(135deg, #ffd64d 0%, #ffcc00 100%);
+  border-color: #e6b800;
+  color: #111111;
+  box-shadow: 0 6px 14px rgba(230, 184, 0, 0.28);
+  font-weight: 700;
+}
+
+.student-dashboard .sidebar-nav a.active > i {
+  background: #111111;
+  color: #ffcc00;
+}
+
+.student-dashboard .sidebar-nav a.active > i.sd-has-img {
+  background: #111111;
+}
+
+.student-dashboard .sidebar .user-block {
+  background: linear-gradient(145deg, #ffffff 0%, #fff9ea 100%);
+  border-color: #ecdca8;
+}
+
+.student-dashboard .topbar {
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf7 100%);
+  border-bottom: 1px solid #ead9a3;
+}
+
+.student-dashboard .main-wrap {
+  background: linear-gradient(180deg, #fffdf7 0%, #fff4dc 38%, #faf6ee 100%);
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.student-dashboard .page-content {
+  min-height: calc(100vh - 4rem);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: clamp(0.65rem, 3.5vw, 1.5rem);
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 900px) {
+  .student-dashboard .topbar {
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Profile pill: img must stay inside the 42px circle (sd-nav-icon only sizes nav links, not this). */
+.student-dashboard .user-avatar {
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+.student-dashboard .user-avatar .student-user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+/* Topbar profile trigger: session photo matches sidebar pill */
+.student-dashboard .sd-profile-btn {
+  overflow: hidden;
+  padding: 0;
+}
+
+.student-dashboard .sd-profile-btn .sd-profile-btn__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.student-dashboard .sd-profile-btn .sd-profile-btn__initials {
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+@keyframes studentBrandFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* “Under development” modal (Enrollment, Note, Downloads, Videos, Test, Reports) */
+.student-placeholder-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.student-placeholder-modal[hidden] {
+  display: none !important;
+}
+
+.student-placeholder-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.student-placeholder-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(400px, 100%);
+  padding: 1.5rem 1.35rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(146, 98, 0, 0.28);
+  background: linear-gradient(145deg, #ffffff 0%, #fffdf5 100%);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.14);
+  text-align: center;
+}
+
+.student-placeholder-modal__icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.85rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff6d8 0%, #ffedb0 100%);
+  border: 1px solid rgba(230, 184, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a5a00;
+  font-size: 1.35rem;
+}
+
+.student-placeholder-modal__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1520;
+  line-height: 1.35;
+}
+
+.student-placeholder-modal__text {
+  margin: 0 0 1.15rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #6b5b4a;
+}
+
+.student-placeholder-modal__btn {
+  padding: 0.55rem 1.35rem;
+  border-radius: 12px;
+  border: 1px solid #e6b800;
+  background: linear-gradient(135deg, #ffd64d 0%, #ffcc00 100%);
+  color: #111;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.student-placeholder-modal__btn:hover {
+  filter: brightness(1.03);
+}

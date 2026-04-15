@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Viewport set to ensure mobile responsiveness -->
+  <meta name="viewport" content="initial-scale=1.0" />
+  <title>Responsive Sports Notice</title>
+
+  <!-- Google Font (Optional) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome Icons (v6) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <style>
+    /* Reset default styles */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #e0e0e0;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Notice Container with 4-sided blue border and watermark */
+    .notice-container {
+      position: relative; /* For absolutely positioned icons & watermark */
+      max-width: 900px;
+      width: 90%;
+      margin: 20px auto;
+      background: #fff;
+      border: 4px solid #3498db;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      overflow: hidden;
+    }
+    /* Watermark */
+    .notice-container::before {
+      content: "BC360";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 100px;
+      color: #3498db;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: -1;
+      white-space: nowrap;
+    }
+
+    /* Top icons (sports logos) */
+    .top-icon {
+      position: absolute;
+      font-size: 36px;
+      color: #d35400;
+      opacity: 0.8;
+    }
+    .top-left-icon {
+      top: 15px;
+      left: 15px;
+    }
+    .top-right-icon {
+      top: 15px;
+      right: 15px;
+    }
+
+    /* Header Section */
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .header img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #333;
+    }
+    .header p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Notice Title */
+    .notice-title {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .notice-title h2 {
+      margin: 0;
+      font-size: 26px;
+      color: #0056b3;
+    }
+
+    /* Content in English */
+    .notice-content {
+      text-align: justify;
+      color: #555;
+      line-height: 1.6;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    /* Content in Kannada */
+    .notice-content-kannada {
+      text-align: justify;
+      color: #555;
+      line-height: 1.6;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Footer with signatures */
+    .notice-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 40px;
+      font-size: 16px;
+      color: #333;
+    }
+    .signature {
+      width: 48%;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .signature img {
+      width: 130px;
+      display: block;
+      margin: 10px auto;
+    }
+    .signature .line {
+      margin-top: 20px;
+      border-top: 1px solid #333;
+      padding-top: 5px;
+      font-weight: bold;
+    }
+
+    /* Event details */
+    .event-details {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .notice-footer {
+        flex-direction: column;
+      }
+      .signature {
+        width: 100%;
+      }
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background: #fff;
+      }
+      .notice-container {
+        border: 4px solid #3498db !important;
+        box-shadow: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+      }
+      /* Uncomment if you want to hide icons during print */
+      /* .top-icon { display: none !important; } */
+    }
+  </style>
+</head>
+<body>
+  <div class="notice-container">
+    <!-- Top Left Icon: Running -->
+    <i class="fas fa-person-running top-icon top-left-icon"></i>
+    <!-- Top Right Icon: Football -->
+    <i class="fas fa-futbol top-icon top-right-icon"></i>
+
+    <!-- Header Section (Centered) -->
+    <div class="header">
+      <!-- Replace 'sports-logo.png' with your sports-related logo path -->
+      <img src="sports-logo.png" alt="Sports Logo" />
+      <h1>XYZ College of Physical Education</h1>
+      <p>Posted by Admin</p>
+    </div>
+
+    <!-- Notice Title -->
+    <div class="notice-title">
+      <h2>Annual Sports Meet</h2>
+    </div>
+
+    <!-- Notice Content in English -->
+    <div class="notice-content">
+      <p>
+        We are thrilled to invite you to our annual sports meet celebrating athletic excellence and team spirit. 
+        Join us for a day filled with exciting matches, friendly competitions, and a chance to showcase your talents. 
+        Let's come together to promote health, sportsmanship, and camaraderie!
+      </p>
+    </div>
+
+    <!-- Notice Content in Kannada -->
+    <div class="notice-content-kannada">
+      <p>
+        ನಮ್ಮ ವಾರ್ಷಿಕ ಕ್ರೀಡಾ ಕಾರ್ಯಕ್ರಮವನ್ನು ಆಯೋಜಿಸುವ ಉದ್ದೇಶದಿಂದ, ನಿಮ್ಮನ್ನು ಆಹ್ವಾನಿಸಲು ನಾವು ತುಂಬಾ ಹರ್ಷಿಸುತ್ತೇವೆ. 
+        ಸ್ಪರ್ಧಾತ್ಮಕ ಮ್ಯಾಚ್ಗಳು, ಸ್ನೇಹಪೂರ್ಣ ಸ್ಪರ್ಧೆಗಳು ಮತ್ತು ನಿಮ್ಮ ಪ್ರತಿಭೆಯನ್ನು ಪ್ರದರ್ಶಿಸುವ ಅವಕಾಶಗಳೊಂದಿಗೆ ತುಂಬಿರುವ ಒಂದು ದಿನವನ್ನು ಅನುಭವಿಸಿ. 
+        ಆರೋಗ್ಯ, ಕ್ರೀಡಾ ಮೌಲ್ಯಗಳು ಮತ್ತು ಸ್ನೇಹಭಾವವನ್ನು ಒಟ್ಟಾಗಿ ಪೋಷಿಸೋಣ!
+      </p>
+    </div>
+
+    <!-- Footer with Signatures -->
+    <div class="notice-footer">
+      <div class="signature">
+        <!-- Replace with your principal's signature image path -->
+        <img src="dummy-signature-principal.png" alt="Principal's Signature" />
+        <p class="line">Principal's Signature</p>
+        <p>Dr. A. B. Principal</p>
+      </div>
+      <div class="signature">
+        <!-- Replace with your coordinator's signature image path -->
+        <img src="dummy-signature-coordinator.png" alt="Coordinator's Signature" />
+        <p class="line">Coordinator's Signature</p>
+        <p>Mr. C. D. Coordinator</p>
+      </div>
+    </div>
+
+    <!-- Event Details -->
+    <div class="event-details">
+      <p>Date: 20th August 2025</p>
+    </div>
+  </div>
+
+  <script>
+    // Example print function (optional)
+    function printNotice() {
+      window.print();
+    }
+  </script>
+</body>
+</html>

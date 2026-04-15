@@ -1,0 +1,2477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - News & Current Affairs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+      --news-main: #1a1a1a;
+      --news-card: #2d2d2d;
+      --news-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      --news-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --news-title: #ffffff;
+      --news-date: #fbbf24;
+      --category-national: #3b82f6;
+      --category-international: #8b5cf6;
+      --category-gk: #10b981;
+      --category-tech: #f59e0b;
+      --category-environment: #059669;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw; }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; padding: 10px 6px; transition: transform 0.2s; }
+    .sidebar .brand img { width: 100%; height: 50px; border-radius: 3px; border: 1.5px solid #fff; background: #fff; object-fit: contain; box-shadow: 0 2px 5px #26bf6720; transition: transform 0.2s, box-shadow 0.2s; }
+    .sidebar .brand:hover img { transform: scale(1.05); box-shadow: 0 4px 12px #26bf6740; }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a { color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center; padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s; font-weight: 500; gap: 13px; position: relative; overflow: hidden; }
+    .sidebar ul li a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar ul li a:hover::before { width: 100%; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;}
+    .sidebar .logout a { color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s; position: relative; overflow: hidden; }
+    .sidebar .logout a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar .logout a:hover::before { width: 100%; }
+    .sidebar .logout a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .main-content { margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 0; transition: margin-left 0.28s; z-index: 1; }
+    .top-bar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(26, 26, 26, 0.9); backdrop-filter: blur(10px); border-bottom: 1.3px solid var(--border); padding: 10px 32px 10px 32px; font-size: 1.32rem; font-weight: 700; letter-spacing: 0.01em; color: var(--accent); position: relative; z-index: 2; }
+    .top-bar .fa-newspaper { font-size: 2.1rem; color: var(--accent);}
+    .sidebar-hamburger { display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff; color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010; cursor: pointer; transition: background 0.18s, color 0.18s;}
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3;}
+    .sidebar-hamburger .fa-times { display: none;}
+    .sidebar-hamburger.menu-open .fa-bars { display: none;}
+    .sidebar-hamburger.menu-open .fa-times { display: inline;}
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block;}
+    
+    /* News Module Styles - Newspaper/Magazine Format */
+    .news-root {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--news-main);
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      min-height: 80vh;
+      border: none;
+    }
+    
+    .news-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 0;
+      padding: 20px;
+      background: var(--news-card);
+      border-bottom: 3px solid var(--accent);
+    }
+    
+    .news-title-bar i {
+      font-size: 2.5rem;
+      color: var(--accent);
+    }
+    
+    .news-title-bar .news-title {
+      font-size: 2.5rem;
+      color: var(--news-title);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-family: 'Times New Roman', serif;
+    }
+
+    /* Newspaper Header */
+    .newspaper-header {
+      background: var(--news-card);
+      padding: 20px;
+      border-bottom: 2px solid var(--border);
+      text-align: center;
+    }
+
+    .newspaper-masthead {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--accent);
+      font-family: 'Times New Roman', serif;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .newspaper-subtitle {
+      font-size: 1.1rem;
+      color: var(--subtle);
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+
+    .newspaper-date {
+      font-size: 1rem;
+      color: var(--label);
+      font-weight: 600;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    /* Weekly Tabs - Magazine Style */
+    .news-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+      background: var(--news-card);
+      border-radius: 0;
+      padding: 0;
+      border: none;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .news-tab {
+      flex: 1;
+      padding: 15px 20px;
+      background: var(--news-main);
+      border: none;
+      border-radius: 0;
+      color: var(--subtle);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-right: 1px solid var(--border);
+      font-family: 'Times New Roman', serif;
+    }
+
+    .news-tab:last-child {
+      border-right: none;
+    }
+
+    .news-tab.active {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+
+    .news-tab:hover:not(.active) {
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--accent);
+    }
+
+    /* Category Filters - Magazine Style */
+    .news-filters {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+      background: var(--news-card);
+      border-bottom: 2px solid var(--border);
+      padding: 10px 20px;
+    }
+
+    .news-filter {
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      color: var(--subtle);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-right: 1px solid var(--border);
+      font-family: 'Times New Roman', serif;
+    }
+
+    .news-filter:last-child {
+      border-right: none;
+    }
+
+    .news-filter.active {
+      background: var(--accent);
+      color: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    .news-filter:hover:not(.active) {
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--accent);
+    }
+
+    /* Newspaper Layout */
+    .newspaper-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 0;
+      background: var(--news-main);
+      min-height: 600px;
+    }
+
+    .main-content-area {
+      padding: 30px;
+      border-right: 2px solid var(--border);
+    }
+
+    .sidebar-content-area {
+      padding: 30px;
+      background: var(--news-card);
+    }
+
+    /* News Grid - Newspaper Columns */
+    .news-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .news-card {
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 25px;
+      margin-bottom: 25px;
+    }
+
+    .news-card:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .news-card:hover {
+      box-shadow: none;
+      transform: none;
+    }
+
+    .news-card::before {
+      display: none;
+    }
+
+    .news-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .news-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .archive-btn {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.8rem;
+    }
+
+    .archive-btn:hover {
+      background: var(--accent);
+      color: #1a1a1a;
+      transform: scale(1.1);
+    }
+
+    .archive-btn.archived {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+
+    .archive-btn.archived:hover {
+      background: var(--yellow);
+      transform: scale(1.1);
+    }
+
+    .news-category {
+      padding: 4px 12px;
+      border-radius: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 2px solid;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .news-category.national { 
+      background: transparent; 
+      color: var(--category-national); 
+      border-color: var(--category-national);
+    }
+    .news-category.international { 
+      background: transparent; 
+      color: var(--category-international); 
+      border-color: var(--category-international);
+    }
+    .news-category.gk { 
+      background: transparent; 
+      color: var(--category-gk); 
+      border-color: var(--category-gk);
+    }
+    .news-category.tech { 
+      background: transparent; 
+      color: var(--category-tech); 
+      border-color: var(--category-tech);
+    }
+    .news-category.environment { 
+      background: transparent; 
+      color: var(--category-environment); 
+      border-color: var(--category-environment);
+    }
+
+    .news-date {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      font-style: italic;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .news-headline {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--news-title);
+      margin-bottom: 15px;
+      line-height: 1.3;
+      font-family: 'Times New Roman', serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .news-summary {
+      font-size: 1rem;
+      color: var(--label);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-family: 'Georgia', serif;
+      text-align: justify;
+    }
+
+    .news-read-more {
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: 'Times New Roman', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .news-read-more:hover {
+      gap: 10px;
+    }
+
+    /* Featured News Section */
+    .featured-news {
+      margin-bottom: 40px;
+    }
+
+    .featured-news .news-headline {
+      font-size: 2.5rem;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .featured-news .news-summary {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* Sidebar News */
+    .sidebar-news {
+      margin-bottom: 30px;
+    }
+
+    .sidebar-news .news-headline {
+      font-size: 1.3rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .sidebar-news .news-summary {
+      font-size: 0.9rem;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+      font-family: 'Times New Roman', serif;
+    }
+
+    /* Quiz Section - Magazine Style */
+    .quiz-section {
+      background: var(--news-card);
+      border-radius: 0;
+      padding: 25px;
+      border: 2px solid var(--border);
+      margin-top: 30px;
+    }
+
+    .quiz-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-header i {
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    .quiz-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--news-title);
+      font-family: 'Times New Roman', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .quiz-question {
+      background: var(--news-main);
+      border-radius: 0;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .quiz-question-text {
+      font-size: 1rem;
+      color: var(--news-title);
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-family: 'Georgia', serif;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-option {
+      padding: 12px 16px;
+      background: var(--news-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      color: var(--label);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      font-family: 'Georgia', serif;
+    }
+
+    .quiz-option:hover {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: var(--accent);
+    }
+
+    .quiz-option.selected {
+      background: var(--accent);
+      color: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    .quiz-submit {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 0;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .quiz-submit:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* News Modal */
+    .news-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .news-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .news-modal-content {
+      background: var(--news-main);
+      max-width: 1200px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      border: 2px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .news-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      border: none;
+      color: #1a1a1a;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .news-modal-close:hover {
+      background: var(--yellow);
+      transform: scale(1.1);
+    }
+
+    /* Newspaper Article Layout */
+    .newspaper-article {
+      background: var(--news-main);
+      min-height: 100%;
+    }
+
+    .article-header {
+      background: var(--news-card);
+      padding: 40px 50px 30px 50px;
+      border-bottom: 3px solid var(--accent);
+      text-align: center;
+    }
+
+    .article-masthead {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--accent);
+      font-family: 'Times New Roman', serif;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .article-subtitle {
+      font-size: 1.1rem;
+      color: var(--subtle);
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+
+    .article-date {
+      font-size: 1rem;
+      color: var(--label);
+      font-weight: 600;
+      border-top: 1px solid var(--border);
+      padding-top: 15px;
+    }
+
+    .article-title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--news-title);
+      margin: 30px 0 20px 0;
+      line-height: 1.2;
+      font-family: 'Times New Roman', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .article-meta {
+      background: var(--news-card);
+      padding: 20px 50px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .article-category {
+      padding: 8px 16px;
+      border: 2px solid;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .article-category.national { 
+      background: transparent; 
+      color: var(--category-national); 
+      border-color: var(--category-national);
+    }
+    .article-category.international { 
+      background: transparent; 
+      color: var(--category-international); 
+      border-color: var(--category-international);
+    }
+    .article-category.gk { 
+      background: transparent; 
+      color: var(--category-gk); 
+      border-color: var(--category-gk);
+    }
+    .article-category.tech { 
+      background: transparent; 
+      color: var(--category-tech); 
+      border-color: var(--category-tech);
+    }
+    .article-category.environment { 
+      background: transparent; 
+      color: var(--category-environment); 
+      border-color: var(--category-environment);
+    }
+
+    .article-info {
+      display: flex;
+      gap: 30px;
+      font-size: 0.9rem;
+      color: var(--subtle);
+      font-family: 'Times New Roman', serif;
+    }
+
+    .article-info span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .article-content {
+      padding: 40px 50px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      min-height: 500px;
+    }
+
+    .article-main {
+      border-right: 2px solid var(--border);
+      padding-right: 40px;
+    }
+
+    .article-sidebar {
+      background: var(--news-card);
+      padding: 30px;
+      border-radius: 0;
+    }
+
+    .article-body {
+      font-size: 1.1rem;
+      color: var(--label);
+      line-height: 1.8;
+      font-family: 'Georgia', serif;
+      text-align: justify;
+      text-indent: 2em;
+    }
+
+    .article-body p {
+      margin-bottom: 1.5em;
+    }
+
+    .article-body p:first-child {
+      font-weight: 600;
+      font-size: 1.2rem;
+      text-indent: 0;
+      margin-bottom: 2em;
+      color: var(--news-title);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 15px;
+    }
+
+    .article-sidebar-section {
+      margin-bottom: 30px;
+    }
+
+    .article-sidebar-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .article-sidebar-content {
+      font-size: 0.9rem;
+      color: var(--label);
+      line-height: 1.6;
+      font-family: 'Georgia', serif;
+    }
+
+    .article-sidebar-content p {
+      margin-bottom: 1em;
+    }
+
+    .article-footer {
+      background: var(--news-card);
+      padding: 30px 50px;
+      border-top: 2px solid var(--border);
+      text-align: center;
+    }
+
+    .article-footer-text {
+      font-size: 0.9rem;
+      color: var(--subtle);
+      font-style: italic;
+      font-family: 'Times New Roman', serif;
+    }
+
+    /* Responsive Modal */
+    @media (max-width: 768px) {
+      .news-modal-content {
+        width: 98%;
+        max-height: 95vh;
+      }
+
+      .article-header {
+        padding: 30px 20px 20px 20px;
+      }
+
+      .article-masthead {
+        font-size: 1.8rem;
+      }
+
+      .article-title {
+        font-size: 2rem;
+        margin: 20px 0 15px 0;
+      }
+
+      .article-meta {
+        padding: 15px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .article-content {
+        padding: 20px;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .article-main {
+        border-right: none;
+        border-bottom: 2px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 20px;
+      }
+
+      .article-sidebar {
+        padding: 20px;
+      }
+
+      .article-footer {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .article-header {
+        padding: 20px 15px 15px 15px;
+      }
+
+      .article-masthead {
+        font-size: 1.5rem;
+      }
+
+      .article-title {
+        font-size: 1.5rem;
+      }
+
+      .article-content {
+        padding: 15px;
+      }
+
+      .article-body {
+        font-size: 1rem;
+      }
+    }
+
+    /* Featured News Card Styles */
+    .featured-news-card {
+      border-bottom: 3px solid var(--accent) !important;
+      padding-bottom: 30px !important;
+      margin-bottom: 30px !important;
+    }
+
+    .featured-news-card .news-headline {
+      font-size: 2.5rem;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .featured-news-card .news-summary {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* Sidebar News Card Styles */
+    .sidebar-news-card .news-headline {
+      font-size: 1.3rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .sidebar-news-card .news-summary {
+      font-size: 0.9rem;
+    }
+
+    /* Theme Toggle Position */
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .news-root { padding: 0; }
+      .newspaper-layout { grid-template-columns: 1fr; }
+      .main-content-area { border-right: none; border-bottom: 2px solid var(--border); }
+      .news-tabs { flex-direction: column; }
+      .news-tab { justify-content: flex-start; border-right: none; border-bottom: 1px solid var(--border); }
+      .news-filters { flex-direction: column; }
+      .news-filter { border-right: none; border-bottom: 1px solid var(--border); }
+      .news-headline { font-size: 1.4rem; }
+      .featured-news .news-headline { font-size: 1.8rem; }
+      .newspaper-masthead { font-size: 2rem; }
+      .news-title-bar .news-title { font-size: 1.8rem; }
+    }
+    
+    @media (max-width: 480px) {
+      .news-root { padding: 0; }
+      .news-title-bar .news-title { font-size: 1.5rem; }
+      .news-headline { font-size: 1.2rem; }
+      .featured-news .news-headline { font-size: 1.5rem; }
+      .newspaper-masthead { font-size: 1.5rem; }
+      .news-modal-content { padding: 20px; }
+      .news-modal-title { font-size: 1.5rem; }
+    }
+
+    .article-image {
+      margin: 25px 0;
+      text-align: center;
+    }
+
+    .article-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .article-image img:hover {
+      transform: scale(1.02);
+      transition: transform 0.3s ease;
+    }
+
+    /* Archive Search Styling */
+    .archive-search {
+      background: var(--news-card);
+      padding: 20px 30px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 0;
+      background: var(--news-main);
+      color: var(--label);
+      font-size: 1rem;
+      font-family: 'Times New Roman', serif;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .search-input::placeholder {
+      color: var(--subtle);
+      font-style: italic;
+    }
+
+    .search-btn {
+      padding: 12px 20px;
+      background: var(--accent);
+      border: none;
+      color: #1a1a1a;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .search-btn:hover {
+      background: var(--yellow);
+      transform: translateY(-2px);
+    }
+
+    .archive-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--subtle);
+      font-family: 'Times New Roman', serif;
+    }
+
+    .stats-text {
+      font-style: italic;
+    }
+
+    .archive-count {
+      background: var(--accent);
+      color: #1a1a1a;
+      padding: 4px 12px;
+      border-radius: 0;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        z-index: 1000;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .hamburger {
+        display: block;
+        z-index: 999;
+      }
+      
+      .news-root {
+        margin-left: 0;
+        padding: 20px;
+      }
+      
+      .newspaper-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .newspaper-header {
+        padding: 20px;
+      }
+      
+      .newspaper-masthead {
+        font-size: 1.8rem;
+      }
+      
+      .newspaper-subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .news-tabs {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .news-tab {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .news-filters {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .news-filter {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+      
+      .news-modal-content {
+        width: 95%;
+        max-height: 90vh;
+        margin: 20px;
+        padding: 20px;
+      }
+      
+      .article-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .article-sidebar {
+        order: -1;
+      }
+      
+      .quiz-section {
+        margin-top: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./news.html" class="active"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/news.png" alt="News & Current Affairs" style="width: 24px; height: 24px;">
+        News & Current Affairs
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+
+      <div class="news-root">
+        <!-- Newspaper Header -->
+        <div class="newspaper-header">
+          <div class="newspaper-masthead">BC360 TIMES</div>
+          <div class="newspaper-subtitle">Your Daily Source of Knowledge & Current Affairs</div>
+          <div class="newspaper-date" id="currentDate">Loading...</div>
+        </div>
+
+        <!-- Weekly Tabs -->
+        <div class="news-tabs">
+          <button class="news-tab active" data-tab="this-week">
+            This Week
+          </button>
+          <button class="news-tab" data-tab="last-week">
+            Last Week
+          </button>
+          <button class="news-tab" data-tab="archive">
+            Archive
+          </button>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="news-filters">
+          <button class="news-filter active" data-category="all">
+            All Sections
+          </button>
+          <button class="news-filter" data-category="national">
+            National
+          </button>
+          <button class="news-filter" data-category="international">
+            International
+          </button>
+          <button class="news-filter" data-category="gk">
+            GK Corner
+          </button>
+          <button class="news-filter" data-category="tech">
+            Technology
+          </button>
+          <button class="news-filter" data-category="environment">
+            Environment
+          </button>
+        </div>
+
+        <!-- Archive Search (only visible in archive tab) -->
+        <div class="archive-search" id="archiveSearch" style="display: none;">
+          <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search archive articles..." class="search-input">
+            <button class="search-btn" onclick="searchArchive()">
+              Search
+            </button>
+          </div>
+          <div class="archive-stats" id="archiveStats">
+            <span class="stats-text">Showing all archive articles</span>
+          </div>
+        </div>
+
+        <!-- Newspaper Layout -->
+        <div class="newspaper-layout">
+          <!-- Main Content Area -->
+          <div class="main-content-area">
+            <!-- Featured News Section -->
+            <div class="featured-news" id="featuredNews">
+              <!-- Featured news will be populated by JavaScript -->
+            </div>
+
+            <!-- Regular News Grid -->
+            <div class="news-grid" id="newsGrid">
+              <!-- News articles will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Sidebar Content Area -->
+          <div class="sidebar-content-area">
+            <!-- Sidebar News -->
+            <div class="sidebar-news" id="sidebarNews">
+              <!-- Sidebar news will be populated by JavaScript -->
+            </div>
+
+            <!-- Quiz Section -->
+            <div class="quiz-section" id="quizSection" style="display: none;">
+              <div class="quiz-header">
+                <img src="./assets/performance.png" alt="Weekly Quiz" style="width: 24px; height: 24px;">
+                <h3 class="quiz-title">Weekly Quiz</h3>
+              </div>
+              <div id="quizContent">
+                <!-- Quiz content will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- News Modal -->
+  <div class="news-modal" id="newsModal">
+    <div class="news-modal-content">
+      <button class="news-modal-close" id="modalClose">
+        ×
+      </button>
+      <div class="newspaper-article" id="newspaperArticle">
+        <!-- Newspaper article content will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true; 
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); 
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false; 
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); 
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); 
+      (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    
+    sidebarOverlay.addEventListener('click', function() { 
+      closeSidebar(); 
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    let isDarkMode = true;
+
+    themeToggle.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.body.classList.add('dark-theme');
+        document.documentElement.style.setProperty('--news-main', '#1a1a1a');
+        document.documentElement.style.setProperty('--news-card', '#2d2d2d');
+        document.documentElement.style.setProperty('--news-title', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent', '#ffd700');
+        document.documentElement.style.setProperty('--yellow', '#ffed4e');
+        document.documentElement.style.setProperty('--success', '#4ade80');
+        themeToggle.innerHTML = '☀️';
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.documentElement.style.setProperty('--news-main', '#ffffff');
+        document.documentElement.style.setProperty('--news-card', '#f8fafc');
+        document.documentElement.style.setProperty('--news-title', '#1e293b');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent', '#f59e0b');
+        document.documentElement.style.setProperty('--yellow', '#fbbf24');
+        document.documentElement.style.setProperty('--success', '#10b981');
+        themeToggle.innerHTML = '🌙';
+      }
+    });
+
+    // Sample news data with images
+    const newsData = {
+      'this-week': {
+        national: [
+          {
+            id: 'n1',
+            headline: 'New Education Policy Implementation Begins Nationwide',
+            summary: 'Government launches comprehensive education reforms across all states',
+            fullContent: `
+              <p>The Ministry of Education has officially announced the nationwide implementation of the New Education Policy (NEP) 2020, marking a significant milestone in India's educational landscape. This comprehensive reform aims to transform the country's education system to meet 21st-century challenges.</p>
+              
+              <p>The policy introduces several groundbreaking changes, including the restructuring of school education into a 5+3+3+4 format, replacing the traditional 10+2 system. This new structure emphasizes foundational learning, preparatory education, middle stage, and secondary stage, ensuring a more holistic development approach.</p>
+              
+              <p>Key highlights of the implementation include:</p>
+              <ul>
+                <li>Introduction of coding and artificial intelligence from Class 6</li>
+                <li>Emphasis on mother tongue and regional languages</li>
+                <li>Integration of vocational education from Class 6</li>
+                <li>Flexible subject combinations in higher secondary</li>
+                <li>Multiple entry and exit options in higher education</li>
+              </ul>
+              
+              <p>Education Minister Dr. Ramesh Kumar stated, "This is a transformative moment for Indian education. The NEP 2020 will create a more inclusive, flexible, and future-ready education system that prepares our students for global challenges."</p>
+              
+              <p>The implementation will be phased over the next five years, with states receiving comprehensive support and training for teachers and administrators. The government has allocated ₹2.5 lakh crore for the initial phase of implementation.</p>
+            `,
+            date: '2024-01-15',
+            category: 'national',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9e1?w=800&h=400&fit=crop'
+          },
+          {
+            id: 'n2',
+            headline: 'Digital Learning Platforms Revolutionize Rural Education',
+            summary: 'Technology bridges educational gaps in remote areas',
+            fullContent: `
+              <p>Digital learning platforms are transforming education in rural India, bringing quality educational content to students in remote areas. The government's Digital India initiative has successfully connected over 15,000 rural schools with high-speed internet and digital learning tools.</p>
+              
+              <p>Through partnerships with leading ed-tech companies, students in rural areas now have access to interactive lessons, virtual laboratories, and expert teachers from across the country. This initiative has particularly benefited subjects like mathematics, science, and English, where qualified teachers were previously scarce.</p>
+              
+              <p>The program includes:</p>
+              <ul>
+                <li>Smart classrooms with interactive whiteboards</li>
+                <li>Tablet distribution to students</li>
+                <li>Online assessment and progress tracking</li>
+                <li>Teacher training in digital pedagogy</li>
+                <li>Offline content for areas with poor connectivity</li>
+              </ul>
+              
+              <p>Results from pilot programs show a 40% improvement in learning outcomes and a 60% increase in student engagement. The initiative has also helped reduce dropout rates in rural schools by 25%.</p>
+            `,
+            date: '2024-01-14',
+            category: 'national',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'
+          }
+        ],
+        international: [
+          {
+            id: 'i1',
+            headline: 'Global Summit on AI in Education Concludes',
+            summary: 'World leaders discuss AI integration in educational systems',
+            fullContent: `
+              <p>The International Summit on Artificial Intelligence in Education, held in Singapore, brought together education ministers, technology experts, and policymakers from 45 countries to discuss the future of AI in education. The three-day summit focused on responsible AI integration, ethical considerations, and best practices for implementation.</p>
+              
+              <p>Key outcomes of the summit include the establishment of a global framework for AI in education, guidelines for data privacy and security, and commitments to ensure equitable access to AI-powered learning tools. The framework emphasizes the importance of human oversight and the role of teachers in AI-enhanced classrooms.</p>
+              
+              <p>Dr. Sarah Chen, Director of the Global Education Initiative, highlighted the potential of AI to personalize learning experiences: "AI can adapt to each student's learning pace and style, providing targeted support and resources. However, we must ensure that technology enhances rather than replaces human interaction in education."</p>
+              
+              <p>The summit also addressed concerns about the digital divide, with participating nations committing to invest in infrastructure and training to ensure all students benefit from AI advancements in education.</p>
+            `,
+            date: '2024-01-13',
+            category: 'international',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop'
+          }
+        ],
+        gk: [
+          {
+            id: 'gk1',
+            headline: 'Did You Know? The Human Brain Processes Information Faster Than Supercomputers',
+            summary: 'Fascinating facts about human cognitive capabilities',
+            fullContent: `
+              <p>The human brain is one of the most remarkable organs in the known universe, capable of processing information at speeds that still surpass our most advanced supercomputers in certain tasks. While computers excel at specific calculations, the human brain's parallel processing capabilities remain unmatched.</p>
+              
+              <p>Here are some incredible facts about the human brain:</p>
+              <ul>
+                <li>The brain contains approximately 86 billion neurons</li>
+                <li>Each neuron can form up to 10,000 connections with other neurons</li>
+                <li>The brain processes 11 million bits of information per second</li>
+                <li>It uses only 20% of the body's total energy</li>
+                <li>The brain continues to develop until age 25</li>
+              </ul>
+              
+              <p>Recent research has shown that the brain's neural networks can perform complex pattern recognition tasks more efficiently than artificial neural networks in many cases. This is particularly evident in tasks involving visual processing, language understanding, and creative problem-solving.</p>
+              
+              <p>Understanding these capabilities helps us appreciate the importance of proper nutrition, sleep, and mental exercise in maintaining optimal brain function throughout our lives.</p>
+            `,
+            date: '2024-01-12',
+            category: 'gk',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop'
+          }
+        ],
+        tech: [
+          {
+            id: 't1',
+            headline: 'Revolutionary Quantum Computing Breakthrough in Education',
+            summary: 'Quantum computers to transform educational research and simulations',
+            fullContent: `
+              <p>Scientists at the National Institute of Technology have achieved a breakthrough in quantum computing that could revolutionize educational research and simulations. The new quantum processor, capable of solving complex mathematical problems in seconds that would take traditional computers years, opens up unprecedented possibilities for educational applications.</p>
+              
+              <p>The quantum computer, named "EduQubit," can simulate complex molecular structures, solve advanced mathematical equations, and model intricate systems that were previously impossible to study in real-time. This technology will enable students to explore advanced concepts in physics, chemistry, and mathematics through interactive simulations.</p>
+              
+              <p>Educational applications include:</p>
+              <ul>
+                <li>Real-time molecular modeling for chemistry students</li>
+                <li>Complex mathematical problem solving</li>
+                <li>Climate change modeling and analysis</li>
+                <li>Drug discovery simulations</li>
+                <li>Advanced cryptography demonstrations</li>
+              </ul>
+              
+              <p>Dr. Priya Sharma, lead researcher on the project, explains: "This quantum breakthrough will democratize access to advanced computational power for educational purposes. Students will be able to explore concepts that were previously only accessible to researchers with supercomputers."</p>
+              
+              <p>The institute plans to make the quantum computing resources available to universities and research institutions worldwide through a cloud-based platform, ensuring equitable access to this revolutionary technology.</p>
+            `,
+            date: '2024-01-11',
+            category: 'tech',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=400&fit=crop'
+          }
+        ],
+        environment: [
+          {
+            id: 'e1',
+            headline: 'Schools Lead the Way in Sustainable Education Initiatives',
+            summary: 'Educational institutions implement comprehensive environmental programs',
+            fullContent: `
+              <p>Educational institutions across the country are taking the lead in implementing comprehensive environmental sustainability programs, setting an example for communities and future generations. These initiatives go beyond traditional environmental education to create practical, hands-on learning experiences that benefit both students and the planet.</p>
+              
+              <p>Leading schools have implemented programs including solar panel installations, organic gardens, waste management systems, and environmental monitoring stations. Students actively participate in these projects, gaining valuable skills while contributing to environmental conservation.</p>
+              
+              <p>Key initiatives include:</p>
+              <ul>
+                <li>Solar energy installations providing 60% of school power needs</li>
+                <li>Organic gardens producing vegetables for school meals</li>
+                <li>Comprehensive recycling and composting programs</li>
+                <li>Environmental monitoring and data collection</li>
+                <li>Community outreach and awareness programs</li>
+              </ul>
+              
+              <p>The impact extends beyond the school environment, with students taking their knowledge and enthusiasm home to implement similar practices in their communities. This ripple effect has led to increased environmental awareness and action in surrounding areas.</p>
+              
+              <p>Environmental educator Dr. Rajesh Kumar emphasizes the importance of these programs: "When students actively participate in environmental initiatives, they develop a deep connection with nature and understand their role in protecting the planet. This hands-on approach creates lasting behavioral change."</p>
+            `,
+            date: '2024-01-10',
+            category: 'environment',
+            unread: true,
+            image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=400&fit=crop'
+          }
+        ]
+      },
+      'last-week': {
+        national: [
+          {
+            id: 'n3',
+            headline: 'Skill Development Programs Show Remarkable Success',
+            summary: 'Vocational training initiatives achieve 85% employment rate',
+            fullContent: `
+              <p>National skill development programs have achieved remarkable success, with an 85% employment rate for participants within six months of completion. The programs, which focus on industry-relevant skills and practical training, have transformed the employability landscape for thousands of students.</p>
+              
+              <p>The success can be attributed to strong industry partnerships, updated curriculum based on market demands, and hands-on training approaches. Programs in sectors like information technology, healthcare, manufacturing, and hospitality have shown particularly high success rates.</p>
+            `,
+            date: '2024-01-08',
+            category: 'national',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=400&fit=crop'
+          }
+        ],
+        international: [
+          {
+            id: 'i2',
+            headline: 'International Student Exchange Program Expands',
+            summary: 'Global learning opportunities increase for students worldwide',
+            fullContent: `
+              <p>The International Student Exchange Program has expanded to include 25 new countries, providing unprecedented global learning opportunities for students. The program now facilitates cultural exchange, academic collaboration, and international understanding among students from diverse backgrounds.</p>
+              
+              <p>New participating countries include emerging educational hubs in Asia, Africa, and South America, offering students exposure to different educational systems, cultures, and perspectives. The program includes language learning, cultural immersion, and academic credit transfer systems.</p>
+            `,
+            date: '2024-01-07',
+            category: 'international',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop'
+          }
+        ],
+        gk: [
+          {
+            id: 'gk2',
+            headline: 'Amazing Fact: The Great Wall of China is Not Visible from Space',
+            summary: 'Debunking common misconceptions about famous landmarks',
+            fullContent: `
+              <p>Contrary to popular belief, the Great Wall of China is not visible from space with the naked eye. This widely held misconception has been debunked by astronauts and scientific research. The wall, while impressive in scale, is not wide enough to be visible from low Earth orbit without magnification.</p>
+              
+              <p>This fact highlights the importance of critical thinking and fact-checking in our information age. Many commonly accepted "facts" are actually myths that have been repeated so often they become accepted as truth.</p>
+            `,
+            date: '2024-01-06',
+            category: 'gk',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&h=400&fit=crop'
+          }
+        ],
+        tech: [
+          {
+            id: 't2',
+            headline: 'Virtual Reality Transforms Classroom Learning',
+            summary: 'VR technology creates immersive educational experiences',
+            fullContent: `
+              <p>Virtual Reality (VR) technology is revolutionizing classroom learning by creating immersive educational experiences that were previously impossible. Students can now explore historical sites, travel through space, and conduct virtual experiments in ways that enhance understanding and retention.</p>
+              
+              <p>Educational VR applications include virtual field trips, interactive science experiments, historical reenactments, and language learning through cultural immersion. The technology has shown particular effectiveness in subjects requiring spatial understanding and experiential learning.</p>
+            `,
+            date: '2024-01-05',
+            category: 'tech',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=800&h=400&fit=crop'
+          }
+        ],
+        environment: [
+          {
+            id: 'e2',
+            headline: 'Green Schools Initiative Reduces Carbon Footprint',
+            summary: 'Educational institutions achieve significant environmental impact',
+            fullContent: `
+              <p>The Green Schools Initiative has achieved remarkable success in reducing the carbon footprint of educational institutions. Through comprehensive sustainability programs, participating schools have reduced their energy consumption by 40% and waste production by 60%.</p>
+              
+              <p>The initiative includes energy-efficient lighting, renewable energy installations, waste reduction programs, and environmental education curricula. Students actively participate in monitoring and maintaining these systems, creating a culture of environmental responsibility.</p>
+            `,
+            date: '2024-01-04',
+            category: 'environment',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=400&fit=crop'
+          }
+        ]
+      },
+      'archive': {
+        national: [
+          {
+            id: 'n4',
+            headline: 'Digital Literacy Program Reaches Rural Areas',
+            summary: 'Technology education expands to underserved communities',
+            fullContent: `
+              <p>The National Digital Literacy Program has successfully reached over 10,000 rural communities, providing essential technology education to underserved populations. The program focuses on basic computer skills, internet usage, and digital safety.</p>
+              
+              <p>Mobile learning centers equipped with computers and internet connectivity travel to remote areas, offering free training sessions. The program has empowered communities with digital skills essential for modern employment and communication.</p>
+            `,
+            date: '2023-12-28',
+            category: 'national',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'
+          }
+        ],
+        international: [
+          {
+            id: 'i3',
+            headline: 'Global Education Standards Harmonization',
+            summary: 'International collaboration improves educational quality worldwide',
+            fullContent: `
+              <p>International organizations have launched a global initiative to harmonize education standards across countries. The program aims to ensure quality education for all students while respecting cultural and regional differences.</p>
+              
+              <p>The harmonization includes curriculum frameworks, assessment methods, and teacher training standards. This collaboration will facilitate student mobility and international recognition of qualifications.</p>
+            `,
+            date: '2023-12-21',
+            category: 'international',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=400&fit=crop'
+          }
+        ],
+        gk: [
+          {
+            id: 'gk3',
+            headline: 'Fascinating Fact: Honey Never Spoils',
+            summary: 'Archaeologists find edible honey in ancient tombs',
+            fullContent: `
+              <p>Honey is one of the few foods that never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible. This remarkable preservation is due to honey's unique chemical composition.</p>
+              
+              <p>The high sugar content, low moisture, and natural acidity create an environment inhospitable to bacteria and microorganisms. This natural preservation makes honey an excellent food for long-term storage.</p>
+            `,
+            date: '2023-12-14',
+            category: 'gk',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&h=400&fit=crop'
+          }
+        ],
+        tech: [
+          {
+            id: 't3',
+            headline: 'Blockchain Technology in Academic Credentials',
+            summary: 'Secure and verifiable digital certificates revolutionize education',
+            fullContent: `
+              <p>Blockchain technology is being implemented to create secure and verifiable digital academic credentials. This innovation eliminates the possibility of fake certificates and provides instant verification of qualifications.</p>
+              
+              <p>Universities and educational institutions are adopting blockchain-based certificate systems, ensuring the integrity of academic records and simplifying the verification process for employers and other institutions.</p>
+            `,
+            date: '2023-12-07',
+            category: 'tech',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&h=400&fit=crop'
+          }
+        ],
+        environment: [
+          {
+            id: 'e3',
+            headline: 'Ocean Cleanup Project Engages Students',
+            summary: 'Educational institutions participate in marine conservation',
+            fullContent: `
+              <p>Educational institutions along coastal areas are actively participating in ocean cleanup projects, engaging students in hands-on marine conservation efforts. These projects combine environmental education with practical action.</p>
+              
+              <p>Students participate in beach cleanups, marine life monitoring, and educational programs about ocean conservation. The projects raise awareness about marine pollution and inspire future environmental stewards.</p>
+            `,
+            date: '2023-11-30',
+            category: 'environment',
+            unread: false,
+            image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=400&fit=crop'
+          }
+        ]
+      }
+    };
+
+    // Quiz data
+    const quizData = {
+      questions: [
+        {
+          question: "What is the capital of France?",
+          options: ["Paris", "London", "Berlin", "Madrid"],
+          correct: 0
+        },
+        {
+          question: "Which planet is known as the Red Planet?",
+          options: ["Venus", "Mars", "Jupiter", "Saturn"],
+          correct: 1
+        },
+        {
+          question: "Who wrote 'Romeo and Juliet'?",
+          options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+          correct: 1
+        }
+      ]
+    };
+
+    let currentWeek = 'this-week';
+    let currentCategory = 'all';
+    let selectedQuizAnswers = [];
+
+    // User archive management
+    let userArchive = JSON.parse(localStorage.getItem('userArchive')) || [];
+
+    // Check if article is in user archive
+    function checkIfInArchive(newsId) {
+      return userArchive.includes(newsId);
+    }
+
+    // Toggle archive status
+    function toggleArchive(newsId) {
+      const index = userArchive.indexOf(newsId);
+      if (index > -1) {
+        // Remove from archive
+        userArchive.splice(index, 1);
+        showNotification('Article removed from archive', 'info');
+      } else {
+        // Add to archive
+        userArchive.push(newsId);
+        showNotification('Article added to archive', 'success');
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('userArchive', JSON.stringify(userArchive));
+      
+      // Re-render current view
+      if (currentWeek === 'archive') {
+        searchArchive();
+      } else {
+        renderNewsGrid();
+      }
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? 'var(--success)' : 'var(--accent)'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Get all user archived articles
+    function getUserArchivedArticles() {
+      const allArticles = [];
+      
+      // Collect all articles from all weeks
+      Object.keys(newsData).forEach(week => {
+        Object.values(newsData[week]).forEach(categoryNews => {
+          categoryNews.forEach(article => {
+            if (userArchive.includes(article.id)) {
+              allArticles.push(article);
+            }
+          });
+        });
+      });
+      
+      return allArticles;
+    }
+
+    // Tab switching functionality
+    function switchTab(tabName) {
+      document.querySelectorAll('.news-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      currentWeek = tabName;
+      
+      // Show/hide archive search
+      const archiveSearch = document.getElementById('archiveSearch');
+      if (tabName === 'archive') {
+        if (archiveSearch) {
+          archiveSearch.style.display = 'block';
+          // Clear search when switching to archive
+          const searchInput = document.getElementById('searchInput');
+          if (searchInput) {
+            searchInput.value = '';
+            searchArchive();
+          }
+        }
+      } else {
+        if (archiveSearch) {
+          archiveSearch.style.display = 'none';
+        }
+      }
+      
+      renderNewsGrid();
+    }
+
+    // Archive search functionality
+    function searchArchive() {
+      const searchInput = document.getElementById('searchInput');
+      const statsElement = document.getElementById('archiveStats');
+      
+      if (!searchInput || !statsElement || currentWeek !== 'archive') return;
+      
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      // Get both system archive and user archive
+      let allArchiveNews = [];
+      
+      // System archive (pre-existing articles)
+      Object.values(newsData.archive).forEach(categoryNews => {
+        allArchiveNews = allArchiveNews.concat(categoryNews);
+      });
+      
+      // User archive (articles added by user)
+      const userArchivedArticles = getUserArchivedArticles();
+      allArchiveNews = allArchiveNews.concat(userArchivedArticles);
+      
+      // Remove duplicates
+      const uniqueArticles = allArchiveNews.filter((article, index, self) => 
+        index === self.findIndex(a => a.id === article.id)
+      );
+      
+      // Filter by search term
+      let filteredNews = uniqueArticles;
+      if (searchTerm.trim() !== '') {
+        filteredNews = uniqueArticles.filter(news => 
+          news.headline.toLowerCase().includes(searchTerm) ||
+          news.summary.toLowerCase().includes(searchTerm) ||
+          news.fullContent.toLowerCase().includes(searchTerm) ||
+          news.category.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      // Filter by category if not 'all'
+      if (currentCategory !== 'all') {
+        filteredNews = filteredNews.filter(news => news.category === currentCategory);
+      }
+      
+      // Update stats
+      const totalArticles = uniqueArticles.length;
+      const showingArticles = filteredNews.length;
+      const userArchivedCount = userArchivedArticles.length;
+      
+      if (searchTerm.trim() !== '') {
+        statsElement.innerHTML = `
+          <span class="stats-text">Search results for "${searchTerm}"</span>
+          <span class="archive-count">${showingArticles} of ${totalArticles} articles</span>
+        `;
+      } else {
+        statsElement.innerHTML = `
+          <span class="stats-text">Showing all archive articles (${userArchivedCount} user-saved)</span>
+          <span class="archive-count">${showingArticles} articles</span>
+        `;
+      }
+      
+      // Render filtered news
+      renderFilteredNews(filteredNews);
+    }
+
+    // Render filtered news for archive
+    function renderFilteredNews(newsArray) {
+      const featuredContainer = document.getElementById('featuredNews');
+      const mainContainer = document.getElementById('newsGrid');
+      const sidebarContainer = document.getElementById('sidebarNews');
+      
+      if (newsArray.length === 0) {
+        featuredContainer.innerHTML = '';
+        mainContainer.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: var(--subtle);">
+            <img src="./assets/filter_11186806.png" alt="No Articles Found" style="width: 60px; height: 60px; margin-bottom: 16px; opacity: 0.5;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 8px; color: var(--label);">No Articles Found</h3>
+            <p style="font-size: 0.9rem; line-height: 1.5;">Try different search terms or browse all categories.</p>
+          </div>
+        `;
+        sidebarContainer.innerHTML = '';
+        return;
+      }
+      
+      // Sort by date (newest first)
+      newsArray.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Featured news (first article)
+      const featuredNews = newsArray[0];
+      if (featuredNews) {
+        featuredContainer.innerHTML = `
+          <div class="section-header">FEATURED FROM ARCHIVE</div>
+          ${renderNewsCard(featuredNews, 'featured')}
+        `;
+        
+        // Remove featured news from main list
+        newsArray = newsArray.slice(1);
+      } else {
+        featuredContainer.innerHTML = '';
+      }
+      
+      // Main news grid
+      mainContainer.innerHTML = `
+        <div class="section-header">ARCHIVE ARTICLES</div>
+        ${newsArray.slice(0, 4).map(news => renderNewsCard(news, 'main')).join('')}
+      `;
+      
+      // Sidebar news
+      const sidebarNews = newsArray.slice(4, 7);
+      if (sidebarNews.length > 0) {
+        sidebarContainer.innerHTML = `
+          <div class="section-header">MORE FROM ARCHIVE</div>
+          ${sidebarNews.map(news => renderNewsCard(news, 'sidebar')).join('')}
+        `;
+      } else {
+        sidebarContainer.innerHTML = '';
+      }
+    }
+
+    // Category filter functionality
+    function filterByCategory(category) {
+      currentCategory = category;
+      renderNewsGrid();
+    }
+
+    // Initialize news module
+    function initNews() {
+      // Set current date
+      const currentDate = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
+
+      // Add tab click listeners
+      document.querySelectorAll('.news-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          switchTab(tabName);
+        });
+      });
+
+      // Add category filter listeners
+      document.querySelectorAll('.news-filter').forEach(filter => {
+        filter.addEventListener('click', () => {
+          document.querySelectorAll('.news-filter').forEach(f => f.classList.remove('active'));
+          filter.classList.add('active');
+          filterByCategory(filter.getAttribute('data-category'));
+        });
+      });
+      
+      // Add search input listener for real-time search
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          if (currentWeek === 'archive') {
+            searchArchive();
+          }
+        });
+        
+        // Add enter key support
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter' && currentWeek === 'archive') {
+            searchArchive();
+          }
+        });
+      }
+      
+      // Render initial content
+      renderNewsGrid();
+      renderQuiz();
+    }
+
+    // Render news grid with newspaper layout
+    function renderNewsGrid() {
+      const featuredContainer = document.getElementById('featuredNews');
+      const mainContainer = document.getElementById('newsGrid');
+      const sidebarContainer = document.getElementById('sidebarNews');
+      
+      let allNews = [];
+      
+      // Collect all news from current week
+      Object.values(newsData[currentWeek]).forEach(categoryNews => {
+        allNews = allNews.concat(categoryNews);
+      });
+      
+      // Filter by category if not 'all'
+      if (currentCategory !== 'all') {
+        allNews = allNews.filter(news => news.category === currentCategory);
+      }
+      
+      if (allNews.length === 0) {
+        featuredContainer.innerHTML = '';
+        mainContainer.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: var(--subtle);">
+            <img src="./assets/news.png" alt="No News Available" style="width: 60px; height: 60px; margin-bottom: 16px; opacity: 0.5;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 8px; color: var(--label);">No News Available</h3>
+            <p style="font-size: 0.9rem; line-height: 1.5;">Check back later for the latest updates!</p>
+          </div>
+        `;
+        sidebarContainer.innerHTML = '';
+        return;
+      }
+      
+      // Sort news by date (newest first)
+      allNews.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Featured news (first article)
+      const featuredNews = allNews[0];
+      if (featuredNews) {
+        featuredContainer.innerHTML = `
+          <div class="section-header">BREAKING NEWS</div>
+          ${renderNewsCard(featuredNews, 'featured')}
+        `;
+        
+        // Remove featured news from main list
+        allNews = allNews.slice(1);
+      } else {
+        featuredContainer.innerHTML = '';
+      }
+      
+      // Main news grid
+      mainContainer.innerHTML = `
+        <div class="section-header">LATEST NEWS</div>
+        ${allNews.slice(0, 4).map(news => renderNewsCard(news, 'main')).join('')}
+      `;
+      
+      // Sidebar news
+      const sidebarNews = allNews.slice(4, 7);
+      if (sidebarNews.length > 0) {
+        sidebarContainer.innerHTML = `
+          <div class="section-header">MORE STORIES</div>
+          ${sidebarNews.map(news => renderNewsCard(news, 'sidebar')).join('')}
+        `;
+      } else {
+        sidebarContainer.innerHTML = '';
+      }
+    }
+
+    // Render news card with different styles
+    function renderNewsCard(news, type = 'main') {
+      const date = new Date(news.date);
+      const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      const cardClass = type === 'featured' ? 'news-card featured-news-card' : 
+                       type === 'sidebar' ? 'news-card sidebar-news-card' : 'news-card';
+      
+      // Check if article is already in archive
+      const isInArchive = checkIfInArchive(news.id);
+      
+      return `
+        <div class="${cardClass}" onclick="openNewsModal('${news.id}')">
+          <div class="news-card-header">
+            <span class="news-category ${news.category}">${news.category.toUpperCase()}</span>
+            <div class="news-actions">
+              <button class="archive-btn ${isInArchive ? 'archived' : ''}" onclick="event.stopPropagation(); toggleArchive('${news.id}')" title="${isInArchive ? 'Remove from Archive' : 'Add to Archive'}">
+                ${isInArchive ? 'Archive' : 'Add'}
+              </button>
+            </div>
+          </div>
+          <div class="news-headline">${news.headline}</div>
+          <div class="news-summary">${news.summary}</div>
+          <div class="news-read-more">
+            READ FULL STORY →
+          </div>
+        </div>
+      `;
+    }
+
+    // Modal functionality with newspaper style
+    function openNewsModal(newsId) {
+      let news = null;
+      
+      // Find the news article
+      Object.values(newsData[currentWeek]).forEach(categoryNews => {
+        const found = categoryNews.find(n => n.id === newsId);
+        if (found) news = found;
+      });
+      
+      if (news) {
+        const date = new Date(news.date);
+        const formattedDate = date.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        
+        document.getElementById('newspaperArticle').innerHTML = `
+          <div class="article-header">
+            <div class="article-masthead">BC360 TIMES</div>
+            <div class="article-subtitle">Your Daily Source of Knowledge & Current Affairs</div>
+            <div class="article-date">${formattedDate}</div>
+          </div>
+          
+          <div class="article-meta">
+            <div class="article-category ${news.category}">${news.category.toUpperCase()}</div>
+            <div class="article-info">
+              <span>📅 ${formattedDate}</span>
+              <span>🏷️ ${getCategoryDisplayName(news.category)}</span>
+              <span>🕐 ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+          </div>
+          
+          <div class="article-content">
+            <div class="article-main">
+              <h1 class="article-title">${news.headline}</h1>
+              ${news.image ? `<div class="article-image">
+                <img src="${news.image}" alt="${news.headline}" loading="lazy">
+              </div>` : ''}
+              <div class="article-body">
+                ${news.fullContent}
+              </div>
+            </div>
+            
+            <div class="article-sidebar">
+              <div class="article-sidebar-section">
+                <h3 class="article-sidebar-title">About This Story</h3>
+                <div class="article-sidebar-content">
+                  <p><strong>Category:</strong> ${getCategoryDisplayName(news.category)}</p>
+                  <p><strong>Published:</strong> ${formattedDate}</p>
+                  <p><strong>Reading Time:</strong> 3-5 minutes</p>
+                </div>
+              </div>
+              
+              <div class="article-sidebar-section">
+                <h3 class="article-sidebar-title">Related Topics</h3>
+                <div class="article-sidebar-content">
+                  <p>• Current Affairs</p>
+                  <p>• Educational News</p>
+                  <p>• Student Resources</p>
+                  <p>• Knowledge Updates</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="article-footer">
+            <p class="article-footer-text">© 2024 BC360 TIMES. All rights reserved. | Published by BC360 Education System</p>
+          </div>
+        `;
+        
+        document.getElementById('newsModal').classList.add('active');
+      }
+    }
+
+    // Close modal
+    document.getElementById('modalClose').addEventListener('click', () => {
+      document.getElementById('newsModal').classList.remove('active');
+    });
+
+    document.getElementById('newsModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('newsModal')) {
+        document.getElementById('newsModal').classList.remove('active');
+      }
+    });
+
+    // Quiz functionality
+    function renderQuiz() {
+      const quizSection = document.getElementById('quizSection');
+      const quizContent = document.getElementById('quizContent');
+      
+      if (currentWeek === 'this-week') {
+        quizSection.style.display = 'block';
+        
+        let quizHTML = '';
+        quizData.questions.forEach((q, index) => {
+          quizHTML += `
+            <div class="quiz-question">
+              <p class="quiz-question-text">${index + 1}. ${q.question}</p>
+              <div class="quiz-options">
+                ${q.options.map((option, optIndex) => `
+                  <button class="quiz-option" onclick="selectQuizAnswer(${index}, ${optIndex})" data-question="${index}" data-option="${optIndex}">
+                    ${option}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        });
+        
+        quizHTML += `
+          <button class="quiz-submit" onclick="submitQuiz()">
+            Submit Quiz
+          </button>
+        `;
+        
+        quizContent.innerHTML = quizHTML;
+      } else {
+        quizSection.style.display = 'none';
+      }
+    }
+
+    function selectQuizAnswer(questionIndex, optionIndex) {
+      // Remove previous selections for this question
+      document.querySelectorAll(`[data-question="${questionIndex}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      
+      // Select new answer
+      document.querySelector(`[data-question="${questionIndex}"][data-option="${optionIndex}"]`).classList.add('selected');
+      
+      selectedQuizAnswers[questionIndex] = optionIndex;
+    }
+
+    function submitQuiz() {
+      let correctAnswers = 0;
+      
+      quizData.questions.forEach((q, index) => {
+        if (selectedQuizAnswers[index] === q.correct) {
+          correctAnswers++;
+        }
+      });
+      
+      const percentage = (correctAnswers / quizData.questions.length) * 100;
+      
+      document.getElementById('quizContent').innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <h3 style="color: var(--accent); margin-bottom: 16px;">Quiz Results</h3>
+          <p style="font-size: 1.2rem; margin-bottom: 8px;">You scored ${correctAnswers} out of ${quizData.questions.length}</p>
+          <p style="font-size: 1rem; color: var(--subtle);">Percentage: ${percentage}%</p>
+          ${percentage === 100 ? '<p style="color: var(--accent); font-weight: 600; margin-top: 16px;">🏅 Congratulations! You earned the "GK Star" badge!</p>' : ''}
+        </div>
+      `;
+    }
+
+    // Get category display name
+    function getCategoryDisplayName(category) {
+      const names = {
+        'national': 'National News',
+        'international': 'International News',
+        'gk': 'General Knowledge',
+        'tech': 'Technology & Innovation',
+        'environment': 'Environment & Sustainability'
+      };
+      return names[category] || category.toUpperCase();
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initNews);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

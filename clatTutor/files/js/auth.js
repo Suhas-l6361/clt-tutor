@@ -1,0 +1,165 @@
+/**
+ * Session handling — BC360-style localStorage keys, no framework.
+ */
+(function () {
+  const P = window.APP_CONFIG?.STORAGE_PREFIX || 'edportal_';
+  const CRM_ADMIN_API = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/admin';
+  const STUDENT_GENERAL_INFO_API =
+    'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+  const KEYS = {
+    user: P + 'user',
+    role: P + 'role',
+    token: P + 'token',
+    loggedOutAt: P + 'logged_out_at',
+    activity: P + 'activity',
+  };
+
+  function makeToken(prefix) {
+    return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  const Auth = {
+    keys: KEYS,
+
+    getSession() {
+      try {
+        const raw = localStorage.getItem(KEYS.user);
+        const role = localStorage.getItem(KEYS.role);
+        if (!raw || !role) return null;
+        return { user: JSON.parse(raw), role };
+      } catch {
+        return null;
+      }
+    },
+
+    isRole(role) {
+      const s = this.getSession();
+      return s && s.role === role;
+    },
+
+    async login(role, loginId, password) {
+      if (role === 'student') {
+        if (!loginId || !password) {
+          return { ok: false, error: 'Email and password are required' };
+        }
+        try {
+          const res = await fetch(STUDENT_GENERAL_INFO_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'login',
+              email: String(loginId).trim(),
+              password: String(password),
+            }),
+          });
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (_) {
+            data = {};
+          }
+          if (!res.ok) {
+            const msg =
+              data.message ||
+              (res.status === 401 ? 'Invalid email or password' : 'Unable to sign in right now');
+            return { ok: false, error: msg };
+          }
+          const s = data.student || {};
+          const userObj = {
+            id: String(s.student_id != null ? s.student_id : ''),
+            student_id: s.student_id,
+            name: s.name || 'Student',
+            login: s.email || loginId,
+            email: s.email || String(loginId).trim(),
+            phone: s.phone != null ? s.phone : null,
+            img_url: s.img_url || null,
+            targetYear: s.targetYear || null,
+          };
+          localStorage.setItem(KEYS.user, JSON.stringify(userObj));
+          localStorage.setItem(KEYS.role, role);
+          localStorage.setItem(KEYS.token, makeToken('student'));
+          localStorage.removeItem(KEYS.loggedOutAt);
+          this.trackActivity('login');
+          return { ok: true, user: userObj, role };
+        } catch (_) {
+          return { ok: false, error: 'Network issue. Please try again.' };
+        }
+      }
+
+      if (role === 'crm') {
+        if (!loginId || !password) return { ok: false, error: 'Email and password are required' };
+        try {
+          const url = CRM_ADMIN_API + '?email=' + encodeURIComponent(String(loginId).trim());
+          const res = await fetch(url, { method: 'GET' });
+          const rows = await res.json();
+          if (!res.ok) return { ok: false, error: 'Unable to verify CRM account right now' };
+          if (!Array.isArray(rows) || !rows.length) {
+            return { ok: false, error: 'CRM account not found for this email' };
+          }
+          const admin = rows[0];
+          const backendPassword = admin && admin.password ? String(admin.password) : null;
+          if (backendPassword && backendPassword !== String(password)) {
+            return { ok: false, error: 'Invalid CRM password' };
+          }
+          if (!backendPassword && String(password).trim().length < 1) {
+            return { ok: false, error: 'Password is required' };
+          }
+
+          const userObj = {
+            id: admin.admin_id || 'CRM001',
+            name: admin.name || 'CRM Staff',
+            login: admin.email || loginId,
+            email: admin.email || loginId,
+            branch: admin.branch || null,
+          };
+          localStorage.setItem(KEYS.user, JSON.stringify(userObj));
+          localStorage.setItem(KEYS.role, role);
+          localStorage.setItem(KEYS.token, makeToken('crm'));
+          localStorage.removeItem(KEYS.loggedOutAt);
+          this.trackActivity('login');
+          return { ok: true, user: userObj, role };
+        } catch (_) {
+          return { ok: false, error: 'Network issue. Please try again.' };
+        }
+      }
+
+      return { ok: false, error: 'Invalid role' };
+    },
+
+    trackActivity(action, details) {
+      try {
+        const s = this.getSession();
+        if (!s || !s.user) return;
+        const payload = {
+          at: new Date().toISOString(),
+          action: action || 'activity',
+          page: (window.location.pathname || '').replace(/\\/g, '/'),
+          userEmail: s.user.email || null,
+          userName: s.user.name || null,
+          details: details || null,
+        };
+        localStorage.setItem(KEYS.activity, JSON.stringify(payload));
+      } catch (_) {}
+    },
+
+    logout() {
+      this.trackActivity('logout');
+      localStorage.removeItem(KEYS.user);
+      localStorage.removeItem(KEYS.role);
+      localStorage.removeItem(KEYS.token);
+      localStorage.setItem(KEYS.loggedOutAt, String(Date.now()));
+      const path = (window.location.pathname || '').replace(/\\/g, '/');
+      const inAppFolder = path.includes('/student/') || path.includes('/crm/');
+      window.location.replace(inAppFolder ? '../login.html' : 'login.html');
+    },
+
+    redirectIfAuthed() {
+      const s = this.getSession();
+      if (!s) return;
+      if (s.role === 'student') window.location.replace('student/dashboard.html');
+      else if (s.role === 'crm') window.location.replace('crm/dashboard.html');
+    },
+  };
+
+  window.Auth = Auth;
+})();

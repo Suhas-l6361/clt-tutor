@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Student Todo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+
+      --drawer-bg: rgba(0, 0, 0, 0.8);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw; }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; padding: 10px 6px; transition: transform 0.2s; }
+    .sidebar .brand img { width: 100%; height: 50px; border-radius: 3px; border: 1.5px solid #fff; background: #fff; object-fit: contain; box-shadow: 0 2px 5px #26bf6720; transition: transform 0.2s, box-shadow 0.2s; }
+    .sidebar .brand:hover img { transform: scale(1.05); box-shadow: 0 4px 12px #26bf6740; }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a { color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center; padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s; font-weight: 500; gap: 13px; position: relative; overflow: hidden; }
+    .sidebar ul li a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar ul li a:hover::before { width: 100%; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;}
+    .sidebar .logout a { color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s; position: relative; overflow: hidden; }
+    .sidebar .logout a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar .logout a:hover::before { width: 100%; }
+    .sidebar .logout a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .main-content { margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 0; transition: margin-left 0.28s; z-index: 1; }
+    .top-bar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(26, 26, 26, 0.9); backdrop-filter: blur(10px); border-bottom: 1.3px solid var(--border); padding: 10px 32px 10px 32px; font-size: 1.32rem; font-weight: 700; letter-spacing: 0.01em; color: var(--accent); position: relative; z-index: 2; }
+    .top-bar .fa-graduation-cap { font-size: 2.1rem; color: var(--accent);}
+    .sidebar-hamburger { display: none; position: fixed; top: 18px; right: 19px; z-index: 9999; font-size: 2.1rem; background: #fff; color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010; cursor: pointer; transition: background 0.18s, color 0.18s;}
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3;}
+    .sidebar-hamburger .fa-times { display: none;}
+    .sidebar-hamburger.menu-open .fa-bars { display: none;}
+    .sidebar-hamburger.menu-open .fa-times { display: inline;}
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block;}
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: auto;
+      position: fixed;
+      top: 68px;
+      right: 19px;
+      z-index: 9998;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Todo App Styles */
+    .todo-root {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 22px;
+      padding: 36px 35px 30px 35px;
+      box-shadow: var(--shadow);
+      min-height: 80vh;
+      border: 1px solid var(--border);
+    }
+    
+    .todo-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 29px;
+    }
+    
+    .todo-title-bar i {
+      font-size: 2rem;
+      color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+      border-radius: 17px;
+      padding: 7px 11px;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+    }
+    
+    .todo-title-bar .todo-title {
+      font-size: 1.29rem;
+      color: var(--label);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* Add Task Form */
+    .add-task-form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .form-header i {
+      font-size: 1.3rem;
+      color: var(--accent);
+    }
+
+    .form-header h3 {
+      font-size: 1.1rem;
+      color: var(--label);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      color: var(--label);
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--label);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .add-task-btn {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .add-task-btn:hover {
+      background: #f59e0b;
+      transform: translateY(-1px);
+    }
+
+    /* Task Type Badges */
+    .task-type {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .type-study {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .type-homework {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .type-assignment {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .type-revision {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .type-personal {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .filter-tab {
+      padding: 12px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      color: var(--label);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-tab:hover {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: var(--accent);
+    }
+
+    .filter-tab.active {
+      background: var(--accent);
+      color: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    /* Task List */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border-color: var(--accent);
+    }
+
+    .task-card.completed {
+      opacity: 0.7;
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .task-card.overdue {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .task-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .task-checkbox:checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .task-checkbox:checked::after {
+      content: '✓';
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: var(--subtle);
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .task-due-date {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--subtle);
+      font-size: 0.85rem;
+    }
+
+    .task-due-date.overdue {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .task-notes {
+      color: var(--subtle);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .task-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-reminder {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .task-actions-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .task-action-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--subtle);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .task-action-btn:hover {
+      background: var(--accent);
+      color: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    .task-action-btn.delete:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .task-action-btn.mark-done {
+      background: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+
+    .task-action-btn.mark-done:hover {
+      background: #059669;
+      border-color: #059669;
+      transform: translateY(-1px);
+    }
+
+    .task-card.completed .task-action-btn.mark-done {
+      background: var(--border);
+      color: var(--subtle);
+      border-color: var(--border);
+    }
+
+    .task-card.completed .task-action-btn.mark-done:hover {
+      background: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--subtle);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .empty-state-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 12px;
+    }
+
+    .empty-state-message {
+      font-size: 1rem;
+      line-height: 1.5;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Reminder Badge */
+    .reminder-badge {
+      background: var(--accent);
+      color: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Priority Indicator */
+    .priority-indicator {
+      width: 4px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .priority-high {
+      background: var(--danger);
+    }
+
+    .priority-medium {
+      background: var(--warning);
+    }
+
+    .priority-low {
+      background: var(--success);
+    }
+
+    /* Notification Styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 300px;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification-success {
+      border-left: 4px solid var(--success);
+    }
+
+    .notification-error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .notification-warning {
+      border-left: 4px solid var(--warning);
+    }
+
+    .notification-info {
+      border-left: 4px solid var(--blue);
+    }
+
+    .notification i {
+      font-size: 1.1rem;
+    }
+
+    .notification-success i {
+      color: var(--success);
+    }
+
+    .notification-error i {
+      color: var(--danger);
+    }
+
+    .notification-warning i {
+      color: var(--warning);
+    }
+
+    .notification-info i {
+      color: var(--blue);
+    }
+
+
+
+
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .todo-root {
+        padding: 20px 15px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .add-task-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .filter-tabs {
+        flex-wrap: wrap;
+      }
+      .filter-tab {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+      }
+      .task-actions {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .task-actions-buttons {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .todo-root {
+        padding: 15px 10px;
+      }
+      .todo-title-bar .todo-title {
+        font-size: 1.1rem;
+      }
+      .form-header h3 {
+        font-size: 1rem;
+      }
+      .task-card {
+        padding: 12px;
+      }
+      .task-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html" class="active"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+         <img src="./assets/todo.png" alt="Student Todo" style="width: 24px; height: 24px;">
+         Student Todo
+        <button class="theme-toggle" id="themeToggle">
+          ☀️
+        </button>
+      </div>
+
+      <div class="todo-root">
+        <div class="todo-title-bar">
+          <img src="./assets/todo.png" alt="Student Todo" style="width: 24px; height: 24px;">
+          <span class="todo-title">Student Todo</span>
+        </div>
+
+        <!-- Add Task Form -->
+        <div class="add-task-form">
+          <div class="form-header">
+            ➕
+            <h3>Add New Task</h3>
+          </div>
+          <form id="addTaskForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="taskTitle">Task Title *</label>
+                <input type="text" id="taskTitle" placeholder="e.g., Complete Math Assignment" required>
+              </div>
+              <div class="form-group">
+                <label for="taskType">Task Type</label>
+                <select id="taskType">
+                  <option value="study">📚 Study</option>
+                  <option value="homework">🏠 Homework</option>
+                  <option value="assignment">📄 Assignment</option>
+                  <option value="revision">🧠 Revision</option>
+                  <option value="personal">✏️ Personal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="taskDueDate">Due Date & Time</label>
+                <input type="datetime-local" id="taskDueDate">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label for="taskNotes">Notes (Optional)</label>
+                <textarea id="taskNotes" placeholder="e.g., Chapter 3: Trigonometry, pages 45-52"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="taskReminder">Reminder</label>
+                <select id="taskReminder">
+                  <option value="">No reminder</option>
+                  <option value="1">1 hour before</option>
+                  <option value="24">1 day before</option>
+                  <option value="168">1 week before</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="add-task-btn">
+                  Add Task
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+                 <!-- Filter Tabs -->
+         <div class="filter-tabs">
+           <div class="filter-tab active" onclick="filterTasks('all')">
+             All Tasks
+           </div>
+           <div class="filter-tab" onclick="filterTasks('done')">
+             Done
+           </div>
+         </div>
+
+        <!-- Task List -->
+        <div class="task-list" id="taskList">
+          <!-- Tasks will be populated by JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-state-icon">
+            <img src="./assets/todo.png" alt="No Tasks Found" style="width: 60px; height: 60px;">
+          </div>
+          <div class="empty-state-title">No Tasks Found</div>
+          <div class="empty-state-message">Start by adding your first task using the form above. Stay organized and track your academic progress!</div>
+        </div>
+
+
+       </div>
+    </div>
+  </div>
+
+  
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = true;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#0f0f0f');
+        document.documentElement.style.setProperty('--card', '#1a1a1a');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        themeIcon.textContent = '☀️';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8fafc');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8fafc');
+        themeIcon.textContent = '🌙';
+      }
+    });
+
+    // Todo App Variables
+    let tasks = [];
+    let currentFilter = 'all';
+    let editingTaskId = null;
+    let currentStudentId = null;
+    let currentInstitutionId = 'BC360'; // Dummy institution ID
+    
+    // API Configuration
+    const API_BASE_URL = 'https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/student_todo';
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeTodoApp();
+      loadTasksFromAPI();
+    });
+
+    // ================================
+    // Loading Indicator Functions
+    // ================================
+    
+    function showLoadingIndicator(message = 'Processing...') {
+      // Create loading overlay
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loadingOverlay';
+      loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        color: white;
+        font-family: 'Inter', Arial, sans-serif;
+      `;
+      
+      loadingOverlay.innerHTML = `
+        <div style="text-align: center;">
+          <div style="width: 50px; height: 50px; border: 4px solid #fbbf24; border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+          <div style="font-size: 1.2rem; font-weight: 600;">${message}</div>
+        </div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+      
+      document.body.appendChild(loadingOverlay);
+    }
+    
+    function hideLoadingIndicator() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.remove();
+      }
+    }
+
+    // ================================
+    // API Functions
+    // ================================
+    
+    async function loadTasksFromAPI() {
+      try {
+        const userData = window.UserSession?.getUserData();
+        if (!userData || !userData.user || !userData.user.student_id) {
+          console.error('User session not available');
+          showNotification('Please login to view your tasks', 'error');
+          return;
+        }
+        
+        currentStudentId = userData.user.student_id;
+        console.log('Loading tasks for student_id:', currentStudentId);
+        
+        const response = await fetch(`${API_BASE_URL}?student_id=${currentStudentId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('API Response:', data);
+        
+        if (data.success) {
+          tasks = data.tasks || [];
+          renderTasks();
+          console.log('Tasks loaded successfully:', tasks.length);
+        } else {
+          throw new Error(data.message || 'Failed to load tasks');
+        }
+        
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+        showNotification('Failed to load tasks. Please try again.', 'error');
+      }
+    }
+    
+    async function addTaskToAPI(taskData) {
+      try {
+        const response = await fetch(API_BASE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(taskData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Add Task API Response:', data);
+        
+        if (data.success) {
+          return data;
+        } else {
+          throw new Error(data.message || 'Failed to add task');
+        }
+        
+      } catch (error) {
+        console.error('Error adding task:', error);
+        throw error;
+      }
+    }
+    
+    async function updateTaskInAPI(taskId, taskData) {
+      try {
+        const response = await fetch(API_BASE_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: taskId,
+            ...taskData
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Update Task API Response:', data);
+        
+        if (data.success) {
+          return data;
+        } else {
+          throw new Error(data.message || 'Failed to update task');
+        }
+        
+      } catch (error) {
+        console.error('Error updating task:', error);
+        throw error;
+      }
+    }
+    
+    async function deleteTaskFromAPI(taskId) {
+      try {
+        const response = await fetch(API_BASE_URL, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: taskId })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Delete Task API Response:', data);
+        
+        if (data.success) {
+          return data;
+        } else {
+          throw new Error(data.message || 'Failed to delete task');
+        }
+        
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        throw error;
+      }
+    }
+
+    function initializeTodoApp() {
+      // Add task form submission
+      document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        addNewTask();
+      });
+
+      // Set default due date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      document.getElementById('taskDueDate').value = tomorrow.toISOString().slice(0, 16);
+    }
+
+    async function addNewTask() {
+      const title = document.getElementById('taskTitle').value.trim();
+      const type = document.getElementById('taskType').value;
+      const dueDate = document.getElementById('taskDueDate').value;
+      const notes = document.getElementById('taskNotes').value.trim();
+      const reminder = document.getElementById('taskReminder').value;
+
+      if (!title) {
+        showNotification('Please enter a task title', 'error');
+        return;
+      }
+
+      if (!currentStudentId) {
+        showNotification('Please login to add tasks', 'error');
+        return;
+      }
+
+      // Show loading indicator
+      const loadingMessage = editingTaskId ? 'Updating task...' : 'Adding task...';
+      showLoadingIndicator(loadingMessage);
+
+      try {
+        // Format date properly for API (convert to YYYY-MM-DD format)
+        let formattedDueDate = dueDate;
+        if (dueDate) {
+          const date = new Date(dueDate);
+          formattedDueDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        }
+
+        const taskData = {
+          student_id: currentStudentId,
+          institution_id: currentInstitutionId,
+          task_title: title,
+          task_type: type,
+          due_date: formattedDueDate,
+          notes: notes,
+          remainder: reminder
+        };
+
+        if (editingTaskId) {
+          // Update existing task
+          await updateTaskInAPI(editingTaskId, taskData);
+          showNotification('Task updated successfully!', 'success');
+          editingTaskId = null;
+        } else {
+          // Add new task
+          await addTaskToAPI(taskData);
+          showNotification('Task added successfully!', 'success');
+        }
+
+        // Reload tasks from API
+        await loadTasksFromAPI();
+        resetForm();
+
+      } catch (error) {
+        console.error('Error saving task:', error);
+        showNotification('Failed to save task. Please try again.', 'error');
+      } finally {
+        // Hide loading indicator
+        hideLoadingIndicator();
+      }
+    }
+
+    function getPriorityFromDueDate(dueDate) {
+      if (!dueDate) return 'low';
+      const due = new Date(dueDate);
+      const now = new Date();
+      const diffHours = (due - now) / (1000 * 60 * 60);
+      
+      if (diffHours < 24) return 'high';
+      if (diffHours < 72) return 'medium';
+      return 'low';
+    }
+
+    function setReminder(task) {
+      if (!task.reminder || !task.dueDate) return;
+      
+      const dueDate = new Date(task.dueDate);
+      const reminderHours = parseInt(task.reminder);
+      const reminderTime = new Date(dueDate.getTime() - (reminderHours * 60 * 60 * 1000));
+      
+      if (reminderTime > new Date()) {
+        setTimeout(() => {
+          showNotification(`Reminder: ${task.title} is due soon!`, 'warning');
+        }, reminderTime - new Date());
+      }
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      const emptyState = document.getElementById('emptyState');
+      
+      const filteredTasks = getFilteredTasks();
+      
+      if (filteredTasks.length === 0) {
+        taskList.style.display = 'none';
+        emptyState.style.display = 'block';
+      } else {
+        taskList.style.display = 'block';
+        emptyState.style.display = 'none';
+        
+        taskList.innerHTML = filteredTasks.map(task => createTaskHTML(task)).join('');
+      }
+    }
+
+         function getFilteredTasks() {
+       switch (currentFilter) {
+         case 'done':
+           return tasks.filter(task => task.is_complete);
+         default:
+           return tasks.filter(task => !task.is_complete);
+       }
+     }
+
+    function createTaskHTML(task) {
+      const dueDate = new Date(task.due_date);
+      const now = new Date();
+      const isOverdue = !task.is_complete && dueDate < now;
+      const isToday = dueDate.toDateString() === now.toDateString();
+      
+      const dueDateText = isToday ? 'Today' : 
+                         isOverdue ? 'Overdue' : 
+                         formatDueDate(dueDate);
+
+      return `
+        <div class="task-card ${task.is_complete ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}" data-task-id="${task.id}">
+          <div class="priority-indicator priority-${getPriorityFromDueDate(task.due_date)}"></div>
+          <div class="task-header">
+            <input type="checkbox" class="task-checkbox" ${task.is_complete ? 'checked' : ''} 
+                   onchange="toggleTaskComplete(${task.id})">
+            <div class="task-content">
+              <div class="task-title">${escapeHtml(task.task_title)}</div>
+              <div class="task-meta">
+                <span class="task-type type-${task.task_type}">${getTypeDisplayName(task.task_type)}</span>
+                <span class="task-due-date ${isOverdue ? 'overdue' : ''}">
+                  📅
+                  ${dueDateText}
+                </span>
+                ${task.remainder ? `
+                  <span class="task-reminder">
+                    🔔
+                    <span class="reminder-badge">Reminder set</span>
+                  </span>
+                ` : ''}
+              </div>
+              ${task.notes ? `<div class="task-notes">${escapeHtml(task.notes)}</div>` : ''}
+            </div>
+          </div>
+          <div class="task-actions">
+            <div class="task-actions-buttons">
+              <button class="task-action-btn mark-done" onclick="toggleTaskComplete(${task.id})">
+                ${task.is_complete ? '↶' : '✓'}
+                ${task.is_complete ? 'Mark as Incomplete' : 'Mark as Done'}
+              </button>
+              <button class="task-action-btn" onclick="editTask(${task.id})">
+                ✏️
+                Edit
+              </button>
+              <button class="task-action-btn delete" onclick="deleteTask(${task.id})">
+                🗑️
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getTypeDisplayName(type) {
+      const typeNames = {
+        'study': '📚 Study',
+        'homework': '🏠 Homework',
+        'assignment': '📄 Assignment',
+        'revision': '🧠 Revision',
+        'personal': '✏️ Personal'
+      };
+      return typeNames[type] || type;
+    }
+
+    function formatDueDate(date) {
+      const now = new Date();
+      const diffTime = date - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays === 0) return 'Today';
+      if (diffDays < 0) return 'Overdue';
+      if (diffDays <= 7) return `In ${diffDays} days`;
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+
+    async function toggleTaskComplete(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) {
+        showNotification('Task not found', 'error');
+        return;
+      }
+
+      showLoadingIndicator('Updating task status...');
+
+      try {
+        // Format date properly for API
+        let formattedDueDate = task.due_date;
+        if (task.due_date) {
+          const date = new Date(task.due_date);
+          formattedDueDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        }
+
+        const taskData = {
+          student_id: currentStudentId,
+          institution_id: currentInstitutionId,
+          task_title: task.task_title,
+          task_type: task.task_type,
+          due_date: formattedDueDate,
+          notes: task.notes,
+          remainder: task.remainder,
+          is_complete: !task.is_complete
+        };
+
+        await updateTaskInAPI(taskId, taskData);
+        
+        // Reload tasks from API
+        await loadTasksFromAPI();
+        
+        // Show celebration message if task was marked as complete
+        if (!task.is_complete) {
+          const celebrationMessages = [
+            `🥳 You completed "${task.task_title}"! Great job!`,
+            `🎉 Task "${task.task_title}" is done! You're awesome!`,
+            `✨ Well done! "${task.task_title}" is completed!`,
+            `🏆 Congratulations! You finished "${task.task_title}"!`,
+            `🎯 Excellent! "${task.task_title}" is now complete!`,
+            `💪 Amazing work! "${task.task_title}" is done!`,
+            `🌟 Fantastic! You completed "${task.task_title}"!`,
+            `🚀 Outstanding! "${task.task_title}" is finished!`
+          ];
+          
+          const randomMessage = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+          showNotification(randomMessage, 'success');
+        } else {
+          showNotification('Task marked as incomplete', 'info');
+        }
+
+      } catch (error) {
+        console.error('Error updating task:', error);
+        showNotification('Failed to update task. Please try again.', 'error');
+      } finally {
+        hideLoadingIndicator();
+      }
+    }
+
+    function editTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      // Set editing mode
+      editingTaskId = taskId;
+
+      // Populate form with task data
+      document.getElementById('taskTitle').value = task.task_title;
+      document.getElementById('taskType').value = task.task_type;
+      
+      // Fix date format for datetime-local input
+      const dueDate = new Date(task.due_date);
+      const formattedDate = dueDate.toISOString().slice(0, 16); // yyyy-MM-ddThh:mm format
+      document.getElementById('taskDueDate').value = formattedDate;
+      
+      document.getElementById('taskNotes').value = task.notes || '';
+      document.getElementById('taskReminder').value = task.remainder || '';
+
+      // Change button text
+      const submitBtn = document.querySelector('.add-task-btn');
+      submitBtn.innerHTML = '💾 Update Task';
+
+      showNotification('Edit mode activated. Update the task and click "Update Task"', 'info');
+    }
+
+    async function deleteTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      const taskTitle = task ? task.task_title : 'this task';
+      
+      showCustomPopup(
+        'warning',
+        'Delete Task',
+        `Are you sure you want to delete "${taskTitle}"? This action cannot be undone.`,
+        async () => {
+          showLoadingIndicator('Deleting task...');
+          
+          try {
+            await deleteTaskFromAPI(taskId);
+            
+            // Reload tasks from API
+            await loadTasksFromAPI();
+            
+            showNotification('Task deleted successfully!', 'success');
+          } catch (error) {
+            console.error('Error deleting task:', error);
+            showNotification('Failed to delete task. Please try again.', 'error');
+          } finally {
+            hideLoadingIndicator();
+          }
+        }
+      );
+    }
+
+    function filterTasks(filter) {
+      currentFilter = filter;
+      
+      // Update active tab
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.closest('.filter-tab').classList.add('active');
+      
+      renderTasks();
+    }
+
+    function resetForm() {
+      document.getElementById('addTaskForm').reset();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      document.getElementById('taskDueDate').value = tomorrow.toISOString().slice(0, 16);
+      
+      // Reset editing mode
+      editingTaskId = null;
+      
+      // Reset button text
+      const submitBtn = document.querySelector('.add-task-btn');
+      submitBtn.innerHTML = 'Add Task';
+    }
+
+    // Removed saveTasks() - now using API
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.innerHTML = `
+        ${type === 'success' ? '✓' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+        <span>${message}</span>
+      `;
+      
+      // Add to page
+      document.body.appendChild(notification);
+      
+      // Show notification
+      setTimeout(() => notification.classList.add('show'), 100);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // ================================
+    // User-Friendly Popup Functions
+    // ================================
+    
+    function showCustomPopup(type, title, message, onConfirm = null, onCancel = null) {
+      // Create popup overlay
+      const popupOverlay = document.createElement('div');
+      popupOverlay.id = 'customPopupOverlay';
+      popupOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+        font-family: 'Inter', Arial, sans-serif;
+      `;
+      
+      // Determine colors based on type
+      let iconClass, iconColor, borderColor, buttonColor;
+      switch(type) {
+        case 'success':
+          iconClass = '✓';
+          iconColor = '#10b981';
+          borderColor = '#10b981';
+          buttonColor = '#10b981';
+          break;
+        case 'error':
+          iconClass = '❌';
+          iconColor = '#ef4444';
+          borderColor = '#ef4444';
+          buttonColor = '#ef4444';
+          break;
+        case 'warning':
+          iconClass = '⚠️';
+          iconColor = '#f59e0b';
+          borderColor = '#f59e0b';
+          buttonColor = '#f59e0b';
+          break;
+        case 'info':
+        default:
+          iconClass = 'ℹ️';
+          iconColor = '#3b82f6';
+          borderColor = '#3b82f6';
+          buttonColor = '#3b82f6';
+          break;
+      }
+      
+      popupOverlay.innerHTML = `
+        <div style="
+          background: var(--card);
+          border: 2px solid ${borderColor};
+          border-radius: 16px;
+          padding: 30px;
+          max-width: 400px;
+          width: 90%;
+          text-align: center;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          animation: popupSlideIn 0.3s ease-out;
+        ">
+          <div style="margin-bottom: 20px;">
+            <span style="font-size: 3rem; color: ${iconColor};">${iconClass}</span>
+          </div>
+          <h3 style="
+            color: var(--label);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            letter-spacing: 0.02em;
+          ">${title}</h3>
+          <p style="
+            color: var(--subtle);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0 0 25px 0;
+          ">${message}</p>
+          <div style="display: flex; gap: 12px; justify-content: center;">
+            ${onCancel ? `
+              <button id="popupCancelBtn" style="
+                background: transparent;
+                border: 2px solid var(--border);
+                color: var(--subtle);
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-width: 80px;
+              ">Cancel</button>
+            ` : ''}
+            <button id="popupConfirmBtn" style="
+              background: ${buttonColor};
+              border: 2px solid ${buttonColor};
+              color: white;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 0.9rem;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s;
+              min-width: 80px;
+            ">${onCancel ? 'Confirm' : 'OK'}</button>
+          </div>
+        </div>
+        <style>
+          @keyframes popupSlideIn {
+            from {
+              opacity: 0;
+              transform: scale(0.8) translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1) translateY(0);
+            }
+          }
+          #popupCancelBtn:hover {
+            background: var(--border);
+            color: var(--label);
+          }
+          #popupConfirmBtn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+          }
+        </style>
+      `;
+      
+      document.body.appendChild(popupOverlay);
+      
+      // Add event listeners
+      const confirmBtn = document.getElementById('popupConfirmBtn');
+      const cancelBtn = document.getElementById('popupCancelBtn');
+      
+      confirmBtn.addEventListener('click', () => {
+        hideCustomPopup();
+        if (onConfirm) onConfirm();
+      });
+      
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          hideCustomPopup();
+          if (onCancel) onCancel();
+        });
+      }
+      
+      // Close on overlay click
+      popupOverlay.addEventListener('click', (e) => {
+        if (e.target === popupOverlay) {
+          hideCustomPopup();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      // Close on Escape key
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          hideCustomPopup();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', handleEscape);
+        }
+      };
+      document.addEventListener('keydown', handleEscape);
+    }
+    
+    function hideCustomPopup() {
+      const popupOverlay = document.getElementById('customPopupOverlay');
+      if (popupOverlay) {
+        popupOverlay.style.animation = 'popupSlideOut 0.2s ease-in';
+        setTimeout(() => popupOverlay.remove(), 200);
+      }
+    }
+    
+    // Add popup slide out animation
+    const popupStyle = document.createElement('style');
+    popupStyle.textContent = `
+      @keyframes popupSlideOut {
+        from {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0.8) translateY(-20px);
+        }
+      }
+    `;
+    document.head.appendChild(popupStyle);
+
+    // Auto-cleanup removed - now handled by API
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              showCustomPopup(
+                'error',
+                '🚫 Access Denied!',
+                `This module is restricted to students only.\n\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`,
+                () => {
+                  // Clear potentially compromised session
+                  window.UserSession.clearUserData();
+                  
+                  // Redirect to login
+                  window.location.href = '../login.html';
+                }
+              );
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout function - now handled by ProfessionalLogout system
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        console.warn('ProfessionalLogout not available, falling back to basic logout');
+        // Fallback: show basic confirmation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.clear();
+            window.location.href = '../login.html';
+          }
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              showCustomPopup(
+                'error',
+                '🚫 Access Denied!',
+                `This module is restricted to students only.\n\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`,
+                () => {
+                  // Clear potentially compromised session
+                  window.UserSession.clearUserData();
+                  
+                  // Redirect to login
+                  window.location.href = '../login.html';
+                }
+              );
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout function - now handled by ProfessionalLogout system
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        console.warn('ProfessionalLogout not available, falling back to basic logout');
+        // Fallback: show basic confirmation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.clear();
+            window.location.href = '../login.html';
+          }
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

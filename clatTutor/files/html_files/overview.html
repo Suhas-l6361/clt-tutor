@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Overview — CLATutor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/header-nav.css" />
+  <link rel="stylesheet" href="../css/index.css" />
+  <style>
+    .page-overview {
+      --ov-ink: #0f1419;
+      --ov-muted: #4b5563;
+      --ov-line: rgba(15, 20, 25, 0.08);
+      --ov-gold: var(--accent, #ffcc00);
+      --ov-gold-soft: rgba(255, 204, 0, 0.14);
+      --ov-surface: #ffffff;
+      --ov-canvas: #f0f2f7;
+      min-height: 60vh;
+    }
+    .page-overview .ov-main {
+      font-family: 'Poppins', system-ui, sans-serif;
+      background: var(--ov-canvas);
+      padding-bottom: 3rem;
+    }
+
+    /* Hero — angled band, not a plain white strip */
+    .page-overview .ov-hero {
+      position: relative;
+      padding: 2.75rem 1.25rem 4.5rem;
+      background: linear-gradient(135deg, #121826 0%, #1e293b 42%, #0f172a 100%);
+      color: #f8fafc;
+      overflow: hidden;
+    }
+    .page-overview .ov-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 30%, rgba(255, 204, 0, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .page-overview .ov-hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 72px;
+      background: var(--ov-canvas);
+      clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    }
+    .page-overview .ov-hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .page-overview .ov-hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ov-gold);
+      margin: 0 0 0.75rem;
+    }
+    .page-overview .ov-hero-kicker::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: var(--ov-gold);
+      border-radius: 2px;
+    }
+    .page-overview .ov-hero-title {
+      margin: 0;
+      font-family: 'Shrikhand', cursive;
+      font-size: clamp(2.25rem, 5vw, 3.25rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+    }
+    .page-overview .ov-hero-sub {
+      margin: 1rem 0 0;
+      max-width: 36rem;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: rgba(248, 250, 252, 0.78);
+    }
+    .page-overview .ov-hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .page-overview .ov-stat {
+      min-width: 140px;
+      padding: 0.85rem 1.1rem;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+    }
+    .page-overview .ov-stat strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ov-gold);
+      letter-spacing: 0.02em;
+    }
+    .page-overview .ov-stat span {
+      font-size: 0.78rem;
+      color: rgba(248, 250, 252, 0.65);
+    }
+
+    .page-overview .ov-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    /* Our story — bento + offset image */
+    .page-overview .ov-section {
+      margin-top: -2rem;
+      position: relative;
+      z-index: 2;
+    }
+    .page-overview .ov-story-grid {
+      display: grid;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (min-width: 900px) {
+      .page-overview .ov-story-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 2rem;
+      }
+    }
+    .page-overview .ov-card {
+      background: var(--ov-surface);
+      border-radius: 22px;
+      border: 1px solid var(--ov-line);
+      box-shadow: 0 18px 60px rgba(15, 20, 25, 0.08);
+    }
+    .page-overview .ov-story-copy {
+      padding: 2rem 1.75rem 2.25rem;
+    }
+    @media (min-width: 640px) {
+      .page-overview .ov-story-copy {
+        padding: 2.25rem 2.25rem 2.5rem;
+      }
+    }
+    .page-overview .ov-label {
+      margin: 0 0 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ov-ink);
+    }
+    .page-overview .ov-label-line {
+      display: inline-block;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--ov-gold), #f59e0b);
+      border-radius: 2px;
+      margin-bottom: 1rem;
+    }
+    .page-overview .ov-lead {
+      margin: 0 0 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ov-ink);
+      line-height: 1.5;
+    }
+    .page-overview .ov-prose {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--ov-muted);
+    }
+    .page-overview .ov-story-visual {
+      position: relative;
+      padding: 0 0 1rem;
+    }
+    @media (min-width: 900px) {
+      .page-overview .ov-story-visual {
+        padding: 2rem 0 0;
+      }
+    }
+    .page-overview .ov-story-frame {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      box-shadow: 0 24px 50px rgba(15, 20, 25, 0.15);
+      transform: rotate(-1.5deg);
+      border: 3px solid #fff;
+    }
+    @media (max-width: 899px) {
+      .page-overview .ov-story-frame {
+        transform: none;
+      }
+    }
+    .page-overview .ov-story-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Core beliefs — staggered cards */
+    .page-overview .ov-beliefs {
+      margin-top: 3rem;
+    }
+    .page-overview .ov-beliefs-head {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .page-overview .ov-beliefs-head .ov-label-line {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-overview .ov-beliefs-layout {
+      display: grid;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+    @media (min-width: 900px) {
+      .page-overview .ov-beliefs-layout {
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 2rem;
+      }
+    }
+    .page-overview .ov-beliefs-photo {
+      border-radius: 22px;
+      overflow: hidden;
+      min-height: 260px;
+      box-shadow: 0 20px 50px rgba(15, 20, 25, 0.1);
+      border: 1px solid var(--ov-line);
+    }
+    .page-overview .ov-beliefs-photo img {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      object-fit: cover;
+      display: block;
+    }
+    .page-overview .ov-belief-list {
+      display: grid;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .page-overview .ov-belief-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.1rem 1.15rem;
+      border-radius: 16px;
+      background: var(--ov-surface);
+      border: 1px solid var(--ov-line);
+      box-shadow: 0 6px 24px rgba(15, 20, 25, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .page-overview .ov-belief-item:nth-child(2) {
+      margin-inline-start: 0;
+    }
+    @media (min-width: 640px) {
+      .page-overview .ov-belief-item:nth-child(2),
+      .page-overview .ov-belief-item:nth-child(4) {
+        margin-inline-start: 1.25rem;
+      }
+    }
+    .page-overview .ov-belief-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(15, 20, 25, 0.09);
+    }
+    .page-overview .ov-belief-item i {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: var(--ov-gold-soft);
+      color: #b45309;
+      font-size: 0.95rem;
+    }
+    .page-overview .ov-belief-item p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--ov-muted);
+    }
+
+    /* Faculty — editorial strips */
+    .page-overview .ov-faculty {
+      margin-top: 3.5rem;
+    }
+    .page-overview .ov-faculty-head {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .page-overview .ov-faculty-head .ov-label-line {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-overview .ov-faculty-strip {
+      display: grid;
+      gap: 1.75rem;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      border-radius: 24px;
+      background: var(--ov-surface);
+      border: 1px solid var(--ov-line);
+      box-shadow: 0 16px 48px rgba(15, 20, 25, 0.07);
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 800px) {
+      .page-overview .ov-faculty-strip {
+        grid-template-columns: 280px 1fr;
+        gap: 2.5rem;
+        padding: 2.25rem 2.5rem;
+      }
+      .page-overview .ov-faculty-strip--alt {
+        grid-template-columns: 1fr 280px;
+      }
+      .page-overview .ov-faculty-strip--alt .ov-faculty-aside {
+        order: 2;
+      }
+      .page-overview .ov-faculty-strip--alt .ov-faculty-body {
+        order: 1;
+      }
+    }
+    .page-overview .ov-faculty-aside {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .page-overview .ov-avatar {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fef3c7 0%, var(--ov-gold) 48%, #d97706 100%);
+      display: grid;
+      place-items: center;
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: var(--accent-ink, #0a0a0a);
+      box-shadow: 0 12px 40px rgba(245, 158, 11, 0.35);
+      border: 4px solid #fff;
+    }
+    .page-overview .ov-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .page-overview .ov-avatar:has(img) {
+      font-size: 0;
+      background: #1e293b;
+    }
+    .page-overview .ov-name {
+      margin: 1.1rem 0 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ov-ink);
+    }
+    .page-overview .ov-social {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    /* Match footer social: light default on cards, same hover (bounce + brand gradients) */
+    .page-overview .ov-social .site-footer__social-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.45rem;
+      height: 2.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 204, 0, 0.28);
+      background: rgba(15, 20, 25, 0.06);
+      color: rgba(15, 20, 25, 0.82);
+      font-size: 0.88rem;
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: rgba(255, 204, 0, 0.25);
+      transition:
+        background 0.28s ease,
+        color 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
+    }
+    .page-overview .ov-social .site-footer__social-link:hover {
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+      text-decoration: none;
+      animation: site-footer-social-bounce 0.45s ease;
+    }
+    .page-overview .ov-social .site-footer__social-link--facebook:hover {
+      background: linear-gradient(145deg, #1877f2 0%, #0d5dbf 100%);
+    }
+    .page-overview .ov-social .site-footer__social-link--twitter:hover {
+      background: linear-gradient(145deg, #1d9bf0 0%, #0d8ecf 100%);
+    }
+    .page-overview .ov-social .site-footer__social-link--linkedin:hover {
+      background: linear-gradient(145deg, #0a66c2 0%, #084d94 100%);
+    }
+    .page-overview .ov-social .site-footer__social-link--instagram:hover {
+      background: linear-gradient(145deg, #f58529 0%, #dd2a7b 45%, #8134af 100%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .page-overview .ov-social .site-footer__social-link:hover {
+        animation: none;
+      }
+    }
+    .page-overview .ov-social .site-footer__social-link:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .page-overview .ov-social .site-footer__social-link > i {
+      pointer-events: none;
+    }
+    .page-overview .ov-faculty-body p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--ov-muted);
+      text-align: left;
+    }
+  </style>
+  <script src="../js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body class="page-public page-overview">
+  <header class="site-header">
+    <div class="container inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo" style="text-decoration: none; color: inherit"
+          ><img src="../image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></a
+        >
+        <span class="logo__tag">Shaping Minds Since 2007</span>
+      </div>
+      <nav class="header-center site-nav" aria-label="Primary">
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/main.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Main <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
+            <a href="../index.html" role="menuitem"><img src="../image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
+            <a href="../index.html#programs" role="menuitem"><img src="../image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
+            <a href="../index.html#testimonials" role="menuitem"><img src="../image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
+            <a href="../login.html" role="menuitem"><img src="../image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
+            <a href="achievement.html" role="menuitem"><img src="../image/achivement.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Achievements</a>
+          </div>
+        </details>
+
+        <a class="site-nav__link" href="whyclattutor.html"><img src="../image/why.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /><span class="site-nav__link-label">Why CLAT<span class="logo__accent">utor</span>?</span></a>
+        <a class="site-nav__link" href="admission.html"><img src="../image/admission.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Admission</a>
+        <a class="site-nav__link" href="clatgk&amp;ck.html"><img src="../image/clat%20gk.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT GK &amp; CA</a>
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/exams.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Exams <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Exams menu">
+            <a href="clat.html" role="menuitem"><img src="../image/clat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT</a>
+            <a href="ipmat.html" role="menuitem"><img src="../image/ipmat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> IPMAT</a>
+          </div>
+        </details>
+        <a class="site-nav__link" href="courses.html"><img src="../image/courses.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Courses</a>
+        <a class="site-nav__link" href="contactus.html"><img src="../image/phone.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Contact us</a>
+      </nav>
+
+      <div class="header-right nav-actions nav-auth">
+        <a href="../login.html" class="hero-btn-animated hero-btn-animated--ghost site-header__login">
+          <img src="../image/login.png" alt="" class="nav-auth__btn-icon" width="18" height="18" loading="lazy" />
+          <span class="text">Log In</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="ov-main">
+    <header class="ov-hero" aria-labelledby="ov-hero-title">
+      <div class="ov-hero-inner">
+        <p class="ov-hero-kicker">About us</p>
+        <h1 id="ov-hero-title" class="ov-hero-title">Overview</h1>
+        <p class="ov-hero-sub">Purpose, beliefs, and the people guiding academics at CLAT<span class="logo__accent">utor</span>.</p>
+        <div class="ov-hero-stats" role="list">
+          <div class="ov-stat" role="listitem">
+            <strong>10,000+</strong>
+            <span>Students taught &amp; counselled</span>
+          </div>
+          <div class="ov-stat" role="listitem">
+            <strong>Since 2007</strong>
+            <span>Shaping minds</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ov-wrap">
+      <section class="ov-section" aria-labelledby="ov-story-title">
+        <div class="ov-story-grid">
+          <div class="ov-card ov-story-copy">
+            <h2 id="ov-story-title" class="ov-label">Our story</h2>
+            <span class="ov-label-line" aria-hidden="true"></span>
+            <p class="ov-lead">It is a long established fact that a read.</p>
+            <p class="ov-prose">
+              CLATutor.com is founded with a vision to imparting education through a different medium that can make a student understand and learn comfortably We believe in blending technology and experience to enable a student to achieve excellence. We are a team of experts from various industrial backgrounds and alumni of IIM/IIT/NLS. CLATutor.com provides the best minds to coach and help the student community. The team has together taught and counselled more than 10000 students for various competitive examinations with great success.
+            </p>
+          </div>
+          <div class="ov-story-visual">
+            <div class="ov-story-frame">
+              <img src="../image/faculty%20poster.png" alt="CLATutor centre" width="640" height="480" loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ov-beliefs" aria-labelledby="ov-beliefs-title">
+        <div class="ov-beliefs-head">
+          <h2 id="ov-beliefs-title" class="ov-label">Core beliefs</h2>
+          <span class="ov-label-line" aria-hidden="true"></span>
+        </div>
+        <div class="ov-beliefs-layout">
+          <div class="ov-beliefs-photo">
+            <img src="../image/team.png" alt="" width="640" height="480" loading="lazy" />
+          </div>
+          <ul class="ov-belief-list">
+            <li class="ov-belief-item">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              <p>Overall student development and growth is of utmost importance. Student's academic growth and excellence</p>
+            </li>
+            <li class="ov-belief-item">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              <p>Honesty in goals and methods</p>
+            </li>
+            <li class="ov-belief-item">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              <p>Transparency</p>
+            </li>
+            <li class="ov-belief-item">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              <p>All stakeholders should be dealt with honesty and transparency by delivering the promise.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="ov-faculty" aria-labelledby="ov-acads-title">
+        <div class="ov-faculty-head">
+          <h2 id="ov-acads-title" class="ov-label">Meet our Acads Head</h2>
+          <span class="ov-label-line" aria-hidden="true"></span>
+        </div>
+
+        <article class="ov-faculty-strip">
+          <div class="ov-faculty-aside">
+            <div class="ov-avatar" role="img" aria-label="Pranab K Mehta">PM</div>
+            <p class="ov-name">Pranab K Mehta</p>
+            <div class="ov-social" aria-label="Social links">
+              <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--instagram" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+            </div>
+          </div>
+          <div class="ov-faculty-body">
+            <p>
+              Pranab Mehta is one of the senior most faculty with CLATutor.com and takes care of Academics and Technology execution in the company. Ready to face any challenge thrown his way, he started his career in the food business. He then spent more than a decade training students for various competitive entrance examinations such as CLAT/IIT JEE, CAT/GMAT/GRE/Bank PO. He achieved recognition and respect for his innovative teaching and his commitment to guiding his students to success. His motto is 'life is all about experimenting opportunities that lie beyond the corner'. Pranab is a rare combination of a sportsman with a keen business acumen and love for mathematics. He has the rare knack of making students fall in love with one of the most dreaded subjects in academics. His ability to change a student's fear of maths into a passion makes him stand out as a teacher of exceptional abilities.
+            </p>
+          </div>
+        </article>
+
+        <article class="ov-faculty-strip ov-faculty-strip--alt">
+          <div class="ov-faculty-aside">
+            <div class="ov-avatar" role="img" aria-label="Niraj Kumar">NK</div>
+            <p class="ov-name">Niraj Kumar</p>
+            <div class="ov-social" aria-label="Social links">
+              <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+              <a href="#" class="site-footer__social-link site-footer__social-link--instagram" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+            </div>
+          </div>
+          <div class="ov-faculty-body">
+            <p>
+              Niraj is also associated with CLATutor as faculty since 2007. He is the brain behind the company's brand. A man with tremendous knowledge and experience of academics and marketing, he is a well known name in the student community. Niraj has successfully forged institutional tie ups to help the company reach out to the student community. An avid lover of numbers, Arithmetic is his forte. He has spent many hours in helping students understand the subject and apply it. A popular and effective mathematics teacher, Niraj uses his intelligence and understanding of numbers to analyze the stock markets during his leisure time.
+            </p>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="container site-footer__grid">
+        <div class="site-footer__brand">
+          <div class="site-footer__social" aria-label="Social links">
+            <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="https://wa.me/918150884422" class="site-footer__social-link site-footer__social-link--whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--telegram" aria-label="Telegram"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
+            <a
+              href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website"
+              class="site-footer__social-link site-footer__social-link--email"
+              aria-label="Email hello@clatutor.com"
+              title="Email hello@clatutor.com"
+              ><i class="fa-solid fa-envelope" aria-hidden="true"></i
+            ></a>
+          </div>
+          <div class="site-footer__logo-block">
+            <span class="site-footer__logo-mark" aria-hidden="true"><img src="../image/gavel%20clat%20tutor.png" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="site-footer__logo-word">CLAT<span class="site-footer__logo-accent">utor</span></span>
+          </div>
+          <p class="site-footer__tagline">Shaping Minds Since 2007</p>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">CLAT<span class="site-footer__logo-accent">utor</span></h3>
+          <ul class="site-footer__links">
+            <li><a href="history.html">History</a></li>
+            <li><a href="overview.html" aria-current="page">Overview</a></li>
+            <li><a href="career.html">Career</a></li>
+            <li><a href="#">Faculty Team</a></li>
+            <li><a href="whyclattutor.html">CLAT Bangalore</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Law World</h3>
+          <ul class="site-footer__links">
+            <li><a href="clat.html">CLAT</a></li>
+            <li><a href="ipmat.html">IPMAT</a></li>
+            <li><a href="career.html">Career</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Program</h3>
+          <ul class="site-footer__links">
+            <li><a href="courses.html">Courses</a></li>
+            <li><a href="achievement.html">Achievements</a></li>
+            <li><a href="#">Gallery</a></li>
+            <li><a href="../index.html#testimonials">Testimonials</a></li>
+            <li><a href="#">Blogs</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col site-footer__col--contact">
+          <h3 class="site-footer__heading">Contact Us</h3>
+          <ul class="site-footer__contact">
+            <li>
+              <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>(+91) 8150884422</span></a>
+            </li>
+            <li>
+              <a href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website" title="Email hello@clatutor.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>hello@clatutor.com</span></a>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Malleshwaram <a href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Jayanagar <a href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Yelahanka <a href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <div class="container site-footer__bar-inner">
+        <p class="site-footer__copy">Copyright © 2021 CLATutor.com by MTe., All Rights Reserved</p>
+        <nav class="site-footer__legal" aria-label="Legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms and Conditions</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main-dropdown.js"></script>
+</body>
+</html>

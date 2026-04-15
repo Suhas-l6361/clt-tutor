@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>BC360</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"></noscript>
+  <!-- Chart.js (if needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="parents.css">
+</head>
+<style>
+  :root {
+      --primary-color: #3A1C71;
+      --secondary-color: #D76D77;
+      --accent-color: #FFAF7B;
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #ffffff;
+      --bg-color: #f0f2f7;
+      --text-color: #333;
+      --transition-speed: 0.3s;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      display: flex;
+      min-height: 100vh;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      z-index: 1001;
+      padding: 5px 10px;
+    }
+    /* When sidebar is open on small/medium screens, lower the top bar */
+    .sidebar-open .top-bar {
+      z-index: 500;
+    }
+    /* Responsive Select (for language and search dropdowns) */
+    .responsive-select {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      background-color: transparent;
+      color: #333;
+    }
+    @media (max-width: 991px) {
+      .responsive-select {
+        padding: 4px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .responsive-select {
+        padding: 3px;
+        font-size: 0.75rem;
+      }
+    }
+    /* Hamburger Icon */
+    #menuToggle {
+      display: block;
+      font-size: 1.8rem;
+      color: #555;
+      background-color: rgba(0,0,0,0.1);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      margin-left: 10px;
+    }
+    #menuToggle:hover {
+      background-color: rgba(0,0,0,0.3);
+    }
+    /* Hide hamburger on big screens */
+    @media (min-width: 992px) {
+      #menuToggle {
+        display: none;
+      }
+    }
+    /* SIDEBAR (same as teacher code) */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left var(--transition-speed) ease;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i {
+      font-size: 1.2rem;
+      margin-right: 8px;
+      color: #fff;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      margin: 20px 0;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      margin-right: 10px;
+      font-size: 1.3rem;
+      width: 25px;
+      text-align: center;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li:last-child {
+      margin-top: 10px;
+    }
+    .sidebar ul li a .fa-trophy {
+      color: #FFD700;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    @media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    overflow-y: auto;   /* <-- ADD THIS */
+    max-height: 100vh;  /* <-- AND THIS (prevents overflow below screen) */
+    -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-top: 50px;
+      transition: margin-left var(--transition-speed) ease;
+      overflow-y: auto;
+    }
+    .section-content {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    /* Form Styling */
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-primary {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-color);
+      transform: scale(1.05);
+    }
+    .btn-icon {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--primary-color);
+      margin-left: 5px;
+    }
+    /* Search Container */
+    .search-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: linear-gradient(145deg, #ffffff, #f8f9fa);
+      color: #2c3e50;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1), inset 0 1px 3px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    
+    .search-filters {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-select {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 12px;
+      border: 2px solid #e1e5e9;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: white;
+      color: #2c3e50;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1);
+    }
+    
+    /* Loading Container */
+    .loading-container {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Table Responsive Container */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+    
+    .students-table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .students-table th,
+    .students-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: left;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    
+    .students-table th {
+      background: linear-gradient(135deg, #3A1C71 0%, #4a2a8a 100%);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .student-row {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .student-row:hover {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .view-parents-btn {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #4a1c8a 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .view-parents-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(58, 28, 113, 0.3);
+      background: linear-gradient(135deg, #4a1c8a 0%, var(--primary-color) 100%);
+    }
+    
+    /* Parent Details Modal */
+    .parent-details-modal {
+      max-width: 600px;
+      width: 90%;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+    
+    .modal-body {
+      padding: 0;
+    }
+    
+    .student-info,
+    .parent-info {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .student-info h4,
+    .parent-info h4 {
+      margin: 0 0 15px 0;
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .info-item label {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+    }
+    
+    .info-item span {
+      color: #2c3e50;
+      font-size: 1rem;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+      .search-filters {
+        flex-direction: column;
+      }
+      
+      .filter-select {
+        min-width: 100%;
+      }
+      
+      .students-table th,
+      .students-table td {
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .parent-details-modal {
+        width: 95%;
+        margin: 5% auto;
+      }
+      
+      .custom-alert-content {
+        width: 90%;
+        max-width: 350px;
+      }
+      
+      .alert-header h3 {
+        font-size: 1.1rem;
+      }
+      
+      .alert-body p {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Custom Alert Popup Styles */
+    .custom-alert-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .custom-alert-content {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+      animation: slideIn 0.3s ease;
+      overflow: hidden;
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 20px 25px 15px;
+      background: linear-gradient(135deg, #3A1C71 0%, #4a2a8a 100%);
+      color: white;
+    }
+
+    .alert-icon {
+      font-size: 2rem;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .alert-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .alert-body {
+      padding: 25px;
+      text-align: center;
+    }
+
+    .alert-body p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #2c3e50;
+    }
+
+    .alert-actions {
+      padding: 15px 25px 25px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .alert-actions .btn {
+      min-width: 100px;
+      padding: 12px 24px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .alert-actions .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(58, 28, 113, 0.3);
+    }
+
+    /* Alert Types */
+    .custom-alert-overlay.success .alert-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .custom-alert-overlay.error .alert-header {
+      background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+    }
+
+    .custom-alert-overlay.warning .alert-header {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+
+    .custom-alert-overlay.info .alert-header {
+      background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    /* Modal for Editing Parent Details */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      animation: slideIn 0.3s;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); }
+      to { transform: translateY(0); }
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+</style>
+<body>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <i class="fas fa-bars" id="menuToggle"></i>
+  </div>
+
+  <!-- SIDEBAR (same as teacher code) -->
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        <span>Admin Panel</span>
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html" class="active"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon">Publish Achievements</a></li>
+        <li><a href="./internship.html"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT: Students and Parents Management -->
+  <div class="main-content">
+    <!-- Search Section -->
+    <div class="section-content">
+      <h2><i class="fas fa-search"></i> Search Students</h2>
+      <div class="search-container">
+        <input type="text" id="studentSearch" placeholder="🔍 Search by Student ID, Name, or Phone..." class="search-input">
+        <div class="search-filters">
+          <select id="academicLevelFilter" class="filter-select">
+            <option value="">All Academic Levels</option>
+            <option value="School">School</option>
+            <option value="PUC">PUC</option>
+            <option value="Degree">Degree</option>
+            <option value="Master">Master</option>
+            <option value="Engineering">Engineering</option>
+          </select>
+          <select id="academicYearFilter" class="filter-select">
+            <option value="">All Academic Years</option>
+            <option value="2024-25">2024-25</option>
+            <option value="2023-24">2023-24</option>
+          </select>
+        </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="section-content" id="loadingSection" style="display: none;">
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading students data...</p>
+      </div>
+    </div>
+
+    <!-- Students Table Section -->
+    <div class="section-content" id="tableSection">
+      <h2><i class="fas fa-user-graduate"></i> Students Information</h2>
+      <div class="table-responsive">
+        <table class="students-table" id="studentsTable">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Full Name</th>
+              <th>Gender</th>
+              <th>Contact</th>
+              <th>Academic Year</th>
+              <th>Course/Stream</th>
+              <th>Current Class</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <!-- Dynamic content will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Parent Details -->
+  <div id="parentDetailsModal" class="modal">
+    <div class="modal-content parent-details-modal">
+      <div class="modal-header">
+        <h3>👨‍👩‍👧‍👦 Parent Details</h3>
+        <span class="close-modal" id="closeParentModal">&times;</span>
+        </div>
+      
+      <div class="modal-body">
+        <div class="parent-info">
+          <h4>👨‍👩‍👧‍👦 Parent Information</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Guardian Name:</label>
+              <span id="modalGuardianName">-</span>
+        </div>
+            <div class="info-item">
+              <label>Parent User ID:</label>
+              <span id="modalParentUserId">-</span>
+            </div>
+            <div class="info-item">
+              <label>Email:</label>
+              <span id="modalParentEmail">-</span>
+            </div>
+            <div class="info-item">
+              <label>Address:</label>
+              <span id="modalParentAddress">-</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="student-info">
+          <h4>📚 Student Information</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Student ID:</label>
+              <span id="modalStudentId">-</span>
+        </div>
+            <div class="info-item">
+              <label>Student Name:</label>
+              <span id="modalStudentName">-</span>
+        </div>
+            <div class="info-item">
+              <label>Academic Level:</label>
+              <span id="modalAcademicLevel">-</span>
+        </div>
+            <div class="info-item">
+              <label>Current Class:</label>
+              <span id="modalCurrentClass">-</span>
+        </div>
+        </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeParentModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM ALERT POPUP -->
+  <div id="customAlert" class="custom-alert-overlay">
+    <div class="custom-alert-content">
+      <div class="alert-header">
+        <div class="alert-icon" id="alertIcon">⚠️</div>
+        <h3 id="alertTitle">Alert</h3>
+      </div>
+      <div class="alert-body">
+        <p id="alertMessage">This is a custom alert message.</p>
+      </div>
+      <div class="alert-actions">
+        <button class="btn btn-primary" id="alertOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // API Configuration
+    const STUDENT_APIS = {
+      school: 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addSchoolStudent',
+      puc: 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addPucStudent',
+      degree: 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addDegreeStudent',
+      master: 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addMasterStudent',
+      engineer: 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addEngineerStudent'
+    };
+
+    // Global variables
+    let allStudents = [];
+    let currentInstitutionId = null;
+
+    // Custom Alert System
+    function showCustomAlert(message, type = 'info', title = 'Alert') {
+      const alert = document.getElementById('customAlert');
+      const alertIcon = document.getElementById('alertIcon');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+      const okBtn = document.getElementById('alertOkBtn');
+
+      // Set alert type and styling
+      alert.className = `custom-alert-overlay ${type}`;
+      
+      // Set content
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+
+      // Set icon based on type
+      switch(type) {
+        case 'success':
+          alertIcon.textContent = '✅';
+          break;
+        case 'error':
+          alertIcon.textContent = '❌';
+          break;
+        case 'warning':
+          alertIcon.textContent = '⚠️';
+          break;
+        case 'info':
+        default:
+          alertIcon.textContent = 'ℹ️';
+          break;
+      }
+
+      // Show alert
+      alert.style.display = 'flex';
+
+      // Close on OK button click
+      okBtn.onclick = () => {
+        alert.style.display = 'none';
+      };
+
+      // Close on Escape key
+      const escapeHandler = (e) => {
+        if (e.key === 'Escape') {
+          alert.style.display = 'none';
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+
+      // Close on outside click
+      const outsideClickHandler = (e) => {
+        if (e.target === alert) {
+          alert.style.display = 'none';
+          document.removeEventListener('click', outsideClickHandler);
+        }
+      };
+      document.addEventListener('click', outsideClickHandler);
+    }
+
+    // Sidebar toggle functionality
+     const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    let isOpen = false;
+    
+    menuToggle?.addEventListener('click', () => {
+      if (!isOpen) {
+        sidebar.classList.add('open');
+        document.body.classList.add('sidebar-open');
+        menuToggle.classList.remove('fa-bars');
+        menuToggle.classList.add('fa-times');
+        isOpen = true;
+      } else {
+        sidebar.classList.remove('open');
+        document.body.classList.remove('sidebar-open');
+        menuToggle.classList.remove('fa-times');
+        menuToggle.classList.add('fa-bars');
+        isOpen = false;
+      }
+    });
+
+    // Get current institution ID from user session
+    function getCurrentInstitutionId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && userData.user && userData.user.institution_id) {
+          return userData.user.institution_id;
+        }
+      }
+      return null;
+    }
+
+    // Load students from all APIs
+    async function loadAllStudents() {
+      showLoading();
+      currentInstitutionId = getCurrentInstitutionId();
+      
+      if (!currentInstitutionId) {
+        hideLoading();
+        showCustomAlert('Institution ID not found. Please login again.', 'error', 'Authentication Error');
+        return;
+      }
+      
+      try {
+        const apiPromises = Object.entries(STUDENT_APIS).map(async ([level, apiUrl]) => {
+          try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+              console.error(`Failed to fetch ${level} students:`, response.status);
+              return [];
+            }
+            
+            const data = await response.json();
+            const students = data.students || data.school_students || data.puc_students || 
+                           data.degree_students || data.master_students || data.engineer_students || [];
+            
+            // Filter by institution_id and add academic level
+            const filteredStudents = students
+              .filter(student => student.institution_id === currentInstitutionId)
+              .map(student => ({
+                ...student,
+                academic_level: level.charAt(0).toUpperCase() + level.slice(1)
+              }));
+            
+            console.log(`Loaded ${filteredStudents.length} ${level} students`);
+            return filteredStudents;
+          } catch (error) {
+            console.error(`Error fetching ${level} students:`, error);
+            return [];
+          }
+        });
+
+        const results = await Promise.allSettled(apiPromises);
+        allStudents = results
+          .filter(result => result.status === 'fulfilled')
+          .flatMap(result => result.value);
+
+        console.log(`Total students loaded: ${allStudents.length}`);
+        displayStudents(allStudents);
+        
+      } catch (error) {
+        console.error('Error loading students:', error);
+        showCustomAlert('Failed to load students data. Please try again.', 'error', 'Loading Error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Display students in table
+    function displayStudents(students) {
+      const tbody = document.getElementById('studentsTableBody');
+      tbody.innerHTML = '';
+
+      if (students.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+              <i class="fas fa-user-graduate" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+              No students found for this institution.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      students.forEach(student => {
+        const row = document.createElement('tr');
+        row.className = 'student-row';
+        row.setAttribute('data-student', JSON.stringify(student));
+        
+        // Determine course/stream and current class based on academic level
+        let courseStream = '-';
+        let currentClass = '-';
+        
+        if (student.academic_level === 'School') {
+          currentClass = student.current_class || '-';
+          courseStream = 'School';
+        } else if (student.academic_level === 'Puc') {
+          courseStream = student.streams || '-';
+          currentClass = 'PUC';
+        } else if (student.academic_level === 'Degree') {
+          courseStream = student.course || '-';
+          currentClass = 'Degree';
+        } else if (student.academic_level === 'Master') {
+          courseStream = student.course || '-';
+          currentClass = 'Master';
+        } else if (student.academic_level === 'Engineer') {
+          courseStream = student.course || '-';
+          currentClass = 'Engineering';
+        }
+
+        row.innerHTML = `
+          <td>${student.student_id || '-'}</td>
+          <td>${student.full_name || '-'}</td>
+          <td>${student.gender || '-'}</td>
+          <td>${student.contact || '-'}</td>
+          <td>${student.academic_year || '-'}</td>
+          <td>${courseStream}</td>
+          <td>${currentClass}</td>
+          <td>
+            <button class="view-parents-btn" data-student-id="${student.student_id}">
+              <i class="fas fa-eye"></i> View Parents
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      // Add event listeners to all view parent buttons
+      document.querySelectorAll('.view-parents-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          const studentId = button.getAttribute('data-student-id');
+          viewParentDetails(studentId);
+        });
+      });
+    }
+
+    // View parent details
+    function viewParentDetails(studentId) {
+      console.log('Looking for student ID:', studentId);
+      console.log('Available students:', allStudents.map(s => s.student_id));
+      
+      const student = allStudents.find(s => String(s.student_id) === String(studentId));
+      if (!student) {
+        console.error('Student not found with ID:', studentId);
+        showCustomAlert(`Student not found with ID: ${studentId}`, 'error', 'Student Not Found');
+        return;
+      }
+
+      console.log('Found student:', student);
+
+      // Populate modal with student and parent data
+      document.getElementById('modalStudentId').textContent = student.student_id || '-';
+      document.getElementById('modalStudentName').textContent = student.full_name || '-';
+      document.getElementById('modalAcademicLevel').textContent = student.academic_level || '-';
+      
+      // Set current class based on academic level
+      let currentClass = '-';
+      if (student.academic_level === 'School') {
+        currentClass = student.current_class || '-';
+      } else if (student.academic_level === 'Puc') {
+        currentClass = 'PUC';
+      } else if (student.academic_level === 'Degree') {
+        currentClass = 'Degree';
+      } else if (student.academic_level === 'Master') {
+        currentClass = 'Master';
+      } else if (student.academic_level === 'Engineer') {
+        currentClass = 'Engineering';
+      }
+      document.getElementById('modalCurrentClass').textContent = currentClass;
+
+      // Populate parent data - using the exact field names you specified
+      document.getElementById('modalGuardianName').textContent = student.guardian_name || '-';
+      document.getElementById('modalParentUserId').textContent = student.parent_userId || '-';
+      document.getElementById('modalParentEmail').textContent = student.email || '-';
+      document.getElementById('modalParentAddress').textContent = student.address || '-';
+
+      // Show modal
+      document.getElementById('parentDetailsModal').style.display = 'block';
+    }
+
+    // Close parent modal
+    function closeParentModal() {
+      document.getElementById('parentDetailsModal').style.display = 'none';
+    }
+
+    // Search functionality
+    function setupSearch() {
+      const searchInput = document.getElementById('studentSearch');
+      const academicLevelFilter = document.getElementById('academicLevelFilter');
+      const academicYearFilter = document.getElementById('academicYearFilter');
+
+      let searchTimeout;
+      
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          filterStudents();
+        }, 300);
+      });
+
+      academicLevelFilter.addEventListener('change', filterStudents);
+      academicYearFilter.addEventListener('change', filterStudents);
+    }
+
+    // Filter students based on search criteria
+    function filterStudents() {
+      const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+      const academicLevel = document.getElementById('academicLevelFilter').value;
+      const academicYear = document.getElementById('academicYearFilter').value;
+
+      const filteredStudents = allStudents.filter(student => {
+        const matchesSearch = !searchTerm || 
+          (student.student_id && student.student_id.toLowerCase().includes(searchTerm)) ||
+          (student.full_name && student.full_name.toLowerCase().includes(searchTerm)) ||
+          (student.contact && student.contact.includes(searchTerm));
+
+        const matchesLevel = !academicLevel || student.academic_level.toLowerCase() === academicLevel.toLowerCase();
+        const matchesYear = !academicYear || student.academic_year === academicYear;
+
+        return matchesSearch && matchesLevel && matchesYear;
+      });
+
+      displayStudents(filteredStudents);
+    }
+
+    // Show/hide loading
+    function showLoading() {
+      document.getElementById('loadingSection').style.display = 'block';
+      document.getElementById('tableSection').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('tableSection').style.display = 'block';
+    }
+
+    // Close modal functionality
+    function setupModalClose() {
+      const modal = document.getElementById('parentDetailsModal');
+      const closeBtn = document.getElementById('closeParentModal');
+      
+      // Close button click
+      closeBtn.addEventListener('click', closeParentModal);
+      
+      // Close when clicking outside modal
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          closeParentModal();
+        }
+      });
+      
+      // Close with Escape key
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeParentModal();
+        }
+      });
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      setupSearch();
+      setupModalClose();
+      loadAllStudents();
+    });
+
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

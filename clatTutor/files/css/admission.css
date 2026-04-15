@@ -1,0 +1,229 @@
+/* Admission / enrollment — card form (Uiverse-inspired: bold frame + offset shadow, CLATutor palette) */
+.page-admission {
+  --adm-ink: #0f172a;
+  --adm-ink-soft: #1e3a5f;
+  --adm-surface: #faf8f5;
+  --adm-card: #f3eee8;
+  --adm-border: #1e3a5f;
+  --adm-shadow: #c4a574;
+  --adm-accent: #2563eb;
+  --adm-accent-dark: #1d4ed8;
+  --adm-muted: #64748b;
+}
+
+.page-admission #main-content {
+  padding-bottom: 3rem;
+}
+
+.admission-page-bg {
+  min-height: 42vh;
+  padding: 2.5rem 0 1.5rem;
+  background: linear-gradient(165deg, #e8eef8 0%, #f5f0ea 45%, #eef2ff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.admission-page-bg::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+  top: -120px;
+  right: -80px;
+  pointer-events: none;
+}
+
+.admission-page-bg::after {
+  content: '';
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(196, 165, 116, 0.25) 0%, transparent 65%);
+  bottom: -100px;
+  left: -60px;
+  pointer-events: none;
+}
+
+.admission-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.admission-card {
+  background: var(--adm-card);
+  border: 2px solid var(--adm-border);
+  border-radius: 22px;
+  box-shadow: 5px 6px 0 0 var(--adm-shadow);
+  padding: 1.75rem 1.5rem 2rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .admission-card {
+    padding: 2rem 2.25rem 2.25rem;
+  }
+}
+
+.admission-card:focus-within {
+  box-shadow: 3px 4px 0 0 var(--adm-shadow);
+}
+
+.admission-card__head {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.admission-card__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  font-weight: 800;
+  color: var(--adm-ink-soft);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.admission-card__tagline {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--adm-muted);
+  line-height: 1.45;
+}
+
+.admission-form__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 1.25rem;
+}
+
+@media (min-width: 720px) {
+  .admission-form__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.admission-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.admission-field--full {
+  grid-column: 1 / -1;
+  margin-top: 0.15rem;
+}
+
+.admission-field__label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--adm-ink-soft);
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.01em;
+}
+
+.admission-field__input,
+.admission-field__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  border: 2px solid var(--adm-border);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.92rem;
+  font-family: inherit;
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  box-shadow: 3px 4px 0 0 rgba(196, 165, 116, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.admission-field__textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.admission-field__input::placeholder,
+.admission-field__textarea::placeholder {
+  color: #94a3b8;
+}
+
+.admission-field__input:hover,
+.admission-field__textarea:hover {
+  border-color: #2d4a6f;
+}
+
+.admission-field__input:focus,
+.admission-field__textarea:focus {
+  border-color: var(--adm-accent);
+  transform: translate(2px, 3px);
+  box-shadow: 1px 2px 0 0 rgba(196, 165, 116, 0.45);
+}
+
+.admission-alert {
+  margin-top: 0.75rem;
+}
+
+.admission-alert .alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  border: 2px solid var(--adm-border);
+  box-shadow: 2px 3px 0 0 var(--adm-shadow);
+}
+
+.admission-alert .alert-success {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.admission-submit {
+  display: block;
+  width: 100%;
+  margin-top: 1.35rem;
+  padding: 0.95rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(180deg, var(--adm-accent) 0%, var(--adm-accent-dark) 100%);
+  border: 2px solid var(--adm-border);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 4px 5px 0 0 var(--adm-shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.admission-submit:hover {
+  filter: brightness(1.05);
+}
+
+.admission-submit:focus {
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 3px;
+}
+
+.admission-submit:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.admission-submit:focus-visible {
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 3px;
+}
+
+.admission-submit:active {
+  transform: translate(3px, 4px);
+  box-shadow: 1px 2px 0 0 var(--adm-shadow);
+}

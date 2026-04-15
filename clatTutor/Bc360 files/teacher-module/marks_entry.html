@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Marks Entry & Report Cards</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --secondary: #7c3aed;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --text-muted: #94a3b8;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .app-flex {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 1050;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+
+    .sidebar ul li { margin: 0; }
+
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: margin-left 0.28s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.menu-open {
+      pointer-events: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .top-bar .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .status .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Hamburger Menu */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 17px;
+      right: 20px;
+      z-index: 2001;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 2000;
+      transition: opacity 0.2s;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    /* Content Area */
+    .content {
+      padding: 24px 32px;
+      flex: 1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        z-index: 3001;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+        z-index: 3001;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+      .main-content.menu-open { pointer-events: none; }
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 16px;
+      }
+      
+      .top-bar {
+        padding: 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+
+    /* Marks Entry Module Styles */
+    .module-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Navigation Tabs */
+    .module-tabs {
+      display: flex;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 0.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Selection Form */
+    .selection-form {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .selection-form h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      background: white;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-group select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Small refresh button for history section */
+    .btn-refresh-small {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: auto;
+      height: auto;
+    }
+
+    .btn-refresh-small:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Enhanced Button Styles */
+    .marks-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-save-all,
+    .btn-auto-grade {
+      position: relative;
+      border: none;
+      border-radius: 12px;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 140px;
+      height: 50px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-save-all {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn-auto-grade {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .btn-save-all:hover,
+    .btn-auto-grade:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-save-all:active,
+    .btn-auto-grade:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      height: 100%;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0 1.5rem;
+    }
+
+    .btn-content i {
+      font-size: 1.1rem;
+    }
+
+    .btn-shine {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+      z-index: 1;
+    }
+
+    .btn-save-all:hover .btn-shine,
+    .btn-auto-grade:hover .btn-shine {
+      left: 100%;
+    }
+
+    /* Loading state for Save All button */
+    .btn-save-all.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .btn-save-all.loading .btn-content i {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Marks Entry Table */
+    .marks-entry-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .marks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .marks-header h3 {
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .marks-table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .marks-table th,
+    .marks-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .marks-table th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .marks-table tr:hover {
+      background: var(--bg);
+    }
+
+    .marks-input {
+      width: 80px;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .marks-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .grade-display {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 40px;
+    }
+
+    .grade-a1 { background: #dcfce7; color: var(--success); }
+    .grade-a2 { background: #dbeafe; color: var(--primary); }
+    .grade-b1 { background: #fef3c7; color: var(--warning); }
+    .grade-b2 { background: #fef2f2; color: var(--danger); }
+
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .module-tabs {
+        flex-direction: column;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+      .form-group input,
+      .form-group select {
+        font-size: 16px;
+        padding: 0.875rem;
+        min-height: 48px;
+      }
+
+      .marks-header {
+        flex-direction: column;
+        align-items: flex-start;
+      gap: 1rem;
+      }
+
+      .marks-table {
+        min-width: 500px;
+        font-size: 0.85rem;
+      }
+
+      .marks-table th,
+      .marks-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .marks-input {
+        width: 60px;
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+
+      .btn-primary {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+      font-size: 1rem;
+      }
+
+      .marks-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+      }
+
+      .btn-save-all,
+      .btn-auto-grade {
+        width: 100%;
+        min-width: auto;
+        height: 48px;
+      }
+
+      .btn-content {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .content {
+        padding: 12px;
+      }
+
+      .selection-form,
+      .marks-entry-card {
+        padding: 1.25rem;
+      }
+
+      .marks-table {
+        min-width: 400px;
+        font-size: 0.8rem;
+      }
+
+      .marks-table th,
+      .marks-table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      .marks-input {
+        width: 50px;
+        min-height: 40px;
+        font-size: 16px;
+      }
+
+    }
+
+    /* History Cards Styles */
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .history-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border);
+    }
+
+    .history-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+
+    .history-card-header {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #f0f9ff 100%);
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exam-info h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .exam-info p {
+      margin: 0;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .exam-stats {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .stat-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .history-card-body {
+      padding: 1.5rem;
+    }
+
+    .exam-details {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .detail-item i {
+      color: var(--primary);
+    }
+
+    .student-list-mini {
+      display: flex;
+        flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .student-mini {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      background: var(--bg);
+      border-radius: var(--radius);
+    }
+
+    .student-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .student-marks {
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .more-students {
+      text-align: center;
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-style: italic;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .more-students:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .history-card-footer {
+      padding: 1rem 1.5rem;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-view-details,
+    .btn-export {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+        justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-view-details {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-view-details:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-export {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-export:hover {
+      background: #059669;
+    }
+
+    /* Responsive History Cards */
+    @media (max-width: 768px) {
+      .history-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .history-card-header,
+      .history-card-body {
+        padding: 1rem;
+      }
+
+      .exam-details {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .history-card-footer {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+      }
+
+      .btn-view-details,
+      .btn-export {
+        width: 100%;
+        padding: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html" class="active"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" ><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <div class="title">
+          <img src="./assets/marks upload.png" alt="Marks Entry" style="width: 20px; height: 20px; margin-right: 10px;">
+          Marks Entry & Report Cards
+        </div>
+        <div class="status">
+          <div class="indicator"></div>
+          <span>Online</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="module-container">
+          <!-- Navigation Tabs -->
+          <div class="module-tabs">
+            <button class="tab-btn active" data-tab="marks-entry">
+              <i class="fas fa-edit"></i> Marks Entry
+            </button>
+            <button class="tab-btn" data-tab="history">
+              <i class="fas fa-history"></i> Marks History
+            </button>
+          </div>
+
+          <!-- Marks Entry Tab -->
+          <div class="tab-content active" id="marks-entry">
+            <!-- Selection Form -->
+            <div class="selection-form">
+              <h2><img src="./assets/analytics.png" alt="Select Parameters" style="width: 20px; height: 20px; margin-right: 10px;"> Select Parameters</h2>
+              <form id="selectionForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="academicYear"><i class="fas fa-calendar"></i> Academic Year</label>
+                    <select id="academicYear" required>
+                      <option value="">Select Academic Year</option>
+                      <option value="2024-25">2024-25</option>
+                      <option value="2023-24">2023-24</option>
+                      <option value="2022-23">2022-23</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="classSection"><i class="fas fa-users"></i> Class & Section</label>
+                    <select id="classSection" required>
+                      <option value="">Select Class</option>
+                      <option value="10A">10th A</option>
+                      <option value="10B">10th B</option>
+                      <option value="12A">12th A</option>
+                      <option value="12B">12th B</option>
+                      <option value="BCom1">BCom 1st Year</option>
+                      <option value="BCom2">BCom 2nd Year</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="subject"><i class="fas fa-book"></i> Subject</label>
+                    <select id="subject" required>
+                      <option value="">Select Subject</option>
+                      <option value="physics">Physics</option>
+                      <option value="chemistry">Chemistry</option>
+                      <option value="mathematics">Mathematics</option>
+                      <option value="english">English</option>
+                      <option value="biology">Biology</option>
+                      <option value="computer">Computer Science</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="examType"><i class="fas fa-file-alt"></i> Exam Type</label>
+                    <select id="examType" required>
+                      <option value="">Select Exam Type</option>
+                      <option value="unit1">Unit Test 1</option>
+                      <option value="unit2">Unit Test 2</option>
+                      <option value="midterm">Mid-Term</option>
+                      <option value="final">Final Exam</option>
+                      <option value="practical">Practical</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-search"></i> Load Students
+                </button>
+              </form>
+            </div>
+
+            <!-- Marks Entry Table -->
+            <div class="marks-entry-card" id="marksEntryCard" style="display: none;">
+              <div class="marks-header">
+                <h3><img src="./assets/marks upload.png" alt="Marks Entry" style="width: 20px; height: 20px; margin-right: 10px;"> Marks Entry</h3>
+                <div class="marks-actions">
+                  <button class="btn-save-all" onclick="saveAllMarks()">
+                    <div class="btn-content">
+                      <i class="fas fa-save"></i>
+                      <span>Save All</span>
+                    </div>
+                    <div class="btn-shine"></div>
+                  </button>
+                  <button class="btn-auto-grade" onclick="autoGrade()">
+                    <div class="btn-content">
+                      <i class="fas fa-magic"></i>
+                      <span>Auto Grade</span>
+                    </div>
+                    <div class="btn-shine"></div>
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="marks-table">
+                  <thead>
+                    <tr>
+                      <th>Roll No</th>
+                      <th>Student Name</th>
+                      <th>Marks (out of 100)</th>
+                      <th>Grade</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="marksTableBody">
+                    <!-- Student marks will be loaded here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- History Tab -->
+          <div class="tab-content" id="history">
+            <div class="report-card-section">
+              <div class="report-header">
+                <h3><img src="./assets/analytics.png" alt="Marks History" style="width: 20px; height: 20px; margin-right: 10px;"> Marks History</h3>
+                <div class="report-actions">
+                  <button class="btn-refresh-small" onclick="loadMarksHistory()">
+                    <i class="fas fa-sync"></i> Refresh
+                  </button>
+                </div>
+              </div>
+              <div id="marksHistoryContent">
+                <!-- History content will be loaded here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Configuration
+    const API_BASE_URL = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev/marks_entry';
+    const TEACHER_API_URL = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher';
+    
+    // Global variables
+    let currentMarksData = [];
+    let isLoading = false;
+    let groupedMarksData = {}; // Store grouped marks data for quick access
+    let currentTeacherId = null;
+    let currentInstitutionId = null;
+    
+    // Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openMenu() {
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (menuToggle) {
+      menuToggle.onclick = function() {
+        if(sidebar.classList.contains('menu-open')) closeMenu();
+        else openMenu();
+      };
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.onclick = closeMenu;
+    }
+
+    window.addEventListener('resize', ()=> {
+      if(window.innerWidth>1150) closeMenu();
+    });
+
+    if (sidebar) {
+      Array.from(sidebar.querySelectorAll('a')).forEach(a=>{
+        a.onclick=()=>{ if(window.innerWidth<=1150) closeMenu(); };
+      });
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Update active tab button
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active tab content
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // Sample data
+    let students = [
+      { id: 1, rollNo: "001", name: "Anjali R.", marks: 89, grade: "A2", remarks: "Excellent" },
+      { id: 2, rollNo: "002", name: "Rakesh N.", marks: 71, grade: "B1", remarks: "Good" },
+      { id: 3, rollNo: "003", name: "Priya D.", marks: 95, grade: "A1", remarks: "Outstanding" },
+      { id: 4, rollNo: "004", name: "Amit K.", marks: 65, grade: "B2", remarks: "Needs improvement" },
+      { id: 5, rollNo: "005", name: "Sita M.", marks: 82, grade: "A2", remarks: "Very good" }
+    ];
+
+    // Grading system
+    const gradingSystem = {
+      "A1": { min: 91, max: 100, color: "grade-a1" },
+      "A2": { min: 81, max: 90, color: "grade-a2" },
+      "B1": { min: 71, max: 80, color: "grade-b1" },
+      "B2": { min: 61, max: 70, color: "grade-b2" },
+      "C1": { min: 51, max: 60, color: "grade-b2" },
+      "C2": { min: 41, max: 50, color: "grade-b2" },
+      "D": { min: 33, max: 40, color: "grade-b2" },
+      "E": { min: 0, max: 32, color: "grade-b2" }
+    };
+
+    // Selection form handler
+    document.getElementById('selectionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const academicYear = document.getElementById('academicYear').value;
+      const classSection = document.getElementById('classSection').value;
+      const subject = document.getElementById('subject').value;
+      const examType = document.getElementById('examType').value;
+      
+      if (academicYear && classSection && subject && examType) {
+        loadStudentsForMarks();
+        showMessage('Students loaded successfully!', 'success');
+        
+        // Auto-scroll to student list table
+        setTimeout(() => {
+          const marksTable = document.querySelector('.marks-table');
+          if (marksTable) {
+            marksTable.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }, 500);
+      } else {
+        showMessage('Please fill all fields!', 'error');
+      }
+    });
+
+    // Load students for marks entry
+    function loadStudentsForMarks() {
+      const tbody = document.getElementById('marksTableBody');
+      tbody.innerHTML = '';
+      
+      students.forEach(student => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${student.rollNo}</td>
+          <td>${student.name}</td>
+          <td>
+            <input type="number" class="marks-input" value="${student.marks || ''}" 
+                   min="0" max="100" data-student-id="${student.id}" 
+                   onchange="updateGrade(${student.id})">
+          </td>
+          <td>
+            <span class="grade-display ${getGradeClass(student.grade)}">${student.grade || '--'}</span>
+          </td>
+          <td>
+            <input type="text" value="${student.remarks || ''}" 
+                   placeholder="Add remarks..." data-student-id="${student.id}">
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      
+      document.getElementById('marksEntryCard').style.display = 'block';
+    }
+
+    // Update grade based on marks
+    function updateGrade(studentId) {
+      const marksInput = document.querySelector(`input[data-student-id="${studentId}"]`);
+      const marks = parseInt(marksInput.value) || 0;
+      const grade = calculateGrade(marks);
+      
+      const student = students.find(s => s.id === studentId);
+      if (student) {
+        student.marks = marks;
+        student.grade = grade;
+        
+        // Update grade display
+        const gradeCell = marksInput.closest('tr').querySelector('.grade-display');
+        gradeCell.textContent = grade;
+        gradeCell.className = `grade-display ${getGradeClass(grade)}`;
+      }
+    }
+
+    // Calculate grade based on marks
+    function calculateGrade(marks) {
+      for (const [grade, range] of Object.entries(gradingSystem)) {
+        if (marks >= range.min && marks <= range.max) {
+          return grade;
+        }
+      }
+      return 'E';
+    }
+
+    // Get grade CSS class
+    function getGradeClass(grade) {
+      return gradingSystem[grade]?.color || 'grade-b2';
+    }
+
+    // Auto grade all students
+    function autoGrade() {
+      const marksInputs = document.querySelectorAll('.marks-input');
+      marksInputs.forEach(input => {
+        const studentId = parseInt(input.getAttribute('data-student-id'));
+        updateGrade(studentId);
+      });
+      showMessage('All grades updated automatically!', 'success');
+    }
+
+    // Function to get teacher data by teacher_id
+    async function getTeacherData(teacherId) {
+      try {
+        console.log('🔍 Fetching teacher data for teacher_id:', teacherId);
+        
+        const response = await fetch(TEACHER_API_URL, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📊 Teacher API Response:', data);
+        
+        if (data.success && data.teachers) {
+          // Find the teacher with matching teacher_id
+          const teacher = data.teachers.find(t => t.teacher_id == teacherId);
+          
+          if (teacher) {
+            console.log('✅ Teacher found:', teacher);
+            return {
+              email: teacher.email,
+              teacherName: teacher.teacher_name,
+              institutionId: teacher.institution_id
+            };
+          } else {
+            console.log('❌ Teacher not found for teacher_id:', teacherId);
+            return null;
+          }
+        } else {
+          console.log('❌ Failed to fetch teacher data');
+          return null;
+        }
+      } catch (error) {
+        console.error('❌ Error fetching teacher data:', error);
+        return null;
+      }
+    }
+    
+    
+    // Function to get current teacher and institution data
+    function getCurrentTeacherData() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        console.log('🔍 Getting current teacher data:', userData);
+        
+        if (userData && userData.user) {
+          currentTeacherId = userData.user.teacher_id;
+          currentInstitutionId = userData.user.institution_id;
+          console.log('✅ Current teacher_id:', currentTeacherId);
+          console.log('✅ Current institution_id:', currentInstitutionId);
+          return { teacherId: currentTeacherId, institutionId: currentInstitutionId };
+        }
+      }
+      console.log('❌ No teacher data found in session');
+      return null;
+    }
+
+    // Save all marks to API
+    async function saveAllMarks() {
+      if (isLoading) return;
+      
+      const marksInputs = document.querySelectorAll('.marks-input');
+      const remarksInputs = document.querySelectorAll('input[data-student-id]:not(.marks-input)');
+      
+      // Get current teacher and institution data
+      const teacherData = getCurrentTeacherData();
+      if (!teacherData) {
+        showMessage('Teacher data not found. Please login again.', 'error');
+        return;
+      }
+      
+      // Collect all marks data
+      const marksData = [];
+      let hasValidData = false;
+      
+      marksInputs.forEach(input => {
+        const studentId = parseInt(input.getAttribute('data-student-id'));
+        const marks = parseInt(input.value) || 0;
+        const student = students.find(s => s.id === studentId);
+        
+        if (student && marks > 0) {
+          hasValidData = true;
+          const grade = calculateGrade(marks);
+          
+          // Find corresponding remarks
+          const remarksInput = document.querySelector(`input[data-student-id="${studentId}"]:not(.marks-input)`);
+          const remarks = remarksInput ? remarksInput.value : '';
+          
+          marksData.push({
+            teacher_id: teacherData.teacherId,
+            institution_id: teacherData.institutionId,
+            academic_year: document.getElementById('academicYear').value,
+            class: document.getElementById('classSection').value,
+            subject: document.getElementById('subject').value,
+            exam_type: document.getElementById('examType').value,
+            student_id: `STD${studentId.toString().padStart(3, '0')}`,
+            student_name: student.name,
+            marks: marks,
+            grade: grade,
+            remarks: remarks
+          });
+        }
+      });
+      
+      if (!hasValidData) {
+        showMessage('Please enter marks for at least one student!', 'error');
+        return;
+      }
+      
+      try {
+        isLoading = true;
+        const saveButton = document.querySelector('.btn-save-all');
+        if (saveButton) {
+          saveButton.classList.add('loading');
+        }
+        showLoadingPopup('Saving marks to database...');
+        
+        // Save each mark entry to API
+        const savePromises = marksData.map(async (markData) => {
+          const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(markData)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          return await response.json();
+        });
+        
+        const results = await Promise.all(savePromises);
+        
+        hideLoadingPopup();
+        showSuccessPopup(`Successfully saved ${results.length} marks entries!`);
+        
+        // Update local data
+        marksData.forEach(markData => {
+          const student = students.find(s => s.id === parseInt(markData.student_id.replace('STD', '')));
+        if (student) {
+            student.marks = markData.marks;
+            student.grade = markData.grade;
+            student.remarks = markData.remarks;
+          }
+        });
+        
+        // Refresh the history section
+        loadMarksHistory();
+        
+      } catch (error) {
+        hideLoadingPopup();
+        console.error('Error saving marks:', error);
+        showMessage('Failed to save marks. Please try again.', 'error');
+      } finally {
+        isLoading = false;
+        const saveButton = document.querySelector('.btn-save-all');
+        if (saveButton) {
+          saveButton.classList.remove('loading');
+        }
+      }
+    }
+
+
+
+    // Loading popup functionality (from image_upload.html)
+    function showLoadingPopup(message = 'Processing...') {
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loadingOverlay';
+      loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+      `;
+      
+      const loadingContent = document.createElement('div');
+      loadingContent.style.cssText = `
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        max-width: 300px;
+        width: 90%;
+      `;
+      
+      loadingContent.innerHTML = `
+        <div style="margin-bottom: 1rem;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #209194;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+          "></div>
+            </div>
+        <p style="margin: 0; color: #333; font-weight: 500;">${message}</p>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+      
+      loadingOverlay.appendChild(loadingContent);
+      document.body.appendChild(loadingOverlay);
+    }
+    
+    function hideLoadingPopup() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.remove();
+      }
+    }
+    
+    // Success popup functionality
+    function showSuccessPopup(message = 'Operation completed successfully!') {
+      const successOverlay = document.createElement('div');
+      successOverlay.id = 'successOverlay';
+      successOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+      `;
+      
+      const successContent = document.createElement('div');
+      successContent.style.cssText = `
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        max-width: 350px;
+        width: 90%;
+        animation: slideInUp 0.3s ease;
+      `;
+      
+      successContent.innerHTML = `
+        <div style="margin-bottom: 1rem;">
+          <div style="
+            width: 60px;
+            height: 60px;
+            background: #26bf67;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            animation: checkmark 0.5s ease;
+          ">
+            <i class="fas fa-check" style="color: white; font-size: 24px;"></i>
+          </div>
+        </div>
+        <h3 style="margin: 0 0 0.5rem 0; color: #333; font-size: 1.2rem;">Success!</h3>
+        <p style="margin: 0 0 1.5rem 0; color: #666; line-height: 1.5;">${message}</p>
+        <button onclick="hideSuccessPopup()" style="
+          background: #26bf67;
+          color: white;
+          border: none;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+        " onmouseover="this.style.background='#1ea854'" onmouseout="this.style.background='#26bf67'">
+          OK
+        </button>
+        <style>
+          @keyframes slideInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+        </style>
+      `;
+      
+      successOverlay.appendChild(successContent);
+      document.body.appendChild(successOverlay);
+    }
+    
+    function hideSuccessPopup() {
+      const successOverlay = document.getElementById('successOverlay');
+      if (successOverlay) {
+        successOverlay.remove();
+      }
+      
+      // Reset all form fields
+      resetAllFields();
+      
+      // Hide the marks entry table
+      const marksEntryCard = document.getElementById('marksEntryCard');
+      if (marksEntryCard) {
+        marksEntryCard.style.display = 'none';
+      }
+    }
+    
+    // Reset all form fields and clear data
+    function resetAllFields() {
+      // Reset selection form fields
+      document.getElementById('academicYear').value = '';
+      document.getElementById('classSection').value = '';
+      document.getElementById('subject').value = '';
+      document.getElementById('examType').value = '';
+      
+      // Clear marks table
+      const tbody = document.getElementById('marksTableBody');
+      if (tbody) {
+        tbody.innerHTML = '';
+      }
+      
+      // Clear any marks inputs and remarks inputs
+      const marksInputs = document.querySelectorAll('.marks-input');
+      const remarksInputs = document.querySelectorAll('input[data-student-id]:not(.marks-input)');
+      
+      marksInputs.forEach(input => {
+        input.value = '';
+      });
+      
+      remarksInputs.forEach(input => {
+        input.value = '';
+      });
+      
+      // Reset students array
+      students = [];
+      
+      // Clear any success messages
+      const existingMessages = document.querySelectorAll('.message');
+      existingMessages.forEach(msg => msg.remove());
+    }
+
+    // Utility function to show messages
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 2000;
+        animation: slideIn 0.3s ease;
+      `;
+      messageDiv.textContent = message;
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 3000);
+    }
+
+    // Load marks history from API
+    async function loadMarksHistory() {
+      try {
+        showLoadingPopup('Loading marks history...');
+        
+        const response = await fetch(API_BASE_URL, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        hideLoadingPopup();
+        
+        if (data.success && data.marks_entries) {
+          displayMarksHistory(data.marks_entries);
+        } else {
+          showMessage('No marks history found.', 'info');
+          displayMarksHistory([]);
+        }
+        
+      } catch (error) {
+        hideLoadingPopup();
+        console.error('Error loading marks history:', error);
+        showMessage('Failed to load marks history.', 'error');
+        displayMarksHistory([]);
+      }
+    }
+    
+    // Display marks history in card format
+    function displayMarksHistory(marksEntries) {
+      const container = document.getElementById('marksHistoryContent');
+      
+      if (!marksEntries || marksEntries.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <h3>No Marks History Found</h3>
+            <p>Start by entering marks for your students to see them here.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Group marks by exam type and date
+      const groupedMarks = marksEntries.reduce((groups, entry) => {
+        const key = `${entry.exam_type}_${entry.class}_${entry.subject}`;
+        if (!groups[key]) {
+          groups[key] = {
+            exam_type: entry.exam_type,
+            class: entry.class,
+            subject: entry.subject,
+            academic_year: entry.academic_year,
+            created_at: entry.created_at,
+            entries: []
+          };
+        }
+        groups[key].entries.push(entry);
+        return groups;
+      }, {});
+      
+      // Store grouped data globally for quick access
+      groupedMarksData = groupedMarks;
+      
+      let html = '<div class="history-grid">';
+      
+      Object.values(groupedMarks).forEach(group => {
+        const examDate = new Date(group.created_at).toLocaleDateString();
+        const totalStudents = group.entries.length;
+        const averageMarks = (group.entries.reduce((sum, entry) => sum + parseFloat(entry.marks), 0) / totalStudents).toFixed(1);
+        
+        html += `
+          <div class="history-card">
+            <div class="history-card-header">
+              <div class="exam-info">
+                <h4>${group.exam_type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h4>
+                <p>${group.class} - ${group.subject}</p>
+              </div>
+              <div class="exam-stats">
+                <span class="stat-badge">${totalStudents} Students</span>
+                <span class="stat-badge">Avg: ${averageMarks}</span>
+              </div>
+            </div>
+            <div class="history-card-body">
+              <div class="exam-details">
+                <div class="detail-item">
+                  <i class="fas fa-calendar"></i>
+                  <span>${examDate}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span>${group.academic_year}</span>
+                </div>
+              </div>
+              <div class="student-list-mini">
+                ${group.entries.slice(0, 3).map(entry => `
+                  <div class="student-mini">
+                    <span class="student-name">${entry.student_name}</span>
+                    <span class="student-marks ${getGradeClass(entry.grade)}">${entry.marks} (${entry.grade})</span>
+                  </div>
+                `).join('')}
+                ${group.entries.length > 3 ? `<div class="more-students" onclick="showAllStudentsFromGroup('${group.exam_type}', '${group.class}', '${group.subject}')">+${group.entries.length - 3} more students</div>` : ''}
+              </div>
+            </div>
+            <div class="history-card-footer">
+              <button class="btn-view-details" onclick="viewExamDetails('${group.exam_type}', '${group.class}', '${group.subject}')">
+                <i class="fas fa-eye"></i> View Details
+              </button>
+              <button class="btn-export" onclick="exportExamMarks('${group.exam_type}', '${group.class}', '${group.subject}')">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    
+    // Show all students from already loaded group data (faster approach)
+    function showAllStudentsFromGroup(examType, className, subject) {
+      try {
+        const key = `${examType}_${className}_${subject}`;
+        console.log('Looking for group data with key:', key);
+        console.log('Available grouped data keys:', Object.keys(groupedMarksData));
+        
+        const groupData = groupedMarksData[key];
+        
+        if (groupData && groupData.entries && groupData.entries.length > 0) {
+          console.log('Found group data with', groupData.entries.length, 'students');
+          showStudentListPopup(groupData.entries, examType, className, subject);
+        } else {
+          console.log('No group data found, falling back to API call');
+          // Fallback to API call if group data not found
+          showAllStudents(examType, className, subject);
+        }
+      } catch (error) {
+        console.error('Error showing students from group:', error);
+        showMessage('Failed to display student data.', 'error');
+      }
+    }
+
+    // Show all students for a specific exam (API approach)
+    async function showAllStudents(examType, className, subject) {
+      try {
+        showLoadingPopup('Loading student details...');
+        
+        // URL encode parameters to handle special characters and spaces
+        const encodedExamType = encodeURIComponent(examType);
+        const encodedClassName = encodeURIComponent(className);
+        const encodedSubject = encodeURIComponent(subject);
+        
+        const apiUrl = `${API_BASE_URL}?exam_type=${encodedExamType}&class=${encodedClassName}&subject=${encodedSubject}`;
+        console.log('Fetching student list from:', apiUrl);
+        console.log('Original parameters:', { examType, className, subject });
+        console.log('Encoded parameters:', { encodedExamType, encodedClassName, encodedSubject });
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        hideLoadingPopup();
+        
+        console.log('Student list API response:', data);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (data.success && data.marks_entries && data.marks_entries.length > 0) {
+          console.log('Found', data.marks_entries.length, 'students for exam:', examType, className, subject);
+          showStudentListPopup(data.marks_entries, examType, className, subject);
+        } else {
+          console.log('No data found. Response structure:', {
+            success: data.success,
+            marks_entries: data.marks_entries,
+            count: data.count,
+            message: data.message
+          });
+          showMessage(`No student data found for ${examType} - ${className} - ${subject}. Please check if marks have been saved for this exam.`, 'info');
+        }
+      } catch (error) {
+        hideLoadingPopup();
+        console.error('Error fetching student data:', error);
+        showMessage('Failed to load student data. Please try again.', 'error');
+      }
+    }
+
+    // Show student list popup
+    function showStudentListPopup(students, examType, className, subject) {
+      const popup = document.createElement('div');
+      popup.id = 'studentListPopup';
+      popup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+      `;
+      
+      const popupContent = document.createElement('div');
+      popupContent.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: slideInUp 0.3s ease;
+      `;
+      
+      popupContent.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3 style="margin: 0; color: var(--text);">All Students - ${examType} - ${className} - ${subject}</h3>
+          <button onclick="closeStudentListPopup()" style="
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.2s;
+          " onmouseover="this.style.background='var(--bg)'; this.style.color='var(--text)'" onmouseout="this.style.background='none'; this.style.color='var(--text-light)'">
+            ×
+          </button>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto;">
+          ${students.map(student => `
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1rem;
+              border-bottom: 1px solid var(--border);
+              transition: background 0.2s;
+            " onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='white'">
+              <div>
+                <div style="font-weight: 600; color: var(--text);">${student.student_name}</div>
+                <div style="font-size: 0.9rem; color: var(--text-light);">ID: ${student.student_id}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 600; color: var(--primary);">${student.marks} marks</div>
+                <div style="font-size: 0.9rem; color: var(--text-light);">Grade: ${student.grade}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <style>
+          @keyframes slideInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        </style>
+      `;
+      
+      popup.appendChild(popupContent);
+      document.body.appendChild(popup);
+    }
+
+    // Close student list popup
+    function closeStudentListPopup() {
+      const popup = document.getElementById('studentListPopup');
+      if (popup) {
+        popup.remove();
+      }
+    }
+
+    // Show exam details popup with table format
+    async function showExamDetailsPopup(examType, className, subject) {
+      try {
+        showLoadingPopup('Loading exam details...');
+        
+        // URL encode parameters to handle special characters and spaces
+        const encodedExamType = encodeURIComponent(examType);
+        const encodedClassName = encodeURIComponent(className);
+        const encodedSubject = encodeURIComponent(subject);
+        
+        const apiUrl = `${API_BASE_URL}?exam_type=${encodedExamType}&class=${encodedClassName}&subject=${encodedSubject}`;
+        console.log('Fetching exam details from:', apiUrl);
+        console.log('Original parameters:', { examType, className, subject });
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        hideLoadingPopup();
+        
+        console.log('Exam details API response:', data);
+        
+        if (data.success && data.marks_entries && data.marks_entries.length > 0) {
+          showExamDetailsTable(data.marks_entries, examType, className, subject);
+        } else {
+          showMessage('No exam data found.', 'info');
+        }
+      } catch (error) {
+        hideLoadingPopup();
+        console.error('Error fetching exam details:', error);
+        showMessage('Failed to load exam details. Please try again.', 'error');
+      }
+    }
+
+    // Show exam details table popup
+    function showExamDetailsTable(students, examType, className, subject) {
+      const popup = document.createElement('div');
+      popup.id = 'examDetailsPopup';
+      popup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+      `;
+      
+      const popupContent = document.createElement('div');
+      popupContent.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 800px;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: slideInUp 0.3s ease;
+      `;
+      
+      // Calculate statistics
+      const totalStudents = students.length;
+      const averageMarks = (students.reduce((sum, student) => sum + parseFloat(student.marks), 0) / totalStudents).toFixed(1);
+      const gradeDistribution = students.reduce((acc, student) => {
+        acc[student.grade] = (acc[student.grade] || 0) + 1;
+        return acc;
+      }, {});
+      
+      popupContent.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3 style="margin: 0; color: var(--text);">Exam Details - ${examType} - ${className} - ${subject}</h3>
+          <button onclick="closeExamDetailsPopup()" style="
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.2s;
+          " onmouseover="this.style.background='var(--bg)'; this.style.color='var(--text)'" onmouseout="this.style.background='none'; this.style.color='var(--text-light)'">
+            ×
+          </button>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div style="text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${totalStudents}</div>
+              <div style="color: var(--text-light); font-size: 0.9rem;">Total Students</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${averageMarks}</div>
+              <div style="color: var(--text-light); font-size: 0.9rem;">Average Marks</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">${Object.keys(gradeDistribution).length}</div>
+              <div style="color: var(--text-light); font-size: 0.9rem;">Grade Types</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead>
+              <tr style="background: #f8f9fa; border-bottom: 2px solid var(--border);">
+                <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">STUDENT NAME</th>
+                <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">STUDENT ID</th>
+                <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">MARKS</th>
+                <th style="padding: 1rem; text-align: center; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">GRADE</th>
+                <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text);">REMARKS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((student, index) => `
+                <tr style="border-bottom: 1px solid var(--border); ${index % 2 === 0 ? 'background: #fafafa;' : 'background: white;'}">
+                  <td style="padding: 1rem; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">${student.student_name}</td>
+                  <td style="padding: 1rem; text-align: center; color: var(--text-light); border-right: 1px solid var(--border);">${student.student_id}</td>
+                  <td style="padding: 1rem; text-align: center; font-weight: 600; color: var(--primary); border-right: 1px solid var(--border);">${student.marks}</td>
+                  <td style="padding: 1rem; text-align: center; font-weight: 600; color: var(--text); border-right: 1px solid var(--border);">${student.grade}</td>
+                  <td style="padding: 1rem; color: var(--text-light);">${student.remarks || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <style>
+          @keyframes slideInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        </style>
+      `;
+      
+      popup.appendChild(popupContent);
+      document.body.appendChild(popup);
+    }
+
+    // Close exam details popup
+    function closeExamDetailsPopup() {
+      const popup = document.getElementById('examDetailsPopup');
+      if (popup) {
+        popup.remove();
+      }
+    }
+
+    // View exam details
+    function viewExamDetails(examType, className, subject) {
+      showExamDetailsPopup(examType, className, subject);
+    }
+    
+    // Export exam marks to Excel
+    async function exportExamMarks(examType, className, subject) {
+      try {
+        showLoadingPopup('Preparing Excel export...');
+        
+        // URL encode parameters to handle special characters and spaces
+        const encodedExamType = encodeURIComponent(examType);
+        const encodedClassName = encodeURIComponent(className);
+        const encodedSubject = encodeURIComponent(subject);
+        
+        const apiUrl = `${API_BASE_URL}?exam_type=${encodedExamType}&class=${encodedClassName}&subject=${encodedSubject}`;
+        console.log('Fetching data for export from:', apiUrl);
+        console.log('Original parameters:', { examType, className, subject });
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        hideLoadingPopup();
+        
+        console.log('Export API response:', data);
+        
+        if (data.success && data.marks_entries && data.marks_entries.length > 0) {
+          exportToExcel(data.marks_entries, examType, className, subject);
+        } else {
+          showMessage('No data found to export.', 'info');
+        }
+      } catch (error) {
+        hideLoadingPopup();
+        console.error('Error fetching data for export:', error);
+        showMessage('Failed to prepare export. Please try again.', 'error');
+      }
+    }
+
+    // Export data to Excel format
+    function exportToExcel(students, examType, className, subject) {
+      // Calculate statistics
+      const totalStudents = students.length;
+      const averageMarks = (students.reduce((sum, student) => sum + parseFloat(student.marks), 0) / totalStudents).toFixed(1);
+      const gradeDistribution = students.reduce((acc, student) => {
+        acc[student.grade] = (acc[student.grade] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Create CSV content
+      let csvContent = '';
+      
+      // Add header information
+      csvContent += `EXAM REPORT\n`;
+      csvContent += `Exam Type: ${examType}\n`;
+      csvContent += `Class: ${className}\n`;
+      csvContent += `Subject: ${subject}\n`;
+      csvContent += `Total Students: ${totalStudents}\n`;
+      csvContent += `Average Marks: ${averageMarks}\n`;
+      csvContent += `Generated Date: ${new Date().toLocaleDateString()}\n\n`;
+      
+      // Add grade distribution
+      csvContent += `GRADE DISTRIBUTION\n`;
+      csvContent += `Grade,Count\n`;
+      Object.entries(gradeDistribution).forEach(([grade, count]) => {
+        csvContent += `${grade},${count}\n`;
+      });
+      csvContent += `\n`;
+      
+      // Add student data table
+      csvContent += `STUDENT DETAILS\n`;
+      csvContent += `Student Name,Student ID,Marks,Grade,Remarks\n`;
+      
+      students.forEach(student => {
+        const name = `"${student.student_name}"`;
+        const id = `"${student.student_id}"`;
+        const marks = student.marks;
+        const grade = `"${student.grade}"`;
+        const remarks = `"${student.remarks || ''}"`;
+        csvContent += `${name},${id},${marks},${grade},${remarks}\n`;
+      });
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${examType}_${className}_${subject}_Marks_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showMessage(`Excel file exported successfully! (${totalStudents} students)`, 'success');
+    }
+    
+
+    // Initialize
+    loadMarksHistory();
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

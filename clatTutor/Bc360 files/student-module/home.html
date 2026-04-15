@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 100%;
+      height: 50px;
+      border-radius: 3px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: contain;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+      z-index: 1;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background: rgba(26, 26, 26, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1.3px solid var(--border);
+      padding: 10px 32px 10px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-home {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 19px;
+      z-index: 9999;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Dashboard Styles */
+    .dashboard-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .dashboard-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      padding: 24px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--label);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-all-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .view-all-btn:hover {
+      background: var(--yellow);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    }
+
+    .view-all-btn i {
+      font-size: 0.8rem;
+    }
+
+    .attendance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .attendance-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .attendance-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .attendance-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .subject-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .subject-info h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin: 0 0 4px 0;
+    }
+
+    .subject-info p {
+      font-size: 0.875rem;
+      color: var(--subtle);
+      margin: 0;
+    }
+
+    .attendance-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .attendance-count {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+
+    .attendance-percentage {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .progress-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0deg, #e5e7eb 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .progress-circle::before {
+      content: '';
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+    }
+
+    .progress-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--yellow);
+      z-index: 1;
+    }
+
+    .timetable-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
+
+    .timetable-table th {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .timetable-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--label);
+      white-space: nowrap;
+    }
+
+    .timetable-table tr:hover {
+      background: var(--accent-light);
+    }
+
+    .timetable-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius);
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--card);
+    }
+
+    .timetable-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .timetable-container::-webkit-scrollbar-track {
+      background: var(--card);
+      border-radius: 4px;
+    }
+
+    .timetable-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    .timetable-container::-webkit-scrollbar-thumb:hover {
+      background: var(--yellow);
+    }
+
+    .announcements-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .announcement-item {
+      padding: 12px;
+      background: var(--accent-light);
+      border-radius: 8px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .announcement-title {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 4px;
+    }
+
+    .announcement-time {
+      font-size: 0.875rem;
+      color: var(--subtle);
+    }
+
+    .teachers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .teacher-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--accent-light);
+      border-radius: 8px;
+    }
+
+    .teacher-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+
+    .teacher-info h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin: 0 0 4px 0;
+    }
+
+    .teacher-status {
+      font-size: 0.875rem;
+      color: var(--subtle);
+    }
+
+    /* Student Rankings Section */
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--subtle);
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .rankings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .ranking-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--accent-light);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ranking-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .ranking-card:hover::before {
+      width: 100%;
+    }
+
+    .ranking-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .ranking-position {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ranking-position.gold {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #1a1a1a;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    }
+
+    .ranking-position.silver {
+      background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+      color: #1a1a1a;
+      box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+    }
+
+    .ranking-position.bronze {
+      background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+    }
+
+    .ranking-position.other {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--yellow) 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+    }
+
+    .student-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: white;
+      position: relative;
+      z-index: 1;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .student-info {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .student-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 4px;
+    }
+
+    .student-details {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      opacity: 0.8;
+    }
+
+    .student-badge {
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge.top-performer {
+      background: rgba(255, 215, 0, 0.2);
+      color: #ffd700;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .badge.excellent {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge.good {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--blue);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge.rising {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .ranking-card.current-user {
+      background: rgba(251, 191, 36, 0.1) !important;
+      border: 1px solid rgba(251, 191, 36, 0.3) !important;
+    }
+
+    .ranking-card.current-user::before {
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%) !important;
+    }
+
+    .ranking-card.current-user .student-name {
+      color: var(--accent) !important;
+    }
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Leave Summary Styles */
+    .leave-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .leave-card {
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .leave-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .leave-card.balance {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: var(--accent);
+    }
+
+    .leave-card.attendance {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+    }
+
+    .leave-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .leave-card.attendance .leave-number {
+      color: var(--success);
+    }
+
+    .leave-label {
+      font-size: 0.85rem;
+      color: var(--subtle);
+      font-weight: 500;
+    }
+
+    .leave-applications {
+      margin-top: 20px;
+    }
+
+    .leave-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .leave-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .leave-item.approved {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+    }
+
+    .leave-item.rejected {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+    }
+
+    .leave-item.pending {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: var(--warning);
+    }
+
+    .leave-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .leave-status.approved {
+      background: var(--success);
+      color: white;
+    }
+
+    .leave-status.rejected {
+      background: var(--danger);
+      color: white;
+    }
+
+    .leave-status.pending {
+      background: var(--warning);
+      color: white;
+    }
+
+    /* Custom Popup Styles */
+    .custom-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .custom-popup-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .custom-popup {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: hidden;
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .custom-popup-overlay.active .custom-popup {
+      transform: scale(1);
+    }
+
+    .custom-popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid var(--border);
+      background: var(--accent-light);
+    }
+
+    .custom-popup-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .custom-popup-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--subtle);
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .custom-popup-close:hover {
+      background: var(--border);
+      color: var(--label);
+    }
+
+    .custom-popup-body {
+      padding: 30px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    /* Leave Application Popup */
+    .leave-popup {
+      width: 800px;
+      max-height: 90vh;
+    }
+
+    .leave-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      padding: 12px 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: var(--accent-light);
+      color: var(--label);
+      transition: border 0.15s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+    }
+
+    .leave-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .leave-type-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .leave-type-option:hover {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+    }
+
+    .leave-type-option.selected {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.2);
+    }
+
+    .leave-type-option input[type="radio"] {
+      margin: 0;
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: #f59e0b;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent);
+      color: #1a1a1a;
+    }
+
+    /* Success/Error Message Popup */
+    .message-popup {
+      width: 400px;
+      text-align: center;
+    }
+
+    .message-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px auto;
+    }
+
+    .message-icon.success {
+      background: var(--success);
+      color: white;
+    }
+
+    .message-icon.error {
+      background: var(--danger);
+      color: white;
+    }
+
+    .message-icon.info {
+      background: var(--blue);
+      color: white;
+    }
+
+    .message-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 10px;
+    }
+
+    .message-desc {
+      color: var(--subtle);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    /* Leave Letter Popup Styles */
+    .leave-letter-popup {
+      width: 900px;
+      max-height: 90vh;
+    }
+
+    .leave-letter-content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      font-family: 'Times New Roman', serif;
+      line-height: 1.5;
+      color: #333;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-size: 0.95rem;
+    }
+
+    .letter-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 15px;
+    }
+
+    .school-name {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 5px;
+    }
+
+    .school-address {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .letter-subject {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .letter-date {
+      text-align: right;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .letter-to {
+      margin-bottom: 15px;
+    }
+
+    .letter-to-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .letter-body {
+      text-align: justify;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .letter-body p {
+      margin-bottom: 8px;
+    }
+
+    .letter-signature {
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .signature-section {
+      text-align: left;
+    }
+
+    .signature-line {
+      width: 200px;
+      border-top: 1px solid #333;
+      margin-top: 30px;
+      margin-bottom: 8px;
+    }
+
+    .signature-name {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .signature-title {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .letter-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #333;
+      padding-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .attendance-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .rankings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .leave-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .timetable-table {
+        min-width: 400px;
+        font-size: 0.875rem;
+      }
+
+      .timetable-table th,
+      .timetable-table td {
+        padding: 8px 10px;
+      }
+
+      .timetable-container {
+        margin: 0 -12px;
+        padding: 0 12px;
+      }
+
+      .leave-popup {
+        width: auto;
+      }
+
+      .leave-type-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Mobile leave letter adjustments */
+    @media (max-width: 768px) {
+      .leave-letter-popup {
+        width: auto;
+      }
+
+      .leave-letter-content {
+        padding: 20px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .timetable-table {
+        min-width: 350px;
+        font-size: 0.8rem;
+      }
+
+      .timetable-table th,
+      .timetable-table td {
+        padding: 6px 8px;
+      }
+
+      .dashboard-section {
+        padding: 16px;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .view-all-btn {
+        align-self: flex-start;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+
+    @media (max-width: 600px) {
+      .welcome-message {
+        font-size: 1.2rem;
+        padding: 30px 10px;
+        min-width: 180px;
+      }
+      .main-content { padding: 10px; }
+    }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar-hamburger {
+        left: auto;
+        right: 16px;
+        top: 15px;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html" class="active"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/home_1299859.png" alt="Home" style="width: 24px; height: 24px;">
+        Student Dashboard
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+      <div class="dashboard-container">
+        <!-- Attendance Section -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <img src="./assets/attendance.png" alt="Attendance" style="width: 24px; height: 24px;">
+              Last Month Attendance
+            </div>
+          </div>
+          <div class="attendance-grid">
+            <div class="attendance-card">
+              <div class="attendance-header">
+                <div class="subject-icon" style="background: var(--blue);">
+                  <span style="font-weight: bold; font-size: 1.2rem;">A</span>
+                </div>
+                <div class="subject-info">
+                  <h4>Engineering Graphics</h4>
+                </div>
+              </div>
+              <div class="attendance-stats">
+                <div class="attendance-count">12/14</div>
+                <div class="progress-circle" style="background: conic-gradient(var(--yellow) 309.6deg, #404040 309.6deg);">
+                  <div class="progress-text">86%</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="attendance-card">
+              <div class="attendance-header">
+                <div class="subject-icon" style="background: var(--red);">
+                  <span style="font-weight: bold; font-size: 1.2rem;">∑</span>
+                </div>
+                <div class="subject-info">
+                  <h4>Mathematical Engineering</h4>
+                </div>
+              </div>
+              <div class="attendance-stats">
+                <div class="attendance-count">27/29</div>
+                <div class="progress-circle" style="background: conic-gradient(var(--yellow) 334.8deg, #404040 334.8deg);">
+                  <div class="progress-text">93%</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="attendance-card">
+              <div class="attendance-header">
+                <div class="subject-icon" style="background: var(--green);">
+                  <span style="font-weight: bold; font-size: 1.2rem;">C</span>
+                </div>
+                <div class="subject-info">
+                  <h4>Computer Architecture</h4>
+                  <p>Last 24 Hours</p>
+                </div>
+              </div>
+              <div class="attendance-stats">
+                <div class="attendance-count">27/30</div>
+                <div class="progress-circle" style="background: conic-gradient(var(--yellow) 291.6deg, #404040 291.6deg);">
+                  <div class="progress-text">81%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="attendance-card">
+              <div class="attendance-header">
+                <div class="subject-icon" style="background: var(--red);">
+                  <span style="font-weight: bold; font-size: 1.2rem;">D</span>
+                </div>
+                <div class="subject-info">
+                  <h4>Database Management</h4>
+                </div>
+              </div>
+              <div class="attendance-stats">
+                <div class="attendance-count">24/25</div>
+                <div class="progress-circle" style="background: conic-gradient(var(--yellow) 345.6deg, #404040 345.6deg);">
+                  <div class="progress-text">96%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="attendance-card">
+              <div class="attendance-header">
+                <div class="subject-icon" style="background: var(--blue);">
+                  <span style="font-weight: bold; font-size: 1.2rem;">N</span>
+                </div>
+                <div class="subject-info">
+                  <h4>Network Security</h4>
+                </div>
+              </div>
+              <div class="attendance-stats">
+                <div class="attendance-count">25/27</div>
+                <div class="progress-circle" style="background: conic-gradient(var(--yellow) 331.2deg, #404040 331.2deg);">
+                  <div class="progress-text">92%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Timetable Section -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <img src="./assets/time table.png" alt="Timetable" style="width: 24px; height: 24px;">
+              Today's Timetable
+            </div>
+          </div>
+          <div class="timetable-container">
+            <table class="timetable-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Room</th>
+                  <th>Subject</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10-11 AM</td>
+                  <td>Room 33-309</td>
+                  <td>DBMS130</td>
+                  <td>Lecture</td>
+                </tr>
+                <tr>
+                  <td>11-12 AM</td>
+                  <td>Room 38-719</td>
+                  <td>CS200</td>
+                  <td>Lecture</td>
+                </tr>
+                <tr>
+                  <td>01-02 PM</td>
+                  <td>Room 33-309</td>
+                  <td>MTH166</td>
+                  <td>Lecture</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Announcements Section -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <img src="./assets/announcement.png" alt="Announcements" style="width: 24px; height: 24px;">
+              Announcements
+            </div>
+            <a href="./announcement.html" class="view-all-btn">
+              View Full Announcements
+            </a>
+          </div>
+          <div class="announcements-list">
+            <div class="announcement-item">
+              <div class="announcement-title">Academic Summer training internship with Live Projects.</div>
+              <div class="announcement-time">2 Minutes Ago</div>
+            </div>
+            <div class="announcement-item">
+              <div class="announcement-title">Co-curricular Global internship opportunity by Student organization.</div>
+              <div class="announcement-time">10 Minutes Ago</div>
+            </div>
+            <div class="announcement-item">
+              <div class="announcement-title">Examination Instructions for Mid Term Examination.</div>
+              <div class="announcement-time">Yesterday</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leave Application -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <img src="./assets/todo.png" alt="Leave Application" style="width: 24px; height: 24px;">
+              Leave Application
+            </div>
+            <button class="view-all-btn" onclick="applyLeave()">
+              Apply Leave
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Rankings Section -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <img src="./assets/performance.png" alt="Student Rankings" style="width: 24px; height: 24px;">
+              Student Rankings
+            </div>
+            <div class="section-subtitle">Based on academic engagement & performance</div>
+          </div>
+          <div class="rankings-grid">
+            <div class="ranking-card">
+              <div class="ranking-position gold">1</div>
+              <div class="student-avatar">AS</div>
+              <div class="student-info">
+                <div class="student-name">Alex Smith</div>
+                <div class="student-details">Computer Science</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge top-performer">Top</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position silver">2</div>
+              <div class="student-avatar">MJ</div>
+              <div class="student-info">
+                <div class="student-name">Maria Johnson</div>
+                <div class="student-details">Engineering</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge excellent">Excel</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position bronze">3</div>
+              <div class="student-avatar">DW</div>
+              <div class="student-info">
+                <div class="student-name">David Wilson</div>
+                <div class="student-details">Mathematics</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge excellent">Excel</span>
+              </div>
+            </div>
+
+            <div class="ranking-card current-user">
+              <div class="ranking-position other">4</div>
+              <div class="student-avatar">JS</div>
+              <div class="student-info">
+                <div class="student-name">John Student</div>
+                <div class="student-details">Computer Science</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge good">Good</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">5</div>
+              <div class="student-avatar">EL</div>
+              <div class="student-info">
+                <div class="student-name">Emma Lee</div>
+                <div class="student-details">Physics</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge rising">Rising</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">6</div>
+              <div class="student-avatar">RB</div>
+              <div class="student-info">
+                <div class="student-name">Ryan Brown</div>
+                <div class="student-details">Chemistry</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge good">Good</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">7</div>
+              <div class="student-avatar">SD</div>
+              <div class="student-info">
+                <div class="student-name">Sarah Davis</div>
+                <div class="student-details">Biology</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge rising">Rising</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">8</div>
+              <div class="student-avatar">MG</div>
+              <div class="student-info">
+                <div class="student-name">Michael Garcia</div>
+                <div class="student-details">Engineering</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge good">Good</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">9</div>
+              <div class="student-avatar">LM</div>
+              <div class="student-info">
+                <div class="student-name">Lisa Martinez</div>
+                <div class="student-details">Computer Science</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge rising">Rising</span>
+              </div>
+            </div>
+
+            <div class="ranking-card">
+              <div class="ranking-position other">10</div>
+              <div class="student-avatar">CT</div>
+              <div class="student-info">
+                <div class="student-name">Chris Taylor</div>
+                <div class="student-details">Mathematics</div>
+              </div>
+              <div class="student-badge">
+                <span class="badge good">Good</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Application Popup -->
+  <div class="custom-popup-overlay" id="leavePopup">
+    <div class="custom-popup leave-popup">
+      <div class="custom-popup-header">
+        <div class="custom-popup-title">
+          <img src="./assets/online test.png" alt="Apply for Leave" style="width: 24px; height: 24px;">
+          Apply for Leave
+        </div>
+        <button class="custom-popup-close" onclick="closeLeavePopup()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="custom-popup-body">
+        <form class="leave-form" id="leaveForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Student Name *</label>
+              <input type="text" class="form-input" id="studentName" value="John Student" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Whom *</label>
+              <input type="text" class="form-input" id="toWhom" value="The Principal" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Class/Section *</label>
+              <input type="text" class="form-input" id="classSection" value="Class 10A" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Roll Number *</label>
+              <input type="text" class="form-input" id="rollNumber" value="2024001" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Type of Leave *</label>
+            <div class="leave-type-grid">
+              <label class="leave-type-option" onclick="selectLeaveType('casual')">
+                <input type="radio" name="leaveType" value="casual">
+                <img src="./assets/time table.png" alt="Casual Leave" style="width: 20px; height: 20px;">
+                Casual Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('sick')">
+                <input type="radio" name="leaveType" value="sick">
+                <img src="./assets/todo.png" alt="Sick Leave" style="width: 20px; height: 20px;">
+                Sick Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('personal')">
+                <input type="radio" name="leaveType" value="personal">
+                <img src="./assets/todo.png" alt="Personal Leave" style="width: 20px; height: 20px;">
+                Personal Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('medical')">
+                <input type="radio" name="leaveType" value="medical">
+                <img src="./assets/todo.png" alt="Medical Leave" style="width: 20px; height: 20px;">
+                Medical Leave
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">From Date *</label>
+              <input type="date" class="form-input" id="fromDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Date *</label>
+              <input type="date" class="form-input" id="toDate" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Number of Days *</label>
+              <input type="number" class="form-input" id="numberOfDays" min="1" max="30" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason for Leave *</label>
+              <select class="form-select" id="leaveReason" required>
+                <option value="">Select Reason</option>
+                <option value="personal">Personal Work</option>
+                <option value="medical">Medical Emergency</option>
+                <option value="family">Family Function</option>
+                <option value="travel">Travel</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Detailed Reason *</label>
+            <textarea class="form-textarea" id="detailedReason" placeholder="Please provide detailed reason for your leave application..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Contact During Leave</label>
+            <input type="tel" class="form-input" id="contactNumber" placeholder="Emergency contact number">
+          </div>
+          
+          <div class="popup-actions">
+            <button type="button" class="btn-secondary" onclick="closeLeavePopup()">
+              Cancel
+            </button>
+            <button type="button" class="btn-secondary" onclick="viewLeaveLetter()">
+              View Letter
+            </button>
+            <button type="submit" class="btn-primary">
+              Submit Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Letter Popup -->
+  <div class="custom-popup-overlay" id="leaveLetterPopup">
+    <div class="custom-popup leave-letter-popup">
+      <div class="custom-popup-header">
+        <div class="custom-popup-title">
+          <img src="./assets/online test.png" alt="Leave Application Letter" style="width: 24px; height: 24px;">
+          Leave Application Letter
+        </div>
+        <div class="popup-actions" style="margin: 0; padding: 0; border: none;">
+          <button class="btn-secondary" onclick="printLeaveLetter()" style="margin-right: 8px;">
+            Print
+          </button>
+          <button class="btn-primary" onclick="downloadLeaveLetter()">
+            Download
+          </button>
+          <button class="custom-popup-close" onclick="closeLeaveLetterPopup()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="custom-popup-body">
+        <div class="leave-letter-content" id="leaveLetterContent">
+          <!-- Leave letter content will be generated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Popup -->
+  <div class="custom-popup-overlay" id="messagePopup">
+    <div class="custom-popup message-popup">
+      <div class="custom-popup-body">
+        <div class="message-icon" id="messageIcon">
+          <img src="./assets/todo.png" alt="Success" style="width: 28px; height: 28px;">
+        </div>
+        <div class="message-title" id="messageTitle">Success!</div>
+        <div class="message-desc" id="messageDesc">Operation completed successfully.</div>
+        <div class="popup-actions" style="justify-content: center;">
+          <button class="btn-primary" onclick="closeMessagePopup()">
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include the authentication system -->
+  <script src="../js/simple-auth.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  <script src="../js/ultra-protection.js"></script>
+
+  <script>
+    // Display current user information
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('Current User Data:', userData);
+            console.log('User ID:', userData.userId);
+            console.log('User Name:', userData.displayName);
+            console.log('User Role:', userData.userType);
+            console.log('User Email:', userData.email);
+            console.log('User Phone:', userData.phone);
+            console.log('Full User Object:', userData.user);
+            
+            // Update the page with user information
+            updateUserInfo(userData);
+          } else {
+            console.log('No user logged in');
+            // Redirect to login if no user
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('UserSession not loaded');
+        }
+      }, 100);
+    });
+
+    function updateUserInfo(userData) {
+      // Update any user-specific elements on the page
+      const userElements = document.querySelectorAll('[data-user-name]');
+      userElements.forEach(el => {
+        el.textContent = userData.displayName || 'User';
+      });
+      
+      const userRoleElements = document.querySelectorAll('[data-user-role]');
+      userRoleElements.forEach(el => {
+        el.textContent = userData.userType || 'Student';
+      });
+      
+      const userIdElements = document.querySelectorAll('[data-user-id]');
+      userIdElements.forEach(el => {
+        el.textContent = userData.userId || 'N/A';
+      });
+    }
+
+    // Professional logout function - now handled by ProfessionalLogout system
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        console.warn('ProfessionalLogout not available, falling back to basic logout');
+        // Fallback: show basic confirmation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.clear();
+            window.location.href = '../login.html';
+          }
+        }
+      }
+    }
+
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = false;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#1a1a1a');
+        document.documentElement.style.setProperty('--card', '#2d2d2d');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        themeIcon.className = 'fas fa-moon';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8fafc');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8fafc');
+        themeIcon.className = 'fas fa-sun';
+      }
+    });
+
+
+
+    // Leave Application Functions
+    function applyLeave() {
+      const popup = document.getElementById('leavePopup');
+      popup.classList.add('active');
+      setDefaultDates();
+    }
+    
+    function closeLeavePopup() {
+      document.getElementById('leavePopup').classList.remove('active');
+      document.getElementById('leaveForm').reset();
+      clearLeaveTypeSelection();
+    }
+    
+    function selectLeaveType(type) {
+      // Remove previous selection
+      clearLeaveTypeSelection();
+      
+      // Add selection to clicked option
+      const option = document.querySelector(`input[value="${type}"]`).closest('.leave-type-option');
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+    }
+    
+    function clearLeaveTypeSelection() {
+      document.querySelectorAll('.leave-type-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+    }
+    
+    function setDefaultDates() {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      document.getElementById('fromDate').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('toDate').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('numberOfDays').value = '1';
+    }
+    
+    // Calculate days between dates
+    document.getElementById('fromDate').addEventListener('change', calculateDays);
+    document.getElementById('toDate').addEventListener('change', calculateDays);
+    
+    function calculateDays() {
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      
+      if (fromDate && toDate) {
+        const from = new Date(fromDate);
+        const to = new Date(toDate);
+        const diffTime = Math.abs(to - from);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        document.getElementById('numberOfDays').value = diffDays;
+      }
+    }
+    
+    // Handle leave form submission
+    document.getElementById('leaveForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const leaveData = {
+        studentName: document.getElementById('studentName').value,
+        toWhom: document.getElementById('toWhom').value,
+        classSection: document.getElementById('classSection').value,
+        rollNumber: document.getElementById('rollNumber').value,
+        leaveType: document.querySelector('input[name="leaveType"]:checked')?.value,
+        fromDate: document.getElementById('fromDate').value,
+        toDate: document.getElementById('toDate').value,
+        numberOfDays: document.getElementById('numberOfDays').value,
+        reason: document.getElementById('leaveReason').value,
+        detailedReason: document.getElementById('detailedReason').value,
+        contactNumber: document.getElementById('contactNumber').value
+      };
+      
+      // Validate required fields
+      if (!leaveData.leaveType) {
+        showMessagePopup('error', 'Validation Error', 'Please select a leave type.');
+        return;
+      }
+      
+      // Submit leave application (in real app, this would send to backend)
+      console.log('Leave Application:', leaveData);
+      
+      closeLeavePopup();
+      showMessagePopup('success', 'Application Submitted', 'Your leave application has been submitted successfully. You will receive a confirmation email shortly.');
+    });
+    
+    // Leave Letter Functions
+    function viewLeaveLetter() {
+      // Validate form before showing letter
+      const form = document.getElementById('leaveForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        showMessagePopup('error', 'Validation Error', 'Please fill all required fields before viewing the letter.');
+        return;
+      }
+      
+      generateLeaveLetter();
+      document.getElementById('leaveLetterPopup').classList.add('active');
+    }
+    
+    function closeLeaveLetterPopup() {
+      document.getElementById('leaveLetterPopup').classList.remove('active');
+    }
+    
+    function generateLeaveLetter() {
+      const formData = getLeaveFormData();
+      const letterContent = document.getElementById('leaveLetterContent');
+      
+      const today = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const fromDate = new Date(formData.fromDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const toDate = new Date(formData.toDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const leaveTypeText = getLeaveTypeText(formData.leaveType);
+      const reasonText = getReasonText(formData.reason);
+      
+      letterContent.innerHTML = `
+        <div class="letter-header">
+          <div class="school-name">BC360 Educational Institution</div>
+          <div class="school-address">123 Education Street, Knowledge City, KC 12345</div>
+          <div class="school-address">Phone: (555) 123-4567 | Email: info@bc360.edu</div>
+        </div>
+        
+        <div class="letter-subject">Leave Application</div>
+        
+        <div class="letter-date">Date: ${today}</div>
+        
+        <div class="letter-to">
+          <div class="letter-to-title">To,</div>
+          <div>${formData.toWhom || 'The Principal'}</div>
+          <div>BC360 Educational Institution</div>
+          <div>123 Education Street</div>
+          <div>Knowledge City, KC 12345</div>
+        </div>
+        
+        <div class="letter-body">
+          <p><strong>Subject: Application for ${leaveTypeText}</strong></p>
+          
+          <p>Respected Sir/Madam,</p>
+          
+          <p>I, <strong>${formData.studentName}</strong>, studying in <strong>${formData.classSection}</strong> with Roll Number <strong>${formData.rollNumber}</strong>, hereby submit my application for ${leaveTypeText.toLowerCase()} from <strong>${fromDate}</strong> to <strong>${toDate}</strong> (${formData.numberOfDays} day${formData.numberOfDays > 1 ? 's' : ''}).</p>
+          
+          <p><strong>Reason for Leave:</strong> ${reasonText}</p>
+          
+          <p><strong>Detailed Reason:</strong></p>
+          <p>${formData.detailedReason}</p>
+          
+          ${formData.contactNumber ? `<p><strong>Contact During Leave:</strong> ${formData.contactNumber}</p>` : ''}
+          
+          <p>I assure you that I will complete all pending assignments and homework before my leave and will resume my studies on the specified date. I kindly request you to grant me the leave and oblige.</p>
+          
+          <p>Thanking you,</p>
+          <p>Yours faithfully,</p>
+        </div>
+        
+        <div class="letter-signature">
+          <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-name">${formData.studentName}</div>
+            <div class="signature-title">Student - ${formData.classSection}</div>
+          </div>
+        </div>
+        
+        <div class="letter-footer">
+          <p>This is a computer-generated document. No physical signature is required.</p>
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+        </div>
+      `;
+    }
+    
+    function getLeaveFormData() {
+      return {
+        studentName: document.getElementById('studentName').value,
+        toWhom: document.getElementById('toWhom').value,
+        classSection: document.getElementById('classSection').value,
+        rollNumber: document.getElementById('rollNumber').value,
+        leaveType: document.querySelector('input[name="leaveType"]:checked')?.value,
+        fromDate: document.getElementById('fromDate').value,
+        toDate: document.getElementById('toDate').value,
+        numberOfDays: document.getElementById('numberOfDays').value,
+        reason: document.getElementById('leaveReason').value,
+        detailedReason: document.getElementById('detailedReason').value,
+        contactNumber: document.getElementById('contactNumber').value
+      };
+    }
+    
+    function getLeaveTypeText(type) {
+      const types = {
+        'casual': 'Casual Leave',
+        'sick': 'Sick Leave',
+        'personal': 'Personal Leave',
+        'medical': 'Medical Leave'
+      };
+      return types[type] || 'Leave';
+    }
+    
+    function getReasonText(reason) {
+      const reasons = {
+        'personal': 'Personal Work',
+        'medical': 'Medical Emergency',
+        'family': 'Family Function',
+        'travel': 'Travel',
+        'other': 'Other Personal Reasons'
+      };
+      return reasons[reason] || reason;
+    }
+    
+    function printLeaveLetter() {
+      const letterContent = document.getElementById('leaveLetterContent');
+      const content = letterContent.innerHTML;
+      const formData = getLeaveFormData();
+      
+      // Create a new window specifically for printing
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Leave Application - ${formData.studentName}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 1in;
+            }
+            body {
+              font-family: 'Times New Roman', serif;
+              line-height: 1.5;
+              color: #333;
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-size: 12pt;
+            }
+            .letter-content {
+              width: 100%;
+              max-width: 100%;
+              margin: 0;
+              padding: 0;
+              page-break-after: avoid;
+              page-break-inside: avoid;
+            }
+            .letter-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 15px;
+            }
+            .school-name {
+              font-size: 18pt;
+              font-weight: bold;
+              color: #000;
+              margin-bottom: 5px;
+            }
+            .school-address {
+              font-size: 10pt;
+              color: #666;
+              margin-bottom: 5px;
+            }
+            .letter-subject {
+              font-size: 14pt;
+              font-weight: bold;
+              text-align: center;
+              margin: 20px 0;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .letter-date {
+              text-align: right;
+              margin-bottom: 20px;
+              font-size: 10pt;
+            }
+            .letter-to {
+              margin-bottom: 15px;
+            }
+            .letter-to-title {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .letter-body {
+              text-align: justify;
+              margin-bottom: 20px;
+              font-size: 11pt;
+            }
+            .letter-body p {
+              margin-bottom: 8px;
+            }
+            .letter-signature {
+              margin-top: 25px;
+              text-align: left;
+            }
+            .signature-section {
+              text-align: left;
+            }
+            .signature-line {
+              width: 200px;
+              border-top: 1px solid #333;
+              margin-top: 30px;
+              margin-bottom: 8px;
+            }
+            .signature-name {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .signature-title {
+              font-size: 9pt;
+              color: #666;
+            }
+            .letter-footer {
+              margin-top: 15px;
+              text-align: center;
+              font-size: 8pt;
+              color: #666;
+              border-top: 1px solid #eee;
+              padding-top: 10px;
+            }
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 0;
+                width: 100%;
+                height: 100%;
+              }
+              .letter-content {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="letter-content">
+            ${content}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Wait for content to load then print
+      printWindow.onload = function() {
+        setTimeout(function() {
+          printWindow.print();
+          setTimeout(function() {
+            printWindow.close();
+          }, 1000);
+        }, 500);
+      };
+    }
+    
+    function downloadLeaveLetter() {
+      const letterContent = document.getElementById('leaveLetterContent');
+      const content = letterContent.innerHTML;
+      const formData = getLeaveFormData();
+      
+      // Create a new window with the letter content for PDF generation
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Leave Application - ${formData.studentName} - ${new Date().toLocaleDateString()}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 1in;
+            }
+            body {
+              font-family: 'Times New Roman', serif;
+              line-height: 1.6;
+              color: #333;
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-size: 12pt;
+            }
+            .letter-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 15px;
+            }
+            .school-name {
+              font-size: 18pt;
+              font-weight: bold;
+              color: #000;
+              margin-bottom: 5px;
+            }
+            .school-address {
+              font-size: 10pt;
+              color: #666;
+              margin-bottom: 5px;
+            }
+            .letter-subject {
+              font-size: 14pt;
+              font-weight: bold;
+              text-align: center;
+              margin: 20px 0;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .letter-date {
+              text-align: right;
+              margin-bottom: 20px;
+              font-size: 10pt;
+            }
+            .letter-to {
+              margin-bottom: 15px;
+            }
+            .letter-to-title {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .letter-body {
+              text-align: justify;
+              margin-bottom: 20px;
+              font-size: 11pt;
+            }
+            .letter-body p {
+              margin-bottom: 10px;
+            }
+            .letter-signature {
+              margin-top: 30px;
+              text-align: left;
+            }
+            .signature-section {
+              text-align: left;
+            }
+            .signature-line {
+              width: 200px;
+              border-top: 1px solid #333;
+              margin-top: 40px;
+              margin-bottom: 8px;
+            }
+            .signature-name {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .signature-title {
+              font-size: 9pt;
+              color: #666;
+            }
+            .letter-footer {
+              margin-top: 20px;
+              text-align: center;
+              font-size: 8pt;
+              color: #666;
+              border-top: 1px solid #eee;
+              padding-top: 10px;
+            }
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 0;
+              }
+              .letter-content {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="letter-content">
+            ${content}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Wait for content to load then trigger print for PDF
+      printWindow.onload = function() {
+        setTimeout(function() {
+          printWindow.print();
+          setTimeout(function() {
+            printWindow.close();
+          }, 1000);
+        }, 500);
+      };
+    }
+
+    // Message Popup Functions
+    function showMessagePopup(type, title, message) {
+      const popup = document.getElementById('messagePopup');
+      const icon = document.getElementById('messageIcon');
+      const titleEl = document.getElementById('messageTitle');
+      const desc = document.getElementById('messageDesc');
+      
+      // Set icon and colors based on type
+      icon.className = `message-icon ${type}`;
+      if (type === 'success') {
+        icon.innerHTML = '<i class="fas fa-check"></i>';
+      } else if (type === 'error') {
+        icon.innerHTML = '<i class="fas fa-times"></i>';
+      } else if (type === 'info') {
+        icon.innerHTML = '<i class="fas fa-info"></i>';
+      }
+      
+      titleEl.textContent = title;
+      desc.textContent = message;
+      
+      popup.classList.add('active');
+    }
+    
+    function closeMessagePopup() {
+      document.getElementById('messagePopup').classList.remove('active');
+    }
+
+    // Close popups when clicking outside
+    document.addEventListener('click', function(event) {
+      const leavePopup = document.getElementById('leavePopup');
+      const messagePopup = document.getElementById('messagePopup');
+      const leaveLetterPopup = document.getElementById('leaveLetterPopup');
+      
+      if (event.target.classList.contains('custom-popup-overlay')) {
+        leavePopup.classList.remove('active');
+        messagePopup.classList.remove('active');
+        leaveLetterPopup.classList.remove('active');
+      }
+    });
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dashboard initialized
+    });
+  </script>
+</body>
+</html>

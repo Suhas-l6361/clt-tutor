@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <style>
+    .sd-wrap {
+      display: grid;
+      gap: 1.1rem;
+    }
+    .sd-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fffceb 0%, #ffffff 65%);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+    }
+    .sd-hero h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .sd-hero__left {
+      min-width: 0;
+    }
+    .sd-hero p {
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+    .sd-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #1f2937;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.42rem 0.75rem;
+      white-space: nowrap;
+    }
+    .sd-hero__actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .sd-profile-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid #d8dbe2;
+      background: #fff;
+      color: #202633;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sd-topbar-actions {
+      display: inline-flex;
+      align-items: center;
+      margin-left: auto;
+    }
+    .sd-profile-btn:hover {
+      border-color: #d5b14a;
+      background: #fff8dd;
+      color: #111;
+    }
+    .sd-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+    .sd-stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.85rem 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .sd-stat__icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff7d1;
+      color: #946200;
+      flex: 0 0 auto;
+    }
+    .sd-stat__value {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .sd-stat__label {
+      margin: 0.14rem 0 0;
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .sd-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .sd-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .sd-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sd-card h3 i {
+      color: var(--accent);
+    }
+    .sd-list {
+      list-style: none;
+      margin: 0.85rem 0 0;
+      padding: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+    .sd-list li {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.72rem 0.76rem;
+      background: #fcfcfc;
+    }
+    .sd-list__title {
+      margin: 0;
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .sd-list__meta {
+      margin: 0.2rem 0 0;
+      color: var(--muted);
+      font-size: 0.79rem;
+    }
+    .sd-progress {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e9edf2;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .sd-progress > span {
+      display: block;
+      height: 100%;
+      background: #111827;
+      border-radius: 999px;
+    }
+    .sd-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+    }
+    .sd-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.55rem;
+      font-size: 0.84rem;
+      text-decoration: none;
+      color: #111827;
+      background: #fff;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .sd-action:hover {
+      border-color: #cfd6de;
+      transform: translateY(-1px);
+    }
+    .sd-action--primary {
+      background: var(--accent);
+      color: #111827;
+      border-color: transparent;
+    }
+    .sd-note-list {
+      margin: 0.8rem 0 0;
+      padding-left: 1rem;
+      color: #1f2937;
+      display: grid;
+      gap: 0.4rem;
+      font-size: 0.88rem;
+    }
+    .sd-profile-panel[hidden] {
+      display: none;
+    }
+    .sd-profile-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+    }
+    .sd-profile-panel__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .sd-profile-panel__sheet {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(420px, 100%);
+      height: 100%;
+      background: #fff;
+      border-left: 1px solid #e5e7eb;
+      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.14);
+      display: flex;
+      flex-direction: column;
+    }
+    .sd-profile-panel__head {
+      padding: 1rem 1rem 0.85rem;
+      border-bottom: 1px solid #eceff4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      background: linear-gradient(180deg, #fffdf5 0%, #fff 100%);
+    }
+    .sd-profile-panel__head h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+    .sd-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid #d8dde6;
+      background: #fff;
+      cursor: pointer;
+    }
+    .sd-profile-panel__body {
+      padding: 1rem;
+      overflow: auto;
+    }
+    .sd-profile-avatar {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      margin: 0 auto 0.85rem;
+      background: linear-gradient(145deg, #111111 0%, #303030 100%);
+      color: #ffcc00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.16);
+    }
+    .sd-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+    }
+    .sd-profile-fields {
+      display: grid;
+      gap: 0.72rem;
+    }
+    .sd-profile-fields label {
+      display: block;
+      font-size: 0.8rem;
+      color: #4b5563;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+    }
+    .sd-profile-fields input {
+      width: 100%;
+      border: 1px solid #d4dae4;
+      border-radius: 10px;
+      padding: 0.62rem 0.72rem;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+    .sd-profile-fields input:focus {
+      outline: none;
+      border-color: #111;
+      box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.06);
+    }
+    .sd-profile-fields input[readonly] {
+      background: #f8fafc;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+    .sd-profile-actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.95rem;
+    }
+    .sd-profile-save,
+    .sd-profile-cancel {
+      flex: 1;
+      border-radius: 10px;
+      padding: 0.65rem 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .sd-profile-save {
+      background: #ffcc00;
+      color: #111;
+      border-color: #e6b800;
+    }
+    .sd-profile-cancel {
+      background: #fff;
+      color: #1f2937;
+      border-color: #d4dae4;
+    }
+    .sd-profile-status {
+      margin-top: 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0b7a38;
+    }
+    @media (max-width: 1100px) {
+      .sd-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .sd-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .sd-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .sd-hero__left {
+        width: 100%;
+      }
+    }
+    @media (max-width: 560px) {
+      .sd-stats {
+        grid-template-columns: 1fr;
+      }
+      .sd-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="app-body student-dashboard">
+  <div id="stock" style="display: none">
+    <div class="sd-wrap">
+      <section class="sd-hero">
+        <div class="sd-hero__left">
+          <h2 id="hero-title">Welcome back, Demo Student</h2>
+          <p>Track your prep, finish pending tasks, and stay updated with your batch activity.</p>
+        </div>
+        <div class="sd-hero__actions">
+          <div class="sd-pill">
+            <i class="fa-regular fa-calendar"></i>
+            <span id="today-date">Today</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="sd-stats">
+        <article class="sd-stat">
+          <div class="sd-stat__icon"><i class="fa-solid fa-book-open-reader"></i></div>
+          <div>
+            <p class="sd-stat__value" id="stat-modules">3</p>
+            <p class="sd-stat__label">Active modules</p>
+          </div>
+        </article>
+        <article class="sd-stat">
+          <div class="sd-stat__icon"><i class="fa-solid fa-clock"></i></div>
+          <div>
+            <p class="sd-stat__value" id="stat-due">2</p>
+            <p class="sd-stat__label">Due this week</p>
+          </div>
+        </article>
+        <article class="sd-stat">
+          <div class="sd-stat__icon"><i class="fa-solid fa-bell"></i></div>
+          <div>
+            <p class="sd-stat__value" id="stat-unread">0</p>
+            <p class="sd-stat__label">Unread notices</p>
+          </div>
+        </article>
+        <article class="sd-stat">
+          <div class="sd-stat__icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div>
+            <p class="sd-stat__value">62%</p>
+            <p class="sd-stat__label">Overall progress</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="sd-grid">
+        <div class="sd-card">
+          <h3><i class="fa-solid fa-graduation-cap"></i> Continue Learning</h3>
+          <ul class="sd-list">
+            <li>
+              <p class="sd-list__title">Legal reasoning — Unit 4</p>
+              <p class="sd-list__meta">Next: Practice Set B · Est. 45 min</p>
+              <div class="sd-progress" aria-hidden="true"><span style="width:62%"></span></div>
+            </li>
+            <li>
+              <p class="sd-list__title">Current affairs digest</p>
+              <p class="sd-list__meta">Weekly PDF · March Week 3</p>
+              <div class="sd-progress" aria-hidden="true"><span style="width:100%"></span></div>
+            </li>
+            <li>
+              <p class="sd-list__title">Quant basics revision</p>
+              <p class="sd-list__meta">Topic tests + concept recap</p>
+              <div class="sd-progress" aria-hidden="true"><span style="width:38%"></span></div>
+            </li>
+          </ul>
+          <div class="sd-actions">
+            <a href="courses.html" class="sd-action sd-action--primary"><i class="fa-solid fa-play"></i> Resume course</a>
+            <a href="courses.html" class="sd-action"><i class="fa-solid fa-book"></i> Explore modules</a>
+          </div>
+        </div>
+
+        <div class="sd-card">
+          <h3><i class="fa-solid fa-layer-group"></i> Student Workspace</h3>
+          <ul class="sd-list">
+            <li>
+              <p class="sd-list__title">Enrollment Form</p>
+              <p class="sd-list__meta">Update basic academic and contact details</p>
+            </li>
+            <li>
+              <p class="sd-list__title">Notes & Downloads</p>
+              <p class="sd-list__meta">Access class notes, weekly PDFs, and downloads</p>
+            </li>
+            <li>
+              <p class="sd-list__title">Tests & Reports</p>
+              <p class="sd-list__meta">Take practice tests and view your report cards</p>
+            </li>
+          </ul>
+          <div class="sd-actions">
+            <a href="courses.html" class="sd-action"><i class="fa-solid fa-file-pen"></i> Open Workspace</a>
+            <a href="notifications.html" class="sd-action"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Updates</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="sd-grid">
+        <div class="sd-card">
+          <h3><i class="fa-solid fa-bullhorn"></i> Announcements</h3>
+          <ul class="sd-note-list">
+            <li><strong>Mock test #4</strong> is live. Submit before Sunday to stay on leaderboard.</li>
+            <li><strong>Doubt session:</strong> bring questions from Unit 4 and Quant mixed sets.</li>
+            <li>New legal reasoning workbook and CA notes are available in courses.</li>
+          </ul>
+        </div>
+        <div class="sd-card">
+          <h3><i class="fa-solid fa-square-check"></i> Quick Actions</h3>
+          <div class="sd-actions" style="margin-top:0.85rem">
+            <a href="courses.html" class="sd-action"><i class="fa-solid fa-book-open"></i> Open Courses</a>
+            <a href="notifications.html" class="sd-action"><i class="fa-solid fa-bell"></i> Notifications</a>
+            <a href="courses.html" class="sd-action"><i class="fa-solid fa-file-lines"></i> Weekly Notes</a>
+            <a href="dashboard.html" class="sd-action"><i class="fa-solid fa-rotate"></i> Refresh View</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="sd-profile-panel" id="profile-panel" hidden>
+      <div class="sd-profile-panel__backdrop" id="profile-panel-backdrop"></div>
+      <aside class="sd-profile-panel__sheet" role="dialog" aria-modal="true" aria-label="Student profile">
+        <div class="sd-profile-panel__head">
+          <h3>My Profile</h3>
+          <button class="sd-close" id="close-profile-panel" type="button" aria-label="Close profile">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="sd-profile-panel__body">
+          <div class="sd-profile-avatar" id="profile-avatar">DS</div>
+          <form id="profile-form" class="sd-profile-fields">
+            <div>
+              <label for="profile-name">Full name</label>
+              <input id="profile-name" name="name" type="text" required />
+            </div>
+            <div>
+              <label for="profile-email">Email</label>
+              <input id="profile-email" name="email" type="email" required />
+            </div>
+            <div>
+              <label for="profile-phone">Phone</label>
+              <input id="profile-phone" name="phone" type="text" placeholder="9876543210" />
+            </div>
+            <div>
+              <label for="profile-dob">Date of birth (DOB)</label>
+              <input id="profile-dob" name="dob" type="date" readonly />
+            </div>
+            <div>
+              <label for="profile-branch">Branch</label>
+              <input id="profile-branch" name="branch" type="text" readonly />
+            </div>
+            <div>
+              <label for="profile-batch">Batch</label>
+              <input id="profile-batch" name="batch" type="text" placeholder="Weekend Batch A" readonly />
+            </div>
+            <div>
+              <label for="profile-city">City</label>
+              <input id="profile-city" name="city" type="text" placeholder="Bengaluru" />
+            </div>
+            <div class="sd-profile-actions">
+              <button class="sd-profile-save" type="submit">Save Changes</button>
+              <button class="sd-profile-cancel" id="cancel-profile-edit" type="button">Cancel</button>
+            </div>
+            <div class="sd-profile-status" id="profile-status" hidden>Profile updated successfully.</div>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var studentName = session && session.user && session.user.name ? session.user.name : 'Demo Student';
+      var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
+      var profileStorageKey = storagePrefix + 'student_profile';
+      var STUDENT_GENERAL_INFO_API =
+        'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+      var initials = studentName
+        .split(/\s+/)
+        .map(function (p) {
+          return p[0];
+        })
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+      initAppChrome({
+        role: 'student',
+        active: 'dashboard.html',
+        title: 'Dashboard',
+        contentEl: stock,
+      });
+      applyStudentChrome();
+      var titleEl = document.getElementById('hero-title');
+      if (titleEl) titleEl.textContent = 'Welcome back, ' + studentName;
+      var sidebarNameEl = document.querySelector('.user-meta strong');
+      var sidebarAvatarEl = document.querySelector('.user-avatar');
+      var topbar = document.querySelector('.topbar');
+      if (topbar && !document.getElementById('open-profile-panel')) {
+        var topbarActions = document.createElement('div');
+        topbarActions.className = 'sd-topbar-actions';
+        topbarActions.innerHTML =
+          '<button class="sd-profile-btn" id="open-profile-panel" type="button" aria-label="Open profile"></button>';
+        topbar.appendChild(topbarActions);
+      }
+      if (typeof applyStudentTopbarProfileButton === 'function' && document.getElementById('open-profile-panel')) {
+        applyStudentTopbarProfileButton();
+      }
+      var notes = DataStore.notificationsForViewer('student').filter(function (n) {
+        return !n.read;
+      }).length;
+      var el = document.getElementById('stat-unread');
+      if (el) el.textContent = String(notes);
+      var dateEl = document.getElementById('today-date');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      }
+
+      var openProfileBtn = document.getElementById('open-profile-panel');
+      var closeProfileBtn = document.getElementById('close-profile-panel');
+      var backdrop = document.getElementById('profile-panel-backdrop');
+      var panel = document.getElementById('profile-panel');
+      var cancelBtn = document.getElementById('cancel-profile-edit');
+      var profileForm = document.getElementById('profile-form');
+      var profileAvatar = document.getElementById('profile-avatar');
+      var profileStatus = document.getElementById('profile-status');
+
+      var nameInput = document.getElementById('profile-name');
+      var emailInput = document.getElementById('profile-email');
+      var phoneInput = document.getElementById('profile-phone');
+      var dobInput = document.getElementById('profile-dob');
+      var branchInput = document.getElementById('profile-branch');
+      var batchInput = document.getElementById('profile-batch');
+      var cityInput = document.getElementById('profile-city');
+
+      var currentProfile = null;
+
+      var getInitials = function (name) {
+        return String(name || '')
+          .trim()
+          .split(/\s+/)
+          .map(function (part) { return part[0]; })
+          .join('')
+          .slice(0, 2)
+          .toUpperCase() || 'ST';
+      };
+
+      var isHttpUrl = function (s) {
+        return /^https?:\/\//i.test(String(s || '').trim());
+      };
+
+      var getProfileFallback = function () {
+        var user = session && session.user ? session.user : {};
+        return {
+          student_id: user.student_id != null ? Number(user.student_id) : null,
+          img_url: user.img_url || null,
+          name: user.name || studentName,
+          email: user.email || '',
+          phone: user.phone != null ? String(user.phone) : '',
+          dob: '',
+          branch: '',
+          batch: '',
+          city: '',
+        };
+      };
+
+      var normalizeDobForInput = function (v) {
+        var raw = String(v || '').trim();
+        if (!raw) return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+        var d = new Date(raw);
+        if (isNaN(d.getTime())) return '';
+        return d.toISOString().slice(0, 10);
+      };
+
+      var resolveProfileImageUrl = function (imgUrl) {
+        return new Promise(function (resolve) {
+          if (!imgUrl || !String(imgUrl).trim()) {
+            resolve('');
+            return;
+          }
+          var v = String(imgUrl).trim();
+          if (isHttpUrl(v)) {
+            resolve(v);
+            return;
+          }
+          var u =
+            STUDENT_GENERAL_INFO_API +
+            '?action=get_download_url&key=' +
+            encodeURIComponent(v) +
+            '&inline=1';
+          fetch(u, { method: 'GET' })
+            .then(function (res) {
+              return res.json().then(function (data) {
+                if (res.ok && data && (data.downloadUrl || data.url)) {
+                  resolve(data.downloadUrl || data.url);
+                } else {
+                  resolve('');
+                }
+              });
+            })
+            .catch(function () {
+              resolve('');
+            });
+        });
+      };
+
+      var setProfileAvatar = function (profile) {
+        if (!profileAvatar) return;
+        var initialsText = getInitials(profile && profile.name);
+        profileAvatar.textContent = initialsText;
+        var imgKey = profile && profile.img_url ? String(profile.img_url).trim() : '';
+        if (!imgKey) return;
+        resolveProfileImageUrl(imgKey).then(function (url) {
+          if (!url || !profileAvatar.parentNode) return;
+          profileAvatar.innerHTML = '';
+          var img = document.createElement('img');
+          img.alt = '';
+          img.onerror = function () {
+            profileAvatar.textContent = initialsText;
+          };
+          img.src = url;
+          profileAvatar.appendChild(img);
+        });
+      };
+
+      var fillProfileForm = function (profile) {
+        nameInput.value = profile.name || '';
+        emailInput.value = profile.email || '';
+        phoneInput.value = profile.phone || '';
+        dobInput.value = normalizeDobForInput(profile.dob || '');
+        branchInput.value = profile.branch || '';
+        batchInput.value = profile.batch || '';
+        cityInput.value = profile.city || profile.address || '';
+        setProfileAvatar(profile);
+      };
+
+      var fetchStudentProfile = function () {
+        var user = session && session.user ? session.user : {};
+        var sid = user.student_id != null ? String(user.student_id).trim() : '';
+        var semail = user.email != null ? String(user.email).trim() : '';
+        if (!sid && !semail) return Promise.resolve(getProfileFallback());
+
+        var url = STUDENT_GENERAL_INFO_API + '?' + (sid ? 'student_id=' + encodeURIComponent(sid) : 'email=' + encodeURIComponent(semail));
+        return fetch(url, { method: 'GET' })
+          .then(function (res) {
+            return res.json().then(function (rows) {
+              if (!res.ok || !Array.isArray(rows) || !rows.length) {
+                return getProfileFallback();
+              }
+              var row = rows[0] || {};
+              return {
+                student_id: row.student_id != null ? Number(row.student_id) : (sid ? Number(sid) : null),
+                img_url: row.img_url || user.img_url || null,
+                name: row.name || user.name || studentName,
+                email: row.email || user.email || '',
+                phone: row.phone != null ? String(row.phone) : (user.phone != null ? String(user.phone) : ''),
+                dob: row.dob || '',
+                branch: row.branch || '',
+                batch: row.batch || '',
+                city: row.address || '',
+                address: row.address || '',
+              };
+            });
+          })
+          .catch(function () {
+            return getProfileFallback();
+          });
+      };
+
+      var applyIdentityToUi = function (name) {
+        var displayName = name || 'Demo Student';
+        var ii = getInitials(displayName);
+        if (titleEl) titleEl.textContent = 'Welcome back, ' + displayName;
+        if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+        if (sidebarAvatarEl) {
+          if (!sidebarAvatarEl.querySelector('img.student-user-avatar-img')) {
+            sidebarAvatarEl.textContent = ii;
+          }
+        }
+      };
+
+      var openPanel = function () {
+        fillProfileForm(currentProfile || getProfileFallback());
+        if (profileStatus) profileStatus.hidden = true;
+        if (panel) panel.hidden = false;
+        fetchStudentProfile().then(function (profile) {
+          currentProfile = profile;
+          fillProfileForm(profile);
+        });
+      };
+
+      var closePanel = function () {
+        if (panel) panel.hidden = true;
+      };
+
+      if (openProfileBtn) openProfileBtn.addEventListener('click', openPanel);
+      if (closeProfileBtn) closeProfileBtn.addEventListener('click', closePanel);
+      if (backdrop) backdrop.addEventListener('click', closePanel);
+      if (cancelBtn) cancelBtn.addEventListener('click', closePanel);
+
+      if (profileForm) {
+        profileForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var updated = {
+            name: (nameInput.value || '').trim(),
+            email: (emailInput.value || '').trim(),
+            phone: (phoneInput.value || '').trim(),
+            dob: (dobInput.value || '').trim(),
+            branch: (branchInput.value || '').trim(),
+            batch: (batchInput.value || '').trim(),
+            city: (cityInput.value || '').trim(),
+          };
+          if (!updated.name || !updated.email) return;
+          var sid = currentProfile && currentProfile.student_id != null ? Number(currentProfile.student_id) : null;
+          if (!sid || Number.isNaN(sid)) {
+            if (profileStatus) {
+              profileStatus.hidden = false;
+              profileStatus.textContent = 'Unable to update profile: missing student id.';
+              profileStatus.style.color = '#b42318';
+            }
+            return;
+          }
+
+          if (profileStatus) {
+            profileStatus.hidden = false;
+            profileStatus.style.color = '#374151';
+            profileStatus.textContent = 'Saving changes...';
+          }
+
+          try {
+            var payload = {
+              student_id: sid,
+              name: updated.name,
+              email: updated.email,
+              phone: updated.phone,
+              address: updated.city,
+            };
+            var saveRes = await fetch(STUDENT_GENERAL_INFO_API, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            var saveData = {};
+            try {
+              saveData = await saveRes.json();
+            } catch (_) {
+              saveData = {};
+            }
+            if (!saveRes.ok) {
+              throw new Error(saveData && saveData.message ? saveData.message : 'Unable to update profile');
+            }
+
+            currentProfile = Object.assign({}, currentProfile || {}, updated, { student_id: sid, address: updated.city });
+            applyIdentityToUi(updated.name);
+            setProfileAvatar(currentProfile);
+            if (typeof applyStudentTopbarProfileButton === 'function') {
+              applyStudentTopbarProfileButton();
+            }
+
+            try {
+              var currentSession = Auth.getSession ? Auth.getSession() : null;
+              if (currentSession && currentSession.user) {
+                currentSession.user.name = updated.name;
+                currentSession.user.email = updated.email;
+                currentSession.user.phone = updated.phone || null;
+                localStorage.setItem((Auth.keys && Auth.keys.user) || (storagePrefix + 'user'), JSON.stringify(currentSession.user));
+              }
+            } catch (_) {}
+
+            if (profileStatus) {
+              profileStatus.hidden = false;
+              profileStatus.style.color = '#0b7a38';
+              profileStatus.textContent = saveData.message || 'Profile updated successfully.';
+            }
+          } catch (err) {
+            if (profileStatus) {
+              profileStatus.hidden = false;
+              profileStatus.style.color = '#b42318';
+              profileStatus.textContent = err && err.message ? err.message : 'Unable to update profile right now.';
+            }
+          }
+        });
+      }
+
+      currentProfile = getProfileFallback();
+      applyIdentityToUi(currentProfile.name);
+      fetchStudentProfile().then(function (profile) {
+        currentProfile = profile;
+        applyIdentityToUi(profile.name);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --danger: #ef5350;
+      --warning: #ffa726;
+      --info: #2196f3;
+      --note: #e6f2fa;
+      --paper: #fffbe6;
+      --video: #e8f7f1;
+      --link: #f6f2fa;
+      --saved: #ffe5e5;
+      --upcoming: #e8f5e8;
+      --completed: #f5f5f5;
+      --pending: #fff3e0;
+      --approved: #e8f5e8;
+      --rejected: #ffebee;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw;}
+    .sidebar {
+      width: var(--sidebar-width); min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.25rem; font-weight: 700; padding: 32px 0 14px 19px; letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px; border-radius: 9px; border: 1.5px solid #fff; background: #fff; object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center;
+      padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s ease; font-weight: 500; gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center;
+      gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh;
+      background: var(--bg); display: flex; flex-direction: column; align-items: flex-start; position: relative; padding: 0; transition: margin-left 0.28s;
+    }
+    .top-bar {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; background: #f8fafd;
+      border-bottom: 1.3px solid var(--border); padding: 25px 32px 18px 32px;
+      font-size: 1.32rem; font-weight: 700; letter-spacing: 0.01em; color: var(--accent); position: relative; z-index: 2;
+    }
+    .top-bar .fa-home { font-size: 2.1rem; color: var(--accent);}
+    
+    .top-bar-left {
+      display: flex; align-items: center; gap: 15px;
+    }
+    
+    .top-bar-right {
+      display: flex; align-items: center; gap: 20px;
+    }
+    
+    .profile-section {
+      display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px 12px;
+      border-radius: 8px; transition: background 0.2s; position: relative;
+    }
+    .profile-section:hover {
+      background: var(--accent-light);
+    }
+    
+    .profile-info {
+      display: flex; flex-direction: column; align-items: flex-end;
+    }
+    .profile-name {
+      font-size: 0.95rem; font-weight: 600; color: var(--label); line-height: 1.2;
+    }
+    .profile-role {
+      font-size: 0.8rem; color: var(--subtle); font-weight: 500;
+    }
+    
+    .profile-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      font-weight: 600; font-size: 1.1rem; border: 2px solid #fff; box-shadow: 0 2px 8px #1d264010;
+      transition: transform 0.2s;
+    }
+    .profile-avatar:hover {
+      transform: scale(1.05);
+    }
+    
+    .profile-dropdown {
+      position: absolute; top: 100%; right: 0; background: var(--card); border-radius: 8px;
+      box-shadow: 0 4px 20px #1d264020; border: 1px solid var(--border); min-width: 180px;
+      z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px);
+      transition: all 0.2s; margin-top: 8px;
+    }
+    .profile-dropdown.active {
+      opacity: 1; visibility: visible; transform: translateY(0);
+    }
+    
+    .profile-dropdown-item {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      color: var(--input); text-decoration: none; font-size: 0.9rem; transition: background 0.15s;
+    }
+    .profile-dropdown-item:hover {
+      background: var(--accent-light); color: var(--accent);
+    }
+    .profile-dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+    .profile-dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .notification-badge {
+      position: relative;
+    }
+    .notification-icon {
+      padding: 8px; border-radius: 6px;
+      transition: all 0.2s; cursor: pointer;
+      display: inline-block;
+    }
+    .notification-icon:hover {
+      background: var(--accent-light);
+      transform: scale(1.1);
+    }
+    .notification-dot {
+      position: absolute; top: 4px; right: 4px; width: 8px; height: 8px;
+      background: var(--danger); border-radius: 50%; border: 2px solid #fff;
+    }
+    
+    /* Custom Popup Styles */
+    .custom-popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+    .custom-popup-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .custom-popup {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: popupSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes popupSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    
+    .custom-popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px 15px 25px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .custom-popup-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .custom-popup-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--subtle);
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: background 0.15s;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .custom-popup-close:hover {
+      background: #f0f0f0;
+    }
+    
+    .custom-popup-body {
+      padding: 20px 25px 25px 25px;
+    }
+    
+    /* Notification Popup */
+    .notification-popup {
+      width: 400px;
+      max-height: 500px;
+    }
+    
+    .notification-list {
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    
+    .notification-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 15px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .notification-item:hover {
+      background: var(--accent-light);
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    
+    .notification-icon-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .notification-icon-small.info { background: var(--info); }
+    .notification-icon-small.warning { background: var(--warning); }
+    .notification-icon-small.success { background: var(--success); }
+    .notification-icon-small.danger { background: var(--danger); }
+    
+    .notification-content {
+      flex: 1;
+    }
+    .notification-title {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+    .notification-desc {
+      color: var(--subtle);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .notification-time {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      margin-top: 4px;
+    }
+    
+    .no-notifications {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--subtle);
+    }
+    .no-notifications i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--border);
+    }
+    
+    /* Leave Application Popup */
+    .leave-popup {
+      width: 800px;
+      max-height: 90vh;
+    }
+    
+    .leave-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+    
+    .form-input, .form-select, .form-textarea {
+      padding: 12px 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fafdff;
+      color: var(--input);
+      transition: border 0.15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+    }
+    
+    .leave-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    
+    .leave-type-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .leave-type-option:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .leave-type-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    
+    .leave-type-option input[type="radio"] {
+      margin: 0;
+    }
+    
+    .popup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover {
+      background: #167e84;
+    }
+    
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover {
+      background: var(--accent-light);
+    }
+    
+    /* Success/Error Message Popup */
+    .message-popup {
+      width: 400px;
+      text-align: center;
+    }
+    
+    .message-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px auto;
+    }
+    .message-icon.success { background: var(--success); color: #fff; }
+    .message-icon.error { background: var(--danger); color: #fff; }
+    .message-icon.info { background: var(--info); color: #fff; }
+    
+    .message-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 10px;
+    }
+    
+    .message-desc {
+      color: var(--subtle);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    
+    /* Leave Letter Popup Styles */
+    .leave-letter-popup {
+      width: 900px;
+      max-height: 90vh;
+    }
+    
+    .leave-letter-content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      font-family: 'Times New Roman', serif;
+      line-height: 1.5;
+      color: #333;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-size: 0.95rem;
+    }
+    
+    .letter-header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 15px;
+    }
+    
+    .school-name {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+    
+    .school-address {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    
+    .letter-subject {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .letter-date {
+      text-align: right;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .letter-to {
+      margin-bottom: 15px;
+    }
+    
+    .letter-to-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .letter-body {
+      text-align: justify;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+    
+    .letter-body p {
+      margin-bottom: 8px;
+    }
+    
+    .letter-signature {
+      margin-top: 25px;
+      text-align: left;
+    }
+    
+    .signature-section {
+      text-align: left;
+    }
+    
+    .signature-line {
+      width: 200px;
+      border-top: 1px solid #333;
+      margin-top: 30px;
+      margin-bottom: 8px;
+    }
+    
+    .signature-name {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+    
+    .signature-title {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    .letter-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    
+    /* Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .leave-letter-content, .leave-letter-content * {
+        visibility: visible;
+      }
+      .leave-letter-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 40px;
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        max-height: none;
+      }
+      .custom-popup-header,
+      .popup-actions {
+        display: none !important;
+      }
+      @page {
+        size: A4;
+        margin: 1in;
+      }
+      /* Prevent multiple pages */
+      html, body {
+        height: 100%;
+        overflow: hidden;
+      }
+    }
+    
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff;
+      color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer; transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3; }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block; }
+
+    /* Dashboard Content */
+    .dashboard-container {
+      width: 100%; max-width: 1400px; margin: 0 auto; padding: 26px 18px 36px 18px;
+      display: grid; grid-template-columns: 1fr 350px; gap: 24px;
+    }
+    
+    .main-dashboard {
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    
+    .sidebar-dashboard {
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    
+    .dashboard-card {
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 25px 28px 23px 28px; border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px #1d264020;
+    }
+    
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 10px;
+    }
+    .card-subtitle {
+      color: var(--subtle); font-size: 0.9rem; font-weight: 500;
+    }
+    .card-action {
+      background: var(--accent-light); color: var(--accent); border: none; border-radius: 6px;
+      padding: 6px 12px; font-size: 0.85rem; cursor: pointer; transition: background 0.15s;
+    }
+    .card-action:hover { background: var(--accent); color: #fff; }
+
+    /* Today's Schedule */
+    .schedule-grid {
+      display: grid; gap: 12px;
+    }
+    .schedule-item {
+      display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 8px;
+      border: 1px solid var(--border); transition: all 0.2s; cursor: pointer;
+    }
+    .schedule-item:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .schedule-item.upcoming {
+      background: var(--upcoming);
+      border-color: var(--success);
+    }
+    .schedule-item.completed {
+      background: var(--completed);
+      opacity: 0.7;
+    }
+    .schedule-time {
+      background: var(--accent); color: #fff; padding: 8px 12px; border-radius: 6px;
+      font-weight: 600; font-size: 0.9rem; min-width: 80px; text-align: center;
+    }
+    .schedule-details {
+      flex: 1;
+    }
+    .schedule-subject {
+      font-weight: 600; color: var(--label); margin-bottom: 4px;
+    }
+    .schedule-class {
+      font-size: 0.9rem; color: var(--subtle);
+    }
+    .schedule-room {
+      background: var(--info); color: #fff; padding: 4px 8px; border-radius: 4px;
+      font-size: 0.8rem; font-weight: 500;
+    }
+
+    /* Pending Tasks */
+    .task-list {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .task-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px;
+      border-left: 4px solid; transition: all 0.2s; cursor: pointer;
+    }
+    .task-item:hover {
+      transform: translateX(4px);
+    }
+    .task-item.attendance { border-left-color: var(--danger); background: #ffebee; }
+    .task-item.assignment { border-left-color: var(--warning); background: var(--pending); }
+    .task-item.lesson { border-left-color: var(--info); background: #e3f2fd; }
+    .task-item.exam { border-left-color: var(--subtle); background: #f5f5f5; }
+    
+    .task-icon {
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.9rem;
+    }
+    .task-item.attendance .task-icon { background: transparent; }
+    .task-item.assignment .task-icon { background: transparent; }
+    .task-item.lesson .task-icon { background: transparent; }
+    .task-item.exam .task-icon { background: transparent; }
+    
+    .task-content {
+      flex: 1;
+    }
+    .task-title {
+      font-weight: 600; color: var(--label); margin-bottom: 2px; font-size: 0.95rem;
+    }
+    .task-desc {
+      font-size: 0.85rem; color: var(--subtle);
+    }
+
+    /* Announcements */
+    .announcement-list {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .announcement-item {
+      padding: 16px; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; transition: all 0.2s; position: relative;
+    }
+    .announcement-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px #1d264010;
+    }
+    .announcement-item.unread {
+      border-left: 4px solid var(--danger);
+      background: #fff5f5;
+    }
+    .announcement-item.pinned {
+      background: var(--note);
+      border-color: var(--info);
+    }
+    
+    .announcement-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .announcement-title {
+      font-weight: 600; color: var(--label); font-size: 0.95rem;
+    }
+    .announcement-meta {
+      display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--subtle);
+    }
+    .announcement-type {
+      padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 500;
+    }
+    .announcement-type.principal { background: #e8f5e8; color: var(--success); }
+    .announcement-type.admin { background: #e3f2fd; color: var(--info); }
+    .announcement-type.dept { background: #fff3e0; color: var(--warning); }
+    .announcement-type.notice { background: #f3e5f5; color: #9c27b0; }
+    
+    .announcement-content {
+      color: var(--input); font-size: 0.9rem; line-height: 1.4;
+    }
+    .announcement-actions {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    .announcement-btn {
+      background: none; border: 1px solid var(--border); border-radius: 4px;
+      padding: 4px 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+    }
+    .announcement-btn:hover {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+
+    /* Leave Summary */
+    .leave-summary {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .leave-card {
+      padding: 16px; border-radius: 8px; text-align: center; border: 1px solid var(--border);
+    }
+    .leave-card.balance {
+      background: var(--accent-light); border-color: var(--accent);
+    }
+    .leave-card.attendance {
+      background: var(--upcoming); border-color: var(--success);
+    }
+    .leave-number {
+      font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;
+    }
+    .leave-label {
+      font-size: 0.85rem; color: var(--subtle); font-weight: 500;
+    }
+    
+    .leave-applications {
+      margin-top: 20px;
+    }
+    .leave-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 12px;
+      border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border);
+    }
+    .leave-item.approved { background: var(--approved); border-color: var(--success); }
+    .leave-item.rejected { background: var(--rejected); border-color: var(--danger); }
+    .leave-item.pending { background: var(--pending); border-color: var(--warning); }
+    
+    .leave-status {
+      padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 500;
+    }
+    .leave-status.approved { background: var(--success); color: #fff; }
+    .leave-status.rejected { background: var(--danger); color: #fff; }
+    .leave-status.pending { background: var(--warning); color: #fff; }
+
+    /* Upcoming Events */
+    .event-list {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .event-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px;
+      border: 1px solid var(--border); transition: all 0.2s;
+    }
+    .event-item:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .event-icon {
+      width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .event-icon.test { background: var(--danger); }
+    .event-icon.meeting { background: var(--info); }
+    .event-icon.holiday { background: var(--warning); }
+    .event-icon.deadline { background: var(--subtle); }
+    
+    .event-details {
+      flex: 1;
+    }
+    .event-title {
+      font-weight: 600; color: var(--label); margin-bottom: 2px;
+    }
+    .event-date {
+      font-size: 0.85rem; color: var(--subtle);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+      .dashboard-container { padding: 15px; grid-template-columns: 1fr; }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-container { padding: 10px; gap: 16px; }
+      .dashboard-card { padding: 20px; }
+      .schedule-grid { grid-template-columns: 1fr; }
+      .leave-summary { grid-template-columns: 1fr; }
+      .schedule-item { flex-direction: column; text-align: center; gap: 10px; }
+      .schedule-time { min-width: auto; }
+      .task-item { flex-direction: column; text-align: center; gap: 8px; }
+      .announcement-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .event-item { flex-direction: column; text-align: center; gap: 8px; }
+      
+      .top-bar { padding: 20px 16px 15px 16px; }
+      .profile-info { display: none; }
+      .profile-avatar { width: 35px; height: 35px; font-size: 1rem; }
+      .top-bar-right { gap: 12px; }
+    }
+    
+    @media (max-width: 480px) {
+      .dashboard-container { padding: 8px; }
+      .dashboard-card { padding: 16px; }
+      .card-title { font-size: 1.1rem; }
+      .schedule-item { padding: 12px; }
+      .task-item { padding: 10px; }
+      .announcement-item { padding: 12px; }
+      .leave-card { padding: 12px; }
+      .event-item { padding: 10px; }
+      
+      .top-bar { padding: 15px 12px 12px 12px; }
+      .top-bar-left { font-size: 1.1rem; }
+      .profile-avatar { width: 32px; height: 32px; font-size: 0.9rem; }
+      .notification-icon { font-size: 1rem; padding: 6px; }
+      .top-bar-right { gap: 8px; }
+      
+      /* Mobile popup adjustments */
+      .custom-popup { margin: 20px; max-width: calc(100vw - 40px); }
+      .leave-popup { width: auto; }
+      .form-row { grid-template-columns: 1fr; }
+      .leave-type-grid { grid-template-columns: 1fr; }
+      .popup-actions { flex-direction: column; }
+      .popup-actions .btn-primary,
+      .popup-actions .btn-secondary { width: 100%; justify-content: center; }
+      
+      /* Mobile leave letter adjustments */
+      .leave-letter-popup { width: auto; }
+      .leave-letter-content { padding: 20px; font-size: 0.9rem; }
+      .school-name { font-size: 1.4rem; }
+      .letter-subject { font-size: 1rem; }
+      .letter-body { font-size: 1rem; }
+      .letter-signature { flex-direction: column; gap: 30px; }
+      .signature-line { width: 150px; }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .dashboard-card {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+    .dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+    .dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+    .dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+    .dashboard-card:nth-child(5) { animation-delay: 0.5s; }
+    .dashboard-card:nth-child(6) { animation-delay: 0.6s; }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html" class="active"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/analytics.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html"><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <img src="./assets/home_1299859.png" alt="Teacher Dashboard" style="width: 20px; height: 20px; margin-right: 10px;">
+          Teacher Dashboard
+        </div>
+        <div class="top-bar-right">
+          <div class="notification-badge">
+            <img src="./assets/notification-bell.png" alt="Notifications" class="notification-icon" onclick="openNotificationPopup()" style="width: 40px; height: 40px;">
+            <div class="notification-dot"></div>
+          </div>
+          <div class="profile-section" onclick="toggleProfileDropdown()">
+            <div class="profile-info">
+              <div class="profile-name">Sarah Johnson</div>
+              <div class="profile-role">Science Teacher</div>
+            </div>
+            <div class="profile-avatar">SJ</div>
+            <div class="profile-dropdown" id="profileDropdown">
+              <a href="./profile.html" class="profile-dropdown-item">
+                <img src="./assets/student dashboard.png" alt="My Profile" style="width: 20px; height: 20px; margin-right: 10px;">
+                My Profile
+              </a>
+              <a href="./changePassword.html" class="profile-dropdown-item">
+                <img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px; margin-right: 10px;">
+                Change Password
+              </a>
+              <a href="#" class="profile-dropdown-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-container">
+        <div class="main-dashboard">
+          <!-- Today's Schedule -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <img src="./assets/time table.png" alt="Today's Class Schedule" style="width: 20px; height: 20px; margin-right: 10px;"> Today's Class Schedule
+                </div>
+                <div class="card-subtitle">Monday, December 16, 2024</div>
+              </div>
+              <button class="card-action" onclick="openLessonPlanner()">
+                <i class="fas fa-plus"></i> Plan Lesson
+              </button>
+            </div>
+            <div class="schedule-grid" id="scheduleGrid">
+              <!-- Schedule items will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Pending Tasks -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <img src="./assets/assignements.png" alt="Pending Tasks" style="width: 20px; height: 20px; margin-right: 10px;"> Pending Tasks
+                </div>
+                <div class="card-subtitle">Action required for today</div>
+              </div>
+              <button class="card-action" onclick="viewAllTasks()">
+                <i class="fas fa-eye"></i> View All
+              </button>
+            </div>
+            <div class="task-list" id="taskList">
+              <!-- Task items will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Announcements -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <img src="./assets/announcement.png" alt="Announcements & Circulars" style="width: 20px; height: 20px; margin-right: 10px;"> Announcements & Circulars
+                </div>
+                <div class="card-subtitle">Latest updates and notices</div>
+              </div>
+              <button class="card-action" onclick="markAllRead()">
+                <i class="fas fa-check-double"></i> Mark All Read
+              </button>
+            </div>
+            <div class="announcement-list" id="announcementList">
+              <!-- Announcements will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-dashboard">
+          <!-- Leave & Attendance Summary -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <img src="./assets/attendance.png" alt="Leave & Attendance" style="width: 20px; height: 20px; margin-right: 10px;"> Leave & Attendance
+                </div>
+                <div class="card-subtitle">This month's summary</div>
+              </div>
+              <button class="card-action" onclick="applyLeave()">
+                <i class="fas fa-plus"></i> Apply Leave
+              </button>
+            </div>
+            <div class="leave-summary">
+              <div class="leave-card balance">
+                <div class="leave-number">5/10</div>
+                <div class="leave-label">CL Balance</div>
+              </div>
+              <div class="leave-card attendance">
+                <div class="leave-number">94%</div>
+                <div class="leave-label">Attendance</div>
+              </div>
+            </div>
+            <div class="leave-applications" id="leaveApplications">
+              <!-- Leave applications will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Upcoming Events -->
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <img src="./assets/time table.png" alt="Upcoming Events" style="width: 20px; height: 20px; margin-right: 10px;"> Upcoming Events
+                </div>
+                <div class="card-subtitle">Next 7 days</div>
+              </div>
+              <button class="card-action" onclick="exportCalendar()">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+            <div class="event-list" id="eventList">
+              <!-- Events will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Popup -->
+  <div class="custom-popup-overlay" id="notificationPopup">
+    <div class="custom-popup notification-popup">
+      <div class="custom-popup-header">
+        <div class="custom-popup-title">
+          <img src="./assets/announcement.png" alt="Notifications" style="width: 20px; height: 20px; margin-right: 10px;">
+          Notifications
+        </div>
+        <button class="custom-popup-close" onclick="closeNotificationPopup()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="custom-popup-body">
+        <div class="notification-list" id="notificationList">
+          <!-- Notifications will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Application Popup -->
+  <div class="custom-popup-overlay" id="leavePopup">
+    <div class="custom-popup leave-popup">
+      <div class="custom-popup-header">
+        <div class="custom-popup-title">
+          <img src="./assets/attendance.png" alt="Apply for Leave" style="width: 20px; height: 20px; margin-right: 10px;">
+          Apply for Leave
+        </div>
+        <button class="custom-popup-close" onclick="closeLeavePopup()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="custom-popup-body">
+        <form class="leave-form" id="leaveForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Teacher Name *</label>
+              <input type="text" class="form-input" id="teacherName" value="Sarah Johnson" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Whom *</label>
+              <input type="text" class="form-input" id="toWhom" value="The Principal" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Department *</label>
+              <input type="text" class="form-input" id="department" value="Science Department" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Designation *</label>
+              <input type="text" class="form-input" id="designation" value="Senior Science Teacher" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Type of Leave *</label>
+            <div class="leave-type-grid">
+              <label class="leave-type-option" onclick="selectLeaveType('casual')">
+                <input type="radio" name="leaveType" value="casual">
+                <img src="./assets/time table.png" alt="Casual Leave" style="width: 20px; height: 20px; margin-right: 10px;">
+                Casual Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('sick')">
+                <input type="radio" name="leaveType" value="sick">
+                <img src="./assets/student dashboard.png" alt="Sick Leave" style="width: 20px; height: 20px; margin-right: 10px;">
+                Sick Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('earned')">
+                <input type="radio" name="leaveType" value="earned">
+                <img src="./assets/analytics.png" alt="Earned Leave" style="width: 20px; height: 20px; margin-right: 10px;">
+                Earned Leave
+              </label>
+              <label class="leave-type-option" onclick="selectLeaveType('personal')">
+                <input type="radio" name="leaveType" value="personal">
+                <img src="./assets/student dashboard.png" alt="Personal Leave" style="width: 20px; height: 20px; margin-right: 10px;">
+                Personal Leave
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">From Date *</label>
+              <input type="date" class="form-input" id="fromDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Date *</label>
+              <input type="date" class="form-input" id="toDate" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Number of Days *</label>
+              <input type="number" class="form-input" id="numberOfDays" min="1" max="30" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason for Leave *</label>
+              <select class="form-select" id="leaveReason" required>
+                <option value="">Select Reason</option>
+                <option value="personal">Personal Work</option>
+                <option value="medical">Medical Emergency</option>
+                <option value="family">Family Function</option>
+                <option value="travel">Travel</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Detailed Reason *</label>
+            <textarea class="form-textarea" id="detailedReason" placeholder="Please provide detailed reason for your leave application..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Contact During Leave</label>
+            <input type="tel" class="form-input" id="contactNumber" placeholder="Emergency contact number">
+          </div>
+          
+          <div class="popup-actions">
+            <button type="button" class="btn-secondary" onclick="closeLeavePopup()">
+              <i class="fas fa-times"></i>
+              Cancel
+            </button>
+            <button type="button" class="btn-secondary" onclick="viewLeaveLetter()">
+              <i class="fas fa-eye"></i>
+              View Letter
+            </button>
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-paper-plane"></i>
+              Submit Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Letter Popup -->
+  <div class="custom-popup-overlay" id="leaveLetterPopup">
+    <div class="custom-popup leave-letter-popup">
+      <div class="custom-popup-header">
+        <div class="custom-popup-title">
+          <img src="./assets/attendance.png" alt="Leave Application Letter" style="width: 20px; height: 20px; margin-right: 10px;">
+          Leave Application Letter
+        </div>
+        <div class="popup-actions" style="margin: 0; padding: 0; border: none;">
+          <button class="btn-secondary" onclick="printLeaveLetter()" style="margin-right: 8px;">
+            <i class="fas fa-print"></i>
+            Print
+          </button>
+          <button class="btn-primary" onclick="downloadLeaveLetter()">
+            <i class="fas fa-download"></i>
+            Download
+          </button>
+          <button class="custom-popup-close" onclick="closeLeaveLetterPopup()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="custom-popup-body">
+        <div class="leave-letter-content" id="leaveLetterContent">
+          <!-- Leave letter content will be generated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Popup -->
+  <div class="custom-popup-overlay" id="messagePopup">
+    <div class="custom-popup message-popup">
+      <div class="custom-popup-body">
+        <div class="message-icon" id="messageIcon">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="message-title" id="messageTitle">Success!</div>
+        <div class="message-desc" id="messageDesc">Operation completed successfully.</div>
+        <div class="popup-actions" style="justify-content: center;">
+          <button class="btn-primary" onclick="closeMessagePopup()">
+            <i class="fas fa-check"></i>
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic (keep as before)
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Sample data for demonstration
+    const scheduleData = [
+      { time: '08:00', subject: 'Mathematics', class: 'Class 9A', room: 'Room 101', status: 'completed' },
+      { time: '09:00', subject: 'Science', class: 'Class 8B', room: 'Lab 2', status: 'completed' },
+      { time: '10:00', subject: 'English', class: 'Class 7A', room: 'Room 105', status: 'upcoming' },
+      { time: '11:00', subject: 'Physics', class: 'Class 10A', room: 'Online', status: 'upcoming' },
+      { time: '12:00', subject: 'Chemistry', class: 'Class 9B', room: 'Lab 1', status: 'upcoming' }
+    ];
+
+    const taskData = [
+      { type: 'attendance', title: 'Attendance Pending', desc: 'Class 6B - Science (10:00 AM)', action: 'markAttendance' },
+      { type: 'assignment', title: 'Assignments to Review', desc: '5 assignments from Class 8A', action: 'reviewAssignments' },
+      { type: 'lesson', title: 'Lesson Plan Incomplete', desc: 'Physics Unit 3 needs completion', action: 'completeLesson' },
+      { type: 'exam', title: 'Exam Marks Not Entered', desc: 'Class 9A Mathematics Test', action: 'enterMarks' }
+    ];
+
+    const announcementData = [
+      { type: 'principal', title: 'Staff Meeting Tomorrow', content: 'Important staff meeting at 3 PM in the conference room.', time: '2 hours ago', unread: true, pinned: false },
+      { type: 'admin', title: 'Holiday Notice', content: 'School will be closed on December 25th for Christmas.', time: '1 day ago', unread: false, pinned: true },
+      { type: 'dept', title: 'Department Meeting', content: 'Science department meeting scheduled for Friday.', time: '2 days ago', unread: true, pinned: false },
+      { type: 'notice', title: 'Exam Duty Assignment', content: 'You have been assigned exam duty for Class 10 final exams.', time: '3 days ago', unread: false, pinned: false }
+    ];
+
+    const leaveData = [
+      { type: 'CL', date: 'Dec 20-21', status: 'approved' },
+      { type: 'SL', date: 'Dec 25', status: 'pending' },
+      { type: 'CL', date: 'Dec 30', status: 'rejected' }
+    ];
+
+    const eventData = [
+      { type: 'test', title: 'Class 9A Mathematics Test', date: 'Dec 17, 10:00 AM' },
+      { type: 'meeting', title: 'Staff Meeting', date: 'Dec 18, 3:00 PM' },
+      { type: 'holiday', title: 'Christmas Holiday', date: 'Dec 25' },
+      { type: 'deadline', title: 'Report Card Entry Deadline', date: 'Dec 20' }
+    ];
+
+    // Render functions
+    function renderSchedule() {
+      const scheduleGrid = document.getElementById('scheduleGrid');
+      scheduleGrid.innerHTML = scheduleData.map(item => `
+        <div class="schedule-item ${item.status}" onclick="openLessonPlanner()">
+          <div class="schedule-time">${item.time}</div>
+          <div class="schedule-details">
+            <div class="schedule-subject">${item.subject}</div>
+            <div class="schedule-class">${item.class}</div>
+          </div>
+          <div class="schedule-room">${item.room}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = taskData.map(task => `
+        <div class="task-item ${task.type}" onclick="${task.action}()">
+          <div class="task-icon">
+            <img src="${task.type === 'attendance' ? './assets/attendance.png' : 
+                        task.type === 'assignment' ? './assets/assignements.png' : 
+                        task.type === 'lesson' ? './assets/lesson planner.png' : './assets/marks upload.png'}" 
+                 alt="${task.title}" style="width: 20px; height: 20px;">
+          </div>
+          <div class="task-content">
+            <div class="task-title">${task.title}</div>
+            <div class="task-desc">${task.desc}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAnnouncements() {
+      const announcementList = document.getElementById('announcementList');
+      announcementList.innerHTML = announcementData.map(announcement => `
+        <div class="announcement-item ${announcement.unread ? 'unread' : ''} ${announcement.pinned ? 'pinned' : ''}">
+          <div class="announcement-header">
+            <div class="announcement-title">${announcement.title}</div>
+            <div class="announcement-meta">
+              <span class="announcement-type ${announcement.type}">${announcement.type.toUpperCase()}</span>
+              <span>${announcement.time}</span>
+            </div>
+          </div>
+          <div class="announcement-content">${announcement.content}</div>
+          <div class="announcement-actions">
+            <button class="announcement-btn" onclick="markAsRead(this)">Mark Read</button>
+            <button class="announcement-btn" onclick="pinAnnouncement(this)">Pin</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderLeaveApplications() {
+      const leaveApplications = document.getElementById('leaveApplications');
+      leaveApplications.innerHTML = leaveData.map(leave => `
+        <div class="leave-item ${leave.status}">
+          <div>
+            <div style="font-weight: 600;">${leave.type} Leave</div>
+            <div style="font-size: 0.85rem; color: var(--subtle);">${leave.date}</div>
+          </div>
+          <div class="leave-status ${leave.status}">${leave.status.toUpperCase()}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderEvents() {
+      const eventList = document.getElementById('eventList');
+      eventList.innerHTML = eventData.map(event => `
+        <div class="event-item">
+          <div class="event-icon ${event.type}">
+            <i class="fas ${event.type === 'test' ? 'fa-file-alt' : 
+                          event.type === 'meeting' ? 'fa-users' : 
+                          event.type === 'holiday' ? 'fa-calendar-day' : 'fa-clock'}"></i>
+          </div>
+          <div class="event-details">
+            <div class="event-title">${event.title}</div>
+            <div class="event-date">${event.date}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Action functions
+    function openLessonPlanner() {
+      window.location.href = './lesson-planner.html';
+    }
+
+    function markAttendance() {
+      window.location.href = './attendance.html';
+    }
+
+    function reviewAssignments() {
+      window.location.href = './Assignment_management.html';
+    }
+
+    function completeLesson() {
+      window.location.href = './lesson-planner.html';
+    }
+
+    function enterMarks() {
+      window.location.href = './marks_entry.html';
+    }
+
+    function viewAllTasks() {
+      // Show all tasks in a modal or navigate to tasks page
+      showMessagePopup('info', 'View All Tasks', 'This feature will show all pending tasks in a detailed view.');
+    }
+
+    function markAllRead() {
+      document.querySelectorAll('.announcement-item.unread').forEach(item => {
+        item.classList.remove('unread');
+      });
+    }
+
+    function applyLeave() {
+      // Open leave application form
+      alert('Apply leave functionality');
+    }
+
+    function exportCalendar() {
+      // Export calendar functionality
+      showMessagePopup('success', 'Calendar Exported', 'Your calendar events have been exported successfully. Check your downloads folder.');
+    }
+
+    function markAsRead(button) {
+      button.closest('.announcement-item').classList.remove('unread');
+    }
+
+    function pinAnnouncement(button) {
+      const item = button.closest('.announcement-item');
+      item.classList.toggle('pinned');
+      button.textContent = item.classList.contains('pinned') ? 'Unpin' : 'Pin';
+    }
+
+    // Profile dropdown functionality
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('active');
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const profileSection = document.querySelector('.profile-section');
+      const dropdown = document.getElementById('profileDropdown');
+      
+      if (!profileSection.contains(event.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+    
+    // Logout function
+    function logout() {
+      showMessagePopup('info', 'Confirm Logout', 'Are you sure you want to logout?', function() {
+        window.location.href = '../index.html';
+      });
+    }
+    
+    // Popup Management Functions
+    function showMessagePopup(type, title, message, onConfirm) {
+      const popup = document.getElementById('messagePopup');
+      const icon = document.getElementById('messageIcon');
+      const titleEl = document.getElementById('messageTitle');
+      const desc = document.getElementById('messageDesc');
+      const okBtn = popup.querySelector('.btn-primary');
+      
+      // Set icon and colors based on type
+      icon.className = `message-icon ${type}`;
+      if (type === 'success') {
+        icon.innerHTML = '<i class="fas fa-check"></i>';
+      } else if (type === 'error') {
+        icon.innerHTML = '<i class="fas fa-times"></i>';
+      } else if (type === 'info') {
+        icon.innerHTML = '<i class="fas fa-info"></i>';
+      }
+      
+      titleEl.textContent = title;
+      desc.textContent = message;
+      
+      // Handle confirmation
+      if (onConfirm && type === 'info') {
+        okBtn.textContent = 'Yes, Logout';
+        okBtn.onclick = function() {
+          closeMessagePopup();
+          onConfirm();
+        };
+      } else {
+        okBtn.textContent = 'OK';
+        okBtn.onclick = closeMessagePopup;
+      }
+      
+      popup.classList.add('active');
+    }
+    
+    function closeMessagePopup() {
+      document.getElementById('messagePopup').classList.remove('active');
+    }
+    
+    // Notification Popup Functions
+    function openNotificationPopup() {
+      const popup = document.getElementById('notificationPopup');
+      renderNotifications();
+      popup.classList.add('active');
+    }
+    
+    function closeNotificationPopup() {
+      document.getElementById('notificationPopup').classList.remove('active');
+    }
+    
+    function renderNotifications() {
+      const notificationList = document.getElementById('notificationList');
+      const notifications = getNotifications();
+      
+      if (notifications.length === 0) {
+        notificationList.innerHTML = `
+          <div class="no-notifications">
+            <i class="fas fa-bell-slash"></i>
+            <div>No notifications</div>
+            <div style="font-size: 0.85rem; margin-top: 8px;">You're all caught up!</div>
+          </div>
+        `;
+      } else {
+        notificationList.innerHTML = notifications.map(notification => `
+          <div class="notification-item">
+            <div class="notification-icon-small ${notification.type}">
+              <i class="fas ${getNotificationIcon(notification.type)}"></i>
+            </div>
+            <div class="notification-content">
+              <div class="notification-title">${notification.title}</div>
+              <div class="notification-desc">${notification.message}</div>
+              <div class="notification-time">${notification.time}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+    
+    function getNotifications() {
+      // Sample notifications - in real app, this would come from backend
+      return [
+        {
+          type: 'info',
+          title: 'Staff Meeting Reminder',
+          message: 'Staff meeting scheduled for tomorrow at 3 PM in the conference room.',
+          time: '2 hours ago'
+        },
+        {
+          type: 'warning',
+          title: 'Attendance Pending',
+          message: 'You have pending attendance for Class 8B Science period.',
+          time: '1 day ago'
+        },
+        {
+          type: 'success',
+          title: 'Leave Approved',
+          message: 'Your leave application for December 20-21 has been approved.',
+          time: '2 days ago'
+        }
+      ];
+    }
+    
+    function getNotificationIcon(type) {
+      switch(type) {
+        case 'info': return 'fa-info';
+        case 'warning': return 'fa-exclamation-triangle';
+        case 'success': return 'fa-check-circle';
+        case 'danger': return 'fa-times-circle';
+        default: return 'fa-bell';
+      }
+    }
+    
+    // Leave Application Functions
+    function applyLeave() {
+      const popup = document.getElementById('leavePopup');
+      popup.classList.add('active');
+      setDefaultDates();
+    }
+    
+    function closeLeavePopup() {
+      document.getElementById('leavePopup').classList.remove('active');
+      document.getElementById('leaveForm').reset();
+      clearLeaveTypeSelection();
+    }
+    
+    function selectLeaveType(type) {
+      // Remove previous selection
+      clearLeaveTypeSelection();
+      
+      // Add selection to clicked option
+      const option = document.querySelector(`input[value="${type}"]`).closest('.leave-type-option');
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+    }
+    
+    function clearLeaveTypeSelection() {
+      document.querySelectorAll('.leave-type-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+    }
+    
+    function setDefaultDates() {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      document.getElementById('fromDate').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('toDate').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('numberOfDays').value = '1';
+    }
+    
+    // Calculate days between dates
+    document.getElementById('fromDate').addEventListener('change', calculateDays);
+    document.getElementById('toDate').addEventListener('change', calculateDays);
+    
+    function calculateDays() {
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      
+      if (fromDate && toDate) {
+        const from = new Date(fromDate);
+        const to = new Date(toDate);
+        const diffTime = Math.abs(to - from);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        document.getElementById('numberOfDays').value = diffDays;
+      }
+    }
+    
+    // Handle leave form submission
+    document.getElementById('leaveForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const leaveData = {
+        teacherName: document.getElementById('teacherName').value,
+        toWhom: document.getElementById('toWhom').value,
+        department: document.getElementById('department').value,
+        designation: document.getElementById('designation').value,
+        leaveType: document.querySelector('input[name="leaveType"]:checked')?.value,
+        fromDate: document.getElementById('fromDate').value,
+        toDate: document.getElementById('toDate').value,
+        numberOfDays: document.getElementById('numberOfDays').value,
+        reason: document.getElementById('leaveReason').value,
+        detailedReason: document.getElementById('detailedReason').value,
+        contactNumber: document.getElementById('contactNumber').value
+      };
+      
+      // Validate required fields
+      if (!leaveData.leaveType) {
+        showMessagePopup('error', 'Validation Error', 'Please select a leave type.');
+        return;
+      }
+      
+      // Submit leave application (in real app, this would send to backend)
+      console.log('Leave Application:', leaveData);
+      
+      closeLeavePopup();
+      showMessagePopup('success', 'Application Submitted', 'Your leave application has been submitted successfully. You will receive a confirmation email shortly.');
+    });
+    
+    // Leave Letter Functions
+    function viewLeaveLetter() {
+      // Validate form before showing letter
+      const form = document.getElementById('leaveForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        showMessagePopup('error', 'Validation Error', 'Please fill all required fields before viewing the letter.');
+        return;
+      }
+      
+      generateLeaveLetter();
+      document.getElementById('leaveLetterPopup').classList.add('active');
+    }
+    
+    function closeLeaveLetterPopup() {
+      document.getElementById('leaveLetterPopup').classList.remove('active');
+    }
+    
+    function generateLeaveLetter() {
+      const formData = getLeaveFormData();
+      const letterContent = document.getElementById('leaveLetterContent');
+      
+      const today = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const fromDate = new Date(formData.fromDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const toDate = new Date(formData.toDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const leaveTypeText = getLeaveTypeText(formData.leaveType);
+      const reasonText = getReasonText(formData.reason);
+      
+      letterContent.innerHTML = `
+        <div class="letter-header">
+          <div class="school-name">BC360 Educational Institution</div>
+          <div class="school-address">123 Education Street, Knowledge City, KC 12345</div>
+          <div class="school-address">Phone: (555) 123-4567 | Email: info@bc360.edu</div>
+        </div>
+        
+        <div class="letter-subject">Leave Application</div>
+        
+        <div class="letter-date">Date: ${today}</div>
+        
+        <div class="letter-to">
+          <div class="letter-to-title">To,</div>
+          <div>${formData.toWhom || 'The Principal'}</div>
+          <div>BC360 Educational Institution</div>
+          <div>123 Education Street</div>
+          <div>Knowledge City, KC 12345</div>
+        </div>
+        
+        <div class="letter-body">
+          <p><strong>Subject: Application for ${leaveTypeText}</strong></p>
+          
+          <p>Respected Sir/Madam,</p>
+          
+          <p>I, <strong>${formData.teacherName}</strong>, working as <strong>${formData.designation}</strong> in the <strong>${formData.department}</strong>, hereby submit my application for ${leaveTypeText.toLowerCase()} from <strong>${fromDate}</strong> to <strong>${toDate}</strong> (${formData.numberOfDays} day${formData.numberOfDays > 1 ? 's' : ''}).</p>
+          
+          <p><strong>Reason for Leave:</strong> ${reasonText}</p>
+          
+          <p><strong>Detailed Reason:</strong></p>
+          <p>${formData.detailedReason}</p>
+          
+          ${formData.contactNumber ? `<p><strong>Contact During Leave:</strong> ${formData.contactNumber}</p>` : ''}
+          
+          <p>I assure you that I will complete all pending work before my leave and will resume my duties on the specified date. I kindly request you to grant me the leave and oblige.</p>
+          
+          <p>Thanking you,</p>
+          <p>Yours faithfully,</p>
+        </div>
+        
+        <div class="letter-signature">
+          <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-name">${formData.teacherName}</div>
+            <div class="signature-title">${formData.designation}</div>
+          </div>
+        </div>
+        
+        <div class="letter-footer">
+          <p>This is a computer-generated document. No physical signature is required.</p>
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+        </div>
+      `;
+    }
+    
+    function getLeaveFormData() {
+      return {
+        teacherName: document.getElementById('teacherName').value,
+        toWhom: document.getElementById('toWhom').value,
+        department: document.getElementById('department').value,
+        designation: document.getElementById('designation').value,
+        leaveType: document.querySelector('input[name="leaveType"]:checked')?.value,
+        fromDate: document.getElementById('fromDate').value,
+        toDate: document.getElementById('toDate').value,
+        numberOfDays: document.getElementById('numberOfDays').value,
+        reason: document.getElementById('leaveReason').value,
+        detailedReason: document.getElementById('detailedReason').value,
+        contactNumber: document.getElementById('contactNumber').value
+      };
+    }
+    
+    function getLeaveTypeText(type) {
+      const types = {
+        'casual': 'Casual Leave',
+        'sick': 'Sick Leave',
+        'earned': 'Earned Leave',
+        'personal': 'Personal Leave'
+      };
+      return types[type] || 'Leave';
+    }
+    
+    function getReasonText(reason) {
+      const reasons = {
+        'personal': 'Personal Work',
+        'medical': 'Medical Emergency',
+        'family': 'Family Function',
+        'travel': 'Travel',
+        'other': 'Other Personal Reasons'
+      };
+      return reasons[reason] || reason;
+    }
+    
+    function printLeaveLetter() {
+      const letterContent = document.getElementById('leaveLetterContent');
+      const content = letterContent.innerHTML;
+      const formData = getLeaveFormData();
+      
+      // Create a new window specifically for printing
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Leave Application - ${formData.teacherName}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 1in;
+            }
+            body {
+              font-family: 'Times New Roman', serif;
+              line-height: 1.5;
+              color: #333;
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-size: 12pt;
+            }
+            .letter-content {
+              width: 100%;
+              max-width: 100%;
+              margin: 0;
+              padding: 0;
+              page-break-after: avoid;
+              page-break-inside: avoid;
+            }
+            .letter-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 15px;
+            }
+            .school-name {
+              font-size: 18pt;
+              font-weight: bold;
+              color: #209194;
+              margin-bottom: 5px;
+            }
+            .school-address {
+              font-size: 10pt;
+              color: #666;
+              margin-bottom: 5px;
+            }
+            .letter-subject {
+              font-size: 14pt;
+              font-weight: bold;
+              text-align: center;
+              margin: 20px 0;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .letter-date {
+              text-align: right;
+              margin-bottom: 20px;
+              font-size: 10pt;
+            }
+            .letter-to {
+              margin-bottom: 15px;
+            }
+            .letter-to-title {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .letter-body {
+              text-align: justify;
+              margin-bottom: 20px;
+              font-size: 11pt;
+            }
+            .letter-body p {
+              margin-bottom: 8px;
+            }
+            .letter-signature {
+              margin-top: 25px;
+              text-align: left;
+            }
+            .signature-section {
+              text-align: left;
+            }
+            .signature-line {
+              width: 200px;
+              border-top: 1px solid #333;
+              margin-top: 30px;
+              margin-bottom: 8px;
+            }
+            .signature-name {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .signature-title {
+              font-size: 9pt;
+              color: #666;
+            }
+            .letter-footer {
+              margin-top: 15px;
+              text-align: center;
+              font-size: 8pt;
+              color: #666;
+              border-top: 1px solid #eee;
+              padding-top: 10px;
+            }
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 0;
+                width: 100%;
+                height: 100%;
+              }
+              .letter-content {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="letter-content">
+            ${content}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Wait for content to load then print
+      printWindow.onload = function() {
+        setTimeout(function() {
+          printWindow.print();
+          setTimeout(function() {
+            printWindow.close();
+          }, 1000);
+        }, 500);
+      };
+    }
+    
+    function downloadLeaveLetter() {
+      const letterContent = document.getElementById('leaveLetterContent');
+      const content = letterContent.innerHTML;
+      const formData = getLeaveFormData();
+      
+      // Create a new window with the letter content for PDF generation
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Leave Application - ${formData.teacherName} - ${new Date().toLocaleDateString()}</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 1in;
+            }
+            body {
+              font-family: 'Times New Roman', serif;
+              line-height: 1.6;
+              color: #333;
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-size: 12pt;
+            }
+            .letter-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 15px;
+            }
+            .school-name {
+              font-size: 18pt;
+              font-weight: bold;
+              color: #209194;
+              margin-bottom: 5px;
+            }
+            .school-address {
+              font-size: 10pt;
+              color: #666;
+              margin-bottom: 5px;
+            }
+            .letter-subject {
+              font-size: 14pt;
+              font-weight: bold;
+              text-align: center;
+              margin: 20px 0;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .letter-date {
+              text-align: right;
+              margin-bottom: 20px;
+              font-size: 10pt;
+            }
+            .letter-to {
+              margin-bottom: 15px;
+            }
+            .letter-to-title {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .letter-body {
+              text-align: justify;
+              margin-bottom: 20px;
+              font-size: 11pt;
+            }
+            .letter-body p {
+              margin-bottom: 10px;
+            }
+            .letter-signature {
+              margin-top: 30px;
+              text-align: left;
+            }
+            .signature-section {
+              text-align: left;
+            }
+            .signature-line {
+              width: 200px;
+              border-top: 1px solid #333;
+              margin-top: 40px;
+              margin-bottom: 8px;
+            }
+            .signature-name {
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .signature-title {
+              font-size: 9pt;
+              color: #666;
+            }
+            .letter-footer {
+              margin-top: 20px;
+              text-align: center;
+              font-size: 8pt;
+              color: #666;
+              border-top: 1px solid #eee;
+              padding-top: 10px;
+            }
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 0;
+              }
+              .letter-content {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="letter-content">
+            ${content}
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      
+      // Wait for content to load then trigger print for PDF
+      printWindow.onload = function() {
+        setTimeout(function() {
+          printWindow.print();
+          setTimeout(function() {
+            printWindow.close();
+          }, 1000);
+        }, 500);
+      };
+    }
+    
+    // Close popups when clicking outside
+    document.addEventListener('click', function(event) {
+      const notificationPopup = document.getElementById('notificationPopup');
+      const leavePopup = document.getElementById('leavePopup');
+      const messagePopup = document.getElementById('messagePopup');
+      const leaveLetterPopup = document.getElementById('leaveLetterPopup');
+      
+      if (event.target.classList.contains('custom-popup-overlay')) {
+        notificationPopup.classList.remove('active');
+        leavePopup.classList.remove('active');
+        messagePopup.classList.remove('active');
+        leaveLetterPopup.classList.remove('active');
+      }
+    });
+    
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSchedule();
+      renderTasks();
+      renderAnnouncements();
+      renderLeaveApplications();
+      renderEvents();
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/simple-auth.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  <script src="../js/ultra-protection.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

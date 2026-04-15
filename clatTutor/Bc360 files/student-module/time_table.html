@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Timetable</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --sidebar1: #1a1a1a;
+      --sidebar2: #2d2d2d;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 100%;
+      height: 50px;
+      border-radius: 3px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: contain;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+      z-index: 1;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background: rgba(26, 26, 26, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1.3px solid var(--border);
+      padding: 10px 32px 10px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-graduation-cap {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 19px;
+      z-index: 9999;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Timetable Page Styles */
+    .timetable-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--label);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title i {
+      color: var(--accent);
+      font-size: 2rem;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--yellow) 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    }
+
+    .download-btn i {
+      font-size: 1.1rem;
+    }
+
+    .timetable-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .timetable-selector label {
+      font-weight: 600;
+      color: var(--label);
+      font-size: 1rem;
+    }
+
+    .timetable-selector select {
+      padding: 10px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--label);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .timetable-selector select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    }
+
+
+
+    .timetable-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--label);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--accent);
+    }
+
+    .timetable-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .timetable-table th {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+      padding: 16px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    .timetable-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+
+    .timetable-table tr:hover {
+      background: rgba(251, 191, 36, 0.05);
+    }
+
+    .time-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 80px;
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--blue);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .date-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 100px;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .subject-code {
+      font-weight: 600;
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+    }
+
+    .timetable-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--card);
+    }
+
+    .timetable-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .timetable-container::-webkit-scrollbar-track {
+      background: var(--card);
+      border-radius: 4px;
+    }
+
+    .timetable-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    .timetable-container::-webkit-scrollbar-thumb:hover {
+      background: var(--yellow);
+    }
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+
+    @media (max-width: 768px) {
+      .timetable-container {
+        padding: 16px;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+
+
+      .timetable-selector {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .timetable-table {
+        font-size: 0.875rem;
+      }
+
+      .timetable-table th,
+      .timetable-table td {
+        padding: 12px 8px;
+      }
+
+      .timetable-value {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .timetable-container {
+        padding: 12px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .download-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+
+      .timetable-table {
+        font-size: 0.8rem;
+      }
+
+      .timetable-table th,
+      .timetable-table td {
+        padding: 8px 6px;
+      }
+
+
+    }
+
+    @media (max-width: 600px) {
+      .welcome-message {
+        font-size: 1.2rem;
+        padding: 30px 10px;
+        min-width: 180px;
+      }
+      .main-content { padding: 10px; }
+    }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar-hamburger {
+        left: auto;
+        right: 16px;
+        top: 15px;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+    }
+
+    /* New styles for no selection message */
+    .no-selection-message {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin-top: 20px;
+      display: block; /* Show by default */
+      backdrop-filter: blur(10px);
+    }
+
+    .no-selection-message .message-icon {
+      font-size: 5rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .no-selection-message h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 15px;
+    }
+
+    .no-selection-message p {
+      font-size: 1.1rem;
+      color: var(--subtle);
+      line-height: 1.6;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" style="width: 20px; height: 20px;"> Home</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" style="width: 20px; height: 20px;"> Attendance</a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" style="width: 20px; height: 20px;"> Assignments</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" style="width: 20px; height: 20px;"> Online Text</a></li>
+          <li><a href="./time_table.html" class="active"><img src="./assets/time table.png" alt="Timetable" style="width: 20px; height: 20px;"> Timetable</a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" style="width: 20px; height: 20px;"> Marks</a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" style="width: 20px; height: 20px;"> Performance</a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" style="width: 20px; height: 20px;"> Content</a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px;"> Gallery</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px;"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" style="width: 20px; height: 20px;"> News</a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" style="width: 20px; height: 20px;"> Communication</a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" style="width: 20px; height: 20px;"> Scholarships</a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" style="width: 20px; height: 20px;"> Explore</a></li>
+          <li><a href="./todo.html"><img src="./assets/todo.png" alt="Todo" style="width: 20px; height: 20px;"> Todo</a></li>
+          <li><a href="./PlacementCorner.html"><img src="./assets/placement.png" alt="Placement Corner" style="width: 20px; height: 20px;"> Placement Corner</a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" style="width: 20px; height: 20px;"> Fees</a></li>
+          <li><a href="./games.html"><img src="./assets/games.png" alt="Games" style="width: 20px; height: 20px;"> Games</a></li>
+          <li><a href="./3dworld.html"><img src="./assets/3d world.png" alt="3D World" style="width: 20px; height: 20px;"> 3D World</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" style="width: 20px; height: 20px;"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/time table.png" alt="Timetable" style="width: 24px; height: 24px;">
+        Timetable
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+      <div class="timetable-container">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title">
+            <img src="./assets/time table.png" alt="My Exam Timetable" style="width: 24px; height: 24px;">
+            My Exam Timetable
+          </div>
+          <button class="download-btn" id="downloadBtn" onclick="downloadTimetable()" style="display: none;">
+            Download PDF
+          </button>
+        </div>
+
+        <!-- Timetable Selector -->
+        <div class="timetable-selector">
+          <label for="timetable">Filter by Exam Type:</label>
+          <select id="timetable" onchange="updateTimetable()">
+            <option value="">-- All Exams --</option>
+            <!-- Options will be populated dynamically from API data -->
+          </select>
+        </div>
+
+        <!-- Content Container - Hidden by default -->
+        <div id="contentContainer" style="display: none;">
+          <!-- Timetable Table -->
+          <div class="timetable-section">
+            <div class="section-header">
+              <div class="section-title">
+                <img src="./assets/time table.png" alt="Exam Schedule" style="width: 24px; height: 24px;">
+                Exam Schedule
+              </div>
+            </div>
+            <div class="timetable-container">
+              <table class="timetable-table" id="timetableTable">
+                <thead>
+                  <tr>
+                    <th>Subject Code</th>
+                    <th>Subject Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Classes</th>
+                    <th>Exam Type</th>
+                  </tr>
+                </thead>
+                <tbody id="timetableTableBody">
+                  <!-- Table content will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Selection Message -->
+        <div id="noSelectionMessage" class="no-selection-message">
+          <div class="message-icon">
+            <img src="./assets/time table.png" alt="Calendar" style="width: 80px; height: 80px;">
+          </div>
+          <h3>No Exam Schedule Available</h3>
+          <p>There are currently no exam schedules available for you. Please check back later or contact your teacher for more information.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Configuration
+    const API_BASE_URL = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/timeTable';
+    
+    // Global variables
+    let timetableData = []; // Store API data
+    let filteredData = []; // Store filtered data for students
+    
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = false;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#1a1a1a');
+        document.documentElement.style.setProperty('--card', '#2d2d2d');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        themeIcon.className = 'fas fa-moon';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8fafc');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8fafc');
+        themeIcon.className = 'fas fa-sun';
+      }
+    });
+
+    // API Helper Functions
+    async function apiCall(method, data = null) {
+      try {
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors',
+          credentials: 'omit'
+        };
+
+        if (data) {
+          options.body = JSON.stringify(data);
+        }
+
+        console.log(`Making ${method} request to:`, API_BASE_URL);
+        const response = await fetch(API_BASE_URL, options);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('API Response:', result);
+        return result;
+      } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+      }
+    }
+
+    // Load timetable data from API
+    async function loadTimetableData() {
+      try {
+        console.log('Loading timetable data from API...');
+        const result = await apiCall('GET');
+        
+        if (result.success) {
+          timetableData = result.time_table_entries || [];
+          console.log('Loaded timetable data:', timetableData);
+          console.log('Total entries loaded:', timetableData.length);
+          
+          // Filter data for students (recipient_student == 1)
+          filteredData = timetableData.filter(entry => entry.recipient_student === 1);
+          console.log('Filtered data for students:', filteredData);
+          console.log('Total filtered entries:', filteredData.length);
+          
+          // Debug each entry
+          timetableData.forEach((entry, index) => {
+            console.log(`Entry ${index + 1}:`, {
+              subject: entry.subject_name,
+              recipient_student: entry.recipient_student,
+              exam_type: entry.exam_type
+            });
+          });
+          
+          // Update dropdown options based on exam types
+          updateDropdownOptions();
+          
+          // Display all exams by default (latest first)
+          displayAllExams();
+          
+          // Show success message
+          showMessage('Timetable data loaded successfully!', 'success');
+        } else {
+          throw new Error(result.message || 'Failed to load timetable data');
+        }
+      } catch (error) {
+        console.error('Error loading timetable data:', error);
+        showMessage('Error loading timetable data. Please try again.', 'error');
+      }
+    }
+
+    // Update dropdown options based on available exam types
+    function updateDropdownOptions() {
+      const dropdown = document.getElementById('timetable');
+      const currentValue = dropdown.value;
+      
+      // Get unique exam types from filtered data
+      const examTypes = [...new Set(filteredData.map(entry => entry.exam_type))];
+      
+      // Clear existing options
+      dropdown.innerHTML = '<option value="">-- All Exams --</option>';
+      
+      // Add options for each exam type
+      examTypes.forEach(examType => {
+        const option = document.createElement('option');
+        option.value = examType;
+        option.textContent = examType;
+        dropdown.appendChild(option);
+      });
+      
+      // Restore previous selection if it still exists
+      if (currentValue && examTypes.includes(currentValue)) {
+        dropdown.value = currentValue;
+      }
+    }
+
+    // Display all exams (latest first)
+    function displayAllExams() {
+      const contentContainer = document.getElementById('contentContainer');
+      const noSelectionMessage = document.getElementById('noSelectionMessage');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const timetableTableBody = document.getElementById('timetableTableBody');
+
+      if (filteredData.length === 0) {
+        noSelectionMessage.style.display = 'block';
+        contentContainer.style.display = 'none';
+        downloadBtn.style.display = 'none';
+        return;
+      }
+
+      noSelectionMessage.style.display = 'none';
+      contentContainer.style.display = 'block';
+      downloadBtn.style.display = 'flex';
+
+      // Sort data by exam date (latest first)
+      const sortedData = [...filteredData].sort((a, b) => new Date(b.exam_date) - new Date(a.exam_date));
+      
+      // Debug logging
+      console.log('Total filtered data:', filteredData.length);
+      console.log('Sorted data:', sortedData);
+      console.log('First exam:', sortedData[0]);
+
+      // Clear previous table content
+      timetableTableBody.innerHTML = '';
+      
+      // Display admin information if available (only if admin_id is not null)
+      const adminEntries = sortedData.filter(entry => entry.admin_id && entry.admin_id !== null);
+      if (adminEntries.length > 0) {
+        const adminInfo = document.createElement('tr');
+        adminInfo.innerHTML = `
+          <td colspan="6" style="text-align: center; padding: 15px; background: rgba(251, 191, 36, 0.1); color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent);">
+            <i class="fas fa-user-tie"></i> Timetable sent by Admin ID: ${adminEntries[0].admin_id}
+          </td>
+        `;
+        timetableTableBody.appendChild(adminInfo);
+      }
+      
+      // Display exam data
+      console.log('About to display', sortedData.length, 'exams');
+      sortedData.forEach((exam, index) => {
+        console.log(`Displaying exam ${index + 1}:`, exam);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="subject-code">${exam.subject_code}</span></td>
+          <td><strong>${exam.subject_name}</strong></td>
+          <td><span class="date-badge">${formatDateToYYYYMMDD(exam.exam_date)}</span></td>
+          <td><span class="time-badge">${formatTimeTo12Hour(exam.exam_time, exam.time_period)}</span></td>
+          <td>${exam.classes.join(', ')}</td>
+          <td><span style="color: var(--accent); font-weight: 600;">${exam.exam_type}</span></td>
+        `;
+        timetableTableBody.appendChild(row);
+        console.log(`Added row ${index + 1} to table`);
+      });
+      console.log('Total rows in table body:', timetableTableBody.children.length);
+    }
+
+    // Format time to 12-hour format
+    function formatTimeTo12Hour(timeString, period) {
+      if (!timeString) return '';
+      
+      const [hours, minutes] = timeString.split(':');
+      let hour = parseInt(hours, 10);
+      
+      if (period === 'PM' && hour !== 12) {
+        hour += 12;
+      } else if (period === 'AM' && hour === 12) {
+        hour = 0;
+      }
+      
+      const displayHour = hour % 12 || 12;
+      const displayMinutes = minutes.padStart(2, '0');
+      
+      return `${displayHour}:${displayMinutes} ${period}`;
+    }
+
+    // Format date to yyyy/mm/dd format
+    function formatDateToYYYYMMDD(dateString) {
+      if (!dateString) return '';
+      
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      
+      return `${year}/${month}/${day}`;
+    }
+
+    // Show message function
+    function showMessage(message, type = 'success') {
+      // Create a temporary message element
+      const messageEl = document.createElement('div');
+      messageEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        transition: all 0.3s ease;
+        background: ${type === 'error' ? '#ef4444' : '#10b981'};
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      `;
+      messageEl.textContent = message;
+      
+      document.body.appendChild(messageEl);
+      
+      setTimeout(() => {
+        messageEl.style.opacity = '0';
+        messageEl.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          document.body.removeChild(messageEl);
+        }, 300);
+      }, 3000);
+    }
+
+    // Download timetable function
+    function downloadTimetable() {
+      const downloadBtn = document.querySelector('.download-btn');
+      const originalText = downloadBtn.innerHTML;
+      
+      downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+      downloadBtn.style.opacity = '0.7';
+      
+      // Get current timetable data
+      const timetable = document.getElementById('timetable').value;
+      const timetableText = document.getElementById('timetable').options[document.getElementById('timetable').selectedIndex].text;
+      
+      // Get filtered data for current selection
+      let currentData;
+      if (timetable === "") {
+        // Show all exams (latest first)
+        currentData = [...filteredData].sort((a, b) => new Date(b.exam_date) - new Date(a.exam_date));
+      } else {
+        currentData = filteredData.filter(entry => entry.exam_type === timetable);
+      }
+      
+      // Generate PDF
+      generateTimetablePDF(timetableText, currentData);
+      
+      setTimeout(() => {
+        downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+        downloadBtn.style.background = 'linear-gradient(135deg, var(--green) 0%, #10b981 100%)';
+        
+        setTimeout(() => {
+          downloadBtn.innerHTML = originalText;
+          downloadBtn.style.opacity = '1';
+          downloadBtn.style.background = 'linear-gradient(135deg, var(--accent) 0%, var(--yellow) 100%)';
+        }, 2000);
+      }, 1500);
+    }
+
+    // Generate professional PDF timetable
+    function generateTimetablePDF(timetableText, examData) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+      
+      // Set document properties
+      doc.setProperties({
+        title: 'Exam Timetable - ' + timetableText,
+        subject: 'Student Exam Schedule',
+        author: 'BC360 Education System',
+        creator: 'BC360 Student Portal'
+      });
+      
+      // Page dimensions
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const contentWidth = pageWidth - (2 * margin);
+      
+      let yPosition = margin;
+      
+      // Header with school information - Professional dark blue background
+      doc.setFillColor(25, 25, 112); // Dark blue color
+      doc.rect(0, 0, pageWidth, 60, 'F');
+      
+      // School name and details - White text
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('BC360 EDUCATION SYSTEM', pageWidth / 2, 30, { align: 'center' });
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Student Exam Timetable Portal | Bengaluru, Karnataka', pageWidth / 2, 48, { align: 'center' });
+      
+      // Timetable title - Dark blue text
+      doc.setTextColor(25, 25, 112);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EXAM TIMETABLE', pageWidth / 2, 85, { align: 'center' });
+      
+      yPosition = 100;
+      
+      // Timetable information section - Light gray background
+      doc.setFillColor(245, 245, 245);
+      doc.rect(margin, yPosition, contentWidth, 35, 'F');
+      
+      // Timetable info - Dark blue text
+      doc.setTextColor(25, 25, 112);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Timetable Information:', margin + 10, yPosition + 12);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Total Exams: ' + examData.length, margin + 10, yPosition + 25);
+      doc.text('Exam Type: ' + timetableText, margin + 150, yPosition + 25);
+      doc.text('Generated: ' + new Date().toLocaleDateString(), margin + 400, yPosition + 25);
+      
+      yPosition += 50;
+      
+      // Prepare table data
+      const tableData = examData.map(exam => [
+        exam.subject_code,
+        exam.subject_name,
+        formatDateToYYYYMMDD(exam.exam_date),
+        formatTimeTo12Hour(exam.exam_time, exam.time_period),
+        exam.classes.join(', ')
+      ]);
+      
+      // Add header row
+      tableData.unshift(['Subject Code', 'Subject Name', 'Date', 'Time', 'Classes']);
+      
+      // Generate compact table
+      doc.autoTable({
+        startY: yPosition,
+        head: [tableData[0]],
+        body: tableData.slice(1),
+        theme: 'grid',
+        styles: {
+          fontSize: 10,
+          cellPadding: 6,
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+          textColor: [0, 0, 0]
+        },
+        headStyles: {
+          fillColor: [25, 25, 112], // Dark blue background for headers
+          textColor: [255, 255, 255], // White text
+          fontStyle: 'bold',
+          fontSize: 11
+        },
+        alternateRowStyles: {
+          fillColor: [248, 249, 250] // Light gray for alternate rows
+        },
+        columnStyles: {
+          0: { cellWidth: 80, halign: 'center' },
+          1: { cellWidth: 150 },
+          2: { cellWidth: 80, halign: 'center' },
+          3: { cellWidth: 80, halign: 'center' },
+          4: { cellWidth: 120, halign: 'center' }
+        }
+      });
+      
+      // Get the final Y position after table
+      const finalY = doc.lastAutoTable.finalY;
+      
+      // Footer - Compact and professional
+      yPosition = finalY + 15;
+      
+      // Add a line above footer
+      doc.setDrawColor(25, 25, 112);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      
+      yPosition += 10;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 100, 100);
+      doc.text('This is an official exam timetable generated by BC360 Education System.', pageWidth / 2, yPosition, { align: 'center' });
+      
+      yPosition += 8;
+      doc.text('Please arrive 15 minutes before the scheduled time. For any queries, contact the academic office.', pageWidth / 2, yPosition, { align: 'center' });
+      
+      // Save the PDF
+      const fileName = `Timetable_${timetableText.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+    }
+
+    // Initialize page state
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load timetable data from API
+      loadTimetableData();
+    });
+
+    // Update timetable based on selection
+    function updateTimetable() {
+      const timetable = document.getElementById('timetable').value;
+      
+      // If no selection or "All Exams" is selected, show all exams
+      if (timetable === "") {
+        displayAllExams();
+        return;
+      }
+
+      const contentContainer = document.getElementById('contentContainer');
+      const noSelectionMessage = document.getElementById('noSelectionMessage');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const timetableTableBody = document.getElementById('timetableTableBody');
+
+      noSelectionMessage.style.display = 'none';
+      contentContainer.style.display = 'block';
+      downloadBtn.style.display = 'flex';
+
+      // Filter data based on selected exam type
+      const currentData = filteredData.filter(entry => entry.exam_type === timetable);
+      
+      if (currentData.length === 0) {
+        timetableTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--subtle); font-style: italic;">
+              No exam schedule found for ${timetable}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Clear previous table content
+      timetableTableBody.innerHTML = '';
+      
+      // Sort data by exam date (latest first)
+      currentData.sort((a, b) => new Date(b.exam_date) - new Date(a.exam_date));
+      
+      // Display admin information if available
+      const adminEntries = currentData.filter(entry => entry.admin_id);
+      if (adminEntries.length > 0) {
+        const adminInfo = document.createElement('tr');
+        adminInfo.innerHTML = `
+          <td colspan="6" style="text-align: center; padding: 15px; background: rgba(251, 191, 36, 0.1); color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent);">
+            <i class="fas fa-user-tie"></i> Timetable sent by Admin ID: ${adminEntries[0].admin_id}
+          </td>
+        `;
+        timetableTableBody.appendChild(adminInfo);
+      }
+      
+      // Display exam data
+      currentData.forEach(exam => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="subject-code">${exam.subject_code}</span></td>
+          <td><strong>${exam.subject_name}</strong></td>
+          <td><span class="date-badge">${formatDateToYYYYMMDD(exam.exam_date)}</span></td>
+          <td><span class="time-badge">${formatTimeTo12Hour(exam.exam_time, exam.time_period)}</span></td>
+          <td>${exam.classes.join(', ')}</td>
+          <td><span style="color: var(--accent); font-weight: 600;">${exam.exam_type}</span></td>
+        `;
+        timetableTableBody.appendChild(row);
+      });
+    }
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout function - now handled by ProfessionalLogout system
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        console.warn('ProfessionalLogout not available, falling back to basic logout');
+        // Fallback: show basic confirmation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.clear();
+            window.location.href = '../login.html';
+          }
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout function - now handled by ProfessionalLogout system
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        console.warn('ProfessionalLogout not available, falling back to basic logout');
+        // Fallback: show basic confirmation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.clear();
+            window.location.href = '../login.html';
+          }
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

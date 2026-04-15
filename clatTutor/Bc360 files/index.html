@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC360 - Welcome</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Main animation container */
+        .animation-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        /* Scene 1: Chalk circle drawing */
+        .chalk-circle {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out 0s forwards;
+        }
+
+        .chalk-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ffffff 0deg, transparent 0deg);
+            animation: drawCircle 1s ease-in-out 0.5s forwards, circleGlow 2s ease-in-out 1.5s infinite;
+            filter: 
+                drop-shadow(0 0 30px rgba(255, 255, 255, 0.8))
+                drop-shadow(0 0 60px rgba(255, 255, 255, 0.4))
+                drop-shadow(0 0 90px rgba(255, 255, 255, 0.2));
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.3),
+                0 0 40px rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes circleGlow {
+            0%, 100% {
+                filter: 
+                    drop-shadow(0 0 30px rgba(255, 255, 255, 0.8))
+                    drop-shadow(0 0 60px rgba(255, 255, 255, 0.4))
+                    drop-shadow(0 0 90px rgba(255, 255, 255, 0.2));
+                box-shadow: 
+                    inset 0 0 20px rgba(255, 255, 255, 0.3),
+                    0 0 40px rgba(255, 255, 255, 0.6);
+            }
+            50% {
+                filter: 
+                    drop-shadow(0 0 40px rgba(255, 255, 255, 1))
+                    drop-shadow(0 0 80px rgba(255, 255, 255, 0.6))
+                    drop-shadow(0 0 120px rgba(255, 255, 255, 0.3));
+                box-shadow: 
+                    inset 0 0 30px rgba(255, 255, 255, 0.5),
+                    0 0 60px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes drawCircle {
+            to {
+                background: conic-gradient(from 0deg, #ffffff 0deg, #ffffff 360deg);
+            }
+        }
+
+        /* Chalk particles */
+        .chalk-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: chalkParticles 1s ease-in-out 0.5s forwards;
+        }
+
+        @keyframes chalkParticles {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        /* Scene 2: Icons appearing */
+        .icons-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            opacity: 0;
+            animation: fadeInIcons 0.3s ease-in-out 1.5s forwards;
+        }
+
+        .icon {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #1a1a2e;
+            box-shadow: 
+                0 8px 25px rgba(255, 255, 255, 0.4),
+                0 0 20px rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transform: scale(0) rotate(180deg);
+            animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .icon.teacher {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 1.8s;
+        }
+
+        .icon.student {
+            bottom: 0;
+            left: 0;
+            animation-delay: 2s;
+        }
+
+        .icon.college {
+            bottom: 0;
+            right: 0;
+            animation-delay: 2.2s;
+        }
+
+        @keyframes fadeInIcons {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        /* Scene 3: Logo transformation */
+        .logo-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            opacity: 0;
+            animation: logoAppear 0.8s ease-in-out 2.5s forwards;
+        }
+
+        /* Tagline positioned at the very top */
+        .tagline-container {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 25%, #ffb347 50%, #ff8c00 75%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #ffd700; /* Fallback color */
+            text-shadow: 
+                0 1px 0 #b8860b,
+                0 2px 0 #996f00,
+                0 3px 0 #8b5a00,
+                0 4px 0 #7d4f00,
+                0 5px 0 #6f4400,
+                0 6px 1px rgba(0,0,0,0.1),
+                0 0 5px rgba(0,0,0,0.1),
+                0 1px 3px rgba(0,0,0,0.3),
+                0 3px 5px rgba(0,0,0,0.2),
+                0 5px 10px rgba(0,0,0,0.25),
+                0 10px 10px rgba(0,0,0,0.2),
+                0 20px 20px rgba(0,0,0,0.15);
+            letter-spacing: 0.15em;
+            transform: scale(0.8) rotateY(180deg) rotateX(15deg);
+            animation: logoTransform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 2.5s forwards, logoFloat 3s ease-in-out 3.3s infinite;
+            text-transform: uppercase;
+            font-family: 'Arial Black', Arial, sans-serif;
+            position: relative;
+            background-size: 200% 200%;
+            animation: logoTransform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 2.5s forwards, logoFloat 3s ease-in-out 3.3s infinite, gradientFlow 4s ease-in-out infinite;
+        }
+
+        /* Subtle gradient flow animation */
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: scale(1) rotateY(0deg) rotateX(15deg) translateY(0px);
+            }
+            50% {
+                transform: scale(1.02) rotateY(0deg) rotateX(15deg) translateY(-5px);
+            }
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: #ffffff;
+            opacity: 0;
+            animation: taglineFade 0.5s ease-in-out 3.2s forwards;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.6),
+                0 0 30px rgba(255, 255, 255, 0.4),
+                2px 2px 4px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            padding: 0 20px;
+        }
+
+        @keyframes logoAppear {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes logoTransform {
+            to {
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        @keyframes taglineFade {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Camera zoom effect */
+        .animation-container {
+            animation: cameraZoom 3s ease-in-out forwards;
+        }
+
+        @keyframes cameraZoom {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .tagline {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chalk-circle {
+                width: 250px;
+                height: 250px;
+            }
+
+            .icons-container {
+                width: 320px;
+                height: 320px;
+            }
+
+            .icon {
+                width: 55px;
+                height: 55px;
+                font-size: 22px;
+            }
+
+            .logo {
+                font-size: 3rem;
+                letter-spacing: 0.12em;
+            }
+
+            .tagline {
+                font-size: 1rem;
+                letter-spacing: 0.08em;
+                padding: 0 15px;
+            }
+
+            .tagline-container {
+                top: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chalk-circle {
+                width: 200px;
+                height: 200px;
+            }
+
+            .icons-container {
+                width: 260px;
+                height: 260px;
+            }
+
+            .icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+                letter-spacing: 0.1em;
+            }
+
+            .tagline {
+                font-size: 0.85rem;
+                letter-spacing: 0.05em;
+                padding: 0 10px;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            .tagline-container {
+                top: 60px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .tagline {
+                font-size: 0.75rem;
+                letter-spacing: 0.03em;
+                padding: 0 8px;
+            }
+
+            .tagline-container {
+                top: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main animation container -->
+    <div class="animation-container">
+
+        <!-- Scene 1: Chalk circle -->
+        <div class="chalk-circle">
+            <div class="chalk-line"></div>
+            <!-- Chalk particles will be generated by JavaScript -->
+        </div>
+
+        <!-- Scene 2: Icons -->
+        <div class="icons-container">
+            <div class="icon teacher">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="icon student">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="icon college">
+                <i class="fas fa-university"></i>
+            </div>
+        </div>
+
+        <!-- Scene 3: Logo -->
+        <div class="logo-container">
+            <div class="logo">BC360</div>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Generate chalk particles during circle drawing
+        function createChalkParticles() {
+            const chalkCircle = document.querySelector('.chalk-circle');
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'chalk-particle';
+                    particle.style.left = (50 + Math.cos(i * 0.3) * 40) + '%';
+                    particle.style.top = (50 + Math.sin(i * 0.3) * 40) + '%';
+                    chalkCircle.appendChild(particle);
+
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 1000);
+                }, i * 50);
+            }
+        }
+
+        // Initialize animation
+        function initAnimation() {
+            createParticles();
+            
+            // Start chalk particles after circle starts drawing
+            setTimeout(createChalkParticles, 500);
+            
+            // Redirect to home page after animation completes
+            setTimeout(() => {
+            window.location.href = './home.html';
+            }, 4000);
+        }
+
+        // Start animation when page loads
+        window.addEventListener('load', initAnimation);
+
+        // Fallback redirect if something goes wrong
+        setTimeout(() => {
+            if (window.location.pathname.includes('index.html')) {
+                window.location.href = './home.html';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

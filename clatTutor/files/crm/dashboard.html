@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM overview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="crm-wrap">
+      <section class="crm-hero">
+        <div>
+          <h2 id="crm-hero-title">Welcome, CRM Staff</h2>
+          <p>Track pipeline health, follow up hot leads, and monitor admission conversion at one place.</p>
+        </div>
+        <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
+      </section>
+
+      <section class="crm-kpis">
+        <article class="crm-kpi">
+          <i class="fa-solid fa-users"></i>
+          <div><p class="num" id="k-leads">0</p><p class="lbl">Total leads</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-user-plus"></i>
+          <div><p class="num" id="k-new">0</p><p class="lbl">New leads</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <div><p class="num" id="k-students">0</p><p class="lbl">Students</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-comments"></i>
+          <div><p class="num" id="k-comms">0</p><p class="lbl">Comms logged</p></div>
+        </article>
+      </section>
+
+      <section class="crm-grid">
+        <div class="crm-card">
+          <h3><i class="fa-solid fa-filter-circle-dollar"></i> Pipeline Snapshot</h3>
+          <ul class="crm-list">
+            <li><strong id="k-stage-new">0 New leads</strong><span>Need first response</span></li>
+            <li><strong id="k-stage-contacted">0 Contacted</strong><span>Follow-up in progress</span></li>
+            <li><strong id="k-stage-enrolled">0 Enrolled</strong><span>Admission complete</span></li>
+          </ul>
+          <div class="crm-actions">
+            <a href="leads.html" class="crm-action crm-action--primary"><i class="fa-solid fa-user-plus"></i> Manage Leads</a>
+            <a href="communications.html" class="crm-action"><i class="fa-solid fa-comments"></i> Log Communication</a>
+          </div>
+        </div>
+        <div class="crm-card">
+          <h3><i class="fa-solid fa-bolt"></i> Team Focus Today</h3>
+          <ul class="crm-list" id="crm-focus-list">
+            <li><strong>Call fresh enquiries</strong><span>Start with latest website leads</span></li>
+            <li><strong>Schedule counselling</strong><span>Move warm leads to next stage</span></li>
+            <li><strong>Review pending follow-ups</strong><span>Clear overdue callbacks</span></li>
+          </ul>
+          <div class="crm-actions">
+            <a href="students.html" class="crm-action"><i class="fa-solid fa-id-card"></i> Student Records</a>
+            <a href="dashboard.html" class="crm-action"><i class="fa-solid fa-rotate"></i> Refresh View</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'dashboard.html', title: 'Overview', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      var brandMark = document.querySelector('.sidebar .brand__mark');
+      var brandLogo = document.querySelector('.sidebar .brand .logo');
+      var brandTag = document.querySelector('.sidebar .brand .brand-tag');
+      if (brandMark) {
+        brandMark.innerHTML = '<img src="../image/gavel clat tutor.png" alt="CLATutor logo" onerror="this.src=\'../image/main.png\'" />';
+      }
+      if (brandLogo) {
+        brandLogo.innerHTML = '<span class="logo__word">CLAT<span class="logo__accent">utor</span></span>';
+      }
+      if (brandTag) {
+        brandTag.textContent = 'Shaping Minds Since 2007';
+      }
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var crmName = session && session.user && session.user.name ? session.user.name : 'CRM Staff';
+      var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
+      var profileStorageKey = storagePrefix + 'crm_profile';
+      var heroTitle = document.getElementById('crm-hero-title');
+      if (heroTitle) heroTitle.textContent = 'Welcome, ' + crmName;
+
+      var leads = DataStore.leads();
+      var students = DataStore.students();
+      var commsI = DataStore.comms().length;
+      document.getElementById('k-leads').textContent = String(leads.length);
+      document.getElementById('k-new').textContent = String(
+        leads.filter(function (l) {
+          return l.stage === 'new';
+        }).length
+      );
+      document.getElementById('k-students').textContent = String(students.length);
+      document.getElementById('k-comms').textContent = String(commsI);
+      document.getElementById('k-stage-new').textContent = String(
+        leads.filter(function (l) { return l.stage === 'new'; }).length
+      ) + ' New leads';
+      document.getElementById('k-stage-contacted').textContent = String(
+        leads.filter(function (l) { return l.stage === 'contacted'; }).length
+      ) + ' Contacted';
+      document.getElementById('k-stage-enrolled').textContent = String(
+        leads.filter(function (l) { return l.stage === 'enrolled'; }).length
+      ) + ' Enrolled';
+
+      var d = document.getElementById('crm-date');
+      if (d) {
+        d.textContent = new Date().toLocaleDateString('en-IN', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      }
+
+      var topbar = document.querySelector('.topbar');
+      if (topbar && !document.getElementById('open-crm-profile')) {
+        var actions = document.createElement('div');
+        actions.className = 'crm-topbar-actions';
+        actions.innerHTML =
+          '<button id="open-crm-profile" class="crm-profile-btn" type="button" aria-label="Open profile">' +
+          '<i class="fa-regular fa-user"></i>' +
+          '</button>';
+        topbar.appendChild(actions);
+      }
+
+      var panel = document.createElement('div');
+      panel.className = 'crm-profile-panel';
+      panel.id = 'crm-profile-panel';
+      panel.hidden = true;
+      panel.innerHTML =
+        '<div class="crm-profile-panel__backdrop" id="crm-profile-backdrop"></div>' +
+        '<aside class="crm-profile-panel__sheet" role="dialog" aria-modal="true" aria-label="CRM profile">' +
+        '<div class="crm-profile-panel__head"><h3>CRM Profile</h3>' +
+        '<button class="crm-close" id="crm-profile-close" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>' +
+        '<div class="crm-profile-body">' +
+        '<div class="crm-profile-avatar" id="crm-profile-avatar">CR</div>' +
+        '<form id="crm-profile-form" class="crm-profile-grid">' +
+        '<div><label for="crm-name">Full name</label><input id="crm-name" name="name" type="text" required /></div>' +
+        '<div><label for="crm-email">Email</label><input id="crm-email" name="email" type="email" required /></div>' +
+        '<div><label for="crm-phone">Phone</label><input id="crm-phone" name="phone" type="text" /></div>' +
+        '<div><label for="crm-role">Role</label><input id="crm-role" name="role" type="text" /></div>' +
+        '<div><label for="crm-zone">Zone / Branch</label><input id="crm-zone" name="zone" type="text" /></div>' +
+        '<div class="crm-profile-actions">' +
+        '<button class="crm-profile-save" type="submit">Save Changes</button>' +
+        '<button class="crm-profile-cancel" id="crm-profile-cancel" type="button">Cancel</button>' +
+        '</div>' +
+        '<div class="crm-profile-status" id="crm-profile-status" hidden>Profile updated successfully.</div>' +
+        '</form></div></aside>';
+      document.body.appendChild(panel);
+
+      var getInitials = function (name) {
+        return String(name || '')
+          .trim()
+          .split(/\s+/)
+          .map(function (part) { return part[0]; })
+          .join('')
+          .slice(0, 2)
+          .toUpperCase() || 'CR';
+      };
+      var readProfile = function () {
+        var fallback = {
+          name: crmName,
+          email: 'crm@example.com',
+          phone: '',
+          role: 'CRM Operations',
+          zone: 'Bangalore',
+        };
+        try {
+          var raw = localStorage.getItem(profileStorageKey);
+          return raw ? Object.assign({}, fallback, JSON.parse(raw)) : fallback;
+        } catch (_) {
+          return fallback;
+        }
+      };
+
+      var applyIdentity = function (name) {
+        var displayName = name || 'CRM Staff';
+        var hero = document.getElementById('crm-hero-title');
+        if (hero) hero.textContent = 'Welcome, ' + displayName;
+        var nameEl = document.querySelector('.user-meta strong');
+        if (nameEl) nameEl.textContent = displayName;
+        var avatarEl = document.querySelector('.user-avatar');
+        if (avatarEl) avatarEl.textContent = getInitials(displayName);
+      };
+
+      var fillForm = function () {
+        var p = readProfile();
+        document.getElementById('crm-name').value = p.name || '';
+        document.getElementById('crm-email').value = p.email || '';
+        document.getElementById('crm-phone').value = p.phone || '';
+        document.getElementById('crm-role').value = p.role || '';
+        document.getElementById('crm-zone').value = p.zone || '';
+        document.getElementById('crm-profile-avatar').textContent = getInitials(p.name);
+      };
+
+      var openBtn = document.getElementById('open-crm-profile');
+      var closeBtn = document.getElementById('crm-profile-close');
+      var cancelBtn = document.getElementById('crm-profile-cancel');
+      var backdrop = document.getElementById('crm-profile-backdrop');
+      var form = document.getElementById('crm-profile-form');
+      var status = document.getElementById('crm-profile-status');
+
+      var openPanel = function () {
+        fillForm();
+        if (status) status.hidden = true;
+        panel.hidden = false;
+      };
+      var closePanel = function () {
+        panel.hidden = true;
+      };
+
+      if (openBtn) openBtn.addEventListener('click', openPanel);
+      if (closeBtn) closeBtn.addEventListener('click', closePanel);
+      if (cancelBtn) cancelBtn.addEventListener('click', closePanel);
+      if (backdrop) backdrop.addEventListener('click', closePanel);
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var updated = {
+            name: (document.getElementById('crm-name').value || '').trim(),
+            email: (document.getElementById('crm-email').value || '').trim(),
+            phone: (document.getElementById('crm-phone').value || '').trim(),
+            role: (document.getElementById('crm-role').value || '').trim(),
+            zone: (document.getElementById('crm-zone').value || '').trim(),
+          };
+          if (!updated.name || !updated.email) return;
+          localStorage.setItem(profileStorageKey, JSON.stringify(updated));
+          applyIdentity(updated.name);
+          try {
+            var currentSession = Auth.getSession ? Auth.getSession() : null;
+            if (currentSession && currentSession.user) {
+              currentSession.user.name = updated.name;
+              localStorage.setItem((Auth.keys && Auth.keys.user) || (storagePrefix + 'user'), JSON.stringify(currentSession.user));
+            }
+          } catch (_) {}
+          if (status) {
+            status.hidden = false;
+            status.textContent = 'Profile updated successfully.';
+          }
+        });
+      }
+
+      applyIdentity(readProfile().name);
+    });
+  </script>
+</body>
+</html>

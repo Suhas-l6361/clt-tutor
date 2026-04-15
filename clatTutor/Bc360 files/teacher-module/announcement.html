@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Announcement</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --error: #ff547c;
+      --required: #ffbd03;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --warning: #ffa726;
+      --danger: #ef5350;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 15px;
+      background: #f8fafd;
+      border-bottom: 1.3px solid var(--border);
+      padding: 10px 32px 10px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-bullhorn {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 19px;
+      z-index: 9999;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* No Announcement Message */
+    .no-announcement {
+      background: var(--card);
+      padding: 40px 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-size: 2rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-align: center;
+      min-width: 300px;
+      border: 1px solid var(--border);
+    }
+
+    /* LOADING STATE */
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      width: 100%;
+    }
+    .loading-spinner {
+      text-align: center;
+      color: var(--accent);
+    }
+    .loading-spinner i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .loading-spinner p {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* ANNOUNCEMENTS GRID */
+    .announcements-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 0;
+      margin-top: 0;
+    }
+
+    /* ANNOUNCEMENT CARD (A4 Sheet Format) */
+    .announcement-card {
+      background: var(--card);
+      border: 4px solid var(--accent);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 15px;
+      position: relative;
+      min-height: 450px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
+
+    .announcement-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Template-specific watermarks */
+    .announcement-card::before {
+      content: attr(data-watermark);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      color: var(--accent);
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+
+    /* Template-specific top icons */
+    .card-top-icon {
+      position: absolute;
+      font-size: 28px;
+      color: var(--accent);
+      opacity: 0.8;
+      z-index: 1;
+    }
+    .card-top-left-icon {
+      top: 15px;
+      left: 15px;
+    }
+    .card-top-right-icon {
+      top: 15px;
+      right: 15px;
+    }
+
+    /* Card Header */
+    .card-header {
+      text-align: center;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      display: block;
+      margin: 0 auto 10px;
+      border-radius: 4px;
+    }
+
+    .card-header h1 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--label);
+      font-weight: 600;
+    }
+
+    .card-header p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    /* Card Title */
+    .card-title {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title h2 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Card Content */
+    .card-content {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-content p {
+      text-align: justify;
+      color: var(--label);
+      line-height: 1.5;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    /* Card Footer */
+    .card-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-signatures {
+      display: flex;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .card-signature {
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .card-signature img {
+      width: 80px;
+      height: 40px;
+      object-fit: contain;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 5px;
+      background: white;
+    }
+
+    .card-signature .line {
+      border-top: 1px solid var(--label);
+      padding-top: 3px;
+      font-weight: bold;
+      font-size: 10px;
+      color: var(--label);
+    }
+
+    .card-signature p {
+      margin: 0;
+      font-size: 10px;
+      color: var(--label);
+    }
+
+    /* View Full Button */
+    .view-full-btn {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-full-btn:hover {
+      background: #0d9488;
+      transform: scale(1.05);
+    }
+
+    /* FULL VIEW MODAL */
+    .full-view-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .full-view-content {
+      background: var(--card);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 900px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease;
+      margin: 20px 0;
+    }
+
+    .full-view-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 12px 12px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .back-button {
+      background: rgba(0,0,0,0.2);
+      color: var(--bg);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: rgba(0,0,0,0.3);
+      transform: scale(1.05);
+    }
+
+    .full-view-body {
+      padding: 20px;
+    }
+
+    /* Animation */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+
+    @media (max-width: 600px) {
+      .no-announcement {
+        font-size: 1.2rem;
+        padding: 30px 10px;
+        min-width: 180px;
+      }
+      .main-content { padding: 10px; }
+      
+      .announcements-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .announcement-card {
+        min-height: 400px;
+        padding: 15px;
+      }
+      
+      .card-header h1 {
+        font-size: 18px;
+      }
+      
+      .card-title h2 {
+        font-size: 20px;
+      }
+      
+      .card-content p {
+        font-size: 13px;
+      }
+      
+      .card-signatures {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .full-view-modal {
+        padding: 10px;
+      }
+      
+      .full-view-content {
+        margin: 10px 0;
+        max-height: calc(100vh - 20px);
+        border-radius: 8px;
+      }
+      
+      .full-view-header {
+        padding: 12px 15px;
+        border-radius: 8px 8px 0 0;
+      }
+      
+      .back-button {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      
+      .full-view-body {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar-hamburger {
+        left: auto;
+        right: 16px;
+        top: 15px;
+      }
+      
+      /* Hide hamburger when full view modal is open */
+      body.modal-open .sidebar-hamburger {
+        display: none !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+      
+      /* Hide hamburger when full view modal is open */
+      body.modal-open .sidebar-hamburger {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html"><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html" class="active"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/announcement.png" alt="Announcement" style="width: 20px; height: 20px; margin-right: 10px;">
+        Announcement
+      </div>
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading announcements...</p>
+        </div>
+      </div>
+
+      <!-- Announcements Grid -->
+      <div id="announcementsGrid" class="announcements-grid" style="display: none;">
+        <!-- Dynamic announcements will be inserted here -->
+      </div>
+
+      <!-- No Announcements State -->
+      <div id="noAnnouncementsState" class="no-announcement" style="display: none;">
+        No Announcements Available
+      </div>
+    </div>
+  </div>
+
+  <!-- Full View Modal -->
+  <div id="fullViewModal" class="full-view-modal" style="display: none;">
+    <div class="full-view-content">
+      <div class="full-view-header">
+        <button id="backButton" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back to List
+        </button>
+      </div>
+      <div id="fullViewBody" class="full-view-body">
+        <!-- Full announcement content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Configuration
+    const ANNOUNCEMENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/announcement';
+    
+    // Function to get current teacher's institution_id from user session
+    function getCurrentTeacherInstitutionId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && userData.institution_id) {
+          return userData.institution_id;
+        }
+        if (userData && userData.user && userData.user.institution_id) {
+          return userData.user.institution_id;
+        }
+      }
+      return null;
+    }
+
+    // Cache for admin data to avoid repeated API calls
+    let adminDataCache = null;
+    let adminDataCacheTime = 0;
+    const ADMIN_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
+    // Function to get admin_id from admin API using institution_id
+    async function getAdminIdByInstitutionId(institutionId) {
+      try {
+        const now = Date.now();
+        
+        // Check cache first
+        if (adminDataCache && (now - adminDataCacheTime) < ADMIN_CACHE_DURATION) {
+          console.log('📋 Using cached admin data');
+          const matchingAdmin = adminDataCache.find(admin => 
+            admin.institution_id === institutionId
+          );
+          return matchingAdmin ? matchingAdmin.admin_id : null;
+        }
+
+        console.log('🔄 Fetching fresh admin data...');
+        const response = await fetch('https://fowh69kcfd.execute-api.ap-south-1.amazonaws.com/dev/admin');
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.admins) {
+            // Cache the data
+            adminDataCache = data.admins;
+            adminDataCacheTime = now;
+            
+            // Find matching admin
+            const matchingAdmin = data.admins.find(admin => 
+              admin.institution_id === institutionId
+            );
+            
+            if (matchingAdmin) {
+              console.log('✅ Found matching admin:', matchingAdmin.admin_id, 'for institution:', institutionId);
+              return matchingAdmin.admin_id;
+            } else {
+              console.log('❌ No matching admin found for institution:', institutionId);
+              return null;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error fetching admin data:', error);
+      }
+      return null;
+    }
+
+    // Get institution name from session
+    function getInstitutionName() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && userData.institution_name) {
+          return userData.institution_name;
+        }
+        if (userData && userData.user && userData.user.institution_name) {
+          return userData.user.institution_name;
+        }
+      }
+      return 'Institution';
+    }
+
+    // Template configuration mapping
+    const TEMPLATE_CONFIG = {
+      'cultural': {
+        watermark: 'BC360',
+        leftIcon: 'fas fa-person-dancing',
+        rightIcon: 'fas fa-theater-masks',
+        bgColor: '#209194'
+      },
+      'exam': {
+        watermark: 'EXAM',
+        leftIcon: 'fas fa-book',
+        rightIcon: 'fas fa-pencil-alt',
+        bgColor: '#209194'
+      },
+      'college/school fest': {
+        watermark: 'FESTIVAL',
+        leftIcon: 'fas fa-music',
+        rightIcon: 'fas fa-theater-masks',
+        bgColor: '#209194'
+      },
+      'general': {
+        watermark: 'ANNOUNCEMENT',
+        leftIcon: 'fas fa-info-circle',
+        rightIcon: 'fas fa-bullhorn',
+        bgColor: '#209194'
+      },
+      'holiday': {
+        watermark: 'HOLIDAY',
+        leftIcon: 'fas fa-umbrella-beach',
+        rightIcon: 'fas fa-sun',
+        bgColor: '#209194'
+      },
+      'important notice': {
+        watermark: 'IMPORTANT',
+        leftIcon: 'fas fa-exclamation-triangle',
+        rightIcon: 'fas fa-bullhorn',
+        bgColor: '#209194'
+      },
+      'parents-teacher-meeting': {
+        watermark: 'PTM',
+        leftIcon: 'fas fa-users',
+        rightIcon: 'fas fa-chalkboard-teacher',
+        bgColor: '#209194'
+      },
+      'sports': {
+        watermark: 'BC360',
+        leftIcon: 'fas fa-person-running',
+        rightIcon: 'fas fa-futbol',
+        bgColor: '#209194'
+      }
+    };
+
+    // Load announcements from API for teachers
+    async function loadAnnouncements() {
+      try {
+        const currentInstitutionId = getCurrentTeacherInstitutionId();
+        if (!currentInstitutionId) {
+          console.log('❌ Institution ID not found, showing no announcements');
+          showNoAnnouncements();
+          return;
+        }
+
+        console.log('🚀 Loading announcements for institution:', currentInstitutionId);
+        
+        // Get admin_id from admin API using institution_id
+        const adminId = await getAdminIdByInstitutionId(currentInstitutionId);
+        if (!adminId) {
+          console.log('❌ No matching admin found for institution:', currentInstitutionId);
+          showNoAnnouncements();
+          return;
+        }
+
+        console.log('📋 Found admin_id:', adminId, 'for institution:', currentInstitutionId);
+        
+        const response = await fetch(`${ANNOUNCEMENT_API}?admin_id=${adminId}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📊 Loaded announcements:', data);
+          
+          if (data.success && data.announcements && data.announcements.length > 0) {
+            // Filter announcements for teachers only
+            const teacherAnnouncements = data.announcements.filter(announcement => {
+              const sendedTo = announcement.sended_to;
+              return sendedTo && (sendedTo.type === 'all' || sendedTo.type === 'teacher');
+            });
+            
+            console.log('👨‍🏫 Filtered teacher announcements:', teacherAnnouncements);
+            
+            if (teacherAnnouncements.length > 0) {
+              // Sort announcements by newest first (created_at descending)
+              const sortedAnnouncements = teacherAnnouncements.sort((a, b) => 
+                new Date(b.created_at) - new Date(a.created_at)
+              );
+              displayAnnouncements(sortedAnnouncements);
+            } else {
+              showNoAnnouncements();
+            }
+          } else {
+            showNoAnnouncements();
+          }
+        } else {
+          console.error('❌ Failed to load announcements:', response.status);
+          showNoAnnouncements();
+        }
+      } catch (error) {
+        console.error('❌ Error loading announcements:', error);
+        showNoAnnouncements();
+      }
+    }
+
+    // Display announcements in grid
+    function displayAnnouncements(announcements) {
+      const grid = document.getElementById('announcementsGrid');
+      const loadingState = document.getElementById('loadingState');
+      const noAnnouncementsState = document.getElementById('noAnnouncementsState');
+      
+      // Hide loading and no announcements states
+      loadingState.style.display = 'none';
+      noAnnouncementsState.style.display = 'none';
+      
+      // Clear existing content
+      grid.innerHTML = '';
+      
+      // Create announcement cards
+      announcements.forEach((announcement, index) => {
+        const card = createAnnouncementCard(announcement, index);
+        grid.appendChild(card);
+      });
+      
+      // Show grid
+      grid.style.display = 'grid';
+    }
+
+    // Create individual announcement card
+    function createAnnouncementCard(announcement, index) {
+      const template = TEMPLATE_CONFIG[announcement.announcement_type] || TEMPLATE_CONFIG['general'];
+      
+      const card = document.createElement('div');
+      card.className = 'announcement-card';
+      card.setAttribute('data-watermark', template.watermark);
+      card.style.borderColor = template.bgColor;
+      
+      // Format date
+      const date = new Date(announcement.select_Date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      card.innerHTML = `
+        <!-- Top Icons -->
+        <i class="${template.leftIcon} card-top-icon card-top-left-icon"></i>
+        <i class="${template.rightIcon} card-top-icon card-top-right-icon"></i>
+        
+        <!-- Header -->
+        <div class="card-header">
+          <img src="./BC360-logo.jpg" alt="College Logo" onerror="this.style.display='none'">
+          <h1>${getInstitutionName()}</h1>
+          <p>Posted by Admin</p>
+        </div>
+        
+        <!-- Title -->
+        <div class="card-title">
+          <h2>${announcement.title}</h2>
+        </div>
+        
+        <!-- Content -->
+        <div class="card-content">
+          <p>${announcement.details}</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="card-footer">
+          <div class="card-signatures">
+            <div class="card-signature">
+              ${announcement.principle_signature ? `<img src="${announcement.principle_signature}" alt="Principal Signature" onerror="this.style.display='none'">` : ''}
+              <div class="line">Principal's Signature</div>
+              <p>${announcement.principle}</p>
+            </div>
+            <div class="card-signature">
+              ${announcement.cordinate_signature ? `<img src="${announcement.cordinate_signature}" alt="Coordinator Signature" onerror="this.style.display='none'">` : ''}
+              <div class="line">Coordinator's Signature</div>
+              <p>${announcement.co_ordinator}</p>
+            </div>
+          </div>
+          <button class="view-full-btn" onclick="openFullView(${index})">
+            <i class="fas fa-eye"></i> View Full
+          </button>
+        </div>
+      `;
+      
+      // Store announcement data for full view
+      card.dataset.announcementData = JSON.stringify(announcement);
+      
+      return card;
+    }
+
+    // Show no announcements state
+    function showNoAnnouncements() {
+      const loadingState = document.getElementById('loadingState');
+      const noAnnouncementsState = document.getElementById('noAnnouncementsState');
+      const grid = document.getElementById('announcementsGrid');
+      
+      loadingState.style.display = 'none';
+      grid.style.display = 'none';
+      noAnnouncementsState.style.display = 'block';
+    }
+
+    // Open full view modal
+    function openFullView(index) {
+      const card = document.querySelectorAll('.announcement-card')[index];
+      const announcementData = JSON.parse(card.dataset.announcementData);
+      
+      const modal = document.getElementById('fullViewModal');
+      const modalBody = document.getElementById('fullViewBody');
+      
+      // Create full view content using template design
+      modalBody.innerHTML = createFullViewContent(announcementData);
+      
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      
+      // Scroll to top of modal
+      setTimeout(() => {
+        modal.scrollTop = 0;
+      }, 100);
+    }
+
+    // Create full view content
+    function createFullViewContent(announcement) {
+      const template = TEMPLATE_CONFIG[announcement.announcement_type] || TEMPLATE_CONFIG['general'];
+      const date = new Date(announcement.select_Date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      return `
+        <div class="full-view-announcement" style="max-width: 100%; width: 100%; background: var(--card); border: 4px solid ${template.bgColor}; border-radius: 8px; box-shadow: var(--shadow); padding: 20px; position: relative; overflow: hidden;">
+          <!-- Watermark -->
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; color: ${template.bgColor}; opacity: 0.1; pointer-events: none; z-index: -1; white-space: nowrap; font-weight: bold;">${template.watermark}</div>
+          
+          <!-- Top Icons -->
+          <i class="${template.leftIcon}" style="position: absolute; font-size: 36px; color: var(--accent); opacity: 0.8; top: 15px; left: 15px; z-index: 1;"></i>
+          <i class="${template.rightIcon}" style="position: absolute; font-size: 36px; color: var(--accent); opacity: 0.8; top: 15px; right: 15px; z-index: 1;"></i>
+          
+          <!-- Header -->
+          <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; position: relative; z-index: 1;">
+            <img src="./BC360-logo.jpg" alt="College Logo" style="width: 60px; height: 60px; object-fit: cover; display: block; margin: 0 auto 10px;" onerror="this.style.display='none'">
+            <h1 style="margin: 0; font-size: 24px; color: var(--label);">${getInstitutionName()}</h1>
+            <p style="margin: 4px 0 0; font-size: 14px; color: var(--subtle);">Posted by Admin</p>
+          </div>
+          
+          <!-- Title -->
+          <div style="text-align: center; margin: 20px 0; position: relative; z-index: 1;">
+            <h2 style="margin: 0; font-size: 26px; color: var(--accent);">${announcement.title}</h2>
+          </div>
+          
+          <!-- Content -->
+          <div style="text-align: justify; color: var(--label); line-height: 1.6; font-size: 16px; margin-bottom: 20px; position: relative; z-index: 1;">
+            <p>${announcement.details}</p>
+          </div>
+          
+          <!-- Footer with Signatures -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 40px; font-size: 16px; color: var(--label); position: relative; z-index: 1;">
+            <div style="width: 48%; text-align: center; margin-bottom: 20px;">
+              ${announcement.principle_signature ? `<img src="${announcement.principle_signature}" alt="Principal's Signature" style="width: 130px; display: block; margin: 10px auto; background: white;" onerror="this.style.display='none'">` : ''}
+              <p style="margin-top: 20px; border-top: 1px solid var(--label); padding-top: 5px; font-weight: bold;">Principal's Signature</p>
+              <p>${announcement.principle}</p>
+            </div>
+            <div style="width: 48%; text-align: center; margin-bottom: 20px;">
+              ${announcement.cordinate_signature ? `<img src="${announcement.cordinate_signature}" alt="Coordinator's Signature" style="width: 130px; display: block; margin: 10px auto; background: white;" onerror="this.style.display='none'">` : ''}
+              <p style="margin-top: 20px; border-top: 1px solid var(--label); padding-top: 5px; font-weight: bold;">Coordinator's Signature</p>
+              <p>${announcement.co_ordinator}</p>
+            </div>
+          </div>
+          
+          <!-- Event Details -->
+          <div style="text-align: center; margin-top: 40px; font-size: 16px; color: var(--label); position: relative; z-index: 1;">
+            <p>Date: ${date}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Close full view modal
+    function closeFullView() {
+      const modal = document.getElementById('fullViewModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      document.body.classList.remove('modal-open');
+    }
+
+    // Back button event listener
+    document.getElementById('backButton')?.addEventListener('click', closeFullView);
+
+    // Close modal on outside click
+    document.getElementById('fullViewModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'fullViewModal') {
+        closeFullView();
+      }
+    });
+
+    // Load announcements when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAnnouncements();
+    });
+
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

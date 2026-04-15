@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Performance Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --error: #ff547c;
+      --required: #ffbd03;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --warning: #ffa726;
+      --danger: #ef5350;
+      --info: #42a5f5;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #f8fafd;
+      border-bottom: 1.3px solid var(--border);
+      padding: 25px 32px 18px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-chart-line {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 19px;
+      z-index: 9999;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Dashboard Content */
+    .dashboard-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Selection Controls */
+    .selection-controls {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .controls-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 200px;
+    }
+    .control-label {
+      font-weight: 600;
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+    .control-select {
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fafdff;
+      color: var(--input);
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.15s;
+    }
+    .control-select:focus {
+      border-color: var(--accent);
+    }
+    .generate-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 1rem;
+    }
+    .generate-btn:hover {
+      background: #15626a;
+    }
+
+    /* Class Overview */
+    .class-overview {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .overview-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .overview-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, var(--accent-light) 0%, #f0f9ff 100%);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(32, 145, 148, 0.15);
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--subtle);
+      font-weight: 500;
+    }
+
+    /* Performance Table */
+    .performance-table-container {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .table-header {
+      background: var(--accent-light);
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .export-btn {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .export-btn.pdf {
+      background: #ff7d1c;
+    }
+    .export-btn:hover {
+      background: #1fae57;
+    }
+    .export-btn.pdf:hover {
+      background: #e34f0d;
+    }
+
+    .performance-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    .performance-table th {
+      background: #f8fafd;
+      color: var(--label);
+      font-weight: 600;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .performance-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .performance-table tr:hover {
+      background: #f8fafd;
+    }
+    .student-name {
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .student-name:hover {
+      color: #15626a;
+      text-decoration: underline;
+    }
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-ontrack {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    .status-satisfactory {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+    .status-weak {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    /* Student Detail Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 0;
+    }
+    .modal-header {
+      background: var(--accent);
+      color: #fff;
+      padding: 20px 24px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.15s;
+    }
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .modal-body {
+      padding: 24px;
+    }
+    .detail-section {
+      margin-bottom: 24px;
+    }
+    .detail-section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .detail-item {
+      background: #f8fafd;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .detail-label {
+      font-size: 0.85rem;
+      color: var(--subtle);
+      margin-bottom: 4px;
+    }
+    .detail-value {
+      font-weight: 600;
+      color: var(--input);
+    }
+    .chart-container {
+      background: #f8fafd;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--subtle);
+    }
+    .remarks-section {
+      margin-top: 20px;
+    }
+    .remarks-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border 0.15s;
+    }
+    .remarks-textarea:focus {
+      border-color: var(--accent);
+    }
+    .save-remarks-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+    .save-remarks-btn:hover {
+      background: #15626a;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+      .dashboard-container {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .control-group {
+        min-width: auto;
+      }
+      .overview-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .performance-table {
+        font-size: 0.9rem;
+      }
+      .performance-table th,
+      .performance-table td {
+        padding: 8px 12px;
+      }
+      .modal-content {
+        width: 95%;
+        max-height: 90vh;
+      }
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .overview-stats {
+        grid-template-columns: 1fr;
+      }
+      .export-buttons {
+        flex-direction: column;
+      }
+      .performance-table {
+        font-size: 0.85rem;
+      }
+      .performance-table th,
+      .performance-table td {
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar-hamburger {
+        left: auto;
+        right: 16px;
+        top: 15px;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" class="active"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <i class="fas fa-chart-line"></i>
+        Student Performance Dashboard
+      </div>
+      <div class="dashboard-container">
+        <!-- Selection Controls -->
+        <div class="selection-controls">
+          <div class="controls-row">
+            <div class="control-group">
+              <label class="control-label">Academic Year</label>
+              <select class="control-select" id="academicYear">
+                <option value="">Select Academic Year</option>
+                <option value="2024-25">2024-25</option>
+                <option value="2023-24">2023-24</option>
+                <option value="2022-23">2022-23</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Class & Section</label>
+              <select class="control-select" id="classSection">
+                <option value="">Select Class & Section</option>
+                <option value="10A">10th A</option>
+                <option value="10B">10th B</option>
+                <option value="9A">9th A</option>
+                <option value="9B">9th B</option>
+                <option value="8A">8th A</option>
+                <option value="8B">8th B</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Subject (Optional)</label>
+              <select class="control-select" id="subject">
+                <option value="">All Subjects</option>
+                <option value="math">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="english">English</option>
+                <option value="social">Social Studies</option>
+              </select>
+            </div>
+            <button class="generate-btn" id="generateReport">
+              <i class="fas fa-search"></i> Generate Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Class Overview -->
+        <div class="class-overview" id="classOverview" style="display: none;">
+          <div class="overview-title">
+            <i class="fas fa-chart-pie"></i>
+            Class Performance Overview
+          </div>
+          <div class="overview-stats">
+            <div class="stat-card">
+              <div class="stat-value" id="classAverage">74%</div>
+              <div class="stat-label">Class Average</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="highestScore">96%</div>
+              <div class="stat-label">Highest Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="lowestScore">41%</div>
+              <div class="stat-label">Lowest Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="avgAttendance">83%</div>
+              <div class="stat-label">Avg Attendance</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Table -->
+        <div class="performance-table-container" id="performanceTable" style="display: none;">
+          <div class="table-header">
+            <div class="table-title">
+              <i class="fas fa-users"></i>
+              Student Performance Summary
+            </div>
+            <div class="export-buttons">
+              <button class="export-btn" id="exportCSV">
+                <i class="fas fa-file-csv"></i> Export CSV
+              </button>
+              <button class="export-btn pdf" id="exportPDF">
+                <i class="fas fa-file-pdf"></i> Export PDF
+              </button>
+            </div>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="performance-table" id="studentsTable">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Attendance %</th>
+                  <th>Avg Marks (%)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTableBody">
+                <!-- Data will be populated here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Detail Modal -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Student Details</div>
+        <button class="modal-close" id="modalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Sample data for demonstration
+    const sampleStudents = [
+      {
+        id: 1,
+        name: "Priya Desai",
+        attendance: 94,
+        avgMarks: 88,
+        status: "ontrack",
+        details: {
+          attendanceTrend: [85, 88, 92, 89, 94, 96, 93, 94],
+          subjectMarks: {
+            "Mathematics": 92,
+            "Science": 85,
+            "English": 88,
+            "Social Studies": 87
+          },
+          remarks: "Excellent performance across all subjects. Shows strong analytical skills in Mathematics."
+        }
+      },
+      {
+        id: 2,
+        name: "Anuj Kumar",
+        attendance: 62,
+        avgMarks: 49,
+        status: "weak",
+        details: {
+          attendanceTrend: [70, 65, 58, 60, 62, 55, 68, 62],
+          subjectMarks: {
+            "Mathematics": 45,
+            "Science": 52,
+            "English": 48,
+            "Social Studies": 51
+          },
+          remarks: "Needs improvement in attendance and academic performance. Consider additional support."
+        }
+      },
+      {
+        id: 3,
+        name: "Meena Joshi",
+        attendance: 85,
+        avgMarks: 72,
+        status: "satisfactory",
+        details: {
+          attendanceTrend: [80, 82, 85, 83, 87, 85, 84, 85],
+          subjectMarks: {
+            "Mathematics": 75,
+            "Science": 70,
+            "English": 78,
+            "Social Studies": 67
+          },
+          remarks: "Good attendance with satisfactory academic performance. Can improve in Social Studies."
+        }
+      },
+      {
+        id: 4,
+        name: "Rahul Sharma",
+        attendance: 91,
+        avgMarks: 82,
+        status: "ontrack",
+        details: {
+          attendanceTrend: [88, 90, 92, 89, 91, 93, 90, 91],
+          subjectMarks: {
+            "Mathematics": 85,
+            "Science": 88,
+            "English": 80,
+            "Social Studies": 75
+          },
+          remarks: "Consistent performer with good attendance. Shows potential for improvement in Social Studies."
+        }
+      },
+      {
+        id: 5,
+        name: "Sneha Patel",
+        attendance: 78,
+        avgMarks: 65,
+        status: "satisfactory",
+        details: {
+          attendanceTrend: [75, 78, 80, 76, 79, 77, 78, 78],
+          subjectMarks: {
+            "Mathematics": 68,
+            "Science": 62,
+            "English": 70,
+            "Social Studies": 60
+          },
+          remarks: "Average performance with regular attendance. Needs focus on Science and Social Studies."
+        }
+      }
+    ];
+
+    // Generate report function
+    document.getElementById('generateReport').addEventListener('click', function() {
+      const academicYear = document.getElementById('academicYear').value;
+      const classSection = document.getElementById('classSection').value;
+      
+      if (!academicYear || !classSection) {
+        alert('Please select both Academic Year and Class & Section');
+        return;
+      }
+      
+      // Show overview and table
+      document.getElementById('classOverview').style.display = 'block';
+      document.getElementById('performanceTable').style.display = 'block';
+      
+      // Calculate class statistics
+      const totalStudents = sampleStudents.length;
+      const totalMarks = sampleStudents.reduce((sum, student) => sum + student.avgMarks, 0);
+      const totalAttendance = sampleStudents.reduce((sum, student) => sum + student.attendance, 0);
+      const classAverage = Math.round(totalMarks / totalStudents);
+      const avgAttendance = Math.round(totalAttendance / totalStudents);
+      const highestScore = Math.max(...sampleStudents.map(s => s.avgMarks));
+      const lowestScore = Math.min(...sampleStudents.map(s => s.avgMarks));
+      
+      // Update overview stats
+      document.getElementById('classAverage').textContent = classAverage + '%';
+      document.getElementById('highestScore').textContent = highestScore + '%';
+      document.getElementById('lowestScore').textContent = lowestScore + '%';
+      document.getElementById('avgAttendance').textContent = avgAttendance + '%';
+      
+      // Render table
+      renderPerformanceTable();
+    });
+
+    // Render performance table
+    function renderPerformanceTable() {
+      const tbody = document.getElementById('studentsTableBody');
+      tbody.innerHTML = '';
+      
+      sampleStudents.forEach(student => {
+        const row = document.createElement('tr');
+        const statusClass = `status-${student.status}`;
+        const statusText = getStatusText(student.status);
+        const statusIcon = getStatusIcon(student.status);
+        
+        row.innerHTML = `
+          <td><span class="student-name" onclick="showStudentDetails(${student.id})">${student.name}</span></td>
+          <td>${student.attendance}%</td>
+          <td>${student.avgMarks}%</td>
+          <td><span class="status-badge ${statusClass}">${statusIcon} ${statusText}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Get status text and icon
+    function getStatusText(status) {
+      switch(status) {
+        case 'ontrack': return 'On Track';
+        case 'satisfactory': return 'Satisfactory';
+        case 'weak': return 'Weak';
+        default: return 'Unknown';
+      }
+    }
+
+    function getStatusIcon(status) {
+      switch(status) {
+        case 'ontrack': return '✅';
+        case 'satisfactory': return '👍';
+        case 'weak': return '⚠️';
+        default: return '❓';
+      }
+    }
+
+    // Show student details modal
+    window.showStudentDetails = function(studentId) {
+      const student = sampleStudents.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const modal = document.getElementById('studentModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      
+      modalTitle.textContent = `${student.name} - Performance Details`;
+      
+      modalBody.innerHTML = `
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <i class="fas fa-info-circle"></i>
+            Basic Information
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-label">Overall Attendance</div>
+              <div class="detail-value">${student.attendance}%</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Average Marks</div>
+              <div class="detail-value">${student.avgMarks}%</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Performance Status</div>
+              <div class="detail-value">
+                <span class="status-badge status-${student.status}">
+                  ${getStatusIcon(student.status)} ${getStatusText(student.status)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <i class="fas fa-chart-bar"></i>
+            Subject-wise Performance
+          </div>
+          <div class="detail-grid">
+            ${Object.entries(student.details.subjectMarks).map(([subject, marks]) => `
+              <div class="detail-item">
+                <div class="detail-label">${subject}</div>
+                <div class="detail-value">${marks}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <i class="fas fa-chart-line"></i>
+            Attendance Trend (Last 8 Weeks)
+          </div>
+          <div class="chart-container">
+            <div style="display: flex; align-items: end; gap: 8px; height: 150px;">
+              ${student.details.attendanceTrend.map((att, index) => {
+                const height = (att / 100) * 150;
+                const color = att >= 80 ? '#26bf67' : att >= 60 ? '#ffa726' : '#ef5350';
+                return `<div style="width: 30px; height: ${height}px; background: ${color}; border-radius: 4px 4px 0 0; display: flex; align-items: end; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${att}%</div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="remarks-section">
+          <div class="detail-section-title">
+            <i class="fas fa-comment"></i>
+            Teacher Remarks
+          </div>
+          <textarea class="remarks-textarea" id="studentRemarks" placeholder="Add or edit remarks for this student...">${student.details.remarks}</textarea>
+          <button class="save-remarks-btn" onclick="saveRemarks(${studentId})">
+            <i class="fas fa-save"></i> Save Remarks
+          </button>
+        </div>
+      `;
+      
+      modal.style.display = 'block';
+    };
+
+    // Save remarks function
+    window.saveRemarks = function(studentId) {
+      const remarks = document.getElementById('studentRemarks').value;
+      const student = sampleStudents.find(s => s.id === studentId);
+      if (student) {
+        student.details.remarks = remarks;
+        alert('Remarks saved successfully!');
+      }
+    };
+
+    // Close modal
+    document.getElementById('modalClose').addEventListener('click', function() {
+      document.getElementById('studentModal').style.display = 'none';
+    });
+
+    document.getElementById('studentModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+      }
+    });
+
+    // Export functions
+    document.getElementById('exportCSV').addEventListener('click', function() {
+      const academicYear = document.getElementById('academicYear').value;
+      const classSection = document.getElementById('classSection').value;
+      
+      if (!academicYear || !classSection) {
+        alert('Please generate a report first');
+        return;
+      }
+      
+      // Create CSV content
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Student Name,Attendance %,Avg Marks (%),Status\n";
+      
+      sampleStudents.forEach(student => {
+        const status = getStatusText(student.status);
+        csvContent += `${student.name},${student.attendance}%,${student.avgMarks}%,${status}\n`;
+      });
+      
+      // Download CSV
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `performance_report_${classSection}_${academicYear}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    document.getElementById('exportPDF').addEventListener('click', function() {
+      const academicYear = document.getElementById('academicYear').value;
+      const classSection = document.getElementById('classSection').value;
+      
+      if (!academicYear || !classSection) {
+        alert('Please generate a report first');
+        return;
+      }
+      
+      const doc = new jspdf.jsPDF('l', 'pt');
+      
+      // Add header
+      doc.setFontSize(20);
+      doc.text('Student Performance Report', doc.internal.pageSize.getWidth()/2, 40, {align: 'center'});
+      doc.setFontSize(14);
+      doc.text(`Class: ${classSection} | Academic Year: ${academicYear}`, doc.internal.pageSize.getWidth()/2, 60, {align: 'center'});
+      
+      // Add table
+      const headers = [['Student Name', 'Attendance %', 'Avg Marks (%)', 'Status']];
+      const data = sampleStudents.map(student => [
+        student.name,
+        student.attendance + '%',
+        student.avgMarks + '%',
+        getStatusText(student.status)
+      ]);
+      
+      doc.autoTable({
+        head: headers,
+        body: data,
+        margin: {top: 80},
+        styles: {fontSize: 10, cellPadding: 4},
+        headStyles: {fillColor: [32, 145, 148]}
+      });
+      
+      doc.save(`performance_report_${classSection}_${academicYear}.pdf`);
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

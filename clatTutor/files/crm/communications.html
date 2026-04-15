@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Communications — CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="card" style="margin-bottom: 1.35rem">
+      <h3 style="margin: 0 0 1rem; font-size: 1.08rem; display: flex; align-items: center; gap: 0.5rem">
+        <i class="fa-solid fa-comments" style="color: var(--accent)"></i> Log touchpoint
+      </h3>
+      <form id="form-comm">
+        <div class="crm-form-grid">
+          <div class="form-group" style="margin: 0">
+            <label for="c-type">Related to</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-link"></i>
+              <select id="c-type" name="relatedType">
+                <option value="lead">Lead</option>
+                <option value="student">Student</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0">
+            <label for="c-who">Record</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-address-card"></i>
+              <select id="c-who" name="relatedId" required></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0">
+            <label for="c-channel">Channel</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-tower-broadcast"></i>
+              <select id="c-channel" name="channel">
+                <option value="call">Call</option>
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="note">Note</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 1rem">
+          <label for="c-msg">Summary</label>
+          <textarea id="c-msg" name="message" required placeholder="What was discussed? Next step?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save log</button>
+      </form>
+    </div>
+    <div class="table-toolbar" style="margin-bottom: 0.75rem">
+      <strong style="font-size: 1.05rem">Recent logs</strong>
+      <span class="text-muted" style="font-size: 0.85rem">Newest first</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Type</th>
+            <th>Channel</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody id="comm-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    function escapeAttr(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function refillWhoSelect() {
+      var type = document.getElementById('c-type').value;
+      var sel = document.getElementById('c-who');
+      var list = type === 'lead' ? DataStore.leads() : DataStore.students();
+      sel.innerHTML = list
+        .map(function (x) {
+          var label = type === 'lead' ? x.name + ' (' + (x.email || x.phone || x.id) + ')' : x.name + ' [' + x.id + ']';
+          return '<option value="' + escapeAttr(x.id) + '">' + escapeHtml(label) + '</option>';
+        })
+        .join('');
+      if (!list.length) sel.innerHTML = '<option value="">— No records —</option>';
+    }
+
+    function renderComms() {
+      var body = document.getElementById('comm-body');
+      var all = DataStore.comms().slice().reverse();
+      body.innerHTML = all
+        .map(function (c) {
+          var when = '';
+          try {
+            when = new Date(c.at).toLocaleString();
+          } catch {
+            when = c.at;
+          }
+          return (
+            '<tr><td style="white-space:nowrap">' +
+            when +
+            '</td><td><span class="badge badge-new">' +
+            escapeHtml(c.relatedType) +
+            '</span><br><small class="text-muted">' +
+            escapeHtml(c.relatedId) +
+            '</small></td><td><span class="badge badge-contacted">' +
+            escapeHtml(c.channel) +
+            '</span></td><td>' +
+            escapeHtml(c.message) +
+            '</td></tr>'
+          );
+        })
+        .join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'communications.html', title: 'Communications', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+
+      refillWhoSelect();
+      renderComms();
+
+      document.getElementById('c-type').addEventListener('change', refillWhoSelect);
+
+      document.getElementById('form-comm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var fd = new FormData(e.target);
+        var rid = fd.get('relatedId');
+        if (!rid) return;
+        DataStore.addComm({
+          relatedType: fd.get('relatedType'),
+          relatedId: rid,
+          channel: fd.get('channel'),
+          message: fd.get('message'),
+        });
+        document.getElementById('c-msg').value = '';
+        renderComms();
+      });
+    });
+  </script>
+</body>
+</html>

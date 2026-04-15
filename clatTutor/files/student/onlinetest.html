@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online test — Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <style>
+    body.page-exam.exam-active .sidebar,
+    body.page-exam.exam-active .sidebar-backdrop {
+      display: none !important;
+    }
+    body.page-exam.exam-active .mobile-nav-toggle {
+      display: none !important;
+    }
+    body.page-exam.exam-active .main-wrap {
+      margin-left: 0;
+    }
+    body.page-exam .page-content {
+      padding: 0;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 3.5rem);
+    }
+    body.page-exam .topbar {
+      flex-wrap: nowrap;
+      gap: 0.75rem;
+      background: linear-gradient(180deg, #fffdf6 0%, #ffffff 100%);
+      border-bottom-color: #ead9a3;
+    }
+    body.page-exam .topbar h1 {
+      font-size: 1.05rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .exam-timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #1f2937;
+      padding: 0.4rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      white-space: nowrap;
+    }
+    .exam-timer i {
+      color: #946200;
+    }
+    .exam-timer--warn {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #b45309;
+    }
+    .exam-timer--crit {
+      border-color: var(--danger);
+      background: #fef2f2;
+      color: var(--danger);
+      animation: examPulse 1s ease-in-out infinite;
+    }
+    @keyframes examPulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.85;
+      }
+    }
+
+    /* Test picker (before exam loads) */
+    .exam-bootstrap {
+      flex: 1;
+      min-height: min(70vh, 560px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1.5rem 1rem 2rem;
+      background: var(--paper);
+    }
+    .exam-bootstrap[hidden] {
+      display: none !important;
+    }
+    .exam-bootstrap__inner {
+      width: min(640px, 100%);
+    }
+    .exam-bootstrap__lead {
+      margin: 0 0 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .exam-bootstrap__hint {
+      margin: 0 0 1.25rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .exam-test-list {
+      display: grid;
+      gap: 0.65rem;
+    }
+    .exam-test-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line-light);
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    }
+    .exam-test-card h4 {
+      margin: 0 0 0.25rem;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .exam-test-card .meta {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .exam-test-btn--passed {
+      background: #15803d !important;
+      border-color: #166534 !important;
+      color: #fff !important;
+      cursor: default;
+    }
+    .exam-test-btn--retry {
+      background: #fff !important;
+      border: 2px solid #ea580c !important;
+      color: #c2410c !important;
+    }
+    .exam-test-btn--retry:hover {
+      background: #fff7ed !important;
+    }
+    .exam-bootstrap__status {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .exam-bootstrap__err {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 0.88rem;
+    }
+
+    .exam-root {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      min-height: 0;
+      background: var(--paper);
+    }
+    .exam-root.is-visible {
+      display: flex;
+    }
+
+    .exam-meta {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--line-light);
+      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1.25rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .exam-meta strong {
+      color: var(--black);
+      font-weight: 600;
+    }
+    .exam-meta__sep {
+      color: var(--line);
+    }
+
+    .exam-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.15fr) minmax(220px, 300px);
+      grid-template-rows: minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0.75rem;
+      min-height: 0;
+      max-height: calc(100vh - 7.5rem);
+      padding: 0.75rem;
+      border-top: 1px solid var(--line-light);
+    }
+
+    .exam-panel {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 14px;
+      border: 1px solid rgba(234, 217, 163, 0.55);
+      background: #fff;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+    }
+    .exam-panel--reading {
+      background: linear-gradient(180deg, #fffef9 0%, #ffffff 100%);
+    }
+    .exam-panel--review {
+      background: linear-gradient(180deg, #fff8df 0%, #fffef9 35%, #ffffff 100%);
+    }
+
+    .exam-panel__head {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #7a5d1a;
+      border-bottom: 1px solid rgba(234, 217, 163, 0.55);
+      background: rgba(255, 248, 223, 0.45);
+    }
+
+    .exam-ref__scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 100%;
+      overflow: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 1rem 1.05rem 1.15rem;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #1f2937;
+    }
+    .exam-ref__block + .exam-ref__block {
+      margin-top: 1.35rem;
+      padding-top: 1.15rem;
+      border-top: 1px dashed var(--line);
+    }
+    .exam-ref__label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .exam-ref__empty {
+      color: var(--muted-light);
+      font-size: 0.9rem;
+      font-style: italic;
+      margin: 0;
+    }
+
+    .exam-q-card {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 100%;
+      overflow: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 1.05rem 1.15rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .exam-qno {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #946200;
+      margin: 0;
+    }
+    .exam-stem {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--black);
+      margin: 0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .exam-options-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0;
+    }
+    .exam-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .exam-opt {
+      display: grid;
+      grid-template-columns: 1.15rem 2.25rem 1fr;
+      align-items: start;
+      gap: 0.65rem 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #fafafa;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      min-height: 3.25rem;
+    }
+    .exam-opt:hover {
+      border-color: #e6cf8c;
+      background: #fffdf5;
+    }
+    .exam-opt.exam-opt--selected {
+      border-color: #c9a227;
+      background: linear-gradient(135deg, #fffceb 0%, #fff 100%);
+      box-shadow: 0 0 0 1px rgba(255, 204, 0, 0.35);
+    }
+    .exam-opt input[type='radio'] {
+      margin: 0.15rem 0 0;
+      width: 1.05rem;
+      height: 1.05rem;
+      accent-color: #111827;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .exam-opt__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid var(--line-light);
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: #374151;
+    }
+    .exam-opt--selected .exam-opt__badge {
+      background: #fff7d1;
+      border-color: #e6cf8c;
+      color: #111;
+    }
+    .exam-opt .txt {
+      font-size: 0.92rem;
+      color: #1f2937;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      padding-top: 0.15rem;
+    }
+
+    .exam-side__head {
+      padding: 0.6rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #2f3640;
+      border-bottom: 1px solid rgba(234, 217, 163, 0.55);
+    }
+    .exam-palette-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 100%;
+      overflow: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.65rem 0.75rem;
+    }
+    .exam-palette {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45rem;
+      margin-bottom: 0.7rem;
+    }
+    .exam-palette button {
+      aspect-ratio: 1;
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #f3f4f6;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #4b5563;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+    .exam-palette button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .exam-palette button.is-current {
+      outline: 2px solid #111;
+      outline-offset: 1px;
+      background: #fff;
+      color: #111;
+    }
+    .exam-palette button.state-answered {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #14532d;
+    }
+    .exam-palette button.state-todo {
+      background: #fce7f3;
+      border-color: #fbcfe8;
+      color: #9d174d;
+    }
+    .exam-palette button.state-new {
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+      color: #6b7280;
+    }
+    .exam-palette button.state-review {
+      box-shadow: inset 0 0 0 2px #7c3aed;
+      background: #f5f3ff;
+      color: #5b21b6;
+    }
+    .exam-palette button.state-review.state-answered {
+      background: #ecfdf5;
+      box-shadow: inset 0 0 0 2px #7c3aed;
+      color: #14532d;
+    }
+    .exam-palette-next {
+      width: 100%;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .exam-legend {
+      padding: 0.65rem 0.75rem 0.85rem;
+      border-top: 1px solid rgba(234, 217, 163, 0.45);
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: grid;
+      gap: 0.35rem;
+    }
+    .exam-legend__row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .exam-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .exam-dot--a {
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+    .exam-dot--v {
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+    }
+    .exam-dot--n {
+      background: #fce7f3;
+      border-color: #fbcfe8;
+    }
+    .exam-dot--r {
+      background: #f5f3ff;
+      box-shadow: inset 0 0 0 1px #7c3aed;
+    }
+    .exam-counts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+      padding: 0 0.75rem 0.75rem;
+      text-align: center;
+    }
+    .exam-counts div {
+      background: #fff;
+      border: 1px solid var(--line-light);
+      border-radius: 10px;
+      padding: 0.5rem 0.25rem;
+    }
+    .exam-counts .n {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #111;
+    }
+    .exam-counts .lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .exam-q-actions {
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--line-light);
+      background: #fff;
+      box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.05);
+    }
+    .exam-q-actions .btn {
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+    .exam-q-actions .btn-exam-primary {
+      margin-left: auto;
+    }
+    .exam-q-actions .btn-exam-secondary {
+      background: #fff;
+      color: #1f2937;
+      border: 1px solid #d1d5db;
+    }
+    .exam-q-actions .btn-exam-secondary:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .exam-q-actions .btn-exam-primary {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: 1px solid #e6b800;
+    }
+    .exam-q-actions .btn-exam-primary:hover {
+      background: var(--accent-hover);
+    }
+    .exam-footer__left,
+    .exam-footer__right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .btn-exam-secondary {
+      background: #fff;
+      color: #1f2937;
+      border: 1px solid #d1d5db;
+    }
+    .btn-exam-secondary:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .btn-exam-primary {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: 1px solid #e6b800;
+    }
+    .btn-exam-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .exam-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .exam-modal[hidden] {
+      display: none !important;
+    }
+    .exam-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    .exam-modal__dialog {
+      position: relative;
+      width: min(420px, 100%);
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--line-light);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      padding: 1.25rem 1.35rem;
+    }
+    .exam-modal__dialog--results {
+      width: min(960px, 96vw);
+      max-height: min(92vh, 720px);
+      overflow-y: auto;
+      padding: 1.5rem 1.65rem 1.35rem;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 28%);
+      border-radius: 20px;
+    }
+    .exam-modal__dialog--results h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .exam-modal__dialog--results .modal-done-lead {
+      margin: 0.35rem 0 1.15rem;
+      font-size: 0.92rem;
+      color: #64748b;
+    }
+    /* —— Results dashboard (card UI like analytics popup) —— */
+    .exam-result-dashboard {
+      margin: 0 0 1rem;
+    }
+    .exam-result-dash__top {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) minmax(140px, 0.9fr) minmax(220px, 1.2fr);
+      gap: 1rem;
+      align-items: stretch;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 780px) {
+      .exam-result-dash__top {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-result-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.07);
+      padding: 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 200px;
+    }
+    .exam-result-ring-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .exam-result-ring {
+      --p: 0;
+      --ring: #2563eb;
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: conic-gradient(var(--ring) calc(var(--p) * 1%), #e2e8f0 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .exam-result-ring__hole {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+    }
+    .exam-result-ring__label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    .exam-result-ring__value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #1d4ed8;
+      line-height: 1.1;
+    }
+    .exam-result-ring-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+      max-width: 12rem;
+    }
+    .exam-result-highlight__icon {
+      font-size: 2rem;
+      color: #ea580c;
+      margin-bottom: 0.35rem;
+    }
+    .exam-result-highlight__title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    .exam-result-highlight__big {
+      font-size: 2.75rem;
+      font-weight: 900;
+      color: #ea580c;
+      line-height: 1;
+      margin: 0.25rem 0;
+    }
+    .exam-result-highlight__sub {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.45;
+      max-width: 11rem;
+    }
+    .exam-result-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      width: 100%;
+      align-content: center;
+    }
+    .exam-result-metric {
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 0.65rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .exam-result-metric i {
+      font-size: 1.15rem;
+      color: #2563eb;
+    }
+    .exam-result-metric:nth-child(2) i {
+      color: #dc2626;
+    }
+    .exam-result-metric:nth-child(3) i {
+      color: #059669;
+    }
+    .exam-result-metric:nth-child(4) i {
+      color: #d97706;
+    }
+    .exam-result-metric span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+    }
+    .exam-result-metric strong {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .exam-result-dash__sections {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+    }
+    @media (max-width: 640px) {
+      .exam-result-dash__sections {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-result-section-card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+      padding: 1rem 0.85rem;
+      text-align: center;
+    }
+    .exam-result-section-card .exam-result-ring {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 0.5rem;
+    }
+    .exam-result-section-card .exam-result-ring__hole {
+      width: 72px;
+      height: 72px;
+    }
+    .exam-result-section-card .exam-result-ring__value {
+      font-size: 1.1rem;
+    }
+    .exam-result-section-card .exam-result-ring__label {
+      font-size: 0.62rem;
+    }
+    .exam-result-section-card h4 {
+      margin: 0 0 0.2rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .exam-result-section-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .exam-result-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2.5rem 1.5rem 2rem;
+      min-height: 280px;
+      gap: 0.75rem;
+    }
+    .exam-result-loading[hidden] {
+      display: none !important;
+    }
+    .exam-result-loading__spinner {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 4px solid #e2e8f0;
+      border-top-color: #2563eb;
+      animation: exam-grade-spin 0.85s linear infinite;
+    }
+    @keyframes exam-grade-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .exam-result-loading__title {
+      margin: 0.5rem 0 0;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .exam-result-loading__hint {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #64748b;
+      max-width: 22rem;
+      line-height: 1.5;
+    }
+    .exam-modal__dialog h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+    }
+    .exam-modal__dialog:not(.exam-modal__dialog--results) p {
+      margin: 0 0 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .exam-modal__actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 0.25rem;
+    }
+
+    @media (max-width: 1100px) {
+      .exam-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      .exam-panel--reading .exam-ref__scroll {
+        max-height: min(38vh, 300px);
+      }
+      .exam-palette {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    }
+    @media (max-width: 560px) {
+      .exam-palette {
+        grid-template-columns: repeat(5, 1fr);
+      }
+      .exam-q-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .exam-q-actions .btn {
+        flex: 1;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body class="app-body student-dashboard page-exam">
+  <div id="stock" style="display: none">
+    <div id="exam-bootstrap" class="exam-bootstrap">
+      <div class="exam-bootstrap__inner">
+        <p class="exam-bootstrap__lead" id="exam-bootstrap-title">Tests</p>
+        <div id="exam-bootstrap-status" class="exam-bootstrap__status">Loading tests…</div>
+        <div id="exam-test-list" class="exam-test-list" hidden></div>
+        <div id="exam-bootstrap-err" class="exam-bootstrap__err" hidden></div>
+      </div>
+    </div>
+
+    <div id="exam-root" class="exam-root" hidden>
+      <div class="exam-meta" id="exam-meta">
+        <span><strong>Question type</strong> Multiple choice</span>
+        <span class="exam-meta__sep" aria-hidden="true">|</span>
+        <span id="exam-marks-line">Marks for correct answer: 1 | Negative marks: 0</span>
+      </div>
+
+      <div class="exam-grid">
+        <aside class="exam-panel exam-panel--reading" aria-label="Reading material">
+          <div class="exam-panel__head">Reading material</div>
+          <div class="exam-ref__scroll" id="exam-ref-scroll">
+            <p class="exam-ref__empty" id="exam-ref-empty">No information or paragraph for this question.</p>
+            <div id="exam-ref-blocks" hidden></div>
+          </div>
+        </aside>
+
+        <section class="exam-panel" aria-label="Question and answers">
+          <div class="exam-panel__head">Question &amp; options</div>
+          <div class="exam-q-card">
+            <p class="exam-qno" id="exam-qno">Question 1</p>
+            <p class="exam-stem" id="exam-stem"></p>
+            <p class="exam-options-title">Select one answer</p>
+            <div class="exam-options" id="exam-options" role="radiogroup" aria-label="Options"></div>
+          </div>
+          <div class="exam-q-actions">
+            <button type="button" class="btn btn-exam-secondary" id="btn-prev-question">
+              <i class="fa-solid fa-arrow-left"></i> Previous question
+            </button>
+            <button type="button" class="btn btn-exam-secondary" id="btn-clear">
+              <i class="fa-solid fa-eraser"></i> Clear response
+            </button>
+            <button type="button" class="btn btn-exam-primary" id="btn-save-next">
+              <i class="fa-solid fa-floppy-disk"></i> Save &amp; next
+            </button>
+          </div>
+        </section>
+
+        <aside class="exam-panel exam-panel--review" aria-label="Navigation and review">
+          <div class="exam-side__head">Review &amp; navigation</div>
+          <div class="exam-palette-scroll">
+            <div class="exam-palette" id="exam-palette"></div>
+            <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-next">
+              Show next question list
+            </button>
+          </div>
+          <div class="exam-legend">
+            <div class="exam-legend__row"><span class="exam-dot exam-dot--a"></span> Answered</div>
+            <div class="exam-legend__row"><span class="exam-dot exam-dot--v"></span> Not visited</div>
+            <div class="exam-legend__row"><span class="exam-dot exam-dot--n"></span> Visited, not answered</div>
+            <div class="exam-legend__row"><span class="exam-dot exam-dot--r"></span> Marked for review</div>
+          </div>
+            <div class="exam-counts">
+            <div>
+              <span class="n" id="cnt-answered">0</span>
+              <span class="lbl">Answered</span>
+            </div>
+            <div>
+              <span class="n" id="cnt-visited">0</span>
+              <span class="lbl">Visited</span>
+            </div>
+            <div>
+              <span class="n" id="cnt-unans">0</span>
+              <span class="lbl">Not answered</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="exam-modal" id="modal-confirm" hidden>
+      <div class="exam-modal__backdrop" data-close-modal></div>
+      <div class="exam-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+        <h2 id="modal-confirm-title">Submit test?</h2>
+        <p id="modal-confirm-body">You still have unanswered questions. Submit anyway?</p>
+        <div class="exam-modal__actions">
+          <button type="button" class="btn btn-exam-secondary" data-close-modal>Cancel</button>
+          <button type="button" class="btn btn-exam-primary" id="modal-confirm-ok">Yes, submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-modal" id="modal-done" hidden>
+      <div class="exam-modal__backdrop"></div>
+      <div
+        class="exam-modal__dialog exam-modal__dialog--results"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-done-title"
+      >
+        <h2 id="modal-done-title">Test submitted</h2>
+        <p id="modal-done-body" class="modal-done-lead">Your responses have been recorded for this session.</p>
+        <div id="modal-done-loading" class="exam-result-loading" hidden>
+          <div class="exam-result-loading__spinner" aria-hidden="true"></div>
+          <p class="exam-result-loading__title">Loading your grade…</p>
+          <p class="exam-result-loading__hint">Checking your answers against the answer key</p>
+        </div>
+        <div id="modal-done-summary" class="exam-result-dashboard" hidden>
+          <div class="exam-result-dash__top">
+            <div class="exam-result-card exam-result-card--ring">
+              <div class="exam-result-ring-wrap">
+                <div class="exam-result-ring" id="modal-res-ring" style="--p: 0">
+                  <div class="exam-result-ring__hole">
+                    <span class="exam-result-ring__label">Score</span>
+                    <span class="exam-result-ring__value" id="modal-res-ring-pct">0%</span>
+                  </div>
+                </div>
+                <p class="exam-result-ring-meta" id="modal-res-ring-meta">Correct vs questions in answer key</p>
+              </div>
+            </div>
+            <div class="exam-result-card exam-result-card--grade">
+              <div class="exam-result-highlight__icon" aria-hidden="true">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <div class="exam-result-highlight__title">Grade</div>
+              <div class="exam-result-highlight__big" id="modal-res-grade-letter">—</div>
+              <p class="exam-result-highlight__sub" id="modal-res-grade-sub">—</p>
+            </div>
+            <div class="exam-result-card exam-result-card--metrics">
+              <div class="exam-result-metrics">
+                <div class="exam-result-metric">
+                  <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+                  <span>Potential score</span>
+                  <strong id="modal-res-potential">0</strong>
+                </div>
+                <div class="exam-result-metric">
+                  <i class="fa-solid fa-circle-minus" aria-hidden="true"></i>
+                  <span>Negative marks</span>
+                  <strong id="modal-res-negative">0</strong>
+                </div>
+                <div class="exam-result-metric">
+                  <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
+                  <span>Accuracy</span>
+                  <strong id="modal-res-accuracy">—</strong>
+                </div>
+                <div class="exam-result-metric">
+                  <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                  <span>Overall %</span>
+                  <strong id="modal-res-overall-pct">0%</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="exam-result-dash__sections" id="modal-res-sections" aria-label="Attempt by part"></div>
+        </div>
+        <div class="exam-modal__actions" id="modal-done-actions">
+          <button type="button" class="btn btn-exam-primary" id="modal-done-back">Back to dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+  <script src="../js/exam-question-parser.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    (function () {
+      function escHtml(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function getAddTestApiUrl() {
+        return (window.APP_CONFIG && window.APP_CONFIG.ADD_TEST_API) || '';
+      }
+
+      function getSubmitOnlineTestApiUrl() {
+        return (window.APP_CONFIG && window.APP_CONFIG.SUBMIT_ONLINE_TEST_API) || '';
+      }
+
+      /** API Gateway sometimes returns Lambda proxy shape `{ body: "json string" }`. */
+      function unwrapSubmitPayload(data) {
+        if (!data || typeof data !== 'object') return data;
+        if (typeof data.body === 'string') {
+          try {
+            var inner = JSON.parse(data.body);
+            if (inner && typeof inner === 'object') return inner;
+          } catch (e) {}
+        }
+        return data;
+      }
+
+      function parseSubmitResponse(r) {
+        var ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+        if (ct.indexOf('application/json') !== -1) {
+          return r.json().then(function (data) {
+            var out = unwrapSubmitPayload(data);
+            if (!r.ok) {
+              throw new Error((out && out.message) || 'Submit failed (' + r.status + ')');
+            }
+            return out;
+          });
+        }
+        return r.text().then(function (t) {
+          if (!r.ok) throw new Error(t || 'Submit failed (' + r.status + ')');
+          try {
+            return unwrapSubmitPayload(JSON.parse(t || '{}'));
+          } catch (e) {
+            return { message: t || 'Unknown response' };
+          }
+        });
+      }
+
+      /** Latest attempt per test for current student (GET submit_online_test?action=student_attempts&email=). */
+      function fetchStudentAttempts() {
+        var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        if (!session || !session.user) return Promise.resolve([]);
+        var api = getSubmitOnlineTestApiUrl();
+        if (!api) return Promise.resolve([]);
+        var email = session.user.email || session.user.login || '';
+        var url =
+          api +
+          (api.indexOf('?') >= 0 ? '&' : '?') +
+          'action=student_attempts&email=' +
+          encodeURIComponent(String(email).trim());
+        return fetch(url, { method: 'GET', credentials: 'omit' })
+          .then(function (r) {
+            if (!r.ok) return [];
+            return r.json().then(function (d) {
+              return Array.isArray(d && d.attempts) ? d.attempts : [];
+            });
+          })
+          .catch(function () {
+            return [];
+          });
+      }
+
+      function formatTime(totalSec) {
+        var m = Math.floor(totalSec / 60);
+        var s = totalSec % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      function base64ToArrayBuffer(base64) {
+        var binary = atob(base64);
+        var len = binary.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes.buffer;
+      }
+
+      /**
+       * Loads the .docx via the add_test API (Lambda reads S3 server-side). Direct S3 fetch fails in the browser
+       * because the bucket has no CORS for localhost / web origins.
+       * GET ADD_TEST_API?test_id=N&paper=1
+       */
+      function extractTextFromPaperViaApi(testId) {
+        var api = getAddTestApiUrl();
+        if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
+        var url =
+          api +
+          (api.indexOf('?') >= 0 ? '&' : '?') +
+          'test_id=' +
+          encodeURIComponent(String(testId)) +
+          '&paper=1';
+        return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (r) {
+          return r.json().then(
+            function (data) {
+              if (!r.ok) {
+                throw new Error((data && data.message) || 'Could not load question paper (HTTP ' + r.status + ')');
+              }
+              if (!data || !data.content_base64) {
+                throw new Error(
+                  'Server did not return file data. Deploy the latest add_test backend (GET with paper=1 proxy).'
+                );
+              }
+              var buf = base64ToArrayBuffer(data.content_base64);
+              if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
+              return mammoth.extractRawText({ arrayBuffer: buf });
+            },
+            function () {
+              if (!r.ok) throw new Error('Could not load question paper (HTTP ' + r.status + ')');
+              throw new Error('Invalid response from server');
+            }
+          );
+        }).then(function (res) {
+          return (res && res.value) || '';
+        });
+      }
+
+      function fetchTestsFromApi() {
+        var api = getAddTestApiUrl();
+        if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
+        return fetch(api, { method: 'GET', credentials: 'omit' }).then(function (r) {
+          if (!r.ok) throw new Error('Could not load tests (' + r.status + ')');
+          return r.json();
+        });
+      }
+
+      function fetchTestRow(testId) {
+        var api = getAddTestApiUrl();
+        if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured'));
+        var url = api + (api.indexOf('?') >= 0 ? '&' : '?') + 'test_id=' + encodeURIComponent(String(testId));
+        return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (r) {
+          if (r.status === 404) throw new Error('Test not found');
+          if (!r.ok) throw new Error('Could not load test (' + r.status + ')');
+          return r.json();
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.classList.remove('exam-active');
+        var stock = document.getElementById('stock');
+        initAppChrome({
+          role: 'student',
+          active: 'onlinetest.html',
+          title: 'Online test',
+          contentEl: stock,
+        });
+        if (typeof applyStudentChrome === 'function') applyStudentChrome();
+
+        var bootstrapEl = document.getElementById('exam-bootstrap');
+        var bootstrapStatus = document.getElementById('exam-bootstrap-status');
+        var bootstrapErr = document.getElementById('exam-bootstrap-err');
+        var testListEl = document.getElementById('exam-test-list');
+        var examRoot = document.getElementById('exam-root');
+
+        function showErr(msg) {
+          if (bootstrapErr) {
+            bootstrapErr.hidden = false;
+            bootstrapErr.textContent = msg;
+          }
+        }
+
+        function hideLoader() {
+          if (bootstrapStatus) bootstrapStatus.hidden = true;
+        }
+
+        var params = new URLSearchParams(window.location.search);
+        var testIdParam = params.get('test_id');
+        var demoParam = params.get('demo') === '1';
+
+        var paper = null;
+        var qs = [];
+        var idx = 0;
+        var answers = {};
+        var visited = {};
+        var review = {};
+        var timerId = null;
+        var totalSec = 3600;
+
+        var refEmpty = document.getElementById('exam-ref-empty');
+        var refBlocks = document.getElementById('exam-ref-blocks');
+        var stemEl = document.getElementById('exam-stem');
+        var optsEl = document.getElementById('exam-options');
+        var qnoEl = document.getElementById('exam-qno');
+        var paletteEl = document.getElementById('exam-palette');
+        var marksLine = document.getElementById('exam-marks-line');
+        var cntA = document.getElementById('cnt-answered');
+        var cntV = document.getElementById('cnt-visited');
+        var cntU = document.getElementById('cnt-unans');
+        var btnSaveNext = document.getElementById('btn-save-next');
+        var btnPrevQuestion = document.getElementById('btn-prev-question');
+        var btnClear = document.getElementById('btn-clear');
+        var btnPaletteNext = document.getElementById('btn-palette-next');
+        var palettePageStart = 0;
+        var PALETTE_PAGE_SIZE = 10;
+
+        function currentQ() {
+          return qs[idx];
+        }
+
+        function qKey(q) {
+          return String(q.number);
+        }
+
+        function ensurePalettePageIncludesCurrent() {
+          if (idx < palettePageStart || idx >= palettePageStart + PALETTE_PAGE_SIZE) {
+            palettePageStart = Math.floor(idx / PALETTE_PAGE_SIZE) * PALETTE_PAGE_SIZE;
+          }
+        }
+
+        function updateActionVisibility() {
+          if (!btnSaveNext) return;
+          var isLast = qs.length > 0 && idx >= qs.length - 1;
+          if (isLast) {
+            btnSaveNext.innerHTML = '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit test';
+            btnSaveNext.setAttribute('aria-label', 'Submit test');
+          } else {
+            btnSaveNext.innerHTML = '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save &amp; next';
+            btnSaveNext.setAttribute('aria-label', 'Save and go to next question');
+          }
+        }
+
+        function openConfirmSubmitModal() {
+          var unanswered = 0;
+          for (var i = 0; i < qs.length; i++) {
+            if (!answers[qKey(qs[i])]) unanswered++;
+          }
+          var cbody = document.getElementById('modal-confirm-body');
+          if (cbody) {
+            cbody.textContent =
+              unanswered > 0
+                ? 'You have ' + unanswered + ' unanswered question(s). Submit anyway?'
+                : 'You are about to submit the test. Continue?';
+          }
+          var mc = document.getElementById('modal-confirm');
+          if (mc) mc.hidden = false;
+        }
+
+        function renderRef(q) {
+          var info = (q.contextInfo && String(q.contextInfo).trim()) || '';
+          var para = (q.contextParagraph && String(q.contextParagraph).trim()) || '';
+          if (!info && !para) {
+            refEmpty.hidden = false;
+            refBlocks.hidden = true;
+            refBlocks.innerHTML = '';
+            return;
+          }
+          refEmpty.hidden = true;
+          refBlocks.hidden = false;
+          var html = '';
+          if (info) {
+            html +=
+              '<div class="exam-ref__block"><div class="exam-ref__label">Information</div><div>' +
+              escHtml(info).replace(/\n/g, '<br />') +
+              '</div></div>';
+          }
+          if (para) {
+            html +=
+              '<div class="exam-ref__block"><div class="exam-ref__label">Paragraph</div><div>' +
+              escHtml(para).replace(/\n/g, '<br />') +
+              '</div></div>';
+          }
+          refBlocks.innerHTML = html;
+        }
+
+        function syncOptionSelectedClasses() {
+          var labs = optsEl.querySelectorAll('.exam-opt');
+          for (var i = 0; i < labs.length; i++) {
+            var inp = labs[i].querySelector('input[type="radio"]');
+            if (inp && inp.checked) labs[i].classList.add('exam-opt--selected');
+            else labs[i].classList.remove('exam-opt--selected');
+          }
+        }
+
+        function renderQuestion() {
+          var q = currentQ();
+          visited[qKey(q)] = true;
+          ensurePalettePageIncludesCurrent();
+          renderRef(q);
+          qnoEl.textContent = 'Question ' + q.number;
+          stemEl.textContent = q.stem || '';
+          optsEl.innerHTML = '';
+          var opts = q.options || [];
+          var sel = answers[qKey(q)] || '';
+          for (var oi = 0; oi < opts.length; oi++) {
+            var o = opts[oi];
+            var letter = o.letter || String.fromCharCode(65 + oi);
+            var id = 'opt-' + q.number + '-' + letter;
+            var lab = document.createElement('label');
+            lab.className = 'exam-opt';
+            lab.setAttribute('for', id);
+
+            var inp = document.createElement('input');
+            inp.type = 'radio';
+            inp.name = 'qcurr';
+            inp.value = letter;
+            inp.id = id;
+            if (sel === letter) inp.checked = true;
+
+            var badge = document.createElement('span');
+            badge.className = 'exam-opt__badge';
+            badge.textContent = letter + '.';
+
+            var txt = document.createElement('span');
+            txt.className = 'txt';
+            txt.textContent = o.text != null ? String(o.text) : '';
+
+            lab.appendChild(inp);
+            lab.appendChild(badge);
+            lab.appendChild(txt);
+            optsEl.appendChild(lab);
+          }
+          syncOptionSelectedClasses();
+          renderPalette();
+          updateCounts();
+          updateActionVisibility();
+        }
+
+        function paletteClass(q, i) {
+          var k = qKey(q);
+          var cur = i === idx;
+          var ans = answers[k];
+          var vis = visited[k];
+          var rev = review[k];
+          var cls = [];
+          if (cur) cls.push('is-current');
+          if (rev) cls.push('state-review');
+          if (ans) cls.push('state-answered');
+          else if (!vis) cls.push('state-new');
+          else cls.push('state-todo');
+          return cls.join(' ');
+        }
+
+        function renderPalette() {
+          paletteEl.innerHTML = '';
+          var end = Math.min(palettePageStart + PALETTE_PAGE_SIZE, qs.length);
+          for (var i = palettePageStart; i < end; i++) {
+            var q = qs[i];
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = String(q.number);
+            btn.className = paletteClass(q, i);
+            btn.setAttribute('aria-label', 'Go to question ' + q.number);
+            (function (targetIdx) {
+              btn.addEventListener('click', function () {
+                idx = targetIdx;
+                renderQuestion();
+              });
+            })(i);
+            paletteEl.appendChild(btn);
+          }
+          if (btnPaletteNext) {
+            btnPaletteNext.hidden = qs.length <= PALETTE_PAGE_SIZE;
+            btnPaletteNext.textContent =
+              end >= qs.length ? 'Show question list 1-10' : 'Show next question list';
+          }
+        }
+
+        function updateCounts() {
+          var a = 0;
+          var v = 0;
+          var na = 0;
+          for (var i = 0; i < qs.length; i++) {
+            var q = qs[i];
+            var k = qKey(q);
+            if (visited[k]) v++;
+            if (answers[k]) a++;
+            else if (visited[k]) na++;
+          }
+          cntA.textContent = String(a);
+          cntV.textContent = String(v);
+          cntU.textContent = String(na);
+        }
+
+        optsEl.addEventListener('change', function (e) {
+          var t = e.target;
+          if (t && t.name === 'qcurr' && t.checked) {
+            var q = currentQ();
+            answers[qKey(q)] = t.value;
+            syncOptionSelectedClasses();
+            renderPalette();
+            updateCounts();
+          }
+        });
+
+        btnClear.addEventListener('click', function () {
+          var q = currentQ();
+          delete answers[qKey(q)];
+          var radios = optsEl.querySelectorAll('input[name="qcurr"]');
+          for (var i = 0; i < radios.length; i++) radios[i].checked = false;
+          syncOptionSelectedClasses();
+          renderPalette();
+          updateCounts();
+        });
+
+        btnSaveNext.addEventListener('click', function () {
+          if (idx >= qs.length - 1) {
+            openConfirmSubmitModal();
+            return;
+          }
+          idx++;
+          renderQuestion();
+        });
+
+        btnPrevQuestion.addEventListener('click', function () {
+          if (idx > 0) {
+            idx--;
+            renderQuestion();
+          }
+        });
+
+        if (btnPaletteNext) {
+          btnPaletteNext.addEventListener('click', function () {
+            if (!qs.length) return;
+            palettePageStart += PALETTE_PAGE_SIZE;
+            if (palettePageStart >= qs.length) palettePageStart = 0;
+            renderPalette();
+          });
+        }
+
+        var modalConfirm = document.getElementById('modal-confirm');
+        var modalDone = document.getElementById('modal-done');
+        var modalDoneSummary = document.getElementById('modal-done-summary');
+        var modalDoneLoading = document.getElementById('modal-done-loading');
+        var modalDoneActions = document.getElementById('modal-done-actions');
+
+        function showGradingLoading() {
+          if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+          }
+          if (modalDone) modalDone.hidden = false;
+          if (modalDoneSummary) modalDoneSummary.hidden = true;
+          if (modalDoneLoading) modalDoneLoading.hidden = false;
+          if (modalDoneActions) modalDoneActions.hidden = true;
+          var titleEl = document.getElementById('modal-done-title');
+          var bodyEl = document.getElementById('modal-done-body');
+          if (titleEl) titleEl.textContent = 'Grading your test…';
+          if (bodyEl) {
+            bodyEl.hidden = true;
+            bodyEl.textContent = '';
+          }
+          var dlg = modalDone && modalDone.querySelector('.exam-modal__dialog');
+          if (dlg) dlg.setAttribute('aria-busy', 'true');
+        }
+
+        function hideGradingLoading() {
+          if (modalDoneLoading) modalDoneLoading.hidden = true;
+          if (modalDoneActions) modalDoneActions.hidden = false;
+          var bodyEl = document.getElementById('modal-done-body');
+          if (bodyEl) bodyEl.hidden = false;
+          var dlg = modalDone && modalDone.querySelector('.exam-modal__dialog');
+          if (dlg) dlg.removeAttribute('aria-busy');
+        }
+
+        function countAnsweredInSession() {
+          var n = 0;
+          for (var i = 0; i < qs.length; i++) {
+            if (answers[qKey(qs[i])]) n++;
+          }
+          return n;
+        }
+
+        function fillResultsDashboard(submitResult) {
+          var s = submitResult || {};
+          var answered =
+            s.answered_questions != null
+              ? Number(s.answered_questions)
+              : s.attended_queations != null
+                ? Number(s.attended_queations)
+                : countAnsweredInSession();
+          var totalKey = s.total_questions_in_key != null ? Number(s.total_questions_in_key) : null;
+          var correct = s.correctAnswer != null ? Number(s.correctAnswer) : null;
+          var pct = s.percentage != null ? Number(s.percentage) : null;
+          var unanswered =
+            s.unanswered_questions != null
+              ? Number(s.unanswered_questions)
+              : qs.length && Number.isFinite(answered)
+                ? Math.max(0, qs.length - answered)
+                : null;
+
+          var mc = paper && paper.marksCorrect != null ? Number(paper.marksCorrect) : 1;
+          var mn = paper && paper.marksNegative != null ? Number(paper.marksNegative) : 0;
+          if (Number.isNaN(mc) || mc < 0) mc = 1;
+          if (Number.isNaN(mn) || mn < 0) mn = 0;
+
+          var corrN = Number.isFinite(correct) ? correct : 0;
+          var ansN = Number.isFinite(answered) ? answered : 0;
+          var wrongN = Math.max(0, ansN - corrN);
+          var potential = Math.round(corrN * mc * 100) / 100;
+          var negMarks = Math.round(wrongN * mn * 100) / 100;
+          var accuracyStr =
+            ansN > 0 && Number.isFinite(corrN) ? Math.round((corrN / ansN) * 1000) / 10 + '%' : '—';
+          var pctClamped =
+            pct != null && Number.isFinite(pct) ? Math.max(0, Math.min(100, pct)) : 0;
+          var letter =
+            s.letter_grade != null && String(s.letter_grade).trim() !== ''
+              ? String(s.letter_grade).trim().toUpperCase().slice(0, 3)
+              : null;
+          if (!letter && s.totalgrade != null) {
+            var gm = String(s.totalgrade).match(/\(([A-F])\)/i);
+            if (gm) letter = gm[1].toUpperCase();
+          }
+          if (!letter && pct != null && Number.isFinite(pct)) {
+            if (pct >= 90) letter = 'A';
+            else if (pct >= 80) letter = 'B';
+            else if (pct >= 70) letter = 'C';
+            else if (pct >= 60) letter = 'D';
+            else letter = 'F';
+          }
+          if (!letter) letter = '—';
+
+          var ring = document.getElementById('modal-res-ring');
+          var ringPct = document.getElementById('modal-res-ring-pct');
+          var ringMeta = document.getElementById('modal-res-ring-meta');
+          var gradeLetter = document.getElementById('modal-res-grade-letter');
+          var gradeSub = document.getElementById('modal-res-grade-sub');
+          var elPot = document.getElementById('modal-res-potential');
+          var elNeg = document.getElementById('modal-res-negative');
+          var elAcc = document.getElementById('modal-res-accuracy');
+          var elOv = document.getElementById('modal-res-overall-pct');
+          var secRoot = document.getElementById('modal-res-sections');
+
+          if (ring) ring.style.setProperty('--p', String(pctClamped));
+          if (ringPct) {
+            ringPct.textContent =
+              pct != null && Number.isFinite(pct)
+                ? Math.round(pct * 10) / 10 + '%'
+                : totalKey != null && totalKey > 0
+                  ? '—'
+                  : 'N/A';
+          }
+          if (ringMeta) {
+            ringMeta.textContent =
+              correct != null && totalKey != null && Number.isFinite(totalKey)
+                ? correct + ' correct · ' + totalKey + ' in key · ' + (qs.length || '—') + ' on paper'
+                : 'Result from submitted answers and institute answer key';
+          }
+          if (gradeLetter) gradeLetter.textContent = letter;
+          if (gradeSub) {
+            gradeSub.textContent =
+              (Number.isFinite(ansN) ? ansN + ' answered' : '—') +
+              (unanswered != null && Number.isFinite(unanswered) ? ' · ' + unanswered + ' left blank' : '') +
+              (Number.isFinite(corrN) && Number.isFinite(totalKey) ? ' · ' + corrN + ' correct' : '');
+          }
+          if (elPot) elPot.textContent = String(potential);
+          if (elNeg) elNeg.textContent = String(negMarks);
+          if (elAcc) elAcc.textContent = accuracyStr;
+          if (elOv) {
+            elOv.textContent =
+              pct != null && Number.isFinite(pct) ? Math.round(pct * 10) / 10 + '%' : '—';
+          }
+
+          if (secRoot && qs.length) {
+            var parts = 3;
+            var html = '';
+            for (var p = 0; p < parts; p++) {
+              var start = Math.floor((qs.length * p) / parts);
+              var end = Math.floor((qs.length * (p + 1)) / parts);
+              var totPart = end - start;
+              var ansPart = 0;
+              for (var j = start; j < end; j++) {
+                if (answers[qKey(qs[j])]) ansPart++;
+              }
+              var attPct = totPart ? Math.round((ansPart / totPart) * 100) : 0;
+              var q0 = qs[start] && qs[start].number != null ? qs[start].number : start + 1;
+              var q1 = qs[end - 1] && qs[end - 1].number != null ? qs[end - 1].number : end;
+              html +=
+                '<div class="exam-result-section-card">' +
+                '<div class="exam-result-ring" style="--p:' +
+                attPct +
+                '"><div class="exam-result-ring__hole"><span class="exam-result-ring__label">Attempt</span>' +
+                '<span class="exam-result-ring__value">' +
+                attPct +
+                '%</span></div></div>' +
+                '<h4>Part ' +
+                (p + 1) +
+                '</h4>' +
+                '<p>Q' +
+                q0 +
+                '–Q' +
+                q1 +
+                ' · ' +
+                ansPart +
+                '/' +
+                totPart +
+                ' answered</p>' +
+                '</div>';
+            }
+            secRoot.innerHTML = html;
+          } else if (secRoot) secRoot.innerHTML = '';
+        }
+
+        function openDoneModal(timedOut, submitResult) {
+          if (timerId) clearInterval(timerId);
+          timerId = null;
+          hideGradingLoading();
+          if (modalDone) {
+            modalDone.hidden = false;
+            var body = document.getElementById('modal-done-body');
+            var hasStats =
+              submitResult &&
+              (submitResult.totalgrade != null ||
+                submitResult.percentage != null ||
+                submitResult.correctAnswer != null);
+
+            if (modalDoneSummary) modalDoneSummary.hidden = true;
+
+            if (body) {
+              body.hidden = false;
+              if (timedOut) {
+                body.textContent =
+                  'Time is up. If you did not submit before the timer ended, use Submit on the last question next time.';
+              } else if (hasStats) {
+                body.textContent = 'Your attempt was saved. Review your performance below.';
+              } else {
+                body.textContent = 'Your responses have been recorded for this session.';
+              }
+            }
+
+            var titleEl = document.getElementById('modal-done-title');
+            if (titleEl) titleEl.textContent = timedOut ? 'Time up' : 'Test submitted';
+
+            if (!timedOut && hasStats && modalDoneSummary) {
+              fillResultsDashboard(submitResult);
+              modalDoneSummary.hidden = false;
+            }
+          }
+        }
+
+        document.getElementById('modal-confirm-ok').addEventListener('click', function () {
+          if (modalConfirm) modalConfirm.hidden = true;
+
+          if (demoParam || !paper || paper.test_id == null || paper.test_id === '') {
+            openDoneModal(false, null);
+            return;
+          }
+
+          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+          if (!session || session.role !== 'student' || !session.user) {
+            alert('Please sign in as a student to submit your test.');
+            return;
+          }
+
+          var apiSubmit = getSubmitOnlineTestApiUrl();
+          if (!apiSubmit) {
+            alert('Submit API is not configured (SUBMIT_ONLINE_TEST_API in config.js).');
+            return;
+          }
+
+          var u = session.user;
+          var sid = u.student_id != null ? u.student_id : u.id;
+          var normalizedAnswers = {};
+          Object.keys(answers).forEach(function (k) {
+            var v = answers[k];
+            if (v == null || String(v).trim() === '') return;
+            normalizedAnswers[String(k)] = String(v).trim().toUpperCase();
+          });
+
+          var payload = {
+            test_id: paper.test_id,
+            answers: normalizedAnswers,
+            student_id: sid,
+            email: u.email || u.login || '',
+            total_questions: qs.length,
+          };
+
+          var okBtn = document.getElementById('modal-confirm-ok');
+          if (okBtn) {
+            okBtn.disabled = true;
+            okBtn.textContent = 'Submitting…';
+          }
+
+          showGradingLoading();
+
+          fetch(apiSubmit, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+            .then(parseSubmitResponse)
+            .then(function (data) {
+              openDoneModal(false, data);
+            })
+            .catch(function (err) {
+              hideGradingLoading();
+              if (modalDone) modalDone.hidden = true;
+              alert(err && err.message ? err.message : 'Could not submit test.');
+            })
+            .finally(function () {
+              if (okBtn) {
+                okBtn.disabled = false;
+                okBtn.textContent = 'Yes, submit';
+              }
+            });
+        });
+
+        Array.prototype.slice.call(document.querySelectorAll('[data-close-modal]')).forEach(function (el) {
+          el.addEventListener('click', function () {
+            if (modalConfirm) modalConfirm.hidden = true;
+          });
+        });
+
+        document.getElementById('modal-done-back').addEventListener('click', function () {
+          window.location.href = 'dashboard.html';
+        });
+
+        function setupTopBarTitle(title) {
+          var topbar = document.querySelector('.topbar');
+          if (!topbar) return;
+          var existingExit = topbar.querySelector('.exam-exit');
+          if (!existingExit) {
+            var exit = document.createElement('a');
+            exit.href = 'dashboard.html';
+            exit.className = 'btn btn-ghost exam-exit';
+            exit.style.flexShrink = '0';
+            exit.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Leave';
+            exit.addEventListener('click', function (e) {
+              if (!confirm('Leave the test? Your answers are only kept in this browser session until you submit.')) {
+                e.preventDefault();
+              }
+            });
+            topbar.insertBefore(exit, topbar.firstChild);
+          }
+          var h1 = topbar.querySelector('h1');
+          if (h1) h1.textContent = title || 'Online test';
+          if (!document.getElementById('exam-timer')) {
+            var timerEl = document.createElement('div');
+            timerEl.className = 'exam-timer';
+            timerEl.id = 'exam-timer';
+            timerEl.innerHTML = '<i class="fa-regular fa-clock" aria-hidden="true"></i> <span>Time left: —</span>';
+            topbar.appendChild(timerEl);
+          }
+        }
+
+        function startTimer() {
+          var timerSpan = document.querySelector('#exam-timer span');
+          var durationMin = paper && paper.durationMinutes != null ? Number(paper.durationMinutes) : 60;
+          if (params.get('minutes')) {
+            var pm = Number(params.get('minutes'));
+            if (!Number.isNaN(pm) && pm > 0) durationMin = pm;
+          }
+          totalSec = Math.max(60, Math.floor(durationMin * 60));
+          if (timerId) clearInterval(timerId);
+          function tickTimer() {
+            if (!timerSpan) return;
+            timerSpan.textContent = 'Time left: ' + formatTime(totalSec);
+            var te = document.getElementById('exam-timer');
+            if (te) {
+              te.classList.remove('exam-timer--warn', 'exam-timer--crit');
+              if (totalSec <= 300 && totalSec > 60) te.classList.add('exam-timer--warn');
+              if (totalSec <= 60) te.classList.add('exam-timer--crit');
+            }
+            if (totalSec <= 0) {
+              openDoneModal(true);
+              return;
+            }
+            totalSec--;
+          }
+          timerId = setInterval(tickTimer, 1000);
+          tickTimer();
+        }
+
+        function showExamUi(p) {
+          document.body.classList.add('exam-active');
+          paper = p;
+          qs = (paper.questions || []).slice().sort(function (a, b) {
+            return a.number - b.number;
+          });
+          if (!qs.length) {
+            showErr('No questions could be parsed from this paper.');
+            return;
+          }
+          answers = {};
+          visited = {};
+          review = {};
+          idx = 0;
+          if (bootstrapEl) bootstrapEl.hidden = true;
+          examRoot.hidden = false;
+          examRoot.classList.add('is-visible');
+
+          setupTopBarTitle(paper.title || 'Online test');
+          if (marksLine) {
+            var mc = paper.marksCorrect != null ? paper.marksCorrect : 1;
+            var mn = paper.marksNegative != null ? paper.marksNegative : 0;
+            marksLine.textContent = 'Marks for correct answer: ' + mc + ' | Negative marks: ' + mn;
+          }
+          startTimer();
+          renderQuestion();
+        }
+
+        function buildPaperFromApiRow(row, parseResult) {
+          var title = row.title || 'Test';
+          return {
+            test_id: row.test_id,
+            title: title,
+            durationMinutes: 60,
+            marksCorrect: 1,
+            marksNegative: 0,
+            questions: parseResult.questions || [],
+          };
+        }
+
+        function runParsedPaper(row, text) {
+          var parser = window.ExamQuestionParser;
+          if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+            showErr('Question parser failed to load.');
+            return;
+          }
+          var parsed = parser.parseQuestionsFromText(text);
+          if (parsed.error) {
+            showErr(parsed.error);
+            return;
+          }
+          var built = buildPaperFromApiRow(row, parsed);
+          showExamUi(built);
+        }
+
+        function startTestFromRow(row) {
+          if (bootstrapErr) bootstrapErr.hidden = true;
+          if (bootstrapStatus) {
+            bootstrapStatus.hidden = false;
+            bootstrapStatus.textContent = 'Loading question paper…';
+          }
+          if (testListEl) testListEl.hidden = true;
+
+          var tid = row.test_id;
+          if (tid == null || tid === '') {
+            showErr('Missing test id.');
+            hideLoader();
+            if (testListEl) testListEl.hidden = false;
+            return;
+          }
+          if (!row.question_paper_url || !String(row.question_paper_url).trim()) {
+            showErr('This test has no question paper uploaded.');
+            hideLoader();
+            if (testListEl) testListEl.hidden = false;
+            return;
+          }
+
+          extractTextFromPaperViaApi(tid)
+            .then(function (text) {
+              hideLoader();
+              runParsedPaper(row, text);
+            })
+            .catch(function (err) {
+              hideLoader();
+              if (testListEl) testListEl.hidden = false;
+              showErr(err && err.message ? err.message : 'Could not open question paper.');
+            });
+        }
+
+        function renderTestList(rows, attemptsByTestId) {
+          hideLoader();
+          if (!testListEl) return;
+          testListEl.hidden = false;
+          testListEl.innerHTML = '';
+          var map = attemptsByTestId || {};
+          rows.forEach(function (row) {
+            var id = row.test_id;
+            var card = document.createElement('div');
+            card.className = 'exam-test-card';
+            var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
+            var left = document.createElement('div');
+            var att = map[id] != null ? map[id] : map[String(id)];
+            var scoreLine =
+              att && att.percentage != null
+                ? ' · Last score: ' + att.percentage + '%' + (att.passed ? ' (passed)' : '')
+                : '';
+            left.innerHTML =
+              '<h4>' +
+              escHtml(row.title || 'Untitled test') +
+              '</h4>' +
+              '<p class="meta">Test #' +
+              escHtml(String(id)) +
+              (row.scheduled ? ' · Scheduled ' + escHtml(String(row.scheduled)) : '') +
+              escHtml(scoreLine) +
+              '</p>';
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-primary';
+            if (att && att.completed) {
+              if (att.passed) {
+                btn.className = 'btn btn-primary exam-test-btn--passed';
+                btn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Passed';
+                btn.disabled = true;
+                btn.title =
+                  'Completed — scored ' + (att.percentage != null ? att.percentage + '%' : '') + ' (≥75% pass)';
+              } else {
+                btn.className = 'btn btn-primary exam-test-btn--retry';
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again';
+                btn.disabled = !hasPaper;
+                if (!hasPaper) btn.title = 'No question paper uploaded';
+                btn.addEventListener('click', function () {
+                  startTestFromRow(row);
+                });
+              }
+            } else {
+              btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
+              btn.disabled = !hasPaper;
+              if (!hasPaper) btn.title = 'No question paper uploaded';
+              btn.addEventListener('click', function () {
+                startTestFromRow(row);
+              });
+            }
+            card.appendChild(left);
+            card.appendChild(btn);
+            testListEl.appendChild(card);
+          });
+        }
+
+        function loadList() {
+          Promise.all([fetchTestsFromApi(), fetchStudentAttempts()])
+            .then(function (pair) {
+              var data = pair[0];
+              var attempts = pair[1] || [];
+              var rows = Array.isArray(data) ? data : [];
+              if (!rows.length) {
+                hideLoader();
+                showErr('No tests are available yet. Ask your institute to publish a test from CRM (Add Test).');
+                return;
+              }
+              var map = {};
+              attempts.forEach(function (a) {
+                if (a && a.test_id != null) map[a.test_id] = a;
+              });
+              renderTestList(rows, map);
+            })
+            .catch(function (err) {
+              hideLoader();
+              showErr(err && err.message ? err.message : 'Failed to load tests.');
+            });
+        }
+
+        function loadSingleTest(id) {
+          if (bootstrapStatus) {
+            bootstrapStatus.hidden = false;
+            bootstrapStatus.textContent = 'Loading test…';
+          }
+          fetchTestRow(id)
+            .then(function (row) {
+              startTestFromRow(row);
+            })
+            .catch(function (err) {
+              hideLoader();
+              showErr(err && err.message ? err.message : 'Failed to load test.');
+              loadList();
+            });
+        }
+
+        /* Demo mode: optional local override */
+        if (demoParam) {
+          var DEMO = {
+            test_id: null,
+            title: 'Demo — local',
+            durationMinutes: 60,
+            marksCorrect: 1,
+            marksNegative: 0,
+            questions: [
+              {
+                number: 1,
+                stem: 'Demo: pick any option.',
+                options: [
+                  { letter: 'A', text: 'Option A' },
+                  { letter: 'B', text: 'Option B' },
+                  { letter: 'C', text: 'Option C' },
+                  { letter: 'D', text: 'Option D' },
+                ],
+                contextInfo: 'Demo information block.',
+                contextParagraph: 'Demo paragraph block.',
+              },
+            ],
+          };
+          hideLoader();
+          if (bootstrapEl) bootstrapEl.hidden = true;
+          showExamUi(DEMO);
+          return;
+        }
+
+        if (testIdParam) {
+          loadSingleTest(testIdParam);
+        } else {
+          loadList();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

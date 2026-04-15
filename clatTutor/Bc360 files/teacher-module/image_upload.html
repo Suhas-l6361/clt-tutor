@@ -1,0 +1,2550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Image Upload</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --danger: #ef5350;
+      --warning: #ffa726;
+      --info: #2196f3;
+      --note: #e6f2fa;
+      --paper: #fffbe6;
+      --video: #e8f7f1;
+      --link: #f6f2fa;
+      --saved: #ffe5e5;
+      --upcoming: #e8f5e8;
+      --completed: #f5f5f5;
+      --pending: #fff3e0;
+      --approved: #e8f5e8;
+      --rejected: #ffebee;
+      --transition-speed: 0.3s;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw;}
+    .sidebar {
+      width: var(--sidebar-width); min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.25rem; font-weight: 700; padding: 32px 0 14px 19px; letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px; border-radius: 9px; border: 1.5px solid #fff; background: #fff; object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center;
+      padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s ease; font-weight: 500; gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center;
+      gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh;
+      background: var(--bg); display: flex; flex-direction: column; position: relative; padding: 20px; transition: margin-left 0.28s;
+      overflow-y: auto;
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff;
+      color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer; transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3; }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block; }
+
+    /* Image Upload Styles */
+    .section-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 25px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      animation: fadeIn 0.5s;
+      border: 1px solid var(--border);
+    }
+    
+    /* Image and Video Preview Containers */
+    .image-preview-container,
+    .video-preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      min-height: 50px;
+      padding: 10px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: var(--accent-light);
+    }
+    
+    .preview-item {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .preview-item img,
+    .preview-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .selection-number {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: var(--accent);
+      color: white;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 10;
+    }
+    
+    .remove-item {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: rgba(255, 0, 0, 0.8);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .remove-item:hover {
+      background: rgba(255, 0, 0, 1);
+      transform: scale(1.1);
+    }
+    
+    .file-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 5px;
+      font-size: 10px;
+      text-align: center;
+    }
+    
+    .section-content h2 {
+      color: var(--accent);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-content h2 i {
+      font-size: 1.3rem;
+    }
+    
+    /* Form Styling */
+    .form-group { 
+      margin-bottom: 20px; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    
+    .form-group label { 
+      margin-bottom: 8px; 
+      font-size: 1rem; 
+      color: var(--label);
+      font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 15px; 
+      border: 1.7px solid var(--border); 
+      border-radius: 10px; 
+      font-size: 1rem;
+      background: var(--accent-light);
+      color: var(--input);
+      font-family: inherit;
+      transition: border 0.2s, background 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border: 1.7px solid var(--accent);
+      background: #fff;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .btn {
+      padding: 12px 24px; 
+      border: none; 
+      border-radius: 10px;
+      cursor: pointer; 
+      font-size: 1rem; 
+      font-weight: 600;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px #1d264010;
+    }
+    
+    .btn-primary { 
+      background: var(--accent); 
+      color: #fff; 
+    }
+    
+    .btn-primary:hover { 
+      background: #167e84; 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px #1d264020;
+    }
+    
+    .btn-icon { 
+      background: transparent; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 1.1rem; 
+      color: var(--accent); 
+      margin-left: 8px;
+      transition: transform 0.2s ease;
+    }
+    
+    .btn-icon:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Send To Checkboxes */
+    .send-to { 
+      display: flex; 
+      flex-wrap: wrap;
+      gap: 8px; 
+      align-items: center; 
+      margin-top: 5px;
+      background: var(--accent-light);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    
+    .send-to > div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: fit-content;
+      flex-shrink: 0;
+    }
+    
+    .send-to label { 
+      font-weight: 600; 
+      margin: 0; 
+      white-space: nowrap;
+      color: var(--label);
+    }
+    
+    .send-to input[type="checkbox"] { 
+      margin: 0; 
+      transform: scale(1.2);
+    }
+    
+    /* Search Section */
+    .search-section {
+      margin-bottom: 20px;
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 15px; 
+      align-items: center;
+      background: var(--accent-light);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    
+    .search-section input[type="text"],
+    .search-section input[type="date"] {
+      padding: 10px 15px; 
+      border: 1.7px solid var(--border); 
+      border-radius: 8px; 
+      font-size: 1rem;
+      background: #fff;
+      color: var(--input);
+      font-family: inherit;
+    }
+    
+    .search-section input:focus {
+      outline: none;
+      border: 1.7px solid var(--accent);
+    }
+    
+    /* Gallery Album Styles */
+    .album {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      padding: 20px;
+      background: var(--card);
+      animation: fadeIn 0.5s;
+      box-shadow: var(--shadow);
+    }
+    
+    .album-header {
+      display: flex; 
+      flex-wrap: wrap;
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .album-header .info {
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      flex-wrap: wrap;
+    }
+    
+    .album-header p { 
+      margin: 0; 
+      font-weight: 600;
+      color: var(--label);
+    }
+    
+    .album-header .date-display {
+      font-size: 0.9rem; 
+      color: var(--subtle);
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+    
+    .album-actions i {
+      margin-left: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+    }
+    
+    .album-actions i:hover { 
+      transform: scale(1.1); 
+    }
+    
+    .album-images {
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 15px;
+    }
+    
+    .thumbnail {
+      position: relative; 
+      width: 120px; 
+      height: 120px;
+      overflow: hidden; 
+      border-radius: 8px; 
+      cursor: pointer;
+      animation: zoomIn 0.5s;
+      border: 2px solid var(--border);
+      transition: transform 0.2s ease;
+    }
+    
+    .thumbnail:hover {
+      transform: scale(1.05);
+    }
+    
+    .thumbnail img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+    
+    .thumb-actions {
+      position: absolute; 
+      top: 5px; 
+      right: 5px;
+      background: rgba(0,0,0,0.6); 
+      padding: 6px; 
+      border-radius: 50%;
+      display: none;
+    }
+    
+    .thumbnail:hover .thumb-actions { 
+      display: block; 
+    }
+    
+    .thumb-actions i {
+      color: #fff; 
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .thumb-actions i:hover { 
+      transform: scale(1.1); 
+    }
+    
+    /* Loading Popup */
+    .loading-popup {
+      position: fixed;
+      top: 50%; 
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.95);
+      padding: 25px 35px; 
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 2000; 
+      display: none;
+      text-align: center; 
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.7);
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      margin: 5% auto;
+      padding: 25px;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .image-modal-content {
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      text-align: center;
+      position: relative;
+      margin: auto;
+      background: transparent;
+      padding: 0;
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 15px; 
+      right: 20px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+    
+    .close-modal:hover {
+      background: rgba(0,0,0,0.7);
+    }
+    
+    #prevImage, #nextImage {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background 0.2s ease;
+    }
+    
+    #prevImage:hover, #nextImage:hover {
+      background: rgba(0,0,0,0.7);
+    }
+    
+    #prevImage { left: 20px; }
+    #nextImage { right: 20px; }
+    
+    #modalImage {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    /* Custom Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .popup {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transform: scale(0.7);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    
+    .popup-overlay.show .popup {
+      transform: scale(1);
+    }
+    
+    .popup-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    
+    .popup-icon.success {
+      color: var(--success);
+    }
+    
+    .popup-icon.error {
+      color: var(--danger);
+    }
+    
+    .popup-icon.warning {
+      color: var(--warning);
+    }
+    
+    .popup-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--input);
+    }
+    
+    .popup-message {
+      font-size: 1rem;
+      color: var(--subtle);
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    
+    .popup-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    
+    .popup-btn:hover {
+      background: #167e84;
+      transform: translateY(-2px);
+    }
+    
+    .popup-btn.error {
+      background: var(--danger);
+    }
+    
+    .popup-btn.error:hover {
+      background: #d32f2f;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes zoomIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Fade effect for image changes */
+    .fade-effect {
+      animation: fadeEffect 0.5s;
+    }
+    @keyframes fadeEffect {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Modal show class for proper centering */
+    .modal.show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block; left: auto; right: 19px;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 15px;
+      }
+      .sidebar-hamburger { left: auto; right: 19px;}
+      .section-content {
+        padding: 20px;
+      }
+      .search-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-section input {
+        width: 100%;
+      }
+      .album-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .album-actions {
+        align-self: flex-end;
+      }
+      .thumbnail {
+        width: 100px;
+        height: 100px;
+      }
+      .preview-item { 
+        width: 80px; 
+        height: 80px; 
+      }
+      .image-preview-container,
+      .video-preview-container {
+        gap: 8px;
+        padding: 8px;
+      }
+      .send-to {
+        gap: 12px;
+        align-items: center;
+      }
+      .send-to > div {
+        width: auto;
+        min-width: fit-content;
+        flex-shrink: 0;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 10px;
+      }
+      .section-content {
+        padding: 15px;
+      }
+      .section-content h2 {
+        font-size: 1.3rem;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+      }
+      .btn {
+        font-size: 0.95rem;
+        padding: 10px 20px;
+      }
+      .thumbnail {
+        width: 80px;
+        height: 80px;
+      }
+      .preview-item { 
+        width: 70px; 
+        height: 70px; 
+      }
+      .send-to {
+        gap: 6px;
+        align-items: center;
+      }
+      .send-to > div {
+        font-size: 0.85rem;
+        width: auto;
+        min-width: fit-content;
+        flex-shrink: 0;
+      }
+    }
+    
+    @media (min-width: 1200px) {
+      .send-to {
+        gap: 8px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .send-to {
+        gap: 4px;
+      }
+      .send-to > div {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <!-- Custom Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+      <div class="popup-icon" id="popupIcon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="popup-title" id="popupTitle">Success!</div>
+      <div class="popup-message" id="popupMessage">Your album has been uploaded successfully.</div>
+      <button class="popup-btn" id="popupBtn">OK</button>
+    </div>
+  </div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html" class="active"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    
+    <div class="main-content" id="mainContent">
+      <!-- Upload Section -->
+      <div class="section-content upload-section">
+        <h2><img src="./assets/gallery upload.png" alt="Upload Images & Video" style="width: 20px; height: 20px; margin-right: 10px;"> Upload Images & Video</h2>
+        <form id="uploadForm">
+          <!-- Send To Checkboxes -->
+          <div class="form-group">
+            <label>Send to:</label>
+            <div class="send-to">
+              <div>
+                <input type="checkbox" id="sendAll">
+                <label for="sendAll">All</label>
+              </div>
+              <div>
+                <input type="checkbox" id="sendStudents">
+                <label for="sendStudents">Students</label>
+              </div>
+              <div>
+                <input type="checkbox" id="sendTeacher">
+                <label for="sendTeacher">Teacher</label>
+              </div>
+              <div>
+                <input type="checkbox" id="sendParents">
+                <label for="sendParents">Parents</label>
+              </div>
+            </div>
+          </div>
+          <!-- File Input for Images -->
+          <div class="form-group">
+            <label for="imageFiles">Select Images (max 15)</label>
+            <input type="file" id="imageFiles" accept="image/*" multiple>
+            <div id="imagePreviewContainer" class="image-preview-container"></div>
+          </div>
+          <!-- Video Input for Multiple Videos -->
+          <div class="form-group">
+            <label for="videoFiles">Select Videos (max 3)</label>
+            <input type="file" id="videoFiles" accept="video/*" multiple>
+            <div id="videoPreviewContainer" class="video-preview-container"></div>
+          </div>
+          <!-- Album Description -->
+          <div class="form-group">
+            <label for="albumDescription">Album Description</label>
+            <textarea id="albumDescription" placeholder="Enter album description"></textarea>
+          </div>
+          <!-- Album Date -->
+          <div class="form-group">
+            <label for="albumDate">Select Date</label>
+            <input type="date" id="albumDate">
+          </div>
+          <button type="submit" class="btn btn-primary" id="uploadBtn">Upload</button>
+          <button type="button" class="btn btn-primary" id="resetUploadBtn">Reset</button>
+        </form>
+      </div>
+
+      <!-- Search Section Above Gallery -->
+      <div class="section-content search-section">
+        <input type="text" id="searchKeyword" placeholder="Search album description">
+        <input type="date" id="searchDate">
+        <button type="button" class="btn btn-primary" id="searchAlbumsBtn">Search Albums</button>
+        <button type="button" class="btn btn-primary" id="resetSearchBtn">Reset</button>
+      </div>
+
+      <!-- Gallery Section -->
+      <div class="section-content gallery-section" id="gallerySection" style="display: none;">
+        <h2><img src="./assets/view gallery.png" alt="Gallery" style="width: 20px; height: 20px; margin-right: 10px;"> Gallery</h2>
+        <div id="galleryContainer">
+          <!-- Albums will be rendered here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">Uploading...</div>
+
+  <!-- Modal for Image Preview -->
+  <div id="imageModal" class="modal">
+    <div class="modal-content image-modal-content">
+      <span class="close-modal" id="closeImageModal">&times;</span>
+      <img id="modalImage" src="" alt="Preview">
+      <i class="fas fa-chevron-left" id="prevImage"></i>
+      <i class="fas fa-chevron-right" id="nextImage"></i>
+    </div>
+  </div>
+
+  <!-- Modal for Editing Album Description -->
+  <div id="editAlbumModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeEditAlbumModal">&times;</span>
+      <h3>Edit Album Description</h3>
+      <form id="editAlbumForm">
+        <div class="form-group">
+          <label for="editAlbumDescription">Album Description</label>
+          <textarea id="editAlbumDescription" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // API Configuration
+    const UPLOAD_ALBUM_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-album';
+    const UPLOAD_IMAGE_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-image';
+    const UPLOAD_VIDEO_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-video';
+    const DELETE_S3_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/delete-s3';
+
+    // Global variable to track the currently displayed album list (full or filtered)
+    let currentDisplayAlbums = [];
+    
+    // Global album data and current display list
+    let albums = [];
+    let filteredAlbums = [];
+    let currentAlbumIndex = null; // used for modal navigation
+    let currentImageIndex = null;
+    let showAllAlbums = false; // Track if showing all albums or just latest 2
+    
+    // Performance optimization: Simple caching
+    let albumsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+    
+    // Global variables for file selection
+    let selectedImages = [];
+    let selectedVideos = [];
+    let uploadedVideoKeys = []; // Store S3 keys for videos uploaded via presigned URLs
+
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true; 
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); 
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false; 
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); 
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); 
+      (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    
+    sidebarOverlay.addEventListener('click', function() { 
+      closeSidebar(); 
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { 
+        if(window.innerWidth <= 1150) closeSidebar(); 
+      }
+    });
+
+    // Helper function to get images from album with optimization
+    function getImagesFromAlbum(album) {
+      let images = [];
+      if (album.img_url) {
+        if (typeof album.img_url === 'string') {
+          try {
+            images = JSON.parse(album.img_url);
+          } catch (e) {
+            images = album.images || [];
+          }
+        } else if (Array.isArray(album.img_url)) {
+          images = album.img_url;
+        } else if (Array.isArray(album.images)) {
+          images = album.images;
+        }
+      } else if (Array.isArray(album.images)) {
+        images = album.images;
+      }
+      
+      // Performance optimization: Limit images for initial load
+      if (showAllAlbums && images.length > 10) {
+        images = images.slice(0, 10); // Show only first 10 images initially
+      }
+      
+      return images;
+    }
+
+    // Helper function to get videos from album
+    function getVideosFromAlbum(album) {
+      if (album.video_url) {
+        if (typeof album.video_url === 'string') {
+          try {
+            return JSON.parse(album.video_url);
+          } catch (e) {
+            return album.videos || [];
+          }
+        } else if (Array.isArray(album.video_url)) {
+          return album.video_url;
+        } else if (Array.isArray(album.videos)) {
+          return album.videos;
+        }
+      } else if (Array.isArray(album.videos)) {
+        return album.videos;
+      }
+      return [];
+    }
+
+    // Loading Modal Functions
+    function showLoading(message = 'Loading...') {
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.textContent = message;
+      loadingPopup.style.display = 'block';
+    }
+
+    function hideLoading() {
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.style.display = 'none';
+    }
+
+    // Handle image file selection
+    document.getElementById('imageFiles').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      const container = document.getElementById('imagePreviewContainer');
+      
+      files.forEach(file => {
+        if (selectedImages.length >= 15) {
+          showPopup('error', 'Limit Reached', 'Maximum 15 images allowed!');
+          return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+          showPopup('error', 'Invalid File Type', 'Please select only image files!');
+          return;
+        }
+        
+        // Check file size (10MB limit for images)
+        if (file.size > 10 * 1024 * 1024) {
+          showPopup('error', 'File Too Large', 'Image file size must be less than 10MB!');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewItem = createPreviewItem(e.target.result, file.name, 'image', selectedImages.length + 1);
+          container.appendChild(previewItem);
+          selectedImages.push({
+            file: file,
+            element: previewItem,
+            url: e.target.result
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Clear the input
+      e.target.value = '';
+    });
+    
+    // Handle video file selection
+    document.getElementById('videoFiles').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      const container = document.getElementById('videoPreviewContainer');
+      
+      files.forEach(file => {
+        if (selectedVideos.length >= 3) {
+          showPopup('error', 'Limit Reached', 'Maximum 3 videos allowed!');
+          return;
+        }
+        
+        if (!file.type.startsWith('video/')) {
+          showPopup('error', 'Invalid File Type', 'Please select only video files!');
+          return;
+        }
+        
+        // Check file size (200MB limit)
+        if (file.size > 200 * 1024 * 1024) {
+          showPopup('error', 'File Too Large', 'Video file size must be less than 200MB!');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewItem = createPreviewItem(e.target.result, file.name, 'video', selectedVideos.length + 1);
+          container.appendChild(previewItem);
+          selectedVideos.push({
+            file: file,
+            element: previewItem,
+            url: e.target.result
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Clear the input
+      e.target.value = '';
+    });
+    
+    // Create preview item with numbered badge
+    function createPreviewItem(src, fileName, type, number) {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.dataset.number = number;
+      
+      const media = type === 'image' ? 
+        `<img src="${src}" alt="${fileName}">` : 
+        `<video src="${src}" muted></video>`;
+      
+      item.innerHTML = `
+        ${media}
+        <div class="selection-number">${number}</div>
+        <div class="remove-item" title="Remove">×</div>
+        <div class="file-info">${fileName.substring(0, 15)}${fileName.length > 15 ? '...' : ''}</div>
+      `;
+      
+              // Add click event for preview
+        item.addEventListener('click', function(e) {
+          if (e.target.classList.contains('remove-item')) return;
+          
+          // For preview items, show in modal
+          const modal = document.getElementById('imageModal');
+          const modalImg = document.getElementById('modalImage');
+          modalImg.src = src;
+          modal.style.display = 'block';
+          modal.classList.add('show');
+        });
+      
+      // Add remove functionality
+      item.querySelector('.remove-item').addEventListener('click', function(e) {
+        e.stopPropagation();
+        removeItem(item, type);
+      });
+      
+      return item;
+    }
+    
+    // Open image preview modal with fade effect
+    function openImageModal() {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      
+      try {
+        const album = currentDisplayAlbums[currentAlbumIndex];
+        let images = getImagesFromAlbum(album);
+        
+        if (images.length > 0 && images[currentImageIndex]) {
+          const image = images[currentImageIndex];
+          let imageSrc = '';
+          
+          if (typeof image === 'string') {
+            imageSrc = image;
+          } else if (image && typeof image === 'object') {
+            imageSrc = image.src || image.url || image;
+          }
+          
+          modalImg.src = imageSrc;
+          modalImg.classList.add('fade-effect');
+          setTimeout(() => { modalImg.classList.remove('fade-effect'); }, 500);
+          modal.style.display = 'block';
+          modal.classList.add('show');
+        } else {
+          console.warn('No image found at index:', currentImageIndex);
+        }
+      } catch (error) {
+        console.error('Error opening image modal:', error);
+      }
+    }
+    
+    // Update modal image with fade effect
+    function updateModalImage() {
+      const modalImg = document.getElementById('modalImage');
+      
+      try {
+        const album = currentDisplayAlbums[currentAlbumIndex];
+        let images = getImagesFromAlbum(album);
+        
+        if (images.length > 0 && images[currentImageIndex]) {
+          const image = images[currentImageIndex];
+          let imageSrc = '';
+          
+          if (typeof image === 'string') {
+            imageSrc = image;
+          } else if (image && typeof image === 'object') {
+            imageSrc = image.src || image.url || image;
+          }
+          
+          modalImg.classList.add('fade-effect');
+          modalImg.src = imageSrc;
+          setTimeout(() => { modalImg.classList.remove('fade-effect'); }, 500);
+        }
+      } catch (error) {
+        console.error('Error updating modal image:', error);
+      }
+    }
+    
+    // Remove item from preview
+    function removeItem(element, type) {
+      if (type === 'image') {
+        const index = selectedImages.findIndex(item => item.element === element);
+        if (index > -1) {
+          selectedImages.splice(index, 1);
+        }
+        // Renumber remaining images
+        selectedImages.forEach((item, idx) => {
+          const numberElement = item.element.querySelector('.selection-number');
+          if (numberElement) {
+            numberElement.textContent = idx + 1;
+          }
+        });
+      } else {
+        const index = selectedVideos.findIndex(item => item.element === element);
+        if (index > -1) {
+          selectedVideos.splice(index, 1);
+        }
+        // Renumber remaining videos
+        selectedVideos.forEach((item, idx) => {
+          const numberElement = item.element.querySelector('.selection-number');
+          if (numberElement) {
+            numberElement.textContent = idx + 1;
+          }
+        });
+      }
+      
+      element.remove();
+    }
+    
+    // Upload image to S3 using presigned URL
+    async function uploadImageToS3(file) {
+      try {
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(7);
+        const extension = file.name.split('.').pop();
+        const fileName = `images/${timestamp}-${randomId}.${extension}`;
+        
+        // Get presigned URL
+        const response = await fetch(UPLOAD_IMAGE_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileName: fileName,
+            fileType: file.type
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get upload URL');
+        }
+        
+        const data = await response.json();
+        const uploadUrl = data.uploadUrl;
+        
+        // Upload file to S3
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type
+          }
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image to S3');
+        }
+        
+        return fileName; // Return the S3 key
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+      }
+    }
+
+    // Upload video to S3 using presigned URL
+    async function uploadVideoToS3(file) {
+      try {
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(7);
+        const extension = file.name.split('.').pop();
+        const fileName = `videos/${timestamp}-${randomId}.${extension}`;
+        
+        // Get presigned URL
+        const response = await fetch(UPLOAD_VIDEO_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileName: fileName,
+            fileType: file.type
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get upload URL');
+        }
+        
+        const data = await response.json();
+        const uploadUrl = data.uploadUrl;
+        
+        // Upload file to S3
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type
+          }
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload video to S3');
+        }
+        
+        return fileName; // Return the S3 key
+      } catch (error) {
+        console.error('Error uploading video:', error);
+        throw error;
+      }
+    }
+
+    // Custom Popup Functions
+    function showPopup(type, title, message, showCancel = false) {
+      return new Promise((resolve) => {
+        const popupOverlay = document.getElementById('popupOverlay');
+        const popupIcon = document.getElementById('popupIcon');
+        const popupTitle = document.getElementById('popupTitle');
+        const popupMessage = document.getElementById('popupMessage');
+        const popupBtn = document.getElementById('popupBtn');
+        
+        // Set icon based on type
+        popupIcon.className = 'popup-icon ' + type;
+        if (type === 'success') {
+          popupIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+          popupBtn.className = 'popup-btn';
+        } else if (type === 'error') {
+          popupIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+          popupBtn.className = 'popup-btn error';
+        } else if (type === 'warning') {
+          popupIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+          popupBtn.className = 'popup-btn';
+        }
+        
+        popupTitle.textContent = title;
+        popupMessage.textContent = message;
+        
+        popupOverlay.classList.add('show');
+        
+        const handleClose = (result) => {
+          popupOverlay.classList.remove('show');
+          resolve(result);
+        };
+        
+        // Close popup when clicking OK button
+        popupBtn.onclick = () => handleClose(true);
+        
+        // Close popup when clicking overlay
+        popupOverlay.onclick = function(e) {
+          if (e.target === popupOverlay) {
+            handleClose(false);
+          }
+        };
+        
+        // Auto close success popup after 3 seconds
+        if (type === 'success') {
+          setTimeout(() => {
+            handleClose(true);
+          }, 3000);
+        }
+      });
+    }
+
+    // Render the gallery UI (accepts an album list)
+    function renderGallery(list) {
+      const container = document.getElementById('galleryContainer');
+      const gallerySection = document.getElementById('gallerySection');
+      container.innerHTML = "";
+      
+      if (list.length === 0) {
+        gallerySection.style.display = 'none';
+        return;
+      }
+      
+      // Show gallery section when albums exist
+      gallerySection.style.display = 'block';
+      
+      list.forEach((album, index) => {
+        const albumDiv = document.createElement('div');
+        albumDiv.className = "album";
+        albumDiv.dataset.index = index;
+        
+        // Album header: description and date with calendar icon
+        const headerDiv = document.createElement('div');
+        headerDiv.className = "album-header";
+        headerDiv.innerHTML = `
+          <div class="info">
+            <p class="album-description">${album.description || "No Description"}</p>
+            <span class="date-display">
+              <i class="fas fa-calendar-alt"></i>
+              ${formatDate(album.select_date || album.date || album.created_at) || "No Date"}
+            </span>
+          </div>
+          <div class="album-actions">
+            <i class="fas fa-edit edit-album" title="Edit Album"></i>
+            <i class="fas fa-trash delete-album" title="Delete Album"></i>
+          </div>
+        `;
+        albumDiv.appendChild(headerDiv);
+        
+        // Album images container (thumbnails)
+        const imagesDiv = document.createElement('div');
+        imagesDiv.className = "album-images";
+        
+        // Handle both array and JSON string formats for images
+        let images = getImagesFromAlbum(album);
+        
+        images.forEach((image, imgIndex) => {
+          const thumbDiv = document.createElement('div');
+          thumbDiv.className = "thumbnail";
+          thumbDiv.dataset.albumIndex = index;
+          thumbDiv.dataset.imageIndex = imgIndex;
+          
+          // Handle different image data formats
+          let imageSrc = '';
+          let imageName = '';
+          
+          if (typeof image === 'string') {
+            imageSrc = image;
+            imageName = `Image ${imgIndex + 1}`;
+          } else if (image && typeof image === 'object') {
+            imageSrc = image.src || image.url || image;
+            imageName = image.fileName || image.name || `Image ${imgIndex + 1}`;
+          }
+          
+          thumbDiv.innerHTML = `
+            <img src="${imageSrc}" alt="${imageName}" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik02MCA0MEM1My4zNzIgNDAgNDggNDUuMzcyIDQ4IDUyQzQ4IDU4LjYyOCA1My4zNzIgNjQgNjAgNjRDNjYuNjI4IDY0IDcyIDU4LjYyOCA3MiA1MkM3MiA0NS4zNzIgNjYuNjI4IDQwIDYwIDQwWiIgZmlsbD0iI0NDQyIvPgo8cGF0aCBkPSJNNDggNzJINzJDNzIuNTUyIDcyIDczIDcyLjQ0OCA3MyA3M0M3MyA3My41NTIgNzIuNTUyIDc0IDcyIDc0SDQ4QzQ3LjQ0OCA3NCA0NyA3My41NTIgNDcgNzNDNDcgNzIuNDQ4IDQ3LjQ0OCA3MiA0OCA3MloiIGZpbGw9IiNDQ0MiLz4KPC9zdmc+'" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="thumb-actions">
+              <i class="fas fa-trash delete-image" title="Delete Image"></i>
+            </div>
+          `;
+          imagesDiv.appendChild(thumbDiv);
+        });
+        albumDiv.appendChild(imagesDiv);
+        
+        // Handle videos
+        let videos = getVideosFromAlbum(album);
+        
+        if(videos && videos.length > 0) {
+          const videosDiv = document.createElement('div');
+          videosDiv.className = "album-videos";
+          videosDiv.style.marginTop = "10px";
+          videosDiv.style.display = "flex";
+          videosDiv.style.flexWrap = "wrap";
+          videosDiv.style.gap = "10px";
+          
+          videos.forEach((video, videoIndex) => {
+            const videoDiv = document.createElement('div');
+            videoDiv.style.flex = "1";
+            videoDiv.style.minWidth = "200px";
+            
+            // Handle different video data formats
+            let videoSrc = '';
+            if (typeof video === 'string') {
+              videoSrc = video;
+            } else if (video && typeof video === 'object') {
+              videoSrc = video.src || video.url || video;
+            }
+            
+            videoDiv.innerHTML = `<video src="${videoSrc}" controls style="width:100%; max-height:300px; border-radius:4px;"></video>`;
+            videosDiv.appendChild(videoDiv);
+          });
+          
+          albumDiv.appendChild(videosDiv);
+        }
+        
+        container.appendChild(albumDiv);
+      });
+      
+      // Update the currently displayed album list (for modal navigation)
+      currentDisplayAlbums = list;
+      
+      // Attach event listeners for album edit and delete actions
+      document.querySelectorAll('.edit-album').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const albumDiv = this.closest('.album');
+          currentAlbumIndex = albumDiv.dataset.index;
+          const album = currentDisplayAlbums[currentAlbumIndex];
+          document.getElementById('editAlbumDescription').value = album.description;
+          
+          // Show modal with proper centering
+          const modal = document.getElementById('editAlbumModal');
+          modal.style.display = 'flex';
+          modal.classList.add('show');
+        });
+      });
+      
+      document.querySelectorAll('.delete-album').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+          e.stopPropagation();
+          const confirmed = await showPopup('warning', 'Delete Album', 'Do you want to delete this album? This will permanently delete all images and videos.');
+          if(confirmed) {
+            try {
+              showLoading('Deleting album...');
+              
+              const albumDiv = this.closest('.album');
+              const albumIndex = albumDiv.dataset.index;
+              const album = currentDisplayAlbums[albumIndex];
+              
+              const response = await fetch(UPLOAD_ALBUM_API, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  id: album.id
+                })
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete album');
+              }
+              
+              // Remove from local arrays
+              albums = albums.filter(a => a.id !== album.id);
+              currentDisplayAlbums = currentDisplayAlbums.filter(a => a.id !== album.id);
+              
+              hideLoading();
+              showPopup('success', 'Success!', 'Album deleted successfully!');
+              renderGallery(getDisplayAlbums());
+              
+            } catch (error) {
+              console.error('Delete error:', error);
+              hideLoading();
+              showPopup('error', 'Delete Failed', error.message);
+            }
+          }
+        });
+      });
+      
+      // Thumbnail click for image preview and delete image
+      document.querySelectorAll('.thumbnail img').forEach(img => {
+        img.addEventListener('click', function(e) {
+          const thumbDiv = this.closest('.thumbnail');
+          currentAlbumIndex = parseInt(thumbDiv.dataset.albumIndex);
+          currentImageIndex = parseInt(thumbDiv.dataset.imageIndex);
+          openImageModal();
+        });
+      });
+      
+             document.querySelectorAll('.delete-image').forEach(btn => {
+         btn.addEventListener('click', async function(e) {
+           e.stopPropagation();
+           const thumbDiv = this.closest('.thumbnail');
+           const albumIndex = parseInt(thumbDiv.dataset.albumIndex);
+           const imageIndex = parseInt(thumbDiv.dataset.imageIndex);
+           
+           // Call the robust delete function
+           await deleteIndividualMedia(albumIndex, imageIndex, 'image');
+         });
+       });
+    }
+
+    // Create album element
+    function createAlbumElement(album) {
+      const albumDiv = document.createElement('div');
+      albumDiv.className = 'album';
+      
+      const date = new Date(album.date).toLocaleDateString();
+      
+      albumDiv.innerHTML = `
+        <div class="album-header">
+          <div class="info">
+            <p>${album.description}</p>
+            <div class="date-display">
+              <i class="fas fa-calendar"></i>
+              ${date}
+            </div>
+          </div>
+          <div class="album-actions">
+            <i class="fas fa-edit" onclick="editAlbum(${album.id})" title="Edit Description"></i>
+            <i class="fas fa-trash" onclick="deleteAlbum(${album.id})" title="Delete Album"></i>
+          </div>
+        </div>
+        <div class="album-images">
+          ${album.images.map((image, index) => `
+            <div class="thumbnail" onclick="openImageModal('${image.src}', ${album.id}, ${index})">
+              <img src="${image.src}" alt="${image.fileName}">
+              <div class="thumb-actions">
+                <i class="fas fa-eye" title="View"></i>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        ${album.video ? `
+          <div class="album-video" style="margin-top: 15px;">
+            <video src="${album.video}" controls style="width:100%; max-height:300px; border-radius:8px;"></video>
+          </div>
+        ` : ''}
+      `;
+      
+      return albumDiv;
+    }
+
+    // Robust delete individual media function
+    async function deleteIndividualMedia(albumIndex, mediaIndex, mediaType) {
+      try {
+        console.log('=== deleteIndividualMedia START ===');
+        console.log('deleteIndividualMedia called with:', { albumIndex, mediaIndex, mediaType });
+        console.log('Current albums array length:', albums.length);
+        
+        // Validate inputs
+        if (albumIndex < 0 || albumIndex >= albums.length) {
+          throw new Error(`Invalid album index: ${albumIndex} (total albums: ${albums.length})`);
+        }
+        
+        const album = albums[albumIndex];
+        console.log('Found album:', album);
+        
+        if (!album) {
+          throw new Error('Album not found');
+        }
+        
+        const type = mediaType === 'image' ? 'image' : 'video';
+        const confirmed = await showPopup('warning', 'Delete Media', `Are you sure you want to delete this ${type}? This action cannot be undone.`);
+        if (!confirmed) return;
+        
+        showLoading(`Deleting ${type}...`);
+        
+        // Double-check albums array hasn't changed
+        console.log('Albums array before deletion:', albums.length);
+        if (albumIndex >= albums.length) {
+          throw new Error(`Album index ${albumIndex} is now out of bounds. Albums length: ${albums.length}`);
+        }
+        
+        const images = getImagesFromAlbum(album);
+        const videos = getVideosFromAlbum(album);
+        
+        let mediaToDelete = null;
+        let updatedImages = [...images];
+        let updatedVideos = [...videos];
+        
+        if (mediaType === 'image') {
+          if (mediaIndex >= 0 && mediaIndex < images.length) {
+            mediaToDelete = images[mediaIndex];
+            updatedImages.splice(mediaIndex, 1);
+          } else {
+            throw new Error(`Image index ${mediaIndex} is out of range. Total images: ${images.length}`);
+          }
+        } else {
+          if (mediaIndex >= 0 && mediaIndex < videos.length) {
+            mediaToDelete = videos[mediaIndex];
+            updatedVideos.splice(mediaIndex, 1);
+          } else {
+            throw new Error(`Video index ${mediaIndex} is out of range. Total videos: ${videos.length}`);
+          }
+        }
+        
+        if (!mediaToDelete) {
+          throw new Error(`${type} not found`);
+        }
+        
+        // Extract S3 key from media object
+        let s3Key = null;
+        if (typeof mediaToDelete === 'string') {
+          // If it's a direct URL, extract the key
+          if (mediaToDelete.includes('s3.amazonaws.com/')) {
+            s3Key = mediaToDelete.split('s3.amazonaws.com/')[1];
+          }
+        } else if (mediaToDelete && typeof mediaToDelete === 'object') {
+          s3Key = mediaToDelete.key;
+        }
+        
+        // Delete from S3 if we have the key
+        if (s3Key) {
+          try {
+            const deleteS3Response = await fetch(DELETE_S3_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                key: s3Key
+              })
+            });
+            
+            if (!deleteS3Response.ok) {
+              console.warn('Failed to delete from S3, but continuing with database update');
+            } else {
+              console.log('S3 deletion successful');
+            }
+          } catch (error) {
+            console.warn('S3 deletion failed:', error);
+          }
+        }
+        
+        // Update album in database with new media arrays
+        const updatedAlbum = {
+          id: album.id,
+          description: album.description,
+          select_date: album.select_date,
+          toStudent: album.toStudent,
+          toTeacher: album.toTeacher,
+          toParents: album.toParents,
+          img_url: JSON.stringify(updatedImages),
+          video_url: JSON.stringify(updatedVideos)
+        };
+        
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedAlbum)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update album');
+        }
+        
+        // Update local album data
+        album.img_url = updatedAlbum.img_url;
+        album.video_url = updatedAlbum.video_url;
+        
+        // If no media left, delete the entire album
+        if (updatedImages.length === 0 && updatedVideos.length === 0) {
+          // Remove from local arrays
+          albums = albums.filter(a => a.id !== album.id);
+          currentDisplayAlbums = currentDisplayAlbums.filter(a => a.id !== album.id);
+          hideLoading();
+          await showPopup('success', 'Success!', 'Album deleted successfully!');
+          renderGallery(getDisplayAlbums());
+          return;
+        }
+        
+        hideLoading();
+        await showPopup('success', 'Success!', `${type} deleted successfully!`);
+        renderGallery(getDisplayAlbums());
+        console.log('=== deleteIndividualMedia END ===');
+        
+      } catch (error) {
+        hideLoading();
+        await showPopup('error', 'Error', `Failed to delete ${mediaType}: ` + error.message);
+        console.log('=== deleteIndividualMedia ERROR END ===');
+      }
+    }
+
+    // Get current user data for authentication
+    function getCurrentUserData() {
+      if (window.UserSession) {
+        return window.UserSession.getUserData();
+      }
+      return null;
+    }
+
+    // Handle upload form submission
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Get current user data for authentication
+      const userData = getCurrentUserData();
+      if (!userData || userData.userType !== 'teacher') {
+        showPopup('error', 'Authentication Required', 'Please log in as a teacher to upload content.');
+        return;
+      }
+      
+      const description = document.getElementById('albumDescription').value.trim();
+      const albumDate = document.getElementById('albumDate').value;
+      
+      if(selectedImages.length === 0 && selectedVideos.length === 0) {
+        showPopup('error', 'No Files Selected', 'Please select at least one image or video.');
+        return;
+      }
+      
+      // Calculate total size of all files (for informational purposes only)
+      const totalImageSize = selectedImages.reduce((total, item) => total + item.file.size, 0);
+      const totalVideoSize = selectedVideos.reduce((total, item) => total + item.file.size, 0);
+      const totalSize = totalImageSize + totalVideoSize;
+      
+      // Show warning for large files but allow upload
+      if (totalSize > 40 * 1024 * 1024) { // 40MB
+        const confirmed = await showPopup('warning', 'Large File Size Warning', `Total file size is ${(totalSize / 1024 / 1024).toFixed(1)}MB. Large files may take longer to upload. Do you want to continue?`, true);
+        if (!confirmed) {
+          return;
+        }
+      }
+      
+      if(selectedImages.length > 1 && description === "") {
+        showPopup('warning', 'Description Required', 'Please enter an album description for multiple items.');
+        return;
+      }
+      
+      // Show loading popup
+      showLoading('Uploading files...');
+      document.getElementById('uploadBtn').disabled = true;
+      
+      try {
+        // Upload images first (using presigned URLs)
+        const imageKeys = [];
+        for (const image of selectedImages) {
+          // Truncate long filenames to prevent overflow
+          const fileName = image.file.name.length > 30 ? 
+            image.file.name.substring(0, 27) + '...' : 
+            image.file.name;
+          showLoading(`Uploading image: ${fileName}...`);
+          const imageKey = await uploadImageToS3(image.file);
+          imageKeys.push(imageKey);
+        }
+        
+        // Upload videos (using presigned URLs)
+        const videoKeys = [];
+        for (const video of selectedVideos) {
+          // Truncate long filenames to prevent overflow
+          const fileName = video.file.name.length > 30 ? 
+            video.file.name.substring(0, 27) + '...' : 
+            video.file.name;
+          showLoading(`Uploading video: ${fileName}...`);
+          const videoKey = await uploadVideoToS3(video.file);
+          videoKeys.push(videoKey);
+        }
+        
+        // Upload album to backend
+        showLoading('Saving album to database...');
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageKeys: imageKeys,
+            videoKeys: videoKeys,
+            description: description,
+            selectDate: albumDate,
+            toStudent: sendStudents.checked,
+            toTeacher: sendTeacher.checked,
+            toParents: sendParents.checked,
+            teacher_sent: 1,  // Changed from teacherSent: true to teacher_sent: 1
+            teacher_id: userData.user.teacher_id || userData.user.id,
+            institution_id: userData.user.institution_id,
+            adminId: userData.user.teacher_id || userData.user.id,  // Store teacher_id in adminId field
+            institutionId: userData.user.institution_id
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to upload album');
+        }
+        
+        const result = await response.json();
+        console.log('Upload result:', result); // Debug log
+        
+        // Add to local albums array
+        const album = {
+          id: result.id || result.insertId || Date.now(),
+          description: description,
+          select_date: albumDate,
+          date: albumDate,
+          img_url: result.images || [],
+          video_url: result.videos || [],
+          images: result.images || [],
+          videos: result.videos || [],
+          toStudent: sendStudents.checked,
+          toTeacher: sendTeacher.checked,
+          toParents: sendParents.checked,
+          sendTo: {
+            students: sendStudents.checked,
+            teacher: sendTeacher.checked,
+            parents: sendParents.checked
+          }
+        };
+        
+        albums.unshift(album); // Add to beginning of array
+        console.log('✅ Added new album to local array:', album);
+        console.log('📊 Total albums in local array:', albums.length);
+        
+        // Clear cache to ensure fresh data on next load
+        albumsCache = null;
+        lastCacheTime = 0;
+        
+        // Reset form and selections
+        resetUploadForm();
+        hideLoading();
+        document.getElementById('uploadBtn').disabled = false;
+        
+        showPopup('success', 'Success!', 'Album uploaded successfully!');
+        renderGallery(getDisplayAlbums());
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        hideLoading();
+        document.getElementById('uploadBtn').disabled = false;
+        showPopup('error', 'Upload Failed', error.message);
+      }
+    });
+
+    // Format date to dd/mm/yyyy
+    function formatDate(dateString) {
+      if (!dateString) return null;
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+        return date.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      } catch (error) {
+        return null;
+      }
+    }
+
+    // Reset upload form and selections
+    function resetUploadForm() {
+      document.getElementById('uploadForm').reset();
+      document.getElementById('imagePreviewContainer').innerHTML = '';
+      document.getElementById('videoPreviewContainer').innerHTML = '';
+      selectedImages = [];
+      selectedVideos = [];
+      uploadedVideoKeys = [];
+    }
+
+    // Performance optimization: Virtual scrolling and pagination
+    let currentPage = 0;
+    const albumsPerPage = 5; // Show 5 albums at a time for better performance
+    
+    // Get albums to display based on current view mode with pagination
+    function getDisplayAlbums() {
+      if (showAllAlbums) {
+        // For "View All" mode, implement pagination
+        const startIndex = currentPage * albumsPerPage;
+        const endIndex = startIndex + albumsPerPage;
+        return albums.slice(startIndex, endIndex);
+      } else {
+        return albums.slice(0, 2); // Show only latest 2 albums
+      }
+    }
+    
+    // Check if there are more albums to load
+    function hasMoreAlbums() {
+      if (showAllAlbums) {
+        return (currentPage + 1) * albumsPerPage < albums.length;
+      }
+      return false;
+    }
+
+    // Reset upload form
+    document.getElementById('resetUploadBtn').addEventListener('click', function() {
+      resetUploadForm();
+    });
+
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    
+    // Debounced search function
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
+        const searchDate = document.getElementById('searchDate').value;
+        
+        console.log('Searching with:', { keyword, searchDate }); // Debug log
+        
+        filteredAlbums = albums.filter(album => {
+          let matchKeyword = true;
+          let matchDate = true;
+          
+          // Check keyword match
+          if(keyword !== "") { 
+            matchKeyword = album.description && album.description.toLowerCase().includes(keyword); 
+          }
+          
+          // Check date match - compare actual date strings
+          if(searchDate !== "") { 
+            const albumDate = album.select_date || album.date || album.created_at;
+            console.log('Comparing dates:', { searchDate, albumDate }); // Debug log
+            
+            // Convert both dates to YYYY-MM-DD format for comparison
+            const searchDateFormatted = searchDate; // Already in YYYY-MM-DD format
+            const albumDateFormatted = albumDate ? albumDate.split('T')[0] : null;
+            
+            matchDate = searchDateFormatted === albumDateFormatted;
+          }
+          
+          return matchKeyword && matchDate;
+        });
+        
+        console.log('Filtered albums:', filteredAlbums); // Debug log
+        renderGallery(filteredAlbums);
+      }, 300); // 300ms delay for better performance
+    }
+    
+    // Search Albums by keyword and date with debouncing
+    document.getElementById('searchAlbumsBtn').addEventListener('click', debouncedSearch);
+    
+    // Also trigger search on input change for better UX
+    document.getElementById('searchKeyword').addEventListener('input', debouncedSearch);
+    document.getElementById('searchDate').addEventListener('change', debouncedSearch);
+
+    // Reset search and show albums based on current view mode
+    document.getElementById('resetSearchBtn').addEventListener('click', function() {
+      document.getElementById('searchKeyword').value = "";
+      document.getElementById('searchDate').value = "";
+      renderGallery(getDisplayAlbums());
+    });
+
+
+
+    // Image modal functionality
+    let currentAlbumId = null;
+
+    // Modal navigation for image preview using arrow buttons and key events
+    document.getElementById('closeImageModal').addEventListener('click', function() {
+      const modal = document.getElementById('imageModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    });
+    
+    document.getElementById('prevImage').addEventListener('click', function(e) {
+      e.stopPropagation();
+      try {
+        const album = currentDisplayAlbums[currentAlbumIndex];
+        let images = getImagesFromAlbum(album);
+        
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        updateModalImage();
+      } catch (error) {
+        console.error('Error in prev image navigation:', error);
+      }
+    });
+    
+    document.getElementById('nextImage').addEventListener('click', function(e) {
+      e.stopPropagation();
+      try {
+        const album = currentDisplayAlbums[currentAlbumIndex];
+        let images = getImagesFromAlbum(album);
+        
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        updateModalImage();
+      } catch (error) {
+        console.error('Error in next image navigation:', error);
+      }
+    });
+    
+    // Key event listener for arrow keys and Esc when modal is open
+    window.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('imageModal');
+      if (modal.style.display === 'block') {
+        try {
+          const album = currentDisplayAlbums[currentAlbumIndex];
+          let images = getImagesFromAlbum(album);
+          
+          if(e.key === "ArrowRight") {
+            e.preventDefault();
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            updateModalImage();
+          } else if(e.key === "ArrowLeft") {
+            e.preventDefault();
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            updateModalImage();
+          } else if(e.key === "Escape") {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+          }
+        } catch (error) {
+          console.error('Error in key navigation:', error);
+        }
+      }
+    });
+
+
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      const imageModal = document.getElementById('imageModal');
+      const editModal = document.getElementById('editAlbumModal');
+      
+      if (event.target === imageModal) {
+        imageModal.style.display = 'none';
+        imageModal.classList.remove('show');
+      }
+      if (event.target === editModal) {
+        editModal.style.display = 'none';
+        editModal.classList.remove('show');
+      }
+    });
+
+    // Edit album functionality
+    function editAlbum(albumId) {
+      const album = albums.find(a => a.id === albumId);
+      if (album) {
+        document.getElementById('editAlbumDescription').value = album.description;
+        const modal = document.getElementById('editAlbumModal');
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+        
+        // Store current album ID for form submission
+        document.getElementById('editAlbumForm').dataset.albumId = albumId;
+      }
+    }
+
+    // Close edit modal
+    document.getElementById('closeEditAlbumModal').addEventListener('click', function() {
+      const modal = document.getElementById('editAlbumModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    });
+
+    // Handle edit form submission
+    document.getElementById('editAlbumForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const albumId = parseInt(this.dataset.albumId);
+      const newDescription = document.getElementById('editAlbumDescription').value.trim();
+      
+      if (newDescription) {
+        const album = albums.find(a => a.id === albumId);
+        if (album) {
+          album.description = newDescription;
+          currentDisplayAlbums = [...albums];
+          renderGallery(getDisplayAlbums());
+          const modal = document.getElementById('editAlbumModal');
+          modal.style.display = 'none';
+          modal.classList.remove('show');
+          showPopup('success', 'Updated Successfully!', 'Album description has been updated successfully.');
+        }
+      }
+    });
+
+    // Delete album functionality
+    async function deleteAlbum(albumId) {
+      const confirmed = await showPopup('warning', 'Confirm Deletion', 'Are you sure you want to delete this album? This action cannot be undone.');
+      if(confirmed) {
+        try {
+          showLoading('Deleting album...');
+          
+          const album = albums.find(a => a.id === albumId);
+          
+          const response = await fetch(UPLOAD_ALBUM_API, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: album.id
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete album');
+          }
+          
+          // Remove from local arrays
+          albums = albums.filter(a => a.id !== albumId);
+          currentDisplayAlbums = currentDisplayAlbums.filter(a => a.id !== albumId);
+          
+          hideLoading();
+          showPopup('success', 'Success!', 'Album deleted successfully!');
+          renderGallery(getDisplayAlbums());
+          
+        } catch (error) {
+          console.error('Delete error:', error);
+          hideLoading();
+          showPopup('error', 'Delete Failed', error.message);
+        }
+      }
+    }
+
+    // Checkbox functionality
+    const sendAll = document.getElementById('sendAll');
+    const sendStudents = document.getElementById('sendStudents');
+    const sendTeacher = document.getElementById('sendTeacher');
+    const sendParents = document.getElementById('sendParents');
+
+    sendAll.addEventListener('change', function() {
+      const checked = this.checked;
+      sendStudents.checked = checked;
+      sendTeacher.checked = checked;
+      sendParents.checked = checked;
+    });
+
+    [sendStudents, sendTeacher, sendParents].forEach(chk => {
+      chk.addEventListener('change', function() {
+        if(sendStudents.checked && sendTeacher.checked && sendParents.checked){
+          sendAll.checked = true;
+        } else {
+          sendAll.checked = false;
+        }
+      });
+    });
+
+    // Load albums from backend on page load with caching
+    async function loadAlbums(showLoadingPopup = false, forceRefresh = false) {
+      try {
+        // Get current user data for filtering
+        const userData = getCurrentUserData();
+        if (!userData || userData.userType !== 'teacher') {
+          console.error('❌ User not authenticated or not a teacher');
+          albums = [];
+          renderGallery(getDisplayAlbums());
+          return;
+        }
+        
+        const currentInstitutionId = userData.user.institution_id;
+        console.log('🔍 Loading albums for institution_id:', currentInstitutionId);
+        
+        // Check cache first (unless force refresh)
+        const now = Date.now();
+        if (!forceRefresh && albumsCache && (now - lastCacheTime) < CACHE_DURATION) {
+          console.log('Using cached albums data');
+          albums = albumsCache;
+          renderGallery(getDisplayAlbums());
+          return;
+        }
+        
+        if (showLoadingPopup) {
+          showLoading('Loading albums...');
+        }
+        
+        console.log('🔍 Fetching albums from API:', UPLOAD_ALBUM_API);
+        console.log('🔍 Current institution_id:', currentInstitutionId);
+        
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          console.warn('Failed to load albums from server, starting with empty gallery');
+          albums = [];
+          renderGallery(getDisplayAlbums());
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('📥 Raw API response:', data); // Debug log
+        
+        // Handle different response formats
+        let rawAlbums = [];
+        if (data.albums && Array.isArray(data.albums)) {
+          rawAlbums = data.albums;
+        } else if (Array.isArray(data)) {
+          rawAlbums = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawAlbums = data.data;
+        } else {
+          rawAlbums = [];
+        }
+        
+        console.log('📊 Raw albums before filtering:', rawAlbums.length, 'albums');
+        console.log('📊 Sample album data:', rawAlbums[0]); // Show first album structure
+        
+        // Filter to show albums from all teachers within the same institution
+        console.log('🔍 Starting filtering process...');
+        console.log('🔍 Current institution_id:', currentInstitutionId);
+        console.log('🔍 Current teacher_id:', userData.user.teacher_id || userData.user.id);
+        
+        albums = rawAlbums.filter(album => {
+          console.log('🔍 Checking album:', album.id, {
+            teacher_sent: album.teacher_sent,
+            institution_id: album.institution_id,
+            teacher_id: album.teacher_id,
+            admin_id: album.admin_id
+          });
+          
+          // Check if it belongs to current institution (this is the main filter)
+          if (currentInstitutionId && album.institution_id && album.institution_id.toString() !== currentInstitutionId.toString()) {
+            console.log('🚫 Filtering out album from different institution:', album.id, 'album institution_id:', album.institution_id, 'current:', currentInstitutionId);
+            return false;
+          }
+          
+          // Include albums from same institution, whether uploaded by teachers or admins
+          console.log('✅ Including album:', album.id, 'by teacher_id:', album.teacher_id, 'admin_id:', album.admin_id, 'institution_id:', album.institution_id);
+          return true;
+        });
+        
+        console.log('📊 Filtered albums result:', albums.length, 'albums after filtering');
+        
+        // Update cache
+        albumsCache = albums;
+        lastCacheTime = now;
+        
+        console.log('Processed albums:', albums); // Debug log
+        renderGallery(getDisplayAlbums());
+        
+        if (showLoadingPopup) hideLoading();
+      } catch (error) {
+        console.warn('Error loading albums, starting with empty gallery:', error);
+        albums = [];
+        renderGallery(getDisplayAlbums());
+        if (showLoadingPopup) hideLoading();
+      }
+    }
+
+    // Initialize the gallery when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Start with empty gallery and load albums in background
+      albums = [];
+      renderGallery(getDisplayAlbums());
+      
+      // Load albums from server silently (no loading popup) - delay to avoid conflicts
+      setTimeout(() => {
+        loadAlbums(false).catch(error => {
+          console.warn('Failed to load albums on startup:', error);
+        });
+      }, 100);
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

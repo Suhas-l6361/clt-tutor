@@ -1,0 +1,647 @@
+/* Why CLATutor — matches app.css theme (black / white / paper / amber accent). All rules scoped to body.page-whyclattutor. */
+
+body.page-whyclattutor #main-content {
+  overflow-x: hidden;
+}
+
+body.page-whyclattutor .why-main {
+  padding-bottom: 0;
+}
+
+body.page-whyclattutor .why-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Header logo — amber / theme hover (this page only) */
+body.page-whyclattutor .site-header .header-left .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius);
+  padding: 0.2rem 0.4rem 0.2rem 0;
+  margin-left: -0.25rem;
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+body.page-whyclattutor .site-header .header-left .logo:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 204, 0, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 204, 0, 0.35);
+}
+
+body.page-whyclattutor .site-header .header-left .logo .logo__mark {
+  transition: transform 0.3s var(--ease), filter 0.3s var(--ease);
+}
+
+body.page-whyclattutor .site-header .header-left .logo:hover .logo__mark {
+  filter: drop-shadow(0 2px 8px rgba(255, 204, 0, 0.45));
+  transform: scale(1.05);
+}
+
+@keyframes why-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ——— Hero: split editorial (dark + light) ——— */
+body.page-whyclattutor .why-hero {
+  border-bottom: 1px solid var(--line-light);
+}
+
+body.page-whyclattutor .why-hero__split {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: min(52vh, 420px);
+}
+
+@media (min-width: 768px) {
+  body.page-whyclattutor .why-hero__split {
+    grid-template-columns: minmax(260px, 38%) 1fr;
+    min-height: min(48vh, 440px);
+  }
+}
+
+body.page-whyclattutor .why-hero__panel {
+  position: relative;
+  background: var(--black);
+  color: var(--white);
+  padding: 2.25rem 1.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 4px solid var(--accent);
+}
+
+@media (min-width: 768px) {
+  body.page-whyclattutor .why-hero__panel {
+    padding: 2.5rem 2rem 3rem;
+    border-bottom: none;
+    border-right: 1px solid var(--line-light);
+  }
+}
+
+body.page-whyclattutor .why-hero__accent-bar {
+  display: block;
+  width: 3rem;
+  height: 4px;
+  margin-top: 1.25rem;
+  background: var(--accent);
+  animation: why-reveal 0.55s var(--ease) 0.2s both;
+}
+
+body.page-whyclattutor .why-hero__eyebrow {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  animation: why-reveal 0.5s var(--ease) both;
+}
+
+body.page-whyclattutor .why-hero__title {
+  margin: 0;
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+  animation: why-reveal 0.55s var(--ease) 0.06s both;
+}
+
+body.page-whyclattutor .why-hero__intro {
+  background: var(--white);
+  padding: 1.75rem 1.5rem 2.25rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 4px solid var(--line-light);
+}
+
+@media (min-width: 768px) {
+  body.page-whyclattutor .why-hero__intro {
+    padding: 2.5rem clamp(1.5rem, 4vw, 3rem);
+    border-bottom: none;
+    box-shadow: inset 4px 0 0 var(--accent);
+  }
+}
+
+body.page-whyclattutor .why-hero__lead {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+  animation: why-reveal 0.6s var(--ease) 0.12s both;
+}
+
+/* ——— Paper band + timeline ——— */
+body.page-whyclattutor .why-band--paper {
+  background: var(--paper);
+  padding: 2.75rem 0 3rem;
+  border-bottom: 1px solid var(--line-light);
+}
+
+body.page-whyclattutor .why-band__inner {
+  padding-inline: 0;
+}
+
+body.page-whyclattutor .why-prose {
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+body.page-whyclattutor .why-prose p {
+  margin: 0;
+}
+
+body.page-whyclattutor .why-prose strong {
+  color: var(--black);
+  font-weight: 600;
+}
+
+body.page-whyclattutor .why-timeline {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 0 0 0.25rem;
+  max-width: 44rem;
+  position: relative;
+}
+
+body.page-whyclattutor .why-timeline::before {
+  content: '';
+  position: absolute;
+  left: 1.35rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent) 0%, rgba(255, 204, 0, 0.25) 100%);
+  border-radius: 1px;
+}
+
+body.page-whyclattutor .why-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 1rem 1.1rem;
+  align-items: start;
+  padding: 0 0 1.5rem 0;
+  margin: 0;
+}
+
+body.page-whyclattutor .why-timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+body.page-whyclattutor .why-timeline__icon {
+  position: relative;
+  z-index: 1;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 2px solid var(--black);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-timeline__item:hover .why-timeline__icon {
+  transform: scale(1.06);
+  box-shadow: var(--shadow-elevated);
+}
+
+body.page-whyclattutor .why-timeline__text {
+  margin: 0;
+  padding-top: 0.2rem;
+  font-size: 0.93rem;
+  line-height: 1.62;
+  color: var(--muted);
+}
+
+body.page-whyclattutor .why-timeline__text strong {
+  color: var(--black);
+  font-weight: 600;
+}
+
+/* Bridge callout */
+body.page-whyclattutor .why-bridge {
+  margin: 2.25rem auto 0;
+  max-width: 44rem;
+  padding: 1.35rem 1.25rem;
+  background: var(--white);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+body.page-whyclattutor .why-bridge p {
+  margin: 0 0 1rem;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+body.page-whyclattutor .why-bridge p:last-child {
+  margin-bottom: 0;
+}
+
+body.page-whyclattutor .why-bridge__emphasis {
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--black) !important;
+  font-weight: 600;
+}
+
+/* ——— What we offer — bento ——— */
+body.page-whyclattutor .why-offer {
+  padding: 2.25rem 0 2.75rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--line-light);
+}
+
+body.page-whyclattutor .why-section-head {
+  text-align: left;
+  margin-bottom: 1.15rem;
+  max-width: 36rem;
+}
+
+@media (min-width: 640px) {
+  body.page-whyclattutor .why-section-head {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+body.page-whyclattutor .why-section-head__kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-light);
+}
+
+body.page-whyclattutor .why-section-head__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.8vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+
+/* Professional Excellence — single framed matrix, compact horizontal tiles, no dead space */
+body.page-whyclattutor .why-offer__frame {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius);
+  padding: 0.65rem;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+body.page-whyclattutor .why-offer__frame::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, rgba(255, 204, 0, 0.45) 55%, var(--black) 100%);
+  pointer-events: none;
+}
+
+body.page-whyclattutor .why-offer__matrix {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  body.page-whyclattutor .why-offer__matrix {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body.page-whyclattutor .why-offer__matrix {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.45rem 0.55rem;
+  }
+}
+
+body.page-whyclattutor .why-offer-tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-rows: auto;
+  gap: 0.5rem 0.65rem;
+  align-items: start;
+  padding: 0.75rem 0.65rem 0.8rem 0.55rem;
+  background: var(--white);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius);
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  min-height: 100%;
+  animation: why-tile-in 0.5s var(--ease) both;
+}
+
+body.page-whyclattutor .why-offer-tile:nth-child(1) {
+  animation-delay: 0.03s;
+}
+body.page-whyclattutor .why-offer-tile:nth-child(2) {
+  animation-delay: 0.06s;
+}
+body.page-whyclattutor .why-offer-tile:nth-child(3) {
+  animation-delay: 0.09s;
+}
+body.page-whyclattutor .why-offer-tile:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+@keyframes why-tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.page-whyclattutor .why-offer-tile::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 2px;
+  background: var(--line-light);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease), background 0.25s var(--ease), width 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-offer-tile:hover {
+  border-color: var(--black);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+}
+
+body.page-whyclattutor .why-offer-tile:hover::after {
+  opacity: 1;
+  width: 3px;
+  background: var(--accent);
+}
+
+body.page-whyclattutor .why-offer-tile__index {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(10, 10, 10, 0.28);
+  line-height: 1;
+  padding-top: 0.35rem;
+  min-width: 1.15rem;
+  transition: color 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-offer-tile:hover .why-offer-tile__index {
+  color: var(--accent-ink);
+}
+
+body.page-whyclattutor .why-offer-tile__icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 1px solid var(--black);
+  box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-offer-tile:hover .why-offer-tile__icon {
+  transform: scale(1.06) rotate(-3deg);
+  box-shadow: 3px 3px 0 0 rgba(255, 204, 0, 0.5);
+}
+
+body.page-whyclattutor .why-offer-tile__body {
+  min-width: 0;
+}
+
+body.page-whyclattutor .why-offer-tile__title {
+  margin: 0 0 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--black);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+body.page-whyclattutor .why-offer-tile__desc {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (min-width: 1024px) {
+  body.page-whyclattutor .why-offer-tile__title {
+    font-size: 0.8rem;
+  }
+
+  body.page-whyclattutor .why-offer-tile__desc {
+    font-size: 0.76rem;
+    line-height: 1.42;
+  }
+}
+
+/* ——— FAQ ——— */
+body.page-whyclattutor .why-faq {
+  padding: 2.75rem 0 3.5rem;
+  background: var(--paper);
+}
+
+body.page-whyclattutor .why-faq .why-section-head {
+  margin-bottom: 1.5rem;
+}
+
+body.page-whyclattutor .why-faq__list {
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+body.page-whyclattutor .why-faq__item {
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-faq__item:hover {
+  border-color: var(--line);
+}
+
+body.page-whyclattutor .why-faq__item[open] {
+  border-color: var(--black);
+  box-shadow: var(--shadow-elevated);
+}
+
+body.page-whyclattutor .why-faq__item summary {
+  list-style: none;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.65rem 0.85rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--black);
+  transition: background 0.2s var(--ease);
+}
+
+body.page-whyclattutor .why-faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+body.page-whyclattutor .why-faq__item summary:hover {
+  background: var(--paper);
+}
+
+body.page-whyclattutor .why-faq__plus {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--black);
+  background: var(--paper);
+  border: 1px solid var(--line-light);
+  transition: transform 0.3s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-faq__item[open] .why-faq__plus {
+  transform: rotate(45deg);
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--black);
+}
+
+body.page-whyclattutor .why-faq__chev {
+  font-size: 0.7rem;
+  color: var(--muted-light);
+  transition: transform 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+body.page-whyclattutor .why-faq__item[open] .why-faq__chev {
+  transform: translateX(2px);
+  color: var(--black);
+}
+
+body.page-whyclattutor .why-faq__body {
+  padding: 0 1rem 1rem 3.15rem;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--muted);
+  border-top: 1px solid var(--line-light);
+  padding-top: 0.75rem;
+  margin: 0 1rem 0;
+  animation: why-reveal 0.35s var(--ease) both;
+}
+
+body.page-whyclattutor .why-faq__body p {
+  margin: 0;
+}
+
+body.page-whyclattutor .why-faq__body strong {
+  color: var(--black);
+  font-weight: 600;
+}
+
+body.page-whyclattutor .why-faq__body a {
+  font-weight: 600;
+}
+
+body.page-whyclattutor .why-faq__bullets {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+body.page-whyclattutor .why-faq__bullets li {
+  margin-bottom: 0.5rem;
+  line-height: 1.55;
+}
+
+body.page-whyclattutor .why-faq__bullets li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 520px) {
+  body.page-whyclattutor .why-faq__body {
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.page-whyclattutor .site-header .header-left .logo,
+  body.page-whyclattutor .site-header .header-left .logo .logo__mark,
+  body.page-whyclattutor .why-hero__eyebrow,
+  body.page-whyclattutor .why-hero__title,
+  body.page-whyclattutor .why-hero__accent-bar,
+  body.page-whyclattutor .why-hero__lead,
+  body.page-whyclattutor .why-faq__body,
+  body.page-whyclattutor .why-offer-tile {
+    animation: none !important;
+  }
+
+  body.page-whyclattutor .why-offer-tile:hover,
+  body.page-whyclattutor .why-offer-tile:hover .why-offer-tile__icon,
+  body.page-whyclattutor .why-timeline__item:hover .why-timeline__icon {
+    transform: none;
+  }
+}

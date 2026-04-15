@@ -1,0 +1,2919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <!-- CSS is embedded below - removed external CSS reference -->
+  <style>
+    :root {
+      --primary-color: #3A1C71;  
+      --secondary-color: #D76D77; 
+      --accent-color: #FFAF7B;    
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #ffffff;
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --transition-speed: 0.3s;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      display: flex;
+      min-height: 100vh;
+      color: var(--text-color);
+    }
+    /* TOP BAR (Small/Medium Screens) */
+    .top-bar {
+      display: none; 
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px; 
+      background: #fff;
+      z-index: 1001;
+      padding: 5px 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .top-bar i {
+      font-size: 1.8rem;
+      color: #555;
+      background-color: rgba(0,0,0,0.1);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      float: right;
+      margin-top: 2px;
+    }
+    .top-bar i:hover {
+      background-color: rgba(0,0,0,0.3);
+    }
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left var(--transition-speed) ease;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem; 
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i {
+      font-size: 1.2rem;
+      margin-right: 8px;
+      color: #fff;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      margin: 20px 0;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    /* Active link for current page */
+    .sidebar ul li a.active {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      margin-right: 10px;
+      font-size: 1.3rem;
+      width: 25px;
+      text-align: center;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li:last-child {
+      margin-top: 10px;
+    }
+    /* New "Publish Achievements" link in sidebar */
+    .sidebar ul li a .fa-trophy {
+      color: #FFD700; /* gold color for trophy if desired */
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 260px;
+      transition: margin-left var(--transition-speed) ease;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    /* HEADER */
+    .header {
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      padding: 10px; 
+      border-radius: 8px;
+      color: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform var(--transition-speed);
+    }
+    .header:hover {
+      transform: scale(1.02);
+    }
+    .header .welcome {
+      background-color: #fff;
+      color: var(--primary-color);
+      padding: 5px 10px; 
+      border-radius: 4px;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+    .header .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header .header-icons i {
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform var(--transition-speed);
+    }
+    .header .header-icons i:hover {
+      transform: scale(1.2);
+    }
+    
+    /* Adjust header icons position on big screens */
+    @media (min-width: 992px) {
+      .header .header-icons {
+        margin-right: 30px; /* Move icons 15px to the left from the right end */
+      }
+    }
+    
+    /* Remove language select styles - we're removing it */
+    /* MENU TOGGLE (Hamburger) */
+    .menu-toggle {
+      display: none; 
+      position: absolute;
+      top: 0;
+      right: 20px;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
+      z-index: 1001;
+      background-color: rgba(0,0,0,0.3);
+      border-radius: 4px;
+      padding: 5px 8px;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+    .menu-toggle:hover {
+      background-color: rgba(255,255,255,0.3);
+    }
+    /* STATS SECTION */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background-color: #ceecfa;
+      border: 1.5px solid black;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .stat-icon {
+      font-size: 2.5rem;
+      color: #000;
+      margin-bottom: 10px;
+    }
+    .counter {
+      font-size: 2rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .stat-card .label {
+      font-size: 0.9rem;
+      color: #777;
+    }
+    /* SECTIONS */
+    .section {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: transform var(--transition-speed);
+    }
+    .section:hover {
+      transform: scale(1.01);
+    }
+    .section h2 {
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* SECTION HEADER */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .section-header h2 {
+      margin-bottom: 0;
+    }
+    
+    /* VIEW ALL ANNOUNCEMENTS BUTTON */
+    .btn-view-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: none;
+      background: var(--secondary-color);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition-speed) ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .btn-view-all:hover {
+      background: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .btn-view-all i {
+      font-size: 1rem;
+    }
+    /* ANNOUNCEMENT FORM */
+    .announcement-form {
+      width: 100%;
+    }
+    .announcement-form form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .announcement-form select,
+    .announcement-form input,
+    .announcement-form textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .announcement-type-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .announcement-type-group label {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    /* 
+      3 columns for principle name, co-ordinator, date 
+      on large screens (≥992px).
+      On smaller screens, they stack as 1 col each. 
+    */
+    .triple-row {
+      display: grid;
+      grid-template-columns: 1fr; /* default for smaller screens */
+      gap: 20px;
+    }
+    @media (min-width: 992px) {
+      .triple-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .form-cell label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .form-cell input[type="text"],
+    .form-cell input[type="date"] {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    .signature-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 991px) {
+      .signature-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .signature-cell label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .btn-signature {
+      padding: 10px 15px;
+      border: none;
+      background: #6c757d;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-signature:hover {
+      transform: scale(1.05);
+      background: #5a6268;
+    }
+    .signature-input {
+      display: none;
+    }
+    /* Signature Suggestion Styles */
+    .signature-suggestion {
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      background: #f8f9fa;
+      text-align: center;
+    }
+    .suggestion-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .signature-preview {
+      max-width: 150px;
+      max-height: 100px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      object-fit: cover;
+    }
+    .btn-use-signature {
+      padding: 8px 16px;
+      border: none;
+      background: #28a745;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-use-signature:hover {
+      background: #218838;
+      transform: scale(1.05);
+    }
+    /* "Send to" Label */
+    .send-to-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 2px; /* Reduced gap */
+    }
+    /* Checkbox Group for Announcement Form */
+    .checkbox-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 0 0 10px 0; /* Reduced top margin for closer spacing */
+    }
+    .checkbox-group label {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .attach-file-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-attach-file {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 15px;
+      border: none;
+      background: #6c757d;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-attach-file i {
+      font-size: 1rem;
+    }
+    .btn-attach-file:hover {
+      transform: scale(1.05);
+      background: #5a6268;
+    }
+    .attach-file-input {
+      display: none;
+    }
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .btn-submit,
+    .btn-upload,
+    .btn-reset {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .btn-submit {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .btn-submit:hover {
+      transform: scale(1.05);
+      background: var(--accent-color);
+    }
+    .btn-upload {
+      background: var(--secondary-color);
+      color: #fff;
+    }
+    .btn-upload:hover {
+      transform: scale(1.05);
+      background: var(--accent-color);
+    }
+    .btn-reset {
+      background: #6c757d;
+      color: #fff;
+    }
+    .btn-reset:hover {
+      transform: scale(1.05);
+      background: #5a6268;
+    }
+    /* MODAL POPUP */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      animation: slideIn 0.3s;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+    .close-modal:hover {
+      color: #333;
+    }
+    .modal-content h3 {
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      color: var(--primary-color);
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .file-input {
+      padding: 5px;
+      font-size: 0.9rem;
+    }
+    .file-type-note {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    .modal .checkbox-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 0;
+    }
+    .modal .checkbox-group label {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .btn-modal-upload {
+      padding: 10px;
+      border: none;
+      background: var(--secondary-color);
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-modal-upload:hover {
+      transform: scale(1.05);
+      background: var(--accent-color);
+    }
+    
+    /* Custom Alert Modal */
+    .alert-modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s;
+    }
+    .alert-content {
+      background: #fff;
+      margin: 15% auto;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      animation: slideIn 0.3s;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .alert-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    .alert-success .alert-icon {
+      color: #28a745;
+    }
+    .alert-error .alert-icon {
+      color: #dc3545;
+    }
+    .alert-warning .alert-icon {
+      color: #ffc107;
+    }
+    .alert-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .alert-message {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .alert-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .alert-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .alert-btn-primary {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .alert-btn-primary:hover {
+      background: var(--accent-color);
+      transform: scale(1.05);
+    }
+    .alert-btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+    .alert-btn-secondary:hover {
+      background: #5a6268;
+      transform: scale(1.05);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 991px) {
+      .top-bar {
+        display: block;
+      }
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        z-index: 999;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        margin-top: 50px;
+      }
+      
+      /* Keep header in one row with proper spacing for small/medium screens */
+      .header {
+        flex-direction: row;
+        gap: 20px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .header .welcome {
+        font-size: 1.1rem;
+        padding: 8px 12px;
+        white-space: nowrap;
+      }
+      .header .header-icons {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .header .header-icons i {
+        font-size: 1.3rem;
+        padding: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .header .header-icons i:hover {
+        background: rgba(255,255,255,0.3);
+        transform: scale(1.1);
+      }
+      
+      /* Improve select dropdown visibility */
+      .announcement-form select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px;
+        background-color: #fff;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .announcement-form select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(58, 28, 113, 0.1);
+      }
+      
+      /* Improve button styling for small/medium screens */
+      .form-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+      .btn-submit,
+      .btn-upload,
+      .btn-reset {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        text-align: center;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-submit {
+        background: var(--primary-color);
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(58, 28, 113, 0.3);
+      }
+      .btn-submit:hover {
+        background: #2a0f5a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(58, 28, 113, 0.4);
+      }
+      .btn-upload {
+        background: var(--secondary-color);
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(215, 109, 119, 0.3);
+      }
+      .btn-upload:hover {
+        background: #c55a6a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(215, 109, 119, 0.4);
+      }
+      .btn-reset {
+        background: #6c757d;
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+      }
+      .btn-reset:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(108, 117, 125, 0.4);
+      }
+      
+      /* Improve other buttons */
+      .btn-signature,
+      .btn-attach-file {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        text-align: center;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      
+      /* Section header responsive */
+      .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      
+      .btn-view-all {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 16px;
+        font-size: 1rem;
+        min-height: 44px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .btn-edit,
+      .btn-delete {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+      }
+      .options-cell {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      
+      /* Further improve header for smaller screens */
+      .header .welcome {
+        font-size: 1rem;
+        padding: 6px 10px;
+      }
+      .header .header-icons {
+        gap: 12px;
+      }
+      .header .header-icons i {
+        font-size: 1.2rem;
+        padding: 6px;
+      }
+      
+      /* Ensure buttons are still properly styled */
+      .form-actions {
+        gap: 10px;
+      }
+      .btn-submit,
+      .btn-upload,
+      .btn-reset {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        min-height: 44px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 200px;
+        padding: 15px;
+      }
+      .sidebar .brand {
+        font-size: 1rem;
+      }
+      .sidebar .brand i {
+        font-size: 1.2rem;
+        margin-right: 6px;
+      }
+      .header .welcome {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+      }
+      .header .header-icons i {
+        font-size: 1.2rem;
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP BAR (Visible on small/medium screens) -->
+  <div class="top-bar">
+    <i class="fas fa-bars" id="menuToggle"></i>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        <span>Admin Panel</span>
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html" class="active"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon">Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon">Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon">Gallery</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Image</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon">Search College</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon">Publish Achievements</a></li>
+        <li><a href="./internship.html"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="welcome" id="welcomeMessage">Welcome Back</div>
+      <div class="header-icons">
+        <i class="fas fa-bell"></i>
+        <i class="fas fa-user-circle user-icon" style="cursor:pointer;"></i>
+      </div>
+    </div>
+
+    <!-- STATS SECTION -->
+    <div class="stats">
+      <div class="stat-card">
+        <i class="fas fa-chalkboard-teacher stat-icon"></i>
+        <div class="counter" id="teacherCounter" data-target="0">0</div>
+        <div class="label">Total Teachers</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-user-graduate stat-icon"></i>
+        <div class="counter" id="studentCounter" data-target="0">0</div>
+        <div class="label">Total Students</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-images stat-icon"></i>
+        <div class="counter" id="galleryCounter" data-target="0">0</div>
+        <div class="label">Gallery Items</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-bullhorn stat-icon"></i>
+        <div class="counter" id="announcementCounter" data-target="0">0</div>
+        <div class="label">Announcements</div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENT SECTION WITH VIEW ALL BUTTON -->
+    <div class="section">
+      <div class="section-header">
+        <h2><i class="fas fa-edit"></i> Make an Announcement</h2>
+        <button class="btn-view-all" onclick="window.location.href='./announcement.html'">
+          <i class="fas fa-eye"></i> View All Announcements
+        </button>
+      </div>
+      <div class="announcement-form">
+        <form>
+          <div class="announcement-type-group">
+            <label for="announcement-type">Select Announcement Type</label>
+            <select id="announcement-type">
+              <option value="cultural">Cultural</option>
+              <option value="exam">Exam</option>
+              <option value="general">General</option>
+              <option value="important notice">Important Notice</option>
+              <option value="sports">Sports</option>
+              <option value="college/school fest">College/School Fest</option>
+              <option value="holiday">Holiday</option>
+              <option value="parents-teacher-meeting">Parents-Teacher-Meeting</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="announcement-title">Title</label>
+            <input type="text" id="announcement-title" placeholder="Enter announcement title..." />
+          </div>
+          <div class="triple-row">
+            <div class="form-cell">
+              <label for="principle-name">Principle Name</label>
+              <input type="text" id="principle-name" placeholder="Enter principle name" />
+            </div>
+            <div class="form-cell">
+              <label for="coordinator-name">Co-ordinator Name</label>
+              <input type="text" id="coordinator-name" placeholder="Enter co-ordinator name" />
+            </div>
+            <div class="form-cell">
+              <label for="announcement-date">Select Date</label>
+              <input type="date" id="announcement-date" />
+            </div>
+          </div>
+          <div class="signature-row">
+            <div class="form-cell">
+              <label for="principle-signature">Upload Principle Signature</label>
+              <!-- Latest Principle Signature Suggestion -->
+              <div id="principleSignatureSuggestion" class="signature-suggestion" style="display: none;">
+                <div class="suggestion-label">Latest Signature:</div>
+                <img id="principleSignaturePreview" class="signature-preview" alt="Latest Principle Signature">
+                <button type="button" class="btn-use-signature" id="usePrincipleSignatureBtn">
+                  <i class="fas fa-check"></i> Use This
+                </button>
+              </div>
+              <button type="button" class="btn-signature" id="principleSignatureBtn">
+                <i class="fas fa-upload"></i> Upload Signature
+              </button>
+              <input type="file" id="principle-signature" class="signature-input" accept=".jpg,.jpeg,.png,.pdf" />
+            </div>
+            <div class="form-cell">
+              <label for="coordinator-signature">Upload Co-ordinator Signature</label>
+              <!-- Latest Coordinator Signature Suggestion -->
+              <div id="coordinatorSignatureSuggestion" class="signature-suggestion" style="display: none;">
+                <div class="suggestion-label">Latest Signature:</div>
+                <img id="coordinatorSignaturePreview" class="signature-preview" alt="Latest Coordinator Signature">
+                <button type="button" class="btn-use-signature" id="useCoordinatorSignatureBtn">
+                  <i class="fas fa-check"></i> Use This
+                </button>
+              </div>
+              <button type="button" class="btn-signature" id="coordinatorSignatureBtn">
+                <i class="fas fa-upload"></i> Upload Signature
+              </button>
+              <input type="file" id="coordinator-signature" class="signature-input" accept=".jpg,.jpeg,.png,.pdf" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="announcement-body">Details</label>
+            <textarea id="announcement-body" rows="4" placeholder="Enter announcement details..."></textarea>
+          </div>
+          <div class="attach-file-group">
+            <button type="button" class="btn-attach-file" id="attachFileBtn">
+              <i class="fas fa-paperclip"></i> Attach File
+            </button>
+            <input type="file" id="attachFileInput" class="attach-file-input" accept=".jpg,.jpeg,.png,.pdf" />
+          </div>
+          <div class="send-to-label">Send to</div>
+          <div class="checkbox-group" id="mainCheckboxGroup">
+            <label><input type="checkbox" name="target" value="teacher" class="main-target"> Teacher</label>
+            <label><input type="checkbox" name="target" value="student" class="main-target"> Student</label>
+            <label><input type="checkbox" name="target" value="all" class="main-target" id="mainAllCheckbox"> All</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">Post Announcement</button>
+            <button type="button" class="btn-upload" id="openModalBtn">Upload from your gallery</button>
+            <button type="button" class="btn-reset" id="resetFormBtn">Reset Form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="uploadModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeModalBtn">&times;</span>
+      <h3>Upload File</h3>
+      <div class="modal-body">
+        <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png,.pdf" />
+        <div class="file-type-note">
+          Allowed file types: JPG, JPEG, PNG, PDF
+        </div>
+        <div class="send-to-label" style="margin-bottom:2px;">Send to</div>
+        <div class="checkbox-group" style="margin-top:0;" id="modalCheckboxGroup">
+          <label><input type="checkbox" name="modal_target" value="teacher" class="modal-target"> Teacher</label>
+          <label><input type="checkbox" name="modal_target" value="student" class="modal-target"> Student</label>
+          <label><input type="checkbox" name="modal_target" value="all" class="modal-target" id="modalAllCheckbox"> All</label>
+        </div>
+        <button type="button" class="btn-modal-upload">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Modal -->
+  <div id="alertModal" class="alert-modal">
+    <div class="alert-content">
+      <div class="alert-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="alert-title">Title</div>
+      <div class="alert-message">Message</div>
+      <div class="alert-buttons">
+        <button class="alert-btn alert-btn-primary" id="alertOkBtn">OK</button>
+        <button class="alert-btn alert-btn-secondary" id="alertCancelBtn" style="display: none;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for Modal, Counter, Sidebar Toggle, File Upload Buttons & Checkbox Logic -->
+  <script>
+    // API Configuration
+    const ANNOUNCEMENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/announcement';
+    const ANNOUNCEMENT_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/announcement';
+    const STUDENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/student';
+    const TEACHER_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher';
+    const GALLERY_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-album';
+    
+    // Function to get current admin ID from user session
+    function getCurrentAdminId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && (userData.admin_id || (userData.user && userData.user.admin_id))) {
+          return userData.admin_id || userData.user?.admin_id;
+        }
+      }
+      return null;
+    }
+    
+    // Function to get institution_id from user session
+    function getInstitutionId() {
+      if (window.UserSession) {
+        const userData = window.UserSession.getUserData();
+        if (userData && (userData.institution_id || (userData.user && userData.user.institution_id))) {
+          return userData.institution_id || userData.user?.institution_id;
+        }
+      }
+      return null;
+    }
+    
+    // Global variables for file uploads (removed - now using file objects)
+    
+    // ⚡ Performance Monitoring
+    const performanceMonitor = {
+      startTime: null,
+      startTimer: function(label) {
+        this.startTime = performance.now();
+        console.log(`🚀 Starting ${label}...`);
+      },
+      endTimer: function(label) {
+        if (this.startTime) {
+          const duration = (performance.now() - this.startTime).toFixed(2);
+          console.log(`✅ ${label} completed in ${duration}ms`);
+          this.startTime = null;
+        }
+      }
+    };
+
+    // 🗄️ Smart Caching System (5-minute cache)
+    const cache = {
+      data: new Map(),
+      timeout: 5 * 60 * 1000, // 5 minutes
+      
+      set: function(key, value) {
+        this.data.set(key, {
+          value: value,
+          timestamp: Date.now()
+        });
+        console.log(`💾 Cached data for key: ${key}`);
+      },
+      
+      get: function(key) {
+        const item = this.data.get(key);
+        if (item && (Date.now() - item.timestamp) < this.timeout) {
+          console.log(`⚡ Using cached data for key: ${key}`);
+          return item.value;
+        }
+        if (item) {
+          this.data.delete(key);
+          console.log(`🗑️ Cache expired for key: ${key}`);
+        }
+        return null;
+      },
+      
+      clear: function() {
+        this.data.clear();
+        console.log('🧹 Cache cleared');
+      }
+    };
+
+    // 🎯 Loading State Management
+    const loadingManager = {
+      showLoading: function(button, text = 'Processing...') {
+        button.disabled = true;
+        button.dataset.originalText = button.textContent;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
+        button.style.background = '#6c757d';
+      },
+      
+      hideLoading: function(button, successText = null) {
+        button.disabled = false;
+        if (successText) {
+          button.innerHTML = `<i class="fas fa-check"></i> ${successText}`;
+          button.style.background = '#28a745';
+          setTimeout(() => {
+            button.textContent = button.dataset.originalText || 'Post Announcement';
+            button.style.background = '';
+          }, 2000);
+        } else {
+          button.textContent = button.dataset.originalText || 'Post Announcement';
+          button.style.background = '';
+        }
+      }
+    };
+    
+    // Custom Alert Function
+    function showAlert(title, message, type = 'info', showCancel = false) {
+      const alertModal = document.getElementById('alertModal');
+      const alertIcon = alertModal.querySelector('.alert-icon i');
+      const alertTitle = alertModal.querySelector('.alert-title');
+      const alertMessage = alertModal.querySelector('.alert-message');
+      const alertOkBtn = document.getElementById('alertOkBtn');
+      const alertCancelBtn = document.getElementById('alertCancelBtn');
+      
+      // Set content
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+      
+      // Set icon and type
+      alertModal.className = `alert-modal alert-${type}`;
+      
+      switch(type) {
+        case 'success':
+          alertIcon.className = 'fas fa-check-circle';
+          break;
+        case 'error':
+          alertIcon.className = 'fas fa-exclamation-circle';
+          break;
+        case 'warning':
+          alertIcon.className = 'fas fa-exclamation-triangle';
+          break;
+        default:
+          alertIcon.className = 'fas fa-info-circle';
+      }
+      
+      // Show/hide cancel button
+      alertCancelBtn.style.display = showCancel ? 'block' : 'none';
+      
+      // Show modal
+      alertModal.style.display = 'block';
+      
+      // Return promise for button clicks
+      return new Promise((resolve) => {
+        alertOkBtn.onclick = () => {
+          alertModal.style.display = 'none';
+          resolve(true);
+        };
+        
+        alertCancelBtn.onclick = () => {
+          alertModal.style.display = 'none';
+          resolve(false);
+        };
+        
+        // Close on outside click
+        alertModal.onclick = (e) => {
+          if (e.target === alertModal) {
+            alertModal.style.display = 'none';
+            resolve(false);
+          }
+        };
+      });
+    }
+
+    // Modal functionality
+    const modal = document.getElementById('uploadModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    openModalBtn?.addEventListener('click', () => {
+      modal.style.display = 'block';
+    });
+    closeModalBtn?.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Counter functionality will be handled by loadRealStatistics()
+
+    // Sidebar toggle for small/medium screens
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    let isOpen = false;
+
+    menuToggle?.addEventListener('click', () => {
+      if (!isOpen) {
+        sidebar.classList.add('open');
+        menuToggle.classList.remove('fa-bars');
+        menuToggle.classList.add('fa-times');
+        isOpen = true;
+      } else {
+        sidebar.classList.remove('open');
+        menuToggle.classList.remove('fa-times');
+        menuToggle.classList.add('fa-bars');
+        isOpen = false;
+      }
+    });
+
+    // File Upload Functions - Convert to Base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          // Remove data:image/png;base64, prefix
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // ⚡ Ultra-Fast Parallel File Upload to S3
+    async function uploadFileToS3(file, fileCategory) {
+      performanceMonitor.startTimer(`File Upload (${fileCategory})`);
+      
+      try {
+        // Step 1: Get pre-signed URL from API (with timeout)
+        const urlRequest = {
+          action: 'get_upload_url',
+          fileName: `${fileCategory}_${Date.now()}_${file.name}`,
+          fileType: file.type,
+          fileCategory: fileCategory
+        };
+
+        console.log('🚀 Requesting upload URL for:', urlRequest);
+        
+        // Add timeout for URL request
+        const urlController = new AbortController();
+        const urlTimeoutId = setTimeout(() => urlController.abort(), 5000); // 5 second timeout for speed
+        
+        const urlResponse = await fetch(ANNOUNCEMENT_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(urlRequest),
+          signal: urlController.signal
+        });
+
+        clearTimeout(urlTimeoutId);
+
+        if (!urlResponse.ok) {
+          throw new Error(`Failed to get upload URL: ${urlResponse.status}`);
+        }
+
+        const urlData = await urlResponse.json();
+        console.log('📡 Upload URL response:', urlData);
+
+        if (!urlData.uploadUrl) {
+          throw new Error('No upload URL received from server');
+        }
+
+        // Step 2: Upload file directly to S3 (with timeout)
+        const uploadController = new AbortController();
+        const uploadTimeoutId = setTimeout(() => uploadController.abort(), 8000); // 8 second timeout for speed
+        
+        const uploadResponse = await fetch(urlData.uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+          signal: uploadController.signal
+        });
+
+        clearTimeout(uploadTimeoutId);
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Failed to upload file to S3: ${uploadResponse.status}`);
+        }
+
+        performanceMonitor.endTimer(`File Upload (${fileCategory})`);
+        console.log('✅ File uploaded successfully to S3');
+        
+        return {
+          imageUrl: urlData.imageUrl,
+          fileName: urlData.fileName
+        };
+
+      } catch (error) {
+        performanceMonitor.endTimer(`File Upload (${fileCategory})`);
+        console.error('❌ Error uploading file to S3:', error);
+        throw new Error(`File upload failed: ${error.message}`);
+      }
+    }
+
+    // ⚡ Parallel File Upload Function
+    async function uploadFilesInParallel(files) {
+      performanceMonitor.startTimer('Parallel File Uploads');
+      
+      const uploadPromises = files.map(({ file, category }) => 
+        uploadFileToS3(file, category).catch(error => {
+          console.error(`❌ Failed to upload ${category}:`, error);
+          return { error: error.message, category };
+        })
+      );
+
+      const results = await Promise.allSettled(uploadPromises);
+      performanceMonitor.endTimer('Parallel File Uploads');
+      
+      const successful = [];
+      const failed = [];
+      
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && !result.value.error) {
+          successful.push({ ...result.value, category: files[index].category });
+        } else {
+          failed.push({ 
+            category: files[index].category, 
+            error: result.value?.error || result.reason?.message || 'Unknown error'
+          });
+        }
+      });
+
+      console.log(`📊 Upload Results: ${successful.length} successful, ${failed.length} failed`);
+      return { successful, failed };
+    }
+
+    // Store file objects and URLs for later processing
+    let principleSignatureFile = null;
+    let coordinatorSignatureFile = null;
+    let attachFile = null;
+    let principleSignatureUrl = null;
+    let coordinatorSignatureUrl = null;
+
+    // Attach File Button
+    const attachFileBtn = document.getElementById('attachFileBtn');
+    const attachFileInput = document.getElementById('attachFileInput');
+    attachFileBtn?.addEventListener('click', () => {
+      attachFileInput?.click();
+    });
+
+    // Handle attach file upload
+    attachFileInput?.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          attachFileBtn.textContent = 'Processing...';
+          attachFileBtn.disabled = true;
+          
+          // Store file for later processing
+          attachFile = file;
+          
+          attachFileBtn.innerHTML = '<i class="fas fa-check"></i> File Selected';
+          attachFileBtn.style.background = '#28a745';
+        } catch (error) {
+          await showAlert('File Error', 'File processing failed: ' + error.message, 'error');
+          attachFileBtn.innerHTML = '<i class="fas fa-paperclip"></i> Attach File';
+          attachFileBtn.disabled = false;
+        }
+      }
+    });
+
+    // Principle Signature Upload
+    const principleSignatureBtn = document.getElementById('principleSignatureBtn');
+    const principleSignatureInput = document.getElementById('principle-signature');
+    principleSignatureBtn?.addEventListener('click', () => {
+      principleSignatureInput?.click();
+    });
+
+    // Handle principle signature upload
+    principleSignatureInput?.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          principleSignatureBtn.textContent = 'Processing...';
+          principleSignatureBtn.disabled = true;
+          
+          // Store file for later processing
+          principleSignatureFile = file;
+          
+          principleSignatureBtn.innerHTML = '<i class="fas fa-check"></i> Signature Selected';
+          principleSignatureBtn.style.background = '#28a745';
+        } catch (error) {
+          await showAlert('Signature Error', 'Signature processing failed: ' + error.message, 'error');
+          principleSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+          principleSignatureBtn.disabled = false;
+        }
+      }
+    });
+
+    // Co-ordinator Signature Upload
+    const coordinatorSignatureBtn = document.getElementById('coordinatorSignatureBtn');
+    const coordinatorSignatureInput = document.getElementById('coordinator-signature');
+    coordinatorSignatureBtn?.addEventListener('click', () => {
+      coordinatorSignatureInput?.click();
+    });
+
+    // Handle coordinator signature upload
+    coordinatorSignatureInput?.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          coordinatorSignatureBtn.textContent = 'Processing...';
+          coordinatorSignatureBtn.disabled = true;
+          
+          // Store file for later processing
+          coordinatorSignatureFile = file;
+          
+          coordinatorSignatureBtn.innerHTML = '<i class="fas fa-check"></i> Signature Selected';
+          coordinatorSignatureBtn.style.background = '#28a745';
+        } catch (error) {
+          await showAlert('Signature Error', 'Signature processing failed: ' + error.message, 'error');
+          coordinatorSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+          coordinatorSignatureBtn.disabled = false;
+        }
+      }
+    });
+
+    // MAIN CHECKBOX GROUP LOGIC
+    const mainAllCheckbox = document.getElementById('mainAllCheckbox');
+    const mainCheckboxes = document.querySelectorAll('#mainCheckboxGroup .main-target');
+
+    mainAllCheckbox?.addEventListener('change', () => {
+      if (mainAllCheckbox.checked) {
+        mainCheckboxes.forEach(checkbox => {
+          if (checkbox.value !== 'all') {
+            checkbox.checked = true;
+          }
+        });
+      } else {
+        mainCheckboxes.forEach(checkbox => {
+          if (checkbox.value !== 'all') {
+            checkbox.checked = false;
+          }
+        });
+      }
+    });
+
+    mainCheckboxes.forEach(checkbox => {
+      if (checkbox.value !== 'all') {
+        checkbox.addEventListener('change', () => {
+          // If any is unchecked, uncheck "All"
+          if (!checkbox.checked) {
+            mainAllCheckbox.checked = false;
+          }
+          // If teacher and student are both checked, check "All"
+          const teacherChecked = document.querySelector('#mainCheckboxGroup .main-target[value="teacher"]')?.checked;
+          const studentChecked = document.querySelector('#mainCheckboxGroup .main-target[value="student"]')?.checked;
+          if (teacherChecked && studentChecked) {
+            mainAllCheckbox.checked = true;
+          }
+        });
+      }
+    });
+
+    // MODAL CHECKBOX GROUP LOGIC
+    const modalAllCheckbox = document.getElementById('modalAllCheckbox');
+    const modalCheckboxes = document.querySelectorAll('#modalCheckboxGroup .modal-target');
+
+    modalAllCheckbox?.addEventListener('change', () => {
+      if (modalAllCheckbox.checked) {
+        modalCheckboxes.forEach(checkbox => {
+          if (checkbox.value !== 'all') {
+            checkbox.checked = true;
+          }
+        });
+      } else {
+        modalCheckboxes.forEach(checkbox => {
+          if (checkbox.value !== 'all') {
+            checkbox.checked = false;
+          }
+        });
+      }
+    });
+
+    modalCheckboxes.forEach(checkbox => {
+      if (checkbox.value !== 'all') {
+        checkbox.addEventListener('change', () => {
+          // If any is unchecked, uncheck "All"
+          if (!checkbox.checked) {
+            modalAllCheckbox.checked = false;
+          }
+          // If teacher and student are both checked, check "All"
+          const teacherChecked = document.querySelector('#modalCheckboxGroup .modal-target[value="teacher"]')?.checked;
+          const studentChecked = document.querySelector('#modalCheckboxGroup .modal-target[value="student"]')?.checked;
+          if (teacherChecked && studentChecked) {
+            modalAllCheckbox.checked = true;
+          }
+        });
+      }
+    });
+
+    // MODAL UPLOAD FUNCTIONALITY
+    const modalFileInput = document.getElementById('fileInput');
+    const modalUploadBtn = document.querySelector('.btn-modal-upload');
+    let modalSelectedFile = null;
+
+    // Handle file selection in modal
+    modalFileInput?.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        modalSelectedFile = file;
+        console.log('File selected in modal:', file.name);
+      }
+    });
+
+    // Handle modal upload button click
+    modalUploadBtn?.addEventListener('click', async () => {
+      if (!modalSelectedFile) {
+        await showAlert('No File Selected', 'Please select a file to upload', 'warning');
+        return;
+      }
+
+      // Get selected targets from modal
+      const modalSelectedTargets = [];
+      const modalCheckedBoxes = document.querySelectorAll('#modalCheckboxGroup .modal-target:checked');
+      modalCheckedBoxes.forEach(checkbox => {
+        if (checkbox.value !== 'all') {
+          modalSelectedTargets.push(checkbox.value);
+        }
+      });
+
+      if (modalSelectedTargets.length === 0) {
+        await showAlert('Select Recipients', 'Please select at least one recipient (Teacher, Student, or All)', 'warning');
+        return;
+      }
+
+      // Prepare sended_to JSON structure from modal
+      const modalSendedTo = {
+        type: modalSelectedTargets.length === 2 ? 'all' : modalSelectedTargets[0],
+        class: modalSelectedTargets.includes('student') ? ['10A', '10B'] : [] // You can make this dynamic
+      };
+
+      try {
+        // Update modal upload button state with loading
+        loadingManager.showLoading(modalUploadBtn, 'Uploading...');
+        performanceMonitor.startTimer('Modal File Upload');
+
+        // Upload file to S3
+        console.log('🚀 Uploading file from modal...');
+        const uploadResult = await uploadFileToS3(modalSelectedFile, 'attachment');
+        const modalFileUrl = uploadResult.imageUrl;
+        console.log('✅ Modal file uploaded:', modalFileUrl);
+
+        // Get current admin ID
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) {
+          await showAlert('Authentication Error', 'Admin ID not found in session. Please login again.', 'error');
+          return;
+        }
+
+        // Prepare data to send to backend (only required fields)
+        const modalAnnouncementData = {
+          admin_id: currentAdminId,
+          announcement_type: 'general', // Default type for gallery uploads
+          sended_to: modalSendedTo,
+          attach_file_url: modalFileUrl,
+          created_at: new Date().toISOString()
+        };
+
+        // Send data to backend
+        console.log('Sending modal announcement data:', modalAnnouncementData);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout for speed
+
+        const response = await fetch(ANNOUNCEMENT_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(modalAnnouncementData),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Modal upload successful:', result);
+          
+          performanceMonitor.endTimer('Modal File Upload');
+          loadingManager.hideLoading(modalUploadBtn, 'Uploaded!');
+          
+          // Store filename before resetting
+          const uploadedFileName = modalSelectedFile.name;
+          
+          // Close modal
+          modal.style.display = 'none';
+          
+          // Reset modal
+          modalFileInput.value = '';
+          modalSelectedFile = null;
+          modalCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+          });
+
+          // Send announcement emails in background (non-blocking)
+          console.log('📧 Sending announcement emails for gallery upload...');
+          const galleryAnnouncementData = {
+            title: 'File Upload from Gallery',
+            details: `A new file has been uploaded to the gallery: ${uploadedFileName}`,
+            select_Date: new Date().toISOString().split('T')[0]
+          };
+          
+          sendAnnouncementEmails(galleryAnnouncementData, modalSelectedTargets).then((emailResult) => {
+            console.log('📧 Gallery upload email sending completed:', emailResult);
+          }).catch((error) => {
+            console.error('📧 Gallery upload email sending failed:', error);
+          });
+          
+          await showAlert('Success', 'File uploaded successfully from gallery!', 'success');
+        } else {
+          const errorData = await response.json();
+          console.error('❌ Modal upload failed:', errorData);
+          throw new Error(errorData.message || 'Failed to upload file');
+        }
+
+      } catch (error) {
+        performanceMonitor.endTimer('Modal File Upload');
+        console.error('❌ Modal upload error:', error);
+        loadingManager.hideLoading(modalUploadBtn);
+        await showAlert('Upload Error', `Failed to upload file: ${error.message}`, 'error');
+      }
+    });
+
+    // Form Submission Handler
+    const announcementForm = document.querySelector('.announcement-form form');
+    announcementForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      
+      // Get form data
+      const principle = document.getElementById('principle-name').value.trim();
+      const coordinator = document.getElementById('coordinator-name').value.trim();
+      const selectDate = document.getElementById('announcement-date').value;
+      const details = document.getElementById('announcement-body').value.trim();
+      const announcementType = document.getElementById('announcement-type').value;
+      const userTitle = document.getElementById('announcement-title').value.trim();
+      
+      // Use user title if provided, otherwise generate based on announcement type
+      const title = userTitle || `${announcementType.charAt(0).toUpperCase() + announcementType.slice(1)} Announcement`;
+      
+      // Validate required fields
+      if (!principle || !coordinator || !selectDate || !details) {
+        await showAlert('Validation Error', 'Please fill in all required fields', 'warning');
+        return;
+      }
+      
+      // Get selected targets
+      const selectedTargets = [];
+      const mainCheckboxes = document.querySelectorAll('#mainCheckboxGroup .main-target:checked');
+      mainCheckboxes.forEach(checkbox => {
+        if (checkbox.value !== 'all') {
+          selectedTargets.push(checkbox.value);
+        }
+      });
+      
+      // Validate that at least one target is selected
+      if (selectedTargets.length === 0) {
+        await showAlert('Select Recipients', 'Please select at least one recipient (Teacher, Student, or All)', 'warning');
+        return;
+      }
+      
+      // Prepare sended_to JSON structure
+      const sendedTo = {
+        type: selectedTargets.length === 2 ? 'all' : selectedTargets[0],
+        class: selectedTargets.includes('student') ? ['10A', '10B'] : [] // You can make this dynamic
+      };
+      
+      // Submit button state
+      const submitBtn = document.querySelector('.btn-submit');
+      
+      try {
+        // 🎯 Show loading state with progress
+        loadingManager.showLoading(submitBtn, 'Preparing files...');
+        performanceMonitor.startTimer('Total Announcement Processing');
+        
+        // ⚡ Step 1: Smart File Upload Strategy with Fast Post Integration
+        const filesToUpload = [];
+        if (principleSignatureFile) filesToUpload.push({ file: principleSignatureFile, category: 'principal' });
+        if (coordinatorSignatureFile) filesToUpload.push({ file: coordinatorSignatureFile, category: 'coordinator' });
+        if (attachFile) filesToUpload.push({ file: attachFile, category: 'attachment' });
+        
+        let finalPrincipleSignatureUrl = principleSignatureUrl; // Use suggested URL if available
+        let finalCoordinatorSignatureUrl = coordinatorSignatureUrl; // Use suggested URL if available
+         let attachFileUrl = null;
+         
+        // 🚀 FAST POST MODE: Auto-detect if files exist and handle accordingly
+        if (filesToUpload.length > 0) {
+          loadingManager.showLoading(submitBtn, 'Uploading files...');
+          console.log(`🚀 Starting parallel upload of ${filesToUpload.length} files...`);
+          
+          const uploadResults = await uploadFilesInParallel(filesToUpload);
+          
+          // Process successful uploads
+          uploadResults.successful.forEach(result => {
+            switch(result.category) {
+              case 'principal':
+                finalPrincipleSignatureUrl = result.imageUrl;
+                break;
+              case 'coordinator':
+                finalCoordinatorSignatureUrl = result.imageUrl;
+                break;
+              case 'attachment':
+                attachFileUrl = result.imageUrl;
+                break;
+            }
+          });
+          
+          // Handle failed uploads
+          if (uploadResults.failed.length > 0) {
+            const failedCategories = uploadResults.failed.map(f => f.category).join(', ');
+            await showAlert('Upload Warning', `Some files failed to upload: ${failedCategories}. Continuing with available files.`, 'warning');
+          }
+          
+          console.log('📊 Upload Summary:', {
+            successful: uploadResults.successful.length,
+            failed: uploadResults.failed.length,
+            principleSignature: finalPrincipleSignatureUrl ? '✅' : '❌',
+            coordinatorSignature: finalCoordinatorSignatureUrl ? '✅' : '❌',
+            attachment: attachFileUrl ? '✅' : '❌'
+          });
+        } else {
+          console.log('⚡ FAST POST MODE: No files detected - skipping uploads for instant posting');
+        }
+        
+        // Get current admin ID
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) {
+          await showAlert('Authentication Error', 'Admin ID not found in session. Please login again.', 'error');
+             return;
+         }
+        
+        // Step 2: Prepare announcement data with S3 URLs
+        const announcementData = {
+          admin_id: currentAdminId,
+          announcement_type: announcementType,
+          title: title,
+          principle: principle,
+          co_ordinator: coordinator,
+          select_Date: selectDate,
+          details: details,
+          sended_to: sendedTo,
+          principle_signature_url: finalPrincipleSignatureUrl,
+          cordinate_signature_url: finalCoordinatorSignatureUrl,
+          attach_file_url: attachFileUrl
+        };
+      
+        // Step 3: Send announcement data to API (ULTRA-FAST)
+        loadingManager.showLoading(submitBtn, 'Posting announcement...');
+        performanceMonitor.startTimer('API Submission');
+         
+         // Log the data being sent for debugging
+        console.log('📤 Sending announcement data:', announcementData);
+         
+        // 🚀 ULTRA-FAST API call with aggressive timeout
+         const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          console.log('⏰ API timeout - aborting request');
+          controller.abort();
+        }, 5000); // Reduced to 5 seconds for faster failure
+         
+         const response = await fetch(ANNOUNCEMENT_API, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify(announcementData),
+           signal: controller.signal
+         });
+         
+         clearTimeout(timeoutId);
+        performanceMonitor.endTimer('API Submission');
+         
+         console.log('Response status:', response.status);
+         console.log('Response headers:', response.headers);
+         
+         if (!response.ok) {
+           let errorMessage = `HTTP error! status: ${response.status}`;
+           
+           // Try to get error details from response
+           try {
+             const errorData = await response.text();
+             console.log('Error response body:', errorData);
+             if (errorData) {
+               try {
+                 const parsedError = JSON.parse(errorData);
+                 errorMessage = parsedError.message || parsedError.error || errorMessage;
+               } catch {
+                 errorMessage = `${errorMessage} - ${errorData}`;
+               }
+             }
+           } catch (e) {
+             console.log('Could not read error response body');
+           }
+           
+           throw new Error(errorMessage);
+         }
+         
+         const result = await response.json();
+         console.log('✅ Success response:', result);
+         
+         if (result.message === 'Announcement inserted successfully') {
+           performanceMonitor.endTimer('Total Announcement Processing');
+           loadingManager.hideLoading(submitBtn, 'Posted Successfully!');
+           
+           // Send announcement emails in background (non-blocking)
+           console.log('📧 Sending announcement emails...');
+           sendAnnouncementEmails(announcementData, selectedTargets).then((emailResult) => {
+             console.log('📧 Email sending completed:', emailResult);
+           }).catch((error) => {
+             console.error('📧 Email sending failed:', error);
+           });
+           
+           // Show appropriate success message based on file upload mode
+           const successMessage = filesToUpload.length === 0 
+             ? 'Announcement posted instantly! (Fast Post Mode)' 
+             : 'Announcement posted successfully!';
+           await showAlert('Success!', successMessage, 'success');
+           
+           // Reset button to original state after success
+           setTimeout(() => {
+             submitBtn.textContent = 'Post Announcement';
+             submitBtn.style.background = '';
+             submitBtn.disabled = false;
+           }, 2000);
+           
+           console.log('🎉 API Success - Announcement saved to database');
+           
+           // Log S3 URLs if available
+           if (result.files) {
+             console.log('📁 S3 URLs:', result.files);
+           }
+           
+           // Reset form
+           announcementForm.reset();
+           principleSignatureFile = null;
+           coordinatorSignatureFile = null;
+           attachFile = null;
+           
+           // Reset button states
+           principleSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+           principleSignatureBtn.style.background = '#6c757d';
+           principleSignatureBtn.disabled = false;
+           
+           coordinatorSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+           coordinatorSignatureBtn.style.background = '#6c757d';
+           coordinatorSignatureBtn.disabled = false;
+           
+           attachFileBtn.innerHTML = '<i class="fas fa-paperclip"></i> Attach File';
+           attachFileBtn.style.background = '#6c757d';
+           attachFileBtn.disabled = false;
+           
+           // Update announcement counter
+          const announcementCounter = document.getElementById('announcementCounter');
+           if (announcementCounter) {
+             const currentCount = parseInt(announcementCounter.textContent);
+             announcementCounter.textContent = currentCount + 1;
+            announcementCounter.setAttribute('data-target', currentCount + 1);
+           }
+           
+           // Clear cache to ensure fresh data on next load
+           cache.clear();
+         } else {
+           throw new Error(result.message || 'Failed to post announcement');
+         }
+         
+                } catch (error) {
+        performanceMonitor.endTimer('Total Announcement Processing');
+        console.error('❌ Error posting announcement:', error);
+           
+           // Provide more specific error messages
+           let userMessage = 'Failed to post announcement';
+           
+           if (error.name === 'AbortError') {
+             userMessage = 'Request timed out. Please check your internet connection and try again.';
+           } else if (error.message.includes('502')) {
+             userMessage = 'Server is temporarily unavailable (502 Bad Gateway). Please try again in a few minutes.';
+           } else if (error.message.includes('503')) {
+             userMessage = 'Service temporarily unavailable (503). Please try again later.';
+           } else if (error.message.includes('504')) {
+             userMessage = 'Request timed out (504 Gateway Timeout). Please try again.';
+           } else if (error.message.includes('Failed to fetch')) {
+             userMessage = 'Network error. Please check your internet connection and try again.';
+           } else {
+             userMessage = error.message;
+           }
+           
+        loadingManager.hideLoading(submitBtn);
+        
+        // Reset button to original state after error
+        setTimeout(() => {
+          submitBtn.textContent = 'Post Announcement';
+          submitBtn.style.background = '';
+         submitBtn.disabled = false;
+        }, 1000);
+        
+        await showAlert('Error', userMessage, 'error');
+       }
+    });
+
+    // Reset Form Function
+    function resetForm() {
+      // Reset form fields
+      document.getElementById('announcement-title').value = '';
+      document.getElementById('principle-name').value = '';
+      document.getElementById('coordinator-name').value = '';
+      document.getElementById('announcement-date').value = '';
+      document.getElementById('announcement-body').value = '';
+      document.getElementById('announcement-type').selectedIndex = 0;
+      
+      // Reset file variables and URLs
+      principleSignatureFile = null;
+      coordinatorSignatureFile = null;
+      attachFile = null;
+      principleSignatureUrl = null;
+      coordinatorSignatureUrl = null;
+      
+      // Reset file inputs
+      document.getElementById('principle-signature').value = '';
+      document.getElementById('coordinator-signature').value = '';
+      document.getElementById('attachFileInput').value = '';
+      
+      // Reset button states
+      principleSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+      principleSignatureBtn.style.background = '#6c757d';
+      principleSignatureBtn.disabled = false;
+      
+      coordinatorSignatureBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Signature';
+      coordinatorSignatureBtn.style.background = '#6c757d';
+      coordinatorSignatureBtn.disabled = false;
+      
+      attachFileBtn.innerHTML = '<i class="fas fa-paperclip"></i> Attach File';
+      attachFileBtn.style.background = '#6c757d';
+      attachFileBtn.disabled = false;
+      
+      // Reset checkboxes
+      const mainCheckboxes = document.querySelectorAll('#mainCheckboxGroup .main-target');
+      mainCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+
+      // Hide signature suggestions
+      const principleSuggestion = document.getElementById('principleSignatureSuggestion');
+      const coordinatorSuggestion = document.getElementById('coordinatorSignatureSuggestion');
+      if (principleSuggestion) principleSuggestion.style.display = 'none';
+      if (coordinatorSuggestion) coordinatorSuggestion.style.display = 'none';
+    }
+    
+    // Reset Form Button Event Listener
+    const resetFormBtn = document.getElementById('resetFormBtn');
+    resetFormBtn?.addEventListener('click', () => {
+      resetForm();
+    });
+    
+    // Use Principle Signature Button Event Listener
+    const usePrincipleSignatureBtn = document.getElementById('usePrincipleSignatureBtn');
+    usePrincipleSignatureBtn?.addEventListener('click', () => {
+      const previewImg = document.getElementById('principleSignaturePreview');
+      if (previewImg && previewImg.dataset.signatureUrl) {
+        // Set the signature URL for form submission
+        principleSignatureUrl = previewImg.dataset.signatureUrl;
+        
+        // Update button state
+        principleSignatureBtn.innerHTML = '<i class="fas fa-check"></i> Signature Selected';
+        principleSignatureBtn.style.background = '#28a745';
+        principleSignatureBtn.disabled = false;
+        
+        console.log('✅ Principle signature selected from suggestion');
+      }
+    });
+
+    // Use Coordinator Signature Button Event Listener
+    const useCoordinatorSignatureBtn = document.getElementById('useCoordinatorSignatureBtn');
+    useCoordinatorSignatureBtn?.addEventListener('click', () => {
+      const previewImg = document.getElementById('coordinatorSignaturePreview');
+      if (previewImg && previewImg.dataset.signatureUrl) {
+        // Set the signature URL for form submission
+        coordinatorSignatureUrl = previewImg.dataset.signatureUrl;
+        
+        // Update button state
+        coordinatorSignatureBtn.innerHTML = '<i class="fas fa-check"></i> Signature Selected';
+        coordinatorSignatureBtn.style.background = '#28a745';
+        coordinatorSignatureBtn.disabled = false;
+        
+        console.log('✅ Coordinator signature selected from suggestion');
+      }
+    });
+
+
+    
+    // ⚡ Load existing announcements with caching and prefill
+    async function loadAnnouncements() {
+      try {
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) {
+          console.log('Admin ID not found, skipping announcement loading');
+          return;
+        }
+
+        const cacheKey = `announcements_${currentAdminId}`;
+        
+        // Check cache first
+        const cachedAnnouncements = cache.get(cacheKey);
+        if (cachedAnnouncements) {
+          console.log('⚡ Using cached announcements for faster loading');
+          updateAnnouncementCounter(cachedAnnouncements);
+          prefillFormFields(cachedAnnouncements);
+          return;
+        }
+
+        performanceMonitor.startTimer('Load Announcements');
+        console.log('🚀 Fetching announcements from API...');
+        
+        const response = await fetch(`${ANNOUNCEMENT_API}?admin_id=${currentAdminId}`);
+        if (response.ok) {
+          const announcements = await response.json();
+          console.log('📊 Loaded announcements:', announcements);
+          
+          // Cache the results
+          cache.set(cacheKey, announcements);
+          
+          performanceMonitor.endTimer('Load Announcements');
+          updateAnnouncementCounter(announcements);
+          prefillFormFields(announcements);
+        }
+      } catch (error) {
+        performanceMonitor.endTimer('Load Announcements');
+        console.error('❌ Error loading announcements:', error);
+      }
+    }
+
+    // 🚀 Fast Prefill Function - Get latest announcement data for current admin
+    async function prefillFormFields(announcements) {
+      try {
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) {
+          console.log('❌ Admin ID not found, skipping prefill');
+          return;
+        }
+
+        console.log('🔍 Looking for latest announcement for admin:', currentAdminId);
+        
+        // Filter announcements by admin_id
+        const adminAnnouncements = announcements.announcements?.filter(ann => 
+          ann.admin_id && ann.admin_id.toString() === currentAdminId.toString()
+        ) || [];
+
+        if (adminAnnouncements.length === 0) {
+          console.log('📝 No previous announcements found for this admin');
+          return;
+        }
+
+        // Sort by created_at to get the latest
+        const sortedAnnouncements = adminAnnouncements.sort((a, b) => 
+          new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        const latestAnnouncement = sortedAnnouncements[0];
+        console.log('✅ Found latest announcement:', latestAnnouncement);
+        console.log('🔍 Latest announcement signature fields:', {
+          principle_signature: latestAnnouncement.principle_signature,
+          principle_signature_url: latestAnnouncement.principle_signature_url,
+          cordinate_signature: latestAnnouncement.cordinate_signature,
+          cordinate_signature_url: latestAnnouncement.cordinate_signature_url
+        });
+
+        // Prefill the form fields from LATEST announcement
+        if (latestAnnouncement.principle) {
+          document.getElementById('principle-name').value = latestAnnouncement.principle;
+          console.log('📝 Prefilled principle name from latest:', latestAnnouncement.principle);
+        }
+
+        if (latestAnnouncement.co_ordinator) {
+          document.getElementById('coordinator-name').value = latestAnnouncement.co_ordinator;
+          console.log('📝 Prefilled coordinator name from latest:', latestAnnouncement.co_ordinator);
+        }
+
+        // Load signature images from ALL announcements (including latest)
+        console.log('🔍 Total announcements for signature search:', sortedAnnouncements.length);
+        if (sortedAnnouncements.length > 0) {
+          console.log('🔍 Latest announcement signature fields:', {
+            principle_signature: sortedAnnouncements[0].principle_signature,
+            principle_signature_url: sortedAnnouncements[0].principle_signature_url,
+            cordinate_signature: sortedAnnouncements[0].cordinate_signature,
+            cordinate_signature_url: sortedAnnouncements[0].cordinate_signature_url
+          });
+        }
+        await loadSignatureImagesWithFallback(sortedAnnouncements);
+
+        console.log('🎉 Form prefill completed successfully');
+
+      } catch (error) {
+        console.error('❌ Error prefilling form fields:', error);
+      }
+    }
+
+    // 🖼️ Load Signature Images with Fallback Logic
+    async function loadSignatureImagesWithFallback(sortedAnnouncements) {
+      try {
+        let principleSignatureFound = false;
+        let coordinatorSignatureFound = false;
+
+        // Search through previous announcements (skip latest) to find signatures
+        for (let i = 0; i < sortedAnnouncements.length; i++) {
+          const announcement = sortedAnnouncements[i];
+          
+          // Look for principle signature if not found yet
+          if (!principleSignatureFound && (announcement.principle_signature || announcement.principle_signature_url)) {
+            const signatureUrl = announcement.principle_signature || announcement.principle_signature_url;
+            console.log(`🖼️ Loading principle signature from previous announcement #${i + 1}:`, announcement.created_at);
+            await loadSignatureImage(signatureUrl, 'principle');
+            principleSignatureFound = true;
+          }
+
+          // Look for coordinator signature if not found yet
+          if (!coordinatorSignatureFound && (announcement.cordinate_signature || announcement.cordinate_signature_url)) {
+            const signatureUrl = announcement.cordinate_signature || announcement.cordinate_signature_url;
+            console.log(`🖼️ Loading coordinator signature from previous announcement #${i + 1}:`, announcement.created_at);
+            await loadSignatureImage(signatureUrl, 'coordinator');
+            coordinatorSignatureFound = true;
+          }
+
+          // Stop searching if both signatures are found
+          if (principleSignatureFound && coordinatorSignatureFound) {
+            break;
+          }
+        }
+
+        // Log results
+        if (!principleSignatureFound) {
+          console.log('📝 No principle signature found in any previous announcements');
+        }
+        if (!coordinatorSignatureFound) {
+          console.log('📝 No coordinator signature found in any previous announcements');
+        }
+
+      } catch (error) {
+        console.error('❌ Error loading signature images with fallback:', error);
+      }
+    }
+
+    // 🖼️ Load Individual Signature Image
+    async function loadSignatureImage(imageUrl, signatureType) {
+      try {
+        // Fetch the image as blob (following display_image.html pattern)
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        
+        // Get the preview element and suggestion container
+        const previewId = `${signatureType}SignaturePreview`;
+        const suggestionId = `${signatureType}SignatureSuggestion`;
+        
+        const previewImg = document.getElementById(previewId);
+        const suggestionDiv = document.getElementById(suggestionId);
+        
+        if (previewImg && suggestionDiv) {
+          // Set the image source
+          previewImg.src = url;
+          
+          // Show the suggestion container
+          suggestionDiv.style.display = 'block';
+          
+          // Store the URL for later use
+          previewImg.dataset.signatureUrl = imageUrl;
+          
+          console.log(`✅ ${signatureType} signature loaded and displayed`);
+        }
+        
+      } catch (error) {
+        console.error(`❌ Error loading ${signatureType} signature:`, error);
+      }
+    }
+
+    // Helper function to update announcement counter
+    function updateAnnouncementCounter(announcements) {
+      const announcementCounter = document.getElementById('announcementCounter');
+          if (announcementCounter && announcements.length > 0) {
+            announcementCounter.textContent = announcements.length;
+        announcementCounter.setAttribute('data-target', announcements.length);
+        console.log(`📈 Updated announcement counter: ${announcements.length}`);
+      }
+    }
+
+    // Function to send announcement emails
+    async function sendAnnouncementEmails(announcementData, selectedTargets) {
+      console.log('📧 Starting announcement email sending...');
+      
+      const institutionId = getInstitutionId();
+      if (!institutionId) {
+        console.error('❌ Institution ID not found in session');
+        return { success: false, error: 'Institution ID not found' };
+      }
+
+      const emailPromises = [];
+      let totalEmails = 0;
+
+      try {
+        // Send to teachers if teacher checkbox is checked
+        if (selectedTargets.includes('teacher')) {
+          console.log('📧 Fetching teachers for email sending...');
+          const teacherResponse = await fetch(TEACHER_API);
+          if (teacherResponse.ok) {
+            const teacherData = await teacherResponse.json();
+            if (teacherData.teachers) {
+              const institutionTeachers = teacherData.teachers.filter(teacher => 
+                teacher.institution_id === institutionId && teacher.email
+              );
+              
+              console.log(`📧 Found ${institutionTeachers.length} teachers to email`);
+              
+              institutionTeachers.forEach(teacher => {
+                const emailData = {
+                  recipientEmail: teacher.email,
+                  recipientName: teacher.teacher_name,
+                  announcementTitle: announcementData.title,
+                  announcementContent: announcementData.details,
+                  announcementDate: new Date().toLocaleDateString()
+                };
+                
+                emailPromises.push(
+                  fetch(ANNOUNCEMENT_EMAIL_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailData)
+                  }).then(async (response) => {
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                      console.log(`✅ Teacher email sent to: ${teacher.email}`);
+                      return { success: true, type: 'teacher', email: teacher.email };
+                    } else {
+                      console.error(`❌ Teacher email failed for: ${teacher.email}`, result);
+                      return { success: false, type: 'teacher', email: teacher.email, error: result.message };
+                    }
+                  }).catch((error) => {
+                    console.error(`❌ Teacher email error for: ${teacher.email}`, error);
+                    return { success: false, type: 'teacher', email: teacher.email, error: error.message };
+                  })
+                );
+                totalEmails++;
+              });
+            }
+          }
+        }
+
+        // Send to students if student checkbox is checked
+        if (selectedTargets.includes('student')) {
+          console.log('📧 Fetching students for email sending...');
+          const studentResponse = await fetch(STUDENT_API);
+          if (studentResponse.ok) {
+            const studentData = await studentResponse.json();
+            if (studentData.students) {
+              const institutionStudents = studentData.students.filter(student => 
+                student.institution_id === institutionId && student.email
+              );
+              
+              console.log(`📧 Found ${institutionStudents.length} students to email`);
+              
+              institutionStudents.forEach(student => {
+                const emailData = {
+                  recipientEmail: student.email,
+                  recipientName: student.full_name,
+                  announcementTitle: announcementData.title,
+                  announcementContent: announcementData.details,
+                  announcementDate: new Date().toLocaleDateString()
+                };
+                
+                emailPromises.push(
+                  fetch(ANNOUNCEMENT_EMAIL_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailData)
+                  }).then(async (response) => {
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                      console.log(`✅ Student email sent to: ${student.email}`);
+                      return { success: true, type: 'student', email: student.email };
+                    } else {
+                      console.error(`❌ Student email failed for: ${student.email}`, result);
+                      return { success: false, type: 'student', email: student.email, error: result.message };
+                    }
+                  }).catch((error) => {
+                    console.error(`❌ Student email error for: ${student.email}`, error);
+                    return { success: false, type: 'student', email: student.email, error: error.message };
+                  })
+                );
+                totalEmails++;
+              });
+            }
+          }
+        }
+
+        // Wait for all emails to complete
+        if (emailPromises.length > 0) {
+          console.log(`📧 Sending ${totalEmails} announcement emails in parallel...`);
+          const emailResults = await Promise.allSettled(emailPromises);
+          
+          const successful = emailResults.filter(result => 
+            result.status === 'fulfilled' && result.value.success
+          ).length;
+          
+          const failed = emailResults.filter(result => 
+            result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)
+          );
+          
+          console.log(`📊 Email Summary: ${successful}/${totalEmails} successful, ${failed.length} failed`);
+          
+          return {
+            success: true,
+            total: totalEmails,
+            successful: successful,
+            failed: failed.length,
+            details: emailResults
+          };
+        } else {
+          console.log('📧 No emails to send');
+          return { success: true, total: 0, successful: 0, failed: 0 };
+        }
+
+      } catch (error) {
+        console.error('❌ Error in sendAnnouncementEmails:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+         // Test API connection function
+     async function testAPIConnection() {
+       try {
+         console.log('Testing API connection...');
+         const response = await fetch(`${ANNOUNCEMENT_API}?test=true`, {
+           method: 'GET',
+           headers: {
+             'Content-Type': 'application/json',
+           }
+         });
+         
+         console.log('API Test Response Status:', response.status);
+         console.log('API Test Response Headers:', response.headers);
+         
+         if (response.ok) {
+           const data = await response.json();
+           console.log('API Test Success - Data:', data);
+         } else {
+           const errorText = await response.text();
+           console.log('API Test Error - Response:', errorText);
+         }
+       } catch (error) {
+         console.error('API Test Failed:', error);
+       }
+     }
+
+    // 📊 Load Real Statistics Function with Speed Optimizations
+    async function loadRealStatistics() {
+      try {
+        const institutionId = getInstitutionId();
+        if (!institutionId) {
+          console.log('❌ Institution ID not found, skipping statistics loading');
+          return;
+        }
+
+        // 🚀 Check cache first for ultra-fast loading
+        const cacheKey = `statistics_${institutionId}`;
+        const cachedStats = cache.get(cacheKey);
+        if (cachedStats) {
+          console.log('⚡ Using cached statistics for instant loading');
+          updateCountersFromCache(cachedStats);
+          return;
+        }
+
+        console.log('📊 Loading real statistics for institution:', institutionId);
+        performanceMonitor.startTimer('Load Statistics');
+
+        // 🚀 ULTRA-FAST: All APIs called simultaneously with aggressive timeouts
+        const apiPromises = [
+          loadTeacherCountFast(institutionId),
+          loadStudentCountFast(institutionId),
+          loadGalleryCountFast(institutionId),
+          loadAnnouncementCountFast(institutionId)
+        ];
+
+        const results = await Promise.allSettled(apiPromises);
+        performanceMonitor.endTimer('Load Statistics');
+
+        // 📊 Process results with optimized data structure
+        const statistics = {
+          teachers: results[0].status === 'fulfilled' ? results[0].value : 0,
+          students: results[1].status === 'fulfilled' ? results[1].value : 0,
+          gallery: results[2].status === 'fulfilled' ? results[2].value : 0,
+          announcements: results[3].status === 'fulfilled' ? results[3].value : 0,
+          timestamp: Date.now()
+        };
+
+        // 💾 Cache the results for instant future loading
+        cache.set(cacheKey, statistics);
+
+        // 🎬 Update counters with smooth animation
+        updateCountersFromData(statistics);
+        console.log('✅ Real statistics loaded and cached successfully');
+
+      } catch (error) {
+        performanceMonitor.endTimer('Load Statistics');
+        console.error('❌ Error loading real statistics:', error);
+      }
+    }
+
+    // 🚀 ULTRA-FAST Teacher Count with Aggressive Timeout
+    async function loadTeacherCountFast(institutionId) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        const response = await fetch(TEACHER_API, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const teachers = data.teachers?.filter(teacher => 
+            teacher.institution_id === institutionId
+          ) || [];
+          console.log(`👨‍🏫 Found ${teachers.length} teachers for institution ${institutionId}`);
+          return teachers.length;
+        }
+        return 0;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('⏰ Teacher API timeout - using fallback');
+        } else {
+          console.error('❌ Error loading teacher count:', error);
+        }
+        return 0;
+      }
+    }
+
+    // 🚀 ULTRA-FAST Student Count with Aggressive Timeout
+    async function loadStudentCountFast(institutionId) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        const response = await fetch(STUDENT_API, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const students = data.students?.filter(student => 
+            student.institution_id === institutionId
+          ) || [];
+          console.log(`👨‍🎓 Found ${students.length} students for institution ${institutionId}`);
+          return students.length;
+        }
+        return 0;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('⏰ Student API timeout - using fallback');
+        } else {
+          console.error('❌ Error loading student count:', error);
+        }
+        return 0;
+      }
+    }
+
+    // 🚀 ULTRA-FAST Gallery Count with Aggressive Timeout
+    async function loadGalleryCountFast(institutionId) {
+      try {
+        console.log(`🖼️ Fetching gallery data for institution: ${institutionId}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        const response = await fetch(GALLERY_API, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('🖼️ Gallery API response:', data);
+          
+          // Check different possible response structures
+          let albums = [];
+          if (data.albums) {
+            // Filter albums by current institution_id - only count albums that belong to current institution
+            albums = data.albums.filter(album => 
+              album.institution_id === institutionId
+            );
+            console.log(`🖼️ Filtered ${albums.length} albums for institution ${institutionId} out of ${data.albums.length} total albums`);
+          } else if (data.upload_albums) {
+            albums = data.upload_albums.filter(album => 
+              album.institution_id === institutionId
+            );
+          } else if (Array.isArray(data)) {
+            albums = data.filter(album => 
+              album.institution_id === institutionId
+            );
+          }
+          
+          console.log(`🖼️ Filtered albums for institution ${institutionId}:`, albums);
+          
+          // Optimized counting with pre-computed totals
+          let totalItems = 0;
+          for (const album of albums) {
+            const imgCount = album.img_url?.length || 0;
+            const videoCount = album.video_url?.length || 0;
+            totalItems += imgCount + videoCount;
+            console.log(`🖼️ Album "${album.album_name || 'Unnamed'}" has ${imgCount} images, ${videoCount} videos`);
+          }
+          
+          console.log(`🖼️ Total gallery items for institution ${institutionId}: ${totalItems}`);
+          return totalItems;
+        } else {
+          console.error(`❌ Gallery API error: ${response.status} ${response.statusText}`);
+          return 0;
+        }
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('⏰ Gallery API timeout - using fallback');
+        } else {
+          console.error('❌ Error loading gallery count:', error);
+        }
+        return 0;
+      }
+    }
+
+    // 🚀 ULTRA-FAST Announcement Count with Aggressive Timeout
+    async function loadAnnouncementCountFast(institutionId) {
+      try {
+        const currentAdminId = getCurrentAdminId();
+        if (!currentAdminId) return 0;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        const response = await fetch(`${ANNOUNCEMENT_API}?admin_id=${currentAdminId}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const announcements = data.announcements?.filter(ann => 
+            ann.admin_id && ann.admin_id.toString() === currentAdminId.toString()
+          ) || [];
+          console.log(`📢 Found ${announcements.length} announcements for admin ${currentAdminId}`);
+          return announcements.length;
+        }
+        return 0;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('⏰ Announcement API timeout - using fallback');
+        } else {
+          console.error('❌ Error loading announcement count:', error);
+        }
+        return 0;
+      }
+    }
+
+    // 🚀 ULTRA-FAST Counter Updates from Cache
+    function updateCountersFromCache(cachedStats) {
+      console.log('⚡ Updating counters from cache - instant display');
+      updateCounter('teacherCounter', cachedStats.teachers);
+      updateCounter('studentCounter', cachedStats.students);
+      updateCounter('galleryCounter', cachedStats.gallery);
+      updateCounter('announcementCounter', cachedStats.announcements);
+    }
+
+    // 🚀 ULTRA-FAST Counter Updates from Fresh Data
+    function updateCountersFromData(statistics) {
+      console.log('📊 Updating counters from fresh data');
+      updateCounter('teacherCounter', statistics.teachers);
+      updateCounter('studentCounter', statistics.students);
+      updateCounter('galleryCounter', statistics.gallery);
+      updateCounter('announcementCounter', statistics.announcements);
+    }
+
+    // 🔢 Optimized Counter Update with Fast Animation
+    function updateCounter(counterId, targetValue) {
+      const counter = document.getElementById(counterId);
+      if (counter) {
+        counter.setAttribute('data-target', targetValue);
+        animateCounterFast(counter, targetValue);
+      }
+    }
+
+    // 🎬 ULTRA-FAST Counter Animation
+    function animateCounterFast(counter, target) {
+      const current = parseInt(counter.textContent) || 0;
+      
+      // Skip animation for cached data (instant display)
+      if (current === target) {
+        counter.textContent = target;
+        return;
+      }
+      
+      // Fast animation for fresh data
+      const increment = Math.max(1, Math.ceil(target / 50)); // Faster animation
+      let currentValue = current;
+      
+      const timer = setInterval(() => {
+        currentValue += increment;
+        if (currentValue >= target) {
+          counter.textContent = target;
+          clearInterval(timer);
+        } else {
+          counter.textContent = Math.floor(currentValue);
+        }
+      }, 10); // Faster interval
+     }
+
+     // Load announcements when page loads
+     document.addEventListener('DOMContentLoaded', () => {
+       loadAnnouncements();
+      loadRealStatistics(); // Load real statistics
+       // Test API connection on page load
+       testAPIConnection();
+     });
+
+    // ----------------------------
+    // USER ICON CLICK LOGIC
+    // ----------------------------
+    const userIcon = document.querySelector('.user-icon');
+    if (userIcon) {
+      userIcon.addEventListener('click', function() {
+        window.location.href = './profile.html';
+      });
+    }
+
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/simple-auth.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  <script src="../js/ultra-protection.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            console.log('🔍 Full user data for debugging:', userData);
+            
+            // Update welcome message with institution name
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+              // Try different possible field names for institution name
+              const institutionName = userData.institution_name || 
+                                    userData.user?.institution_name || 
+                                    userData.institutionName ||
+                                    'Institution';
+              
+              welcomeMessage.textContent = `Welcome Back, ${institutionName}`;
+              console.log('📝 Updated welcome message with institution:', institutionName);
+              console.log('🔍 Available fields:', Object.keys(userData));
+            }
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

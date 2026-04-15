@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Fix the Timeline</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .back-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .game-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      flex: 1;
+    }
+
+    .game-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--label);
+    }
+
+    .score-display {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .timer {
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .level-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 15px;
+    }
+
+    .level-button {
+      background: var(--accent-light);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      color: var(--label);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .level-button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #1a1a1a;
+    }
+
+    .level-button:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .timeline-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .timeline-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .timeline-slot {
+      background: var(--accent-light);
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-slot.drag-over {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+    }
+
+    .timeline-slot.correct {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .timeline-slot.incorrect {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .event-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      cursor: grab;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .event-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.2);
+    }
+
+    .event-card.dragging {
+      opacity: 0.5;
+      transform: rotate(5deg);
+    }
+
+    .event-title {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 5px;
+    }
+
+    .event-description {
+      font-size: 0.9rem;
+      color: var(--subtle);
+    }
+
+    .events-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .events-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .check-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .check-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .check-button:disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .feedback-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback-message.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .feedback-message.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .next-button {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .next-button:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    .completion-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .completion-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .completion-content {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .completion-modal.show .completion-content {
+      transform: scale(1);
+    }
+
+    .completion-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--success);
+    }
+
+    .completion-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 15px;
+    }
+
+    .completion-message {
+      color: var(--label);
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .completion-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .completion-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .game-area {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .game-info {
+        justify-content: center;
+      }
+      
+      .level-selector {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-header">
+      <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Games
+      </button>
+      <h1 class="game-title">⏰ Fix the Timeline</h1>
+      <div class="game-info">
+        <span class="score-display">Score: <span id="score">0</span></span>
+        <span class="timer">Time: <span id="timer">00:00</span></span>
+      </div>
+    </div>
+
+    <div class="level-selector">
+      <button class="level-button active" onclick="selectLevel('history')">History</button>
+      <button class="level-button" onclick="selectLevel('science')">Science</button>
+      <button class="level-button" onclick="selectLevel('literature')">Literature</button>
+    </div>
+
+    <div class="game-area">
+      <div class="timeline-container">
+        <h2 class="timeline-title">📅 Timeline</h2>
+        <div id="timelineSlots">
+          <!-- Timeline slots will be generated by JavaScript -->
+        </div>
+      </div>
+
+      <div class="events-container">
+        <h2 class="events-title">📋 Events to Arrange</h2>
+        <div id="eventsList">
+          <!-- Events will be generated by JavaScript -->
+        </div>
+        <button class="check-button" id="checkButton" onclick="checkTimeline()">
+          Check Timeline
+        </button>
+        <button class="next-button" id="nextButton" onclick="nextLevel()">
+          Next Level
+        </button>
+        <div class="feedback-message" id="feedbackMessage"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completion Modal -->
+  <div class="completion-modal" id="completionModal">
+    <div class="completion-content">
+      <div class="completion-icon">🎉</div>
+      <h2 class="completion-title">Timeline Fixed!</h2>
+      <p class="completion-message" id="completionMessage">
+        Excellent work! You've successfully arranged all events in the correct chronological order.
+      </p>
+      <button class="completion-button" onclick="closeCompletionModal()">
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Game data
+    const gameData = {
+      currentLevel: 'history',
+      score: 0,
+      startTime: null,
+      timer: null,
+      draggedElement: null,
+      timelineData: {
+        history: [
+          {
+            title: "Declaration of Independence",
+            description: "American colonies declare independence from Britain",
+            year: 1776,
+            order: 1
+          },
+          {
+            title: "French Revolution",
+            description: "Revolution begins in France",
+            year: 1789,
+            order: 2
+          },
+          {
+            title: "Napoleon becomes Emperor",
+            description: "Napoleon Bonaparte crowns himself Emperor of France",
+            year: 1804,
+            order: 3
+          },
+          {
+            title: "Battle of Waterloo",
+            description: "Napoleon is defeated at Waterloo",
+            year: 1815,
+            order: 4
+          },
+          {
+            title: "American Civil War",
+            description: "Civil war begins in the United States",
+            year: 1861,
+            order: 5
+          }
+        ],
+        science: [
+          {
+            title: "Discovery of Gravity",
+            description: "Isaac Newton publishes his theory of gravity",
+            year: 1687,
+            order: 1
+          },
+          {
+            title: "Theory of Evolution",
+            description: "Charles Darwin publishes 'On the Origin of Species'",
+            year: 1859,
+            order: 2
+          },
+          {
+            title: "Discovery of DNA",
+            description: "Watson and Crick discover DNA structure",
+            year: 1953,
+            order: 3
+          },
+          {
+            title: "First Moon Landing",
+            description: "Neil Armstrong walks on the moon",
+            year: 1969,
+            order: 4
+          },
+          {
+            title: "Human Genome Project",
+            description: "Complete human genome is sequenced",
+            year: 2003,
+            order: 5
+          }
+        ],
+        literature: [
+          {
+            title: "Shakespeare's Hamlet",
+            description: "William Shakespeare writes Hamlet",
+            year: 1603,
+            order: 1
+          },
+          {
+            title: "Pride and Prejudice",
+            description: "Jane Austen publishes Pride and Prejudice",
+            year: 1813,
+            order: 2
+          },
+          {
+            title: "A Tale of Two Cities",
+            description: "Charles Dickens publishes A Tale of Two Cities",
+            year: 1859,
+            order: 3
+          },
+          {
+            title: "The Great Gatsby",
+            description: "F. Scott Fitzgerald publishes The Great Gatsby",
+            year: 1925,
+            order: 4
+          },
+          {
+            title: "To Kill a Mockingbird",
+            description: "Harper Lee publishes To Kill a Mockingbird",
+            year: 1960,
+            order: 5
+          }
+        ]
+      }
+    };
+
+    let currentEvents = [];
+    let timelineSlots = [];
+
+    // Initialize the game
+    function initGame() {
+      startTimer();
+      loadLevel(gameData.currentLevel);
+    }
+
+    // Start timer
+    function startTimer() {
+      gameData.startTime = Date.now();
+      gameData.timer = setInterval(updateTimer, 1000);
+    }
+
+    // Update timer display
+    function updateTimer() {
+      const elapsed = Math.floor((Date.now() - gameData.startTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Select level
+    function selectLevel(level) {
+      gameData.currentLevel = level;
+      
+      // Update active button
+      document.querySelectorAll('.level-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      loadLevel(level);
+    }
+
+    // Load level
+    function loadLevel(level) {
+      currentEvents = [...gameData.timelineData[level]];
+      timelineSlots = new Array(currentEvents.length).fill(null);
+      
+      // Shuffle events
+      currentEvents.sort(() => Math.random() - 0.5);
+      
+      renderTimeline();
+      renderEvents();
+      
+      // Reset UI
+      document.getElementById('checkButton').style.display = 'block';
+      document.getElementById('nextButton').style.display = 'none';
+      document.getElementById('feedbackMessage').style.display = 'none';
+    }
+
+    // Render timeline slots
+    function renderTimeline() {
+      const timelineContainer = document.getElementById('timelineSlots');
+      timelineContainer.innerHTML = '';
+      
+      for (let i = 0; i < currentEvents.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'timeline-slot';
+        slot.setAttribute('data-index', i);
+        slot.innerHTML = `<span style="color: var(--subtle);">Drop event here</span>`;
+        
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragenter', handleDragEnter);
+        slot.addEventListener('dragleave', handleDragLeave);
+        
+        timelineContainer.appendChild(slot);
+      }
+    }
+
+    // Render events list
+    function renderEvents() {
+      const eventsContainer = document.getElementById('eventsList');
+      eventsContainer.innerHTML = '';
+      
+      currentEvents.forEach((event, index) => {
+        const eventCard = document.createElement('div');
+        eventCard.className = 'event-card';
+        eventCard.setAttribute('draggable', true);
+        eventCard.setAttribute('data-index', index);
+        
+        eventCard.innerHTML = `
+          <div class="event-title">${event.title}</div>
+          <div class="event-description">${event.description}</div>
+        `;
+        
+        eventCard.addEventListener('dragstart', handleDragStart);
+        eventCard.addEventListener('dragend', handleDragEnd);
+        
+        eventsContainer.appendChild(eventCard);
+      });
+    }
+
+    // Drag and drop handlers
+    function handleDragStart(e) {
+      gameData.draggedElement = e.target;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', e.target.outerHTML);
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDragEnter(e) {
+      e.preventDefault();
+      e.target.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      e.target.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.target.classList.remove('drag-over');
+      
+      const slotIndex = parseInt(e.target.getAttribute('data-index'));
+      const eventIndex = parseInt(gameData.draggedElement.getAttribute('data-index'));
+      
+      // Update timeline
+      timelineSlots[slotIndex] = eventIndex;
+      
+      // Update slot display
+      const event = currentEvents[eventIndex];
+      e.target.innerHTML = `
+        <div class="event-title">${event.title}</div>
+        <div class="event-description">${event.description}</div>
+      `;
+      
+      // Remove event from list
+      gameData.draggedElement.remove();
+    }
+
+    // Check timeline
+    function checkTimeline() {
+      const checkButton = document.getElementById('checkButton');
+      const nextButton = document.getElementById('nextButton');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      
+      let correct = 0;
+      const slots = document.querySelectorAll('.timeline-slot');
+      
+      slots.forEach((slot, index) => {
+        const eventIndex = timelineSlots[index];
+        if (eventIndex !== null) {
+          const event = currentEvents[eventIndex];
+          const expectedOrder = index + 1;
+          
+          if (event.order === expectedOrder) {
+            correct++;
+            slot.classList.add('correct');
+            slot.classList.remove('incorrect');
+          } else {
+            slot.classList.add('incorrect');
+            slot.classList.remove('correct');
+          }
+        }
+      });
+      
+      if (correct === currentEvents.length) {
+        // All correct
+        const timeBonus = Math.max(0, 300 - Math.floor((Date.now() - gameData.startTime) / 1000));
+        const levelScore = correct * 20 + timeBonus;
+        gameData.score += levelScore;
+        
+        feedbackMessage.textContent = `🎉 Perfect! All events in correct order! +${levelScore} points`;
+        feedbackMessage.className = 'feedback-message success';
+        checkButton.style.display = 'none';
+        nextButton.style.display = 'block';
+        
+        showCompletionModal();
+      } else {
+        // Some incorrect
+        feedbackMessage.textContent = `❌ ${correct}/${currentEvents.length} events in correct order. Try again!`;
+        feedbackMessage.className = 'feedback-message error';
+      }
+      
+      feedbackMessage.style.display = 'block';
+      document.getElementById('score').textContent = gameData.score;
+    }
+
+    // Next level
+    function nextLevel() {
+      const levels = ['history', 'science', 'literature'];
+      const currentIndex = levels.indexOf(gameData.currentLevel);
+      const nextIndex = (currentIndex + 1) % levels.length;
+      
+      selectLevel(levels[nextIndex]);
+      
+      // Update active button
+      document.querySelectorAll('.level-button').forEach((btn, index) => {
+        btn.classList.toggle('active', index === nextIndex);
+      });
+    }
+
+    // Show completion modal
+    function showCompletionModal() {
+      const modal = document.getElementById('completionModal');
+      const message = document.getElementById('completionMessage');
+      
+      const messages = [
+        "Excellent work! You've successfully arranged all events in the correct chronological order.",
+        "Fantastic! Your timeline is perfectly organized. Great job!",
+        "Amazing! You've mastered the chronological sequence. Well done!",
+        "Outstanding! Your timeline skills are impeccable. Keep it up!",
+        "Brilliant! You've fixed the timeline flawlessly. Excellent work!"
+      ];
+      
+      message.textContent = messages[Math.floor(Math.random() * messages.length)];
+      modal.classList.add('show');
+    }
+
+    // Close completion modal
+    function closeCompletionModal() {
+      document.getElementById('completionModal').classList.remove('show');
+    }
+
+    // Go back to games hub
+    function goBack() {
+      if (gameData.timer) {
+        clearInterval(gameData.timer);
+      }
+      window.location.href = './games.html';
+    }
+
+    // Initialize the game when page loads
+    document.addEventListener('DOMContentLoaded', initGame);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

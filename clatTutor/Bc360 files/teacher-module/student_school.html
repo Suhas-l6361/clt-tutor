@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  </noscript>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --error: #ff547c;
+      --required: #ffbd03;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #f8fafd;
+      border-bottom: 1.3px solid var(--border);
+      padding: 25px 32px 18px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-user-graduate {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 19px;
+      z-index: 9999; /* Increased for always on top */
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    .form-card {
+      width: 100%;
+      max-width: 890px;
+      margin: 28px auto 0 auto;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 29px 18px 29px;
+      border-bottom: 1.6px solid var(--border);
+      border-top: 5px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .form-section-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      margin: 15px 0 7px 0;
+      color: #238178;
+      letter-spacing: 0.01em;
+      padding-top: 5px;
+    }
+    .class-select-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 24px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .class-radio-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1.01rem;
+      color: var(--label);
+      padding: 7px 18px 7px 12px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      min-width: 95px;
+      user-select: none;
+      transition: border .15s, color .18s, background .15s;
+    }
+    .class-radio-btn.selected {
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      background: #f6fbff;
+    }
+    .class-radio-btn input[type="radio"] { display: none; }
+    .form-fields {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 10px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 0;
+    }
+    .field-label {
+      min-width: 172px;
+      font-size: 1.01rem;
+      color: var(--label);
+      font-weight: 600;
+      margin-bottom: 0;
+      letter-spacing: 0.01em;
+    }
+    .input-group {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .input-group .fa {
+      position: absolute;
+      left: 12px;
+      color: var(--accent);
+      font-size: 1.01rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.89;
+    }
+    .input-group input, .input-group select, .input-group textarea {
+      width: 100%;
+      font-size: 1.03rem;
+      padding: 10px 12px 10px 37px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: #fafdff;
+      color: var(--input);
+      outline: none;
+      transition: border .15s;
+      font-family: inherit;
+    }
+    .input-group textarea { resize: vertical; min-height: 38px; }
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      border-color: var(--accent);
+    }
+                  
+    /* Add scrollbar to select dropdowns only */
+    select {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) #f1f5fc;
+    }
+    
+    select::-webkit-scrollbar {
+      width: 6px;
+      background: #f1f5fc;
+    }
+    
+    select::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    
+    select::-webkit-scrollbar-thumb:hover {
+      background: #15626a;
+    }
+    .input-group input[type="file"] {
+      padding-left: 37px !important;
+      background: none;
+    }
+    .input-group input[type="file"]::-webkit-file-upload-button {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: none;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.13s;
+      margin-right: 7px;
+    }
+    .input-group input[type="file"]:hover::-webkit-file-upload-button {
+      background: #c0f2f7;
+    }
+    .photo-preview {
+      width: 44px; height: 44px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-left: 13px;
+      box-shadow: 0 1px 5px #2563eb12;
+      border: 1.3px solid var(--border);
+      display: none;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 5px;
+    }
+    .submit-btn {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 38px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background .13s;
+      margin-bottom: 3px;
+      box-shadow: 0 2px 5px #20919420;
+    }
+    .submit-btn:hover { background: #15626a; }
+    .reset-btn {
+      background: #fff;
+      color: var(--accent);
+      font-weight: 700;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background .14s, color .14s;
+      margin-bottom: 3px;
+    }
+    .reset-btn:hover { background: var(--accent-light); color: #15626a; }
+    .students-table-container {
+      margin: 0;
+      padding: 0 0 22px 0;
+      width: 100%;
+      max-width: 890px;
+      background: var(--card);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .students-table-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 0 11px 14px;
+      padding-top: 23px;
+      padding-bottom: 4px;
+      letter-spacing: 0.01em;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .download-row {
+      margin: 8px 0 8px 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .excel-btn, .pdf-btn {
+      background: var(--success);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 1px 5px #20919413;
+      transition: background 0.18s;
+    }
+    .pdf-btn { background: #ff7d1c;}
+    .excel-btn:hover { background: #1fae57;}
+    .pdf-btn:hover { background: #e34f0d;}
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fafdff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1.5px 9px #20919409;
+      margin: 0;
+      min-width: 1200px;
+    }
+    th, td {
+      padding: 8px 7px;
+      text-align: left;
+      border-bottom: 1.2px solid #e3e7ef;
+      vertical-align: middle;
+      font-size: 0.97rem;
+    }
+    th {
+      background: #eaf7f8;
+      color: #0d7377;
+      font-weight: 700;
+    }
+    td {
+      color: #28444b;
+      font-weight: 500;
+      background: #fff;
+    }
+    tr th, tr td { border: 1px solid #e7eded; }
+    .actions button {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      font-size: .97rem;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+    .edit-btn { background: #d1f2ea; color: #076f60;}
+    .del-btn { background: #ffe2e2; color: #d6002b;}
+    .edit-btn:hover { background: #14b79d; color: #fff;}
+    .del-btn:hover { background: #ff1c1c; color: #fff;}
+
+    /* Action Button Styles - Same as admin-module */
+    .action-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 3px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 60px;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    
+    .action-btn:active {
+      transform: translateY(-1px);
+    }
+    
+    .action-btn.edit-btn {
+      background: linear-gradient(135deg, var(--accent), #1a7a7c);
+    }
+    
+    .action-btn.edit-btn:hover {
+      background: linear-gradient(135deg, #1a7a7c, var(--accent));
+    }
+    
+    .action-btn.delete-btn {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .action-btn.delete-btn:hover {
+      background: linear-gradient(135deg, #c82333, #dc3545);
+    }
+
+    /* Animation keyframes */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .table-photo {
+      width: 33px; height: 33px;
+      border-radius: 5px;
+      object-fit: cover;
+      box-shadow: 0 1px 6px #20919413;
+      border: 1.1px solid #e3e7ef;
+    }
+    .hidden { display: none !important; }
+    .required-input {
+      border-color: var(--required) !important;
+      background: #fff7e0 !important;
+      box-shadow: 0 1px 4px #ffbd0333;
+    }
+    #casteSelect1 { width: 120px; min-width: 120px; max-width: 140px; }
+    #casteOtherInput1 { width: 230px !important; min-width: 200px !important; max-width: 270px !important; }
+    @media (max-width: 1150px) {
+      .form-card, .students-table-container {max-width: 98vw;}
+      th, td {font-size: 0.96rem;}
+      table {min-width: 900px;}
+      .main-content {min-width: 0; width: 100vw;}
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+
+    @media (max-width: 700px) {
+      .form-card, .students-table-container {padding: 8px 2vw;}
+      .form-card {padding: 12px 2vw 10px 2vw;}
+      .field-label {min-width: 93px;}
+      table {min-width: 590px;}
+      .main-content {min-width: 0; width: 100vw;}
+      .top-bar {padding: 16px 7px 13px 9px;}
+    }
+    @media (max-width: 480px) {
+      .field-row {flex-direction: column;align-items:flex-start;}
+      .input-group{width:100%;}
+      .field-label{margin-bottom: 3px;}
+      table {min-width: 400px;}
+      .form-card {padding: 6px 2vw;}
+    }
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      /* Make hamburger (and X) appear on top-right above sidebar when open */
+      .sidebar-hamburger {
+        left: auto;
+        right: 16px;
+        top: 15px;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html" class="active"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" ><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/student dashboard.png" alt="Student Registration" style="width: 20px; height: 20px; margin-right: 10px;">
+        Student Registration - School
+      </div>
+      <div class="form-card">
+        <form id="studentForm" autocomplete="off">
+          <div class="class-select-row" id="classRadioGroup">
+            <label class="class-radio-btn selected"><input type="radio" name="classGroup" value="1-10th" checked/>1-10th</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="PUC"/>PUC</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="Degree"/>Degree</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="Masters"/>Masters</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="Engineering"/>Engineering</label>
+          </div>
+          <div class="form-fields" id="fields-1-10th">
+            <div class="form-section-title">
+              <img src="./assets/student dashboard.png" alt="Personal Information" style="width: 20px; height: 20px; margin-right: 10px;">
+              Personal Information
+            </div>
+            <div class="field-row"><span class="field-label required-label">Full Name*</span>
+              <div class="input-group"><i class="fa fa-user"></i>
+                <input type="text" name="fullName" id="fullName" placeholder="Student's full name"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Date of Birth*</span>
+              <div class="input-group"><i class="fa fa-calendar"></i>
+                <input type="date" name="dob" id="dob" max="2025-12-31"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Gender*</span>
+              <div class="input-group"><i class="fa fa-venus-mars"></i>
+                <select name="gender" id="gender">
+                  <option value="">Select Gender</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Aadhar Number*</span>
+              <div class="input-group"><i class="fa fa-id-card"></i>
+                <input type="text" name="aadhar" id="aadhar" pattern="^\d{4}\s?\d{4}\s?\d{4}$" maxlength="14" placeholder="XXXX XXXX XXXX"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Parent Name*</span>
+              <div class="input-group"><i class="fa fa-user-tie"></i>
+                <input type="text" name="guardian" id="guardian" placeholder="Father/Mother/Guardian"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Contact Number*</span>
+              <div class="input-group"><i class="fa fa-phone"></i>
+                <input type="tel" name="contact" id="contact" pattern="^\d{10}$" maxlength="10" placeholder="10-digit number"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Email Address*</span>
+              <div class="input-group"><i class="fa fa-envelope"></i>
+                <input type="email" name="email" id="email" placeholder="example@email.com"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Address*</span>
+              <div class="input-group"><i class="fa fa-map-marker-alt"></i>
+                <textarea name="address" id="address" rows="3" placeholder="District, State"></textarea></div>
+            </div>
+            <div class="form-section-title">
+              <img src="./assets/assignements.png" alt="Academic Details" style="width: 20px; height: 20px; margin-right: 10px;">
+              Academic Details
+            </div>
+            <div class="field-row"><span class="field-label required-label">Current Class*</span>
+              <div class="input-group"><i class="fa fa-layer-group"></i>
+                <select name="grade" id="grade">
+                  <option value="">Select Class</option>
+                  <option>1st</option>
+                  <option>2nd</option>
+                  <option>3rd</option>
+                  <option>4th</option>
+                  <option>5th</option>
+                  <option>6th</option>
+                  <option>7th</option>
+                  <option>8th</option>
+                  <option>9th</option>
+                  <option>10th</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Academic Year*</span>
+              <div class="input-group"><i class="fa fa-calendar-days"></i>
+                <input type="text" name="academicYear" id="academicYear" placeholder="2024-25"/></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Medium*</span>
+              <div class="input-group"><i class="fa fa-language"></i>
+                <select name="medium" id="medium">
+                  <option value="">Select Medium</option>
+                  <option>English</option><option>Kannada</option><option>Hindi</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">School/Institution Name*</span>
+              <div class="input-group"><i class="fa fa-school"></i>
+                <input type="text" name="school" id="school" placeholder="School name"/></div>
+            </div>
+            <div class="form-section-title">
+              <img src="./assets/analytics.png" alt="Other Details" style="width: 20px; height: 20px; margin-right: 10px;">
+              Other Details
+            </div>
+            <div class="field-row"><span class="field-label required-label">Caste/Category*</span>
+              <div class="input-group"><i class="fa fa-users"></i>
+                <select name="caste" id="casteSelect">
+                  <option value="">Select Caste</option>
+                  <option>General</option>
+                  <option>SC</option>
+                  <option>ST</option>
+                  <option>OBC</option>
+                  <option>Other</option>
+                </select>
+                <input type="text" id="casteOtherInput" class="hidden" placeholder="Specify Caste/Category" style="margin-left:10px;width:220px;">
+              </div>
+            </div>
+
+            <div class="field-row"><span class="field-label required-label">Blood Group*</span>
+              <div class="input-group"><i class="fa fa-droplet"></i>
+                <select name="blood" id="blood">
+                  <option value="">Select Blood Group</option>
+                  <option>A+</option><option>A-</option>
+                  <option>B+</option><option>B-</option>
+                  <option>AB+</option><option>AB-</option>
+                  <option>O+</option><option>O-</option>
+                </select>
+            </div>
+            </div>
+            <div class="field-row"><span class="field-label required-label">Total Fees*</span>
+              <div class="input-group"><i class="fa fa-money-bill"></i>
+                <input type="number" name="totalFees" id="totalFees" min="0" step="0.01" placeholder="Total Fees"/></div>
+              </div>
+            <div class="field-row"><span class="field-label required-label">Paid Fees*</span>
+              <div class="input-group"><i class="fa fa-money-bill-wave"></i>
+                <input type="number" name="paidFees" id="paidFees" min="0" step="0.01" placeholder="Paid Fees"/></div>
+            </div>
+            <div class="btn-row">
+              <button class="submit-btn" type="submit" id="registerBtn">Register</button>
+              <button class="reset-btn" type="button" id="resetBtn">Reset</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="students-table-container" id="tableSection1" style="display:none;">
+        <div class="students-table-title">
+          <img src="./assets/student dashboard.png" alt="Registered Students" style="width: 20px; height: 20px; margin-right: 10px;"> Registered Students (1-10th)
+        </div>
+        <div class="download-row">
+          <button class="excel-btn" id="excelBtn1"><i class="fas fa-file-excel" style="margin-right: 5px;"></i>Download Excel</button>
+          <button class="pdf-btn" id="pdfBtn1"><i class="fas fa-file-pdf" style="margin-right: 5px;"></i>Download PDF</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="studentsTable1">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Guardian</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Class</th>
+                <th>School</th>
+                <th>Total Fees</th>
+                <th>Paid Fees</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a=>{
+      a.onclick=()=>{ if(window.innerWidth<=1150) closeSidebar(); }
+    });
+
+    // API Configuration - Same as admin-module
+    const ADD_SCHOOL_STUDENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addSchoolStudent';
+    const GET_SCHOOL_STUDENTS_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addSchoolStudent';
+    const STUDENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/student';
+    const PARENTS_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/parents';
+    const TEACHER_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher';
+    const WELCOME_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/welcomeMessage';
+    const CREDENTIALS_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/credentials';
+
+    // Helper function to send student emails
+    async function sendStudentEmails(studentData, studentId, studentPassword, emailMessage = '') {
+      console.log('Sending student emails...');
+      let studentWelcomeSent = false;
+      let studentCredentialsSent = false;
+      
+      // Prepare email data for student
+      const studentWelcomeData = {
+        email: studentData.email,
+        name: studentData.fullName
+      };
+      
+      const studentCredentialsData = {
+        recipientEmail: studentData.email,
+        recipientName: studentData.fullName,
+        userId: studentId,
+        password: studentPassword
+      };
+      
+      // Send student emails in parallel
+      const emailPromises = [
+        // Student Welcome Email
+        fetch(WELCOME_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentWelcomeData)
+        }).then(async (response) => {
+          const result = await response.json();
+          if (response.ok && result.success) {
+            console.log('Student welcome email sent successfully');
+            studentWelcomeSent = true;
+          }
+          return { type: 'student_welcome', success: response.ok && result.success };
+        }).catch((error) => {
+          console.warn('Student welcome email error:', error);
+          return { type: 'student_welcome', success: false };
+        }),
+        
+        // Student Credentials Email
+        fetch(CREDENTIALS_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentCredentialsData)
+        }).then(async (response) => {
+          const result = await response.json();
+          if (response.ok && result.success) {
+            console.log('Student credentials email sent successfully');
+            studentCredentialsSent = true;
+          }
+          return { type: 'student_credentials', success: response.ok && result.success };
+        }).catch((error) => {
+          console.warn('Student credentials email error:', error);
+          return { type: 'student_credentials', success: false };
+        })
+      ];
+      
+      // Wait for student emails to complete
+      const emailResults = await Promise.allSettled(emailPromises);
+      console.log('Student email results:', emailResults);
+      
+      // Prepare email status message
+      const totalEmails = 2;
+      const sentEmails = [studentWelcomeSent, studentCredentialsSent].filter(Boolean).length;
+      
+      if (sentEmails === totalEmails) {
+        return `${emailMessage}\n\n📧 Student welcome email and credentials have been sent to: ${studentData.email}\n\n✅ Please check your email for student login instructions.`;
+      } else if (sentEmails > 0) {
+        return `${emailMessage}\n\n📧 ${sentEmails}/${totalEmails} student emails sent to: ${studentData.email}\n\n⚠️ Some emails may not have been delivered. Please save credentials securely.`;
+      } else {
+        return `${emailMessage}\n\n📧 Email service is currently unavailable.\n\n⚠️ Please save these credentials securely as emails won't be sent.`;
+      }
+    }
+
+    // Global variables
+    let students1 = [];
+    let editIndex = null;
+    let editImageDataUrl = "";
+    let currentEditingRow = null;
+    
+    // Performance optimization: Simple caching
+    let studentsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 30 * 1000; // 30 seconds cache for faster updates
+    
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    let currentPage = 0;
+    const studentsPerPage = 20; // Show 20 students at a time for better performance
+    
+    // Performance optimization: Parallel processing for student registration
+    async function parallelStudentRegistration(backendData, studentData) {
+      console.log('Starting parallel student registration...');
+      
+      // Prepare all API calls
+      const schoolStudentPromise = fetch(ADD_SCHOOL_STUDENT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(backendData)
+      });
+      
+      const studentsTablePromise = fetch(STUDENT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: backendData.full_name,
+          contact: backendData.contact,
+          email: backendData.email,
+          current_class: backendData.current_class,
+          academic_year: backendData.academic_year,
+          institution_id: backendData.institution_id,
+          teacher_id: backendData.teacher_id
+        })
+      });
+      
+      const parentPromise = fetch(PARENTS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_id: 'temp', // Will be updated after school student is created
+          parent_name: backendData.guardian_name,
+          contact: backendData.contact,
+          email: backendData.email,
+          institution_id: backendData.institution_id,
+          teacher_id: backendData.teacher_id
+        })
+      });
+      
+      // Execute all API calls in parallel
+      console.log('Executing parallel API calls...');
+      const [schoolResponse, studentResponse, parentResponse] = await Promise.all([
+        schoolStudentPromise,
+        studentsTablePromise,
+        parentPromise
+      ]);
+      
+      console.log('All parallel API calls completed');
+      
+      return {
+        schoolResponse,
+        studentResponse,
+        parentResponse
+      };
+    }
+    
+    // Performance optimization: Debounced search function
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+        if (searchTerm.trim() === '') {
+          updateTable(); // Show all students if no search term
+          return;
+        }
+        
+        // Filter students based on search term
+        const filteredStudents = students1.filter(student => 
+          student.full_name?.toLowerCase().includes(searchTerm) ||
+          student.student_id?.toString().includes(searchTerm) ||
+          student.contact?.toString().includes(searchTerm) ||
+          student.current_class?.toLowerCase().includes(searchTerm) ||
+          student.guardian_name?.toLowerCase().includes(searchTerm)
+        );
+        
+        // Update table with filtered results
+        const tbody = document.querySelector('#studentsTable1 tbody');
+        if (tbody) {
+          tbody.innerHTML = '';
+          
+          if (filteredStudents.length === 0) {
+            const noDataRow = document.createElement('tr');
+            noDataRow.innerHTML = '<td colspan="11" style="text-align:center; padding: 20px;">No students found matching your search</td>';
+            tbody.appendChild(noDataRow);
+            return;
+          }
+          
+          filteredStudents.forEach((student, index) => {
+            const row = document.createElement('tr');
+            row.className = 'student-row';
+            row.setAttribute('data-student', JSON.stringify(student));
+            
+            // Format DOB to show only date
+            let formattedDob = 'N/A';
+            if (student.dob) {
+              try {
+                const date = new Date(student.dob);
+                if (!isNaN(date.getTime())) {
+                  formattedDob = date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                }
+              } catch (error) {
+                console.error('Error formatting date:', error);
+              }
+            }
+            
+            row.innerHTML = `
+              <td>${student.student_id || 'N/A'}</td>
+              <td>${student.full_name || 'N/A'}</td>
+              <td>${formattedDob}</td>
+              <td>${student.gender || 'N/A'}</td>
+              <td>${student.guardian_name || 'N/A'}</td>
+              <td>${student.contact || 'N/A'}</td>
+              <td>${student.email || 'N/A'}</td>
+              <td>${student.current_class || 'N/A'}</td>
+              <td>${student.institute_name || 'N/A'}</td>
+              <td>₹${student.Total_fees || 'N/A'}</td>
+              <td>₹${student.paid_Fees || 'N/A'}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" onclick="editStudent(${index})" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteStudent(${index})" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      }, 300); // 300ms delay for debouncing
+    }
+    
+    // Performance optimization: Setup function
+    function setupPerformanceOptimizations() {
+      // Preload critical resources
+      const criticalResources = [
+        'https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+      ];
+      
+      criticalResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = resource;
+        link.as = 'style';
+        link.onload = function() {
+          this.rel = 'stylesheet';
+        };
+        document.head.appendChild(link);
+      });
+      
+      // Setup intersection observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Load content when it comes into view
+              entry.target.classList.add('loaded');
+            }
+          });
+        });
+        
+        // Observe elements that should be lazy loaded
+        document.querySelectorAll('.lazy-load').forEach(el => {
+          observer.observe(el);
+        });
+      }
+      
+      // Setup service worker for caching (if available and not file:// protocol)
+      if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('Service worker registration failed:', err);
+        });
+      } else if (window.location.protocol === 'file:') {
+        console.log('Service worker skipped - file:// protocol not supported');
+      }
+    }
+
+    // Custom Alert Function - Same as admin-module
+    function showAlert(title, message, type = 'info', showCancel = false) {
+      return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'alert-modal';
+        modal.style.cssText = `
+          display: block;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          animation: fadeIn 0.3s;
+        `;
+
+        let iconClass = 'fas fa-info-circle';
+        switch (type) {
+          case 'success': iconClass = 'fas fa-check-circle'; break;
+          case 'error': iconClass = 'fas fa-exclamation-circle'; break;
+          case 'warning': iconClass = 'fas fa-exclamation-triangle'; break;
+        }
+
+        const closeModal = (result) => {
+          modal.remove();
+          resolve(result);
+        };
+
+        modal.innerHTML = `
+          <div style="
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            animation: slideIn 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          ">
+            <span id="alertClose" style="
+              position: absolute;
+              top: 15px;
+              right: 20px;
+              font-size: 24px;
+              cursor: pointer;
+              color: #999;
+            ">&times;</span>
+            <div style="font-size: 3rem; margin-bottom: 20px; color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8'};">
+              <i class="${iconClass}"></i>
+            </div>
+            <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 15px; color: #333;">${title}</h3>
+            <p style="font-size: 1rem; color: #666; margin-bottom: 25px; line-height: 1.5;">${message}</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+              ${showCancel ? '<button id="alertCancel" style="padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; background: #6c757d; color: white; min-width: 100px;">Cancel</button>' : ''}
+              <button id="alertOk" style="padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; background: #3A1C71; color: white; min-width: 100px;">OK</button>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners after the modal is added to DOM
+        document.body.appendChild(modal);
+        
+        // Get button references and add event listeners
+        const okBtn = document.getElementById('alertOk');
+        const cancelBtn = document.getElementById('alertCancel');
+        const closeBtn = document.getElementById('alertClose');
+        
+        if (okBtn) {
+          okBtn.addEventListener('click', () => closeModal(true));
+        }
+        
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', () => closeModal(false));
+        }
+        
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => closeModal(false));
+        }
+
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            closeModal(false);
+          }
+        };
+      });
+    }
+
+    // Loading Modal Functions
+    function showLoading() {
+      // Remove any existing loading popup first
+      const existingLoading = document.getElementById('loadingPopup');
+      if (existingLoading) {
+        console.log('Removing existing loading popup before creating new one');
+        existingLoading.remove();
+      }
+      
+      const loading = document.createElement('div');
+      loading.id = 'loadingPopup';
+      loading.style.cssText = `
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      `;
+      loading.innerHTML = `
+        <div style="
+          background: #ffffff;
+          margin: 20% auto;
+          padding: 40px;
+          border-radius: 12px;
+          width: 90%;
+          max-width: 300px;
+          text-align: center;
+          position: relative;
+          color: #333;
+        ">
+          <div style="
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #3A1C71;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+          "></div>
+          <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; color: #3A1C71;">BC360</div>
+          <div style="font-size: 0.9rem; color: #666;">Loading...</div>
+        </div>
+      `;
+      document.body.appendChild(loading);
+      console.log('Loading popup created and added to DOM');
+    }
+
+    function hideLoading() {
+      const loading = document.getElementById('loadingPopup');
+      if (loading) {
+        console.log('Removing loading popup');
+        loading.remove();
+      } else {
+        console.log('No loading popup found to remove');
+      }
+    }
+
+    // Validation functions
+    function validateAadhar(aadhar) {
+      const aadharRegex = /^\d{12}$/;
+      return aadharRegex.test(aadhar.replace(/\s/g, ''));
+    }
+
+    function validatePhone(phone) {
+      const phoneRegex = /^\d{10}$/;
+      return phoneRegex.test(phone);
+    }
+
+    const radios = document.querySelectorAll('.class-radio-btn');
+    let activeClass = "1-10th";
+    radios.forEach(label => {
+      label.onclick = function(){
+        const val = label.querySelector('input').value;
+        if(val === "1-10th") window.location.href = "./student_school.html";
+        else if(val === "PUC") window.location.href = "./student_puc.html";
+        else if(val === "Degree") window.location.href = "./student_degree.html";
+        else if(val === "Masters") window.location.href = "./student_master.html";
+        else if(val === "Engineering") window.location.href = "./student_engineer.html";
+      }
+    });
+    document.getElementById('casteSelect').onchange = function(){
+      // This function is now simplified since we removed the "Specify Caste/Category" field
+      // Only handle Sub Caste field if it exists
+      const subCasteField = document.getElementById('subCaste');
+      if (subCasteField) {
+        const fieldRow = subCasteField.closest('.field-row');
+        if (fieldRow) {
+          if(this.value==='Other') {
+            fieldRow.style.display = 'flex';
+          } else {
+            fieldRow.style.display = 'none';
+          }
+        }
+      }
+    };
+    function resetForm() {
+      // Reset only specific fields manually (excluding the ones that should never reset)
+      const form = document.getElementById('studentForm');
+      
+      // Clear fields that should be reset
+      form.elements['fullName'].value = '';
+      form.elements['dob'].value = '';
+      form.elements['gender'].value = '';
+      form.elements['aadhar'].value = '';
+      form.elements['guardian'].value = '';
+      form.elements['contact'].value = '';
+      form.elements['email'].value = '';
+      form.elements['address'].value = '';
+      form.elements['grade'].value = '';
+      form.elements['academicYear'].value = '';
+      form.elements['medium'].value = '';
+      form.elements['school'].value = '';
+      form.elements['caste'].value = '';
+
+      form.elements['blood'].value = '';
+      form.elements['totalFees'].value = '';
+      form.elements['paidFees'].value = '';
+      
+      // Reset form state
+      editIndex = null;
+      currentEditingRow = null;
+      document.querySelector('button[type="submit"]').textContent = 'Register Student';
+    }
+
+    document.getElementById('resetBtn').onclick = function(){
+      resetForm();
+    }
+    // Student Form Submission with Backend Integration - Same as admin-module
+    document.getElementById('studentForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const studentData = {};
+      
+      for(let [key, value] of formData.entries()) {
+        studentData[key] = value;
+      }
+
+
+
+      // Validate Aadhar number
+      if (!validateAadhar(studentData.aadhar)) {
+        await showAlert('Error', 'Please enter a valid 12-digit Aadhar number', 'error');
+          return;
+      }
+
+      // Validate phone number
+      if (!validatePhone(studentData.contact)) {
+        await showAlert('Error', 'Please enter a valid 10-digit phone number', 'error');
+        return;
+      }
+
+      // Get current authenticated teacher data
+      const userData = window.UserSession ? window.UserSession.getUserData() : null;
+      if (!userData || !userData.isAuthenticated) {
+        await showAlert('Error', 'Session expired. Please login again.', 'error');
+        window.location.href = '../login.html';
+        return;
+      }
+
+      // Prepare data for backend
+      const backendData = {
+        full_name: studentData.fullName,
+        dob: studentData.dob,
+        gender: studentData.gender,
+        aadhar_number: studentData.aadhar.replace(/\s/g, ''),
+        guardian_name: studentData.guardian,
+        contact: parseInt(studentData.contact),
+        email: studentData.email || '',
+        address: studentData.address,
+        current_class: studentData.grade,
+        academic_year: studentData.academicYear,
+        present_medium: studentData.medium,
+        institution_name: userData.user.institution_name,
+        institution_id: userData.user.institution_id,
+        teacher_id: userData.user.teacher_id,
+        caste: studentData.caste,
+        blood: studentData.blood,
+        Total_fees: parseInt(studentData.totalFees),
+        paid_Fees: parseInt(studentData.paidFees)
+      };
+
+      // Validate that all required fields are present
+      const requiredFields = ['full_name', 'dob', 'gender', 'aadhar_number', 'guardian_name', 'contact', 'address', 'current_class', 'academic_year', 'present_medium', 'institution_name', 'institution_id', 'teacher_id', 'caste', 'blood', 'Total_fees', 'paid_Fees'];
+      const missingFields = requiredFields.filter(field => !backendData[field] || backendData[field] === '');
+      
+      if (missingFields.length > 0) {
+        console.error('Missing required fields:', missingFields);
+        await showAlert('Error', `Missing required fields: ${missingFields.join(', ')}`, 'error');
+        return;
+      }
+
+      console.log('All required fields present. Data validation passed.');
+
+      // Test database connection first
+      try {
+        console.log('Testing database connection...');
+        const testResponse = await fetch(ADD_SCHOOL_STUDENT_API + '?test=db', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const testResult = await testResponse.json();
+        console.log('Database test result:', testResult);
+        
+        if (!testResult.success) {
+          await showAlert('Error', 'Database connection failed. Please try again later.', 'error');
+          return;
+        }
+        
+        console.log('Database connection successful. Proceeding with registration...');
+      } catch (testError) {
+        console.error('Database test failed:', testError);
+        await showAlert('Error', 'Unable to connect to database. Please try again later.', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        
+        // Use parallel processing for new student registration
+        if(editIndex === null) {
+          console.log('Using parallel processing for new student registration...');
+          const parallelResults = await parallelStudentRegistration(backendData, studentData);
+          
+          // Process results
+          const schoolResult = await parallelResults.schoolResponse.json();
+          const studentResult = await parallelResults.studentResponse.json();
+          const parentResult = await parallelResults.parentResponse.json();
+          
+          console.log('Parallel processing results:', { schoolResult, studentResult, parentResult });
+          
+          // Handle results and send emails
+          if (parallelResults.schoolResponse.ok && schoolResult.success) {
+            console.log('School student added successfully:', schoolResult);
+            
+            // Send emails in parallel
+            const emailResults = await sendStudentEmails(studentData, schoolResult.student_id, schoolResult.password, 
+              `Student and Parent added successfully! All welcome emails and credentials have been sent to: ${studentData.email}\n\n📋 Registration Details:\n• Student ID: ${schoolResult.student_id}\n• Student Password: ${schoolResult.password}\n• Parent User ID: ${schoolResult.parent_userId}\n• Parent Password: ${schoolResult.parent_password}`);
+            
+            hideLoading();
+            await showAlert('Success!', emailResults, 'success');
+            resetForm();
+            loadStudents(true); // Force refresh cache
+          } else {
+            hideLoading();
+            await showAlert('Error', schoolResult.message || 'Failed to add student', 'error');
+          }
+          return;
+        }
+        
+      if(editIndex !== null) {
+          // Update existing student
+          backendData.student_id = students1[editIndex].student_id;
+          
+          const response = await fetch(ADD_SCHOOL_STUDENT_API, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendData)
+          });
+
+          const result = await response.json();
+          hideLoading();
+
+          if (response.ok && result.success) {
+            await showAlert('Success', 'Student updated successfully', 'success');
+        editIndex = null;
+            document.querySelector('button[type="submit"]').textContent = 'Register Student';
+            resetForm();
+            loadStudents(); // Reload students after updating
+      } else {
+            const errorMessage = result.message || 'Failed to update student';
+            await showAlert('Error', errorMessage, 'error');
+          }
+        } else {
+          // Check if contact number already exists in general student database first
+          try {
+            const checkResponse = await fetch(`${STUDENT_API}?contact=${backendData.contact}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (checkResponse.ok) {
+              const checkResult = await checkResponse.json();
+              if (checkResult.students && checkResult.students.length > 0) {
+                hideLoading();
+                await showAlert('Error', 'Student exists and Number already in use', 'error');
+                return;
+              }
+            }
+          } catch (checkError) {
+            console.error('Error checking contact number:', checkError);
+          }
+
+          // Check if parent contact number already exists in parents database
+          try {
+            const parentCheckResponse = await fetch(`${PARENTS_API}?contact=${backendData.contact}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (parentCheckResponse.ok) {
+              const parentCheckResult = await parentCheckResponse.json();
+              if (parentCheckResult.parents && parentCheckResult.parents.length > 0) {
+                hideLoading();
+                await showAlert('Error', 'Parent exists and Number already in use', 'error');
+          return;
+              }
+            }
+          } catch (parentCheckError) {
+            console.error('Error checking parent contact number:', parentCheckError);
+          }
+
+          // Check if contact number already exists in teacher database
+          try {
+            const teacherCheckResponse = await fetch(`${TEACHER_API}?phone=${backendData.contact}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (teacherCheckResponse.ok) {
+              const teacherCheckResult = await teacherCheckResponse.json();
+              if (teacherCheckResult.teachers && teacherCheckResult.teachers.length > 0) {
+                hideLoading();
+                await showAlert('Error', 'Teacher exists and Number already in use', 'error');
+                return;
+              }
+            }
+          } catch (teacherCheckError) {
+            console.error('Error checking teacher contact number:', teacherCheckError);
+          }
+          
+          // Add new student
+          console.log('Sending data to school API:', backendData);
+          console.log('Full backendData object:', JSON.stringify(backendData, null, 2));
+          const response = await fetch(ADD_SCHOOL_STUDENT_API, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendData)
+          });
+
+          console.log('School API Response status:', response.status);
+          console.log('School API Response ok:', response.ok);
+          
+          const result = await response.json();
+          console.log('School API Response data:', result);
+
+          if (response.ok && result.success) {
+            // Also store in students table
+            try {
+              const studentsTableData = {
+                student_id: result.student_id,  // Use the same student_id from school API
+                password: result.password,      // Use the same password from school API
+                full_name: studentData.fullName,
+                contact: parseInt(studentData.contact),
+                academic_year: studentData.academicYear,
+                email: studentData.email,
+                institution_name: userData.user.institution_name,
+                institution_id: userData.user.institution_id,
+                teacher_id: userData.user.teacher_id
+              };
+
+              console.log('Sending data to students API:', studentsTableData);
+              const studentResponse = await fetch(STUDENT_API, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(studentsTableData)
+              });
+
+              console.log('Students API Response status:', studentResponse.status);
+              console.log('Students API Response ok:', studentResponse.ok);
+              
+              const studentResult = await studentResponse.json();
+              console.log('Students API Response data:', studentResult);
+
+              if (studentResponse.ok && studentResult.success) {
+                // Also store parent information
+                try {
+                  const parentTableData = {
+                    parent_userId: result.parent_userId,
+                    parent_password: result.parent_password,
+                    full_name: studentData.guardian,
+                    contact: parseInt(studentData.contact),
+                    academic_year: studentData.academicYear,
+                    institution_name: userData.user.institution_name,
+                    institution_id: userData.user.institution_id,
+                    teacher_id: userData.user.teacher_id
+                  };
+
+                  console.log('Sending parent data to parents API:', parentTableData);
+                  const parentResponse = await fetch(PARENTS_API, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(parentTableData)
+                  });
+
+                  console.log('Parents API Response status:', parentResponse.status);
+                  console.log('Parents API Response ok:', parentResponse.ok);
+                  
+                  const parentResult = await parentResponse.json();
+                  console.log('Parents API Response data:', parentResult);
+
+                  if (parentResponse.ok && parentResult.success) {
+                    // All three APIs succeeded - Now send emails
+                    console.log('Step 4: Sending welcome and credentials emails...');
+                    let studentWelcomeSent = false;
+                    let studentCredentialsSent = false;
+                    let parentWelcomeSent = false;
+                    let parentCredentialsSent = false;
+                    
+                    // Prepare email data for student
+                    const studentWelcomeData = {
+                      email: studentData.email,
+                      name: studentData.fullName
+                    };
+                    
+                    const studentCredentialsData = {
+                      recipientEmail: studentData.email,
+                      recipientName: studentData.fullName,
+                      userId: result.student_id,
+                      password: result.password
+                    };
+                    
+                    // Prepare email data for parent
+                    const parentWelcomeData = {
+                      email: studentData.email,
+                      name: studentData.guardian
+                    };
+                    
+                    const parentCredentialsData = {
+                      recipientEmail: studentData.email,
+                      recipientName: studentData.guardian,
+                      userId: result.parent_userId,
+                      password: result.parent_password
+                    };
+                    
+                    // Send all emails in parallel
+                    const emailPromises = [
+                      // Student Welcome Email
+                      fetch(WELCOME_EMAIL_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(studentWelcomeData)
+                      }).then(async (response) => {
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          console.log('Student welcome email sent successfully');
+                          studentWelcomeSent = true;
+                        }
+                        return { type: 'student_welcome', success: response.ok && result.success };
+                      }).catch((error) => {
+                        console.warn('Student welcome email error:', error);
+                        return { type: 'student_welcome', success: false };
+                      }),
+                      
+                      // Student Credentials Email
+                      fetch(CREDENTIALS_EMAIL_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(studentCredentialsData)
+                      }).then(async (response) => {
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          console.log('Student credentials email sent successfully');
+                          studentCredentialsSent = true;
+                        }
+                        return { type: 'student_credentials', success: response.ok && result.success };
+                      }).catch((error) => {
+                        console.warn('Student credentials email error:', error);
+                        return { type: 'student_credentials', success: false };
+                      }),
+                      
+                      // Parent Welcome Email
+                      fetch(WELCOME_EMAIL_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(parentWelcomeData)
+                      }).then(async (response) => {
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          console.log('Parent welcome email sent successfully');
+                          parentWelcomeSent = true;
+                        }
+                        return { type: 'parent_welcome', success: response.ok && result.success };
+                      }).catch((error) => {
+                        console.warn('Parent welcome email error:', error);
+                        return { type: 'parent_welcome', success: false };
+                      }),
+                      
+                      // Parent Credentials Email
+                      fetch(CREDENTIALS_EMAIL_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(parentCredentialsData)
+                      }).then(async (response) => {
+                        const result = await response.json();
+                        if (response.ok && result.success) {
+                          console.log('Parent credentials email sent successfully');
+                          parentCredentialsSent = true;
+                        }
+                        return { type: 'parent_credentials', success: response.ok && result.success };
+                      }).catch((error) => {
+                        console.warn('Parent credentials email error:', error);
+                        return { type: 'parent_credentials', success: false };
+                      })
+                    ];
+                    
+                    // Wait for all emails to complete
+                    const emailResults = await Promise.allSettled(emailPromises);
+                    console.log('All email results:', emailResults);
+                    
+                    // Prepare success message with email status
+                    let emailMessage = '';
+                    const totalEmails = 4;
+                    const sentEmails = [studentWelcomeSent, studentCredentialsSent, parentWelcomeSent, parentCredentialsSent].filter(Boolean).length;
+                    
+                    if (sentEmails === totalEmails) {
+                      emailMessage = `📧 All welcome emails and credentials have been sent to: ${studentData.email}\n\n✅ Please check your email for both student and parent login instructions.`;
+                    } else if (sentEmails > 0) {
+                      emailMessage = `📧 ${sentEmails}/${totalEmails} emails sent to: ${studentData.email}\n\n⚠️ Some emails may not have been delivered. Please check your email and save credentials securely.`;
+                    } else {
+                      emailMessage = `📧 Email service is currently unavailable.\n\n⚠️ Please save these credentials securely as emails won't be sent.`;
+                    }
+                    
+                    hideLoading();
+                    await showAlert(
+                      'Success!', 
+                      `Student and Parent added successfully!\n\n${emailMessage}\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n• Parent User ID: ${result.parent_userId}\n• Parent Password: ${result.parent_password}`, 
+                      'success'
+                    );
+                    resetForm();
+                    loadStudents(); // Reload students after adding
+                  } else if (parentResponse.status === 409) {
+                    // Parent contact already exists - Send only student emails
+                    console.log('Step 4: Sending student emails only (parent contact exists)...');
+                    const emailMessage = await sendStudentEmails(studentData, result.student_id, result.password, 
+                      `Student added successfully but parent contact number already exists in parent database.\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n• Parent User ID: ${result.parent_userId}\n• Parent Password: ${result.parent_password}\n\nPlease contact support for parent access.`);
+                    
+                    hideLoading();
+                    await showAlert('Partial Success', emailMessage, 'warning');
+                    resetForm();
+                    loadStudents(); // Reload students after adding
+      } else {
+                    // Parent API failed but student was added - Send only student emails
+                    console.warn('Failed to add parent:', parentResult.message);
+                    const emailMessage = await sendStudentEmails(studentData, result.student_id, result.password, 
+                      `Student added successfully but there was an issue with parent database.\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n• Parent User ID: ${result.parent_userId}\n• Parent Password: ${result.parent_password}\n\nPlease contact support.`);
+                    
+                    hideLoading();
+                    await showAlert('Partial Success', emailMessage, 'warning');
+                    resetForm();
+                    loadStudents(); // Reload students after adding
+                  }
+                } catch (parentError) {
+                  console.error('Error adding parent:', parentError);
+                  // Student was added but parent failed - Send only student emails
+                  const emailMessage = await sendStudentEmails(studentData, result.student_id, result.password, 
+                    `Student added successfully but there was an issue with parent database.\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n• Parent User ID: ${result.parent_userId}\n• Parent Password: ${result.parent_password}\n\nPlease contact support.`);
+                  
+                  hideLoading();
+                  await showAlert('Partial Success', emailMessage, 'warning');
+                  resetForm();
+                  loadStudents(); // Reload students after adding
+                }
+              } else if (studentResponse.status === 409) {
+                // Phone number already exists in students table
+                hideLoading();
+                await showAlert(
+                  'Phone Number Already in Use', 
+                  'This phone number is already registered in our system. Please use a different phone number.',
+                  'warning'
+                );
+                return; // Don't proceed with the registration
+              } else {
+                // Students table API failed but school student was added - Send only student emails
+                console.warn('Failed to add to students table:', studentResult.message);
+                const emailMessage = await sendStudentEmails(studentData, result.student_id, result.password, 
+                  `Student added to school records but there was an issue with the main student database.\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n\nPlease contact support.`);
+                
+                hideLoading();
+                await showAlert('Partial Success', emailMessage, 'warning');
+                resetForm();
+                loadStudents(); // Reload students after adding
+              }
+            } catch (studentError) {
+              console.error('Error adding to students table:', studentError);
+              // School student was added but students table failed - Send only student emails
+              const emailMessage = await sendStudentEmails(studentData, result.student_id, result.password, 
+                `Student added to school records but there was an issue with the main student database.\n\n📋 Registration Details:\n• Student ID: ${result.student_id}\n• Student Password: ${result.password}\n\nPlease contact support.`);
+              
+              hideLoading();
+              await showAlert('Partial Success', emailMessage, 'warning');
+              resetForm();
+              loadStudents(); // Reload students after adding
+            }
+          } else {
+            hideLoading();
+            const errorMessage = result.message || 'Failed to add student';
+            
+            if (response.status === 409) {
+              if (errorMessage.toLowerCase().includes('aadhar')) {
+                await showAlert('Error', 'This Aadhar number is already registered. Please use a different Aadhar number.', 'error');
+              } else if (errorMessage.toLowerCase().includes('contact')) {
+                await showAlert('Error', 'This contact number is already registered. Please use a different contact number.', 'error');
+              } else {
+                await showAlert('Error', errorMessage, 'error');
+              }
+            } else {
+              await showAlert('Error', errorMessage, 'error');
+            }
+          }
+        }
+      } catch (error) {
+        hideLoading();
+        console.error('Error handling student:', error);
+        
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          await showAlert('Error', 'Invalid response from server. Please try again.', 'error');
+        } else if (error.message.includes('fetch')) {
+          await showAlert('Error', 'Network error. Please check your connection and try again.', 'error');
+        } else {
+          await showAlert('Error', 'Unable to process request at the moment. Please try again later.', 'error');
+        }
+      }
+    });
+    // Load Students from Backend - Filtered by current teacher's institution_id with caching
+    async function loadStudents(forceRefresh = false) {
+      console.log('loadStudents function called');
+      
+      // Check cache first (unless force refresh)
+      const now = Date.now();
+      if (!forceRefresh && studentsCache && (now - lastCacheTime) < CACHE_DURATION) {
+        console.log('Using cached students data');
+        students1 = studentsCache;
+        updateTable();
+        document.getElementById('tableSection1').style.display = 'block';
+        hideLoading(); // Hide loading immediately for cached data
+        return;
+      }
+      
+      // Don't show loading for cached data, only for fresh API calls
+      if (!studentsCache) {
+        showLoading();
+      }
+      try {
+        // Get current teacher's institution_id from session
+        let userData = null;
+        if (window.UserSession && window.UserSession.getUserData) {
+          userData = window.UserSession.getUserData();
+        } else {
+          // Fallback: get from localStorage directly
+          const storedUser = localStorage.getItem('bc3620_user');
+          if (storedUser) {
+            try {
+              userData = JSON.parse(storedUser);
+            } catch (e) {
+              console.warn('Failed to parse stored user data:', e);
+            }
+          }
+        }
+        
+        const institution_id = userData ? (userData.institution_id || userData.user?.institution_id) : null;
+        
+        if (!institution_id) {
+          console.error('No institution_id found in user session');
+          students1 = [];
+          updateTable();
+          document.getElementById('tableSection1').style.display = 'block';
+          hideLoading();
+          return;
+        }
+        
+        console.log('Fetching students from API with institution_id filter:', GET_SCHOOL_STUDENTS_API);
+        console.log('Filtering by institution_id:', institution_id);
+        
+        const response = await fetch(`${GET_SCHOOL_STUDENTS_API}?institution_id=${institution_id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log('API Response status:', response.status);
+        console.log('API Response ok:', response.ok);
+
+        const result = await response.json();
+        console.log('API Response data:', result);
+
+        if (response.ok && result.success && result.students) {
+          console.log('Students found:', result.students.length);
+          students1 = result.students;
+          
+          // Update cache
+          studentsCache = students1;
+          lastCacheTime = now;
+          
+          // Immediate UI update
+          updateTable();
+          document.getElementById('tableSection1').style.display = 'block';
+          hideLoading(); // Hide loading immediately after data is loaded
+        } else {
+          // Don't show error popup for empty results, just log it
+          console.log('No students found or failed to load:', result.message || 'No data');
+          console.log('Response success:', result.success);
+          console.log('Students array:', result.students);
+          students1 = [];
+          updateTable();
+          document.getElementById('tableSection1').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error loading students:', error);
+        
+        // Only show critical errors, log others
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          console.error('Server response error:', error);
+        } else if (error.message.includes('fetch')) {
+          console.error('Network error:', error);
+        } else {
+          console.error('Unknown error:', error);
+        }
+        
+        // Set empty students array and show table anyway
+        students1 = [];
+        updateTable();
+        document.getElementById('tableSection1').style.display = 'block';
+      } finally {
+        console.log('loadStudents finally block - calling hideLoading()');
+        hideLoading();
+      }
+    }
+
+    // Update Students Table - Same as admin-module
+    function updateTable() {
+      const tbody = document.querySelector('#studentsTable1 tbody');
+      tbody.innerHTML = '';
+      
+      if (students1.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = '<td colspan="11" style="text-align:center; padding: 20px;">No students found</td>';
+        tbody.appendChild(noDataRow);
+        return;
+      }
+
+      students1.forEach((student, index) => {
+        const row = document.createElement('tr');
+        row.className = 'student-row';
+        row.setAttribute('data-student', JSON.stringify(student));
+
+        // Format DOB to show only date
+        let formattedDob = 'N/A';
+        if (student.dob) {
+          try {
+            const date = new Date(student.dob);
+            if (!isNaN(date.getTime())) {
+              formattedDob = date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+            }
+          } catch (error) {
+            console.error('Error formatting date:', error);
+          }
+        }
+
+        row.innerHTML = `
+          <td>${student.student_id || 'N/A'}</td>
+          <td>${student.full_name || 'N/A'}</td>
+          <td>${formattedDob}</td>
+          <td>${student.gender || 'N/A'}</td>
+          <td>${student.guardian_name || 'N/A'}</td>
+          <td>${student.contact || 'N/A'}</td>
+          <td>${student.email || 'N/A'}</td>
+          <td>${student.current_class || 'N/A'}</td>
+          <td>${student.institute_name || 'N/A'}</td>
+          <td>₹${student.Total_fees || 'N/A'}</td>
+          <td>₹${student.paid_Fees || 'N/A'}</td>
+          <td>
+            <button class="action-btn edit-btn" title="Edit Student"><i class="fas fa-edit"></i></button>
+            <button class="action-btn delete-btn" title="Delete Student"><i class="fas fa-trash"></i></button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Reattach event listeners
+      attachTableEventListeners();
+    }
+
+    // Attach Event Listeners to Table - Same as admin-module
+    function attachTableEventListeners() {
+      // Edit Button
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.student-row');
+          currentEditingRow = row;
+          const studentData = JSON.parse(row.getAttribute('data-student'));
+          
+          // Populate form fields
+          const form = document.getElementById('studentForm');
+          form.elements['fullName'].value = studentData.full_name || '';
+          
+          // Format date for input field (convert from ISO string to YYYY-MM-DD)
+          if (studentData.dob) {
+            const date = new Date(studentData.dob);
+            const formattedDate = date.toISOString().split('T')[0];
+            form.elements['dob'].value = formattedDate;
+          } else {
+            form.elements['dob'].value = '';
+          }
+          
+          form.elements['gender'].value = studentData.gender || '';
+          form.elements['aadhar'].value = studentData.aadhar_number || '';
+          form.elements['guardian'].value = studentData.guardian_name || '';
+          form.elements['contact'].value = studentData.contact || '';
+          form.elements['email'].value = studentData.email || '';
+          form.elements['address'].value = studentData.address || '';
+          form.elements['grade'].value = studentData.current_class || '';
+          form.elements['academicYear'].value = studentData.academic_year || '';
+          form.elements['medium'].value = studentData.present_medium || '';
+          form.elements['school'].value = studentData.institute_name || '';
+          form.elements['blood'].value = studentData.blood || '';
+          form.elements['totalFees'].value = studentData.Total_fees || '';
+          form.elements['paidFees'].value = studentData.paid_Fees || '';
+          // Handle caste field for editing
+          const casteSelect = document.getElementById('casteSelect');
+          
+          // Check if the student's caste is not in the predefined options
+          const predefinedCastes = ['General', 'SC', 'ST', 'OBC'];
+          if (!predefinedCastes.includes(studentData.caste)) {
+            casteSelect.value = 'Other';
+          } else {
+            casteSelect.value = studentData.caste;
+          }
+          
+          // Find the correct index for this student
+          const studentIndex = students1.findIndex(s => s.student_id === studentData.student_id);
+          editIndex = studentIndex;
+          
+          // Change button text to Update Student
+          document.querySelector('button[type="submit"]').textContent = 'Update Student';
+        });
+      });
+
+      // Delete Button
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.student-row');
+          const studentData = row.getAttribute('data-student') ? JSON.parse(row.getAttribute('data-student')) : {};
+          
+          const confirmed = await showAlert(
+            'Delete Student',
+            `Are you sure you want to delete ${studentData.full_name || 'this student'}?`,
+            'warning',
+            true
+          );
+          
+          if (confirmed) {
+            try {
+              showLoading();
+              
+              const response = await fetch(ADD_SCHOOL_STUDENT_API, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  student_id: studentData.student_id
+                })
+              });
+              
+              const result = await response.json();
+              
+              if (response.ok && result.success) {
+                // Remove the row from the table
+                row.remove();
+                
+                // Update the global students data
+                students1 = students1.filter(student => student.student_id !== studentData.student_id);
+                
+                hideLoading();
+                await showAlert('Success', 'Student deleted successfully', 'success');
+              } else {
+                let errorMessage = 'Failed to delete student';
+                if (result.message) {
+                  errorMessage = result.message;
+                } else if (response.status === 404) {
+                  errorMessage = 'Student not found';
+                } else if (response.status === 400) {
+                  errorMessage = 'Invalid request';
+                }
+                hideLoading();
+                await showAlert('Error', errorMessage, 'error');
+              }
+            } catch (error) {
+              console.error('Error deleting student:', error);
+              let errorMessage = 'Failed to delete student';
+              
+              if (error.name === 'SyntaxError') {
+                errorMessage = 'Invalid response from server';
+              } else if (error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your connection.';
+              }
+              
+              hideLoading();
+              await showAlert('Error', errorMessage, 'error');
+            }
+          }
+        });
+      });
+    }
+
+    function renderTable1(){
+      let tbody = document.querySelector('#studentsTable1 tbody');
+      tbody.innerHTML="";
+      students1.forEach((d, i)=>{
+        let row = document.createElement("tr");
+        row.innerHTML=`
+          <td>${d.studentID||""}</td>
+          <td>${d.photo?'<img class="table-photo" src="'+d.photo+'"/>':""}</td>
+          <td>${d.fullName||""}</td>
+          <td>${d.dob||""}</td>
+          <td>${d.gender||""}</td>
+          <td>${d.aadhar||""}</td>
+          <td>${d.guardian||""}</td>
+          <td>${d.contact||""}</td>
+          <td>${d.address||""}</td>
+          <td>${d.grade||""}</td>
+          <td>${d.academicYear||""}</td>
+          <td>${d.medium||""}</td>
+          <td>${d.school||""}</td>
+          <td>${d.caste||""}</td>
+          <td>${d.blood||""}</td>
+          <td>${d.disability||""}</td>
+          <td>${d.totalFees||""}</td>
+          <td>${d.paidFees||""}</td>
+          <td>${d.password||""}</td>
+          <td class="actions"><button class="edit-btn" onclick="editRow1(${i})">Edit</button></td>
+          <td class="actions"><button class="del-btn" onclick="deleteRow1(${i})">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    window.deleteRow1 = function(idx){
+      if(confirm("Delete this record?")){students1.splice(idx,1);renderTable1();}
+      document.getElementById('tableSection1').style.display = (students1.length) ? "" : "none";
+    }
+    document.getElementById('excelBtn1').onclick = function(){
+      let ws = XLSX.utils.json_to_sheet(students1);
+      let wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Students");
+      XLSX.writeFile(wb,"students_1-10th.xlsx");
+    };
+    document.getElementById('pdfBtn1').onclick = function(){
+      let doc = new jspdf.jsPDF('l','pt');
+      let schoolName = (document.getElementById('schoolNameInput')?.value || students1[students1.length-1]?.school || "School Name");
+      let schoolAddr = "No. 15, Main Road, Bengaluru, Karnataka";
+      let gradeClass = (document.forms.studentForm["grade"].value || students1[students1.length-1]?.grade || "");
+      doc.setFontSize(20);
+      doc.text(schoolName, doc.internal.pageSize.getWidth()/2, 45, {align:'center'});
+      doc.setFontSize(13);
+      doc.text(schoolAddr, doc.internal.pageSize.getWidth()/2, 67, {align:'center'});
+      doc.setFontSize(13);
+      doc.text(gradeClass, doc.internal.pageSize.getWidth()/2, 87, {align:'center'});
+      let headers=[["Student ID","Full Name","DOB","Gender","Guardian","Contact","Class","Year","Caste","Blood","Disability"]];
+      let data=students1.map(d=>[
+        d.studentID||"", d.fullName||"", d.dob||"", d.gender||"", d.guardian||"", d.contact||"", d.grade||"", d.academicYear||"", d.caste||"", d.blood||"", d.disability||""
+      ]);
+      doc.autoTable({
+        head: headers,
+        body: data,
+        margin: {top: 110},
+        styles:{fontSize:10,cellPadding:4},
+        headStyles:{fillColor:[32,145,148]}
+      });
+      doc.save("students_1-10th.pdf");
+    };
+    document.getElementById('fields-1-10th').classList.remove('hidden');
+
+    // Test API function
+    async function testAPI() {
+      try {
+        console.log('Testing API connection...');
+        const response = await fetch(GET_SCHOOL_STUDENTS_API + '?test=db', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const result = await response.json();
+        console.log('API Test Result:', result);
+        
+        if (result.success) {
+          console.log('API is working correctly');
+          console.log('Database connection:', result.tableExists ? 'OK' : 'Table not found');
+          console.log('Student count:', result.studentCount);
+        } else {
+          console.log('API test failed:', result.message);
+        }
+        return result;
+      } catch (error) {
+        console.error('API test error:', error);
+        throw error;
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup performance optimizations (non-blocking)
+      setTimeout(() => {
+        setupPerformanceOptimizations();
+      }, 100);
+      
+      // Setup search functionality
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+      }
+      
+      // Show loading popup immediately when page loads
+      showLoading();
+      
+      // Set a maximum loading time to prevent infinite loading
+      const loadingTimeout = setTimeout(() => {
+        console.log('Loading timeout reached, hiding loading spinner');
+        hideLoading();
+      }, 5000); // 5 seconds maximum loading time
+      
+      // Load students immediately without API test (faster loading)
+      loadStudents().then(() => {
+        console.log('Students loaded successfully');
+        clearTimeout(loadingTimeout);
+        hideLoading();
+      }).catch((error) => {
+        console.error('Error loading students:', error);
+        clearTimeout(loadingTimeout);
+        hideLoading();
+      });
+      
+      // Test API in background (non-blocking)
+      setTimeout(() => {
+        testAPI().catch(error => {
+          console.log('Background API test failed:', error);
+        });
+      }, 1000);
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Prefill institution name from authenticated teacher session
+            const schoolInput = document.querySelector('input[name="school"]');
+            if (schoolInput && userData.user && userData.user.institution_name) {
+              schoolInput.value = userData.user.institution_name;
+              schoolInput.readOnly = true; // Make it read-only since it comes from auth
+              schoolInput.style.backgroundColor = '#f8f9fa'; // Visual indicator it's prefilled
+              schoolInput.title = 'This field is automatically filled from your institution profile';
+            }
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

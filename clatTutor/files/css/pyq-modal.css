@@ -1,0 +1,473 @@
+/**
+ * PYQ “Download Now” — top banner + modal only (keep out of app.css).
+ * Overlay uses #pyq-modal so it wins over body.page-public > * { position: relative }.
+ */
+
+/* ——— Top announcement strip ——— */
+.announce-bar {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.announce-bar--cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  background: #ffb300;
+  color: var(--black);
+  transition:
+    filter 0.15s ease,
+    background 0.15s ease;
+}
+
+.announce-bar--cta:hover {
+  filter: brightness(0.97);
+  text-decoration: none;
+  color: var(--black);
+}
+
+.announce-bar__lead {
+  font-weight: 700;
+}
+
+.announce-bar__icon {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  object-fit: contain;
+  display: block;
+  opacity: 0.95;
+}
+
+.announce-bar__action {
+  font-weight: 700;
+}
+
+/* Above sticky header (z-index 10000) so the bar stays clickable */
+body.page-public > .announce-bar {
+  position: relative;
+  z-index: 10050 !important;
+}
+
+/* ——— Full-viewport overlay (hidden until .open) ——— */
+#pyq-modal.pyq-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 100dvh !important;
+  z-index: 10000000 !important;
+  display: none !important;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#pyq-modal.open {
+  display: flex !important;
+}
+
+.pyq-modal__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pyq-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  cursor: pointer;
+  z-index: 0;
+}
+
+.pyq-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  max-height: min(92vh, 100%);
+  overflow: auto;
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    0 24px 56px rgba(0, 0, 0, 0.12);
+}
+
+/* Card: white body + enquiry-style warm head (scoped here only) */
+.pyq-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 0 1.45rem;
+  border-radius: 16px;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  font-family: var(--font);
+}
+
+/* Same language as .enquiry-form-box (warm cream, amber edge) — PYQ only */
+.pyq-modal__head {
+  padding: 1.15rem 3rem 1rem 1.4rem;
+  background: linear-gradient(165deg, #fff8e8 0%, #fffdf6 45%, #fff5e0 100%);
+  border-bottom: 1px solid rgba(230, 184, 0, 0.35);
+}
+
+.pyq-modal__panel .pyq-modal__main > .pyq-modal__sr-only,
+.pyq-modal__panel .pyq-modal__main > .pyq-modal__form {
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
+}
+
+.pyq-modal__panel .pyq-modal__main > .pyq-modal__sr-only {
+  margin: 0;
+}
+
+.pyq-modal__panel .pyq-modal__main > .pyq-modal__form {
+  margin-top: 0.65rem;
+}
+
+.pyq-modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  box-sizing: border-box;
+  padding: 2.5rem 1.4rem 2.75rem;
+  min-height: 12rem;
+}
+
+.pyq-modal__loading[hidden] {
+  display: none !important;
+}
+
+.pyq-modal__main[hidden] {
+  display: none !important;
+}
+
+.pyq-modal__loading-title {
+  margin: 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--black);
+  font-family: var(--font);
+}
+
+.pyq-modal__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--black);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  z-index: 2;
+}
+
+.pyq-modal__close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.pyq-modal__close:active {
+  transform: scale(0.94);
+}
+
+.pyq-modal__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pyq-modal__title {
+  margin: 0;
+  padding-right: 0.25rem;
+  font-size: clamp(1rem, 2.8vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--black);
+}
+
+.pyq-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.pyq-modal__flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pyq-modal__label {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.pyq-modal__inputForm {
+  border: 1.5px solid #ecedec;
+  border-radius: 10em;
+  min-height: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+  transition: border-color 0.2s ease-in-out;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.pyq-modal__inputForm > .pyq-modal__input-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
+}
+
+.pyq-modal__input {
+  margin-left: 10px;
+  border-radius: 10rem;
+  border: none;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: transparent;
+  color: #111;
+}
+
+.pyq-modal__input::placeholder {
+  color: #888;
+  font-family: inherit;
+}
+
+.pyq-modal__input:focus {
+  outline: none;
+}
+
+.pyq-modal__inputForm:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(255, 204, 0, 0.35);
+}
+
+.pyq-modal__input--select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  padding-right: 1.25rem;
+}
+
+/* Primary CTA: same language as site buttons (amber fill, dark text) */
+.pyq-modal__button-submit {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 14px 28px;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  background: var(--accent);
+  transition:
+    filter 0.2s ease,
+    transform 0.15s ease;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10em;
+  margin: 12px 0 4px;
+  color: var(--accent-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-height: 48px;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.pyq-modal__button-submit-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.pyq-modal__button-submit-text {
+  line-height: 1;
+}
+
+.pyq-modal__button-submit:hover {
+  filter: brightness(0.97);
+  color: var(--black);
+}
+
+.pyq-modal__button-submit:active {
+  transform: scale(0.98);
+}
+
+/* Success toast (Uiverse-inspired green card) — above dialog */
+.pyq-modal__success-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  font-family: var(--font);
+}
+
+.pyq-modal__success-overlay[hidden] {
+  display: none !important;
+}
+
+.pyq-modal__success-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+}
+
+.pyq-modal__success-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1rem 2.5rem 1rem 1rem;
+  border: 1px solid rgba(22, 101, 52, 0.55);
+  border-radius: 0.5rem;
+  background: linear-gradient(to bottom, #bbf7d0 0%, #f0fdf4 100%);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.12),
+    0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+}
+
+.pyq-modal__success-dismiss {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  color: #166534;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.pyq-modal__success-dismiss:hover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #14532d;
+}
+
+.pyq-modal__success-dismiss:focus-visible {
+  outline: 2px solid #15803d;
+  outline-offset: 2px;
+}
+
+.pyq-modal__success-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.pyq-modal__success-icon-wrap {
+  flex-shrink: 0;
+}
+
+.pyq-modal__success-icon-ring {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #166534;
+}
+
+.pyq-modal__success-check {
+  display: block;
+  color: #16a34a;
+}
+
+.pyq-modal__success-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.pyq-modal__success-heading {
+  display: block;
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: normal;
+  color: #15803d;
+  line-height: 1.3;
+}
+
+.pyq-modal__success-body {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #16a34a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pyq-modal__button-submit,
+  .pyq-modal__close {
+    transition: none;
+  }
+}

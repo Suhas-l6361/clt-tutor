@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Current Affairs — Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/student-current-affairs.css" />
+</head>
+<body class="app-body student-dashboard page-student-ca">
+  <div id="stock" style="display: none">
+    <div class="ca-wrap">
+      <section class="ca-hero" aria-labelledby="ca-heading">
+        <div class="ca-hero__badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Daily updates</div>
+        <h2 id="ca-heading">Current Affairs</h2>
+        <p>
+          Materials your institute adds from CRM appear here, newest dates first. Use <strong>View</strong> to read inside this page,
+          <strong>Download</strong> to save a copy, or <strong>Open full</strong> to view in a new tab.
+        </p>
+      </section>
+
+      <section class="ca-toolbar" aria-label="Filter current affairs by date">
+        <div class="ca-field">
+          <span class="ca-field__label">Date range</span>
+          <div class="ca-date-row">
+            <div>
+              <label for="ca-from" style="font-size: 0.65rem; color: #78716c">From</label>
+              <input id="ca-from" type="date" />
+            </div>
+            <div>
+              <label for="ca-to" style="font-size: 0.65rem; color: #78716c">To</label>
+              <input id="ca-to" type="date" />
+            </div>
+          </div>
+        </div>
+        <button type="button" class="ca-toolbar__btn" id="ca-apply-filters">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </section>
+
+      <p id="ca-status" class="ca-status" aria-live="polite"></p>
+
+      <div id="ca-empty" class="ca-empty" hidden>
+        <p><strong>No entries match your filters.</strong></p>
+        <p>Try widening the date range or clearing the dates.</p>
+      </div>
+
+      <div id="ca-list" class="ca-list"></div>
+    </div>
+  </div>
+
+  <div id="ca-viewer" class="ca-viewer" hidden>
+    <div class="ca-viewer__backdrop" data-ca-viewer-close aria-hidden="true"></div>
+    <div class="ca-viewer__panel" role="dialog" aria-modal="true" aria-labelledby="ca-viewer-title">
+      <div class="ca-viewer__bar">
+        <strong id="ca-viewer-title">Preview</strong>
+        <div class="ca-viewer__bar-actions">
+          <button type="button" class="ca-viewer__iconbtn" id="ca-viewer-toggle" aria-label="Maximize">
+            <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="ca-viewer__iconbtn" data-ca-viewer-close aria-label="Close">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <iframe class="ca-viewer__frame" id="ca-viewer-frame" title="File preview"></iframe>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      if (!requireRole('student')) return;
+      initAppChrome({
+        role: 'student',
+        active: 'current-affairs.html',
+        title: 'Current Affairs',
+        contentEl: stock,
+      });
+      applyStudentChrome();
+
+      var CA_API = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
+      var listEl = document.getElementById('ca-list');
+      var emptyEl = document.getElementById('ca-empty');
+      var statusEl = document.getElementById('ca-status');
+      var fromEl = document.getElementById('ca-from');
+      var toEl = document.getElementById('ca-to');
+
+      var allRows = [];
+      var filtered = [];
+
+      var viewer = document.getElementById('ca-viewer');
+      var viewerTitle = document.getElementById('ca-viewer-title');
+      var viewerFrame = document.getElementById('ca-viewer-frame');
+      var viewerPanel = viewer ? viewer.querySelector('.ca-viewer__panel') : null;
+      var viewerToggle = document.getElementById('ca-viewer-toggle');
+      var lastFocus = null;
+      var isMax = false;
+
+      function setViewerMaximized(next) {
+        isMax = !!next;
+        if (viewerPanel) viewerPanel.classList.toggle('is-max', isMax);
+        if (viewer) viewer.classList.toggle('is-max', isMax);
+        if (viewerToggle) {
+          viewerToggle.setAttribute('aria-label', isMax ? 'Restore' : 'Maximize');
+          var icon = viewerToggle.querySelector('i');
+          if (icon) {
+            icon.className = isMax
+              ? 'fa-solid fa-down-left-and-up-right-to-center'
+              : 'fa-solid fa-up-right-and-down-left-from-center';
+          }
+        }
+      }
+
+      function openViewer(title, src) {
+        lastFocus = document.activeElement;
+        setViewerMaximized(false);
+        if (viewerTitle) viewerTitle.textContent = title || 'Preview';
+        if (viewerFrame) viewerFrame.src = src || '';
+        viewer.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeViewer() {
+        if (viewer.hidden) return;
+        viewer.hidden = true;
+        document.body.style.overflow = '';
+        if (viewerFrame) viewerFrame.src = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+
+      if (viewerToggle) {
+        viewerToggle.addEventListener('click', function () {
+          setViewerMaximized(!isMax);
+        });
+      }
+      viewer.querySelectorAll('[data-ca-viewer-close]').forEach(function (el) {
+        el.addEventListener('click', closeViewer);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (!viewer.hidden && e.key === 'Escape') {
+          e.preventDefault();
+          closeViewer();
+        }
+      });
+
+      function asDateOnly(dateLike) {
+        if (!dateLike) return '';
+        var d = new Date(dateLike);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toISOString().slice(0, 10);
+      }
+
+      function formatDayHeading(iso) {
+        if (!iso || iso === 'undated') return 'Undated';
+        var d = new Date(iso + 'T12:00:00');
+        if (Number.isNaN(d.getTime())) return iso;
+        return d.toLocaleDateString(undefined, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      }
+
+      function listKeysFromField(val) {
+        if (val == null || val === '') return [];
+        if (Array.isArray(val)) return val.map(String).filter(Boolean);
+        if (typeof val === 'string') {
+          var t = val.trim();
+          if (!t) return [];
+          try {
+            var p = JSON.parse(t);
+            if (Array.isArray(p)) return p.map(String).filter(Boolean);
+            return [t];
+          } catch (_) {
+            return [t];
+          }
+        }
+        return [];
+      }
+
+      function fileLabel(key) {
+        var s = String(key || '');
+        var seg = s.split('/').pop() || s;
+        return seg.length > 48 ? seg.slice(0, 45) + '…' : seg;
+      }
+
+      function extOf(key) {
+        var m = String(key).toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m ? m[1] : '';
+      }
+
+      async function resolveDownloadUrl(key, inline) {
+        try {
+          var u =
+            CA_API +
+            '?action=get_download_url&key=' +
+            encodeURIComponent(key) +
+            (inline ? '&inline=1' : '');
+          var res = await fetch(u, { method: 'GET' });
+          var data = await res.json();
+          if (res.ok && data && (data.downloadUrl || data.url)) return data.downloadUrl || data.url;
+        } catch (_) {}
+        return '';
+      }
+
+      function applyClientFilters() {
+        var fromD = fromEl && fromEl.value;
+        var toD = toEl && toEl.value;
+        filtered = allRows.filter(function (r) {
+          var d = asDateOnly(r.date);
+          var fromOk = !fromD || (d && d >= fromD);
+          var toOk = !toD || (d && d <= toD);
+          return fromOk && toOk;
+        });
+        filtered.sort(function (a, b) {
+          var da = asDateOnly(a.date) || '0000-01-01';
+          var db = asDateOnly(b.date) || '0000-01-01';
+          if (da !== db) return db.localeCompare(da);
+          var ca = new Date(a.created_at || 0).getTime();
+          var cb = new Date(b.created_at || 0).getTime();
+          return cb - ca;
+        });
+        render();
+      }
+
+      function groupByDate(rows) {
+        var map = {};
+        rows.forEach(function (r) {
+          var dk = asDateOnly(r.date) || 'undated';
+          if (!map[dk]) map[dk] = [];
+          map[dk].push(r);
+        });
+        var keys = Object.keys(map).sort(function (a, b) {
+          if (a === 'undated') return 1;
+          if (b === 'undated') return -1;
+          return b.localeCompare(a);
+        });
+        return keys.map(function (k) {
+          return { dateKey: k, items: map[k] };
+        });
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function render() {
+        if (!listEl) return;
+        if (!filtered.length) {
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = allRows.length ? 'No matches — adjust filters.' : 'No current affairs published yet.';
+          return;
+        }
+        emptyEl.hidden = true;
+        statusEl.textContent =
+          'Showing ' +
+          filtered.length +
+          ' of ' +
+          allRows.length +
+          ' record(s). Newest dates first.';
+
+        var groups = groupByDate(filtered);
+        listEl.innerHTML = groups
+          .map(function (g, gi) {
+            var head = formatDayHeading(g.dateKey === 'undated' ? '' : g.dateKey);
+            var dayId = 'ca-day-' + gi;
+            var cards = g.items
+              .map(function (r) {
+                var keys = listKeysFromField(r.img_url);
+                var title = r.name && String(r.name).trim() ? esc(r.name) : 'Current affairs';
+                var linksHtml = r.links && String(r.links).trim()
+                  ? '<div class="ca-links">' + esc(r.links).replace(/\n/g, '<br/>') + '</div>'
+                  : '';
+                var filesBlock = '';
+                if (keys.length) {
+                  filesBlock = keys
+                    .map(function (key, idx) {
+                      var lab = esc(fileLabel(key));
+                      var eid = 'ca-f-' + r.id + '-' + idx;
+                      return (
+                        '<div class="ca-file" data-ca-key="' +
+                        esc(key) +
+                        '">' +
+                        '<span class="ca-file__name"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> ' +
+                        lab +
+                        '</span>' +
+                        '<div class="ca-actions">' +
+                        '<button type="button" class="ca-btn ca-btn--view" data-ca-view data-key="' +
+                        esc(key) +
+                        '" data-title="' +
+                        esc(title + ' — ' + fileLabel(key)) +
+                        '">' +
+                        '<i class="fa-solid fa-eye" aria-hidden="true"></i> View</button>' +
+                        '<a class="ca-btn ca-btn--dl" data-ca-dl data-key="' +
+                        esc(key) +
+                        '" href="#" aria-label="Download">' +
+                        '<i class="fa-solid fa-download" aria-hidden="true"></i> Download</a>' +
+                        '<a class="ca-btn ca-btn--open" data-ca-open data-key="' +
+                        esc(key) +
+                        '" href="#" target="_blank" rel="noopener noreferrer">' +
+                        '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Open full</a>' +
+                        '</div></div>'
+                      );
+                    })
+                    .join('');
+                } else {
+                  filesBlock =
+                    '<p class="ca-card__meta" style="margin:0">No files attached for this entry.</p>';
+                }
+                return (
+                  '<article class="ca-card">' +
+                  '<h3 class="ca-card__title">' +
+                  title +
+                  '</h3>' +
+                  linksHtml +
+                  filesBlock +
+                  '</article>'
+                );
+              })
+              .join('');
+            return (
+              '<section class="ca-day" aria-labelledby="' +
+              dayId +
+              '">' +
+              '<div class="ca-day__head">' +
+              '<time id="' +
+              dayId +
+              '">' +
+              esc(head) +
+              '</time>' +
+              '<span>' +
+              g.items.length +
+              ' ' +
+              (g.items.length === 1 ? 'item' : 'items') +
+              '</span>' +
+              '</div>' +
+              cards +
+              '</section>'
+            );
+          })
+          .join('');
+
+        listEl.querySelectorAll('[data-ca-view]').forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            var key = btn.getAttribute('data-key');
+            var t = btn.getAttribute('data-title') || 'Preview';
+            btn.disabled = true;
+            var url = await resolveDownloadUrl(key, true);
+            btn.disabled = false;
+            if (!url) {
+              alert('Could not open preview. Try Download or Open full.');
+              return;
+            }
+            var ext = extOf(key);
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].indexOf(ext) !== -1) {
+              openViewer(t, url);
+            } else if (ext === 'pdf') {
+              openViewer(t, url);
+            } else {
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          });
+        });
+
+        listEl.querySelectorAll('[data-ca-dl]').forEach(function (a) {
+          a.addEventListener('click', async function (e) {
+            e.preventDefault();
+            var key = a.getAttribute('data-key');
+            var url = await resolveDownloadUrl(key, false);
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          });
+        });
+
+        listEl.querySelectorAll('[data-ca-open]').forEach(function (a) {
+          a.addEventListener('click', async function (e) {
+            e.preventDefault();
+            var key = a.getAttribute('data-key');
+            var url = await resolveDownloadUrl(key, true);
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          });
+        });
+      }
+
+      async function load() {
+        statusEl.textContent = 'Loading…';
+        listEl.innerHTML = '';
+        emptyEl.hidden = true;
+        try {
+          var res = await fetch(CA_API, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to load');
+          allRows = Array.isArray(data) ? data : [];
+          applyClientFilters();
+        } catch (err) {
+          allRows = [];
+          filtered = [];
+          if (listEl) listEl.innerHTML = '';
+          if (emptyEl) emptyEl.hidden = false;
+          statusEl.textContent = 'Error: ' + (err.message || 'Could not load');
+        }
+      }
+
+      document.getElementById('ca-apply-filters').addEventListener('click', applyClientFilters);
+
+      load();
+    });
+  </script>
+</body>
+</html>

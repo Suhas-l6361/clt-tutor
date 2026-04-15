@@ -1,0 +1,950 @@
+/**
+ * IPMAT guide page — modern glass card, pill tabs, mesh background (scoped .page-ipmat).
+ */
+
+.page-ipmat {
+  --clat-slate: #0f172a;
+  --clat-slate-soft: #1e293b;
+  --clat-glass: rgba(255, 255, 255, 0.72);
+  --clat-glass-strong: rgba(255, 255, 255, 0.92);
+  --clat-border: rgba(15, 23, 42, 0.08);
+  --clat-pill-idle: rgba(255, 255, 255, 0.95);
+}
+
+.page-ipmat main {
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 4rem;
+  min-height: 70vh;
+  background-color: #eef2f7;
+  background-image:
+    radial-gradient(ellipse 100% 80% at 0% 0%, rgba(30, 64, 175, 0.11), transparent 55%),
+    radial-gradient(ellipse 70% 60% at 100% 10%, rgba(255, 204, 0, 0.18), transparent 50%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(30, 64, 175, 0.06), transparent 55%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 40%, #f1f5f9 100%);
+}
+
+.ipmat-page-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 15% 35%, rgba(255, 204, 0, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 65%, rgba(30, 64, 175, 0.07) 0%, transparent 42%);
+  opacity: 1;
+}
+
+.ipmat-main-inner {
+  position: relative;
+  z-index: 1;
+  padding-top: 1.75rem;
+}
+
+.ipmat-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-ipmat .ipmat-panel__body .logo__word {
+  font-family: 'Shrikhand', 'Poppins', sans-serif;
+  font-weight: 400;
+  color: var(--black);
+}
+
+/* ——— Card shell ——— */
+.ipmat-wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 1.25rem 0;
+}
+
+.ipmat-card-outer {
+  padding: 1px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 204, 0, 0.45) 0%,
+    rgba(30, 64, 175, 0.28) 45%,
+    rgba(255, 204, 0, 0.35) 100%
+  );
+  box-shadow:
+    0 28px 56px -16px rgba(15, 23, 42, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.ipmat-card {
+  position: relative;
+  border-radius: 23px;
+  background: var(--clat-glass-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  overflow: hidden;
+}
+
+/* ——— Tabs ——— */
+.ipmat-tabs-wrap {
+  padding: 1.25rem 1.25rem 1rem;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.97) 0%, rgba(255, 255, 255, 0.55) 100%);
+  border-bottom: 1px solid var(--clat-border);
+}
+
+.ipmat-tabs-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-light);
+}
+
+.ipmat-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.35rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 64, 175, 0.35) transparent;
+}
+
+.ipmat-tabs::-webkit-scrollbar {
+  height: 5px;
+}
+.ipmat-tabs::-webkit-scrollbar-thumb {
+  background: rgba(30, 64, 175, 0.25);
+  border-radius: 4px;
+}
+
+.ipmat-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--clat-border);
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--clat-slate-soft);
+  background: var(--clat-pill-idle);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.ipmat-tab__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  color: var(--link);
+  background: rgba(30, 64, 175, 0.08);
+  transition: inherit;
+}
+
+.ipmat-tab__icon i {
+  line-height: 1;
+}
+
+.ipmat-tab__label {
+  white-space: nowrap;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.ipmat-tab__slash {
+  opacity: 0.55;
+  font-weight: 400;
+}
+
+.ipmat-tab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(30, 64, 175, 0.22);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  color: var(--clat-slate);
+}
+
+.ipmat-tab:hover .ipmat-tab__icon {
+  background: rgba(30, 64, 175, 0.14);
+  color: var(--link-hover);
+}
+
+.ipmat-tab:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+.ipmat-tab[aria-selected='true'] {
+  color: #fff;
+  background: linear-gradient(145deg, #1e3a5f 0%, var(--clat-slate) 100%);
+  border-color: transparent;
+  box-shadow:
+    0 4px 16px rgba(30, 64, 175, 0.35),
+    0 0 0 2px rgba(255, 204, 0, 0.55);
+}
+
+.ipmat-tab[aria-selected='true'] .ipmat-tab__icon {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ipmat-tab[aria-selected='true']:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 28px rgba(30, 64, 175, 0.38),
+    0 0 0 2px rgba(255, 204, 0, 0.65);
+}
+
+/* ——— Content ——— */
+.ipmat-panels {
+  position: relative;
+  padding: 2rem 1.75rem 2.25rem;
+  min-height: 16rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+}
+
+.ipmat-panels::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.12), transparent);
+}
+
+.ipmat-panel {
+  animation: ipmat-panel-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ipmat-panel[hidden] {
+  display: none !important;
+}
+
+@keyframes ipmat-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ipmat-panel__body {
+  max-width: 42rem;
+  margin: 0 auto;
+  font-size: 0.97rem;
+  line-height: 1.78;
+  color: #475569;
+}
+
+.ipmat-panel__body > p:first-of-type {
+  font-size: 1.05rem;
+  color: #334155;
+  line-height: 1.82;
+}
+
+.ipmat-panel__body p {
+  margin: 0 0 1.15rem;
+}
+
+.ipmat-panel__body p:last-child {
+  margin-bottom: 0;
+}
+
+.ipmat-panel__body strong {
+  color: var(--clat-slate);
+  font-weight: 600;
+}
+
+.ipmat-panel__body a {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(30, 64, 175, 0.25);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.ipmat-panel__body a:hover {
+  color: var(--link-hover);
+  border-bottom-color: var(--link-hover);
+}
+
+.ipmat-panel__list {
+  margin: 0.5rem 0 1.15rem;
+  padding: 0.85rem 1rem 0.85rem 1.75rem;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid var(--clat-border);
+}
+
+.ipmat-panel__list li {
+  margin-bottom: 0.45rem;
+  color: #475569;
+}
+
+.ipmat-panel__list li:last-child {
+  margin-bottom: 0;
+}
+
+.ipmat-panel__note {
+  margin-top: 1.35rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 204, 0, 0.12), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(255, 204, 0, 0.35);
+  border-left: 4px solid var(--accent);
+  font-size: 0.9rem;
+  color: #475569;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.ipmat-panel__body--wide {
+  max-width: 56rem;
+}
+
+.ipmat-panel__bullets {
+  margin: 0 0 1.15rem;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+.ipmat-panel__bullets li {
+  margin-bottom: 0.65rem;
+  padding-left: 0.25rem;
+}
+
+.ipmat-panel__bullets li:last-child {
+  margin-bottom: 0;
+}
+
+.ipmat-panel__summary {
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.15rem;
+  list-style: none;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.95);
+  border: 1px solid var(--clat-border);
+}
+
+.ipmat-panel__summary li {
+  margin-bottom: 0.5rem;
+  font-size: 0.92rem;
+  color: #475569;
+}
+
+.ipmat-panel__summary li:last-child {
+  margin-bottom: 0;
+}
+
+.ipmat-table-wrap {
+  margin: 1.1rem 0 1.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid var(--clat-border);
+  background: var(--white);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+.ipmat-pattern-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.ipmat-pattern-table thead {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  color: #f8fafc;
+}
+
+.ipmat-pattern-table th {
+  padding: 0.75rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 204, 0, 0.45);
+}
+
+.ipmat-pattern-table td {
+  padding: 0.7rem 0.85rem;
+  color: #475569;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-light);
+}
+
+.ipmat-pattern-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.65);
+}
+
+.ipmat-pattern-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ipmat-pattern-table td:first-child {
+  font-weight: 600;
+  color: var(--clat-slate);
+  white-space: nowrap;
+}
+
+/* NLU seat matrix — alignment & width */
+.ipmat-nlu-table {
+  min-width: min(100%, 36rem);
+}
+
+.ipmat-nlu-table th:nth-child(1),
+.ipmat-nlu-table td:nth-child(1) {
+  width: 2.5rem;
+  text-align: center;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+}
+
+.ipmat-nlu-table th:nth-child(2),
+.ipmat-nlu-table td:nth-child(2) {
+  text-align: left;
+  font-weight: 600;
+  color: var(--clat-slate);
+}
+
+.ipmat-nlu-table th:nth-child(3),
+.ipmat-nlu-table th:nth-child(4),
+.ipmat-nlu-table td:nth-child(3),
+.ipmat-nlu-table td:nth-child(4) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #475569;
+  padding-left: 1rem;
+  white-space: nowrap;
+}
+
+.ipmat-nlu-table td:nth-child(3),
+.ipmat-nlu-table td:nth-child(4) {
+  font-weight: 600;
+  color: #334155;
+}
+
+.ipmat-nlu-table thead th:nth-child(2) {
+  text-align: left;
+}
+
+@media (max-width: 520px) {
+  .ipmat-nlu-table {
+    min-width: 100%;
+    font-size: 0.78rem;
+  }
+
+  .ipmat-nlu-table th,
+  .ipmat-nlu-table td {
+    padding: 0.55rem 0.5rem;
+  }
+}
+
+/* ——— Results (year rail + table) ——— */
+.ipmat-results__hint {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.ipmat-results__layout {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 5.25rem) minmax(0, 1fr);
+  gap: 0.85rem 1rem;
+  align-items: start;
+}
+
+.ipmat-results__years {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ipmat-result-year {
+  position: relative;
+  margin: 0;
+  padding: 0.5rem 0.45rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.ipmat-result-year:hover {
+  border-color: rgba(30, 64, 175, 0.35);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  transform: translateY(-1px);
+}
+
+.ipmat-result-year[aria-selected='true'] {
+  background: linear-gradient(165deg, #1e3a8a 0%, #312e81 100%);
+  color: #f8fafc;
+  border-color: rgba(30, 64, 175, 0.55);
+  box-shadow: 0 6px 16px rgba(30, 27, 75, 0.35);
+}
+
+.ipmat-result-year[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-top: -6px;
+  margin-left: 2px;
+  border: 6px solid transparent;
+  border-left-color: #312e81;
+}
+
+.ipmat-results__panels {
+  min-width: 0;
+}
+
+.ipmat-table-wrap--results {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ipmat-results-table {
+  min-width: 0;
+  width: 100%;
+}
+
+.ipmat-results-table td:first-child {
+  white-space: normal;
+}
+
+.ipmat-results-table td:nth-child(2) {
+  font-weight: 500;
+  color: #475569;
+}
+
+@media (max-width: 640px) {
+  .ipmat-results__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ipmat-results__years {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.35rem;
+    margin: 0 -0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(30, 64, 175, 0.35) transparent;
+  }
+
+  .ipmat-result-year {
+    flex: 0 0 auto;
+    min-width: 3.35rem;
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .ipmat-result-year[aria-selected='true']::after {
+    display: none;
+  }
+}
+
+/* ——— FAQ ——— */
+.ipmat-panel__body--faq {
+  padding-top: 0.35rem;
+}
+
+.ipmat-faq__title {
+  margin: 0 0 1.15rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--clat-slate);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.ipmat-faq {
+  margin: 0;
+  padding-left: 1.35rem;
+  list-style-position: outside;
+}
+
+.ipmat-faq__item {
+  margin-bottom: 1.1rem;
+  padding-left: 0.35rem;
+}
+
+.ipmat-faq__item:last-of-type {
+  margin-bottom: 0;
+}
+
+.ipmat-faq__question {
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--clat-slate);
+  line-height: 1.45;
+}
+
+.ipmat-faq__answer {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.ipmat-faq__answer a {
+  color: #1e40af;
+  font-weight: 600;
+  text-underline-offset: 2px;
+}
+
+.ipmat-faq__answer a:hover {
+  color: #312e81;
+}
+
+.ipmat-faq__footer {
+  margin: 1.35rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--clat-border);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.ipmat-faq__footer a {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+/* ——— Courses (nested batch tabs) ——— */
+.ipmat-panel__body--courses {
+  padding-top: 0.25rem;
+}
+
+.ipmat-courses__intro {
+  margin: 0 0 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.ipmat-course-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0 0.85rem;
+  margin: 0 -0.15rem 1.15rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 64, 175, 0.35) transparent;
+}
+
+.ipmat-course-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 5.5rem;
+  max-width: 8.5rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--clat-slate-soft);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.ipmat-course-tab:hover {
+  border-color: rgba(30, 64, 175, 0.35);
+  box-shadow: 0 6px 16px rgba(30, 64, 175, 0.12);
+  transform: translateY(-1px);
+}
+
+.ipmat-course-tab[aria-selected='true'] {
+  border-color: rgba(30, 64, 175, 0.5);
+  background: linear-gradient(145deg, #1e3a8a 0%, #312e81 55%, #4c1d95 100%);
+  color: #f8fafc;
+  box-shadow:
+    0 10px 24px rgba(30, 27, 75, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.ipmat-course-tab[aria-selected='true'] .ipmat-course-tab__muted {
+  color: rgba(248, 250, 252, 0.78);
+}
+
+.ipmat-course-tab__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  background: rgba(30, 64, 175, 0.1);
+  color: #1e40af;
+  font-size: 0.85rem;
+}
+
+.ipmat-course-tab[aria-selected='true'] .ipmat-course-tab__icon {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fde68a;
+}
+
+.ipmat-course-tab__text {
+  display: block;
+}
+
+.ipmat-course-tab__muted {
+  display: block;
+  font-weight: 500;
+  color: #64748b;
+  font-size: 0.62rem;
+}
+
+.ipmat-course-panels {
+  position: relative;
+}
+
+.ipmat-course-panel {
+  animation: clat-course-fade 0.35s ease;
+}
+
+@keyframes clat-course-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ipmat-course-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.35rem;
+}
+
+.ipmat-course-stats--dense {
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+}
+
+.ipmat-course-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.88) 100%);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.ipmat-course-stat__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  margin-bottom: 0.1rem;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(255, 204, 0, 0.35), rgba(30, 64, 175, 0.18));
+  color: #1e3a8a;
+  font-size: 0.78rem;
+}
+
+.ipmat-course-stat__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ipmat-course-stat__value {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--clat-slate);
+  line-height: 1.3;
+}
+
+.ipmat-course-highlights__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clat-slate-soft);
+}
+
+.ipmat-course-highlights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.5rem;
+}
+
+.ipmat-course-highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.ipmat-course-highlights li .fa-circle-check {
+  flex-shrink: 0;
+  margin-top: 0.12rem;
+  font-size: 0.72rem;
+  color: #16a34a;
+}
+
+@media (max-width: 640px) {
+  .ipmat-tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .ipmat-tab__icon {
+    width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.65rem;
+  }
+
+  .ipmat-panels {
+    padding: 1.5rem 1.15rem 1.75rem;
+  }
+}
+
+.page-ipmat .ipmat-panel__body h3 {
+  margin: 1.35rem 0 0.65rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--clat-slate);
+}
+
+.page-ipmat .ipmat-panel__body h3:first-child {
+  margin-top: 0;
+}
+
+.page-ipmat .ipmat-panel__note--italic {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+.page-ipmat .ipmat-panel__fine-print {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+.page-ipmat .ipmat-panel__olist {
+  margin: 0.5rem 0 0.75rem;
+  padding-left: 1.35rem;
+  list-style-type: decimal;
+}
+
+.page-ipmat .ipmat-panel__olist li {
+  margin-bottom: 0.35rem;
+  color: #475569;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipmat-panel {
+    animation: none;
+  }
+
+  .ipmat-course-panel {
+    animation: none;
+  }
+
+  .ipmat-tab,
+  .ipmat-tab:hover,
+  .ipmat-tab[aria-selected='true']:hover {
+    transform: none;
+  }
+
+  .ipmat-course-tab,
+  .ipmat-course-tab:hover {
+    transform: none;
+  }
+
+  .ipmat-result-year,
+  .ipmat-result-year:hover {
+    transform: none;
+  }
+}

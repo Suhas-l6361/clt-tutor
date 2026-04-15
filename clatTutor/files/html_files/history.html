@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>History — CLATutor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/header-nav.css" />
+  <link rel="stylesheet" href="../css/index.css" />
+  <style>
+    /* History page — layout & typography (inline in document) */
+    .page-history {
+      --hist-ink: #1a2332;
+      --hist-muted: #4a5568;
+      --hist-accent: #2563eb;
+      --hist-line: rgba(26, 35, 50, 0.08);
+      --hist-card: #ffffff;
+      min-height: 60vh;
+    }
+    .page-history .hist-main {
+      padding: 2.25rem 0 3.5rem;
+      font-family: 'Poppins', system-ui, sans-serif;
+      background: linear-gradient(180deg, #f4f6fa 0%, #eef1f7 100%);
+    }
+    .page-history .hist-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+    .page-history .hist-page-h1 {
+      margin: 0 0 2rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--hist-accent);
+    }
+    .page-history .hist-panel {
+      background: var(--hist-card);
+      border-radius: 20px;
+      border: 1px solid var(--hist-line);
+      box-shadow: 0 12px 48px rgba(26, 35, 50, 0.07);
+      overflow: hidden;
+    }
+    .page-history .hist-grid {
+      display: grid;
+      gap: 0;
+    }
+    @media (min-width: 800px) {
+      .page-history .hist-grid--split {
+        grid-template-columns: 1fr 1.05fr;
+        align-items: stretch;
+      }
+      .page-history .hist-grid--split-rev {
+        grid-template-columns: 1.05fr 1fr;
+      }
+    }
+    .page-history .hist-img-wrap {
+      position: relative;
+      min-height: 220px;
+      background: #e8ecf3;
+      overflow: hidden;
+    }
+    @media (min-width: 800px) {
+      .page-history .hist-img-wrap {
+        min-height: 100%;
+      }
+      .page-history .hist-grid--split > .hist-img-wrap {
+        border-radius: 20px 0 0 0;
+      }
+      .page-history .hist-grid--split-rev > .hist-img-wrap {
+        border-radius: 0 0 20px 0;
+      }
+    }
+    @media (max-width: 799px) {
+      .page-history .hist-grid--split > .hist-img-wrap {
+        border-radius: 20px 20px 0 0;
+      }
+      .page-history .hist-grid--split-rev > .hist-img-wrap {
+        border-radius: 0 0 20px 20px;
+      }
+    }
+    .page-history .hist-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .page-history .hist-split-border {
+      border-top: 1px solid rgba(26, 35, 50, 0.08);
+    }
+    .page-history .hist-prose--flush {
+      border-top: none;
+    }
+    .page-history .hist-prose {
+      padding: 1.75rem 1.5rem;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--hist-muted);
+    }
+    @media (min-width: 800px) {
+      .page-history .hist-prose {
+        padding: 2rem 2rem;
+      }
+    }
+    .page-history .hist-prose p {
+      margin: 0 0 1.15rem;
+    }
+    .page-history .hist-prose p:last-child {
+      margin-bottom: 0;
+    }
+    .page-history .hist-block {
+      padding: 1.75rem 1.5rem 2rem;
+      border-top: 1px solid var(--hist-line);
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--hist-muted);
+    }
+    @media (min-width: 800px) {
+      .page-history .hist-block {
+        padding: 2rem 2.25rem 2.25rem;
+      }
+    }
+    .page-history .hist-block p {
+      margin: 0 0 1.15rem;
+    }
+    .page-history .hist-block p:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+  <script src="../js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body class="page-public page-history">
+  <header class="site-header">
+    <div class="container inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo" style="text-decoration: none; color: inherit"
+          ><img src="../image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></a
+        >
+        <span class="logo__tag">Shaping Minds Since 2007</span>
+      </div>
+      <nav class="header-center site-nav" aria-label="Primary">
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/main.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Main <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
+            <a href="../index.html" role="menuitem"><img src="../image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
+            <a href="../index.html#programs" role="menuitem"><img src="../image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
+            <a href="../index.html#testimonials" role="menuitem"><img src="../image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
+            <a href="../login.html" role="menuitem"><img src="../image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
+            <a href="achievement.html" role="menuitem"><img src="../image/achivement.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Achievements</a>
+          </div>
+        </details>
+
+        <a class="site-nav__link" href="whyclattutor.html"><img src="../image/why.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /><span class="site-nav__link-label">Why CLAT<span class="logo__accent">utor</span>?</span></a>
+        <a class="site-nav__link" href="admission.html"><img src="../image/admission.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Admission</a>
+        <a class="site-nav__link" href="clatgk&amp;ck.html"><img src="../image/clat%20gk.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT GK &amp; CA</a>
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/exams.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Exams <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Exams menu">
+            <a href="clat.html" role="menuitem"><img src="../image/clat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT</a>
+            <a href="ipmat.html" role="menuitem"><img src="../image/ipmat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> IPMAT</a>
+          </div>
+        </details>
+        <a class="site-nav__link" href="courses.html"><img src="../image/courses.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Courses</a>
+        <a class="site-nav__link" href="contactus.html"><img src="../image/phone.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Contact us</a>
+      </nav>
+
+      <div class="header-right nav-actions nav-auth">
+        <a href="../login.html" class="hero-btn-animated hero-btn-animated--ghost site-header__login">
+          <img src="../image/login.png" alt="" class="nav-auth__btn-icon" width="18" height="18" loading="lazy" />
+          <span class="text">Log In</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="hist-main">
+    <div class="hist-inner">
+      <h1 class="hist-page-h1">HISTORY</h1>
+
+      <div class="hist-panel">
+        <div class="hist-grid hist-grid--split">
+          <div class="hist-img-wrap">
+            <img src="../image/faculty%20poster.png" alt="" width="800" height="500" loading="lazy" />
+          </div>
+          <div class="hist-prose">
+            <p>Our journey of Imparting Education began in 1999 with tuition for specially-abled students, and students who couldn't afford tuition fees for competitive exams preparation.</p>
+            <p>Next five to seven years we worked in different education-based companies in different cities of India and learned the nitty-gritty of the education field, simultaneously dreaming of doing something independent in the future.</p>
+          </div>
+        </div>
+
+        <div class="hist-block">
+          <p>In Dec 2007 we decided to start our own education venture named Savant Education Services which later on was rechristened as MindTree Education in 2015. We have run CLATutor for for all law entrance in India and abroad. Since 2007 we always had education and students at our centre of planning. One of the highlights of our institution is that it is run by all seasoned faculties. We always thought our only way to be present in the market is with the purity of imparting education.</p>
+        </div>
+
+        <div class="hist-grid hist-grid--split-rev hist-split-border">
+          <div class="hist-prose hist-prose--flush">
+            <p>After the pandemic, we started seeing changes in the technology of classroom learning, so we started working towards it with a bit of success with citebit.com to take care of online learning for all different exams. We also provide our students with live classes, which we record for their later use.</p>
+            <p>Journey that started inadvertently has taken us so far feels exhilarating, we feel blessed. We will continue to teach with the same passion in the future as we have in the past for all kinds of exams.</p>
+          </div>
+          <div class="hist-img-wrap">
+            <img src="../image/team.png" alt="" width="800" height="500" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="container site-footer__grid">
+        <div class="site-footer__brand">
+          <div class="site-footer__social" aria-label="Social links">
+            <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="https://wa.me/918150884422" class="site-footer__social-link site-footer__social-link--whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--telegram" aria-label="Telegram"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
+            <a
+              href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website"
+              class="site-footer__social-link site-footer__social-link--email"
+              aria-label="Email hello@clatutor.com"
+              title="Email hello@clatutor.com"
+              ><i class="fa-solid fa-envelope" aria-hidden="true"></i
+            ></a>
+          </div>
+          <div class="site-footer__logo-block">
+            <span class="site-footer__logo-mark" aria-hidden="true"><img src="../image/gavel%20clat%20tutor.png" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="site-footer__logo-word">CLAT<span class="site-footer__logo-accent">utor</span></span>
+          </div>
+          <p class="site-footer__tagline">Shaping Minds Since 2007</p>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">CLAT<span class="site-footer__logo-accent">utor</span></h3>
+          <ul class="site-footer__links">
+            <li><a href="history.html" aria-current="page">History</a></li>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="career.html">Career</a></li>
+            <li><a href="#">Faculty Team</a></li>
+            <li><a href="whyclattutor.html">CLAT Bangalore</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Law World</h3>
+          <ul class="site-footer__links">
+            <li><a href="clat.html">CLAT</a></li>
+            <li><a href="ipmat.html">IPMAT</a></li>
+            <li><a href="career.html">Career</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Program</h3>
+          <ul class="site-footer__links">
+            <li><a href="courses.html">Courses</a></li>
+            <li><a href="achievement.html">Achievements</a></li>
+            <li><a href="#">Gallery</a></li>
+            <li><a href="../index.html#testimonials">Testimonials</a></li>
+            <li><a href="#">Blogs</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col site-footer__col--contact">
+          <h3 class="site-footer__heading">Contact Us</h3>
+          <ul class="site-footer__contact">
+            <li>
+              <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>(+91) 8150884422</span></a>
+            </li>
+            <li>
+              <a href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website" title="Email hello@clatutor.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>hello@clatutor.com</span></a>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Malleshwaram <a href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Jayanagar <a href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Yelahanka <a href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <div class="container site-footer__bar-inner">
+        <p class="site-footer__copy">Copyright © 2021 CLATutor.com by MTe., All Rights Reserved</p>
+        <nav class="site-footer__legal" aria-label="Legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms and Conditions</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main-dropdown.js"></script>
+</body>
+</html>

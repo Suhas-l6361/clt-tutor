@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retrieve Data - CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/retrival.css" />
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="retrival-wrap">
+      <section class="retrival-top-actions">
+        <h3>Quick Actions</h3>
+        <div class="retrival-chip-grid">
+          <button class="retrival-chip" data-role="student" type="button">Student</button>
+          <button class="retrival-chip" data-role="faculty" type="button">Faculty</button>
+          <button class="retrival-chip" data-role="achievers" type="button">Achievers List</button>
+          <button class="retrival-chip" data-role="ca" type="button">CA</button>
+          <button class="retrival-chip" data-role="classroom" type="button">Class Room Images</button>
+          <button class="retrival-chip" data-role="notes" type="button">Notes</button>
+        </div>
+      </section>
+
+      <section class="retrival-head">
+        <h2><i class="fa-solid fa-database"></i> Retrieve Data</h2>
+        <p id="role-message">Select a button above to view data.</p>
+      </section>
+
+      <section id="retrival-filters-section" class="retrival-filters" hidden>
+        <div class="retrival-grid" id="retrival-filter-grid">
+          <div id="retrival-filter-search-wrap" class="retrival-field">
+            <label id="search-field-label" for="search-name-email">Search Name / Email</label>
+            <input id="search-name-email" type="text" placeholder="Type student name or email" />
+          </div>
+          <div class="retrival-field">
+            <label for="filter-from">From Date</label>
+            <input id="filter-from" type="date" />
+          </div>
+          <div class="retrival-field">
+            <label for="filter-to">To Date</label>
+            <input id="filter-to" type="date" />
+          </div>
+        </div>
+
+        <div class="retrival-actions">
+          <button id="btn-apply-filter" class="retrival-btn retrival-btn--primary" type="button">
+            <i class="fa-solid fa-filter"></i> Apply Filter
+          </button>
+          <button id="btn-reset-filter" class="retrival-btn retrival-btn--subtle" type="button">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+          <button id="btn-refresh-data" class="retrival-btn retrival-btn--success" type="button">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+          </button>
+        </div>
+      </section>
+
+      <div id="retrival-refresh-only" class="retrival-filters retrival-refresh-only-wrap" hidden>
+        <div class="retrival-actions">
+          <button id="btn-refresh-data-standalone" type="button" class="retrival-btn retrival-btn--success">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+          </button>
+        </div>
+      </div>
+
+      <div id="retrival-meta" class="retrival-meta">Choose "Student" to load records.</div>
+
+      <section class="retrival-table-card">
+        <div class="retrival-table-head">
+          <h3 id="retrival-table-title">Student Records</h3>
+          <span id="retrival-count" class="retrival-count">0 rows</span>
+        </div>
+        <div class="retrival-table-wrap">
+          <table class="retrival-table">
+            <thead id="retrival-thead">
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>DOB</th>
+                <th>Source</th>
+                <th>Batch</th>
+                <th>Branch</th>
+                <th>Target Year</th>
+                <th>Added By</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="retrival-table-body">
+              <tr>
+                <td class="retrival-empty" colspan="11">Select "Student" to load data.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <div id="edit-achiever-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-edit-achiever-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="edit-achiever-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Edit Achiever</h2>
+          <button type="button" class="reg-close" data-close-edit-achiever-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="reg-grid">
+          <label>
+            <input id="eaf-name" class="input" type="text" placeholder=" " required />
+            <span>Name</span>
+          </label>
+          <label>
+            <input id="eaf-percentage" class="input" type="text" placeholder=" " required />
+            <span>Percentage / Score</span>
+          </label>
+          <label>
+            <input id="eaf-exam" class="input" type="text" placeholder=" " required />
+            <span>Exam</span>
+          </label>
+          <label>
+            <input id="eaf-city" class="input" type="text" placeholder=" " required />
+            <span>City</span>
+          </label>
+          <label>
+            <select id="eaf-branch" class="select">
+              <option value="">Select branch</option>
+              <option value="MALLESHWARM">MALLESHWARM</option>
+              <option value="JAYANAGAR">JAYANAGAR</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+            </select>
+            <span>Branch</span>
+          </label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="eaf-image">Replace Image (optional)</label>
+              <input id="eaf-image" type="file" accept="image/*" />
+            </div>
+            <div id="eaf-image-name" class="upload-file-name" style="font-size:0.7rem;color:rgba(255,255,255,0.75);margin-top:0.25rem;">Leave empty to keep current image</div>
+          </div>
+        </div>
+        <p id="edit-achiever-warning" class="retrival-warning"></p>
+        <div class="reg-btns">
+          <button type="button" id="delete-achiever-btn" class="fancy-btn fancy-btn--reset">Delete</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="edit-student-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-edit-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="edit-student-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Edit Student</h2>
+          <button type="button" class="reg-close" data-close-edit-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="reg-grid">
+          <label>
+            <input id="ef-name" class="input" type="text" placeholder=" " required />
+            <span>Name</span>
+          </label>
+          <label>
+            <input id="ef-email" class="input" type="email" placeholder=" " required />
+            <span>Email</span>
+          </label>
+          <label>
+            <input id="ef-phone" class="input" type="tel" placeholder=" " required />
+            <span>Phone Number</span>
+          </label>
+          <label>
+            <input id="ef-org" class="input" type="text" placeholder=" " />
+            <span>School/College</span>
+          </label>
+          <label>
+            <input id="ef-stream" class="input" type="text" placeholder=" " />
+            <span>Stream</span>
+          </label>
+          <label>
+            <input id="ef-batch" class="input" type="text" placeholder=" " />
+            <span>Batch</span>
+          </label>
+          <label>
+            <select id="ef-branch" class="select">
+              <option value="">Select branch</option>
+              <option value="MALLESHWARM">MALLESHWARM</option>
+              <option value="JAYANAGAR">JAYANAGAR</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+            </select>
+            <span>Branch</span>
+          </label>
+          <label>
+            <input id="ef-source" class="input" type="text" placeholder=" " />
+            <span>Source of Information</span>
+          </label>
+          <label class="full">
+            <input id="ef-address" class="input" type="text" placeholder=" " />
+            <span>Address</span>
+          </label>
+          <label>
+            <input id="ef-target-year" class="input" type="text" placeholder=" " />
+            <span>Target Year</span>
+          </label>
+          <div>
+            <span style="display:block;font-size:0.72rem;color:#9ca3af;margin:0 0 0.3rem 0.2rem;">Date of Birth</span>
+            <div class="dob-row">
+              <select id="ef-dob-day"><option value="">Day</option></select>
+              <select id="ef-dob-month"><option value="">Month</option></select>
+              <select id="ef-dob-year"><option value="">Year</option></select>
+            </div>
+          </div>
+        </div>
+        <p id="edit-warning" class="retrival-warning"></p>
+        <div class="reg-btns">
+          <button type="button" id="delete-student-btn" class="fancy-btn fancy-btn--reset">Delete</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="student-action-success" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop"></div>
+    <div class="crm-modal__dialog" style="width:min(420px,100%);">
+      <div class="reg-form" style="background:#ffffff;color:#111827;border:1px solid #d1fae5;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.45rem;text-align:center;">
+          <i class="fa-solid fa-circle-check" style="font-size:2rem;color:#16a34a;"></i>
+          <h3 id="student-action-success-title" style="margin:0;font-size:1.05rem;">Success</h3>
+          <p id="student-action-success-message" style="margin:0;color:#374151;font-size:0.9rem;">Action completed successfully.</p>
+          <button id="student-action-success-close" type="button" class="fancy-btn fancy-btn--submit" style="max-width:180px;margin-top:0.35rem;">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="display-image-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-image-modal></div>
+    <div id="display-image-dialog" class="crm-modal__dialog" style="width:min(920px,100%);">
+      <div class="reg-form" style="background:#ffffff;color:#111827;border:1px solid #dbeafe;">
+        <div class="reg-head" style="margin-bottom:0.25rem;">
+          <h2 id="display-image-title" class="reg-title" style="font-size:1.05rem;color:#1d4ed8;">Preview</h2>
+          <button type="button" class="reg-close" data-close-image-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;min-height:240px;padding:0.6rem;">
+          <img id="display-image-preview" alt="" style="max-width:100%;max-height:420px;border-radius:10px;object-fit:contain;display:none;" />
+          <iframe id="display-file-embed" title="File preview" style="display:none;width:100%;min-height:480px;border:none;border-radius:10px;background:#fff;"></iframe>
+          <div id="display-file-pdf-bar" style="display:none;text-align:center;padding:0.15rem 0;">
+            <a id="display-file-open-pdf" href="#" target="_blank" rel="noopener noreferrer" class="fancy-btn fancy-btn--submit" style="display:inline-block;text-decoration:none;font-size:0.85rem;padding:0.4rem 0.9rem;">Open PDF in new tab</a>
+          </div>
+          <div id="display-file-nonpreview" style="display:none;text-align:center;padding:1rem 0.5rem;">
+            <p id="display-file-nonpreview-msg" style="margin:0 0 0.75rem;color:#475569;font-size:0.9rem;">This file type cannot be previewed here.</p>
+            <a id="display-file-open" href="#" target="_blank" rel="noopener noreferrer" class="fancy-btn fancy-btn--submit" style="display:inline-block;text-decoration:none;">Open or download file</a>
+          </div>
+          <p id="display-file-pdf-hint" style="display:none;margin:0;font-size:0.8rem;color:#64748b;text-align:center;">If the preview is blank, use Open file (new tab). Some browsers block inline PDFs.</p>
+          <p id="display-image-status" style="margin:0;color:#475569;font-size:0.88rem;">Loading preview...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-ca-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-edit-ca-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="edit-ca-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Edit Current Affairs</h2>
+          <button type="button" class="reg-close" data-close-edit-ca-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reg-grid reg-grid--ca-top">
+          <div>
+            <span class="field-label-above">Date (optional)</span>
+            <div class="dob-row">
+              <select id="eca-date-day"><option value="">Day</option></select>
+              <select id="eca-date-month"><option value="">Month</option></select>
+              <select id="eca-date-year"><option value="">Year</option></select>
+            </div>
+          </div>
+          <div>
+            <span class="field-label-above">Title / Name (optional)</span>
+            <input id="eca-name" class="input input--stacked" type="text" placeholder="" autocomplete="off" />
+          </div>
+          <label class="full"><textarea id="eca-links" class="input" rows="2" placeholder=" " style="min-height:52px;padding-top:14px;"></textarea><span>Links (optional, one per line)</span></label>
+          <div class="full">
+            <p id="eca-existing-files" class="retrival-warning" style="margin:0 0 0.5rem;font-size:0.78rem;color:rgba(255,255,255,0.75);"></p>
+            <div class="file-input-wrap">
+              <label for="eca-files">Add more files (optional — images, PDF, Word)</label>
+              <input id="eca-files" type="file" multiple accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword" />
+            </div>
+            <div id="eca-files-name" class="upload-file-name">No new files selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="button" class="fancy-btn fancy-btn--reset" data-close-edit-ca-modal><span></span><span></span>Cancel</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Update</button>
+        </div>
+        <p id="eca-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="delete-confirm-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-delete-confirm></div>
+    <div class="crm-modal__dialog" style="width:min(430px,100%);">
+      <div class="reg-form" style="background:#ffffff;color:#111827;border:1px solid #fee2e2;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.45rem;text-align:center;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:#b91c1c;"></i>
+          <h3 id="delete-confirm-title" style="margin:0;font-size:1.05rem;">Delete Student Record?</h3>
+          <p style="margin:0;color:#4b5563;font-size:0.9rem;">This action cannot be undone.</p>
+          <div style="display:flex;gap:0.55rem;width:100%;margin-top:0.35rem;">
+            <button id="cancel-delete-btn" type="button" class="fancy-btn fancy-btn--reset">Cancel</button>
+            <button id="confirm-delete-btn" type="button" class="fancy-btn" style="background:#dc2626;">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'retrival.html', title: 'Retrieve Data', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+
+      var API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+      var ACHIEVE_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_achieve';
+      var FACULTY_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/faculty';
+      var CLASS_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/class';
+      var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
+      var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+      var tableTitleEl = document.getElementById('retrival-table-title');
+      var theadEl = document.getElementById('retrival-thead');
+      var searchLabelEl = document.getElementById('search-field-label');
+      var displayImageTitleEl = document.getElementById('display-image-title');
+      var deleteConfirmTitleEl = document.getElementById('delete-confirm-title');
+      var nameEmailInput = document.getElementById('search-name-email');
+      var fromDateInput = document.getElementById('filter-from');
+      var toDateInput = document.getElementById('filter-to');
+      var applyBtn = document.getElementById('btn-apply-filter');
+      var resetBtn = document.getElementById('btn-reset-filter');
+      var refreshBtn = document.getElementById('btn-refresh-data');
+      var roleMessageEl = document.getElementById('role-message');
+      var metaEl = document.getElementById('retrival-meta');
+      var countEl = document.getElementById('retrival-count');
+      var tbody = document.getElementById('retrival-table-body');
+      var roleButtons = Array.prototype.slice.call(document.querySelectorAll('.retrival-chip'));
+      var editModal = document.getElementById('edit-student-modal');
+      var editForm = document.getElementById('edit-student-form');
+      var editWarningEl = document.getElementById('edit-warning');
+      var deleteBtn = document.getElementById('delete-student-btn');
+      var successPopup = document.getElementById('student-action-success');
+      var successTitleEl = document.getElementById('student-action-success-title');
+      var successMessageEl = document.getElementById('student-action-success-message');
+      var successCloseBtn = document.getElementById('student-action-success-close');
+      var imageModal = document.getElementById('display-image-modal');
+      var imagePreviewEl = document.getElementById('display-image-preview');
+      var imageStatusEl = document.getElementById('display-image-status');
+      var fileEmbedEl = document.getElementById('display-file-embed');
+      var fileNonPreviewEl = document.getElementById('display-file-nonpreview');
+      var fileNonPreviewMsgEl = document.getElementById('display-file-nonpreview-msg');
+      var fileOpenLinkEl = document.getElementById('display-file-open');
+      var filePdfHintEl = document.getElementById('display-file-pdf-hint');
+      var filePdfBarEl = document.getElementById('display-file-pdf-bar');
+      var fileOpenPdfEl = document.getElementById('display-file-open-pdf');
+      var deleteConfirmModal = document.getElementById('delete-confirm-modal');
+      var deleteConfirmResolve = null;
+      var efDay = document.getElementById('ef-dob-day');
+      var efMonth = document.getElementById('ef-dob-month');
+      var efYear = document.getElementById('ef-dob-year');
+      var editAchieverModal = document.getElementById('edit-achiever-modal');
+      var editAchieverForm = document.getElementById('edit-achiever-form');
+      var editAchieverWarningEl = document.getElementById('edit-achiever-warning');
+      var deleteAchieverBtn = document.getElementById('delete-achiever-btn');
+      var eafImageInput = document.getElementById('eaf-image');
+      var eafImageNameEl = document.getElementById('eaf-image-name');
+      var editCaModal = document.getElementById('edit-ca-modal');
+      var editCaForm = document.getElementById('edit-ca-form');
+      var ecaStatus = document.getElementById('eca-status');
+      var ecaExistingFiles = document.getElementById('eca-existing-files');
+      var ecaFilesName = document.getElementById('eca-files-name');
+      var ecaFilesInput = document.getElementById('eca-files');
+      var currentEditCaId = null;
+      var currentEditCaImgKeys = [];
+
+      var allRows = [];
+      var currentMode = '';
+      var currentEditId = null;
+      var currentEditAchieverId = null;
+
+      var STUDENT_HEAD_HTML =
+        '<tr>' +
+        '<th>Name</th><th>Email</th><th>Phone</th><th>DOB</th><th>Source</th>' +
+        '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th>' +
+        '</tr>';
+      var ACHIEVER_HEAD_HTML =
+        '<tr>' +
+        '<th>Name</th><th>Percentage</th><th>Exam</th><th>City</th><th>Branch</th>' +
+        '<th>Added By</th><th>Image</th><th>Actions</th>' +
+        '</tr>';
+      var FACULTY_HEAD_HTML =
+        '<tr><th>Name</th><th>Email</th><th>Phone</th><th>Branch</th><th>City</th><th>Added By</th><th>Image</th><th>Actions</th></tr>';
+      var CLASS_HEAD_HTML =
+        '<tr><th>Location</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+      var CA_HEAD_HTML =
+        '<tr><th>Date</th><th>Name</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+      var NOTES_HEAD_HTML =
+        '<tr><th>Date</th><th>Details</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+
+      function asDateOnly(dateLike) {
+        if (!dateLike) return '';
+        var d = new Date(dateLike);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toISOString().slice(0, 10);
+      }
+
+      function text(v) {
+        return v === null || v === undefined || v === '' ? '-' : String(v);
+      }
+
+      function safeHtml(v) {
+        return text(v).replace(/[&<>"']/g, function (ch) {
+          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        });
+      }
+
+      function firstStoredKey(val) {
+        if (val == null || val === '') return null;
+        if (typeof val === 'object' && !Array.isArray(val) && val.key) return val.key;
+        if (typeof val === 'string') {
+          try {
+            var p = JSON.parse(val);
+            if (Array.isArray(p) && p.length) {
+              var x = p[0];
+              if (typeof x === 'string') return x;
+              if (x && x.key) return x.key;
+              if (x && x.url) return x.url;
+            }
+            if (typeof p === 'string') return p;
+          } catch (e) {
+            return val;
+          }
+        }
+        if (Array.isArray(val) && val.length) {
+          var y = val[0];
+          if (typeof y === 'string') return y;
+          if (y && y.key) return y.key;
+        }
+        return null;
+      }
+
+      function keyCount(val) {
+        if (val == null || val === '') return 0;
+        if (typeof val === 'string') {
+          try {
+            var p = JSON.parse(val);
+            return Array.isArray(p) ? p.length : p ? 1 : 0;
+          } catch (e) {
+            return 1;
+          }
+        }
+        if (Array.isArray(val)) return val.length;
+        return 0;
+      }
+
+      function allKeysFromImgUrl(val) {
+        if (val == null || val === '') return [];
+        if (Array.isArray(val)) {
+          return val
+            .map(function (y) {
+              if (typeof y === 'string') return y;
+              if (y && typeof y === 'object' && y.key) return y.key;
+              return null;
+            })
+            .filter(Boolean);
+        }
+        if (typeof val === 'object' && val.key) return [val.key];
+        if (typeof val === 'string') {
+          try {
+            var p = JSON.parse(val);
+            if (Array.isArray(p)) {
+              return p
+                .map(function (x) {
+                  if (typeof x === 'string') return x;
+                  if (x && x.key) return x.key;
+                  if (x && x.url) return x.url;
+                  return null;
+                })
+                .filter(Boolean);
+            }
+            if (typeof p === 'string') return [p];
+          } catch (e) {
+            return [val];
+          }
+        }
+        return [];
+      }
+
+      function truncStr(s, n) {
+        var t = String(s || '');
+        return t.length <= n ? t : t.slice(0, n) + '\u2026';
+      }
+
+      var filtersSection = document.getElementById('retrival-filters-section');
+      var filterSearchWrap = document.getElementById('retrival-filter-search-wrap');
+      var refreshOnlyWrap = document.getElementById('retrival-refresh-only');
+
+      function updateFilterBarVisibility(role) {
+        if (!filtersSection) return;
+        var full = role === 'student' || role === 'faculty' || role === 'achievers';
+        var caOnly = role === 'ca';
+        var refreshOnly = role === 'classroom' || role === 'notes';
+        if (full || caOnly) {
+          filtersSection.hidden = false;
+          filtersSection.classList.toggle('retrival-filters--ca-only', caOnly);
+          if (filterSearchWrap) filterSearchWrap.hidden = caOnly;
+          if (refreshOnlyWrap) refreshOnlyWrap.hidden = true;
+        } else if (refreshOnly) {
+          filtersSection.hidden = true;
+          filtersSection.classList.remove('retrival-filters--ca-only');
+          if (filterSearchWrap) filterSearchWrap.hidden = false;
+          if (refreshOnlyWrap) refreshOnlyWrap.hidden = false;
+        } else {
+          filtersSection.hidden = true;
+          filtersSection.classList.remove('retrival-filters--ca-only');
+          if (filterSearchWrap) filterSearchWrap.hidden = false;
+          if (refreshOnlyWrap) refreshOnlyWrap.hidden = true;
+        }
+      }
+
+      function setRoleMode(role) {
+        currentMode = role;
+        updateFilterBarVisibility(role);
+        roleButtons.forEach(function (btn) {
+          btn.classList.toggle('active', btn.getAttribute('data-role') === role);
+        });
+        var titles = {
+          student: 'Student Records',
+          achievers: 'Achiever Records',
+          faculty: 'Faculty Records',
+          classroom: 'Class Room Images',
+          ca: 'Current Affairs',
+          notes: 'Notes',
+        };
+        var heads = {
+          student: STUDENT_HEAD_HTML,
+          achievers: ACHIEVER_HEAD_HTML,
+          faculty: FACULTY_HEAD_HTML,
+          classroom: CLASS_HEAD_HTML,
+          ca: CA_HEAD_HTML,
+          notes: NOTES_HEAD_HTML,
+        };
+        if (tableTitleEl) tableTitleEl.textContent = titles[role] || 'Records';
+        if (theadEl) theadEl.innerHTML = heads[role] || STUDENT_HEAD_HTML;
+        if (searchLabelEl) {
+          searchLabelEl.textContent =
+            role === 'achievers' ? 'Search name, exam, or city' : 'Search Name / Email';
+        }
+        if (nameEmailInput) {
+          nameEmailInput.placeholder =
+            role === 'achievers' ? 'Type name, exam, or city' : 'Type student name or email';
+        }
+        if (!role) {
+          tbody.innerHTML =
+            '<tr><td class="retrival-empty" colspan="11">Select a category above to load data.</td></tr>';
+          countEl.textContent = '0 rows';
+          roleMessageEl.textContent = 'Select a button above to view data.';
+          metaEl.textContent = 'Choose a category to load records.';
+          return;
+        }
+        if (role === 'student') {
+          roleMessageEl.textContent = 'Showing student records from backend API.';
+          loadStudentData();
+        } else if (role === 'achievers') {
+          roleMessageEl.textContent = 'Showing achiever records from backend API.';
+          loadAchieverData();
+        } else if (role === 'faculty') {
+          roleMessageEl.textContent = 'Faculty records from API.';
+          loadFacultyData();
+        } else if (role === 'classroom') {
+          roleMessageEl.textContent = 'Class room image records.';
+          loadClassData();
+        } else if (role === 'ca') {
+          roleMessageEl.textContent = 'Current affairs records.';
+          loadCaData();
+        } else if (role === 'notes') {
+          roleMessageEl.textContent = 'Notes records.';
+          loadNotesData();
+        } else {
+          tbody.innerHTML =
+            '<tr><td class="retrival-empty" colspan="11">Unknown category.</td></tr>';
+          countEl.textContent = '0 rows';
+          metaEl.textContent = 'Unknown action.';
+        }
+      }
+
+      async function resolveImageUrl(raw, apiBase) {
+        if (!raw) return '';
+        var value = String(raw);
+        if (/^https?:\/\//i.test(value)) return value;
+        var base = apiBase || API_URL;
+        try {
+          var endpoint =
+            base +
+            '?action=get_download_url&inline=1&key=' +
+            encodeURIComponent(value);
+          var res = await fetch(endpoint, { method: 'GET' });
+          var data = await res.json();
+          if (res.ok && data && (data.downloadUrl || data.url)) {
+            return data.downloadUrl || data.url;
+          }
+        } catch (_) {}
+        return '';
+      }
+
+      function extFromPathOrUrl(s) {
+        if (!s) return '';
+        var path = String(s).split('?')[0].split('#')[0];
+        var m = path.match(/\.([a-z0-9]+)$/i);
+        return m ? m[1].toLowerCase() : '';
+      }
+      var PREVIEW_IMAGE_EXT = { jpg: 1, jpeg: 1, png: 1, gif: 1, webp: 1, svg: 1, bmp: 1, ico: 1 };
+      function isImageExt(ext) {
+        return !!PREVIEW_IMAGE_EXT[ext];
+      }
+      function isPdfExt(ext) {
+        return ext === 'pdf';
+      }
+      function hideFilePreviewLayers() {
+        if (imagePreviewEl) {
+          imagePreviewEl.style.display = 'none';
+          imagePreviewEl.removeAttribute('src');
+          imagePreviewEl.onerror = null;
+        }
+        if (fileEmbedEl) {
+          fileEmbedEl.style.display = 'none';
+          fileEmbedEl.removeAttribute('src');
+        }
+        if (fileNonPreviewEl) fileNonPreviewEl.style.display = 'none';
+        if (filePdfHintEl) filePdfHintEl.style.display = 'none';
+        if (filePdfBarEl) filePdfBarEl.style.display = 'none';
+      }
+
+      function renderRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="11">No student records found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+
+        tbody.innerHTML = rows.map(function (r) {
+          var imageCell = '-';
+          var imgKey = firstStoredKey(r.img_url) || r.img_url;
+          if (imgKey) {
+            imageCell = '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-show-image="' + safeHtml(imgKey) + '" data-image-api="student" title="Display Image" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Display Image</button>';
+          }
+          var id = safeHtml(r.student_id || r.id);
+          return (
+            '<tr>' +
+            '<td>' + safeHtml(r.name) + '</td>' +
+            '<td>' + safeHtml(r.email) + '</td>' +
+            '<td>' + safeHtml(r.phone) + '</td>' +
+            '<td>' + safeHtml(r.dob ? asDateOnly(r.dob) : '') + '</td>' +
+            '<td>' + safeHtml(r.source_of_info) + '</td>' +
+            '<td>' + safeHtml(r.batch) + '</td>' +
+            '<td>' + safeHtml(r.branch) + '</td>' +
+            '<td>' + safeHtml(r.targetYear) + '</td>' +
+            '<td>' + safeHtml(r.added_by) + '</td>' +
+            '<td>' + imageCell + '</td>' +
+            '<td><span class="retrival-row-actions">' +
+            '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-edit-id="' + id + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
+            '</span></td>' +
+            '</tr>'
+          );
+        }).join('');
+
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderAchieverRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML =
+            '<tr><td class="retrival-empty" colspan="8">No achiever records found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+
+        tbody.innerHTML = rows
+          .map(function (r) {
+            var imageCell = '-';
+            var imgKey = firstStoredKey(r.img_url) || r.img_url;
+            if (imgKey) {
+              imageCell =
+                '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-show-image="' +
+                safeHtml(imgKey) +
+                '" data-image-api="achieve" title="Display Image" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Display Image</button>';
+            }
+            var id = safeHtml(r.id);
+            return (
+              '<tr>' +
+              '<td>' +
+              safeHtml(r.name) +
+              '</td>' +
+              '<td>' +
+              safeHtml(r.percentage) +
+              '</td>' +
+              '<td>' +
+              safeHtml(r.exam) +
+              '</td>' +
+              '<td>' +
+              safeHtml(r.city) +
+              '</td>' +
+              '<td>' +
+              safeHtml(r.branch) +
+              '</td>' +
+              '<td>' +
+              safeHtml(r.added_by) +
+              '</td>' +
+              '<td>' +
+              imageCell +
+              '</td>' +
+              '<td><span class="retrival-row-actions">' +
+              '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-edit-id="' +
+              id +
+              '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+              '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' +
+              id +
+              '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
+              '</span></td>' +
+              '</tr>'
+            );
+          })
+          .join('');
+
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderFacultyRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="8">No faculty records found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+        tbody.innerHTML = rows.map(function (r) {
+          var k = firstStoredKey(r.img_url) || r.img_url;
+          var img = k
+            ? '<button class="retrival-icon-btn" type="button" data-show-image="' + safeHtml(k) + '" data-image-api="faculty" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">View</button>'
+            : '-';
+          var id = safeHtml(r.id);
+          return (
+            '<tr><td>' + safeHtml(r.name) + '</td><td>' + safeHtml(r.email) + '</td><td>' + safeHtml(r.phone) + '</td><td>' + safeHtml(r.branch) + '</td><td>' + safeHtml(r.city) + '</td><td>' + safeHtml(r.added_by) + '</td><td>' + img + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+          );
+        }).join('');
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderClassRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="4">No class records found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+        tbody.innerHTML = rows.map(function (r) {
+          var n = keyCount(r.image_url);
+          var k = firstStoredKey(r.image_url);
+          var img = k
+            ? '<button class="retrival-icon-btn" type="button" data-show-image="' + safeHtml(k) + '" data-image-api="class" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">View (' + n + ')</button>'
+            : String(n || 0);
+          var id = safeHtml(r.id);
+          return (
+            '<tr><td>' + safeHtml(r.location) + '</td><td>' + img + '</td><td>' + safeHtml(r.added_by) + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+          );
+        }).join('');
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderCaRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="6">No CA records found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+        tbody.innerHTML = rows.map(function (r) {
+          var n = keyCount(r.img_url);
+          var k = firstStoredKey(r.img_url);
+          var img = k
+            ? '<button class="retrival-icon-btn" type="button" data-show-image="' + safeHtml(k) + '" data-image-api="ca" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Files (' + n + ')</button>'
+            : '0';
+          var id = safeHtml(r.id);
+          return (
+            '<tr><td>' +
+            safeHtml(asDateOnly(r.date)) +
+            '</td><td>' +
+            safeHtml(r.name) +
+            '</td><td>' +
+            safeHtml(truncStr(r.links, 40)) +
+            '</td><td>' +
+            img +
+            '</td><td>' +
+            safeHtml(r.added_by) +
+            '</td><td><span class="retrival-row-actions">' +
+            '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-edit-id="' +
+            id +
+            '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' +
+            id +
+            '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
+            '</span></td></tr>'
+          );
+        }).join('');
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderNotesRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="6">No notes found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+        tbody.innerHTML = rows.map(function (r) {
+          var n = keyCount(r.img_url);
+          var k = firstStoredKey(r.img_url);
+          var img = k
+            ? '<button class="retrival-icon-btn" type="button" data-show-image="' + safeHtml(k) + '" data-image-api="notes" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Files (' + n + ')</button>'
+            : '0';
+          var linkStr = '';
+          if (r.link != null) {
+            try {
+              var la = typeof r.link === 'string' ? JSON.parse(r.link) : r.link;
+              linkStr = Array.isArray(la) ? la.join(', ') : String(r.link);
+            } catch (e2) {
+              linkStr = String(r.link);
+            }
+          }
+          var id = safeHtml(r.id);
+          return (
+            '<tr><td>' + safeHtml(asDateOnly(r.date)) + '</td><td>' + safeHtml(truncStr(r.details, 36)) + '</td><td>' + safeHtml(truncStr(linkStr, 40)) + '</td><td>' + img + '</td><td>' + safeHtml(r.added_by) + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+          );
+        }).join('');
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function applyFilters() {
+        var query = (nameEmailInput.value || '').trim().toLowerCase();
+        var fromDate = fromDateInput.value;
+        var toDate = toDateInput.value;
+
+        if (currentMode === 'faculty') {
+          var filteredF = allRows.filter(function (r) {
+            var hay = (String(r.name || '') + ' ' + String(r.email || '') + ' ' + String(r.city || '') + ' ' + String(r.branch || '')).toLowerCase();
+            var matchesText = !query || hay.indexOf(query) !== -1;
+            var created = asDateOnly(r.created_at);
+            var matchesFrom = !fromDate || (created && created >= fromDate);
+            var matchesTo = !toDate || (created && created <= toDate);
+            return matchesText && matchesFrom && matchesTo;
+          });
+          renderFacultyRows(filteredF);
+          metaEl.textContent = 'Filtered: ' + filteredF.length + ' / ' + allRows.length;
+          return;
+        }
+        if (currentMode === 'classroom') {
+          var filteredC = allRows.filter(function (r) {
+            var hay = String(r.location || '').toLowerCase();
+            var matchesText = !query || hay.indexOf(query) !== -1;
+            var created = asDateOnly(r.created_at);
+            var matchesFrom = !fromDate || (created && created >= fromDate);
+            var matchesTo = !toDate || (created && created <= toDate);
+            return matchesText && matchesFrom && matchesTo;
+          });
+          renderClassRows(filteredC);
+          metaEl.textContent = 'Filtered: ' + filteredC.length + ' / ' + allRows.length;
+          return;
+        }
+        if (currentMode === 'ca') {
+          var filteredCa = allRows.filter(function (r) {
+            var d = asDateOnly(r.date);
+            var matchesFrom = !fromDate || (d && d >= fromDate);
+            var matchesTo = !toDate || (d && d <= toDate);
+            return matchesFrom && matchesTo;
+          });
+          renderCaRows(filteredCa);
+          metaEl.textContent = 'Filtered: ' + filteredCa.length + ' / ' + allRows.length;
+          return;
+        }
+        if (currentMode === 'notes') {
+          var filteredN = allRows.filter(function (r) {
+            var hay = String(r.details || '').toLowerCase();
+            var matchesText = !query || hay.indexOf(query) !== -1;
+            var d = asDateOnly(r.date);
+            var matchesFrom = !fromDate || (d && d >= fromDate);
+            var matchesTo = !toDate || (d && d <= toDate);
+            return matchesText && matchesFrom && matchesTo;
+          });
+          renderNotesRows(filteredN);
+          metaEl.textContent = 'Filtered: ' + filteredN.length + ' / ' + allRows.length;
+          return;
+        }
+
+        if (currentMode === 'achievers') {
+          var filteredA = allRows.filter(function (r) {
+            var name = String(r.name || '').toLowerCase();
+            var exam = String(r.exam || '').toLowerCase();
+            var city = String(r.city || '').toLowerCase();
+            var br = String(r.branch || '').toLowerCase();
+            var pct = String(r.percentage || '').toLowerCase();
+            var created = asDateOnly(r.created_at);
+            var matchesText =
+              !query ||
+              name.indexOf(query) !== -1 ||
+              exam.indexOf(query) !== -1 ||
+              city.indexOf(query) !== -1 ||
+              br.indexOf(query) !== -1 ||
+              pct.indexOf(query) !== -1;
+            var matchesFrom = !fromDate || (created && created >= fromDate);
+            var matchesTo = !toDate || (created && created <= toDate);
+            return matchesText && matchesFrom && matchesTo;
+          });
+          renderAchieverRows(filteredA);
+          metaEl.textContent = 'Showing filtered records: ' + filteredA.length + ' / ' + allRows.length;
+          return;
+        }
+
+        var filtered = allRows.filter(function (r) {
+          var name = String(r.name || '').toLowerCase();
+          var email = String(r.email || '').toLowerCase();
+          var br = String(r.branch || '').toLowerCase();
+          var created = asDateOnly(r.created_at);
+          var matchesText = !query || name.indexOf(query) !== -1 || email.indexOf(query) !== -1 || br.indexOf(query) !== -1;
+          var matchesFrom = !fromDate || (created && created >= fromDate);
+          var matchesTo = !toDate || (created && created <= toDate);
+          return matchesText && matchesFrom && matchesTo;
+        });
+
+        renderRows(filtered);
+        metaEl.textContent = 'Showing filtered records: ' + filtered.length + ' / ' + allRows.length;
+      }
+
+      function fillDobOptions() {
+        for (var d = 1; d <= 31; d += 1) {
+          var o1 = document.createElement('option');
+          o1.value = String(d).padStart(2, '0');
+          o1.textContent = String(d);
+          efDay.appendChild(o1);
+        }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach(function (m, i) {
+          var o2 = document.createElement('option');
+          o2.value = String(i + 1).padStart(2, '0');
+          o2.textContent = m;
+          efMonth.appendChild(o2);
+        });
+        var thisYear = new Date().getFullYear();
+        for (var y = thisYear - 10; y >= thisYear - 55; y -= 1) {
+          var o3 = document.createElement('option');
+          o3.value = String(y);
+          o3.textContent = String(y);
+          efYear.appendChild(o3);
+        }
+      }
+      fillDobOptions();
+
+      function fillEcaDateOptions() {
+        var caDay = document.getElementById('eca-date-day');
+        var caMonth = document.getElementById('eca-date-month');
+        var caYear = document.getElementById('eca-date-year');
+        if (!caDay || !caMonth || !caYear) return;
+        function resetSelect(sel, placeholder) {
+          sel.innerHTML = '';
+          var ph = document.createElement('option');
+          ph.value = '';
+          ph.textContent = placeholder;
+          sel.appendChild(ph);
+        }
+        resetSelect(caDay, 'Day');
+        resetSelect(caMonth, 'Month');
+        resetSelect(caYear, 'Year');
+        for (var d = 1; d <= 31; d += 1) {
+          var o1 = document.createElement('option');
+          o1.value = String(d).padStart(2, '0');
+          o1.textContent = String(d);
+          caDay.appendChild(o1);
+        }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach(function (m, i) {
+          var o2 = document.createElement('option');
+          o2.value = String(i + 1).padStart(2, '0');
+          o2.textContent = m;
+          caMonth.appendChild(o2);
+        });
+        var thisYear = new Date().getFullYear();
+        for (var y = thisYear + 1; y >= thisYear - 15; y -= 1) {
+          var o3 = document.createElement('option');
+          o3.value = String(y);
+          o3.textContent = String(y);
+          caYear.appendChild(o3);
+        }
+      }
+      fillEcaDateOptions();
+
+      function openEditModal(row) {
+        currentEditId = row.student_id || row.id;
+        editWarningEl.textContent = '';
+        document.getElementById('ef-name').value = row.name || '';
+        document.getElementById('ef-email').value = row.email || '';
+        document.getElementById('ef-phone').value = row.phone || '';
+        document.getElementById('ef-org').value = row.previous_organisation || '';
+        document.getElementById('ef-stream').value = row.stream || '';
+        document.getElementById('ef-batch').value = row.batch || '';
+        var efBranch = document.getElementById('ef-branch');
+        if (efBranch) efBranch.value = row.branch || '';
+        document.getElementById('ef-source').value = row.source_of_info || '';
+        document.getElementById('ef-address').value = row.address || '';
+        document.getElementById('ef-target-year').value = row.targetYear || '';
+        var dob = asDateOnly(row.dob);
+        if (dob) {
+          var parts = dob.split('-');
+          efYear.value = parts[0] || '';
+          efMonth.value = parts[1] || '';
+          efDay.value = parts[2] || '';
+        } else {
+          efYear.value = '';
+          efMonth.value = '';
+          efDay.value = '';
+        }
+        editModal.hidden = false;
+      }
+
+      function showSuccessPopup(title, message) {
+        successTitleEl.textContent = title || 'Success';
+        successMessageEl.textContent = message || 'Action completed successfully.';
+        successPopup.hidden = false;
+      }
+
+      function closeSuccessPopup() {
+        successPopup.hidden = true;
+      }
+
+      async function showImageModal(raw, imageApi) {
+        var titles = {
+          achieve: 'Achiever Image',
+          student: 'Student Image',
+          faculty: 'Faculty Image',
+          class: 'Class Image',
+          ca: 'Current Affairs File',
+          notes: 'Notes File',
+        };
+        if (displayImageTitleEl) {
+          displayImageTitleEl.textContent = titles[imageApi] || 'Preview';
+        }
+        imageModal.hidden = false;
+        hideFilePreviewLayers();
+        if (imageStatusEl) {
+          imageStatusEl.textContent = 'Loading preview...';
+          imageStatusEl.style.display = 'block';
+        }
+        var apiMap = {
+          achieve: ACHIEVE_API_URL,
+          student: API_URL,
+          faculty: FACULTY_API_URL,
+          class: CLASS_API_URL,
+          ca: CA_API_URL,
+          notes: NOTES_API_URL,
+        };
+        var apiBase = apiMap[imageApi] || API_URL;
+        var finalUrl = await resolveImageUrl(raw, apiBase);
+        if (!finalUrl) {
+          if (imageStatusEl) imageStatusEl.textContent = 'File not found for this record.';
+          return;
+        }
+        var ext = extFromPathOrUrl(raw) || extFromPathOrUrl(finalUrl);
+
+        function showOpenLink(url) {
+          if (fileOpenLinkEl) {
+            fileOpenLinkEl.href = url;
+            fileOpenLinkEl.textContent = 'Open or download file';
+          }
+        }
+
+        if (isPdfExt(ext)) {
+          if (fileEmbedEl) {
+            fileEmbedEl.src = finalUrl;
+            fileEmbedEl.style.display = 'block';
+          }
+          if (fileOpenPdfEl) fileOpenPdfEl.href = finalUrl;
+          if (filePdfBarEl) filePdfBarEl.style.display = 'block';
+          if (filePdfHintEl) filePdfHintEl.style.display = 'block';
+          if (imageStatusEl) imageStatusEl.style.display = 'none';
+          return;
+        }
+
+        if (ext && !isImageExt(ext)) {
+          if (fileNonPreviewMsgEl) {
+            fileNonPreviewMsgEl.textContent = 'Inline preview is not available for this file type. Open it to view.';
+          }
+          showOpenLink(finalUrl);
+          if (fileNonPreviewEl) fileNonPreviewEl.style.display = 'block';
+          if (imageStatusEl) imageStatusEl.style.display = 'none';
+          return;
+        }
+
+        if (imagePreviewEl) {
+          imagePreviewEl.src = finalUrl;
+          imagePreviewEl.style.display = 'block';
+          imagePreviewEl.onerror = function () {
+            imagePreviewEl.onerror = null;
+            imagePreviewEl.style.display = 'none';
+            if (isPdfExt(extFromPathOrUrl(finalUrl))) {
+              if (fileEmbedEl) {
+                fileEmbedEl.src = finalUrl;
+                fileEmbedEl.style.display = 'block';
+              }
+              if (fileOpenPdfEl) fileOpenPdfEl.href = finalUrl;
+              if (filePdfBarEl) filePdfBarEl.style.display = 'block';
+              if (filePdfHintEl) filePdfHintEl.style.display = 'block';
+              if (imageStatusEl) imageStatusEl.style.display = 'none';
+              return;
+            }
+            if (fileNonPreviewMsgEl) {
+              fileNonPreviewMsgEl.textContent = 'Could not show a preview. Open the file to view it.';
+            }
+            showOpenLink(finalUrl);
+            if (fileNonPreviewEl) fileNonPreviewEl.style.display = 'block';
+            if (imageStatusEl) imageStatusEl.style.display = 'none';
+          };
+        }
+        if (imageStatusEl) imageStatusEl.style.display = 'none';
+      }
+
+      function closeImageModal() {
+        hideFilePreviewLayers();
+        imageModal.hidden = true;
+      }
+
+      function askDeleteConfirmation(titleText) {
+        if (deleteConfirmTitleEl) {
+          deleteConfirmTitleEl.textContent = titleText || 'Delete this record?';
+        }
+        return new Promise(function (resolve) {
+          deleteConfirmResolve = resolve;
+          deleteConfirmModal.hidden = false;
+        });
+      }
+
+      function closeDeleteConfirm(value) {
+        deleteConfirmModal.hidden = true;
+        if (typeof deleteConfirmResolve === 'function') {
+          deleteConfirmResolve(Boolean(value));
+        }
+        deleteConfirmResolve = null;
+      }
+
+      function closeEditModal() {
+        editModal.hidden = true;
+        currentEditId = null;
+      }
+
+      function openEditAchieverModal(row) {
+        currentEditAchieverId = row.id;
+        if (editAchieverWarningEl) editAchieverWarningEl.textContent = '';
+        document.getElementById('eaf-name').value = row.name || '';
+        document.getElementById('eaf-percentage').value = row.percentage || '';
+        document.getElementById('eaf-exam').value = row.exam || '';
+        document.getElementById('eaf-city').value = row.city || '';
+        var eafBranch = document.getElementById('eaf-branch');
+        if (eafBranch) eafBranch.value = row.branch || '';
+        if (eafImageInput) eafImageInput.value = '';
+        if (eafImageNameEl) eafImageNameEl.textContent = 'Leave empty to keep current image';
+        if (editAchieverModal) editAchieverModal.hidden = false;
+      }
+
+      function closeEditAchieverModal() {
+        if (editAchieverModal) editAchieverModal.hidden = true;
+        currentEditAchieverId = null;
+      }
+
+      function openEditCaModal(row) {
+        currentEditCaId = row.id;
+        currentEditCaImgKeys = allKeysFromImgUrl(row.img_url);
+        if (ecaStatus) ecaStatus.textContent = '';
+        document.getElementById('eca-name').value = row.name || '';
+        document.getElementById('eca-links').value = row.links != null ? String(row.links) : '';
+        var caD = document.getElementById('eca-date-day');
+        var caM = document.getElementById('eca-date-month');
+        var caY = document.getElementById('eca-date-year');
+        var dob = asDateOnly(row.date);
+        if (dob) {
+          var parts = dob.split('-');
+          if (caY) caY.value = parts[0] || '';
+          if (caM) caM.value = parts[1] || '';
+          if (caD) caD.value = parts[2] || '';
+        } else {
+          if (caY) caY.value = '';
+          if (caM) caM.value = '';
+          if (caD) caD.value = '';
+        }
+        if (ecaFilesInput) ecaFilesInput.value = '';
+        if (ecaFilesName) ecaFilesName.textContent = 'No new files selected';
+        if (ecaExistingFiles) {
+          var n = currentEditCaImgKeys.length;
+          ecaExistingFiles.textContent = n
+            ? 'Current uploads on this record: ' + n + ' file(s). New files below are added to this list.'
+            : 'No files on this record yet.';
+        }
+        if (editCaModal) editCaModal.hidden = false;
+      }
+
+      function closeEditCaModal() {
+        if (editCaModal) editCaModal.hidden = true;
+        currentEditCaId = null;
+        currentEditCaImgKeys = [];
+      }
+
+      function safeFileName(name) {
+        return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '_');
+      }
+
+      async function uploadAchieverImage(file) {
+        var fileName = 'achiever-images/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(ACHIEVE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Image upload failed');
+        return signedData.key || fileName;
+      }
+
+      async function uploadCaFileToBucket(file) {
+        if (!file) return null;
+        var fileName = 'ca-files/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(CA_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Upload failed');
+        return signedData.key || fileName;
+      }
+
+      async function uploadManyCa(files) {
+        var keys = [];
+        var list = files && files.length ? Array.prototype.slice.call(files) : [];
+        for (var i = 0; i < list.length; i += 1) {
+          keys.push(await uploadCaFileToBucket(list[i]));
+        }
+        return keys.filter(Boolean);
+      }
+
+      async function deleteStudentById(id) {
+        var yes = await askDeleteConfirmation('Delete Student Record?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting student...';
+        try {
+          var res = await fetch(API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: Number(id) })
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          closeEditModal();
+          await loadStudentData();
+          metaEl.textContent = 'Student deleted successfully.';
+          showSuccessPopup('Student Deleted', 'Student deleted successfully.');
+        } catch (err) {
+          editWarningEl.textContent = err.message || 'Failed to delete student';
+          metaEl.textContent = 'Delete failed.';
+        }
+      }
+
+      async function deleteAchieverById(id) {
+        var yes = await askDeleteConfirmation('Delete Achiever Record?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting achiever...';
+        try {
+          var res = await fetch(ACHIEVE_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          closeEditAchieverModal();
+          await loadAchieverData();
+          metaEl.textContent = 'Achiever deleted successfully.';
+          showSuccessPopup('Achiever Deleted', 'Achiever deleted successfully.');
+        } catch (err) {
+          if (editAchieverWarningEl) editAchieverWarningEl.textContent = err.message || 'Failed to delete';
+          metaEl.textContent = 'Delete failed.';
+        }
+      }
+
+      async function deleteFacultyById(id) {
+        var yes = await askDeleteConfirmation('Delete faculty record?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting...';
+        try {
+          var res = await fetch(FACULTY_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          await loadFacultyData();
+          showSuccessPopup('Deleted', 'Faculty record removed.');
+        } catch (err) {
+          metaEl.textContent = err.message || 'Delete failed';
+        }
+      }
+
+      async function deleteClassById(id) {
+        var yes = await askDeleteConfirmation('Delete this class record?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting...';
+        try {
+          var res = await fetch(CLASS_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          await loadClassData();
+          showSuccessPopup('Deleted', 'Record removed.');
+        } catch (err) {
+          metaEl.textContent = err.message || 'Delete failed';
+        }
+      }
+
+      async function deleteCaById(id) {
+        var yes = await askDeleteConfirmation('Delete this CA record?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting...';
+        try {
+          var res = await fetch(CA_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          closeEditCaModal();
+          await loadCaData();
+          if (currentMode === 'ca') applyFilters();
+          showSuccessPopup('Deleted', 'CA record removed.');
+        } catch (err) {
+          metaEl.textContent = err.message || 'Delete failed';
+        }
+      }
+
+      async function deleteNotesById(id) {
+        var yes = await askDeleteConfirmation('Delete this note?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting...';
+        try {
+          var res = await fetch(NOTES_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          await loadNotesData();
+          showSuccessPopup('Deleted', 'Note removed.');
+        } catch (err) {
+          metaEl.textContent = err.message || 'Delete failed';
+        }
+      }
+
+      function bindRowActionEvents(rows) {
+        Array.prototype.slice.call(document.querySelectorAll('[data-show-image]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var api = btn.getAttribute('data-image-api') || 'student';
+            showImageModal(btn.getAttribute('data-show-image'), api);
+          });
+        });
+        Array.prototype.slice.call(document.querySelectorAll('[data-edit-id]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-edit-id');
+            var row = rows.find(function (r) {
+              if (currentMode === 'student') return String(r.student_id || r.id) === String(id);
+              return String(r.id) === String(id);
+            });
+            if (!row) return;
+            if (currentMode === 'achievers') openEditAchieverModal(row);
+            else if (currentMode === 'ca') openEditCaModal(row);
+            else openEditModal(row);
+          });
+        });
+        Array.prototype.slice.call(document.querySelectorAll('[data-delete-id]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-delete-id');
+            if (currentMode === 'achievers') deleteAchieverById(id);
+            else if (currentMode === 'faculty') deleteFacultyById(id);
+            else if (currentMode === 'classroom') deleteClassById(id);
+            else if (currentMode === 'ca') deleteCaById(id);
+            else if (currentMode === 'notes') deleteNotesById(id);
+            else deleteStudentById(id);
+          });
+        });
+      }
+
+      async function loadStudentData() {
+        if (currentMode !== 'student') return;
+        metaEl.textContent = 'Loading student data...';
+        try {
+          var res = await fetch(API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
+          var rows = Array.isArray(data) ? data : [];
+          allRows = rows;
+          renderRows(allRows);
+          metaEl.textContent = 'Connected successfully. Total fetched records: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderRows([]);
+          metaEl.textContent = 'Unable to load data: ' + err.message;
+        }
+      }
+
+      async function loadAchieverData() {
+        if (currentMode !== 'achievers') return;
+        metaEl.textContent = 'Loading achiever data...';
+        try {
+          var res = await fetch(ACHIEVE_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
+          var rows = Array.isArray(data) ? data : [];
+          allRows = rows;
+          renderAchieverRows(allRows);
+          metaEl.textContent = 'Connected successfully. Total achiever records: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderAchieverRows([]);
+          metaEl.textContent = 'Unable to load data: ' + err.message;
+        }
+      }
+
+      async function loadFacultyData() {
+        if (currentMode !== 'faculty') return;
+        metaEl.textContent = 'Loading faculty...';
+        try {
+          var res = await fetch(FACULTY_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          renderFacultyRows(allRows);
+          metaEl.textContent = 'Total faculty: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderFacultyRows([]);
+          metaEl.textContent = err.message || 'Load failed';
+        }
+      }
+
+      async function loadClassData() {
+        if (currentMode !== 'classroom') return;
+        metaEl.textContent = 'Loading class images...';
+        try {
+          var res = await fetch(CLASS_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          renderClassRows(allRows);
+          metaEl.textContent = 'Total records: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderClassRows([]);
+          metaEl.textContent = err.message || 'Load failed';
+        }
+      }
+
+      async function loadCaData() {
+        if (currentMode !== 'ca') return;
+        metaEl.textContent = 'Loading CA...';
+        try {
+          var res = await fetch(CA_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          renderCaRows(allRows);
+          metaEl.textContent = 'Total CA: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderCaRows([]);
+          metaEl.textContent = err.message || 'Load failed';
+        }
+      }
+
+      async function loadNotesData() {
+        if (currentMode !== 'notes') return;
+        metaEl.textContent = 'Loading notes...';
+        try {
+          var res = await fetch(NOTES_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          renderNotesRows(allRows);
+          metaEl.textContent = 'Total notes: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderNotesRows([]);
+          metaEl.textContent = err.message || 'Load failed';
+        }
+      }
+
+      roleButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          setRoleMode(btn.getAttribute('data-role'));
+        });
+      });
+
+      applyBtn.addEventListener('click', applyFilters);
+      resetBtn.addEventListener('click', function () {
+        nameEmailInput.value = '';
+        fromDateInput.value = '';
+        toDateInput.value = '';
+        if (currentMode === 'achievers') renderAchieverRows(allRows);
+        else if (currentMode === 'student') renderRows(allRows);
+        else if (currentMode === 'faculty') renderFacultyRows(allRows);
+        else if (currentMode === 'classroom') renderClassRows(allRows);
+        else if (currentMode === 'ca') renderCaRows(allRows);
+        else if (currentMode === 'notes') renderNotesRows(allRows);
+        metaEl.textContent = 'Filters cleared. Showing all records: ' + allRows.length;
+      });
+      function runRefreshForMode() {
+        if (currentMode === 'achievers') loadAchieverData();
+        else if (currentMode === 'student') loadStudentData();
+        else if (currentMode === 'faculty') loadFacultyData();
+        else if (currentMode === 'classroom') loadClassData();
+        else if (currentMode === 'ca') loadCaData();
+        else if (currentMode === 'notes') loadNotesData();
+      }
+      refreshBtn.addEventListener('click', runRefreshForMode);
+      var refreshStandaloneBtn = document.getElementById('btn-refresh-data-standalone');
+      if (refreshStandaloneBtn) refreshStandaloneBtn.addEventListener('click', runRefreshForMode);
+
+      nameEmailInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyFilters();
+        }
+      });
+
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeEditModal);
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-achiever-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeEditAchieverModal);
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-ca-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeEditCaModal);
+      });
+
+      if (ecaFilesInput && ecaFilesName) {
+        ecaFilesInput.addEventListener('change', function () {
+          var n = ecaFilesInput.files && ecaFilesInput.files.length;
+          ecaFilesName.textContent = n ? n + ' new file(s) selected' : 'No new files selected';
+        });
+      }
+
+      if (eafImageInput && eafImageNameEl) {
+        eafImageInput.addEventListener('change', function () {
+          var f = eafImageInput.files && eafImageInput.files[0];
+          eafImageNameEl.textContent = f ? f.name : 'Leave empty to keep current image';
+        });
+      }
+
+      if (deleteAchieverBtn) {
+        deleteAchieverBtn.addEventListener('click', function () {
+          if (currentEditAchieverId) deleteAchieverById(currentEditAchieverId);
+        });
+      }
+
+      if (editAchieverForm) {
+        editAchieverForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentEditAchieverId) return;
+          if (editAchieverWarningEl) editAchieverWarningEl.textContent = '';
+          var payload = {
+            id: Number(currentEditAchieverId),
+            name: document.getElementById('eaf-name').value.trim(),
+            percentage: document.getElementById('eaf-percentage').value.trim(),
+            exam: document.getElementById('eaf-exam').value.trim(),
+            city: document.getElementById('eaf-city').value.trim(),
+            branch: (document.getElementById('eaf-branch') && document.getElementById('eaf-branch').value.trim()) || null,
+          };
+          try {
+            var file = eafImageInput && eafImageInput.files && eafImageInput.files[0];
+            if (file) {
+              payload.img_url = await uploadAchieverImage(file);
+            }
+            var res = await fetch(ACHIEVE_API_URL, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Update failed');
+            closeEditAchieverModal();
+            await loadAchieverData();
+            metaEl.textContent = 'Achiever updated successfully.';
+            showSuccessPopup('Achiever Updated', 'Achiever updated successfully.');
+          } catch (err) {
+            if (editAchieverWarningEl) editAchieverWarningEl.textContent = err.message || 'Failed to update';
+          }
+        });
+      }
+
+      if (editCaForm) {
+        editCaForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentEditCaId) return;
+          if (ecaStatus) ecaStatus.textContent = '';
+          var caD = document.getElementById('eca-date-day');
+          var caM = document.getElementById('eca-date-month');
+          var caY = document.getElementById('eca-date-year');
+          var dv = caD && caD.value;
+          var mv = caM && caM.value;
+          var yv = caY && caY.value;
+          var dateStr = null;
+          if (dv || mv || yv) {
+            if (!dv || !mv || !yv) {
+              if (ecaStatus) {
+                ecaStatus.textContent = 'Select day, month, and year together, or clear all three.';
+              }
+              return;
+            }
+            dateStr = yv + '-' + mv + '-' + dv;
+          }
+          var nameStr = document.getElementById('eca-name').value.trim();
+          var linksStr = document.getElementById('eca-links').value.trim();
+          var files = ecaFilesInput && ecaFilesInput.files;
+          try {
+            var newKeys = files && files.length ? await uploadManyCa(files) : [];
+            var merged = currentEditCaImgKeys.slice().concat(newKeys);
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(CA_API_URL, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: Number(currentEditCaId),
+                date: dateStr || null,
+                name: nameStr || null,
+                links: linksStr || null,
+                img_url: merged.length ? merged : null,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Update failed');
+            closeEditCaModal();
+            await loadCaData();
+            if (currentMode === 'ca') applyFilters();
+            metaEl.textContent = 'Current affairs updated.';
+            showSuccessPopup('Updated', 'Current affairs record updated successfully.');
+          } catch (err) {
+            if (ecaStatus) ecaStatus.textContent = err.message || 'Update failed';
+          }
+        });
+      }
+
+      deleteBtn.addEventListener('click', function () {
+        if (currentEditId) deleteStudentById(currentEditId);
+      });
+
+      editForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!currentEditId) return;
+        editWarningEl.textContent = '';
+        var day = efDay.value;
+        var month = efMonth.value;
+        var year = efYear.value;
+        var dob = year && month && day ? (year + '-' + month + '-' + day) : null;
+        var payload = {
+          student_id: Number(currentEditId),
+          name: document.getElementById('ef-name').value.trim(),
+          email: document.getElementById('ef-email').value.trim(),
+          phone: Number(document.getElementById('ef-phone').value.trim()),
+          dob: dob,
+          previous_organisation: document.getElementById('ef-org').value.trim() || null,
+          stream: document.getElementById('ef-stream').value.trim() || null,
+          batch: document.getElementById('ef-batch').value.trim() || null,
+          branch: (document.getElementById('ef-branch') && document.getElementById('ef-branch').value.trim()) || null,
+          source_of_info: document.getElementById('ef-source').value.trim() || null,
+          address: document.getElementById('ef-address').value.trim() || null,
+          targetYear: document.getElementById('ef-target-year').value.trim() || null
+        };
+        try {
+          var res = await fetch(API_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Update failed');
+          closeEditModal();
+          await loadStudentData();
+          metaEl.textContent = 'Student updated successfully.';
+          showSuccessPopup('Student Updated', 'Student updated successfully.');
+        } catch (err) {
+          editWarningEl.textContent = err.message || 'Failed to update student';
+        }
+      });
+
+      if (successCloseBtn) {
+        successCloseBtn.addEventListener('click', closeSuccessPopup);
+      }
+      var cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+      var confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+      if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', function () { closeDeleteConfirm(false); });
+      if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', function () { closeDeleteConfirm(true); });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-delete-confirm]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeDeleteConfirm(false); });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-image-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeImageModal);
+      });
+
+      setRoleMode('');
+    });
+  </script>
+</body>
+</html>

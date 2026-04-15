@@ -1,0 +1,5091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  </noscript>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --radius: 8px;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    html, body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .app-flex {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 1050;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+
+    .sidebar ul li { margin: 0; }
+
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: margin-left 0.28s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.menu-open {
+      pointer-events: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .top-bar .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .year-selector-top {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 2rem;
+    }
+
+    .year-selector-top label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .year-select-top {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-width: 80px;
+    }
+
+    .status .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Hamburger Menu */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 17px;
+      right: 20px;
+      z-index: 2001;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 2000;
+      transition: opacity 0.2s;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    /* Content Area */
+    .content {
+      padding: 24px 32px;
+      flex: 1;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    
+
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .main-content-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 30px;
+    }
+
+    .lesson-form {
+      background: var(--card);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .file-upload {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary);
+    }
+
+    .file-upload i {
+      font-size: 2rem;
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+    }
+
+    .sidebar-right {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .lesson-list {
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-list h3 {
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+
+    .lesson-item {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .lesson-item:hover {
+      border-color: var(--primary);
+      background: var(--bg);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .lesson-meta {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    .lesson-status-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .lesson-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lesson-status:hover {
+      transform: scale(1.05);
+    }
+
+    .status-completed {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .status-overdue {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .status-planned {
+      background: #e0f2fe;
+      color: var(--primary);
+    }
+
+    .status-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+    }
+
+    .status-dropdown.show {
+      display: flex;
+    }
+
+    .status-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .status-option:hover {
+      background: var(--bg);
+    }
+
+    .progress-bar {
+      background: var(--border);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+
+    /* Image Upload Styles */
+    .image-upload-section {
+      margin-bottom: 20px;
+    }
+
+    .image-preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      min-height: 50px;
+      padding: 10px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: var(--primary-light);
+    }
+
+    .preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-item {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(255, 0, 0, 0.8);
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .preview-item:hover .remove-item {
+      opacity: 1;
+    }
+
+    .remove-item:hover {
+      background: rgba(255, 0, 0, 1);
+      transform: scale(1.1);
+    }
+
+    /* Fresh Modal Design */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 3000;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: 16px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: modalSlideIn 0.4s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .modal-title i {
+      font-size: 1.4rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 2;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .modal-body {
+      padding: 2rem;
+      overflow-y: auto;
+      max-height: calc(90vh - 120px);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Status Radio Buttons */
+    .status-section {
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+    }
+
+    .status-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-title i {
+      color: var(--primary);
+    }
+
+    .status-options {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .status-option {
+      flex: 1;
+      min-width: 120px;
+      position: relative;
+    }
+
+    .status-radio {
+      display: none;
+    }
+
+    .status-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    .status-radio:checked + .status-label {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+    }
+
+    .status-radio:checked + .status-label::before {
+      opacity: 0.05;
+    }
+
+    .status-radio:checked + .status-label .status-icon {
+      background: var(--primary);
+      color: white;
+    }
+
+    .status-radio:checked + .status-label .status-text {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .status-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-icon.completed {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-icon.pending {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .status-icon.overdue {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .status-text {
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+        /* Lesson Overview - Fresh Design */
+    .lesson-overview {
+      background: var(--bg);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .overview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .overview-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .overview-title i {
+      color: var(--primary);
+    }
+
+    .overview-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .edit-btn {
+      background: var(--primary);
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .delete-btn {
+      background: var(--danger);
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    .save-btn {
+      background: var(--success);
+      color: white;
+    }
+
+    .save-btn:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .cancel-btn {
+      background: var(--text-light);
+      color: white;
+    }
+
+    .cancel-btn:hover {
+      background: #475569;
+      transform: translateY(-1px);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .overview-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .overview-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .overview-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .overview-content {
+      flex: 1;
+    }
+
+    .overview-label {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .overview-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .overview-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    .overview-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .overview-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    .overview-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Progress Section */
+    .progress-section {
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .progress-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .progress-title i {
+      color: var(--primary);
+    }
+
+    .progress-percentage {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+      transition: width 0.5s ease;
+      border-radius: 6px;
+    }
+
+    /* Content Sections */
+    .content-section {
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
+    .section-content {
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .objectives-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .objectives-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .objective-number {
+      background: var(--primary);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .files-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .file-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+    }
+
+         .file-item:hover {
+       transform: translateX(4px);
+       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+     }
+
+     .file-item {
+       cursor: pointer;
+     }
+
+     .file-actions {
+       display: flex;
+       gap: 0.5rem;
+       margin-left: auto;
+     }
+
+     .file-action-btn {
+       background: var(--primary);
+       color: white;
+       border: none;
+       width: 32px;
+       height: 32px;
+       border-radius: 6px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 0.8rem;
+       cursor: pointer;
+       transition: all 0.3s ease;
+     }
+
+     .file-action-btn:hover {
+       background: var(--primary-dark);
+       transform: scale(1.1);
+     }
+
+     .file-action-btn.download-btn {
+       background: var(--success);
+     }
+
+     .file-action-btn.download-btn:hover {
+       background: #059669;
+     }
+
+     .file-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .file-info h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+        .file-info p {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    .file-item {
+      position: relative;
+    }
+
+    .remove-file-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    .file-item:hover .remove-file-btn {
+      opacity: 1;
+    }
+
+    .remove-file-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+
+    .add-files-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .file-upload-modal {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      background: var(--bg);
+    }
+
+    .file-upload-modal:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .file-upload-modal i {
+      font-size: 1.5rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .no-files {
+      text-align: center;
+      color: var(--text-light);
+      font-style: italic;
+      padding: 2rem;
+    }
+
+    /* Syllabus Planning Features */
+    .syllabus-section {
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .syllabus-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .learning-objectives {
+      margin-bottom: 20px;
+    }
+
+    .objective-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .objective-item input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .add-objective-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .remove-objective-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.7rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        z-index: 3001;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+        z-index: 3001;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+      .main-content.menu-open { pointer-events: none; }
+    }
+
+        @media (max-width: 768px) {
+      .main-content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      
+      .year-selector-top {
+        margin: 0;
+      }
+
+      /* Modal Responsive - Medium Screens */
+      .modal-overlay.active {
+        padding: 10px;
+      }
+
+      .modal-content {
+        max-height: 95vh;
+        border-radius: 12px;
+        max-width: 98vw;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-title {
+        font-size: 1.3rem;
+        gap: 0.5rem;
+      }
+
+      .modal-title i {
+        font-size: 1.1rem;
+        padding: 0.3rem;
+      }
+
+      .modal-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 1rem;
+        padding: 0.3rem;
+      }
+
+      .modal-body {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      /* Status Section Responsive - Medium */
+      .status-section {
+        padding: 1rem;
+      }
+
+      .status-title {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .status-options {
+        gap: 0.5rem;
+        flex-direction: column;
+      }
+
+      .status-option {
+        min-width: auto;
+        flex: none;
+      }
+
+      .status-label {
+        padding: 0.75rem;
+        gap: 0.75rem;
+        flex-direction: row;
+        text-align: left;
+        min-height: auto;
+        justify-content: flex-start;
+      }
+
+      .status-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+
+      .status-text {
+        font-size: 0.9rem;
+        text-align: left;
+      }
+
+      /* Overview Responsive - Medium */
+      .lesson-overview {
+        padding: 1rem;
+      }
+
+      .overview-header {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+
+      .overview-title {
+        font-size: 1.1rem;
+      }
+
+      .overview-actions {
+        gap: 0.4rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .action-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        flex: 1;
+        max-width: 100px;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .overview-item {
+        padding: 0.75rem;
+        gap: 0.75rem;
+        flex-direction: row;
+        text-align: left;
+        min-height: auto;
+        justify-content: flex-start;
+      }
+
+      .overview-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+      }
+
+      .overview-content {
+        text-align: left;
+      }
+
+      .overview-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .overview-value {
+        font-size: 0.9rem;
+      }
+
+      .overview-input,
+      .overview-select {
+        padding: 0.4rem;
+        font-size: 0.85rem;
+        text-align: left;
+      }
+
+      /* Progress Section Responsive - Medium */
+      .progress-section {
+        padding: 1rem;
+      }
+
+      .progress-header {
+        margin-bottom: 0.75rem;
+        flex-direction: row;
+        gap: 0;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .progress-title {
+        font-size: 1rem;
+      }
+
+      .progress-percentage {
+        font-size: 1.1rem;
+        align-self: auto;
+      }
+
+      .progress-bar {
+        height: 10px;
+      }
+
+      /* Content Sections Responsive - Medium */
+      .content-section {
+        padding: 1rem;
+      }
+
+      .section-title {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .section-content {
+        font-size: 0.9rem;
+      }
+
+      .objectives-list {
+        gap: 0.5rem;
+      }
+
+      .objectives-list li {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+
+      .objective-number {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+
+      .files-grid {
+        gap: 0.5rem;
+      }
+
+      .file-item {
+        padding: 0.75rem;
+        gap: 0.5rem;
+      }
+
+      .file-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+      }
+
+      .file-info h4 {
+        font-size: 0.9rem;
+      }
+
+      .file-info p {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .modal-overlay.active {
+        padding: 5px;
+      }
+
+      .modal-content {
+        max-height: 98vh;
+        border-radius: 8px;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-title {
+        font-size: 1.1rem;
+        gap: 0.5rem;
+      }
+
+      .modal-title i {
+        font-size: 1rem;
+        padding: 0.3rem;
+      }
+
+      .modal-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 1rem;
+        padding: 0.3rem;
+      }
+
+      .modal-body {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      /* Status Section Mobile */
+      .status-section {
+        padding: 0.75rem;
+      }
+
+      .status-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .status-options {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .status-option {
+        min-width: auto;
+      }
+
+      .status-label {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+
+      .status-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+      }
+
+      .status-text {
+        font-size: 0.85rem;
+      }
+
+            /* Overview Mobile */
+      .lesson-overview {
+        padding: 1rem;
+      }
+
+      .overview-header {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+
+      .overview-title {
+        font-size: 1rem;
+      }
+
+      .overview-actions {
+        gap: 0.3rem;
+      }
+
+      .action-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+      }
+
+      .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .overview-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+
+      .overview-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+      }
+
+      .overview-label {
+        font-size: 0.65rem;
+        margin-bottom: 0.15rem;
+      }
+
+      .overview-value {
+        font-size: 0.85rem;
+      }
+
+      .overview-input,
+      .overview-select {
+        padding: 0.3rem;
+        font-size: 0.8rem;
+      }
+
+      /* Progress Section Mobile */
+      .progress-section {
+        padding: 0.75rem;
+      }
+
+      .progress-header {
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-title {
+        font-size: 0.9rem;
+      }
+
+      .progress-percentage {
+        font-size: 1rem;
+      }
+
+      .progress-bar {
+        height: 8px;
+      }
+
+      /* Content Sections Mobile */
+      .content-section {
+        padding: 0.75rem;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .section-content {
+        font-size: 0.85rem;
+      }
+
+      .objectives-list {
+        gap: 0.4rem;
+      }
+
+      .objectives-list li {
+        padding: 0.4rem;
+        gap: 0.4rem;
+      }
+
+      .objective-number {
+        width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
+      }
+
+      .files-grid {
+        gap: 0.4rem;
+      }
+
+      .file-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+
+      .file-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+      }
+
+      .file-info h4 {
+        font-size: 0.85rem;
+      }
+
+            .file-info p {
+        font-size: 0.7rem;
+      }
+
+      .remove-file-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+        top: 0.25rem;
+        right: 0.25rem;
+      }
+
+      .file-upload-modal {
+        padding: 1rem;
+      }
+
+            .file-upload-modal i {
+      font-size: 1.2rem;
+    }
+  }
+
+  /* BC360 Loading Popup */
+  .loading-popup {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+  }
+  
+  .loading-popup.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .loading-content {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 300px;
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    color: #333;
+  }
+
+  .loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #e9ecef;
+    border-top: 4px solid #3A1C71;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  .loading-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #3A1C71;
+  }
+
+  .loading-subtext {
+    font-size: 0.9rem;
+    color: #666;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    line-height: 1.3;
+  }
+
+  /* Alert Modal Styles */
+  .alert-modal {
+    display: none;
+    position: fixed;
+    z-index: 3001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+  }
+  
+  .alert-modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .alert-content {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .alert-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+
+  .alert-icon.success { color: #28a745; }
+  .alert-icon.error { color: #dc3545; }
+  .alert-icon.warning { color: #ffc107; }
+  .alert-icon.info { color: #17a2b8; }
+
+  .alert-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .alert-message {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+
+  .alert-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .alert-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .alert-btn.ok {
+    background: #3A1C71;
+    color: white;
+  }
+
+  .alert-btn.ok:hover {
+    background: #2a1451;
+    transform: translateY(-2px);
+  }
+
+  .alert-btn.cancel {
+    background: #6c757d;
+    color: white;
+  }
+
+  .alert-btn.cancel:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+  }
+
+  .alert-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s ease;
+  }
+
+  .alert-close:hover {
+    color: #333;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { transform: translateY(-30px) scale(0.9); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+
+
+  /* File Modal Styles */
+  .file-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  .file-modal.active {
+    display: flex;
+  }
+
+  .file-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .file-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  .file-modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .file-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .file-modal-close:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .file-modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* Navigation arrows for images */
+  .file-navigation {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+
+  .file-navigation:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .file-nav-prev {
+    left: 20px;
+  }
+
+  .file-nav-next {
+    right: 20px;
+  }
+
+  .file-nav-prev:disabled,
+  .file-nav-next:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .file-nav-prev:disabled:hover,
+  .file-nav-next:disabled:hover {
+    transform: translateY(-50%);
+  }
+
+  /* Delete button for files */
+  .file-delete-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .file-delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+  }
+
+  .file-delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .file-delete-btn:disabled:hover {
+    transform: none;
+  }
+
+      /* File actions in grid */
+    .file-actions {
+      display: flex;
+      gap: 5px;
+      opacity: 1; /* Always visible now */
+      transition: opacity 0.2s;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px;
+      border-radius: 6px;
+      backdrop-filter: blur(5px);
+    }
+
+    /* Removed the hover rule since we want buttons always visible */
+
+    .file-item {
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .file-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+  .file-action-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+
+  .file-action-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .file-action-btn.delete-btn {
+    background: var(--danger);
+  }
+
+  .file-action-btn.delete-btn:hover {
+    background: #dc2626;
+  }
+
+  .view-btn {
+    background: var(--success);
+  }
+
+  .view-btn:hover {
+    background: #059669;
+  }
+
+  .download-btn {
+    background: var(--warning);
+  }
+
+  .download-btn:hover {
+    background: #d97706;
+  }
+
+</style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html" class="active"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" ><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <div class="title">
+          <img src="./assets/lesson planner.png" alt="Lesson Planner" style="width: 20px; height: 20px; margin-right: 10px;">
+          Lesson Planner
+        </div>
+        <div class="year-selector-top">
+          <label for="yearSelectTop">Academic Year:</label>
+          <select id="yearSelectTop" class="year-select-top">
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+        </div>
+        <div class="status">
+          <div class="indicator"></div>
+          <span>Online</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="totalLessons">0</div>
+            <div class="stat-label">Total Lessons</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completedLessons">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="inProgressLessons">0</div>
+            <div class="stat-label">In Progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="syllabusCovered">0%</div>
+            <div class="stat-label">Syllabus Covered</div>
+          </div>
+
+        </div>
+
+        <div class="main-content-grid">
+          <div class="lesson-form">
+            <h2 class="form-title"><img src="./assets/lesson planner.png" alt="Create New Lesson Plan" style="width: 20px; height: 20px; margin-right: 10px;">Create New Lesson Plan</h2>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Class</label>
+                <select id="classSelect">
+                  <option value="">Select Class</option>
+                  <option value="8A">Class 8A</option>
+                  <option value="8B">Class 8B</option>
+                  <option value="9A">Class 9A</option>
+                  <option value="9B">Class 9B</option>
+                  <option value="10A">Class 10A</option>
+                  <option value="10B">Class 10B</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Subject</label>
+                <select id="subjectSelect">
+                  <option value="">Select Subject</option>
+                  <option value="mathematics">Mathematics</option>
+                  <option value="science">Science</option>
+                  <option value="english">English</option>
+                  <option value="social">Social Studies</option>
+                  <option value="hindi">Hindi</option>
+                  <option value="computer">Computer Science</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Lesson Title</label>
+                <input type="text" id="lessonTitle" placeholder="Enter lesson title">
+              </div>
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="lessonDate">
+              </div>
+                          <div class="form-group full-width">
+                <label>Topic/Description</label>
+                <textarea id="lessonDescription" placeholder="Enter lesson topic and description"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Duration (minutes)</label>
+                <input type="number" id="lessonDuration" placeholder="45" min="15" max="180">
+              </div>
+              <div class="form-group">
+                <label>Difficulty Level</label>
+                <select id="difficultyLevel">
+                  <option value="">Select Level</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Syllabus Planning Section -->
+            <div class="syllabus-section">
+              <div class="syllabus-header">
+                <i class="fas fa-target"></i>
+                Learning Objectives
+              </div>
+              <div class="learning-objectives" id="learningObjectives">
+                <div class="objective-item">
+                  <input type="text" placeholder="Enter learning objective" class="objective-input">
+                  <button class="remove-objective-btn" onclick="removeObjective(this)">×</button>
+                </div>
+              </div>
+              <button class="add-objective-btn" onclick="addObjective()">
+                <i class="fas fa-plus"></i> Add Objective
+              </button>
+            </div>
+
+            <!-- Image Upload Section -->
+            <div class="image-upload-section">
+              <label>Lesson Resources & Images</label>
+              <div class="file-upload" id="fileUpload">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div>Drop files here or click to upload</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                  Supports PDF, PPT, videos, images (Max 50MB)
+                </div>
+              </div>
+              <div class="image-preview-container" id="imagePreviewContainer">
+                <!-- Preview items will be added here -->
+              </div>
+            </div>
+
+              <div class="action-buttons">
+                <button class="btn btn-secondary" id="clearFormBtn">Clear Form</button>
+                <button class="btn btn-primary" id="createLessonBtn">Create Lesson Plan</button>
+              </div>
+            </div>
+
+            <div class="sidebar-right">
+              <div class="lesson-list">
+                <h3>Recent Lessons</h3>
+                              <div id="lessonList">
+                  <!-- Lesson items will be dynamically generated here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson Details Modal -->
+  <div class="modal-overlay" id="lessonModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-book-open"></i>
+          <span id="modalLessonTitle">Lesson Details</span>
+        </h2>
+        <button class="modal-close" id="lessonModalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+                <!-- Status Selection Section -->
+        <div class="status-section">
+          <div class="status-title">
+            <i class="fas fa-flag"></i>
+            Select Status
+          </div>
+          <div class="status-options">
+            <div class="status-option">
+              <input type="radio" name="lessonStatus" id="statusCompleted" class="status-radio" value="completed">
+              <label for="statusCompleted" class="status-label">
+                <div class="status-icon completed">
+                  <i class="fas fa-check"></i>
+                </div>
+                <span class="status-text">Completed</span>
+              </label>
+            </div>
+            <div class="status-option">
+              <input type="radio" name="lessonStatus" id="statusPending" class="status-radio" value="pending" checked>
+              <label for="statusPending" class="status-label">
+                <div class="status-icon pending">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <span class="status-text">In Progress</span>
+              </label>
+            </div>
+            <div class="status-option">
+              <input type="radio" name="lessonStatus" id="statusOverdue" class="status-radio" value="overdue">
+              <label for="statusOverdue" class="status-label">
+                <div class="status-icon overdue">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span class="status-text">Overdue</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+                <!-- Lesson Overview -->
+        <div class="lesson-overview" id="lessonOverview">
+          <div class="overview-header">
+            <div class="overview-title">
+              <i class="fas fa-info-circle"></i>
+              Lesson Information
+            </div>
+            <div class="overview-actions" id="overviewActions">
+              <button class="action-btn edit-btn" id="editBtn">
+                <i class="fas fa-edit"></i>
+                Edit
+              </button>
+              <button class="action-btn delete-btn" id="deleteBtn">
+                <i class="fas fa-trash"></i>
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="overview-grid" id="overviewGrid">
+            <!-- Overview items will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <div class="progress-title">
+              <i class="fas fa-chart-line"></i>
+              Progress
+            </div>
+            <div class="progress-percentage" id="progressPercentage">60%</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 60%"></div>
+          </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div id="lessonContent">
+          <!-- Content sections will be loaded here -->
+        </div>
+      </div>
+    </div>
+    </div>
+
+  <!-- BC360 Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BC360</div>
+      <div class="loading-subtext">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="alert-modal">
+    <div class="alert-content">
+      <span class="alert-close" id="alertClose">&times;</span>
+      <div class="alert-icon" id="alertIcon">
+        <i class="fas fa-info-circle info"></i>
+      </div>
+      <div class="alert-title" id="alertTitle">Title</div>
+      <div class="alert-message" id="alertMessage">Message</div>
+      <div class="alert-buttons" id="alertButtons">
+        <button class="alert-btn ok" id="alertOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- File View Modal -->
+  <div class="modal-overlay" id="fileModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-file"></i>
+          <span id="fileModalTitle">File Viewer</span>
+        </h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="fileDeleteBtn" class="file-delete-btn" style="display: none;">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+          <button class="modal-close" id="fileModalClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div id="fileModalContent">
+          <!-- File content will be loaded here -->
+        </div>
+        <!-- Navigation arrows for images -->
+        <button id="fileNavPrev" class="file-navigation file-nav-prev" style="display: none;">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button id="fileNavNext" class="file-navigation file-nav-next" style="display: none;">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+        // Custom Alert Function (matching admin module design)
+    function showAlert(title, message, type = 'info', showCancel = false) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('alertModal');
+        const icon = document.getElementById('alertIcon');
+        const titleEl = document.getElementById('alertTitle');
+        const messageEl = document.getElementById('alertMessage');
+        const buttons = document.getElementById('alertButtons');
+        const closeBtn = document.getElementById('alertClose');
+
+        // Set icon based on type
+        let iconClass = 'fas fa-info-circle info';
+        switch (type) {
+          case 'success':
+            iconClass = 'fas fa-check-circle success';
+            break;
+          case 'error':
+            iconClass = 'fas fa-exclamation-circle error';
+            break;
+          case 'warning':
+            iconClass = 'fas fa-exclamation-triangle warning';
+            break;
+        }
+
+        icon.className = `alert-icon ${iconClass}`;
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Show/hide cancel button
+        if (showCancel) {
+          buttons.innerHTML = `
+            <button class="alert-btn cancel" id="alertCancel">Cancel</button>
+            <button class="alert-btn ok" id="alertOkBtn">OK</button>
+          `;
+        } else {
+          buttons.innerHTML = `
+            <button class="alert-btn ok" id="alertOkBtn">OK</button>
+          `;
+        }
+
+        modal.style.display = 'block';
+        modal.classList.add('show');
+
+        const handleClose = (result) => {
+          modal.style.display = 'none';
+          modal.classList.remove('show');
+          resolve(result);
+        };
+
+        // Re-get the OK button reference after changing innerHTML
+        const okBtn = document.getElementById('alertOkBtn');
+        const cancelBtn = document.getElementById('alertCancel');
+        
+        okBtn.onclick = () => handleClose(true);
+        if (cancelBtn) {
+          cancelBtn.onclick = () => handleClose(false);
+        }
+        
+        // Close button (X) functionality
+        closeBtn.onclick = () => handleClose(false);
+        
+        // Close on outside click
+        modal.onclick = (e) => {
+          if (e.target === modal) handleClose(false);
+        };
+      });
+    }
+
+    // Legacy showPopup function for backward compatibility
+    function showPopup(type, title, message, subtitle = '', actions = []) {
+      return showAlert(title, message, type);
+    }
+
+    function hidePopup() {
+      const modal = document.getElementById('alertModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    }
+
+    // Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openMenu() {
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (menuToggle) {
+      menuToggle.onclick = function() {
+        if(sidebar.classList.contains('menu-open')) closeMenu();
+        else openMenu();
+      };
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.onclick = closeMenu;
+    }
+
+    window.addEventListener('resize', ()=> {
+      if(window.innerWidth>1150) closeMenu();
+    });
+
+    if (sidebar) {
+      Array.from(sidebar.querySelectorAll('a')).forEach(a=>{
+        a.onclick=()=>{ if(window.innerWidth<=1150) closeMenu(); };
+      });
+    }
+
+    // API Configuration
+    // API Configuration
+    const LESSON_PLANNER_API = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev/lesson-planner';
+    const LESSON_PLANNER_DELETE_S3_API = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev/lesson-planner/delete-s3';
+    
+    // Lesson management
+    let lessons = [];
+    let currentLessonId = null;
+    let isEditing = false;
+    let originalLessonData = null;
+
+    let uploadedImages = [];
+    let uploadedFiles = [];
+    
+    // Session authentication helper
+    function getCurrentUserData() {
+      let userData = null;
+      if (window.UserSession && window.UserSession.getUserData) {
+        userData = window.UserSession.getUserData();
+      } else {
+        // Fallback: get from localStorage directly
+        const storedUser = localStorage.getItem('bc3620_user');
+        if (storedUser) {
+          try {
+            userData = JSON.parse(storedUser);
+          } catch (e) {
+            console.warn('Failed to parse stored user data:', e);
+          }
+        }
+      }
+      
+      if (!userData || !userData.isAuthenticated) {
+        console.error('No authenticated user session found');
+        return null;
+      }
+      
+      return userData;
+    }
+    
+    // Performance optimization: Caching
+    let lessonsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 30 * 1000; // 30 seconds cache for faster updates
+    
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    let currentPage = 0;
+    const lessonsPerPage = 20; // Show 20 lessons at a time for better performance
+    
+    // Performance optimization: Debounced search function
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+        if (searchTerm.trim() === '') {
+          updateLessonList(); // Show all lessons if no search term
+          return;
+        }
+        
+        // Filter lessons based on search term
+        const filteredLessons = lessons.filter(lesson => 
+          lesson.title?.toLowerCase().includes(searchTerm) ||
+          lesson.subject?.toLowerCase().includes(searchTerm) ||
+          lesson.class?.toLowerCase().includes(searchTerm) ||
+          lesson.description?.toLowerCase().includes(searchTerm)
+        );
+        
+        // Update lesson list with filtered results
+        const lessonList = document.getElementById('lessonList');
+        if (lessonList) {
+          lessonList.innerHTML = '';
+          
+          if (filteredLessons.length === 0) {
+            const noDataRow = document.createElement('div');
+            noDataRow.className = 'no-lessons';
+            noDataRow.innerHTML = '<p>No lessons found matching your search</p>';
+            lessonList.appendChild(noDataRow);
+            return;
+          }
+          
+          // Render filtered lessons
+          filteredLessons.forEach(lesson => {
+            const lessonElement = createLessonElement(lesson);
+            lessonList.appendChild(lessonElement);
+          });
+        }
+      }, 300); // 300ms delay for debouncing
+    }
+    
+    // Performance optimization: Setup function
+    function setupPerformanceOptimizations() {
+      // Preload critical resources
+      const criticalResources = [
+        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+      ];
+      
+      criticalResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = resource;
+        link.as = 'style';
+        link.onload = function() {
+          this.rel = 'stylesheet';
+        };
+        document.head.appendChild(link);
+      });
+      
+      // Setup intersection observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Load content when it comes into view
+              entry.target.classList.add('loaded');
+            }
+          });
+        });
+        
+        // Observe elements that should be lazy loaded
+        document.querySelectorAll('.lazy-load').forEach(el => {
+          observer.observe(el);
+        });
+      }
+      
+      // Setup service worker for caching (if available and not file:// protocol)
+      if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('Service worker registration failed:', err);
+        });
+      } else if (window.location.protocol === 'file:') {
+        console.log('Service worker skipped - file:// protocol not supported');
+      }
+    }
+
+    // File upload functionality
+    const fileUpload = document.getElementById('fileUpload');
+
+    fileUpload.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = '.pdf,.ppt,.pptx,.doc,.docx,.mp4,.avi,.jpg,.jpeg,.png';
+      input.click();
+      
+      input.addEventListener('change', (e) => {
+        const files = e.target.files;
+        console.log('📁 Files selected:', files.length);
+        
+        if (files.length > 0) {
+          // Clear previous files if needed
+          uploadedImages = [];
+          uploadedFiles = [];
+          
+          Array.from(files).forEach((file, index) => {
+            console.log(`📄 Processing file ${index + 1}:`, file.name, 'Type:', file.type);
+            if (file.type.startsWith('image/')) {
+              uploadedImages.push(file);
+              console.log('🖼️ Added to images:', file.name);
+            } else {
+              uploadedFiles.push(file);
+              console.log('📄 Added to files:', file.name);
+            }
+          });
+          
+          console.log('📊 Total images:', uploadedImages.length, 'Total files:', uploadedFiles.length);
+          updateFileUploadDisplay();
+          updateImagePreview();
+          
+          // Debug the state after processing
+          setTimeout(() => {
+            debugImageState();
+          }, 1000);
+          
+          // Clear the input to allow re-uploading the same files
+          e.target.value = '';
+        }
+      });
+    });
+
+    // Image preview functionality
+    function updateImagePreview() {
+      const container = document.getElementById('imagePreviewContainer');
+      container.innerHTML = '';
+      
+      console.log('🖼️ Updating image preview for', uploadedImages.length, 'images');
+      
+      if (uploadedImages.length === 0) {
+        return;
+      }
+      
+      // Show loading indicator while processing images
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'loading-indicator';
+      loadingIndicator.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: var(--text-light);">
+          <i class="fas fa-spinner fa-spin"></i>
+          <div>Loading ${uploadedImages.length} image(s)...</div>
+        </div>
+      `;
+      container.appendChild(loadingIndicator);
+      
+      // Process each image individually to avoid index issues
+      let processedCount = 0;
+      
+      uploadedImages.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewItem = document.createElement('div');
+          previewItem.className = 'preview-item';
+          previewItem.setAttribute('data-index', index);
+          previewItem.innerHTML = `
+            <img src="${e.target.result}" alt="Preview">
+            <div class="remove-item" data-index="${index}">×</div>
+          `;
+          container.appendChild(previewItem);
+          
+          // Add click event listener for remove button
+          const removeBtn = previewItem.querySelector('.remove-item');
+          removeBtn.addEventListener('click', function() {
+            const itemIndex = parseInt(this.getAttribute('data-index'));
+            removeImage(itemIndex);
+          });
+          
+          processedCount++;
+          console.log(`✅ Processed image ${processedCount}/${uploadedImages.length}`);
+          
+          // Remove loading indicator when all images are processed
+          if (processedCount === uploadedImages.length) {
+            const loadingIndicator = container.querySelector('.loading-indicator');
+            if (loadingIndicator) {
+              loadingIndicator.remove();
+            }
+            console.log('✅ All images processed for preview');
+          }
+        };
+        
+        reader.onerror = function() {
+          console.error('Error reading file:', file.name);
+          processedCount++;
+          
+          // Remove loading indicator even if some images fail
+          if (processedCount === uploadedImages.length) {
+            const loadingIndicator = container.querySelector('.loading-indicator');
+            if (loadingIndicator) {
+              loadingIndicator.remove();
+            }
+          }
+        };
+        
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function removeImage(index) {
+      console.log('🗑️ Removing image at index:', index, 'Total images before:', uploadedImages.length);
+      uploadedImages.splice(index, 1);
+      console.log('📊 Total images after removal:', uploadedImages.length);
+      updateImagePreview();
+      updateFileUploadDisplay();
+    }
+    
+    // Debug function to check image state
+    function debugImageState() {
+      console.log('🔍 Debug Image State:');
+      console.log('- uploadedImages array length:', uploadedImages.length);
+      console.log('- uploadedImages array:', uploadedImages.map((img, i) => `${i}: ${img.name}`));
+      console.log('- Preview container children:', document.getElementById('imagePreviewContainer').children.length);
+    }
+
+    function updateFileUploadDisplay() {
+      const totalFiles = uploadedFiles.length + uploadedImages.length;
+      if (totalFiles > 0) {
+        fileUpload.innerHTML = `
+          <i class="fas fa-check-circle" style="color: var(--success);"></i>
+          <div>${totalFiles} file(s) uploaded</div>
+          <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+            Click to upload more files
+          </div>
+        `;
+      } else {
+        fileUpload.innerHTML = `
+          <i class="fas fa-cloud-upload-alt"></i>
+          <div>Drop files here or click to upload</div>
+          <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+            Supports PDF, PPT, videos, images (Max 50MB)
+          </div>
+        `;
+      }
+    }
+
+    // API Functions
+    async function generateUploadUrl(fileName, fileType) {
+      try {
+        console.log('🔄 Generating upload URL for:', fileName, fileType);
+        
+        const response = await fetch(LESSON_PLANNER_API, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'get_upload_url',
+            fileName: fileName,
+            fileType: fileType
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate upload URL');
+        }
+
+        const result = await response.json();
+        return result.uploadUrl;
+      } catch (error) {
+        console.error('❌ Error generating upload URL:', error);
+        throw error;
+      }
+    }
+
+    async function uploadFileToS3(uploadUrl, file) {
+      try {
+        const response = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to upload file to S3');
+        }
+
+        return response;
+      } catch (error) {
+        console.error('Error uploading file to S3:', error);
+        throw error;
+      }
+    }
+
+    async function loadLessons(showLoadingPopup = false, forceRefresh = false) {
+      try {
+        // Check cache first (unless force refresh)
+        const now = Date.now();
+        if (!forceRefresh && lessonsCache && (now - lastCacheTime) < CACHE_DURATION) {
+          console.log('🚀 Using cached lessons data');
+          lessons = lessonsCache;
+          updateLessonList();
+          updateStatistics();
+          if (showLoadingPopup) hideLoading(); // Hide loading immediately for cached data
+          return;
+        }
+        
+        if (showLoadingPopup) {
+          showLoading('Loading lessons...');
+        }
+        
+        // Get current teacher's institution_id for filtering
+        const userData = getCurrentUserData();
+        if (!userData) {
+          console.error('No authenticated user session found');
+          lessons = [];
+          updateLessonList();
+          updateStatistics();
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+        
+        const institution_id = userData.user.institution_id;
+        console.log('🚀 Fetching lessons from API for institution:', institution_id);
+        const response = await fetch(`${LESSON_PLANNER_API}?institution_id=${institution_id}`, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          console.warn('Failed to load lessons from server, starting with empty list');
+          lessons = [];
+          updateLessonList();
+          updateStatistics();
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+
+        const data = await response.json();
+        console.log('Loaded lessons data:', data);
+        
+        // Handle different response formats
+        let rawLessons = [];
+        if (data.lessons && Array.isArray(data.lessons)) {
+          rawLessons = data.lessons;
+        } else if (Array.isArray(data)) {
+          rawLessons = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawLessons = data.data;
+        } else {
+          rawLessons = [];
+        }
+        
+        // Get current teacher's ID for filtering
+        const currentTeacherId = userData.user.teacher_id || userData.user.id;
+        console.log('🔍 Filtering lessons for teacher_id:', currentTeacherId);
+        
+        // Filter lessons by current teacher_id before processing
+        const filteredLessons = rawLessons.filter(lesson => {
+          if (currentTeacherId && lesson.teacher_id && lesson.teacher_id.toString() !== currentTeacherId.toString()) {
+            console.log('🚫 Filtering out lesson:', lesson.title, 'by teacher_id:', lesson.teacher_id);
+            return false; // Skip this lesson
+          }
+          console.log('✅ Including lesson:', lesson.title, 'by teacher_id:', lesson.teacher_id);
+          return true;
+        });
+        
+        console.log('📝 Found', filteredLessons.length, 'lessons for current teacher out of', rawLessons.length, 'total lessons');
+        
+        // Map backend data to frontend format
+        lessons = filteredLessons.map(lesson => {
+          // Parse learning objectives
+          let objectives = [];
+          if (lesson.learning_objective) {
+            try {
+              objectives = JSON.parse(lesson.learning_objective);
+            } catch (e) {
+              objectives = [];
+            }
+          }
+          
+          // Parse document URLs
+          let files = [];
+          console.log('Processing lesson document_url:', lesson.document_url);
+          if (lesson.document_url) {
+            let urls;
+            // Check if document_url is already an array
+            if (Array.isArray(lesson.document_url)) {
+              urls = lesson.document_url;
+              console.log('document_url is already an array:', urls);
+            } else if (typeof lesson.document_url === 'string') {
+              try {
+                urls = JSON.parse(lesson.document_url);
+                console.log('Parsed URLs from JSON string:', urls);
+              } catch (e) {
+                console.log('Error parsing document_url as JSON, treating as single URL:', e);
+                urls = [lesson.document_url];
+              }
+            } else {
+              console.log('document_url is neither array nor string, skipping');
+              urls = [];
+            }
+            
+            if (Array.isArray(urls)) {
+              files = urls.map(url => ({
+                name: url.split('/').pop(),
+                type: mimeFromName(url),
+                size: 'Unknown',
+                url: url
+              }));
+              console.log('Created files array:', files);
+            }
+          } else {
+            console.log('No document_url found for lesson');
+          }
+          
+          // Determine status and progress
+          let status = 'planned';
+          let progress = 0;
+          
+          if (lesson.is_complete) {
+            status = 'completed';
+            progress = 100;
+          } else if (lesson.in_progress) {
+            status = 'pending';
+            progress = 60;
+          } else if (lesson.is_overdue) {
+            status = 'overdue';
+            progress = 30;
+          }
+          
+          return {
+            id: lesson.id,
+            teacher_id: lesson.teacher_id,
+            institution_id: lesson.institution_id,
+            class: lesson.class,
+            subject: lesson.subject,
+            title: lesson.title,
+            date: lesson.date,
+            description: lesson.description,
+            duration: lesson.duration,
+            difficulty: lesson.difficulty,
+            objectives: objectives,
+            files: files,
+            status: status,
+            progress: progress,
+            is_complete: lesson.is_complete,
+            in_progress: lesson.in_progress,
+            is_overdue: lesson.is_overdue,
+            academic_year: lesson.academic_year,
+            created_at: lesson.created_at
+          };
+        });
+        
+        console.log('Processed lessons:', lessons);
+        
+        // Check if any lessons were found after filtering
+        if (lessons.length === 0) {
+          console.log('📝 No lessons found for current teacher after filtering');
+        } else {
+          console.log('📝 Successfully loaded', lessons.length, 'lessons for current teacher');
+        }
+        
+        // Update cache
+        lessonsCache = lessons;
+        lastCacheTime = now;
+        
+        // Use optimized UI updates
+        batchUpdateUI();
+        
+        // Hide loading immediately after data is loaded
+        if (showLoadingPopup) hideLoading();
+        
+      } catch (error) {
+        console.warn('Error loading lessons, starting with empty list:', error);
+        lessons = [];
+        updateLessonList();
+        updateStatistics();
+        if (showLoadingPopup) hideLoading();
+      }
+    }
+    
+    // Performance optimization: Debounced search function
+    function debouncedSearch(searchFunction, delay = 300) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(searchFunction, delay);
+    }
+    
+    // Example search function (can be customized based on needs)
+    function searchLessons(keyword, filters = {}) {
+      if (!lessons || lessons.length === 0) return [];
+      
+      return lessons.filter(lesson => {
+        let matches = true;
+        
+        // Keyword search
+        if (keyword && keyword.trim() !== '') {
+          const searchTerm = keyword.toLowerCase();
+          const titleMatch = lesson.title && lesson.title.toLowerCase().includes(searchTerm);
+          const subjectMatch = lesson.subject && lesson.subject.toLowerCase().includes(searchTerm);
+          const descriptionMatch = lesson.description && lesson.description.toLowerCase().includes(searchTerm);
+          
+          matches = matches && (titleMatch || subjectMatch || descriptionMatch);
+        }
+        
+        // Filter by status
+        if (filters.status && filters.status !== 'all') {
+          matches = matches && lesson.status === filters.status;
+        }
+        
+        // Filter by subject
+        if (filters.subject && filters.subject !== 'all') {
+          matches = matches && lesson.subject === filters.subject;
+        }
+        
+        // Filter by class
+        if (filters.class && filters.class !== 'all') {
+          matches = matches && lesson.class === filters.class;
+        }
+        
+        return matches;
+      });
+    }
+    
+    // Performance optimization: Lazy loading for lessons
+    function getDisplayLessons(limit = null) {
+      if (!lessons || lessons.length === 0) return [];
+      
+      let displayLessons = [...lessons];
+      
+      // Sort by date (newest first)
+      displayLessons.sort((a, b) => {
+        const dateA = new Date(a.date || a.created_at || 0);
+        const dateB = new Date(b.date || b.created_at || 0);
+        return dateB - dateA;
+      });
+      
+      // Limit for performance if specified
+      if (limit && displayLessons.length > limit) {
+        displayLessons = displayLessons.slice(0, limit);
+      }
+      
+      return displayLessons;
+    }
+    
+    // Performance optimization: Batch DOM updates
+    function batchUpdateUI() {
+      // Use requestAnimationFrame for smooth updates
+      requestAnimationFrame(() => {
+        updateLessonList();
+        updateStatistics();
+      });
+    }
+    
+    // Performance optimization: Optimize file loading
+    function optimizeFileLoading(files, limit = 10) {
+      if (!files || files.length === 0) return [];
+      
+      // Limit files for initial load to improve performance
+      if (files.length > limit) {
+        return files.slice(0, limit);
+      }
+      
+      return files;
+    }
+    
+    // Performance optimization: Preload critical resources
+    function preloadCriticalResources() {
+      // Preload critical CSS and fonts
+      const criticalResources = [
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+      ];
+      
+      criticalResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = resource;
+        link.as = 'style';
+        document.head.appendChild(link);
+      });
+    }
+
+    async function createLesson(lessonData) {
+      try {
+        console.log('🚀 Sending lesson data to API:', lessonData);
+        
+        const response = await fetch(LESSON_PLANNER_API, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(lessonData)
+        });
+
+        console.log('📡 API Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ API Error response:', errorText);
+          throw new Error(`Failed to create lesson: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ API Success response:', data);
+        return data;
+      } catch (error) {
+        console.error('❌ Error creating lesson:', error);
+        throw error;
+      }
+    }
+
+    async function updateLesson(lessonData) {
+      try {
+        console.log('🔄 Updating lesson:', lessonData.id);
+        
+        const response = await fetch(LESSON_PLANNER_API, {
+          method: 'PUT',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(lessonData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update lesson');
+        }
+
+        const data = await response.json();
+        console.log('✅ Lesson updated successfully');
+        return data;
+      } catch (error) {
+        console.error('❌ Error updating lesson:', error);
+        throw error;
+      }
+    }
+
+    async function deleteLesson(lessonId) {
+      try {
+        console.log('🗑️ Deleting lesson:', lessonId);
+        
+        const response = await fetch(LESSON_PLANNER_API, {
+          method: 'DELETE',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: lessonId })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete lesson');
+        }
+
+        const data = await response.json();
+        console.log('✅ Lesson deleted successfully');
+        return data;
+      } catch (error) {
+        console.error('❌ Error deleting lesson:', error);
+        throw error;
+      }
+    }
+
+    async function deleteS3File(fileKey) {
+      try {
+        console.log('Sending delete request to:', LESSON_PLANNER_DELETE_S3_API);
+        console.log('Sending fileKey:', fileKey);
+        
+        const response = await fetch(LESSON_PLANNER_DELETE_S3_API, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ key: fileKey })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete file from S3');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error deleting S3 file:', error);
+        throw error;
+      }
+    }
+
+    function getFileTypeFromName(fileName) {
+      const extension = fileName.split('.').pop().toLowerCase();
+      const typeMap = {
+        'pdf': 'PDF',
+        'doc': 'Word',
+        'docx': 'Word',
+        'ppt': 'PowerPoint',
+        'pptx': 'PowerPoint',
+        'jpg': 'Image',
+        'jpeg': 'Image',
+        'png': 'Image',
+        'gif': 'Image',
+        'mp4': 'Video',
+        'avi': 'Video'
+      };
+      return typeMap[extension] || 'File';
+    }
+
+    // Loading Modal Functions (matching admin module design)
+    function showLoading(message = 'Loading...') {
+      const subtext = document.querySelector('.loading-subtext');
+      if (subtext) subtext.textContent = message;
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.style.display = 'block';
+      loadingPopup.classList.add('show');
+    }
+
+    function hideLoading() {
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.style.display = 'none';
+      loadingPopup.classList.remove('show');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      const totalLessons = lessons.length;
+      const completedLessons = lessons.filter(lesson => lesson.status === 'completed').length;
+      const inProgressLessons = lessons.filter(lesson => lesson.status === 'pending').length;
+      const syllabusCovered = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+      document.getElementById('totalLessons').textContent = totalLessons;
+      document.getElementById('completedLessons').textContent = completedLessons;
+      document.getElementById('inProgressLessons').textContent = inProgressLessons;
+      document.getElementById('syllabusCovered').textContent = `${syllabusCovered}%`;
+    }
+
+    // Create lesson functionality
+    const createLessonBtn = document.getElementById('createLessonBtn');
+    createLessonBtn.addEventListener('click', async () => {
+      const classValue = document.getElementById('classSelect').value;
+      const subject = document.getElementById('subjectSelect').value;
+      const title = document.getElementById('lessonTitle').value;
+      const date = document.getElementById('lessonDate').value;
+      const description = document.getElementById('lessonDescription').value;
+      const duration = document.getElementById('lessonDuration').value;
+      const difficulty = document.getElementById('difficultyLevel').value;
+      
+      if (!classValue || !subject || !title || !date) {
+        showAlert('Missing Information', 'Please fill in all required fields. Required fields cannot be empty.', 'error');
+        return;
+      }
+      
+      // Get learning objectives
+      const objectives = [];
+      document.querySelectorAll('.objective-input').forEach(input => {
+        if (input.value.trim()) {
+          objectives.push(input.value.trim());
+        }
+      });
+      
+      // Show loading
+      showLoading('Creating lesson plan...');
+      
+      try {
+        // Handle file uploads with S3
+        let fileUrls = [];
+        const allFiles = [...uploadedFiles, ...uploadedImages];
+        
+        if (allFiles.length > 0) {
+          showLoading(`🚀 Uploading ${allFiles.length} files...`);
+          
+          for (const file of allFiles) {
+            try {
+              console.log('🔄 Uploading file:', file.name);
+              
+              // Generate unique filename
+              const timestamp = Date.now();
+              const randomId = Math.random().toString(36).substring(7);
+              const extension = file.name.split('.').pop();
+              const uniqueFileName = `lessons/${timestamp}-${randomId}.${extension}`;
+              
+              // Generate upload URL
+              const uploadUrl = await generateUploadUrl(uniqueFileName, file.type);
+              
+              // Upload file to S3
+              await uploadFileToS3(uploadUrl, file);
+              
+              // Get the file URL
+              const fileUrl = `https://bc360-lesson-planner.s3.amazonaws.com/${uniqueFileName}`;
+              fileUrls.push(fileUrl);
+              console.log('✅ File uploaded successfully:', fileUrl);
+            } catch (error) {
+              console.error(`❌ File upload failed for ${file.name}:`, error);
+              // Continue without this file
+            }
+          }
+        }
+        
+        // Get current authenticated teacher data
+        const userData = getCurrentUserData();
+        if (!userData) {
+          hideLoading();
+          await showAlert('Error', 'Session expired. Please login again.', 'error');
+          window.location.href = '../login.html';
+          return;
+        }
+
+        // Create lesson data
+        const lessonData = {
+          teacher_id: userData.user.teacher_id,
+          institution_id: userData.user.institution_id,
+          class: classValue,
+          subject: subject,
+          title: title,
+          date: date,
+          description: description,
+          duration: parseInt(duration) || 45,
+          difficulty: difficulty || 'intermediate',
+          learning_objective: JSON.stringify(objectives),
+          document_url: fileUrls.length > 0 ? JSON.stringify(fileUrls) : null,
+          is_complete: false,
+          in_progress: false,
+          is_overdue: false,
+          academic_year: new Date().getFullYear()
+        };
+        
+        // Send to API
+        const result = await createLesson(lessonData);
+        
+        // Reload lessons from API
+        await loadLessons(false, true);
+        
+        // Clear form
+        clearForm();
+        
+        hideLoading();
+        showAlert('Success!', 'Lesson plan created successfully! Your new lesson has been added to the list.', 'success');
+        
+      } catch (error) {
+        console.error('Error creating lesson:', error);
+        hideLoading();
+        showAlert('Error!', `Failed to create lesson plan: ${error.message}`, 'error');
+      }
+    });
+
+    // Clear form functionality
+    const clearFormBtn = document.getElementById('clearFormBtn');
+    clearFormBtn.addEventListener('click', clearForm);
+
+    function clearForm() {
+      document.getElementById('classSelect').value = '';
+      document.getElementById('subjectSelect').value = '';
+      document.getElementById('lessonTitle').value = '';
+      document.getElementById('lessonDate').value = '';
+      document.getElementById('lessonDescription').value = '';
+      document.getElementById('lessonDuration').value = '';
+      document.getElementById('difficultyLevel').value = '';
+      
+      // Clear learning objectives
+      const objectivesContainer = document.getElementById('learningObjectives');
+      objectivesContainer.innerHTML = `
+        <div class="objective-item">
+          <input type="text" placeholder="Enter learning objective" class="objective-input">
+          <button class="remove-objective-btn" onclick="removeObjective(this)">×</button>
+        </div>
+      `;
+      
+      // Clear uploaded files and images
+      uploadedFiles = [];
+      uploadedImages = [];
+      updateFileUploadDisplay();
+      updateImagePreview();
+    }
+
+    // Optimized lesson list update with performance improvements
+    function updateLessonList() {
+      const lessonList = document.getElementById('lessonList');
+      
+      // Clear existing content
+      lessonList.innerHTML = '';
+      
+      if (lessons.length === 0) {
+        lessonList.innerHTML = '<div class="no-lessons">No lessons found</div>';
+        updateStatistics();
+        return;
+      }
+      
+      // Use optimized display function for better performance
+      const displayLessons = getDisplayLessons();
+      
+      displayLessons.forEach(lesson => {
+        const lessonElement = document.createElement('div');
+        lessonElement.className = 'lesson-item';
+        lessonElement.setAttribute('data-id', lesson.id);
+        lessonElement.innerHTML = `
+          <div class="lesson-title">${lesson.title}</div>
+          <div class="lesson-meta">Class ${lesson.class} • ${lesson.subject} • ${new Date(lesson.date).toLocaleDateString()}</div>
+          <div class="lesson-status-container">
+            <div class="lesson-status status-${lesson.status}" onclick="toggleStatusDropdown(this)">${getStatusText(lesson.status)}</div>
+            <div class="status-dropdown">
+              <div class="status-option" onclick="changeStatus(${lesson.id}, 'planned')">Planned</div>
+              <div class="status-option" onclick="changeStatus(${lesson.id}, 'pending')">In Progress</div>
+              <div class="status-option" onclick="changeStatus(${lesson.id}, 'completed')">Completed</div>
+              <div class="status-option" onclick="changeStatus(${lesson.id}, 'overdue')">Overdue</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${lesson.progress}%"></div>
+          </div>
+        `;
+        lessonList.appendChild(lessonElement);
+      });
+      
+      // Update statistics after updating lesson list
+      updateStatistics();
+    }
+
+    function getStatusText(status) {
+      switch(status) {
+        case 'completed': return 'Completed';
+        case 'pending': return 'In Progress';
+        case 'overdue': return 'Overdue';
+        default: return 'Planned';
+      }
+    }
+
+    // Year selector functionality
+    const yearSelectTop = document.getElementById('yearSelectTop');
+    yearSelectTop.addEventListener('change', () => {
+      console.log('Selected year:', yearSelectTop.value);
+      // Here you would filter lessons by year
+    });
+
+    // Status management functions
+    function toggleStatusDropdown(statusElement) {
+      const dropdown = statusElement.nextElementSibling;
+      const allDropdowns = document.querySelectorAll('.status-dropdown');
+      
+      // Close all other dropdowns
+      allDropdowns.forEach(d => {
+        if (d !== dropdown) {
+          d.classList.remove('show');
+        }
+      });
+      
+      dropdown.classList.toggle('show');
+    }
+
+    async function changeStatus(lessonId, newStatus) {
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (!lesson) return;
+      
+      try {
+        showLoading('Updating status...');
+        
+        // Get current authenticated teacher data
+        const userData = getCurrentUserData();
+        if (!userData) {
+          hideLoading();
+          await showAlert('Error', 'Session expired. Please login again.', 'error');
+          window.location.href = '../login.html';
+          return;
+        }
+
+        // Prepare update data
+        const updateData = {
+          id: lessonId,
+          teacher_id: userData.user.teacher_id,
+          institution_id: userData.user.institution_id,
+          class: lesson.class,
+          subject: lesson.subject,
+          title: lesson.title,
+          date: lesson.date,
+          description: lesson.description,
+          duration: lesson.duration,
+          difficulty: lesson.difficulty,
+          learning_objective: lesson.learning_objective || JSON.stringify(lesson.objectives || []),
+          document_url: lesson.document_url,
+          is_complete: newStatus === 'completed',
+          in_progress: newStatus === 'pending',
+          is_overdue: newStatus === 'overdue'
+        };
+        
+        // Update via API
+        await updateLesson(updateData);
+        
+        // Reload lessons to get updated data
+        await loadLessons(false, true);
+        
+        hideLoading();
+        showAlert('Status Updated!', 'Lesson status has been updated successfully.', 'success');
+        
+        // Close dropdown
+        const dropdown = document.querySelector('.status-dropdown.show');
+        if (dropdown) {
+          dropdown.classList.remove('show');
+        }
+        
+      } catch (error) {
+        console.error('Error updating status:', error);
+        hideLoading();
+        showAlert('Error!', `Failed to update status: ${error.message}`, 'error');
+      }
+    }
+
+    // Modal functionality
+
+    function openLessonModal(lessonId) {
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (!lesson) return;
+      
+      currentLessonId = lessonId;
+      originalLessonData = { ...lesson };
+      isEditing = false;
+      
+      const modal = document.getElementById('lessonModal');
+      const modalTitle = document.getElementById('modalLessonTitle');
+      const overviewGrid = document.getElementById('overviewGrid');
+      const progressPercentage = document.getElementById('progressPercentage');
+      const progressFill = document.getElementById('progressFill');
+      const lessonContent = document.getElementById('lessonContent');
+      
+      modalTitle.textContent = lesson.title;
+      
+      // Set status radio button
+      document.querySelectorAll('.status-radio').forEach(radio => {
+        radio.checked = radio.value === lesson.status;
+      });
+      
+      // Update progress
+      progressPercentage.textContent = `${lesson.progress}%`;
+      progressFill.style.width = `${lesson.progress}%`;
+      
+      // Populate lesson overview with new design
+      overviewGrid.innerHTML = `
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Class</div>
+            <div class="overview-value" data-field="class">${lesson.class}</div>
+          </div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-book"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Subject</div>
+            <div class="overview-value" data-field="subject">${lesson.subject}</div>
+          </div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Duration</div>
+            <div class="overview-value" data-field="duration">${lesson.duration} min</div>
+          </div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-signal"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Difficulty</div>
+            <div class="overview-value" data-field="difficulty">${lesson.difficulty}</div>
+          </div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-calendar"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Date</div>
+            <div class="overview-value" data-field="date">${new Date(lesson.date).toLocaleDateString()}</div>
+          </div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-icon">
+            <i class="fas fa-flag"></i>
+          </div>
+          <div class="overview-content">
+            <div class="overview-label">Status</div>
+            <div class="overview-value" data-field="status">${getStatusText(lesson.status)}</div>
+          </div>
+        </div>
+      `;
+      
+      // Populate lesson content
+      let contentHTML = '';
+      
+      // Description section
+      if (lesson.description) {
+        contentHTML += `
+          <div class="content-section">
+            <div class="section-title">
+              <i class="fas fa-align-left"></i>
+              Description
+            </div>
+            <div class="section-content">
+              ${lesson.description}
+            </div>
+          </div>
+        `;
+      }
+      
+      // Learning objectives section
+      if (lesson.objectives && lesson.objectives.length > 0) {
+        contentHTML += `
+          <div class="content-section">
+            <div class="section-title">
+              <i class="fas fa-target"></i>
+              Learning Objectives
+            </div>
+            <div class="section-content">
+              <ul class="objectives-list">
+                ${lesson.objectives.map((objective, index) => `
+                  <li>
+                    <div class="objective-number">${index + 1}</div>
+                    <span>${objective}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Files section
+      console.log('Lesson files in openLessonModal:', lesson.files);
+      if (lesson.files && lesson.files.length > 0) {
+        contentHTML += `
+          <div class="content-section" id="filesSection">
+            <div class="section-title">
+              <i class="fas fa-paperclip"></i>
+              Resources (${lesson.files.length})
+            </div>
+            <div class="section-content">
+              <div class="files-grid" id="filesGrid">
+                ${lesson.files.map((file, index) => `
+                                     <div class="file-item" data-file-index="${index}" onclick="openFileModal('${file.url}', '${file.name}', '${file.type}', ${index})">
+                     <div class="file-icon">
+                       <i class="${getFileIcon(file.type)}"></i>
+                     </div>
+                     <div class="file-info">
+                       <h4>${file.name}</h4>
+                       <p>${file.size}</p>
+                     </div>
+                     <div class="file-actions">
+                       <button class="file-action-btn view-btn" onclick="event.stopPropagation(); openFileModal('${file.url}', '${file.name}', '${file.type}', ${index})" title="View File">
+                         <i class="fas fa-eye"></i>
+                       </button>
+                       <button class="file-action-btn download-btn" onclick="event.stopPropagation(); downloadFile('${file.url}', '${file.name}')" title="Download File">
+                         <i class="fas fa-download"></i>
+                       </button>
+                       <button class="file-action-btn delete-btn" onclick="event.stopPropagation(); deleteFileWithConfirmation('${file.url}', '${file.name}', ${index})" title="Delete File">
+                         <i class="fas fa-trash"></i>
+                       </button>
+                       <button class="remove-file-btn" onclick="event.stopPropagation(); removeFile(${index})" style="display: none;">
+                         <i class="fas fa-times"></i>
+                       </button>
+                     </div>
+                   </div>
+                `).join('')}
+              </div>
+              <div class="add-files-section" id="addFilesSection" style="display: none;">
+                <div class="file-upload-modal" id="fileUploadModal">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div>Click to add more files</div>
+                  <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                    Supports PDF, PPT, videos, images (Max 50MB)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        contentHTML += `
+          <div class="content-section" id="filesSection">
+            <div class="section-title">
+              <i class="fas fa-paperclip"></i>
+              Resources
+            </div>
+            <div class="section-content">
+              <div class="files-grid" id="filesGrid">
+                <div class="no-files">No files uploaded</div>
+              </div>
+              <div class="add-files-section" id="addFilesSection" style="display: none;">
+                <div class="file-upload-modal" id="fileUploadModal">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div>Click to add files</div>
+                  <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">
+                    Supports PDF, PPT, videos, images (Max 50MB)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+            lessonContent.innerHTML = contentHTML;
+      modal.classList.add('active');
+      
+      // Add event listeners for edit and delete buttons
+      setupEditDeleteHandlers();
+    }
+
+    // Edit and Delete functionality
+    function setupEditDeleteHandlers() {
+      const editBtn = document.getElementById('editBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      
+      editBtn.addEventListener('click', toggleEditMode);
+      deleteBtn.addEventListener('click', deleteLesson);
+    }
+
+    function toggleEditMode() {
+      const editBtn = document.getElementById('editBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      const overviewActions = document.getElementById('overviewActions');
+      
+      if (!isEditing) {
+        // Enter edit mode
+        isEditing = true;
+        editBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+        editBtn.className = 'action-btn save-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+        deleteBtn.className = 'action-btn cancel-btn';
+        
+        // Convert overview values to editable inputs
+        convertToEditMode();
+      } else {
+        // Save changes
+        saveChanges();
+        
+        // Exit edit mode
+        isEditing = false;
+        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+        editBtn.className = 'action-btn edit-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        deleteBtn.className = 'action-btn delete-btn';
+        
+        // Convert back to view mode
+        convertToViewMode();
+      }
+    }
+
+          function convertToEditMode() {
+        const overviewValues = document.querySelectorAll('.overview-value');
+        
+        overviewValues.forEach(valueElement => {
+          const field = valueElement.getAttribute('data-field');
+          const currentValue = valueElement.textContent;
+          
+          if (field === 'class') {
+            valueElement.innerHTML = `
+              <select class="overview-select" data-field="${field}">
+                <option value="8A" ${currentValue === '8A' ? 'selected' : ''}>Class 8A</option>
+                <option value="8B" ${currentValue === '8B' ? 'selected' : ''}>Class 8B</option>
+                <option value="9A" ${currentValue === '9A' ? 'selected' : ''}>Class 9A</option>
+                <option value="9B" ${currentValue === '9B' ? 'selected' : ''}>Class 9B</option>
+                <option value="10A" ${currentValue === '10A' ? 'selected' : ''}>Class 10A</option>
+                <option value="10B" ${currentValue === '10B' ? 'selected' : ''}>Class 10B</option>
+              </select>
+            `;
+          } else if (field === 'subject') {
+            valueElement.innerHTML = `
+              <select class="overview-select" data-field="${field}">
+                <option value="Mathematics" ${currentValue === 'Mathematics' ? 'selected' : ''}>Mathematics</option>
+                <option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option>
+                <option value="English" ${currentValue === 'English' ? 'selected' : ''}>English</option>
+                <option value="Social Studies" ${currentValue === 'Social Studies' ? 'selected' : ''}>Social Studies</option>
+                <option value="Hindi" ${currentValue === 'Hindi' ? 'selected' : ''}>Hindi</option>
+                <option value="Computer Science" ${currentValue === 'Computer Science' ? 'selected' : ''}>Computer Science</option>
+              </select>
+            `;
+          } else if (field === 'duration') {
+            const durationValue = currentValue.replace(' min', '');
+            valueElement.innerHTML = `
+              <input type="number" class="overview-input" data-field="${field}" value="${durationValue}" min="15" max="180">
+            `;
+          } else if (field === 'difficulty') {
+            valueElement.innerHTML = `
+              <select class="overview-select" data-field="${field}">
+                <option value="beginner" ${currentValue === 'beginner' ? 'selected' : ''}>Beginner</option>
+                <option value="intermediate" ${currentValue === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                <option value="advanced" ${currentValue === 'advanced' ? 'selected' : ''}>Advanced</option>
+              </select>
+            `;
+          } else if (field === 'date') {
+            const dateValue = new Date(originalLessonData.date).toISOString().split('T')[0];
+            valueElement.innerHTML = `
+              <input type="date" class="overview-input" data-field="${field}" value="${dateValue}">
+            `;
+          } else if (field === 'status') {
+            valueElement.innerHTML = `
+              <select class="overview-select" data-field="${field}">
+                <option value="planned" ${originalLessonData.status === 'planned' ? 'selected' : ''}>Planned</option>
+                <option value="pending" ${originalLessonData.status === 'pending' ? 'selected' : ''}>In Progress</option>
+                <option value="completed" ${originalLessonData.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="overdue" ${originalLessonData.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+              </select>
+            `;
+          }
+        });
+
+        // Enable file editing
+        enableFileEditing();
+      }
+
+          function convertToViewMode() {
+        const lesson = lessons.find(l => l.id === currentLessonId);
+        if (!lesson) return;
+        
+        const overviewValues = document.querySelectorAll('.overview-value');
+        
+        overviewValues.forEach(valueElement => {
+          const field = valueElement.getAttribute('data-field');
+          
+          if (field === 'class') {
+            valueElement.textContent = lesson.class;
+          } else if (field === 'subject') {
+            valueElement.textContent = lesson.subject;
+          } else if (field === 'duration') {
+            valueElement.textContent = `${lesson.duration} min`;
+          } else if (field === 'difficulty') {
+            valueElement.textContent = lesson.difficulty;
+          } else if (field === 'date') {
+            valueElement.textContent = new Date(lesson.date).toLocaleDateString();
+          } else if (field === 'status') {
+            valueElement.textContent = getStatusText(lesson.status);
+          }
+        });
+
+        // Disable file editing
+        disableFileEditing();
+      }
+
+          async function saveChanges() {
+        const lesson = lessons.find(l => l.id === currentLessonId);
+        if (!lesson) return;
+        
+        try {
+          showLoading('Saving changes...');
+          
+          // Collect all the edited values
+          const inputs = document.querySelectorAll('.overview-input, .overview-select');
+          
+          // Get current authenticated teacher data
+          const userData = getCurrentUserData();
+          if (!userData) {
+            hideLoading();
+            await showAlert('Error', 'Session expired. Please login again.', 'error');
+            window.location.href = '../login.html';
+            return;
+          }
+
+          const updateData = {
+            id: currentLessonId,
+            teacher_id: userData.user.teacher_id,
+            institution_id: userData.user.institution_id,
+            class: lesson.class,
+            subject: lesson.subject,
+            title: lesson.title,
+            date: lesson.date,
+            description: lesson.description,
+            duration: lesson.duration,
+            difficulty: lesson.difficulty,
+            learning_objective: lesson.learning_objective || JSON.stringify(lesson.objectives || []),
+            document_url: lesson.document_url,
+            is_complete: false,
+            in_progress: false,
+            is_overdue: false
+          };
+          
+          inputs.forEach(input => {
+            const field = input.getAttribute('data-field');
+            const value = input.value;
+            
+            if (field === 'class') {
+              updateData.class = value;
+            } else if (field === 'subject') {
+              updateData.subject = value;
+            } else if (field === 'duration') {
+              updateData.duration = parseInt(value);
+            } else if (field === 'difficulty') {
+              updateData.difficulty = value;
+            } else if (field === 'date') {
+              updateData.date = value;
+            } else if (field === 'status') {
+              updateData.is_complete = value === 'completed';
+              updateData.in_progress = value === 'pending';
+              updateData.is_overdue = value === 'overdue';
+            }
+          });
+          
+          // Update via API
+          await updateLesson(updateData);
+          
+          // Reload lessons to get updated data
+          await loadLessons(false, true);
+          
+          // Exit edit mode
+          isEditing = false;
+          const editBtn = document.getElementById('editBtn');
+          const deleteBtn = document.getElementById('deleteBtn');
+          
+          editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+          editBtn.className = 'action-btn edit-btn';
+          deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+          deleteBtn.className = 'action-btn delete-btn';
+          
+          // Convert back to view mode
+          convertToViewMode();
+          
+          hideLoading();
+          showAlert('Updated!', 'Lesson updated successfully! Your changes have been saved.', 'success');
+          
+        } catch (error) {
+          console.error('Error saving changes:', error);
+          hideLoading();
+          showAlert('Error!', `Failed to save changes: ${error.message}`, 'error');
+        }
+      }
+
+      // File editing functions
+      function enableFileEditing() {
+        const addFilesSection = document.getElementById('addFilesSection');
+        const removeButtons = document.querySelectorAll('.remove-file-btn');
+        
+        if (addFilesSection) {
+          addFilesSection.style.display = 'block';
+        }
+        
+        removeButtons.forEach(btn => {
+          btn.style.display = 'flex';
+        });
+
+        // Add event listener for file upload
+        const fileUploadModal = document.getElementById('fileUploadModal');
+        if (fileUploadModal) {
+          fileUploadModal.addEventListener('click', handleModalFileUpload);
+        }
+      }
+
+      function disableFileEditing() {
+        const addFilesSection = document.getElementById('addFilesSection');
+        const removeButtons = document.querySelectorAll('.remove-file-btn');
+        
+        if (addFilesSection) {
+          addFilesSection.style.display = 'none';
+        }
+        
+        removeButtons.forEach(btn => {
+          btn.style.display = 'none';
+        });
+
+        // Remove event listener for file upload
+        const fileUploadModal = document.getElementById('fileUploadModal');
+        if (fileUploadModal) {
+          fileUploadModal.removeEventListener('click', handleModalFileUpload);
+        }
+      }
+
+      function handleModalFileUpload() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = '.pdf,.ppt,.pptx,.doc,.docx,.mp4,.avi,.jpg,.jpeg,.png';
+        input.click();
+        
+        input.addEventListener('change', (e) => {
+          const files = e.target.files;
+          if (files.length > 0) {
+            addFilesToLesson(files);
+          }
+        });
+      }
+
+      async function addFilesToLesson(files) {
+        const lesson = lessons.find(l => l.id === currentLessonId);
+        if (!lesson) return;
+
+        try {
+          showLoading('Uploading files...');
+          
+          // Upload each file to S3 and get URLs
+          const uploadedFiles = [];
+          
+          for (const file of Array.from(files)) {
+            // Generate upload URL
+            const uploadResponse = await fetch(LESSON_PLANNER_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                action: 'get_upload_url',
+                fileName: file.name,
+                fileType: file.type || mimeFromName(file.name)
+              })
+            });
+
+            if (!uploadResponse.ok) {
+              throw new Error(`Failed to get upload URL for ${file.name}`);
+            }
+
+            const uploadData = await uploadResponse.json();
+            
+            // Upload file to S3
+            const uploadToS3 = await fetch(uploadData.uploadUrl, {
+              method: 'PUT',
+              body: file,
+              headers: {
+                'Content-Type': file.type || mimeFromName(file.name)
+              }
+            });
+
+            if (!uploadToS3.ok) {
+              throw new Error(`Failed to upload ${file.name} to S3`);
+            }
+
+            // Add file info to lesson
+            const fileInfo = {
+              name: file.name,
+              type: file.type || mimeFromName(file.name),
+              size: formatFileSize(file.size),
+              url: uploadData.fileUrl
+            };
+            
+            uploadedFiles.push(fileInfo);
+            lesson.files.push(fileInfo);
+          }
+
+          // Update document_url with all file URLs
+          const allUrls = lesson.files.map(f => f.url);
+          lesson.document_url = JSON.stringify(allUrls);
+
+          // Update lesson in database
+          const updateData = {
+            id: lesson.id,
+            teacher_id: lesson.teacher_id,
+            institution_id: lesson.institution_id,
+            class: lesson.class,
+            subject: lesson.subject,
+            title: lesson.title,
+            date: lesson.date,
+            description: lesson.description,
+            duration: lesson.duration,
+            difficulty: lesson.difficulty,
+            learning_objective: lesson.learning_objective || JSON.stringify(lesson.objectives || []),
+            document_url: lesson.document_url,
+            is_complete: lesson.is_complete,
+            in_progress: lesson.in_progress,
+            is_overdue: lesson.is_overdue
+          };
+
+          await updateLesson(updateData);
+          
+          updateFilesDisplay();
+          hideLoading();
+          
+          showAlert('Files Uploaded', `${uploadedFiles.length} file(s) uploaded successfully! The files have been added to your lesson.`, 'success');
+          
+        } catch (error) {
+          console.error('Error uploading files:', error);
+          hideLoading();
+          showAlert('Upload Failed', `Failed to upload files: ${error.message}`, 'error');
+        }
+      }
+
+      async function removeFile(fileIndex) {
+        const lesson = lessons.find(l => l.id === currentLessonId);
+        if (!lesson) return;
+
+        try {
+          showLoading('Removing file...');
+          
+          // Remove file from array
+          lesson.files.splice(fileIndex, 1);
+          
+          // Update document_url
+          const updatedUrls = lesson.files.map(f => f.url);
+          lesson.document_url = updatedUrls.length > 0 ? JSON.stringify(updatedUrls) : null;
+          
+          // Update lesson in database
+          const updateData = {
+            id: lesson.id,
+            teacher_id: lesson.teacher_id,
+            institution_id: lesson.institution_id,
+            class: lesson.class,
+            subject: lesson.subject,
+            title: lesson.title,
+            date: lesson.date,
+            description: lesson.description,
+            duration: lesson.duration,
+            difficulty: lesson.difficulty,
+            learning_objective: lesson.learning_objective || JSON.stringify(lesson.objectives || []),
+            document_url: lesson.document_url,
+            is_complete: lesson.is_complete,
+            in_progress: lesson.in_progress,
+            is_overdue: lesson.is_overdue
+          };
+          
+          await updateLesson(updateData);
+          
+          updateFilesDisplay();
+          hideLoading();
+          
+        } catch (error) {
+          console.error('Error removing file:', error);
+          hideLoading();
+          showAlert('Error!', `Failed to remove file: ${error.message}`, 'error');
+        }
+      }
+
+      function updateFilesDisplay() {
+        const lesson = lessons.find(l => l.id === currentLessonId);
+        if (!lesson) return;
+
+        const filesGrid = document.getElementById('filesGrid');
+        const filesSection = document.getElementById('filesSection');
+        const sectionTitle = filesSection.querySelector('.section-title');
+
+        if (lesson.files && lesson.files.length > 0) {
+          sectionTitle.innerHTML = `<i class="fas fa-paperclip"></i> Resources (${lesson.files.length})`;
+          
+                     filesGrid.innerHTML = lesson.files.map((file, index) => `
+             <div class="file-item" data-file-index="${index}" onclick="openFileModal('${file.url}', '${file.name}', '${file.type}', ${index})">
+               <div class="file-icon">
+                 <i class="${getFileIcon(file.type)}"></i>
+               </div>
+               <div class="file-info">
+                 <h4>${file.name}</h4>
+                 <p>${file.size}</p>
+               </div>
+               <div class="file-actions">
+                 <button class="file-action-btn view-btn" onclick="event.stopPropagation(); openFileModal('${file.url}', '${file.name}', '${file.type}', ${index})" title="View File">
+                   <i class="fas fa-eye"></i>
+                 </button>
+                 <button class="file-action-btn download-btn" onclick="event.stopPropagation(); downloadFile('${file.url}', '${file.name}')" title="Download File">
+                   <i class="fas fa-download"></i>
+                 </button>
+                 <button class="file-action-btn delete-btn" onclick="event.stopPropagation(); deleteFileWithConfirmation('${file.url}', '${file.name}', ${index})" title="Delete File">
+                   <i class="fas fa-trash"></i>
+                 </button>
+                 <button class="remove-file-btn" onclick="event.stopPropagation(); removeFile(${index})" style="display: ${isEditing ? 'flex' : 'none'};">
+                   <i class="fas fa-times"></i>
+                 </button>
+               </div>
+             </div>
+           `).join('');
+        } else {
+          sectionTitle.innerHTML = `<i class="fas fa-paperclip"></i> Resources`;
+          filesGrid.innerHTML = '<div class="no-files">No files uploaded</div>';
+        }
+      }
+
+      function mimeFromName(fileName) {
+        const extension = fileName.split('.').pop().toLowerCase();
+        const typeMap = {
+          'pdf': 'application/pdf',
+          'doc': 'application/msword',
+          'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'ppt': 'application/vnd.ms-powerpoint',
+          'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'png': 'image/png',
+          'mp4': 'video/mp4',
+          'avi': 'video/x-msvideo'
+        };
+        return typeMap[extension] || 'application/octet-stream';
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+    async function deleteLesson() {
+      if (isEditing) {
+        // Cancel edit mode
+        isEditing = false;
+        const editBtn = document.getElementById('editBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        
+        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+        editBtn.className = 'action-btn edit-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        deleteBtn.className = 'action-btn delete-btn';
+        
+        // Restore original data
+        convertToViewMode();
+      } else {
+        // Confirm deletion
+        const confirmed = await showAlert('Delete Lesson', 'Are you sure you want to delete this lesson? This action cannot be undone.', 'warning', true);
+        
+        if (confirmed) {
+          try {
+            showLoading('Deleting lesson...');
+            
+            // Delete from API
+            await deleteLesson(currentLessonId);
+            
+            // Reload lessons from API
+            await loadLessons(false, true);
+            
+            // Close modal
+            document.getElementById('lessonModal').classList.remove('active');
+            hideLoading();
+            
+            showAlert('Deleted!', 'Lesson deleted successfully! The lesson has been removed from your list.', 'success');
+          } catch (error) {
+            console.error('Error deleting lesson:', error);
+            hideLoading();
+            showAlert('Error!', `Failed to delete lesson: ${error.message}`, 'error');
+          }
+        }
+      }
+    }
+
+    function updateProgressDisplay() {
+      const lesson = lessons.find(l => l.id === currentLessonId);
+      if (!lesson) return;
+      
+      const progressPercentage = document.getElementById('progressPercentage');
+      const progressFill = document.getElementById('progressFill');
+      
+      progressPercentage.textContent = `${lesson.progress}%`;
+      progressFill.style.width = `${lesson.progress}%`;
+    }
+
+    // Learning objectives functions
+    function addObjective() {
+      const container = document.getElementById('learningObjectives');
+      const newObjective = document.createElement('div');
+      newObjective.className = 'objective-item';
+      newObjective.innerHTML = `
+        <input type="text" placeholder="Enter learning objective" class="objective-input">
+        <button class="remove-objective-btn" onclick="removeObjective(this)">×</button>
+      `;
+      container.appendChild(newObjective);
+    }
+
+    function removeObjective(button) {
+      const objectiveItem = button.parentElement;
+      const container = document.getElementById('learningObjectives');
+      
+      // Don't remove if it's the last objective
+      if (container.children.length > 1) {
+        objectiveItem.remove();
+      }
+    }
+
+         function getFileIcon(fileType) {
+       if (fileType.includes('pdf')) return 'fas fa-file-pdf';
+       if (fileType.includes('word') || fileType.includes('doc')) return 'fas fa-file-word';
+       if (fileType.includes('video') || fileType.includes('mp4') || fileType.includes('avi')) return 'fas fa-file-video';
+       if (fileType.includes('image') || fileType.includes('jpg') || fileType.includes('jpeg') || fileType.includes('png')) return 'fas fa-file-image';
+       if (fileType.includes('powerpoint') || fileType.includes('ppt')) return 'fas fa-file-powerpoint';
+       return 'fas fa-file';
+     }
+
+     // File viewing and downloading functions
+     let currentFileIndex = -1;
+     let currentLessonFiles = [];
+
+     function openFileModal(fileUrl, fileName, fileType, fileIndex = -1) {
+       const modal = document.getElementById('fileModal');
+       const modalTitle = document.getElementById('fileModalTitle');
+       const modalContent = document.getElementById('fileModalContent');
+       const deleteBtn = document.getElementById('fileDeleteBtn');
+       const navPrev = document.getElementById('fileNavPrev');
+       const navNext = document.getElementById('fileNavNext');
+       
+       // Store current file info for navigation
+       currentFileIndex = fileIndex;
+       const lesson = lessons.find(l => l.id === currentLessonId);
+       currentLessonFiles = lesson ? lesson.files.filter(f => f.type && f.type.includes('image')) : [];
+       
+       modalTitle.textContent = fileName;
+       
+       // Show/hide navigation arrows for images
+       if (fileType.includes('image') && currentLessonFiles.length > 1) {
+         navPrev.style.display = 'flex';
+         navNext.style.display = 'flex';
+         navPrev.disabled = currentFileIndex <= 0;
+         navNext.disabled = currentFileIndex >= currentLessonFiles.length - 1;
+       } else {
+         navPrev.style.display = 'none';
+         navNext.style.display = 'none';
+       }
+       
+       // Hide delete button in file viewing modal
+       deleteBtn.style.display = 'none';
+       
+       // Show loading
+       modalContent.innerHTML = `
+         <div style="text-align: center; padding: 2rem;">
+           <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 1rem;"></div>
+           <p>Loading file...</p>
+         </div>
+       `;
+       
+       modal.classList.add('active');
+       
+       // Handle different file types
+       if (fileType.includes('image')) {
+         // Display image
+         modalContent.innerHTML = `
+           <div style="text-align: center;">
+             <img src="${fileUrl}" alt="${fileName}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">
+           </div>
+         `;
+       } else if (fileType.includes('pdf')) {
+         // Display PDF
+         modalContent.innerHTML = `
+           <div style="height: 70vh;">
+             <iframe src="${fileUrl}" width="100%" height="100%" style="border: none; border-radius: 8px;"></iframe>
+           </div>
+         `;
+       } else if (fileType.includes('video')) {
+         // Display video
+         modalContent.innerHTML = `
+           <div style="text-align: center;">
+             <video controls style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+               <source src="${fileUrl}" type="${fileType}">
+               Your browser does not support the video tag.
+             </video>
+           </div>
+         `;
+       } else {
+         // For other file types, show file info only
+         modalContent.innerHTML = `
+           <div style="text-align: center; padding: 2rem;">
+             <div style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;">
+               <i class="${getFileIcon(fileType)}"></i>
+             </div>
+             <h3>${fileName}</h3>
+             <p style="color: var(--text-light);">This file type cannot be previewed directly.</p>
+           </div>
+         `;
+       }
+     }
+
+     async function downloadFile(fileUrl, fileName) {
+       try {
+         // Extract S3 key from URL
+         let s3Key = fileUrl;
+         if (fileUrl.startsWith('https://')) {
+           // Handle different S3 URL formats
+           if (fileUrl.includes('s3.amazonaws.com/')) {
+             // Format: https://bucket-name.s3.amazonaws.com/key
+             s3Key = fileUrl.split('s3.amazonaws.com/')[1];
+           } else if (fileUrl.includes('.s3.')) {
+             // Format: https://bucket-name.s3.region.amazonaws.com/key
+             const urlParts = fileUrl.split('.s3.');
+             if (urlParts.length > 1) {
+               s3Key = urlParts[1].split('/').slice(1).join('/');
+             }
+           }
+           // Remove any query parameters
+           s3Key = s3Key.split('?')[0];
+         }
+
+         console.log('Downloading file:', fileName);
+         console.log('S3 Key:', s3Key);
+
+         // Get presigned download URL
+         const response = await fetch(`${LESSON_PLANNER_API}/download?key=${encodeURIComponent(s3Key)}&filename=${encodeURIComponent(fileName)}`);
+         if (!response.ok) {
+           throw new Error(`Failed to get download URL: ${response.status} ${response.statusText}`);
+         }
+
+         const data = await response.json();
+         
+         // Create download link with presigned URL
+         const link = document.createElement('a');
+         link.href = data.downloadUrl;
+         link.download = data.filename;
+         link.style.display = 'none';
+         link.target = '_blank';
+         
+         // Add link to DOM, click it, and clean up
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+
+         // No popup - download starts silently
+       } catch (error) {
+         console.error('Download error:', error);
+         showAlert('Download Failed', `Failed to download file: ${error.message}`, 'error');
+       }
+     }
+
+     // Navigation functions for file modal
+     function navigateToFile(direction) {
+       if (currentFileIndex === -1 || currentLessonFiles.length === 0) return;
+       
+       let newIndex;
+       if (direction === 'prev') {
+         newIndex = Math.max(0, currentFileIndex - 1);
+       } else {
+         newIndex = Math.min(currentLessonFiles.length - 1, currentFileIndex + 1);
+       }
+       
+       if (newIndex !== currentFileIndex) {
+         const file = currentLessonFiles[newIndex];
+         openFileModal(file.url, file.name, file.type, newIndex);
+       }
+     }
+
+     // Delete file with confirmation wrapper
+     async function deleteFileWithConfirmation(fileUrl, fileName, fileIndex) {
+       const confirmed = await showAlert('Delete File', `Are you sure you want to delete "${fileName}"? This action cannot be undone. The file will be removed from both the lesson and S3 storage.`, 'warning', true);
+       
+       if (confirmed) {
+         await deleteFile(fileUrl, fileName, fileIndex);
+       }
+     }
+
+     // Delete file function
+     async function deleteFile(fileUrl, fileName, fileIndex) {
+       const lesson = lessons.find(l => l.id === currentLessonId);
+       if (!lesson) return;
+
+       try {
+         showLoading('Deleting file...');
+           
+           // Extract S3 key from URL
+           let s3Key = fileUrl;
+           if (fileUrl.startsWith('https://')) {
+             // Handle different S3 URL formats
+             if (fileUrl.includes('s3.amazonaws.com/')) {
+               // Format: https://bucket-name.s3.amazonaws.com/key
+               s3Key = fileUrl.split('s3.amazonaws.com/')[1];
+             } else if (fileUrl.includes('.s3.')) {
+               // Format: https://bucket-name.s3.region.amazonaws.com/key
+               const urlParts = fileUrl.split('.s3.');
+               if (urlParts.length > 1) {
+                 s3Key = urlParts[1].split('/').slice(1).join('/');
+               }
+             }
+             // Remove any query parameters
+             s3Key = s3Key.split('?')[0];
+             
+             // The S3 key should include the 'lessons/' prefix as that's how files are stored
+             // No need to remove the prefix
+           }
+           
+           console.log('Original fileUrl:', fileUrl);
+           console.log('Extracted s3Key:', s3Key);
+           
+           // Delete from S3
+           await deleteS3File(s3Key);
+           
+           // Remove from lesson files array
+           lesson.files.splice(fileIndex, 1);
+           
+           // Update document_url in lesson
+           const updatedUrls = lesson.files.map(f => f.url);
+           lesson.document_url = updatedUrls.length > 0 ? JSON.stringify(updatedUrls) : null;
+           
+           // Update lesson in database
+           const updateData = {
+             id: lesson.id,
+             teacher_id: lesson.teacher_id,
+             institution_id: lesson.institution_id,
+             class: lesson.class,
+             subject: lesson.subject,
+             title: lesson.title,
+             date: lesson.date,
+             description: lesson.description,
+             duration: lesson.duration,
+             difficulty: lesson.difficulty,
+             learning_objective: lesson.learning_objective || JSON.stringify(lesson.objectives || []),
+             document_url: lesson.document_url,
+             is_complete: lesson.is_complete,
+             in_progress: lesson.in_progress,
+             is_overdue: lesson.is_overdue
+           };
+           
+           await updateLesson(updateData);
+           
+           // Update display
+           updateFilesDisplay();
+           
+           // Close modal if it's open
+           const fileModal = document.getElementById('fileModal');
+           if (fileModal.classList.contains('active')) {
+             fileModal.classList.remove('active');
+           }
+           
+           hideLoading();
+           showAlert('File Deleted', 'File deleted successfully! The file has been removed from both the lesson and storage.', 'success');
+           
+         } catch (error) {
+           console.error('Error deleting file:', error);
+           hideLoading();
+           showAlert('Error!', `Failed to delete file: ${error.message}`, 'error');
+         }
+     }
+
+         // Close modal when clicking overlay or close button
+     document.getElementById('lessonModalClose').addEventListener('click', () => {
+       document.getElementById('lessonModal').classList.remove('active');
+     });
+
+     document.getElementById('lessonModal').addEventListener('click', (e) => {
+       if (e.target.classList.contains('modal-overlay')) {
+         e.target.classList.remove('active');
+       }
+     });
+
+     // File modal close functionality
+     document.getElementById('fileModalClose').addEventListener('click', () => {
+       document.getElementById('fileModal').classList.remove('active');
+     });
+
+     document.getElementById('fileModal').addEventListener('click', (e) => {
+       if (e.target.classList.contains('modal-overlay')) {
+         e.target.classList.remove('active');
+       }
+     });
+
+     // File modal navigation and delete functionality
+     document.getElementById('fileNavPrev').addEventListener('click', () => {
+       navigateToFile('prev');
+     });
+
+     document.getElementById('fileNavNext').addEventListener('click', () => {
+       navigateToFile('next');
+     });
+
+     document.getElementById('fileDeleteBtn').addEventListener('click', async () => {
+       if (currentFileIndex !== -1 && currentLessonFiles.length > 0) {
+         const file = currentLessonFiles[currentFileIndex];
+         await deleteFileWithConfirmation(file.url, file.name, currentFileIndex);
+       }
+     });
+
+
+
+    // Handle status radio button changes
+    document.addEventListener('change', (e) => {
+      if (e.target.name === 'lessonStatus') {
+        const selectedStatus = e.target.value;
+        const modal = document.getElementById('lessonModal');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const progressFill = document.getElementById('progressFill');
+        
+        // Update progress based on status
+        let newProgress = 0;
+        switch(selectedStatus) {
+          case 'completed':
+            newProgress = 100;
+            break;
+          case 'pending':
+            newProgress = 60;
+            break;
+          case 'overdue':
+            newProgress = 30;
+            break;
+        }
+        
+        // Update progress display
+        progressPercentage.textContent = `${newProgress}%`;
+        progressFill.style.width = `${newProgress}%`;
+        
+        // Update lesson status in the lessons array
+        const lessonTitle = document.getElementById('modalLessonTitle').textContent;
+        const lesson = lessons.find(l => l.title === lessonTitle);
+        if (lesson) {
+          lesson.status = selectedStatus;
+          lesson.progress = newProgress;
+          updateLessonList();
+        }
+      }
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.lesson-status-container')) {
+        document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+          dropdown.classList.remove('show');
+        });
+      }
+    });
+
+    // Refresh lessons function with cache invalidation
+    async function refreshLessons() {
+      console.log('🔄 Refreshing lessons...');
+      await loadLessons(true, true); // Show loading and force refresh
+    }
+    
+    // Initialize page with performance optimizations
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('🚀 Initializing lesson planner...');
+      
+      // Check authentication first
+      const userData = getCurrentUserData();
+      if (!userData) {
+        console.error('No authenticated user session found');
+        await showAlert('Error', 'Session expired. Please login again.', 'error');
+        window.location.href = '../login.html';
+        return;
+      }
+      
+      console.log('✅ User authenticated:', userData.user.teacher_name, 'from', userData.user.institution_name);
+      
+      // Setup performance optimizations (non-blocking)
+      setTimeout(() => {
+        setupPerformanceOptimizations();
+      }, 100);
+      
+      // Setup search functionality
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+      }
+      
+      // Preload critical resources for faster loading
+      preloadCriticalResources();
+      
+      // Set current year as default in year selector
+      const currentYear = new Date().getFullYear();
+      const yearSelectTop = document.getElementById('yearSelectTop');
+      if (yearSelectTop) {
+        yearSelectTop.value = currentYear.toString();
+      }
+      
+      // Start with empty lessons and load in background for faster initial render
+      lessons = [];
+      batchUpdateUI(); // Use optimized UI updates
+      
+      // Set a maximum loading time to prevent infinite loading
+      const loadingTimeout = setTimeout(() => {
+        console.log('Loading timeout reached, hiding loading spinner');
+        hideLoading();
+      }, 5000); // 5 seconds maximum loading time
+      
+      // Load lessons from API with caching (no loading popup for initial load)
+      setTimeout(() => {
+        loadLessons(false).then(() => {
+          console.log('Lessons loaded successfully');
+          clearTimeout(loadingTimeout);
+        }).catch(error => {
+          console.warn('Failed to load lessons on startup:', error);
+          clearTimeout(loadingTimeout);
+        });
+      }, 100);
+      
+      // Add click events to lesson items
+      document.addEventListener('click', (e) => {
+        const lessonItem = e.target.closest('.lesson-item');
+        if (lessonItem && !e.target.closest('.lesson-status-container')) {
+          const lessonId = parseInt(lessonItem.getAttribute('data-id'));
+          if (lessonId) {
+            openLessonModal(lessonId);
+          }
+        }
+      });
+      
+      // Add refresh functionality (can be triggered by a refresh button)
+      // Example: document.getElementById('refreshBtn').addEventListener('click', refreshLessons);
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

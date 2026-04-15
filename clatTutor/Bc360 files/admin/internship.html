@@ -1,0 +1,3268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --primary: #3A1C71;
+      --primary-dark: #512da8;
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #fff;
+      --bg-color: #f0f2f7;
+      --input-bg: #f8fafc;
+      --border: #e9eaf1;
+      --danger: #FF6B6B;
+      --button-blue: #23384e;
+      --button-blue-hover: #0e2233;
+      --brand: #244285;
+      --brand-light: #4267b2;
+      --scholarship-main: #ffffff;
+      --scholarship-card: #f8fafc;
+      --scholarship-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --scholarship-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+      --scholarship-title: #2d3787;
+      --status-open: #10b981;
+      --status-closing: #f59e0b;
+      --status-closed: #ef4444;
+      --drawer-bg: rgba(0, 0, 0, 0.5);
+      --transition-speed: 0.3s;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-color);
+      min-height: 100vh;
+      color: #333;
+      overflow-x: hidden;
+    }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left var(--transition-speed) ease;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i { 
+      font-size: 1.2rem; 
+      margin-right: 8px; 
+      color: #fff; 
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul { list-style: none; }
+    .sidebar ul li { margin: 20px 0; }
+    .sidebar ul li a {
+      color: #fff; 
+      font-size: 1rem; 
+      text-decoration: none;
+      display: flex; 
+      align-items: center; 
+      padding: 10px;
+      border-radius: 4px; 
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover, .sidebar ul li a.active { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i { 
+      margin-right: 10px; 
+      font-size: 1.3rem; 
+      width: 25px; 
+      text-align: center; 
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li:last-child { margin-top: 10px; }
+    .sidebar ul li a .fa-trophy { color: #FFD700; }
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
+    .sidebar .logout a {
+      color: #fff; 
+      font-size: 1rem; 
+      text-decoration: none;
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 10px;
+      border-radius: 4px; 
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    
+    /* Desktop: Fixed sidebar with main content offset */
+    @media (min-width: 992px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+      }
+      .main-content {
+        margin-left: 260px;
+      }
+    }
+
+    /* Hamburger Menu Button */
+    #menuToggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 4000;
+      font-size: 1.5rem;
+      color: var(--primary);
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #menuToggle:hover {
+      background: #f8f9fa;
+      transform: scale(1.05);
+    }
+
+    #menuToggle.menu-open {
+      background: #ffe6ee;
+      color: #f92b5d;
+    }
+
+    #menuToggle .fa-times { 
+      display: none; 
+    }
+
+    #menuToggle.menu-open .fa-bars { 
+      display: none; 
+    }
+
+    #menuToggle.menu-open .fa-times { 
+      display: inline; 
+    }
+
+    /* Sidebar Overlay */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Mobile: Sliding sidebar */
+    @media (max-width: 991px) {
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        z-index: 999;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        transition: left 0.3s ease;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+      #menuToggle {
+        display: block;
+      }
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-top: 20px;
+      transition: margin-left var(--transition-speed) ease;
+      overflow-y: auto;
+      height: calc(100vh - 20px);
+      overflow-x: hidden;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    
+    .btn-success {
+      background: var(--status-open);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #059669;
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    /* Scholarship Management Styles */
+    .scholarship-root {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--scholarship-main);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: var(--scholarship-shadow);
+      min-height: 80vh;
+      border: 1px solid var(--border);
+    }
+    
+    .scholarship-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    
+    .scholarship-title {
+      font-size: 1.5rem;
+      color: var(--scholarship-title);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .scholarship-title i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      background: rgba(58, 28, 113, 0.1);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    /* Filters Section */
+    .scholarship-filters {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      background: var(--scholarship-card);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-size: 0.9rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .filter-select, .filter-input {
+      background: white;
+      border: 1px solid var(--border);
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .filter-select:hover, .filter-input:hover {
+      border-color: var(--primary);
+    }
+
+    /* Scholarship Table */
+    .scholarship-table-container {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .scholarship-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .scholarship-table th {
+      background: rgba(58, 28, 113, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+      padding: 16px 12px;
+      text-align: left;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .scholarship-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border);
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .scholarship-table tr:hover {
+      background: rgba(58, 28, 113, 0.05);
+    }
+
+    .scholarship-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .scholarship-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .scholarship-offered {
+      color: #666;
+    }
+
+    .scholarship-eligibility {
+      max-width: 200px;
+      line-height: 1.4;
+    }
+
+    .scholarship-deadline {
+      font-weight: 500;
+    }
+
+         /* Status Badges */
+     .status-badge {
+       padding: 6px 12px;
+       border-radius: 16px;
+       font-size: 0.75rem;
+       font-weight: 600;
+       text-align: center;
+       min-width: 85px;
+       position: relative;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       gap: 4px;
+       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+       transition: all 0.3s ease;
+       border: none;
+       text-transform: uppercase;
+       letter-spacing: 0.3px;
+     }
+
+         .status-badge:hover {
+       transform: translateY(-1px);
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+     }
+
+         .status-open {
+       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+       color: white;
+       box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
+     }
+
+     .status-open:hover {
+       box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+     }
+
+         .status-closing {
+       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+       color: white;
+       box-shadow: 0 1px 4px rgba(245, 158, 11, 0.3);
+     }
+
+     .status-closing:hover {
+       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+     }
+
+         .status-closed {
+       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+       color: white;
+       box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+     }
+
+     .status-closed:hover {
+       box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+     }
+
+         /* Status Badge Icons */
+     .status-badge::before {
+       content: '';
+       width: 6px;
+       height: 6px;
+       border-radius: 50%;
+       background: currentColor;
+       opacity: 0.8;
+       animation: pulse 2s infinite;
+     }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+    }
+
+    /* Action Buttons */
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      margin: 2px;
+    }
+
+    .action-btn.edit {
+      background: var(--primary);
+      color: white;
+    }
+
+    .action-btn.edit:hover {
+      background: var(--primary-dark);
+    }
+
+    .action-btn.delete {
+      background: var(--danger);
+      color: white;
+    }
+
+    .action-btn.delete:hover {
+      background: #e53e3e;
+    }
+
+    .action-btn.view {
+      background: var(--status-open);
+      color: white;
+    }
+
+    .action-btn.view:hover {
+      background: #059669;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: modalSlideIn 0.4s ease;
+      overflow: hidden;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 25px 30px 20px 30px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-title i {
+      font-size: 1.2rem;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .modal-body {
+      padding: 30px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: #fafbfc;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(58, 28, 113, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      padding: 25px 30px;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+    }
+
+         /* Loading Popup Styles */
+     .loading-popup {
+       display: none;
+       position: fixed;
+       z-index: 4000;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+       background-color: rgba(0,0,0,0.5);
+       animation: fadeIn 0.3s;
+     }
+     
+     .loading-popup.show {
+       display: flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+     }
+
+     .loading-content {
+       background: #ffffff;
+       padding: 40px;
+       border-radius: 12px;
+       width: 90%;
+       max-width: 300px;
+       text-align: center;
+       position: relative;
+       animation: slideIn 0.3s;
+       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+       color: #333;
+     }
+
+     .loading-spinner {
+       width: 60px;
+       height: 60px;
+       border: 4px solid #e9ecef;
+       border-top: 4px solid #3A1C71;
+       border-radius: 50%;
+       animation: spin 1s linear infinite;
+       margin: 0 auto 20px;
+     }
+
+     .loading-text {
+       font-size: 1.2rem;
+       font-weight: 600;
+       margin-bottom: 10px;
+       color: #3A1C71;
+     }
+
+     .loading-subtext {
+       font-size: 0.9rem;
+       color: #666;
+       word-wrap: break-word;
+       overflow-wrap: break-word;
+       max-width: 100%;
+       line-height: 1.3;
+     }
+
+     @keyframes fadeIn {
+       from { opacity: 0; }
+       to { opacity: 1; }
+     }
+
+     @keyframes slideIn {
+       from {
+         opacity: 0;
+         transform: translateY(-30px) scale(0.9);
+       }
+       to {
+         opacity: 1;
+         transform: translateY(0) scale(1);
+       }
+     }
+
+     @keyframes spin {
+       0% { transform: rotate(0deg); }
+       100% { transform: rotate(360deg); }
+     }
+
+     /* Modern Compact Popup Styles */
+     .popup-overlay {
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background: rgba(0, 0, 0, 0.4);
+       display: none;
+       justify-content: center;
+       align-items: center;
+       z-index: 3000;
+       backdrop-filter: blur(3px);
+     }
+
+     .popup-overlay.show {
+       display: flex;
+     }
+
+           .popup {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        max-width: 320px;
+        width: 90%;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: popupSlideIn 0.3s ease;
+        overflow: hidden;
+        transform: translateY(0);
+      }
+
+     @keyframes popupSlideIn {
+       from {
+         opacity: 0;
+         transform: translateY(-15px) scale(0.9);
+       }
+       to {
+         opacity: 1;
+         transform: translateY(0) scale(1);
+       }
+     }
+
+           .popup-header {
+        padding: 15px 20px 10px 20px;
+        text-align: center;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+      }
+
+      .popup-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin: 0 auto 8px auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+     .popup-icon.success {
+       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+       color: white;
+     }
+
+     .popup-icon.info {
+       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+       color: white;
+     }
+
+     .popup-icon.warning {
+       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+       color: white;
+     }
+
+     .popup-icon.error {
+       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+       color: white;
+     }
+
+           .popup-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 4px;
+      }
+
+      .popup-content {
+        padding: 12px 20px 15px 20px;
+        text-align: center;
+        color: #4a5568;
+        line-height: 1.4;
+        font-size: 0.9rem;
+      }
+
+      .popup-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        padding: 0 20px 15px 20px;
+      }
+
+     /* Toast-style notification for simple messages */
+     .toast-notification {
+       position: fixed;
+       top: 20px;
+       right: 20px;
+       background: white;
+       border-radius: 8px;
+       padding: 12px 16px;
+       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+       z-index: 3001;
+       max-width: 300px;
+       transform: translateX(100%);
+       transition: transform 0.3s ease;
+       border-left: 4px solid #10b981;
+     }
+
+     .toast-notification.show {
+       transform: translateX(0);
+     }
+
+     .toast-notification.success {
+       border-left-color: #10b981;
+     }
+
+     .toast-notification.error {
+       border-left-color: #ef4444;
+     }
+
+     .toast-notification.warning {
+       border-left-color: #f59e0b;
+     }
+
+     .toast-notification.info {
+       border-left-color: #3b82f6;
+     }
+
+     .toast-content {
+       display: flex;
+       align-items: center;
+       gap: 10px;
+     }
+
+     .toast-icon {
+       width: 20px;
+       height: 20px;
+       border-radius: 50%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 0.8rem;
+       color: white;
+       flex-shrink: 0;
+     }
+
+     .toast-icon.success {
+       background: #10b981;
+     }
+
+     .toast-icon.error {
+       background: #ef4444;
+     }
+
+     .toast-icon.warning {
+       background: #f59e0b;
+     }
+
+     .toast-icon.info {
+       background: #3b82f6;
+     }
+
+     .toast-text {
+       font-size: 0.9rem;
+       color: #2d3748;
+       font-weight: 500;
+     }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .scholarship-root { 
+        max-width: 95%; 
+        padding: 25px; 
+      }
+      .scholarship-title-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      .actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .scholarship-root { 
+        padding: 20px; 
+        margin: 10px;
+      }
+      .scholarship-filters { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 12px;
+      }
+      .filter-group { 
+        justify-content: space-between; 
+        flex-wrap: wrap;
+      }
+      .scholarship-table { 
+        font-size: 0.85rem; 
+      }
+      .scholarship-table th, 
+      .scholarship-table td { 
+        padding: 12px 8px; 
+      }
+      .action-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        margin: 1px;
+      }
+      .status-badge {
+        padding: 5px 10px;
+        font-size: 0.65rem;
+      }
+      
+             /* Responsive popup styles */
+       .popup {
+         max-width: 280px;
+         width: 95%;
+       }
+       
+       .popup-header {
+         padding: 15px 18px 10px 18px;
+       }
+       
+       .popup-content {
+         padding: 10px 18px 12px 18px;
+       }
+       
+       .popup-actions {
+         padding: 0 18px 12px 18px;
+       }
+      
+      .toast-notification {
+        top: 15px;
+        right: 15px;
+        max-width: 280px;
+        padding: 10px 14px;
+      }
+      
+      .scholarship-table th, 
+      .scholarship-table td { 
+        min-width: 75px; 
+      }
+      
+      .form-row { 
+        grid-template-columns: 1fr; 
+        gap: 15px;
+      }
+      .modal { 
+        max-width: 95%; 
+        margin: 10px; 
+        max-height: 85vh;
+      }
+      .modal-header { 
+        padding: 20px 20px 15px 20px; 
+      }
+      .modal-body { 
+        padding: 20px; 
+        max-height: 50vh;
+      }
+      .modal-actions { 
+        padding: 20px; 
+        flex-direction: column;
+        gap: 10px;
+      }
+      .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .popup { 
+        max-width: 95%; 
+      }
+      .popup-header { 
+        padding: 20px 20px 15px 20px; 
+      }
+      .popup-content { 
+        padding: 15px 20px 20px 20px; 
+      }
+      .popup-actions { 
+        padding: 0 20px 20px 20px; 
+        flex-direction: column;
+        gap: 10px;
+      }
+      .popup-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .scholarship-root { 
+        padding: 15px; 
+        margin: 5px;
+        border-radius: 8px;
+      }
+      .scholarship-title { 
+        font-size: 1.3rem; 
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .scholarship-title i {
+        font-size: 1.5rem;
+        padding: 6px;
+      }
+      .scholarship-filters {
+        padding: 15px;
+      }
+      .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+      }
+      .filter-group label {
+        font-size: 0.85rem;
+      }
+      .filter-select, 
+      .filter-input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+      .scholarship-table { 
+        display: block; 
+        overflow-x: auto; 
+        font-size: 0.8rem;
+      }
+      .scholarship-table th, 
+      .scholarship-table td { 
+        min-width: 100px; 
+        padding: 10px 6px;
+      }
+      .scholarship-table th:last-child,
+      .scholarship-table td:last-child {
+        min-width: 120px;
+      }
+      .action-btn {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+        margin: 1px;
+      }
+      .action-btn i {
+        font-size: 0.7rem;
+      }
+      .status-badge {
+        padding: 3px 6px;
+        font-size: 0.6rem;
+        min-width: 65px;
+      }
+      .modal {
+        max-width: 98%;
+        margin: 5px;
+        max-height: 90vh;
+      }
+      .modal-header {
+        padding: 15px 15px 10px 15px;
+      }
+      .modal-title {
+        font-size: 1.2rem;
+      }
+      .modal-body {
+        padding: 15px;
+        max-height: 60vh;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+             .popup {
+         max-width: 90%;
+         margin: 5px;
+       }
+       .popup-header {
+         padding: 12px 15px 8px 15px;
+       }
+       .popup-icon {
+         width: 35px;
+         height: 35px;
+         font-size: 1.1rem;
+         margin-bottom: 8px;
+       }
+       .popup-title {
+         font-size: 1rem;
+       }
+       .popup-content {
+         padding: 8px 15px 12px 15px;
+         font-size: 0.85rem;
+       }
+    }
+    
+    @media (max-width: 480px) {
+      .scholarship-root { 
+        padding: 10px; 
+        margin: 5px;
+        border-radius: 6px;
+      }
+      .scholarship-title { 
+        font-size: 1.1rem; 
+      }
+      .scholarship-title i {
+        font-size: 1.3rem;
+        padding: 5px;
+      }
+      .scholarship-filters {
+        padding: 10px;
+        gap: 8px;
+      }
+      .filter-group label {
+        font-size: 0.8rem;
+      }
+      .filter-select, 
+      .filter-input {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+      .scholarship-table { 
+        font-size: 0.75rem;
+      }
+      .scholarship-table th, 
+      .scholarship-table td { 
+        min-width: 80px; 
+        padding: 8px 4px;
+      }
+      .scholarship-table th:last-child,
+      .scholarship-table td:last-child {
+        min-width: 100px;
+      }
+      .action-btn {
+        padding: 2px 4px;
+        font-size: 0.65rem;
+        margin: 1px;
+      }
+      .action-btn i {
+        font-size: 0.65rem;
+      }
+      .status-badge {
+        padding: 2px 4px;
+        font-size: 0.55rem;
+        min-width: 55px;
+      }
+      .modal {
+        max-width: 99%;
+        margin: 2px;
+        border-radius: 8px;
+      }
+      .modal-header {
+        padding: 12px 12px 8px 12px;
+      }
+      .modal-title {
+        font-size: 1.1rem;
+      }
+      .modal-body {
+        padding: 12px;
+        max-height: 65vh;
+      }
+      .form-group {
+        margin-bottom: 12px;
+      }
+      .form-group label {
+        font-size: 0.85rem;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+             .popup {
+         max-width: 85%;
+         margin: 2px;
+         border-radius: 8px;
+       }
+       .popup-header {
+         padding: 10px 12px 6px 12px;
+       }
+       .popup-icon {
+         width: 30px;
+         height: 30px;
+         font-size: 1rem;
+       }
+       .popup-title {
+         font-size: 0.9rem;
+       }
+       .popup-content {
+         padding: 6px 12px 10px 12px;
+         font-size: 0.8rem;
+       }
+    }
+    
+                   /* Modern Internship Details Popup Styles */
+      .professional-popup {
+        max-width: 1200px !important;
+        width: 95% !important;
+        max-height: 95vh !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      .professional-popup .popup-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        text-align: center;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      
+      .professional-popup .popup-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+      
+      .professional-popup .popup-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .popup-close-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .popup-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+      
+      .professional-popup .popup-content {
+        padding: 0;
+        flex: 1;
+        overflow-y: auto;
+      }
+     
+           /* Modern Internship Card - A4 Style Layout */
+      .modern-internship-card {
+        background: #ffffff;
+        border-radius: 0 0 20px 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* Ultra Compact Hero Section */
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 12px 20px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-5px) rotate(180deg); }
+      }
+      
+      .hero-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+      }
+      
+      .company-badge {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+      }
+      
+      .company-badge i {
+        font-size: 1.2rem;
+        color: white;
+      }
+      
+      .hero-text {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .internship-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 0 0 2px 0;
+        line-height: 1.2;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .company-name {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0 0 4px 0;
+        font-weight: 500;
+      }
+      
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      
+      .status-dot {
+        width: 5px;
+        height: 5px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.2); }
+      }
+      
+      .status-text {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+      }
+      
+      .hero-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-end;
+        flex-shrink: 0;
+      }
+      
+      .cta-button {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        color: white;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(74, 222, 128, 0.3);
+        border: none;
+        cursor: pointer;
+      }
+      
+      .cta-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(74, 222, 128, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+      
+      .stats-pill {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Ultra Compact Content Grid */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 15px;
+        background: #f8fafc;
+        flex: 1;
+        overflow: visible;
+      }
+      
+      .left-column,
+      .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow: visible;
+      }
+      
+      /* Ultra Compact Info Cards */
+      .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+      }
+      
+      .info-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+      }
+      
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #f1f5f9;
+        flex-shrink: 0;
+      }
+      
+      .card-header i {
+        font-size: 0.9rem;
+        color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .card-header h3 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+      }
+      
+      /* Ultra Compact Info Grid */
+      .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+      
+      .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.75rem;
+      }
+      
+      .info-item:last-child {
+        border-bottom: none;
+      }
+      
+      .info-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+      
+      .info-value {
+        font-size: 0.7rem;
+        color: #1e293b;
+        font-weight: 600;
+      }
+      
+      .info-value.deadline {
+        color: #dc2626;
+        font-weight: 700;
+      }
+      
+      .info-value.status {
+        color: #059669;
+        font-weight: 700;
+      }
+      
+      /* Ultra Compact Description Content */
+      .description-content {
+        color: #475569;
+        line-height: 1.4;
+        font-size: 0.75rem;
+        flex: 1;
+        overflow: visible;
+      }
+      
+      /* Ultra Compact Lists */
+      .criteria-list,
+      .benefits-list,
+      .documents-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        overflow: visible;
+      }
+      
+      .criteria-list li,
+      .benefits-list li,
+      .documents-list li {
+        padding: 4px 0;
+        color: #475569;
+        position: relative;
+        padding-left: 20px;
+        line-height: 1.3;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.7rem;
+      }
+      
+      .criteria-list li:last-child,
+      .benefits-list li:last-child,
+      .documents-list li:last-child {
+        border-bottom: none;
+      }
+      
+      .criteria-list li:before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 4px;
+        color: #059669;
+        font-weight: bold;
+        font-size: 0.7rem;
+        background: #dcfce7;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+      }
+      
+      .benefits-list li:before {
+        content: '🎁';
+        position: absolute;
+        left: 0;
+        top: 4px;
+        font-size: 0.7rem;
+      }
+      
+      .documents-list li:before {
+        content: '📄';
+        position: absolute;
+        left: 0;
+        top: 4px;
+        font-size: 0.7rem;
+      }
+      
+      /* Ultra Compact Bottom CTA */
+      .bottom-cta {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 12px;
+        text-align: center;
+        color: white;
+        flex-shrink: 0;
+      }
+      
+      .cta-content h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        color: white;
+      }
+      
+      .cta-content p {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0 0 10px 0;
+      }
+      
+      .cta-button-large {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(74, 222, 128, 0.3);
+      }
+      
+      .cta-button-large:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+     
+           /* Responsive Design for Modern Popup */
+      @media (max-width: 768px) {
+        .professional-popup {
+          max-width: 98% !important;
+          margin: 5px;
+          max-height: 95vh !important;
+        }
+        
+        .professional-popup .popup-header {
+          padding: 15px 20px;
+        }
+        
+        .professional-popup .popup-title {
+          font-size: 1.2rem;
+        }
+        
+        .hero-section {
+          padding: 15px 20px;
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+        
+        .hero-content {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .internship-title {
+          font-size: 1.4rem;
+        }
+        
+        .hero-actions {
+          align-items: center;
+          flex-direction: row;
+          gap: 10px;
+        }
+        
+        .content-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+          padding: 15px;
+        }
+        
+        .info-card {
+          padding: 15px;
+        }
+        
+        .card-header h3 {
+          font-size: 0.9rem;
+        }
+        
+        .info-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 3px;
+        }
+        
+        .bottom-cta {
+          padding: 15px 20px;
+        }
+        
+        .cta-content h3 {
+          font-size: 1rem;
+        }
+        
+        .cta-content p {
+          font-size: 0.8rem;
+        }
+        
+        .cta-button-large {
+          padding: 10px 20px;
+          font-size: 0.85rem;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .professional-popup {
+          max-width: 99% !important;
+          margin: 2px;
+          max-height: 98vh !important;
+        }
+        
+        .professional-popup .popup-header {
+          padding: 12px 15px;
+        }
+        
+        .professional-popup .popup-title {
+          font-size: 1.1rem;
+        }
+        
+        .hero-section {
+          padding: 12px 15px;
+          gap: 12px;
+        }
+        
+        .internship-title {
+          font-size: 1.2rem;
+        }
+        
+        .company-name {
+          font-size: 0.85rem;
+        }
+        
+        .content-grid {
+          gap: 12px;
+          padding: 12px;
+        }
+        
+        .info-card {
+          padding: 12px;
+        }
+        
+        .card-header h3 {
+          font-size: 0.85rem;
+        }
+        
+        .info-item {
+          font-size: 0.75rem;
+        }
+        
+        .info-label,
+        .info-value {
+          font-size: 0.75rem;
+        }
+        
+        .criteria-list li,
+        .benefits-list li,
+        .documents-list li {
+          font-size: 0.75rem;
+          padding: 4px 0;
+          padding-left: 20px;
+        }
+        
+        .criteria-list li:before {
+          width: 14px;
+          height: 14px;
+          font-size: 0.6rem;
+        }
+        
+        .bottom-cta {
+          padding: 12px 15px;
+        }
+        
+        .cta-content h3 {
+          font-size: 0.9rem;
+        }
+        
+        .cta-content p {
+          font-size: 0.75rem;
+        }
+        
+        .cta-button-large {
+          padding: 8px 16px;
+          font-size: 0.8rem;
+        }
+      }
+  </style>
+</head>
+  <body>
+
+  <!-- Hamburger Menu Button -->
+  <button id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        Admin Panel
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student_school.html"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon">Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="./publishAchievment.html"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon"> Publish Achievements</a></li>
+        <li><a href="./internship.html" class="active"><img src="assets/internship_4654161.png" alt="Internship" class="sidebar-icon"> Internships</a></li>
+        <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="scholarship-root">
+      <div class="scholarship-title-bar">
+               <div class="scholarship-title">
+         <i class="fas fa-briefcase"></i>
+         Manage Internships
+       </div>
+                               <div class="actions">
+           <button class="btn btn-primary" onclick="openAddModal()">
+             <i class="fas fa-plus"></i>
+             Add Internship
+           </button>
+         </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="scholarship-filters">
+        <div class="filter-group">
+          <label for="academicYear">Academic Year:</label>
+          <select id="academicYear" class="filter-select">
+            <option value="2024-25">2024-25</option>
+            <option value="2023-24">2023-24</option>
+            <option value="2022-23">2022-23</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter" class="filter-select">
+            <option value="all">All Status</option>
+            <option value="open">Open</option>
+            <option value="closing">Closing Soon</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+                 <div class="filter-group">
+           <label for="searchInternship">Search:</label>
+           <input type="text" id="searchInternship" class="filter-input" placeholder="Search internships...">
+         </div>
+      </div>
+
+             <!-- Internship Table -->
+       <div class="scholarship-table-container">
+         <table class="scholarship-table" id="internshipTable">
+           <thead>
+             <tr>
+               <th>Internship Name</th>
+               <th>Offered By</th>
+               <th>Class & Stream</th>
+               <th>Eligibility</th>
+               <th>Deadline</th>
+               <th>Status</th>
+                              <th>Applied Candidates</th>
+               <th>Actions</th>
+             </tr>
+           </thead>
+           <tbody id="internshipTableBody">
+             <!-- Table rows will be populated by JavaScript -->
+           </tbody>
+         </table>
+       </div>
+    </div>
+  </div>
+
+     <!-- Add/Edit Internship Modal -->
+   <div class="modal-overlay" id="internshipModal">
+     <div class="modal">
+       <div class="modal-header">
+         <div class="modal-title" id="modalTitle">
+           <i class="fas fa-briefcase"></i>
+           Add New Internship
+         </div>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+                 <form id="internshipForm">
+           <div class="form-row">
+             <div class="form-group">
+               <label for="internshipName">Internship Name *</label>
+               <input type="text" id="internshipName" name="name" required>
+             </div>
+            <div class="form-group">
+              <label for="offeredBy">Offered By *</label>
+              <input type="text" id="offeredBy" name="offeredBy" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="selectClass">Select Class(es) *</label>
+              <select id="selectClass" name="selectClass" multiple required style="height: 120px;">
+                <option value="Degree">Degree</option>
+                <option value="Masters">Masters</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Diploma">Diploma</option>
+                <option value="PhD">PhD</option>
+                <option value="Other">Other</option>
+              </select>
+              <small style="color: #666; font-size: 0.8rem;">Hold Ctrl/Cmd to select multiple classes</small>
+            </div>
+            <div class="form-group">
+              <label for="specifyStream">Specify Stream(s) *</label>
+              <input type="text" id="specifyStream" name="specifyStream" placeholder="e.g., Computer Science, Mechanical, etc. (comma separated)">
+            </div>
+          </div>
+                     <div class="form-group">
+             <label for="deadline">Deadline *</label>
+             <input type="date" id="deadline" name="deadline" required>
+           </div>
+          <div class="form-group">
+            <label for="eligibility">Eligibility Criteria *</label>
+            <textarea id="eligibility" name="eligibility" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="benefits">Benefits *</label>
+            <textarea id="benefits" name="benefits" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description"></textarea>
+          </div>
+                     <div class="form-group">
+             <label for="documents">Required Documents (comma separated)</label>
+             <input type="text" id="documents" name="documents" placeholder="Aadhaar Card, Marksheet, Income Certificate">
+           </div>
+           <div class="form-group">
+             <label for="applyLink">Apply Link (URL)</label>
+             <input type="text" id="applyLink" name="applyLink" placeholder="https://example.com/apply or www.example.com or example.com">
+           </div>
+           <div style="margin: 0; padding: 0; text-align: left;">
+             <label style="cursor: pointer; margin: 0; padding: 0; display: inline-block; text-align: left;">
+               <input type="checkbox" id="isPaid" name="isPaid" style="margin: 0; padding: 0; margin-right: 0;">
+               <span style="white-space: nowrap;">This is a paid internship</span>
+             </label>
+           </div>
+           <div class="modal-actions">
+             <button type="submit" class="btn btn-primary" id="submitBtn">Add Internship</button>
+             <button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+           </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+     <!-- BC360 Loading Popup -->
+   <div id="loadingPopup" class="loading-popup">
+     <div class="loading-content">
+       <div class="loading-spinner"></div>
+       <div class="loading-text">BC360</div>
+       <div class="loading-subtext">Loading...</div>
+     </div>
+   </div>
+
+   <!-- User-friendly Popup -->
+   <div class="popup-overlay" id="popupOverlay">
+     <div class="popup">
+       <div class="popup-header">
+         <div class="popup-icon" id="popupIcon">
+           <i class="fas fa-check"></i>
+         </div>
+         <div class="popup-title" id="popupTitle">Success</div>
+       </div>
+       <div class="popup-content" id="popupContent">
+         <!-- Popup content will be populated by JavaScript -->
+       </div>
+       <div class="popup-actions" id="popupActions">
+         <!-- Popup actions will be populated by JavaScript -->
+       </div>
+     </div>
+   </div>
+
+         <script>
+     // API Configuration
+     const API_BASE_URL = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/internship';
+     
+     // Global internship data
+     let internshipData = [];
+
+     let editingInternshipId = null;
+
+     // Loading Functions
+     function showLoading(message = 'Loading...') {
+       const subtext = document.querySelector('.loading-subtext');
+       if (subtext) subtext.textContent = message;
+       const loadingPopup = document.getElementById('loadingPopup');
+       loadingPopup.style.display = 'block';
+       loadingPopup.classList.add('show');
+     }
+
+     function hideLoading() {
+       const loadingPopup = document.getElementById('loadingPopup');
+       loadingPopup.style.display = 'none';
+       loadingPopup.classList.remove('show');
+     }
+
+         // Render internship table
+     function renderInternshipTable() {
+       const tbody = document.getElementById('internshipTableBody');
+       tbody.innerHTML = '';
+
+       internshipData.forEach(internship => {
+        const row = document.createElement('tr');
+        
+                 // Determine status based on boolean fields and deadline
+         let statusClass = 'status-closed';
+         let statusText = 'Closed';
+         
+         if (internship.isOpen && !internship.isCloseSoon) {
+           statusClass = 'status-open';
+           statusText = 'Open';
+         } else if (internship.isCloseSoon) {
+           statusClass = 'status-closing';
+           // Check if deadline is today
+           const deadlineDate = new Date(internship.deadline);
+           const today = new Date();
+           today.setHours(0, 0, 0, 0);
+           deadlineDate.setHours(0, 0, 0, 0);
+           
+           if (deadlineDate.getTime() === today.getTime()) {
+             statusText = 'Closing Today';
+           } else {
+             statusText = 'Closing Soon';
+           }
+         } else if (internship.isClose) {
+           statusClass = 'status-closed';
+           statusText = 'Closed';
+         }
+
+         // Format class and stream
+         let classDisplay = 'Not specified';
+         if (internship.class) {
+           try {
+             const classes = JSON.parse(internship.class);
+             if (Array.isArray(classes)) {
+               classDisplay = classes.join(', ');
+             } else {
+               classDisplay = internship.class;
+             }
+           } catch (e) {
+             classDisplay = internship.class;
+           }
+         }
+         // Handle stream display (JSON array)
+        let streamDisplay = '';
+        if (internship.stream) {
+          try {
+            const streams = JSON.parse(internship.stream);
+            if (Array.isArray(streams)) {
+              streamDisplay = streams.join(', ');
+            } else {
+              streamDisplay = internship.stream; // Fallback for old data
+            }
+          } catch (e) {
+            streamDisplay = internship.stream; // Fallback for non-JSON format
+          }
+        }
+        const classStream = `${classDisplay}${streamDisplay ? ' - ' + streamDisplay : ''}`;
+
+         row.innerHTML = `
+           <td class="scholarship-name">${internship.scholarship_name || 'N/A'}</td>
+           <td class="scholarship-offered">${internship.offered_by || 'N/A'}</td>
+           <td class="scholarship-class-stream">${classStream}</td>
+           <td class="scholarship-eligibility">${internship.eligibility || 'N/A'}</td>
+           <td class="scholarship-deadline">${formatDate(internship.deadline)}</td>
+           <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+           <td>${internship.applied_candidate || 0}</td>
+           <td>
+             <button class="action-btn view" onclick="viewInternship(${internship.id})">
+               <i class="fas fa-eye"></i> View
+             </button>
+             <button class="action-btn edit" onclick="editInternship(${internship.id})">
+               <i class="fas fa-edit"></i> Edit
+             </button>
+             <button class="action-btn delete" onclick="deleteInternship(${internship.id})">
+               <i class="fas fa-trash"></i> Delete
+             </button>
+           </td>
+         `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+         // Open add modal
+     function openAddModal() {
+       editingInternshipId = null;
+       document.getElementById('modalTitle').textContent = 'Add New Internship';
+       document.getElementById('submitBtn').textContent = 'Add Internship';
+       document.getElementById('internshipForm').reset();
+      
+      // Stream field is always visible now
+      
+      document.getElementById('internshipModal').classList.add('show');
+    }
+
+                                   // Edit internship
+      function editInternship(id) {
+        const internship = internshipData.find(s => s.id === id);
+        if (internship) {
+          console.log('Editing internship data:', internship);
+          console.log('Class data:', internship.class, 'Type:', typeof internship.class);
+          console.log('Deadline data:', internship.deadline, 'Type:', typeof internship.deadline);
+          // Check if internship is closed
+          if (internship.isClose) {
+            showPopup('Edit Restricted', 'This internship is closed and cannot be edited. The application deadline has passed.', 'warning');
+            return;
+          }
+          
+          editingInternshipId = id;
+          document.getElementById('modalTitle').textContent = 'Edit Internship';
+          document.getElementById('submitBtn').textContent = 'Update Internship';
+          
+          // Fill form with internship data
+          document.getElementById('internshipName').value = internship.scholarship_name || '';
+         document.getElementById('offeredBy').value = internship.offered_by || '';
+         
+         // Handle class selection (JSON array)
+         const selectClassElement = document.getElementById('selectClass');
+         console.log('Raw class data:', internship.class, 'Type:', typeof internship.class);
+         
+         // Clear all selections first
+         Array.from(selectClassElement.options).forEach(option => {
+           option.selected = false;
+         });
+         
+         if (internship.class) {
+           let classes = [];
+           
+           // Handle different data formats
+           if (Array.isArray(internship.class)) {
+             // Data is already an array
+             classes = internship.class;
+             console.log('Class data is already an array:', classes);
+           } else if (typeof internship.class === 'string') {
+             try {
+               // Try to parse as JSON
+               classes = JSON.parse(internship.class);
+               console.log('Parsed classes from JSON:', classes);
+             } catch (e) {
+               // If JSON parsing fails, treat as comma-separated string
+               classes = internship.class.split(',').map(c => c.trim());
+               console.log('Treated as comma-separated string:', classes);
+             }
+           }
+           
+           // Select the classes that match
+           if (Array.isArray(classes)) {
+             Array.from(selectClassElement.options).forEach(option => {
+               if (classes.includes(option.value)) {
+                 option.selected = true;
+                 console.log('Selected class:', option.value);
+               }
+             });
+           }
+         }
+         
+         // Handle stream field (JSON array)
+        if (internship.stream) {
+          try {
+            const streams = JSON.parse(internship.stream);
+            if (Array.isArray(streams)) {
+              document.getElementById('specifyStream').value = streams.join(', ');
+            } else {
+              document.getElementById('specifyStream').value = internship.stream; // Fallback for old data
+            }
+          } catch (e) {
+            document.getElementById('specifyStream').value = internship.stream; // Fallback for non-JSON format
+          }
+        } else {
+          document.getElementById('specifyStream').value = '';
+        }
+         // Handle deadline field - ensure proper date format
+         if (internship.deadline) {
+           // Convert to YYYY-MM-DD format for date input
+           const deadlineDate = new Date(internship.deadline);
+           const formattedDate = deadlineDate.toISOString().split('T')[0];
+           document.getElementById('deadline').value = formattedDate;
+           console.log('Setting deadline:', formattedDate, 'from:', internship.deadline);
+         } else {
+           document.getElementById('deadline').value = '';
+         }
+         document.getElementById('eligibility').value = internship.eligibility || '';
+         document.getElementById('benefits').value = internship.benefits || '';
+         document.getElementById('description').value = internship.description || '';
+         document.getElementById('documents').value = internship.documents || '';
+         document.getElementById('applyLink').value = internship.link || '';
+         document.getElementById('isPaid').checked = internship.isPaid === 1 || internship.isPaid === true;
+         
+         // Stream field is always visible now
+         
+         document.getElementById('internshipModal').classList.add('show');
+       }
+     }
+
+         // Show modern compact popup or toast notification
+     function showPopup(title, content, type = 'success', actions = null) {
+       // For simple success/error messages, show toast notification
+       if ((type === 'success' || type === 'error') && !actions && content.length < 50) {
+         showToastNotification(content, type);
+         return;
+       }
+       
+       // For complex messages or confirmations, show popup
+       const overlay = document.getElementById('popupOverlay');
+       const popup = document.querySelector('.popup');
+       const icon = document.getElementById('popupIcon');
+       const popupTitle = document.getElementById('popupTitle');
+       const popupContent = document.getElementById('popupContent');
+       const popupActions = document.getElementById('popupActions');
+
+       // Reset popup classes to ensure compact size
+       popup.classList.remove('professional-popup');
+
+       // Set icon and type
+       icon.className = `popup-icon ${type}`;
+       if (type === 'success') {
+         icon.innerHTML = '<i class="fas fa-check"></i>';
+       } else if (type === 'info') {
+         icon.innerHTML = '<i class="fas fa-info"></i>';
+       } else if (type === 'warning') {
+         icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+       } else if (type === 'error') {
+         icon.innerHTML = '<i class="fas fa-times"></i>';
+       }
+
+       popupTitle.textContent = title;
+       popupContent.innerHTML = content;
+
+       // Set actions
+       if (actions) {
+         popupActions.innerHTML = actions;
+       } else {
+         popupActions.innerHTML = '<button class="btn btn-primary" onclick="closePopup()">OK</button>';
+       }
+
+       overlay.classList.add('show');
+     }
+
+    // Show toast notification for simple messages
+    function showToastNotification(message, type = 'success') {
+      // Remove existing toast if any
+      const existingToast = document.querySelector('.toast-notification');
+      if (existingToast) {
+        existingToast.remove();
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `toast-notification ${type}`;
+      
+      const iconClass = type === 'success' ? 'fas fa-check' : 
+                       type === 'error' ? 'fas fa-times' : 
+                       type === 'warning' ? 'fas fa-exclamation-triangle' : 
+                       'fas fa-info';
+      
+      toast.innerHTML = `
+        <div class="toast-content">
+          <div class="toast-icon ${type}">
+            <i class="${iconClass}"></i>
+          </div>
+          <div class="toast-text">${message}</div>
+        </div>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Show toast
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 100);
+      
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.remove();
+          }
+        }, 300);
+      }, 3000);
+    }
+
+                   function closePopup() {
+        const overlay = document.getElementById('popupOverlay');
+        const popup = document.querySelector('.popup');
+        
+        // Reset popup classes when closing
+        popup.classList.remove('professional-popup');
+        
+        overlay.classList.remove('show');
+      }
+     
+           // Professional internship details popup
+      function showProfessionalPopup(title, content) {
+        const overlay = document.getElementById('popupOverlay');
+        const popup = document.querySelector('.popup');
+        
+        // Update popup content with close button in header
+        document.getElementById('popupTitle').innerHTML = `
+          <span>${title}</span>
+          <button class="popup-close-btn" onclick="closePopup()">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        document.getElementById('popupContent').innerHTML = content;
+        document.getElementById('popupActions').innerHTML = '<button class="btn btn-primary" onclick="closePopup()">Close</button>';
+        
+        // Add professional styling
+        popup.classList.add('professional-popup');
+        overlay.classList.add('show');
+      }
+
+                                   // View internship
+      function viewInternship(id) {
+        const internship = internshipData.find(s => s.id === id);
+        if (internship) {
+          // Check if internship is closed
+          if (internship.isClose) {
+            showPopup('Access Restricted', 'This internship is closed and cannot be viewed. The application deadline has passed.', 'warning');
+            return;
+          }
+          
+          // Handle stream display (JSON array)
+          let streamDisplay = '';
+          if (internship.stream) {
+            try {
+              const streams = JSON.parse(internship.stream);
+              if (Array.isArray(streams)) {
+                streamDisplay = streams.join(', ');
+              } else {
+                streamDisplay = internship.stream; // Fallback for old data
+              }
+            } catch (e) {
+              streamDisplay = internship.stream; // Fallback for non-JSON format
+            }
+          }
+          
+          const classStream = internship.class ? 
+            `${internship.class}${streamDisplay ? ' - ' + streamDisplay : ''}` : 
+            'Not specified';
+            
+          // Format comma-separated fields as lists
+          const formatList = (text) => {
+            if (!text) return 'Not specified';
+            const items = text.split(',').map(item => item.trim()).filter(item => item);
+            if (items.length === 0) return 'Not specified';
+            return items.map(item => `<li>${item}</li>`).join('');
+          };
+          
+          const eligibilityList = formatList(internship.eligibility);
+          const benefitsList = formatList(internship.benefits);
+          const documentsList = formatList(internship.documents);
+          
+          const content = `
+            <div class="modern-internship-card">
+              <!-- Hero Section -->
+              <div class="hero-section">
+                <div class="hero-content">
+                  <div class="company-badge">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div class="hero-text">
+                    <h1 class="internship-title">${internship.scholarship_name || 'Internship Program'}</h1>
+                    <p class="company-name">${internship.offered_by || 'Company'}</p>
+                    <div class="status-indicator">
+                      <span class="status-dot"></span>
+                      <span class="status-text">Active Opportunity</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="hero-actions">
+                  ${internship.link ? `
+                  <a href="${internship.link}" target="_blank" class="cta-button">
+                    <i class="fas fa-rocket"></i>
+                    Apply Now
+                  </a>
+                  ` : ''}
+                  <div class="stats-pill">
+                    <i class="fas fa-users"></i>
+                    <span>${internship.applied_candidate || 0} Applied</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content Grid -->
+              <div class="content-grid">
+                <!-- Left Column -->
+                <div class="left-column">
+                  <!-- Quick Info -->
+                  <div class="info-card">
+                    <div class="card-header">
+                      <i class="fas fa-info-circle"></i>
+                      <h3>Quick Information</h3>
+                    </div>
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="info-label">Academic Level</span>
+                        <span class="info-value">${classStream}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Application Deadline</span>
+                        <span class="info-value deadline">${formatDate(internship.deadline)}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value status">Open for Applications</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Description -->
+                  ${internship.description ? `
+                  <div class="info-card">
+                    <div class="card-header">
+                      <i class="fas fa-align-left"></i>
+                      <h3>About This Internship</h3>
+                    </div>
+                    <div class="description-content">
+                      ${internship.description}
+                    </div>
+                  </div>
+                  ` : ''}
+                </div>
+                
+                <!-- Right Column -->
+                <div class="right-column">
+                  <!-- Eligibility -->
+                  <div class="info-card">
+                    <div class="card-header">
+                      <i class="fas fa-check-circle"></i>
+                      <h3>Eligibility Criteria</h3>
+                    </div>
+                    <div class="criteria-list">
+                      ${eligibilityList}
+                    </div>
+                  </div>
+                  
+                  <!-- Benefits -->
+                  <div class="info-card">
+                    <div class="card-header">
+                      <i class="fas fa-gift"></i>
+                      <h3>What You'll Gain</h3>
+                    </div>
+                    <div class="benefits-list">
+                      ${benefitsList}
+                    </div>
+                  </div>
+                  
+                  <!-- Required Documents -->
+                  ${documentsList !== 'Not specified' ? `
+                  <div class="info-card">
+                    <div class="card-header">
+                      <i class="fas fa-file-alt"></i>
+                      <h3>Required Documents</h3>
+                    </div>
+                    <div class="documents-list">
+                      ${documentsList}
+                    </div>
+                  </div>
+                  ` : ''}
+                </div>
+              </div>
+              
+              <!-- Bottom CTA -->
+              ${internship.link ? `
+              <div class="bottom-cta">
+                <div class="cta-content">
+                  <h3>Ready to Apply?</h3>
+                  <p>Don't miss this opportunity to kickstart your career!</p>
+                </div>
+                <a href="${internship.link}" target="_blank" class="cta-button-large">
+                  <i class="fas fa-paper-plane"></i>
+                  Apply for This Internship
+                </a>
+              </div>
+              ` : ''}
+            </div>
+          `;
+          
+          showProfessionalPopup('Internship Details', content);
+        }
+      }
+
+         // Delete internship
+     function deleteInternship(id) {
+       const internship = internshipData.find(s => s.id === id);
+       if (internship) {
+         const content = `Do you want to delete <strong>"${internship.scholarship_name}"</strong>? This will permanently delete this internship.`;
+         const actions = `
+           <button class="btn btn-secondary" onclick="closePopup()">Cancel</button>
+           <button class="btn btn-danger" onclick="confirmDelete(${id})">OK</button>
+         `;
+         showPopup('Delete Internship', content, 'warning', actions);
+       }
+     }
+
+         async function confirmDelete(id) {
+       try {
+         showLoading('Deleting internship...');
+         const response = await fetch(API_BASE_URL, {
+           method: 'DELETE',
+           headers: {
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ id: id })
+         });
+
+         const result = await response.json();
+         
+         if (result.success) {
+           // Remove from local data
+           internshipData = internshipData.filter(s => s.id !== id);
+           renderInternshipTable();
+           closePopup();
+           hideLoading();
+           showPopup('Success', 'Internship deleted!', 'success');
+         } else {
+           hideLoading();
+           showPopup('Error', result.message || 'Delete failed', 'error');
+         }
+       } catch (error) {
+         console.error('Delete error:', error);
+         hideLoading();
+                    showPopup('Error', 'Delete failed. Please try again.', 'error');
+       }
+     }
+
+         // Close modal
+     function closeModal() {
+       document.getElementById('internshipModal').classList.remove('show');
+       editingInternshipId = null;
+     }
+
+         // Handle form submission
+     document.getElementById('internshipForm').addEventListener('submit', async function(e) {
+       e.preventDefault();
+       
+       // Validate class and stream fields
+        const selectClassElement = document.getElementById('selectClass');
+        const selectedClasses = Array.from(selectClassElement.selectedOptions).map(option => option.value);
+        const specifyStream = document.getElementById('specifyStream').value.trim();
+        
+        // Convert stream to JSON array if it contains comma-separated values
+        let streamData = specifyStream;
+        if (specifyStream && specifyStream.includes(',')) {
+          const streamArray = specifyStream.split(',').map(s => s.trim()).filter(s => s.length > 0);
+          streamData = JSON.stringify(streamArray);
+        } else if (specifyStream) {
+          streamData = JSON.stringify([specifyStream]);
+        } else {
+          streamData = JSON.stringify([]);
+        }
+       
+       if (selectedClasses.length === 0) {
+         showPopup('Validation Error', 'Please select at least one class.', 'error');
+         selectClassElement.focus();
+         return;
+       }
+       
+       if (!specifyStream) {
+         showPopup('Validation Error', 'Please specify the stream(s).', 'error');
+         document.getElementById('specifyStream').focus();
+         return;
+       }
+       
+       // Validate and format apply link
+       const applyLink = document.getElementById('applyLink').value.trim();
+       let formattedLink = applyLink;
+       
+       if (applyLink) {
+         // If it doesn't start with http:// or https://, add https://
+         if (!applyLink.startsWith('http://') && !applyLink.startsWith('https://')) {
+           formattedLink = 'https://' + applyLink;
+         }
+       }
+       
+       const formData = new FormData(this);
+       
+       // Calculate status based on deadline
+       const deadlineDate = new Date(formData.get('deadline'));
+       const today = new Date();
+       today.setHours(0, 0, 0, 0); // Reset time to start of day
+       deadlineDate.setHours(0, 0, 0, 0); // Reset time to start of day
+       
+       const daysDifference = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+       
+       let isOpen = true;
+       let isClose = false;
+       let isCloseSoon = false;
+       
+       if (daysDifference < 0) {
+         // Deadline has passed
+         isOpen = false;
+         isClose = true;
+         isCloseSoon = false;
+       } else if (daysDifference === 0) {
+         // Deadline is today
+         isOpen = true;
+         isClose = false;
+         isCloseSoon = true;
+       } else if (daysDifference <= 3) {
+         // Deadline is within 3 days
+         isOpen = true;
+         isClose = false;
+         isCloseSoon = true;
+       } else {
+         // Deadline is more than 3 days away
+         isOpen = true;
+         isClose = false;
+         isCloseSoon = false;
+       }
+       
+       // Get current user data from session
+       let userData = null;
+       if (window.UserSession && window.UserSession.getUserData) {
+         userData = window.UserSession.getUserData();
+       } else {
+         // Fallback: get from localStorage directly
+         const storedUser = localStorage.getItem('bc3620_user');
+         if (storedUser) {
+           try {
+             userData = JSON.parse(storedUser);
+           } catch (e) {
+             console.warn('Failed to parse stored user data:', e);
+           }
+         }
+       }
+       
+       const adminId = userData ? (userData.admin_id || userData.user?.admin_id) : null;
+       const institutionId = userData ? (userData.institution_id || userData.user?.institution_id) : null;
+       
+       console.log('Internship data - adminId:', adminId, 'institutionId:', institutionId, 'userData:', userData);
+       
+       // Prepare internship data for API
+       const internshipData = {
+         scholarship_name: formData.get('name'),
+         offered_by: formData.get('offeredBy'),
+         class: JSON.stringify(selectedClasses),
+         stream: streamData, // Now properly formatted as JSON
+         deadline: formData.get('deadline'),
+         eligibility: formData.get('eligibility'),
+         benefits: formData.get('benefits'),
+         description: formData.get('description'),
+         documents: formData.get('documents'),
+         link: formattedLink,
+         isOpen: isOpen,
+         isClose: isClose,
+         isCloseSoon: isCloseSoon,
+         isPaid: document.getElementById('isPaid').checked ? 1 : 0,
+         admin_id: adminId,
+         institution_id: institutionId
+       };
+
+       try {
+         showLoading(editingInternshipId ? 'Updating internship...' : 'Adding internship...');
+         let response;
+         if (editingInternshipId) {
+           // Update existing internship
+           internshipData.id = editingInternshipId;
+           response = await fetch(API_BASE_URL, {
+             method: 'PUT',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(internshipData)
+           });
+         } else {
+           // Add new internship
+           response = await fetch(API_BASE_URL, {
+             method: 'POST',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(internshipData)
+           });
+         }
+
+         const result = await response.json();
+         
+         if (result.success) {
+           hideLoading();
+           showPopup('Success', editingInternshipId ? 'Internship updated!' : 'Internship added!', 'success');
+           closeModal();
+           // Refresh the data from server
+           await loadInternships();
+         } else {
+           hideLoading();
+           showPopup('Error', result.message || 'Save failed', 'error');
+         }
+       } catch (error) {
+         console.error('Save error:', error);
+         hideLoading();
+                    showPopup('Error', 'Save failed. Please try again.', 'error');
+       }
+     });
+
+    // Filter functionality
+    document.getElementById('academicYear').addEventListener('change', function() {
+      console.log('Academic year changed to:', this.value);
+      // Add filtering logic here
+    });
+
+    document.getElementById('statusFilter').addEventListener('change', function() {
+      const status = this.value;
+      const rows = document.querySelectorAll('#internshipTableBody tr');
+      
+      rows.forEach(row => {
+        const statusCell = row.querySelector('.status-badge');
+        if (status === 'all' || (statusCell && statusCell.textContent.toLowerCase().includes(status))) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+         document.getElementById('searchInternship').addEventListener('input', function() {
+       const searchTerm = this.value.toLowerCase();
+       const rows = document.querySelectorAll('#internshipTableBody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+         // Close modal when clicking outside
+     document.getElementById('internshipModal').addEventListener('click', function(e) {
+       if (e.target === this) {
+         closeModal();
+       }
+     });
+
+    // Close popup when clicking outside
+    document.getElementById('popupOverlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePopup();
+      }
+    });
+
+    // Hamburger Menu Functionality
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) {
+        openSidebar();
+      } else {
+        closeSidebar();
+      }
+    });
+
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 991 && menuOpen) {
+        closeSidebar();
+      }
+    });
+
+    // Close sidebar when clicking on navigation links
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => {
+        if (window.innerWidth <= 991) {
+          closeSidebar();
+        }
+      };
+    });
+
+    // Class selection is now multiselect, no need for show/hide logic
+
+
+
+         // Load internships from API
+     async function loadInternships() {
+       try {
+         showLoading('Loading internships...');
+         const response = await fetch(API_BASE_URL, {
+           method: 'GET',
+           headers: {
+             'Content-Type': 'application/json'
+           }
+         });
+
+         const result = await response.json();
+         
+         if (result.success) {
+           internshipData = result.internships || [];
+           
+           // Update statuses based on current date
+           internshipData.forEach(internship => {
+             const deadlineDate = new Date(internship.deadline);
+             const today = new Date();
+             today.setHours(0, 0, 0, 0);
+             deadlineDate.setHours(0, 0, 0, 0);
+             
+             const daysDifference = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+             
+             if (daysDifference < 0) {
+               // Deadline has passed
+               internship.isOpen = false;
+               internship.isClose = true;
+               internship.isCloseSoon = false;
+             } else if (daysDifference === 0) {
+               // Deadline is today
+               internship.isOpen = true;
+               internship.isClose = false;
+               internship.isCloseSoon = true;
+             } else if (daysDifference <= 3) {
+               // Deadline is within 3 days
+               internship.isOpen = true;
+               internship.isClose = false;
+               internship.isCloseSoon = true;
+             } else {
+               // Deadline is more than 3 days away
+               internship.isOpen = true;
+               internship.isClose = false;
+               internship.isCloseSoon = false;
+             }
+           });
+           
+           renderInternshipTable();
+           hideLoading();
+         } else {
+           console.error('Failed to load internships:', result.message);
+           hideLoading();
+           showPopup('Error', 'Load failed', 'error');
+         }
+       } catch (error) {
+         console.error('Load error:', error);
+         hideLoading();
+                    showPopup('Error', 'Load failed. Please try again.', 'error');
+       }
+     }
+
+                   // Initialize page
+      document.addEventListener('DOMContentLoaded', function() {
+        loadInternships();
+        
+                 // Start automatic status updates every 2 minutes
+         setInterval(async () => {
+           await updateAllStatuses();
+         }, 2 * 60 * 1000); // 2 minutes
+         
+         // Also update statuses every 10 minutes for consistency
+         setInterval(async () => {
+           await updateAllStatuses();
+         }, 10 * 60 * 1000); // 10 minutes
+         
+         // Update statuses when page becomes visible (user switches back to tab)
+         document.addEventListener('visibilitychange', async () => {
+           if (!document.hidden) {
+             await updateAllStatuses();
+           }
+         });
+         
+         // Update statuses when user focuses on the window
+         window.addEventListener('focus', async () => {
+           await updateAllStatuses();
+         });
+         
+         // Update statuses when user moves mouse (indicates activity)
+         let mouseActivityTimeout;
+         document.addEventListener('mousemove', () => {
+           clearTimeout(mouseActivityTimeout);
+           mouseActivityTimeout = setTimeout(async () => {
+             await updateAllStatuses();
+           }, 30000); // Update 30 seconds after last mouse movement
+         });
+      });
+      
+             // Function to update all internship statuses based on current date
+       async function updateAllStatuses() {
+         try {
+           // Update local data statuses
+           internshipData.forEach(internship => {
+            const deadlineDate = new Date(internship.deadline);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            deadlineDate.setHours(0, 0, 0, 0);
+            
+            const daysDifference = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+            
+            let isOpen = true;
+            let isClose = false;
+            let isCloseSoon = false;
+            
+            if (daysDifference < 0) {
+              // Deadline has passed
+              isOpen = false;
+              isClose = true;
+              isCloseSoon = false;
+            } else if (daysDifference === 0) {
+              // Deadline is today
+              isOpen = true;
+              isClose = false;
+              isCloseSoon = true;
+            } else if (daysDifference <= 3) {
+              // Deadline is within 3 days
+              isOpen = true;
+              isClose = false;
+              isCloseSoon = true;
+            } else {
+              // Deadline is more than 3 days away
+              isOpen = true;
+              isClose = false;
+              isCloseSoon = false;
+            }
+            
+            // Update the internship object
+            internship.isOpen = isOpen;
+            internship.isClose = isClose;
+            internship.isCloseSoon = isCloseSoon;
+          });
+          
+          // Re-render the table with updated statuses
+          renderInternshipTable();
+          
+                     // Send updates to backend to sync database
+           await syncStatusesToBackend();
+           
+         } catch (error) {
+           // Silent error handling - don't disturb user experience
+         }
+      }
+      
+      // Function to sync status updates to backend
+      async function syncStatusesToBackend() {
+        try {
+          for (const internship of internshipData) {
+            const updateData = {
+              id: internship.id,
+              scholarship_name: internship.scholarship_name,
+              offered_by: internship.offered_by,
+              class: internship.class,
+              stream: internship.stream,
+              deadline: internship.deadline,
+              eligibility: internship.eligibility,
+              benefits: internship.benefits,
+              description: internship.description,
+              documents: internship.documents,
+              link: internship.link,
+              applied_candidate: internship.applied_candidate,
+              isOpen: internship.isOpen,
+              isClose: internship.isClose,
+              isCloseSoon: internship.isCloseSoon
+            };
+            
+            // Send PUT request to update the internship status
+            await fetch(API_BASE_URL, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(updateData)
+            });
+          }
+                 } catch (error) {
+           // Silent error handling - don't disturb user experience
+         }
+      }
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,5176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360</title>
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Preload API endpoints for faster loading -->
+  <link rel="dns-prefetch" href="https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com">
+  <link rel="preconnect" href="https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com">
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --secondary: #7c3aed;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --text-muted: #94a3b8;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --transition-speed: 0.3s;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .app-flex {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 1050;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left var(--transition-speed);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+
+    .sidebar ul li { margin: 0; }
+
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: margin-left var(--transition-speed);
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-content.menu-open {
+      pointer-events: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .top-bar .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .status .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Hamburger Menu */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 17px;
+      right: 20px;
+      z-index: 2001;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 2000;
+      transition: opacity 0.2s;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    /* Content Area */
+    .content {
+      padding: 24px 32px;
+      flex: 1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        z-index: 3001;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+        z-index: 3001;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+      .main-content.menu-open { pointer-events: none; }
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        padding: 16px;
+      }
+      
+      .top-bar {
+        padding: 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+
+    /* Online Text Module Styles */
+    .module-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Navigation Tabs */
+    .module-tabs {
+      display: flex;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 0.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Create Test Form */
+    .create-test-card {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f0fdfa 100%);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+    }
+
+    .create-test-card h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      background: white;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-group select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .radio-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Question Builder */
+    .question-builder {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .question-builder h3 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .question-type-toggle {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .toggle-btn {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .question-section {
+      display: none;
+    }
+
+    .question-section.active {
+      display: block;
+    }
+
+    .question-item {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 2px solid var(--border);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .question-number {
+      background: var(--primary);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .remove-question {
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .option-item input[type="radio"] {
+      accent-color: var(--success);
+    }
+
+    .add-question-btn {
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    /* Scheduled Tests Dashboard */
+    .tests-dashboard {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-width: 200px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .create-test-btn {
+      white-space: nowrap;
+      min-width: fit-content;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .create-test-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .tests-table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .tests-table th,
+    .tests-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .tests-table th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .tests-table tr:hover {
+      background: var(--bg);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-badge.online {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-badge.offline {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .action-btn.secondary {
+      background: var(--text-light);
+    }
+
+    .action-btn.edit {
+      background: var(--warning);
+    }
+
+    .action-btn.danger {
+      background: var(--danger);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Enhanced visibility for action buttons in table */
+    .tests-table .action-btn {
+      position: relative;
+      z-index: 1;
+    }
+
+    .tests-table .action-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .actions-column {
+      min-width: 200px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 0.5rem;
+      min-width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .action-btn i {
+      font-size: 0.9rem;
+    }
+
+    /* No Data Message Styling */
+    .no-data-message {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-light);
+    }
+
+    .no-data-message i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .no-data-message h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text);
+      font-size: 1.2rem;
+    }
+
+    .no-data-message p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+
+
+    /* Question Builder Actions */
+    .question-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--border);
+    }
+
+    .btn-secondary {
+      background: var(--text-light);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: var(--text);
+    }
+
+    /* Test Preview Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .test-preview-modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.show .test-preview-modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .modal-header h3 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .close-modal:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .test-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg);
+      border-radius: var(--radius);
+    }
+
+    .test-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .test-info-label {
+      font-weight: 600;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .test-info-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .questions-preview {
+      margin-top: 2rem;
+    }
+
+    .question-preview-item {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .question-preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .question-number-badge {
+      background: var(--primary);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .question-type-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .question-type-badge.mcq {
+      background: #dbeafe;
+      color: var(--primary);
+    }
+
+    .question-type-badge.subjective {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .options-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-preview {
+      padding: 0.5rem;
+      border-radius: var(--radius);
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    .option-preview.correct {
+      background: #dcfce7;
+      border-color: var(--success);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .question-marks {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--border);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .dashboard-actions {
+        gap: 0.75rem;
+      }
+
+      .search-input {
+        min-width: 180px;
+      }
+
+      .create-test-btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .module-tabs {
+        flex-direction: column;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.875rem;
+        width: 100%;
+        min-height: 48px; /* Better touch target */
+      }
+
+      .form-group select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+
+      .radio-option {
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: white;
+        transition: all 0.2s;
+      }
+
+      .radio-option:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+      }
+
+      .radio-option input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .dashboard-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .search-input {
+        width: 100%;
+        min-width: unset;
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.875rem;
+        min-height: 48px; /* Better touch target */
+      }
+
+      .create-test-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        min-height: 48px; /* Better touch target */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .tests-table {
+        min-width: 600px;
+        font-size: 0.85rem;
+      }
+
+      .tests-table th,
+      .tests-table td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .student-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        text-align: left;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .student-row:first-child {
+        display: none;
+      }
+
+      .student-row > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .student-row > div::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .score-input {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+      }
+
+      .result-actions {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.5rem;
+      }
+
+      .action-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+      }
+
+      .actions-column {
+        min-width: 160px;
+      }
+
+      .action-buttons {
+        gap: 0.4rem;
+        flex-wrap: nowrap;
+      }
+
+      .action-btn {
+        min-width: 40px;
+        height: 40px;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .question-actions {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+        font-size: 1rem;
+      }
+
+      .test-preview-modal {
+        padding: 1rem;
+        margin: 1rem;
+        width: 95%;
+        max-height: 95vh;
+      }
+
+      .test-info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .options-preview {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .question-item {
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .option-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: white;
+      }
+
+      .option-item input[type="text"] {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .toggle-btn {
+        padding: 0.75rem 1rem;
+        min-height: 44px;
+        font-size: 0.95rem;
+        flex: 1;
+        text-align: center;
+      }
+
+      .question-type-toggle {
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .add-question-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+        font-size: 1rem;
+        margin-top: 1.25rem;
+      }
+
+      .sort-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 0.95rem;
+      }
+
+      .save-all-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+        font-size: 1rem;
+        margin-top: 1.25rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .content {
+        padding: 12px;
+      }
+
+      .top-bar {
+        padding: 12px;
+      }
+
+      .top-bar .title {
+        font-size: 1.25rem;
+      }
+
+      .dashboard-header h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .dashboard-actions {
+        gap: 0.5rem;
+      }
+
+      .search-input {
+        padding: 0.75rem;
+        font-size: 16px;
+        min-height: 44px;
+      }
+
+      .create-test-btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .create-test-card,
+      .question-builder,
+      .tests-dashboard {
+        padding: 1.25rem;
+        border-radius: var(--radius);
+      }
+
+      .form-group label {
+        font-size: 0.9rem;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 0.75rem;
+        font-size: 16px;
+        min-height: 44px;
+      }
+
+      .radio-option {
+        padding: 0.875rem;
+        font-size: 0.95rem;
+      }
+
+      .radio-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      .tests-table {
+        min-width: 500px;
+        font-size: 0.8rem;
+      }
+
+      .tests-table th,
+      .tests-table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      .actions-column {
+        min-width: 140px;
+      }
+
+      .action-buttons {
+        gap: 0.3rem;
+        flex-wrap: nowrap;
+      }
+
+      .action-btn {
+        min-width: 38px;
+        height: 38px;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn i {
+        font-size: 0.85rem;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+      }
+
+      .student-row {
+        padding: 0.875rem;
+        gap: 0.5rem;
+      }
+
+      .student-row > div::before {
+        font-size: 0.8rem;
+      }
+
+      .score-input {
+        min-height: 40px;
+        font-size: 16px;
+      }
+
+      .question-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .option-item {
+        padding: 0.625rem;
+      }
+
+      .option-item input[type="text"] {
+        min-height: 40px;
+        font-size: 16px;
+      }
+
+      .toggle-btn {
+        padding: 0.625rem 0.875rem;
+        min-height: 40px;
+        font-size: 0.9rem;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .add-question-btn,
+      .save-all-btn {
+        min-height: 44px;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.5rem;
+      }
+
+      .test-preview-modal {
+        padding: 0.875rem;
+        margin: 0.5rem;
+        width: 98%;
+      }
+
+      .test-info-grid {
+        padding: 0.875rem;
+        gap: 0.75rem;
+      }
+
+      .question-preview-item {
+        padding: 1rem;
+        margin-bottom: 0.875rem;
+      }
+
+      .question-number-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+      }
+
+      .question-type-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      .modal-header h3 {
+        font-size: 1.25rem;
+      }
+
+      .close-modal {
+        font-size: 1.25rem;
+        padding: 0.375rem;
+      }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 360px) {
+      .content {
+        padding: 8px;
+      }
+
+      .create-test-card,
+      .question-builder,
+      .tests-dashboard {
+        padding: 1rem;
+      }
+
+      .dashboard-header h2 {
+        font-size: 1.1rem;
+      }
+
+      .create-test-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 40px;
+      }
+
+      .search-input {
+        padding: 0.625rem;
+        font-size: 16px;
+        min-height: 40px;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 0.625rem;
+        min-height: 40px;
+      }
+
+      .radio-option {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .add-question-btn,
+      .save-all-btn {
+        min-height: 40px;
+        font-size: 0.9rem;
+        padding: 0.625rem 1.25rem;
+      }
+
+      .actions-column {
+        min-width: 120px;
+      }
+
+      .action-buttons {
+        gap: 0.25rem;
+        flex-wrap: nowrap;
+      }
+
+      .action-btn {
+        min-width: 34px;
+        height: 34px;
+        padding: 0.4rem;
+        font-size: 0.8rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn i {
+        font-size: 0.8rem;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .student-row {
+        padding: 0.75rem;
+      }
+
+      .score-input {
+        min-height: 36px;
+      }
+
+      .question-item {
+        padding: 0.875rem;
+      }
+
+      .option-item input[type="text"] {
+        min-height: 36px;
+      }
+
+      .toggle-btn {
+        padding: 0.5rem 0.75rem;
+        min-height: 36px;
+        font-size: 0.85rem;
+      }
+
+      .test-preview-modal {
+        padding: 0.75rem;
+        margin: 0.25rem;
+      }
+
+      .test-info-grid {
+        padding: 0.75rem;
+      }
+
+      .question-preview-item {
+        padding: 0.875rem;
+      }
+    }
+
+    /* Floating Action Button for very small screens */
+    @media (max-width: 480px) {
+      .floating-create-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+
+      .floating-create-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .floating-create-btn:active {
+        transform: scale(0.95);
+      }
+    }
+
+    /* Loading Popup Styles */
+    .loading-popup {
+      display: none;
+      position: fixed;
+      z-index: 4000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+    
+    .loading-popup.show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .loading-popup.show .loading-spinner {
+      animation: spin 1s linear infinite !important;
+      -webkit-animation: spin 1s linear infinite !important;
+      -moz-animation: spin 1s linear infinite !important;
+      -o-animation: spin 1s linear infinite !important;
+      animation-play-state: running !important;
+    }
+
+    .loading-content {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 300px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: #333;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e9ecef;
+      border-top: 4px solid #3A1C71;
+      border-radius: 50%;
+      animation: spin 1s linear infinite !important;
+      margin: 0 auto 20px;
+      will-change: transform;
+      transform-origin: center;
+      display: inline-block;
+      /* Ensure animation works across all browsers */
+      animation-play-state: running !important;
+      -webkit-animation: spin 1s linear infinite !important;
+      -moz-animation: spin 1s linear infinite !important;
+      -o-animation: spin 1s linear infinite !important;
+      /* Force hardware acceleration */
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #3A1C71;
+    }
+
+    .loading-subtext {
+      font-size: 0.9rem;
+      color: #666;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      line-height: 1.3;
+    }
+
+    /* Alert Modal Styles */
+    .alert-modal {
+      display: none;
+      position: fixed;
+      z-index: 15000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+    
+    .alert-modal.show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .alert-content {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      animation: slideIn 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .alert-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .alert-icon.success { color: #28a745; }
+    .alert-icon.error { color: #dc3545; }
+    .alert-icon.warning { color: #ffc107; }
+    .alert-icon.info { color: #17a2b8; }
+
+    .alert-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .alert-message {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .alert-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .alert-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 80px;
+    }
+
+    .alert-btn.primary {
+      background: #3A1C71;
+      color: white;
+    }
+
+    .alert-btn.primary:hover {
+      background: #2a1451;
+    }
+
+    .alert-btn.secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .alert-btn.secondary:hover {
+      background: #5a6268;
+    }
+
+    .alert-btn.danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .alert-btn.danger:hover {
+      background: #dc2626;
+    }
+
+    /* View Test Modal Styles - Completely Redesigned */
+    .view-test-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      padding: 1rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .view-test-modal.show {
+      display: flex;
+      animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .view-test-content {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.25),
+        0 10px 20px rgba(0, 0, 0, 0.15);
+      max-width: 1000px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      position: relative;
+      margin: auto;
+      transform: translateY(0);
+    }
+
+    .view-test-header {
+      background: #1a202c;
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .view-test-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .close-view-modal {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      z-index: 10001;
+      position: relative;
+    }
+
+    .close-view-modal:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.1);
+      color: #ff4444;
+    }
+
+    .close-view-modal:active {
+      transform: scale(0.95);
+    }
+
+    .view-test-body {
+      padding: 0;
+      max-height: calc(90vh - 80px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* New Dashboard Design */
+    .test-dashboard {
+      padding: 0;
+    }
+
+    .test-header-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .test-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .mcq-badge {
+      background: rgba(72, 187, 120, 0.2);
+      border: 1px solid rgba(72, 187, 120, 0.3);
+    }
+
+    .subjective-badge {
+      background: rgba(237, 137, 54, 0.2);
+      border: 1px solid rgba(237, 137, 54, 0.3);
+    }
+
+    .test-main-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 0 1rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .test-meta {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .meta-item i {
+      font-size: 1rem;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+
+    .stat-item {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .stat-item:nth-child(1) .stat-icon {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .stat-item:nth-child(2) .stat-icon {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+
+    .stat-item:nth-child(3) .stat-icon {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+
+    .stat-item:nth-child(4) .stat-icon {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+    }
+
+    .stat-content {
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    /* Instructions Section */
+    .instructions-section {
+      background: white;
+      margin: 1rem 2rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-header {
+      background: #f7fafc;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .section-header i {
+      color: #667eea;
+    }
+
+    .instruction-content {
+      padding: 1.5rem;
+      color: #4a5568;
+      line-height: 1.6;
+    }
+
+    /* Questions Dashboard */
+    .questions-dashboard {
+      padding: 1rem 2rem 2rem;
+    }
+
+    .questions-section {
+      margin-bottom: 2rem;
+    }
+
+    .questions-section h3 {
+      color: #2d3748;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .questions-section h3 i {
+      color: #667eea;
+    }
+
+    .question-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .question-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-color: #cbd5e0;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .question-number {
+      background: #667eea;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .question-type {
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .question-type.mcq {
+      background: #48bb78;
+      color: white;
+    }
+
+    .question-type.subjective {
+      background: #ed8936;
+      color: white;
+    }
+
+    .question-text {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #2d3748;
+    }
+
+    .question-image {
+      margin-bottom: 1rem;
+    }
+
+    .question-image img {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .options-list {
+      display: grid;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-item {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .option-item.correct {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .option-letter {
+      background: #667eea;
+      color: white;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .option-text {
+      flex: 1;
+      color: #2d3748;
+    }
+
+    .question-meta {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #718096;
+    }
+
+    .question-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .question-meta i {
+      color: #667eea;
+    }
+
+    .no-questions {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #718096;
+    }
+
+    .no-questions i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #cbd5e0;
+    }
+
+    .no-questions h3 {
+      font-size: 1.3rem;
+      margin: 0 0 0.5rem 0;
+      color: #4a5568;
+    }
+
+    .no-questions p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .view-test-content {
+        max-width: 95vw;
+        margin: 0.5rem;
+      }
+      
+      .test-header-section {
+        padding: 1.5rem;
+      }
+      
+      .test-main-title {
+        font-size: 2rem;
+      }
+      
+      .test-meta {
+        gap: 1rem;
+      }
+      
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 1.5rem;
+      }
+      
+      .instructions-section,
+      .questions-dashboard {
+        margin: 0.5rem 1rem;
+        padding: 1rem;
+      }
+      
+      .question-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .view-test-content {
+        max-width: 100vw;
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+      }
+      
+      .test-header-section {
+        padding: 1rem;
+      }
+      
+      .test-main-title {
+        font-size: 1.5rem;
+      }
+      
+      .test-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .quick-stats {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+      
+      .instructions-section,
+      .questions-dashboard {
+        margin: 0.5rem;
+        padding: 0.75rem;
+      }
+      
+      .question-item {
+        padding: 1rem;
+      }
+
+
+
+    .test-stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .test-stat-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .test-stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .test-instruction {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      border-left: 4px solid #667eea;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-top: 1.5rem;
+    }
+
+    .test-instruction h4 {
+      color: #1e293b;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .test-instruction p {
+      color: #475569;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Questions Section */
+    .questions-container {
+      padding: 2.5rem;
+    }
+
+    .questions-section {
+      margin-bottom: 3rem;
+    }
+
+    .questions-section h3 {
+      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .questions-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .questions-section h3 i {
+      color: #667eea;
+    }
+
+    .question-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .question-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+    }
+
+    .question-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .question-number {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .question-type {
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-type.mcq {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .question-type.subjective {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+
+    .question-image {
+      margin: 1.5rem 0;
+      text-align: center;
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 2px dashed #cbd5e1;
+    }
+
+    .question-image img {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+
+    .question-image img:hover {
+      transform: scale(1.02);
+    }
+
+    .options-list {
+      margin: 1.5rem 0;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .option-item:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .option-item.correct {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-color: #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .option-letter {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .option-item.correct .option-letter {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .option-text {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1e293b;
+      flex: 1;
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.875rem;
+      color: #64748b;
+      background: #f8fafc;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+    }
+
+    .question-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .question-meta i {
+      color: #667eea;
+    }
+
+    .no-questions {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #64748b;
+      background: #f8fafc;
+      border-radius: 20px;
+      border: 2px dashed #cbd5e1;
+      margin: 2rem 0;
+    }
+
+    .no-questions i {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.5;
+      color: #94a3b8;
+    }
+
+    .no-questions h3 {
+      color: #475569;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .no-questions p {
+      color: #64748b;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    /* Responsive Design for View Test Modal */
+    @media (max-width: 1024px) {
+      .view-test-content {
+        max-width: 95%;
+      }
+      
+      .test-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .view-test-modal {
+        padding: 0.5rem;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .view-test-content {
+        width: 100%;
+        max-height: 95vh;
+        border-radius: 16px;
+        margin: auto;
+      }
+      
+      .view-test-header {
+        padding: 1.5rem;
+      }
+      
+      .view-test-header h2 {
+        font-size: 1.5rem;
+      }
+      
+      .test-overview {
+        padding: 2rem;
+      }
+      
+      .test-title {
+        font-size: 1.875rem;
+      }
+      
+      .questions-container {
+        padding: 2rem;
+      }
+      
+      .test-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      
+      .test-stat-card {
+        padding: 1.25rem;
+      }
+      
+      .question-item {
+        padding: 1.5rem;
+      }
+      
+      .question-text {
+        font-size: 1.125rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .view-test-modal {
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .view-test-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        max-height: 100vh;
+        margin: auto;
+      }
+      
+      .view-test-header {
+        padding: 1rem;
+      }
+      
+      .view-test-header h2 {
+        font-size: 1.25rem;
+      }
+      
+      .test-overview {
+        padding: 1.5rem;
+      }
+      
+      .test-title {
+        font-size: 1.5rem;
+      }
+      
+      .questions-container {
+        padding: 1.5rem;
+      }
+      
+      .test-stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .question-item {
+        padding: 1rem;
+      }
+      
+      .question-text {
+        font-size: 1rem;
+        padding: 0.75rem;
+      }
+      
+      .question-image img {
+        max-height: 250px;
+      }
+      
+      .question-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
+    }
+
+    @keyframes spin {
+      0% { 
+        transform: rotate(0deg); 
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+      }
+      100% { 
+        transform: rotate(360deg); 
+        -webkit-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+      }
+    }
+
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @-moz-keyframes spin {
+      0% { -moz-transform: rotate(0deg); }
+      100% { -moz-transform: rotate(360deg); }
+    }
+
+    @-o-keyframes spin {
+      0% { -o-transform: rotate(0deg); }
+      100% { -o-transform: rotate(360deg); }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+         @keyframes fadeIn {
+       from { opacity: 0; }
+       to { opacity: 1; }
+     }
+     
+     /* Performance optimization: Pagination controls */
+     .pagination-controls {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       gap: 1rem;
+       margin-top: 1rem;
+       padding: 1rem;
+       background: var(--card);
+       border-radius: var(--radius);
+       box-shadow: var(--shadow);
+     }
+     
+     .pagination-controls button {
+       background: var(--primary);
+       color: white;
+       border: none;
+       border-radius: var(--radius);
+       padding: 0.5rem 1rem;
+       font-weight: 600;
+       cursor: pointer;
+       transition: all var(--transition-speed);
+     }
+     
+     .pagination-controls button:hover:not(:disabled) {
+       background: var(--primary-dark);
+       transform: translateY(-1px);
+     }
+     
+     .pagination-controls button:disabled {
+       background: var(--text-muted);
+       cursor: not-allowed;
+       opacity: 0.6;
+     }
+     
+     .pagination-controls span {
+       font-weight: 600;
+       color: var(--text);
+    }
+  }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html" class="active"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" ><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <div class="title">
+          <img src="./assets/online test.png" alt="Online Text Module" style="width: 20px; height: 20px; margin-right: 10px;">
+          Online Text Module
+        </div>
+        <div class="status">
+          <div class="indicator"></div>
+          <span>Online</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="module-container">
+          <!-- Navigation Tabs -->
+          <div class="module-tabs">
+            <button class="tab-btn active" data-tab="create-test">
+              <i class="fas fa-plus-circle"></i> Create Test
+            </button>
+            <button class="tab-btn" data-tab="scheduled-tests">
+              <i class="fas fa-calendar-alt"></i> Scheduled Tests
+            </button>
+          </div>
+
+          <!-- Create Test Tab -->
+          <div class="tab-content active" id="create-test">
+            <div class="create-test-card">
+              <h2><img src="./assets/online test.png" alt="Create New Test" style="width: 20px; height: 20px; margin-right: 10px;"> Create New Test</h2>
+              <form id="createTestForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="classSelect"><i class="fas fa-users"></i> Class & Section</label>
+                    <select id="classSelect" required>
+                      <option value="">Select Class</option>
+                      <option value="10A">10th A</option>
+                      <option value="10B">10th B</option>
+                      <option value="BCom2">BCom 2nd Year</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="subjectSelect"><i class="fas fa-book"></i> Subject</label>
+                    <select id="subjectSelect" required>
+                      <option value="">Select Subject</option>
+                      <option value="physics">Physics</option>
+                      <option value="chemistry">Chemistry</option>
+                      <option value="mathematics">Mathematics</option>
+                      <option value="english">English</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="testName"><i class="fas fa-heading"></i> Test Name</label>
+                    <input type="text" id="testName" placeholder="e.g., Unit Test 2 - Physics" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="testType"><i class="fas fa-list"></i> Test Type</label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" name="testType" value="mcq" checked>
+                        MCQ
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" name="testType" value="subjective">
+                        Subjective
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="totalMarks"><i class="fas fa-star"></i> Total Marks</label>
+                    <input type="number" id="totalMarks" min="1" max="100" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="duration"><i class="fas fa-clock"></i> Duration (minutes)</label>
+                    <select id="duration" required>
+                      <option value="30">30 minutes</option>
+                      <option value="45" selected>45 minutes</option>
+                      <option value="60">1 hour</option>
+                      <option value="90">1.5 hours</option>
+                      <option value="120">2 hours</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="testMode"><i class="fas fa-globe"></i> Test Mode</label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" name="testMode" value="online" checked>
+                        Online
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" name="testMode" value="offline">
+                        Offline
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="scheduleDate"><i class="fas fa-calendar"></i> Schedule Date & Time</label>
+                    <input type="datetime-local" id="scheduleDate" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="instructions"><i class="fas fa-info-circle"></i> Instructions (Optional)</label>
+                  <textarea id="instructions" rows="3" placeholder="Enter test instructions..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-save"></i> Create Test
+                </button>
+              </form>
+            </div>
+
+            <!-- Question Builder -->
+            <div class="question-builder" id="questionBuilder" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3><i class="fas fa-question-circle"></i> Build Question Paper</h3>
+                <button type="button" class="btn-primary" onclick="viewTestPreview()">
+                  <i class="fas fa-eye"></i> View Test
+                </button>
+              </div>
+              
+              <div class="question-type-toggle">
+                <button class="toggle-btn active" data-type="mcq" onclick="toggleQuestionSection('mcq')">MCQ Questions</button>
+                <button class="toggle-btn" data-type="subjective" onclick="toggleQuestionSection('subjective')">Subjective Questions</button>
+              </div>
+
+              <!-- MCQ Section -->
+              <div class="question-section active" id="mcqSection">
+                <div id="mcqQuestions">
+                  <!-- MCQ questions will be added here -->
+                </div>
+                <button type="button" class="add-question-btn" onclick="addMCQQuestion()">
+                  <i class="fas fa-plus"></i> Add MCQ Question
+                </button>
+              </div>
+
+              <!-- Subjective Section -->
+              <div class="question-section" id="subjectiveSection">
+                <div id="subjectiveQuestions">
+                  <!-- Subjective questions will be added here -->
+                </div>
+                <button type="button" class="add-question-btn" onclick="addSubjectiveQuestion()">
+                  <i class="fas fa-plus"></i> Add Subjective Question
+                </button>
+              </div>
+
+              <!-- Question Actions -->
+              <div class="question-actions">
+          <button type="button" class="btn-primary" id="submitTestBtn" onclick="submitTest()">
+                  <i class="fas fa-paper-plane"></i> Submit Test
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scheduled Tests Tab -->
+          <div class="tab-content" id="scheduled-tests">
+            <div class="tests-dashboard">
+              <div class="dashboard-header">
+                <h2><i class="fas fa-calendar-alt"></i> Scheduled Tests</h2>
+                <div class="dashboard-actions">
+                  <input type="text" id="searchTests" placeholder="Search tests..." class="search-input">
+                  <button class="btn-primary create-test-btn" onclick="showCreateTest()">
+                  <i class="fas fa-plus"></i> Create New Test
+                </button>
+                 </div>
+              </div>
+              <div class="table-responsive">
+                <table class="tests-table">
+                  <thead>
+                    <tr>
+                      <th>Test Name</th>
+                      <th>Class</th>
+                      <th>Subject</th>
+                      <th>Date/Time</th>
+                      <th>Mode</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="testsTableBody">
+                    <!-- Test data will be populated here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Preview Modal -->
+  <div class="modal-overlay" id="testPreviewModal">
+    <div class="test-preview-modal">
+      <div class="modal-header">
+        <h3><i class="fas fa-eye"></i> Test Preview</h3>
+        <button class="close-modal" onclick="closeTestPreview()">&times;</button>
+      </div>
+      <div id="testPreviewContent">
+        <!-- Test preview content will be loaded here -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeTestPreview()">Close</button>
+        <button class="btn-primary" onclick="editTestFromPreview()">
+          <i class="fas fa-edit"></i> Edit Test
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BC360 Loading Popup -->
+  <div id="loadingPopup" class="loading-popup">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">BC360</div>
+      <div class="loading-subtext">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="alert-modal">
+    <div class="alert-content">
+      <div class="alert-icon" id="alertIcon"></div>
+      <div class="alert-title" id="alertTitle"></div>
+      <div class="alert-message" id="alertMessage"></div>
+      <div class="alert-buttons" id="alertButtons">
+        <button class="alert-btn primary" onclick="closeAlert()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Test Modal -->
+  <div id="viewTestModal" class="view-test-modal">
+    <div class="view-test-content">
+      <div class="view-test-header">
+        <h2><i class="fas fa-eye"></i> Test Details</h2>
+        <button class="close-view-modal" onclick="closeViewTest()">&times;</button>
+      </div>
+      <div id="viewTestContent" class="view-test-body">
+        <!-- Test details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openMenu() {
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (menuToggle) {
+      menuToggle.onclick = function() {
+        if(sidebar.classList.contains('menu-open')) closeMenu();
+        else openMenu();
+      };
+    }
+
+    if (sidebarOverlay) {
+      sidebarOverlay.onclick = closeMenu;
+    }
+
+    window.addEventListener('resize', ()=> {
+      if(window.innerWidth>1150) closeMenu();
+    });
+
+    if (sidebar) {
+      Array.from(sidebar.querySelectorAll('a')).forEach(a=>{
+        a.onclick=()=>{ if(window.innerWidth<=1150) closeMenu(); };
+      });
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Update active tab button
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active tab content
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // Question type toggle
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const type = this.getAttribute('data-type');
+        
+        // Update active toggle button
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active question section
+        document.querySelectorAll('.question-section').forEach(section => section.classList.remove('active'));
+        document.getElementById(type + 'Section').classList.add('active');
+      });
+    });
+
+    // Initialize empty arrays for data from database
+    let tests = [];
+    let students = [];
+
+    let currentTest = null;
+    let mcqQuestions = [];
+    let subjectiveQuestions = [];
+    
+    // Session authentication helper
+    function getCurrentUserData() {
+      let userData = null;
+      if (window.UserSession && window.UserSession.getUserData) {
+        userData = window.UserSession.getUserData();
+      } else {
+        // Fallback: get from localStorage directly
+        const storedUser = localStorage.getItem('bc3620_user');
+        if (storedUser) {
+          try {
+            userData = JSON.parse(storedUser);
+          } catch (e) {
+            console.warn('Failed to parse stored user data:', e);
+          }
+        }
+      }
+      
+      if (!userData || !userData.isAuthenticated) {
+        console.error('No authenticated user session found');
+        return null;
+      }
+      
+      return userData;
+    }
+
+    // Create Test Form Handler
+    document.getElementById('createTestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Check authentication first
+      const userData = getCurrentUserData();
+      if (!userData || userData.userType !== 'teacher') {
+        console.error('❌ User not authenticated or not a teacher');
+        alert('❌ Session expired. Please login again.');
+        window.location.href = '../login.html';
+        return;
+      }
+      
+      console.log('✅ User authenticated:', userData.user.teacher_name, 'from', userData.user.institution_name);
+      
+      // Reset editing mode when creating a new test
+      isEditing = false;
+      editingTestId = null;
+      updateSubmitButtonText();
+      
+      showLoading('Creating test...');
+      
+      // Simulate API call
+      setTimeout(() => {
+      currentTest = {
+        id: Date.now(),
+        teacher_id: userData.user.teacher_id || userData.user.id,
+        institution_id: userData.user.institution_id,
+        name: document.getElementById('testName').value,
+        class: document.getElementById('classSelect').value,
+        subject: document.getElementById('subjectSelect').value,
+        type: document.querySelector('input[name="testType"]:checked').value,
+        totalMarks: document.getElementById('totalMarks').value,
+        duration: document.getElementById('duration').value,
+        mode: document.querySelector('input[name="testMode"]:checked').value,
+        date: document.getElementById('scheduleDate').value,
+        instructions: document.getElementById('instructions').value,
+        status: 'scheduled'
+      };
+
+      // Test will be saved to database via submitTest() function
+      // No need to store in localStorage
+        
+        hideLoading();
+      
+      // Show question builder
+      document.getElementById('questionBuilder').style.display = 'block';
+      
+      // Auto-select the correct question type section based on test type
+      const testType = currentTest.type;
+      console.log('=== Form submit handler - Setting up question builder ===');
+      console.log('Setting up question builder for test type:', testType);
+      
+      if (testType === 'subjective') {
+        // Reset MCQ fields and activate subjective section
+        resetMCQFields();
+        toggleQuestionSection('subjective');
+        console.log('Subjective section activated in form submit');
+      } else {
+        // Default to MCQ (reset subjective fields and activate MCQ section)
+        resetSubjectiveFields();
+        toggleQuestionSection('mcq');
+        console.log('MCQ section activated in form submit');
+      }
+      
+      // Auto-scroll to question builder section
+      document.getElementById('questionBuilder').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      }, 1000);
+    });
+
+    // API Configuration
+    const API_BASE_URL = 'https://j7rjxb64e0.execute-api.ap-south-1.amazonaws.com/dev';
+    const ONLINE_TEST_API = `${API_BASE_URL}/online-test`;
+    const S3_DELETE_API = `${API_BASE_URL}/online-test/delete-s3`;
+    
+    // Performance optimization: Caching
+    let testsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+    
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    
+    // Performance optimization: Virtual scrolling and pagination
+    let currentPage = 0;
+    const testsPerPage = 10; // Show 10 tests at a time for better performance
+
+    // Question Builder Functions
+    let mcqQuestionCount = 0;
+    let subjectiveQuestionCount = 0;
+
+    function addMCQQuestion() {
+      console.log('=== addMCQQuestion() called ===');
+      mcqQuestionCount++;
+      console.log('New MCQ question count:', mcqQuestionCount);
+      
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-item';
+      questionDiv.innerHTML = `
+        <div class="question-header">
+          <div class="question-number">${mcqQuestionCount}</div>
+          <button type="button" class="remove-question" onclick="removeQuestion(this)">×</button>
+        </div>
+        <div class="form-group">
+          <label>Question Text</label>
+          <textarea placeholder="Enter your question..." rows="3"></textarea>
+        </div>
+        <div class="options-grid">
+          <div class="option-item">
+            <input type="radio" name="correct${mcqQuestionCount}" value="A" onchange="updateCorrectAnswer(this, '${mcqQuestionCount}')">
+            <input type="text" placeholder="Option A">
+          </div>
+          <div class="option-item">
+            <input type="radio" name="correct${mcqQuestionCount}" value="B" onchange="updateCorrectAnswer(this, '${mcqQuestionCount}')">
+            <input type="text" placeholder="Option B">
+          </div>
+          <div class="option-item">
+            <input type="radio" name="correct${mcqQuestionCount}" value="C" onchange="updateCorrectAnswer(this, '${mcqQuestionCount}')">
+            <input type="text" placeholder="Option C">
+          </div>
+          <div class="option-item">
+            <input type="radio" name="correct${mcqQuestionCount}" value="D" onchange="updateCorrectAnswer(this, '${mcqQuestionCount}')">
+            <input type="text" placeholder="Option D">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Marks</label>
+          <input type="number" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-check-circle"></i> Correct Answer <span style="color: #dc3545;">*</span></label>
+          <select id="correctAnswer${mcqQuestionCount}" required onchange="updateRadioButton(this, '${mcqQuestionCount}')">
+            <option value="">Select correct answer</option>
+            <option value="A">Option A</option>
+            <option value="B">Option B</option>
+            <option value="C">Option C</option>
+            <option value="D">Option D</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Time Allocated</label>
+          <input type="text" placeholder="e.g., 2 minutes" value="2 minutes">
+        </div>
+      `;
+      document.getElementById('mcqQuestions').appendChild(questionDiv);
+      console.log('MCQ question added to DOM. Total MCQ questions now:', document.querySelectorAll('#mcqQuestions .question-item').length);
+    }
+
+    function addSubjectiveQuestion() {
+      subjectiveQuestionCount++;
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-item';
+      questionDiv.innerHTML = `
+        <div class="question-header">
+          <div class="question-number">${subjectiveQuestionCount}</div>
+          <button type="button" class="remove-question" onclick="removeQuestion(this)">×</button>
+        </div>
+        <div class="form-group">
+          <label>Question Text</label>
+          <textarea placeholder="Enter your question..." rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Time Allocated</label>
+          <input type="text" placeholder="e.g., 10 minutes" value="10 minutes">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-paperclip"></i> Attach File (Optional)</label>
+          <input type="file" accept="*/*" onchange="handleImageUpload(this, ${subjectiveQuestionCount})">
+          <div class="file-preview" id="imagePreview${subjectiveQuestionCount}" style="display: none;">
+            <img src="" alt="Preview" style="max-width: 200px; max-height: 150px; margin-top: 10px;">
+            <button type="button" class="btn-secondary" onclick="removeImage(${subjectiveQuestionCount})" style="margin-top: 5px;">Remove File</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('subjectiveQuestions').appendChild(questionDiv);
+      console.log('Adding subjective question, count:', subjectiveQuestionCount);
+      console.log('Subjective question added to DOM. Total questions in container:', document.querySelectorAll('#subjectiveQuestions .question-item').length);
+    }
+
+    function removeQuestion(button) {
+      button.closest('.question-item').remove();
+    }
+
+    // Auto-select correct answer based on radio button selection
+    function updateCorrectAnswer(radioButton, questionId) {
+      const correctAnswerSelect = document.getElementById(`correctAnswer${questionId}`);
+      if (correctAnswerSelect && radioButton.checked) {
+        correctAnswerSelect.value = radioButton.value;
+        // Add visual feedback
+        correctAnswerSelect.style.backgroundColor = '#d4edda';
+        correctAnswerSelect.style.borderColor = '#28a745';
+        setTimeout(() => {
+          correctAnswerSelect.style.backgroundColor = '';
+          correctAnswerSelect.style.borderColor = '';
+        }, 1000);
+      }
+    }
+
+    // Auto-select radio button based on dropdown selection
+    function updateRadioButton(dropdown, questionId) {
+      const selectedValue = dropdown.value;
+      if (selectedValue) {
+        // Find the radio button with the selected value
+        const radioButton = document.querySelector(`input[name="correct${questionId}"][value="${selectedValue}"]`);
+        if (radioButton) {
+          radioButton.checked = true;
+          // Add visual feedback to the radio button
+          radioButton.style.transform = 'scale(1.2)';
+          setTimeout(() => {
+            radioButton.style.transform = '';
+          }, 300);
+        }
+      }
+    }
+
+    // Performance optimization: Clear cache function
+    function clearTestsCache() {
+      testsCache = null;
+      lastCacheTime = 0;
+    }
+    
+    // Load scheduled tests from API with caching
+    async function loadScheduledTests(forceRefresh = false) {
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+      
+      showLoading('Loading tests...');
+      
+      try {
+        // Check cache first (unless force refresh)
+        const now = Date.now();
+        if (!forceRefresh && testsCache && (now - lastCacheTime) < CACHE_DURATION) {
+          console.log('Using cached tests data');
+          tests = testsCache;
+          renderTestsTable(tests);
+          hideLoading();
+          return;
+        }
+        
+        // Get current user data for filtering
+        const userData = getCurrentUserData();
+        if (!userData || userData.userType !== 'teacher') {
+          console.error('❌ User not authenticated or not a teacher');
+          tests = [];
+          renderTestsTable(tests);
+          hideLoading();
+          return;
+        }
+        
+        const currentTeacherId = userData.user.teacher_id || userData.user.id;
+        const currentInstitutionId = userData.user.institution_id;
+        
+        console.log('🔍 Loading tests for teacher_id:', currentTeacherId, 'institution_id:', currentInstitutionId);
+        
+        // Load from API with current user's IDs
+        const response = await fetch(`${ONLINE_TEST_API}?teacher_id=${currentTeacherId}&institution_id=${currentInstitutionId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to load tests');
+        }
+        
+        const data = await response.json();
+        const apiTests = data.tests || [];
+        
+        console.log('📝 Loaded', apiTests.length, 'tests from API');
+        
+        // Filter tests by current teacher_id
+        const filteredTests = apiTests.filter(test => {
+          if (currentTeacherId && test.teacher_id && test.teacher_id.toString() !== currentTeacherId.toString()) {
+            console.log('🚫 Filtering out test:', test.test_name, 'by teacher_id:', test.teacher_id);
+            return false; // Skip this test
+          }
+          console.log('✅ Including test:', test.test_name, 'by teacher_id:', test.teacher_id);
+          return true;
+        });
+        
+        console.log('📝 Found', filteredTests.length, 'tests for current teacher out of', apiTests.length, 'total tests');
+        
+        // Update global tests array with only filtered data
+        tests.length = 0;
+        tests.push(...filteredTests);
+        
+        // Update cache
+        testsCache = [...tests];
+        lastCacheTime = now;
+        
+        // Display tests
+        renderTestsTable(tests);
+        
+        hideLoading();
+        
+      } catch (error) {
+        hideLoading();
+        console.error('Failed to load tests from API:', error);
+        
+        // Show error message to user
+        showAlert('Error', 'Failed to load tests from database. Please try again.', 'error');
+      }
+    }
+    
+    // Performance optimization: Render tests table with pagination
+    function renderTestsTable(testsToRender) {
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+      
+      if (testsToRender.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">
+              <div class="no-data-message">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>No Tests Available</h3>
+                <p>You haven't created any tests yet. Click "Create New Test" to get started.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Apply pagination
+      const startIndex = currentPage * testsPerPage;
+      const endIndex = startIndex + testsPerPage;
+      const paginatedTests = testsToRender.slice(startIndex, endIndex);
+      
+      paginatedTests.forEach(test => {
+        const row = document.createElement('tr');
+        const date = new Date(test.schedule_time || test.date).toLocaleString();
+        row.innerHTML = `
+          <td>${test.test_name || test.name}</td>
+          <td>${test.class}</td>
+          <td>${test.subject}</td>
+          <td>${date}</td>
+          <td><span class="status-badge ${test.test_mode || test.mode}">${test.test_mode || test.mode}</span></td>
+          <td class="actions-column">
+            <div class="action-buttons">
+              <button class="action-btn" onclick="viewTest(${test.id})" title="View Test">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn secondary" onclick="editTest(${test.id})" title="Edit Test">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn danger" onclick="deleteTest(${test.id}, '${test.test_name || test.name}')" title="Delete Test">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      
+      // Add pagination controls if needed
+      if (testsToRender.length > testsPerPage) {
+        addPaginationControls(testsToRender.length);
+      }
+    }
+    
+    // Performance optimization: Add pagination controls
+    function addPaginationControls(totalTests) {
+      const totalPages = Math.ceil(totalTests / testsPerPage);
+      const paginationContainer = document.getElementById('paginationContainer') || createPaginationContainer();
+      
+      let paginationHTML = '<div class="pagination-controls">';
+      paginationHTML += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''}>Previous</button>`;
+      paginationHTML += `<span>Page ${currentPage + 1} of ${totalPages}</span>`;
+      paginationHTML += `<button onclick="changePage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>Next</button>`;
+      paginationHTML += '</div>';
+      
+      paginationContainer.innerHTML = paginationHTML;
+    }
+    
+    // Performance optimization: Create pagination container
+    function createPaginationContainer() {
+      const container = document.createElement('div');
+      container.id = 'paginationContainer';
+      container.style.cssText = 'text-align: center; margin-top: 1rem; padding: 1rem;';
+      document.querySelector('.tests-dashboard').appendChild(container);
+      return container;
+    }
+    
+    // Performance optimization: Change page function
+    function changePage(newPage) {
+      if (newPage >= 0 && newPage < Math.ceil(tests.length / testsPerPage)) {
+        currentPage = newPage;
+        renderTestsTable(tests);
+      }
+    }
+
+
+
+    // Utility functions
+    function showCreateTest() {
+      // Reset editing mode
+      isEditing = false;
+      editingTestId = null;
+      
+      // Update create test heading
+      updateCreateTestHeading();
+      
+      // Reset form
+      resetForm();
+      
+      // Switch to create test tab
+      document.querySelector('[data-tab="create-test"]').click();
+      
+      // Scroll to create test section
+      document.getElementById('create-test').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }
+
+    function resetForm() {
+      // Reset basic form fields
+      document.getElementById('createTestForm').reset();
+      
+      // Clear question containers
+      document.getElementById('mcqQuestions').innerHTML = '';
+      document.getElementById('subjectiveQuestions').innerHTML = '';
+      
+      // Reset counters
+      mcqQuestionCount = 0;
+      subjectiveQuestionCount = 0;
+      
+      // Reset current test object
+      currentTest = null;
+      
+      // Reset question arrays
+      mcqQuestions = [];
+      subjectiveQuestions = [];
+      
+      // Reset test type selection
+      document.querySelectorAll('input[name="testType"]').forEach(radio => {
+        radio.checked = false;
+      });
+      
+      // Hide question sections
+      document.querySelectorAll('.question-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Reset toggle buttons
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Update button text
+      updateSubmitButtonText();
+    }
+
+    function updateSubmitButtonText() {
+      const submitBtn = document.getElementById('submitTestBtn');
+      if (submitBtn) {
+        if (isEditing) {
+          submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Test';
+        } else {
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Test';
+        }
+      }
+    }
+
+    function updateCreateTestHeading() {
+  const createTestHeading = document.querySelector('#create-test h2');
+  const createTestSubmitBtn = document.querySelector('#create-test button[type="submit"]');
+  
+  if (createTestHeading) {
+    if (isEditing) {
+      createTestHeading.style.display = 'none';
+    } else {
+      createTestHeading.style.display = 'block';
+      createTestHeading.innerHTML = '<i class="fas fa-edit"></i> Create New Test';
+    }
+  }
+  
+  if (createTestSubmitBtn) {
+    if (isEditing) {
+      createTestSubmitBtn.style.display = 'none';
+    } else {
+      createTestSubmitBtn.style.display = 'block';
+    }
+  }
+}
+
+    async function viewTest(id) {
+      showLoading('Loading test details...');
+      
+      try {
+        const response = await fetch(`${ONLINE_TEST_API}?id=${id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to fetch test details');
+        }
+        
+        const test = result.test;
+        hideLoading();
+        showTestDetails(test);
+        
+      } catch (error) {
+        hideLoading();
+        console.error('Error fetching test details:', error);
+        showAlert(
+          'Error',
+          `Failed to load test details.\n\nError: ${error.message}\n\nPlease try again or contact support if the problem persists.`,
+          'error'
+        );
+      }
+    }
+
+    // Global variable to track if we're editing
+    let isEditing = false;
+    let editingTestId = null;
+
+    async function editTest(id) {
+      try {
+        showLoading('Loading test details...');
+        
+        // Fetch test data by ID
+        const response = await fetch(`${ONLINE_TEST_API}?id=${id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success || !result.test) {
+          throw new Error('Test not found');
+        }
+        
+        const test = result.test;
+        
+        // Set editing mode
+        isEditing = true;
+        editingTestId = id;
+        
+        // Populate currentTest object for form submission
+        currentTest = {
+          id: test.id,
+          teacher_id: test.teacher_id,
+          institution_id: test.institution_id,
+          class: test.class,
+          subject: test.subject,
+          name: test.test_name,
+          type: test.test_type,
+          totalMarks: test.total_marks,
+          duration: test.duration,
+          mode: test.test_mode,
+          date: test.schedule_time,
+          instructions: test.instruction,
+          mcq_queations: test.mcq_queations,
+          subject_queation: test.subject_queation
+        };
+        
+        // Update button text
+        updateSubmitButtonText();
+        
+        // Update create test heading
+        updateCreateTestHeading();
+        
+        // Populate form with test data
+        populateFormWithTestData(test);
+        
+        // Switch to create test tab
+        document.querySelector('[data-tab="create-test"]').click();
+        
+        // Show question builder
+        const questionBuilder = document.getElementById('questionBuilder');
+        if (questionBuilder) {
+          questionBuilder.style.display = 'block';
+        }
+        
+        // Scroll to create test section
+        document.getElementById('create-test').scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+        
+        hideLoading();
+        
+      } catch (error) {
+        hideLoading();
+        console.error('Error loading test for editing:', error);
+        showAlert(
+          'Error',
+          `Failed to load test for editing: ${error.message}`,
+          'error'
+        );
+      }
+    }
+
+    function populateFormWithTestData(test) {
+      try {
+        // Populate basic test information
+        // Note: teacher_id and institution_id are typically set from session/context
+        const classSelect = document.getElementById('classSelect');
+        const subjectSelect = document.getElementById('subjectSelect');
+        const testName = document.getElementById('testName');
+        const totalMarks = document.getElementById('totalMarks');
+        const duration = document.getElementById('duration');
+        const scheduleDate = document.getElementById('scheduleDate');
+        const instructions = document.getElementById('instructions');
+        
+        if (classSelect) classSelect.value = test.class || '';
+        if (subjectSelect) subjectSelect.value = test.subject || '';
+        if (testName) testName.value = test.test_name || '';
+        if (totalMarks) totalMarks.value = test.total_marks || '';
+        if (duration) duration.value = test.duration || '';
+        if (scheduleDate) scheduleDate.value = test.schedule_time ? test.schedule_time.slice(0, 16) : '';
+        if (instructions) instructions.value = test.instruction || '';
+        
+        // Set test type
+        const testType = test.test_type?.toLowerCase();
+        if (testType === 'mcq' || testType === 'subjective') {
+          const testTypeRadio = document.querySelector(`input[name="testType"][value="${testType}"]`);
+          if (testTypeRadio) {
+            testTypeRadio.checked = true;
+            handleTestTypeChange();
+          }
+        }
+        
+        // Set test mode
+        const testMode = test.test_mode?.toLowerCase();
+        if (testMode === 'online' || testMode === 'offline') {
+          const testModeRadio = document.querySelector(`input[name="testMode"][value="${testMode}"]`);
+          if (testModeRadio) {
+            testModeRadio.checked = true;
+          }
+        }
+      
+      // Clear existing questions
+      document.getElementById('mcqQuestions').innerHTML = '';
+      document.getElementById('subjectiveQuestions').innerHTML = '';
+      
+      // Reset counters
+      mcqQuestionCount = 0;
+      subjectiveQuestionCount = 0;
+      
+      // Parse and populate questions
+      try {
+        let mcqQuestions = [];
+        let subjectiveQuestions = [];
+        
+        if (test.mcq_queations) {
+          mcqQuestions = typeof test.mcq_queations === 'string' 
+            ? JSON.parse(test.mcq_queations) 
+            : test.mcq_queations;
+        }
+        
+        if (test.subject_queation) {
+          subjectiveQuestions = typeof test.subject_queation === 'string' 
+            ? JSON.parse(test.subject_queation) 
+            : test.subject_queation;
+        }
+        
+        // Populate MCQ questions
+        if (mcqQuestions && mcqQuestions.length > 0) {
+          mcqQuestions.forEach((question, index) => {
+            addMCQQuestion();
+            const questionElement = document.querySelector(`#mcqQuestions .question-item:last-child`);
+            
+            // Set question text
+            const questionTextarea = questionElement.querySelector('textarea');
+            if (questionTextarea) questionTextarea.value = question.question || '';
+            
+            // Set options
+            if (question.answer) {
+              Object.keys(question.answer).forEach(option => {
+                const optionInput = questionElement.querySelector(`input[name="option${mcqQuestionCount}"][value="${option}"]`);
+                if (optionInput) optionInput.value = question.answer[option] || '';
+              });
+            }
+            
+            // Set correct answer
+            const correctAnswerSelect = questionElement.querySelector('select[id^="correctAnswer"]');
+            if (correctAnswerSelect && question.correct_answer) {
+              correctAnswerSelect.value = question.correct_answer;
+            }
+            
+            // Set time
+            const timeInput = questionElement.querySelector('input[type="text"]:last-of-type');
+            if (timeInput) timeInput.value = question.time || '2 minutes';
+          });
+        }
+        
+        // Populate Subjective questions
+        if (subjectiveQuestions && subjectiveQuestions.length > 0) {
+          subjectiveQuestions.forEach((question, index) => {
+            addSubjectiveQuestion();
+            const questionElement = document.querySelector(`#subjectiveQuestions .question-item:last-child`);
+            
+            // Set question text
+            const questionTextarea = questionElement.querySelector('textarea');
+            if (questionTextarea) questionTextarea.value = question.question || '';
+            
+            // Set time
+            const timeInput = questionElement.querySelector('input[type="text"]');
+            if (timeInput) timeInput.value = question.time || '10 minutes';
+            
+            // Set image if exists
+            if (question.img_url) {
+              const filePreview = questionElement.querySelector('.file-preview');
+              const previewImg = filePreview.querySelector('img');
+              if (previewImg) {
+                previewImg.src = question.img_url;
+                filePreview.style.display = 'block';
+              }
+            }
+          });
+        }
+        
+        // Auto-select the correct question section based on test type
+        if (testType === 'subjective') {
+          toggleQuestionSection('subjective');
+        } else if (testType === 'mcq') {
+          toggleQuestionSection('mcq');
+        }
+        
+      } catch (error) {
+        console.error('Error parsing questions for editing:', error);
+        showAlert(
+          'Warning',
+          'Some question data could not be loaded properly. Please review and correct if needed.',
+          'warning'
+        );
+      }
+    } catch (error) {
+      console.error('Error populating form with test data:', error);
+      showAlert(
+        'Error',
+        'Failed to populate form with test data. Please try again.',
+        'error'
+      );
+    }
+    }
+
+    function showTestDetails(test) {
+      const modal = document.getElementById('viewTestModal');
+      const content = document.getElementById('viewTestContent');
+      
+      // Parse questions from JSON strings if needed
+      let mcqQuestions = [];
+      let subjectiveQuestions = [];
+      
+      try {
+        if (test.mcq_queations) {
+          mcqQuestions = typeof test.mcq_queations === 'string' 
+            ? JSON.parse(test.mcq_queations) 
+            : test.mcq_queations;
+        }
+        if (test.subject_queation) {
+          subjectiveQuestions = typeof test.subject_queation === 'string' 
+            ? JSON.parse(test.subject_queation) 
+            : test.subject_queation;
+        }
+      } catch (error) {
+        console.error('Error parsing questions:', error);
+        mcqQuestions = [];
+        subjectiveQuestions = [];
+      }
+      
+      // Format schedule time
+      const scheduleTime = test.schedule_time 
+        ? new Date(test.schedule_time).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : 'Not scheduled';
+      
+      // Calculate total questions
+      const totalQuestions = (mcqQuestions?.length || 0) + (subjectiveQuestions?.length || 0);
+      
+      // Build test details content with simple string concatenation to avoid syntax issues
+      const testTypeLower = (test.test_type || '').toLowerCase();
+      const testTypeUpper = (test.test_type || 'N/A').toUpperCase();
+      const testName = test.test_name || 'Untitled Test';
+      const testClass = test.class || 'N/A';
+      const testSubject = test.subject || 'N/A';
+      const duration = test.duration || 'N/A';
+      const totalMarks = test.total_marks || 'N/A';
+      const testMode = test.test_mode || 'N/A';
+      
+      let html = '<div class="test-dashboard">';
+      html += '<div class="test-header-section">';
+      html += '<div class="test-badge ' + (testTypeLower === 'mcq' ? 'mcq-badge' : 'subjective-badge') + '">';
+      html += '<i class="fas ' + (testTypeLower === 'mcq' ? 'fa-list-ul' : 'fa-edit') + '"></i>';
+      html += testTypeUpper;
+      html += '</div>';
+      html += '<h1 class="test-main-title">' + testName + '</h1>';
+      html += '<div class="test-meta">';
+      html += '<span class="meta-item"><i class="fas fa-graduation-cap"></i>' + testClass + '</span>';
+      html += '<span class="meta-item"><i class="fas fa-book"></i>' + testSubject + '</span>';
+      html += '<span class="meta-item"><i class="fas fa-calendar"></i>' + scheduleTime + '</span>';
+      html += '</div>';
+      html += '</div>';
+      
+      html += '<div class="quick-stats">';
+      html += '<div class="stat-item"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-content"><div class="stat-value">' + duration + '</div><div class="stat-label">Duration</div></div></div>';
+      html += '<div class="stat-item"><div class="stat-icon"><i class="fas fa-star"></i></div><div class="stat-content"><div class="stat-value">' + totalMarks + '</div><div class="stat-label">Total Marks</div></div></div>';
+      html += '<div class="stat-item"><div class="stat-icon"><i class="fas fa-question-circle"></i></div><div class="stat-content"><div class="stat-value">' + totalQuestions + '</div><div class="stat-label">Questions</div></div></div>';
+      html += '<div class="stat-item"><div class="stat-icon"><i class="fas fa-laptop"></i></div><div class="stat-content"><div class="stat-value">' + testMode + '</div><div class="stat-label">Mode</div></div></div>';
+      html += '</div>';
+      
+      // Add instructions if present
+      if (test.instruction) {
+        html += '<div class="instructions-section">';
+        html += '<div class="section-header"><i class="fas fa-info-circle"></i><h3>Instructions</h3></div>';
+        html += '<div class="instruction-content">' + test.instruction + '</div>';
+        html += '</div>';
+      }
+      
+      // Add questions section
+      html += '<div class="questions-dashboard">';
+      html += renderQuestionsForView(mcqQuestions, subjectiveQuestions);
+      html += '</div>';
+      html += '</div>';
+      
+      content.innerHTML = html;
+      
+      modal.style.display = 'block';
+      modal.classList.add('show');
+    }
+
+    function renderQuestionsForView(mcqQuestions, subjectiveQuestions) {
+      let html = '';
+      
+      // MCQ Questions
+      if (mcqQuestions && mcqQuestions.length > 0) {
+        html += '<div class="questions-section"><h3><i class="fas fa-list-ul"></i> MCQ Questions</h3>';
+        mcqQuestions.forEach((question, index) => {
+          const options = question.answer || {};
+          const correctAnswer = question.correct_answer || '';
+          const questionText = question.question || 'No question text';
+          const time = question.time || 'N/A';
+          
+          html += '<div class="question-item">';
+          html += '<div class="question-header">';
+          html += '<div class="question-number">' + (index + 1) + '</div>';
+          html += '<div class="question-type mcq">MCQ</div>';
+          html += '</div>';
+          html += '<div class="question-text">' + questionText + '</div>';
+          html += '<div class="options-list">';
+                
+          // Build options separately
+          Object.entries(options).forEach(([key, value]) => {
+            const isCorrect = key === correctAnswer;
+            html += '<div class="option-item ' + (isCorrect ? 'correct' : '') + '">';
+            html += '<div class="option-letter">' + key + '</div>';
+            html += '<div class="option-text">' + value + '</div>';
+            html += '</div>';
+          });
+                
+          html += '</div>';
+          html += '<div class="question-meta">';
+          html += '<span><i class="fas fa-clock"></i> Time: ' + time + '</span>';
+          html += '<span><i class="fas fa-check-circle"></i> Correct Answer: ' + correctAnswer + '</span>';
+          html += '</div>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      
+      // Subjective Questions
+      if (subjectiveQuestions && subjectiveQuestions.length > 0) {
+        html += '<div class="questions-section"><h3><i class="fas fa-edit"></i> Subjective Questions</h3>';
+        subjectiveQuestions.forEach((question, index) => {
+          const questionText = question.question || 'No question text';
+          const time = question.time || 'N/A';
+          
+          html += '<div class="question-item">';
+          html += '<div class="question-header">';
+          html += '<div class="question-number">' + (index + 1) + '</div>';
+          html += '<div class="question-type subjective">Subjective</div>';
+          html += '</div>';
+          html += '<div class="question-text">' + questionText + '</div>';
+              
+          // Add image conditionally
+          if (question.img_url) {
+            html += '<div class="question-image">';
+            html += '<img src="' + question.img_url + '" alt="Question Image" onerror="this.style.display=\'none\'">';
+            html += '</div>';
+          }
+          
+          html += '<div class="question-meta">';
+          html += '<span><i class="fas fa-clock"></i> Time: ' + time + '</span>';
+                
+          if (question.img_url) {
+            html += '<span><i class="fas fa-image"></i> Image Attached</span>';
+          }
+          
+          html += '</div>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      
+      if ((!mcqQuestions || mcqQuestions.length === 0) && 
+          (!subjectiveQuestions || subjectiveQuestions.length === 0)) {
+        html = '<div class="no-questions">';
+        html += '<i class="fas fa-inbox"></i>';
+        html += '<h3>No Questions Found</h3>';
+        html += '<p>This test doesn\'t have any questions added yet.</p>';
+        html += '</div>';
+      }
+      
+      return html;
+    }
+
+    function closeViewTest() {
+      const modal = document.getElementById('viewTestModal');
+      if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 400);
+      }
+    }
+
+    async function deleteTest(id, testName) {
+      // Show confirmation dialog
+      showAlert(
+        'Delete Test',
+        `Are you sure you want to delete the test "${testName}"?\n\nThis action cannot be undone and will permanently remove:\n• The test from the database\n• All associated images from S3\n• All student submissions and results`,
+        'warning',
+        [
+          {
+            text: 'Cancel',
+            type: 'secondary',
+            onclick: 'closeAlert()'
+          },
+          {
+            text: 'Delete',
+            type: 'danger',
+            onclick: `confirmDeleteTest(${id}, '${testName}')`
+          }
+        ]
+      );
+    }
+
+    async function confirmDeleteTest(id, testName) {
+      closeAlert();
+      showLoading('Deleting test...');
+      
+      try {
+        const response = await fetch(ONLINE_TEST_API, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: id })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        hideLoading();
+        
+        if (result.message === "Online test deleted successfully") {
+          showAlert(
+            'Success',
+            `Test "${testName}" has been deleted successfully.`,
+            'success'
+          );
+          
+          // Refresh the tests list
+          await loadScheduledTests(true);
+        } else {
+          throw new Error(result.message || 'Unknown error occurred');
+        }
+      } catch (error) {
+        hideLoading();
+        console.error('Error deleting test:', error);
+        showAlert(
+          'Error',
+          `Failed to delete test "${testName}".\n\nError: ${error.message}\n\nPlease try again or contact support if the problem persists.`,
+          'error'
+        );
+      }
+    }
+
+
+    // Loading functions
+    function showLoading(message = 'Loading...') {
+      const subtext = document.querySelector('.loading-subtext');
+      if (subtext) {
+        subtext.textContent = message;
+      }
+      const loadingPopup = document.getElementById('loadingPopup');
+      const spinner = document.querySelector('.loading-spinner');
+      
+      // Show the popup
+      loadingPopup.style.display = 'block';
+      loadingPopup.classList.add('show');
+      
+      // Force restart animation by removing and re-adding the element
+      if (spinner) {
+        // Force browser to restart animation
+        spinner.style.animation = 'none';
+        spinner.offsetHeight; // Trigger reflow
+        spinner.style.animation = 'spin 1s linear infinite';
+        
+        // Also ensure webkit animation is applied
+        spinner.style.webkitAnimation = 'spin 1s linear infinite';
+      }
+    }
+
+    function hideLoading() {
+      const loadingPopup = document.getElementById('loadingPopup');
+      loadingPopup.style.display = 'none';
+      loadingPopup.classList.remove('show');
+    }
+
+    // Alert Modal functions
+    function showAlert(title, message, type = 'info', buttons = []) {
+      const alertModal = document.getElementById('alertModal');
+      const alertIcon = document.getElementById('alertIcon');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+      const alertButtons = document.getElementById('alertButtons');
+
+      // Set icon based on type
+      let iconClass = 'fas fa-info-circle';
+      if (type === 'success') iconClass = 'fas fa-check-circle';
+      else if (type === 'error') iconClass = 'fas fa-exclamation-circle';
+      else if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+
+      alertIcon.className = `alert-icon ${type} ${iconClass}`;
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+
+      // Set up buttons
+      if (buttons.length === 0) {
+        alertButtons.innerHTML = '<button class="alert-btn primary" onclick="closeAlert()">OK</button>';
+      } else {
+        alertButtons.innerHTML = buttons.map(btn => 
+          `<button class="alert-btn ${btn.type || 'secondary'}" onclick="${btn.onclick}">${btn.text}</button>`
+        ).join('');
+      }
+
+      alertModal.style.display = 'block';
+      alertModal.classList.add('show');
+    }
+
+    function closeAlert() {
+      const alertModal = document.getElementById('alertModal');
+      alertModal.style.display = 'none';
+      alertModal.classList.remove('show');
+    }
+
+    function showMessage(message, type) {
+      let title = 'Information';
+      if (type === 'success') title = 'Success';
+      else if (type === 'error') title = 'Error';
+      else if (type === 'warning') title = 'Warning';
+
+      showAlert(title, message, type);
+    }
+
+    // Test API connection
+    async function testAPIConnection() {
+      try {
+        const response = await fetch(`${ONLINE_TEST_API}?test=db`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('API connection successful:', data);
+          return true;
+        }
+      } catch (error) {
+        console.error('API connection failed:', error);
+        return false;
+      }
+    }
+    
+    // Performance optimization: Debounced search function
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchTests')?.value?.trim().toLowerCase() || '';
+        if (searchTerm) {
+          const filteredTests = tests.filter(test => 
+            (test.test_name || test.name).toLowerCase().includes(searchTerm) ||
+            test.class.toLowerCase().includes(searchTerm) ||
+            test.subject.toLowerCase().includes(searchTerm)
+          );
+          renderTestsTable(filteredTests);
+        } else {
+          renderTestsTable(tests);
+        }
+      }, 300); // 300ms delay for better performance
+    }
+    
+    // Initialize with performance optimizations
+    showLoading('Loading data...');
+    setTimeout(async () => {
+      try {
+        // Test API connection first
+        const apiConnected = await testAPIConnection();
+        if (!apiConnected) {
+          showAlert('Warning', 'API connection failed. Using local storage only.', 'warning');
+        }
+        
+        // Load data in parallel for better performance
+        await Promise.all([
+          loadScheduledTests()
+        ]);
+        
+        hideLoading();
+        
+        // Performance optimization: Add search functionality if search input exists
+        const searchInput = document.getElementById('searchTests');
+        if (searchInput) {
+          searchInput.addEventListener('input', debouncedSearch);
+        }
+        
+      } catch (error) {
+        hideLoading();
+        console.error('Initialization error:', error);
+        showAlert('Error', 'Failed to initialize application. Please refresh the page.', 'error');
+      }
+    }, 500); // Reduced loading time
+
+    // Performance optimization: File upload handling with progress tracking
+    async function handleImageUpload(input, questionId) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      // Validate file size (100MB limit for question files)
+      if (file.size > 100 * 1024 * 1024) {
+        showAlert('Upload Error', 'File size must be less than 100MB!', 'error');
+        input.value = '';
+        return;
+      }
+      
+      // Show loading with progress
+        showLoading('Uploading file...');
+      
+      try {
+        // Performance optimization: Add timeout for faster failure detection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+        
+        // Get upload URL from API
+        const uploadUrlResponse = await fetch(ONLINE_TEST_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'get_upload_url',
+            fileName: `question_${Date.now()}_${file.name}`,
+            fileType: file.type
+          }),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!uploadUrlResponse.ok) {
+          throw new Error('Failed to get upload URL');
+        }
+        
+        const { uploadUrl, fileUrl } = await uploadUrlResponse.json();
+        
+        // Upload file to S3 with progress tracking
+        const uploadController = new AbortController();
+        const uploadTimeoutId = setTimeout(() => uploadController.abort(), 120000); // 2 minute timeout
+        
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type },
+          signal: uploadController.signal
+        });
+        
+        clearTimeout(uploadTimeoutId);
+        
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image');
+        }
+        
+        // Store the file URL in the question element
+        const questionElement = input.closest('.question-item');
+        questionElement.setAttribute('data-image-url', fileUrl);
+        console.log('Image uploaded successfully. File URL stored:', fileUrl);
+        console.log('Question element data-image-url attribute:', questionElement.getAttribute('data-image-url'));
+        
+        // Show preview based on file type
+        const previewDiv = document.getElementById(`imagePreview${questionId}`);
+        const previewImg = previewDiv.querySelector('img');
+        
+        if (file.type.startsWith('image/')) {
+          // For images, show image preview
+        previewImg.loading = 'lazy';
+        previewImg.decoding = 'async';
+        previewImg.src = fileUrl;
+          previewImg.style.display = 'block';
+        } else {
+          // For non-image files, show file info
+          previewImg.style.display = 'none';
+          const fileInfo = document.createElement('div');
+          fileInfo.innerHTML = `
+            <div style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+              <strong>File: ${file.name}</strong><br>
+              <small>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small><br>
+              <small>Type: ${file.type || 'Unknown'}</small>
+            </div>
+          `;
+          previewDiv.appendChild(fileInfo);
+        }
+        
+        previewDiv.style.display = 'block';
+        
+        hideLoading();
+        // Removed success popup as requested
+        
+      } catch (error) {
+        hideLoading();
+        if (error.name === 'AbortError') {
+          showAlert('Upload Error', 'Upload timed out. Please try again.', 'error');
+        } else {
+          showAlert('Upload Error', `Failed to upload file: ${error.message}`, 'error');
+        }
+        input.value = '';
+      }
+    }
+    
+    function removeImage(questionId) {
+      const previewDiv = document.getElementById(`imagePreview${questionId}`);
+      if (!previewDiv) {
+        console.warn(`Preview div not found for question ${questionId}`);
+        return;
+      }
+      
+      const questionElement = previewDiv.closest('.question-item');
+      if (!questionElement) {
+        console.warn(`Question element not found for question ${questionId}`);
+        return;
+      }
+      
+      const imageUrl = questionElement.getAttribute('data-image-url');
+      
+      if (imageUrl) {
+        // Delete from S3
+        fetch(S3_DELETE_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: imageUrl.split('/').pop() })
+        }).catch(error => console.error('Failed to delete file:', error));
+        
+        questionElement.removeAttribute('data-image-url');
+      }
+      
+      // Hide preview and clear file info
+      previewDiv.style.display = 'none';
+      
+      // Remove any file info divs that were added
+      const fileInfoDivs = previewDiv.querySelectorAll('div[style*="padding: 10px"]');
+      fileInfoDivs.forEach(div => div.remove());
+      
+      // Reset image display
+      const previewImg = previewDiv.querySelector('img');
+      if (previewImg) {
+        previewImg.style.display = 'block';
+        previewImg.src = '';
+      }
+      
+      // Clear file input - with proper null check
+      const fileInput = questionElement.querySelector('input[type="file"]');
+      if (fileInput) {
+        fileInput.value = '';
+      } else {
+        console.warn(`File input not found for question ${questionId}`);
+      }
+    }
+
+    // Function to reset MCQ fields
+    function resetMCQFields() {
+      const mcqContainer = document.getElementById('mcqQuestions');
+      if (mcqContainer) {
+        mcqContainer.innerHTML = '';
+      }
+      mcqQuestionCount = 0;
+    }
+
+    // Function to reset Subjective fields
+    function resetSubjectiveFields() {
+      const subjectiveContainer = document.getElementById('subjectiveQuestions');
+      if (subjectiveContainer) {
+        subjectiveContainer.innerHTML = '';
+      }
+      subjectiveQuestionCount = 0;
+    }
+
+    // Function to reset all question fields
+    function resetAllQuestionFields() {
+      resetMCQFields();
+      resetSubjectiveFields();
+    }
+
+    // Function to toggle between question sections
+    function toggleQuestionSection(type) {
+      console.log('toggleQuestionSection called with type:', type);
+      
+      // Update toggle buttons
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      const activeToggle = document.querySelector(`.toggle-btn[data-type="${type}"]`);
+      if (activeToggle) activeToggle.classList.add('active');
+      
+      // Update question sections
+      document.querySelectorAll('.question-section').forEach(section => section.classList.remove('active'));
+      const activeSection = document.getElementById(`${type}Section`);
+      if (activeSection) activeSection.classList.add('active');
+      
+      console.log(`${type} section activated. Questions in container:`, document.querySelectorAll(`#${type}Questions .question-item`).length);
+    }
+
+    // Function to handle test type change
+    function handleTestTypeChange() {
+      const testType = document.querySelector('input[name="testType"]:checked').value;
+      console.log('=== handleTestTypeChange() called ===');
+      console.log('Test type changed to:', testType);
+      
+      // Force a small delay to ensure DOM is ready
+      setTimeout(() => {
+        if (testType === 'MCQ') {
+          // Reset subjective fields when switching to MCQ
+          resetSubjectiveFields();
+          toggleQuestionSection('mcq');
+          console.log('MCQ section activated. Questions in container:', document.querySelectorAll('#mcqQuestions .question-item').length);
+        } else if (testType === 'Subjective') {
+          // Reset MCQ fields when switching to Subjective
+          resetMCQFields();
+          toggleQuestionSection('subjective');
+          console.log('Subjective section activated. Questions in container:', document.querySelectorAll('#subjectiveQuestions .question-item').length);
+          
+          // Debug: Check if elements were found and updated
+          const subjectiveToggle = document.querySelector('.toggle-btn[data-type="subjective"]');
+          const subjectiveSection = document.getElementById('subjectiveSection');
+          console.log('Subjective toggle button found:', !!subjectiveToggle);
+          console.log('Subjective section found:', !!subjectiveSection);
+          console.log('Subjective toggle has active class:', subjectiveToggle ? subjectiveToggle.classList.contains('active') : 'N/A');
+          console.log('Subjective section has active class:', subjectiveSection ? subjectiveSection.classList.contains('active') : 'N/A');
+        }
+      }, 100); // Small delay to ensure DOM is ready
+    }
+
+    // Add event listeners for test type radio buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const testTypeRadios = document.querySelectorAll('input[name="testType"]');
+      testTypeRadios.forEach(radio => {
+        radio.addEventListener('change', handleTestTypeChange);
+      });
+      
+      // Initialize the correct section based on the currently selected test type
+      const selectedTestType = document.querySelector('input[name="testType"]:checked');
+      if (selectedTestType) {
+        console.log('Initial test type:', selectedTestType.value);
+        // Don't call handleTestTypeChange here as it might interfere with the default state
+      }
+    });
+
+    // New Functions
+    function saveQuestions() {
+      console.log('=== saveQuestions() called ===');
+      
+      // Check which section is currently active
+      const mcqSection = document.getElementById('mcqSection');
+      const subjectiveSection = document.getElementById('subjectiveSection');
+      console.log('MCQ section active:', mcqSection.classList.contains('active'));
+      console.log('Subjective section active:', subjectiveSection.classList.contains('active'));
+      
+      // Collect MCQ questions with backend-compatible format
+      const mcqElements = document.querySelectorAll('#mcqQuestions .question-item');
+      console.log('Found MCQ elements:', mcqElements.length);
+      mcqQuestions = [];
+      
+      for (let i = 0; i < mcqElements.length; i++) {
+        const element = mcqElements[i];
+        const questionText = element.querySelector('textarea').value;
+        const optionInputs = element.querySelectorAll('.option-item input[type="text"]');
+        const correctAnswer = element.querySelector('select').value;
+        const timeInput = element.querySelector('input[placeholder*="minutes"]');
+        
+        console.log(`Question ${i + 1}:`, {
+          questionText: questionText,
+          correctAnswer: correctAnswer,
+          optionCount: optionInputs.length,
+          timeInput: timeInput ? timeInput.value : 'default'
+        });
+        
+        if (!questionText.trim()) {
+          console.log(`Validation failed: Empty question text for question ${i + 1}`);
+          showAlert('Validation Error', `Please enter the question text for question ${i + 1}.\n\nQuestion text is required for all questions.`, 'error');
+          return false;
+        }
+        
+          // Validate correct answer is selected
+          if (!correctAnswer) {
+          console.log(`Validation failed: No correct answer selected for question ${i + 1}`);
+          showAlert('Validation Error', `Please select the correct answer for question ${i + 1}.\n\nTo select the correct answer:\n• Click the radio button next to the correct option, OR\n• Use the dropdown menu below the options`, 'error');
+            return false;
+          }
+          
+          // Create answer object in backend format
+          const answer = {};
+        optionInputs.forEach((input, j) => {
+          const option = String.fromCharCode(65 + j); // A, B, C, D
+            answer[option] = input.value.trim();
+          });
+        
+        console.log(`Question ${i + 1} answer object:`, answer);
+          
+          mcqQuestions.push({
+            question: questionText,
+            answer: answer,
+            correct_answer: correctAnswer,
+            time: timeInput ? timeInput.value : "2 minutes"
+          });
+        }
+
+      // Collect Subjective questions with backend-compatible format
+      // Always check for subjective questions regardless of section visibility
+      let subjectiveElements = document.querySelectorAll('#subjectiveQuestions .question-item');
+      console.log('Found Subjective elements (initial check):', subjectiveElements.length);
+      
+      // If no subjective elements found and test type is Subjective, try to activate the section
+      if (subjectiveElements.length === 0 && currentTest && currentTest.type === 'subjective') {
+        console.log('No subjective elements found, but test type is Subjective. Activating subjective section...');
+        toggleQuestionSection('subjective');
+        
+        // Check again after activating the section
+        subjectiveElements = document.querySelectorAll('#subjectiveQuestions .question-item');
+        console.log('Found Subjective elements (after activation):', subjectiveElements.length);
+      }
+      
+      subjectiveQuestions = [];
+      
+      for (let i = 0; i < subjectiveElements.length; i++) {
+        const element = subjectiveElements[i];
+        const questionText = element.querySelector('textarea').value;
+        const timeInput = element.querySelector('input[placeholder*="minutes"]');
+        const imageUrl = element.getAttribute('data-image-url');
+        
+        console.log(`Subjective Question ${i + 1}:`, {
+          questionText: questionText,
+          timeInput: timeInput ? timeInput.value : 'default',
+          imageUrl: imageUrl
+        });
+        
+        if (!questionText.trim()) {
+          showAlert('Validation Error', `Please enter the question text for subjective question ${i + 1}.\n\nQuestion text is required for all questions.`, 'error');
+          return false;
+        }
+        
+          subjectiveQuestions.push({
+            question: questionText,
+            time: timeInput ? timeInput.value : "10 minutes",
+            img_url: imageUrl || null
+          });
+        }
+
+      console.log('subjectiveQuestions array after collection:', subjectiveQuestions);
+
+      // Don't show success message as requested - just return true
+      return true;
+    }
+
+    async function submitTest() {
+      console.log('=== submitTest() called ===');
+      console.log('Current mcqQuestions:', mcqQuestions);
+      console.log('Current subjectiveQuestions:', subjectiveQuestions);
+      
+      // Save questions first to populate the arrays from DOM
+      console.log('Calling saveQuestions()...');
+      const saveResult = saveQuestions();
+      console.log('saveQuestions() result:', saveResult);
+      
+      if (saveResult === false) {
+        console.log('saveQuestions() returned false - stopping submission');
+        return; // Stop if validation failed
+      }
+      
+      console.log('subjectiveQuestions after saveQuestions:', subjectiveQuestions);
+      console.log('Current test object:', currentTest);
+      console.log('Current test type:', currentTest ? currentTest.type : 'undefined');
+      console.log('Total questions found - MCQ:', mcqQuestions.length, 'Subjective:', subjectiveQuestions.length);
+      
+      // Now check if we have questions after saving
+      if (mcqQuestions.length === 0 && subjectiveQuestions.length === 0) {
+        console.log('No questions found after saving - showing validation error');
+        showAlert('Validation Error', 'No questions found! Please add questions to your test.\n\nTo add questions:\n• Click "Add MCQ Question" for multiple choice questions\n• Click "Add Subjective Question" for essay questions\n• Fill in the question details and options', 'error');
+        return;
+      }
+      
+      // Show loading
+      const isUpdate = isEditing && editingTestId;
+      showLoading(isUpdate ? 'Updating test...' : 'Submitting test to server...');
+      
+      try {
+        // Collect current form data
+        const formData = {
+          class: document.getElementById('classSelect').value,
+          subject: document.getElementById('subjectSelect').value,
+          test_name: document.getElementById('testName').value,
+          total_marks: parseInt(document.getElementById('totalMarks').value),
+          duration: document.getElementById('duration').value,
+          schedule_time: document.getElementById('scheduleDate').value,
+          instruction: document.getElementById('instructions').value,
+          test_type: document.querySelector('input[name="testType"]:checked')?.value,
+          test_mode: document.querySelector('input[name="testMode"]:checked')?.value
+        };
+        
+        // Get current user data for teacher_id and institution_id
+        const userData = getCurrentUserData();
+        if (!userData || userData.userType !== 'teacher') {
+          console.error('❌ User not authenticated or not a teacher');
+          alert('❌ Session expired. Please login again.');
+          window.location.href = '../login.html';
+          return;
+        }
+        
+        // Prepare test data for API - ensure separate handling of MCQ and Subjective
+        const testData = {
+          teacher_id: userData.user.teacher_id || userData.user.id,
+          institution_id: userData.user.institution_id,
+          class: formData.class,
+          subject: formData.subject,
+          test_name: formData.test_name,
+          test_type: formData.test_type,
+          total_marks: formData.total_marks,
+          duration: formData.duration,
+          test_mode: formData.test_mode,
+          schedule_time: formData.schedule_time,
+          instruction: formData.instruction,
+          mcq_queations: formData.test_type === 'mcq' ? mcqQuestions : null,
+          subject_queation: formData.test_type === 'subjective' ? subjectiveQuestions : null
+        };
+        
+        // Add ID for updates
+        if (isUpdate) {
+          testData.id = editingTestId;
+        }
+        
+        console.log('Submitting test data:', testData);
+        console.log('Test data mcq_queations:', testData.mcq_queations);
+        console.log('Test data subject_queation:', testData.subject_queation);
+        
+        // Performance optimization: Add timeout for faster failure detection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        // Submit to API
+        const response = await fetch(ONLINE_TEST_API, {
+          method: isUpdate ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(testData),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Failed to ${isUpdate ? 'update' : 'submit'} test`);
+        }
+        
+        const result = await response.json();
+        console.log('Test submission result:', result);
+        
+        // Update current test with API response and form data
+        if (currentTest) {
+          currentTest.id = result.test_id || editingTestId;
+          currentTest.class = formData.class;
+          currentTest.subject = formData.subject;
+          currentTest.name = formData.test_name;
+          currentTest.type = formData.test_type;
+          currentTest.totalMarks = formData.total_marks;
+          currentTest.duration = formData.duration;
+          currentTest.mode = formData.test_mode;
+          currentTest.date = formData.schedule_time;
+          currentTest.instructions = formData.instruction;
+          currentTest.mcq_queations = mcqQuestions;
+          currentTest.subject_queation = subjectiveQuestions;
+          currentTest.status = 'ready';
+          
+          // Update in tests array
+          const testIndex = tests.findIndex(t => t.id === currentTest.id);
+          if (testIndex !== -1) {
+            tests[testIndex] = currentTest;
+          } else {
+            tests.push(currentTest);
+          }
+          
+          localStorage.setItem('tests', JSON.stringify(tests));
+          
+          // Clear cache to force refresh
+          clearTestsCache();
+        }
+        
+        hideLoading();
+        showAlert(
+          'Success', 
+          isUpdate ? 'Test updated successfully! Refreshing test list...' : 'Test submitted successfully! Refreshing test list...', 
+          'success'
+        );
+        
+        // Reset editing mode
+        if (isUpdate) {
+          isEditing = false;
+          editingTestId = null;
+          updateSubmitButtonText();
+          updateCreateTestHeading();
+        }
+        
+        // Reset all question fields after successful submission
+        resetAllQuestionFields();
+        
+        // Switch to scheduled tests tab
+        document.querySelector('[data-tab="scheduled-tests"]').click();
+        
+        // Reload tests to show the newly created test
+        setTimeout(() => {
+          // Show a small loading indicator in the test table
+          const tbody = document.getElementById('testsTableBody');
+          if (tbody) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 1rem;">
+                  <i class="fas fa-spinner fa-spin"></i> Refreshing test list...
+                </td>
+              </tr>
+            `;
+          }
+          
+          loadTestsFromAPI(true); // Force refresh without loading popup
+        }, 500); // Small delay to ensure tab switch is complete
+        
+      } catch (error) {
+        hideLoading();
+        if (error.name === 'AbortError') {
+          showAlert('Submission Error', 'Request timed out. Please try again.', 'error');
+        } else {
+          showAlert('Submission Error', `Failed to ${isUpdate ? 'update' : 'submit'} test: ${error.message}`, 'error');
+        }
+        console.error('Test submission error:', error);
+      }
+    }
+
+    function viewTestPreview() {
+      if (!currentTest) {
+        showMessage('No test to preview!', 'error');
+        return;
+      }
+
+      const modal = document.getElementById('testPreviewModal');
+      const content = document.getElementById('testPreviewContent');
+      
+      // Build preview content
+      content.innerHTML = `
+        <div class="test-info-grid">
+          <div class="test-info-item">
+            <div class="test-info-label">Test Name</div>
+            <div class="test-info-value">${currentTest.name}</div>
+          </div>
+          <div class="test-info-item">
+            <div class="test-info-label">Class & Section</div>
+            <div class="test-info-value">${currentTest.class}</div>
+          </div>
+          <div class="test-info-item">
+            <div class="test-info-label">Subject</div>
+            <div class="test-info-value">${currentTest.subject}</div>
+          </div>
+          <div class="test-info-item">
+            <div class="test-info-label">Test Type</div>
+            <div class="test-info-value">${currentTest.type.toUpperCase()}</div>
+          </div>
+          <div class="test-info-item">
+            <div class="test-info-label">Total Marks</div>
+            <div class="test-info-value">${currentTest.totalMarks}</div>
+          </div>
+          <div class="test-info-item">
+            <div class="test-info-label">Duration</div>
+            <div class="test-info-value">${currentTest.duration} minutes</div>
+          </div>
+        </div>
+        
+        <div class="questions-preview">
+          <h4 style="color: var(--primary); margin-bottom: 1rem;">Questions Preview</h4>
+          ${renderQuestionsPreview()}
+        </div>
+      `;
+      
+      modal.classList.add('show');
+    }
+
+    function renderQuestionsPreview() {
+      let html = '';
+      
+      // MCQ Questions
+      if (mcqQuestions.length > 0) {
+        html += '<h5 style="color: var(--primary); margin: 1rem 0;">MCQ Questions</h5>';
+        mcqQuestions.forEach((q, index) => {
+          html += `
+            <div class="question-preview-item">
+              <div class="question-preview-header">
+                <div class="question-number-badge">${index + 1}</div>
+                <div class="question-type-badge mcq">MCQ</div>
+              </div>
+              <div class="question-text">${q.question}</div>
+              <div class="options-preview">
+                ${q.options.map((option, optIndex) => 
+                  '<div class="option-preview ' + (String.fromCharCode(65 + optIndex) === q.correctAnswer ? 'correct' : '') + '">' +
+                    String.fromCharCode(65 + optIndex) + '. ' + option +
+                  '</div>'
+                ).join('')}
+              </div>
+              <div class="question-marks">Marks: ${q.marks}</div>
+            </div>
+          `;
+        });
+      }
+      
+      // Subjective Questions
+      if (subjectiveQuestions.length > 0) {
+        html += '<h5 style="color: var(--warning); margin: 1rem 0;">Subjective Questions</h5>';
+        subjectiveQuestions.forEach((q, index) => {
+          html += `
+            <div class="question-preview-item">
+              <div class="question-preview-header">
+                <div class="question-number-badge">${index + 1}</div>
+                <div class="question-type-badge subjective">Subjective</div>
+              </div>
+              <div class="question-text">${q.question}</div>
+              <div class="question-marks">Marks: ${q.marks}</div>
+            </div>
+          `;
+        });
+      }
+      
+      if (mcqQuestions.length === 0 && subjectiveQuestions.length === 0) {
+        html = '<p style="text-align: center; color: var(--text-light); padding: 2rem;">No questions added yet. Add some questions to see the preview.</p>';
+      }
+      
+      return html;
+    }
+
+    function closeTestPreview() {
+      document.getElementById('testPreviewModal').classList.remove('show');
+    }
+
+    function editTestFromPreview() {
+      closeTestPreview();
+      // Use the new edit functionality if we have a current test
+      if (currentTest && currentTest.id) {
+        editTest(currentTest.id);
+      } else {
+        showCreateTest();
+      }
+    }
+
+
+
+
+    // Close modal when clicking outside
+    document.getElementById('testPreviewModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeTestPreview();
+      }
+    });
+
+    // Close alert modal when clicking outside
+    document.getElementById('alertModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeAlert();
+      }
+    });
+
+    // Close view test modal when clicking outside
+    document.getElementById('viewTestModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeViewTest();
+      }
+    });
+  </script>
+
+  <!-- Floating Action Button for small screens -->
+  <button class="floating-create-btn" onclick="showCreateTest()" title="Create New Test">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

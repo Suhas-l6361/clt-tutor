@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), gyroscope=(), magnetometer=(), camera=(), microphone=(), geolocation=()">
+    <title>3D Eye Anatomy - Sketchfab Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .sketchfab-embed-wrapper {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sketchfab-embed-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .sketchfab-embed-wrapper p {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            margin: 0;
+            font-size: 13px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .sketchfab-embed-wrapper a {
+            color: #1CAAD9;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .sketchfab-embed-wrapper a:hover {
+            color: #4dd0e1;
+        }
+        
+        .info-section {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .info-section h3 {
+            margin-bottom: 10px;
+            color: #1CAAD9;
+        }
+        
+        .info-section p {
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .sketchfab-embed-wrapper {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>3D Eye Anatomy Viewer</h1>
+        
+        <div class="sketchfab-embed-wrapper">
+            <iframe 
+                title="Eye Anatomy" 
+                frameborder="0" 
+                allowfullscreen 
+                mozallowfullscreen="true" 
+                webkitallowfullscreen="true" 
+                allow="autoplay; fullscreen; xr-spatial-tracking" 
+                xr-spatial-tracking 
+                execution-while-out-of-viewport 
+                execution-while-not-rendered 
+                web-share 
+                src="https://sketchfab.com/models/18712e1fe1e544a197775b8a08da000d/embed?ui_theme=dark&autostart=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_watermark=0&ui_stop=0&ui_play=0&ui_share=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_loading=0&ui_fadeout=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_loading=0&ui_fadeout=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_loading=0&ui_fadeout=0">
+            </iframe>
+            <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;">
+                <a href="https://sketchfab.com/3d-models/eye-anatomy-18712e1fe1e544a197775b8a08da000d?utm_medium=embed&utm_campaign=share-popup&utm_content=18712e1fe1e544a197775b8a08da000d" 
+                   target="_blank" 
+                   rel="nofollow" 
+                   style="font-weight: bold; color: #1CAAD9;">
+                    Eye Anatomy
+                </a> 
+                by 
+                <a href="https://sketchfab.com/medpixel?utm_medium=embed&utm_campaign=share-popup&utm_content=18712e1fe1e544a197775b8a08da000d" 
+                   target="_blank" 
+                   rel="nofollow" 
+                   style="font-weight: bold; color: #1CAAD9;">
+                    (MEDPIXEL)
+                </a> 
+                on 
+                <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=18712e1fe1e544a197775b8a08da000d" 
+                   target="_blank" 
+                   rel="nofollow" 
+                   style="font-weight: bold; color: #1CAAD9;">
+                    Sketchfab
+                </a>
+            </p>
+        </div>
+        
+        <div class="info-section">
+            <h3>About This 3D Model</h3>
+            <p>This interactive 3D model shows detailed eye anatomy, allowing you to explore the structure of the human eye in three dimensions.</p>
+            <p><strong>Features:</strong></p>
+            <p>• Interactive 3D viewing with mouse/touch controls</p>
+            <p>• Dark theme for better viewing experience</p>
+            <p>• Fullscreen support for detailed examination</p>
+            <p>• Created by MEDPIXEL on Sketchfab</p>
+        </div>
+    </div>
+</body>
+</html>

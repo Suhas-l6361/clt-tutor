@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>BC360</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Internal CSS -->
+  <link rel="stylesheet" href="./student.css">
+</head>
+<style>
+   :root {
+      --primary-color: #3A1C71;  
+      --secondary-color: #D76D77; 
+      --accent-color: #FFAF7B;    
+      --sidebar-gradient: linear-gradient(180deg, #0F2027, #203A43, #2C5364);
+      --card-bg: #ffffff;
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --transition-speed: 0.3s;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      display: flex;
+      min-height: 100vh;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+   /* TOP BAR */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      z-index: 1001;
+      padding: 5px 10px;
+    }
+    /* When sidebar is open on small/medium screens, lower the top bar */
+    .sidebar-open .top-bar {
+      z-index: 500;
+    }
+    /* Responsive Select (for language and search dropdowns) */
+    .responsive-select {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      background-color: transparent;
+      color: #333;
+    }
+    @media (max-width: 991px) {
+      .responsive-select {
+        padding: 4px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .responsive-select {
+        padding: 3px;
+        font-size: 0.75rem;
+      }
+    }
+    /* Hamburger Icon */
+    #menuToggle {
+      display: block;
+      font-size: 1.8rem;
+      color: #555;
+      background-color: rgba(0,0,0,0.1);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      margin-left: 10px;
+    }
+    #menuToggle:hover {
+      background-color: rgba(0,0,0,0.3);
+    }
+    /* Hide hamburger on big screens */
+    @media (min-width: 992px) {
+      #menuToggle {
+        display: none;
+      }
+    }
+    /* SIDEBAR (same as teacher code) */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-gradient);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: left var(--transition-speed) ease;
+    }
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand i {
+      font-size: 1.2rem;
+      margin-right: 8px;
+      color: #fff;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar .brand:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      margin: 20px 0;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      margin-right: 10px;
+      font-size: 1.3rem;
+      width: 25px;
+      text-align: center;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    /* PNG Icon Styling for Sidebar */
+    .sidebar ul li a img.sidebar-icon {
+      margin-right: 10px;
+      width: 25px;
+      height: 25px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover img.sidebar-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .brand img.sidebar-icon {
+      margin-right: 8px;
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    .sidebar ul li:last-child {
+      margin-top: 10px;
+    }
+    .sidebar ul li a .fa-trophy {
+      color: #FFD700;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    @media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    overflow-y: auto;   /* <-- ADD THIS */
+    max-height: 100vh;  /* <-- AND THIS (prevents overflow below screen) */
+    -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1; padding: 20px; margin-top: 50px;
+      transition: margin-left var(--transition-speed) ease;
+      overflow-y: auto;
+    }
+    /* Tabs */
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: var(--primary-color); color: #fff;
+      padding: 10px 20px; border: none; border-radius: 4px;
+      cursor: pointer; transition: background var(--transition-speed);
+    }
+    .tab-btn:hover, .tab-btn.active { background: var(--secondary-color); }
+    .section-content {
+      background: var(--card-bg); border-radius: 8px;
+      padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform var(--transition-speed); margin-bottom: 20px;
+    }
+    .section-content:hover { transform: scale(1.01); }
+    /* Form Styling */
+    .form-group {
+      margin-bottom: 15px; display: flex; flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 5px; font-size: 0.9rem; color: #555;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 10px; border: 1px solid #ddd; border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .btn {
+      padding: 10px 15px; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 0.95rem; font-weight: 500;
+      transition: transform var(--transition-speed), background var(--transition-speed);
+    }
+    .btn-primary { background: var(--primary-color); color: #fff; }
+    .btn-primary:hover { background: var(--accent-color); transform: scale(1.05); }
+    .btn-secondary { background: var(--secondary-color); color: #fff; }
+    .btn-secondary:hover { background: var(--accent-color); transform: scale(1.05); }
+    .btn-icon {
+      background: transparent; border: none; cursor: pointer;
+      font-size: 1rem; color: var(--primary-color); margin-left: 5px;
+    }
+    /* Responsive Selects: reduce size on small and medium screens */
+    @media (max-width: 991px) {
+      select { font-size: 0.8rem; padding: 4px; }
+    }
+    @media (max-width: 480px) {
+      select { font-size: 0.75rem; padding: 3px; }
+    }
+    /* ---------- VIEW STUDENTS DATA SEARCH ---------- */
+    #searchStudentForm { margin-bottom: 20px; }
+    #searchStudentForm .form-group { margin-bottom: 10px; }
+    #studentsTable { display: none; }
+    /* ---------- PERFORMANCE SEARCH ---------- */
+    #searchPerformanceForm { margin-bottom: 20px; }
+    #searchPerformanceForm .form-group { margin-bottom: 10px; }
+    .chart-container { display: none; }
+    /* ---------- FEE TRACK SEARCH ---------- */
+    #searchFeeForm { margin-bottom: 20px; }
+    #searchFeeForm .form-group { margin-bottom: 10px; }
+    #feeFormContainer { display: none; }
+    #paymentHistory { margin-bottom: 5px; color: var(--primary-color); font-size: 0.9rem; }
+    /* Student List */
+    .student-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .student-list th, .student-list td {
+      padding: 10px; border-bottom: 1px solid #ddd; text-align: left; font-size: 0.9rem;
+    }
+    .student-row { cursor: pointer; transition: background var(--transition-speed); }
+    .student-row:hover { background: #f7f7f7; }
+    .details-row td { padding: 0 !important; border-bottom: none !important; }
+    .student-details {
+      padding: 10px 20px; background: #f9f9f9;
+      border-left: 3px solid var(--primary-color); border-radius: 4px;
+    }
+    /* Modal for Editing Student */
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+      width: 100%; height: 100%; overflow: auto;
+      background: rgba(0,0,0,0.6); animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      background: #fff; margin: 10% auto; padding: 20px;
+      border-radius: 8px; width: 90%; max-width: 500px; position: relative; animation: slideIn 0.3s;
+    }
+    .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+    /* Fee Table */
+    .fee-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .fee-table th, .fee-table td {
+      padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 0.9rem;
+    }
+    /* Chart Container */
+    .chart-container {
+      width: 100%; max-width: 1000px; height: 500px; margin: 20px auto; position: relative;
+    }
+    /* Graph Popup */
+    .graph-popup {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1100;
+      justify-content: center; align-items: center;
+    }
+    .graph-popup-content {
+      background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;
+      position: relative;
+    }
+    .graph-popup-content .close-graph { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+    @media print {
+      body * { visibility: hidden; }
+      #feeTrack, #feeTrack * { visibility: visible; }
+      #feeTrack { position: absolute; left: 0; top: 0; width: 100%; }
+      #printFee, #downloadFee { display: none; }
+    }
+    @media (max-width: 991px) {
+     @media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    overflow-y: auto;   /* <-- ADD THIS */
+    max-height: 100vh;  /* <-- AND THIS (prevents overflow below screen) */
+    -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+  }
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+      .main-content { margin-top: 50px; }
+    }
+    @media (max-width: 768px) {
+      .tab-btn { flex: 1 1 100%; text-align: center; }
+      .student-list th, .student-list td, .fee-table th, .fee-table td {
+        font-size: 0.8rem; padding: 8px;
+      }
+      .chart-container { height: 400px; }
+    }
+    @media (max-width: 480px) {
+      .sidebar { width: 200px; padding: 15px; }
+      .sidebar .brand { font-size: 1rem; }
+      .sidebar .brand i { font-size: 1.2rem; margin-right: 6px; }
+      .chart-container { height: 300px; }
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateY(-20px); } to { transform: translateY(0); } }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+</style>
+<body>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <i class="fas fa-bars" id="menuToggle"></i>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="top">
+      <div class="brand">
+        <img src="assets/admin.png" alt="Admin" class="sidebar-icon">
+        <span>Admin Panel</span>
+      </div><hr style="color:white;">
+      <ul>
+        <li><a href="./admindashboard.html"><img src="assets/home_1299859.png" alt="Home" class="sidebar-icon"> Home</a></li>
+        <li><a href="./teacher.html"><img src="assets/teachers info.png" alt="Teacher" class="sidebar-icon"> Teacher Info</a></li>
+        <li><a href="./student.html" class="active"><img src="assets/stduents info.png" alt="Student" class="sidebar-icon"> Student Info</a></li>
+        <li><a href="./parents.html"><img src="assets/parents info.png" alt="Parents" class="sidebar-icon"> Parents Info</a></li>
+        <li><a href="./image_upload.html"><img src="assets/image upload.png" alt="Upload" class="sidebar-icon"> Upload Images/videos</a></li>
+        <li><a href="./search_college.html"><img src="assets/search college.png" alt="Search" class="sidebar-icon"> Search College</a></li>
+        <li><a href="./display_image.html"><img src="assets/gallery.png" alt="Gallery" class="sidebar-icon"> Gallery</a></li>
+        <li><a href="./time_table.html"><img src="assets/time table.png" alt="Timetable" class="sidebar-icon"> Add Time Table</a></li>
+        <li><a href="./announcement.html"><img src="assets/announcement.png" alt="Announcement" class="sidebar-icon"> View All Announcement</a></li>
+        <li><a href="#"><img src="assets/publish achievement.png" alt="Achievement" class="sidebar-icon"> Publish Achievements</a></li>
+                <li><a href="./changePassword.html"><img src="assets/change password.png" alt="Password" class="sidebar-icon"> Change Password</a></li>
+
+      </ul>
+    </div>
+    <div class="logout">
+      <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="addStudent">Add Students</button>
+      <button class="tab-btn" data-tab="viewStudents">View Students Data</button>
+      <button class="tab-btn" data-tab="performance">Performance of Students</button>
+      <button class="tab-btn" data-tab="feeTrack">Fee Track</button>
+    </div>
+
+    <!-- ADD STUDENTS (unchanged) -->
+    <div id="addStudent" class="section-content tab-content">
+      <h2><i class="fas fa-user-plus"></i> Add Student</h2>
+      <form id="addStudentForm">
+        <div class="form-group">
+          <label for="studentName">Student Name</label>
+          <input type="text" id="studentName" placeholder="Enter student name" required />
+        </div>
+        <div class="form-group">
+          <label for="studentAge">Age</label>
+          <input type="number" id="studentAge" placeholder="Enter age" required />
+        </div>
+        <div class="form-group">
+          <label for="studentClass">Class</label>
+          <input type="text" id="studentClass" placeholder="Enter class/grade" required />
+        </div>
+        <div class="form-group">
+          <label for="studentContact">Contact</label>
+          <input type="text" id="studentContact" placeholder="Enter contact number" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Add Student</button>
+      </form>
+    </div>
+
+    <!-- VIEW STUDENTS DATA -->
+    <div id="viewStudents" class="section-content tab-content" style="display:none;">
+      <h2><i class="fas fa-list"></i> View Students Data</h2>
+      <!-- Search form for students -->
+      <form id="searchStudentForm">
+        <div class="form-group">
+          <label for="searchClassStudent">Select Class</label>
+          <select id="searchClassStudent">
+            <option value="">Select Class</option>
+            <option value="10th">10th</option>
+            <option value="9th">9th</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchBatchStudent">Select Batch</label>
+          <select id="searchBatchStudent">
+            <option value="">Select Batch</option>
+            <option value="2023-25">2023-25</option>
+            <option value="2022-25">2022-25</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchStudentName">Select Student</label>
+          <select id="searchStudentName">
+            <option value="">Select Student</option>
+            <option value="Suhas">Suhas</option>
+            <option value="Karthik">Karthik</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="searchStudentBtn">Search</button>
+      </form>
+      <!-- Student table (hidden by default) -->
+      <table class="student-list" id="studentsTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Class</th>
+            <th>Batch</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dummy Data for Suhas -->
+          <tr class="student-row" data-class="10th" data-batch="2023-25" data-student="Suhas" data-studentobj='{"name":"Suhas","age":16,"class":"10th","contact":"1111111111"}'>
+            <td>Suhas</td>
+            <td>10th</td>
+            <td>2023-25</td>
+            <td>1111111111</td>
+            <td>
+              <button class="btn-icon edit-btn"><i class="fas fa-edit"></i></button>
+              <button class="btn-icon delete-btn"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <!-- Dummy Data for Karthik -->
+          <tr class="student-row" data-class="9th" data-batch="2022-25" data-student="Karthik" data-studentobj='{"name":"Karthik","age":17,"class":"9th","contact":"2222222222"}'>
+            <td>Karthik</td>
+            <td>9th</td>
+            <td>2022-25</td>
+            <td>2222222222</td>
+            <td>
+              <button class="btn-icon edit-btn"><i class="fas fa-edit"></i></button>
+              <button class="btn-icon delete-btn"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PERFORMANCE OF STUDENTS -->
+    <div id="performance" class="section-content tab-content" style="display:none;">
+      <h2><i class="fas fa-chart-line"></i> Performance of Students</h2>
+      <!-- Search form for performance -->
+      <form id="searchPerformanceForm">
+        <div class="form-group">
+          <label for="searchClassPerformance">Select Class</label>
+          <select id="searchClassPerformance">
+            <option value="">Select Class</option>
+            <option value="10th">10th</option>
+            <option value="9th">9th</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchBatchPerformance">Select Batch</label>
+          <select id="searchBatchPerformance">
+            <option value="">Select Batch</option>
+            <option value="2023-25">2023-25</option>
+            <option value="2022-25">2022-25</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchStudentPerformance">Select Student</label>
+          <select id="searchStudentPerformance">
+            <option value="">Select Student</option>
+            <option value="Suhas">Suhas</option>
+            <option value="Karthik">Karthik</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="searchPerformanceBtn">Search</button>
+      </form>
+      <!-- Chart container (hidden by default) -->
+      <div class="chart-container" id="performanceChartContainer" style="display:none;">
+        <canvas id="performanceChart"></canvas>
+      </div>
+    </div>
+
+    <!-- FEE TRACK -->
+    <div id="feeTrack" class="section-content tab-content" style="display:none;">
+      <h2><i class="fas fa-file-invoice-dollar"></i> Fee Track</h2>
+      <!-- Search form for fee track -->
+      <form id="searchFeeForm">
+        <div class="form-group">
+          <label for="searchClassFee">Select Class</label>
+          <select id="searchClassFee">
+            <option value="">Select Class</option>
+            <option value="10th">10th</option>
+            <option value="9th">9th</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchBatchFee">Select Batch</label>
+          <select id="searchBatchFee">
+            <option value="">Select Batch</option>
+            <option value="2023-25">2023-25</option>
+            <option value="2022-25">2022-25</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchStudentFee">Select Student</label>
+          <select id="searchStudentFee">
+            <option value="">Select Student</option>
+            <option value="Suhas">Suhas</option>
+            <option value="Karthik">Karthik</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="searchFeeBtn">Search</button>
+      </form>
+      <!-- Fee form container (hidden by default) -->
+      <div id="feeFormContainer" style="display:none;">
+        <form id="feeForm">
+          <div class="form-group">
+            <label for="feeStudent">Select Student</label>
+            <select id="feeStudent" disabled></select>
+          </div>
+          <div class="form-group">
+            <label for="courseSelect">Select Class</label>
+            <select id="courseSelect" disabled></select>
+          </div>
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Academics Tuition</td>
+                <td id="academicsFee">0</td>
+              </tr>
+              <tr>
+                <td>Sports Fee</td>
+                <td id="sportsFee">0</td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td id="totalFee">0</td>
+              </tr>
+              <tr>
+                <td>Paid Amount</td>
+                <td>
+                  <div id="paymentHistory"></div>
+                  <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="number" id="paidAmount" value="0" min="0" style="width:80px;" placeholder="Enter amount" />
+                    <button type="button" class="btn btn-primary" id="submitPaidAmount" style="padding:5px 10px;">Submit</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Balance</td>
+                <td id="balanceFee">0</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:15px;">
+            <button type="button" class="btn btn-primary" id="printFee">Print</button>
+            <button type="button" class="btn btn-secondary" id="downloadFee">Download PDF</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAPH POPUP -->
+  <div class="graph-popup" id="graphPopup">
+    <div class="graph-popup-content">
+      <span class="close-graph" id="closeGraphPopup">&times;</span>
+      <div id="graphPopupContent"></div>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP FOR EDITING STUDENT -->
+  <div id="editStudentModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeEditModal">&times;</span>
+      <h3>Edit Student Details</h3>
+      <form id="editStudentForm">
+        <div class="form-group">
+          <label for="editStudentName">Student Name</label>
+          <input type="text" id="editStudentName" required />
+        </div>
+        <div class="form-group">
+          <label for="editStudentAge">Age</label>
+          <input type="number" id="editStudentAge" required />
+        </div>
+        <div class="form-group">
+          <label for="editStudentClass">Class</label>
+          <input type="text" id="editStudentClass" required />
+        </div>
+        <div class="form-group">
+          <label for="editStudentContact">Contact</label>
+          <input type="text" id="editStudentContact" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Update Student</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+      // Sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const menuToggle = document.getElementById('menuToggle');
+      let isOpen = false;
+      menuToggle.addEventListener('click', () => {
+        if (!isOpen) {
+          sidebar.classList.add('open');
+          menuToggle.classList.remove('fa-bars');
+          menuToggle.classList.add('fa-times');
+          isOpen = true;
+        } else {
+          sidebar.classList.remove('open');
+          menuToggle.classList.remove('fa-times');
+          menuToggle.classList.add('fa-bars');
+          isOpen = false;
+        }
+      });
+
+      // Tabs switching
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach(b => b.classList.remove('active'));
+          tabContents.forEach(tc => tc.style.display = 'none');
+          btn.classList.add('active');
+          document.getElementById(btn.getAttribute('data-tab')).style.display = 'block';
+        });
+      });
+
+      /* -------- VIEW STUDENTS DATA SEARCH -------- */
+      document.getElementById('searchStudentBtn').addEventListener('click', function() {
+        const classVal = document.getElementById('searchClassStudent').value;
+        const batchVal = document.getElementById('searchBatchStudent').value;
+        const studentVal = document.getElementById('searchStudentName').value;
+        if (!classVal || !batchVal || !studentVal) {
+          alert("Please select class, batch, and student.");
+          return;
+        }
+        const rows = document.querySelectorAll('#studentsTable tbody tr');
+        let matchFound = false;
+        rows.forEach(row => {
+          if (row.getAttribute('data-class') === classVal && row.getAttribute('data-batch') === batchVal && row.getAttribute('data-student') === studentVal) {
+            row.style.display = '';
+            matchFound = true;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        if (!matchFound) {
+          alert("No matching student record found.");
+          document.getElementById('studentsTable').style.display = 'none';
+        } else {
+          document.getElementById('studentsTable').style.display = 'table';
+        }
+      });
+
+      /* -------- PERFORMANCE OF STUDENTS SEARCH -------- */
+      document.getElementById('searchPerformanceBtn').addEventListener('click', function() {
+        const classVal = document.getElementById('searchClassPerformance').value;
+        const batchVal = document.getElementById('searchBatchPerformance').value;
+        const studentVal = document.getElementById('searchStudentPerformance').value;
+        if (!classVal || !batchVal || !studentVal) {
+          alert("Please select class, batch, and student.");
+          return;
+        }
+        let performanceData;
+        if (classVal === "10th" && batchVal === "2023-25" && studentVal === "Suhas") {
+          performanceData = { labels: ['Attendance', 'Academics', 'Cultural & Sports'], values: [90, 80, 70] };
+        } else if (classVal === "9th" && batchVal === "2022-25" && studentVal === "Karthik") {
+          performanceData = { labels: ['Attendance', 'Academics', 'Cultural & Sports'], values: [85, 75, 80] };
+        } else {
+          alert("No performance data available for the selected student.");
+          document.getElementById('performanceChartContainer').style.display = 'none';
+          return;
+        }
+        updatePerformanceChart(performanceData);
+        document.getElementById('performanceChartContainer').style.display = 'block';
+      });
+
+      let performanceChart;
+      function updatePerformanceChart(data) {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if (performanceChart) { performanceChart.destroy(); }
+        performanceChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: 'Performance (%)',
+              data: data.values,
+              backgroundColor: [
+                'rgba(58,28,113,0.6)',
+                'rgba(215,109,119,0.6)',
+                'rgba(255,175,123,0.6)'
+              ],
+              borderColor: [
+                'rgba(58,28,113,1)',
+                'rgba(215,109,119,1)',
+                'rgba(255,175,123,1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 100 } },
+            plugins: {
+              legend: { position: 'top' },
+              title: { display: true, text: 'Performance (%)' }
+            },
+            barThickness: 70,
+            categoryPercentage: 0.5,
+            barPercentage: 0.8
+          }
+        });
+      }
+      // Graph Popup on bar click: now use the index from the clicked bar
+      document.getElementById('performanceChart').onclick = function(evt) {
+        const points = performanceChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+        if (points.length) {
+          const firstPoint = points[0];
+          const index = firstPoint.index;
+          const clickedLabel = performanceChart.data.labels[index];
+          showGraphPopup(clickedLabel);
+        }
+      };
+      function showGraphPopup(category) {
+        const popup = document.getElementById('graphPopup');
+        const content = document.getElementById('graphPopupContent');
+        if (category === 'Attendance') {
+          content.innerHTML = `
+            <h3>Attendance Details</h3>
+            <p>Total Classes: 50</p>
+            <p>Attended: 45</p>
+            <p>Absent: 5</p>
+          `;
+        } else if (category === 'Academics') {
+          content.innerHTML = `
+            <h3>Academics Grades</h3>
+            <p>Math: A</p>
+            <p>English: B</p>
+            <p>Science: A</p>
+            <p>Social: B</p>
+          `;
+        } else if (category === 'Cultural & Sports') {
+          content.innerHTML = `
+            <h3>Cultural & Sports Details</h3>
+            <p>Total Events: 10</p>
+            <p>Participated: 7</p>
+          `;
+        }
+        popup.style.display = 'flex';
+      }
+      document.getElementById('closeGraphPopup').addEventListener('click', () => {
+        document.getElementById('graphPopup').style.display = 'none';
+      });
+      document.getElementById('graphPopup').addEventListener('click', function(e) {
+        if (e.target === this) { this.style.display = 'none'; }
+      });
+
+      /* -------- FEE TRACK SEARCH & LOGIC -------- */
+      const feeData = {
+        "10th_2023-25_Suhas": { academics: 15000, sports: 2000 },
+        "9th_2022-25_Karthik": { academics: 16000, sports: 2500 }
+      };
+      document.getElementById('searchFeeBtn').addEventListener('click', function() {
+        const classVal = document.getElementById('searchClassFee').value;
+        const batchVal = document.getElementById('searchBatchFee').value;
+        const studentVal = document.getElementById('searchStudentFee').value;
+        if (!classVal || !batchVal || !studentVal) {
+          alert("Please select class, batch, and student.");
+          return;
+        }
+        const key = classVal + "_" + batchVal + "_" + studentVal;
+        if (!feeData[key]) {
+          alert("No fee data available for the selected student.");
+          document.getElementById('feeFormContainer').style.display = 'none';
+          return;
+        }
+        const academics = feeData[key].academics;
+        const sports = feeData[key].sports;
+        const total = academics + sports;
+        document.getElementById('academicsFee').textContent = academics;
+        document.getElementById('sportsFee').textContent = sports;
+        document.getElementById('totalFee').textContent = total;
+        document.getElementById('paymentHistory').innerHTML = "";
+        document.getElementById('paidAmount').value = 0;
+        document.getElementById('balanceFee').textContent = total;
+        document.getElementById('feeStudent').innerHTML = `<option>${studentVal}</option>`;
+        document.getElementById('courseSelect').innerHTML = `<option>${classVal}</option>`;
+        totalPaid = 0;
+        document.getElementById('feeFormContainer').style.display = 'block';
+      });
+      let totalPaid = 0;
+      document.getElementById('submitPaidAmount').addEventListener('click', function() {
+        const paidInput = document.getElementById('paidAmount');
+        let paid = parseInt(paidInput.value) || 0;
+        if (paid <= 0) {
+          alert("Please enter a valid amount.");
+          return;
+        }
+        totalPaid += paid;
+        const historyDiv = document.getElementById('paymentHistory');
+        const p = document.createElement('p');
+        p.textContent = `₹${paid}`;
+        historyDiv.appendChild(p);
+        const total = parseInt(document.getElementById('totalFee').textContent);
+        const balance = total - totalPaid;
+        document.getElementById('balanceFee').textContent = balance >= 0 ? balance : 0;
+        paidInput.value = "";
+      });
+      // Use jsPDF to generate PDF for Fee Track
+      document.getElementById('downloadFee').addEventListener('click', function() {
+        const feeDetails = `
+Fee Details:
+Academics Tuition: ₹${document.getElementById('academicsFee').textContent}
+Sports Fee: ₹${document.getElementById('sportsFee').textContent}
+Total Fee: ₹${document.getElementById('totalFee').textContent}
+Total Paid: ₹${totalPaid}
+Balance: ₹${document.getElementById('balanceFee').textContent}
+Payment History:
+${document.getElementById('paymentHistory').innerText}
+        `;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const lines = doc.splitTextToSize(feeDetails, 180);
+        doc.text(lines, 10, 10);
+        doc.save('fee_details.pdf');
+      });
+
+      /* -------- EDIT & DELETE STUDENT (unchanged) -------- */
+      let currentEditingRow = null;
+      const studentsTable = document.getElementById('studentsTable');
+      studentsTable.querySelectorAll('.student-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-icon')) return;
+          const nextRow = row.nextElementSibling;
+          if (nextRow && nextRow.classList.contains('details-row')) {
+            nextRow.remove();
+          } else {
+            const studentData = JSON.parse(row.getAttribute('data-studentobj'));
+            const detailsRow = document.createElement('tr');
+            detailsRow.classList.add('details-row');
+            detailsRow.innerHTML = `
+              <td colspan="5">
+                <div class="student-details">
+                  <strong>Full Details:</strong><br>
+                  Name: ${studentData.name}<br>
+                  Age: ${studentData.age}<br>
+                  Class: ${studentData.class}<br>
+                  Contact: ${studentData.contact}
+                </div>
+              </td>
+            `;
+            row.parentNode.insertBefore(detailsRow, row.nextSibling);
+          }
+        });
+      });
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.student-row');
+          currentEditingRow = row;
+          const studentData = JSON.parse(row.getAttribute('data-studentobj'));
+          document.getElementById('editStudentName').value = studentData.name;
+          document.getElementById('editStudentAge').value = studentData.age;
+          document.getElementById('editStudentClass').value = studentData.class;
+          document.getElementById('editStudentContact').value = studentData.contact;
+          document.getElementById('editStudentModal').style.display = 'block';
+        });
+      });
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm('Are you sure you want to delete this student?')) {
+            e.target.closest('.student-row').remove();
+          }
+        });
+      });
+      document.getElementById('closeEditModal').addEventListener('click', () => {
+        document.getElementById('editStudentModal').style.display = 'none';
+      });
+      window.addEventListener('click', (event) => {
+        const editModal = document.getElementById('editStudentModal');
+        if (event.target === editModal) {
+          editModal.style.display = 'none';
+        }
+      });
+      document.getElementById('editStudentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const updatedData = {
+          name: document.getElementById('editStudentName').value,
+          age: document.getElementById('editStudentAge').value,
+          class: document.getElementById('editStudentClass').value,
+          contact: document.getElementById('editStudentContact').value
+        };
+        if (currentEditingRow) {
+          currentEditingRow.setAttribute('data-studentobj', JSON.stringify(updatedData));
+          currentEditingRow.cells[0].innerText = updatedData.name;
+          currentEditingRow.cells[1].innerText = updatedData.class;
+          // Assuming the batch remains unchanged
+          currentEditingRow.cells[3].innerText = updatedData.contact;
+        }
+        document.getElementById('editStudentModal').style.display = 'none';
+      });
+    });
+
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually an admin
+            if (userData.userType !== 'admin') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access admin module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access admin-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to administrators only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for admins
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

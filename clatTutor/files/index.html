@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- YouTube embeds need an http(s) origin. From disk, run serve-local.cmd in this folder, then open the URL it shows. -->
+  <!-- Lets YouTube embeds receive a Referer; avoids Error 153 with strict/no-referrer defaults -->
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Institute Portal — Programs &amp; Admissions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/header-nav.css" />
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="css/pyq-modal.css" />
+  <link rel="stylesheet" href="css/pyq-book-loader.css" />
+  <script src="js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body class="page-public">
+  <a class="announce-bar announce-bar--cta" href="#" id="pyq-download-trigger" aria-haspopup="dialog" aria-controls="pyq-modal">
+    <span class="announce-bar__lead">Previous Year Question Papers &amp; Answer Key.</span>
+    <img src="image/download.png" alt="" class="announce-bar__icon" width="18" height="18" loading="lazy" />
+    <span class="announce-bar__action">Download Now</span>
+  </a>
+
+  <div id="pyq-modal" class="pyq-modal" aria-hidden="true" role="presentation">
+    <div class="pyq-modal__backdrop" data-pyq-close tabindex="-1" aria-hidden="true"></div>
+    <div
+      class="pyq-modal__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pyq-modal-loading-title"
+      aria-describedby="pyq-modal-desc"
+      aria-busy="true"
+    >
+      <div class="pyq-modal__panel">
+        <button type="button" class="pyq-modal__close" data-pyq-close aria-label="Close dialog">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <div id="pyq-modal-loading" class="pyq-modal__loading" role="status" aria-live="polite">
+          <div class="pyq-book" aria-hidden="true">
+            <div class="pyq-book__pg-shadow"></div>
+            <div class="pyq-book__pg"></div>
+            <div class="pyq-book__pg pyq-book__pg--2"></div>
+            <div class="pyq-book__pg pyq-book__pg--3"></div>
+            <div class="pyq-book__pg pyq-book__pg--4"></div>
+            <div class="pyq-book__pg pyq-book__pg--5"></div>
+          </div>
+          <h2 id="pyq-modal-loading-title" class="pyq-modal__loading-title">Preparing your form…</h2>
+        </div>
+        <div id="pyq-modal-main" class="pyq-modal__main" hidden>
+        <div class="pyq-modal__head">
+          <h2 id="pyq-modal-title" class="pyq-modal__title">
+            Please fill in the form to get Previous Year Question Papers with Answer Key
+          </h2>
+        </div>
+        <p id="pyq-modal-desc" class="pyq-modal__sr-only">
+          Enter your details to request previous year papers. No captcha required.
+        </p>
+        <form id="form-pyq" class="pyq-modal__form">
+          <div class="pyq-modal__flex-column">
+            <label class="pyq-modal__label" for="pyq-name">Name</label>
+          </div>
+          <div class="pyq-modal__inputForm">
+            <img src="image/user.png" alt="" class="pyq-modal__input-icon" width="18" height="18" loading="lazy" />
+            <input id="pyq-name" name="name" class="pyq-modal__input" type="text" placeholder="Name" autocomplete="name" required />
+          </div>
+
+          <div class="pyq-modal__flex-column">
+            <label class="pyq-modal__label" for="pyq-email">Email</label>
+          </div>
+          <div class="pyq-modal__inputForm">
+            <img src="image/email.png" alt="" class="pyq-modal__input-icon" width="18" height="18" loading="lazy" />
+            <input id="pyq-email" name="email" class="pyq-modal__input" type="email" placeholder="Enter your email" autocomplete="email" required />
+          </div>
+
+          <div class="pyq-modal__flex-column">
+            <label class="pyq-modal__label" for="pyq-phone">Phone number</label>
+          </div>
+          <div class="pyq-modal__inputForm">
+            <img src="image/telephone.png" alt="" class="pyq-modal__input-icon" width="18" height="18" loading="lazy" />
+            <input id="pyq-phone" name="phone" class="pyq-modal__input" type="tel" placeholder="Phone number" autocomplete="tel" required />
+          </div>
+
+          <div class="pyq-modal__flex-column">
+            <label class="pyq-modal__label" for="pyq-city">City</label>
+          </div>
+          <div class="pyq-modal__inputForm">
+            <img src="image/location.png" alt="" class="pyq-modal__input-icon" width="18" height="18" loading="lazy" />
+            <input id="pyq-city" name="city" class="pyq-modal__input" type="text" placeholder="Bangalore" autocomplete="address-level2" required />
+          </div>
+
+          <div class="pyq-modal__flex-column">
+            <label class="pyq-modal__label" for="pyq-year">CLAT exam year</label>
+          </div>
+          <div class="pyq-modal__inputForm">
+            <img src="image/calendar.png" alt="" class="pyq-modal__input-icon" width="18" height="18" loading="lazy" />
+            <select id="pyq-year" name="year" class="pyq-modal__input pyq-modal__input--select" required>
+              <option value="" selected>Select year</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+
+          <button type="submit" class="pyq-modal__button-submit">
+            <img src="image/submit.png" alt="" class="pyq-modal__button-submit-icon" width="20" height="20" loading="lazy" />
+            <span class="pyq-modal__button-submit-text">Submit</span>
+          </button>
+        </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="pyq-success-overlay"
+      class="pyq-modal__success-overlay"
+      hidden
+      aria-hidden="true"
+    >
+      <div class="pyq-modal__success-scrim" data-pyq-success-dismiss tabindex="-1"></div>
+      <div
+        class="pyq-modal__success-card"
+        role="alert"
+        aria-live="assertive"
+      >
+        <button
+          type="button"
+          class="pyq-modal__success-dismiss"
+          data-pyq-success-dismiss
+          aria-label="Dismiss message"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <div class="pyq-modal__success-row">
+          <div class="pyq-modal__success-icon-wrap" aria-hidden="true">
+            <div class="pyq-modal__success-icon-ring">
+              <svg class="pyq-modal__success-check" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  fill="currentColor"
+                  d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div class="pyq-modal__success-text">
+            <span id="pyq-success-title" class="pyq-modal__success-heading">Request received</span>
+            <p id="pyq-success-desc" class="pyq-modal__success-body">
+              Thank you. We will email you the resources shortly.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <div class="container inner">
+      <div class="header-left">
+        <span class="logo"><img src="image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></span>
+        <span class="logo__tag">Shaping Minds Since 2007</span>
+      </div>
+      <button
+        type="button"
+        class="site-header__menu-toggle"
+        id="site-nav-toggle"
+        aria-controls="primary-nav"
+        aria-expanded="false"
+        aria-label="Open menu"
+      >
+        <i class="fa-solid fa-bars site-header__menu-icon site-header__menu-icon--bars" aria-hidden="true"></i>
+        <i class="fa-solid fa-xmark site-header__menu-icon site-header__menu-icon--close" aria-hidden="true"></i>
+      </button>
+      <nav id="primary-nav" class="header-center site-nav" aria-label="Primary">
+        <div class="site-nav__drawer-head">
+          <details class="site-nav__details">
+            <summary>
+              <img src="image/main.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Main <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+            </summary>
+            <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
+              <a href="index.html" role="menuitem" aria-current="page"><img src="image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
+              <a href="#programs" role="menuitem"><img src="image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
+              <a href="#testimonials" role="menuitem"><img src="image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
+              <a href="login.html" role="menuitem"><img src="image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
+              <a href="html_files/achievement.html" role="menuitem"><img src="image/achivement.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Achievements</a>
+            </div>
+          </details>
+          <button
+            type="button"
+            class="site-nav__close"
+            id="site-nav-close"
+            aria-label="Close menu"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <a class="site-nav__link" href="html_files/whyclattutor.html"><img src="image/why.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /><span class="site-nav__link-label site-nav__link-text">Why CLAT<span class="logo__accent">utor</span>?</span></a>
+        <a class="site-nav__link" href="html_files/admission.html"><img src="image/admission.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> <span class="site-nav__link-text">Admission</span></a>
+        <a class="site-nav__link" href="html_files/clatgk&amp;ck.html"><img src="image/clat%20gk.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> <span class="site-nav__link-text">CLAT GK &amp; CA</span></a>
+        <details class="site-nav__details">
+          <summary>
+            <img src="image/exams.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Exams <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Exams menu">
+            <a href="html_files/clat.html" role="menuitem"><img src="image/clat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT</a>
+            <a href="html_files/ipmat.html" role="menuitem"><img src="image/ipmat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> IPMAT</a>
+          </div>
+        </details>
+        <a class="site-nav__link" href="html_files/courses.html"><img src="image/courses.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> <span class="site-nav__link-text">Courses</span></a>
+        <a class="site-nav__link" href="html_files/contactus.html"><img src="image/phone.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> <span class="site-nav__link-text">Contact us</span></a>
+      </nav>
+
+      <div class="header-right nav-actions nav-auth">
+        <a href="login.html" class="hero-btn-animated hero-btn-animated--ghost site-header__login">
+          <img src="image/login.png" alt="" class="nav-auth__btn-icon" width="18" height="18" loading="lazy" />
+          <span class="text">Log In</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="site-nav-backdrop" id="site-nav-backdrop" hidden aria-hidden="true"></div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero__badge"><i class="fa-solid fa-graduation-cap"></i> Admissions open · 2026 batches</div>
+      <h1 class="hero__title">
+        <span class="hero-title__char" style="animation-delay: 0ms">C</span><span class="hero-title__char" style="animation-delay: 20ms">o</span><span class="hero-title__char" style="animation-delay: 40ms">a</span><span class="hero-title__char" style="animation-delay: 60ms">c</span><span class="hero-title__char" style="animation-delay: 80ms">h</span><span class="hero-title__char" style="animation-delay: 100ms">i</span><span class="hero-title__char" style="animation-delay: 120ms">n</span><span class="hero-title__char" style="animation-delay: 140ms">g</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 160ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 180ms">t</span><span class="hero-title__char" style="animation-delay: 200ms">h</span><span class="hero-title__char" style="animation-delay: 220ms">a</span><span class="hero-title__char" style="animation-delay: 240ms">t</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 260ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 280ms">s</span><span class="hero-title__char" style="animation-delay: 300ms">c</span><span class="hero-title__char" style="animation-delay: 320ms">a</span><span class="hero-title__char" style="animation-delay: 340ms">l</span><span class="hero-title__char" style="animation-delay: 360ms">e</span><span class="hero-title__char" style="animation-delay: 380ms">s</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 400ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 420ms">w</span><span class="hero-title__char" style="animation-delay: 440ms">i</span><span class="hero-title__char" style="animation-delay: 460ms">t</span><span class="hero-title__char" style="animation-delay: 480ms">h</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 500ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 520ms">y</span><span class="hero-title__char" style="animation-delay: 540ms">o</span><span class="hero-title__char" style="animation-delay: 560ms">u</span><span class="hero-title__char" style="animation-delay: 580ms">r</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 600ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 620ms">a</span><span class="hero-title__char" style="animation-delay: 640ms">m</span><span class="hero-title__char" style="animation-delay: 660ms">b</span><span class="hero-title__char" style="animation-delay: 680ms">i</span><span class="hero-title__char" style="animation-delay: 700ms">t</span><span class="hero-title__char" style="animation-delay: 720ms">i</span><span class="hero-title__char" style="animation-delay: 740ms">o</span><span class="hero-title__char" style="animation-delay: 760ms">n</span>
+      </h1>
+      <hr class="hero__rule" />
+      <p class="lead">Structured courses, mentor support, and progress tracking—built for serious aspirants. One portal for learning, doubt resolution, and performance analytics.</p>
+      <div class="nav-actions hero__actions">
+        <a href="#enquiry" class="hero-btn-animated hero-btn-animated--primary">
+          <span class="text">Enquire now</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path
+              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+            ></path>
+          </svg>
+        </a>
+        <a href="login.html" class="hero-btn-animated hero-btn-animated--ghost">
+          <span class="text">Student login</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path
+              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="programs">
+    <div class="container">
+      <div class="section__head">
+        <h2>Programs</h2>
+        <p class="section__sub">Pick a track that matches your timeline—we help you stay consistent and exam-ready.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card card--program">
+          <div class="program-card__inner">
+            <header class="program-card__head">
+              <span class="feat-icon" aria-hidden="true"><img src="image/law%20entrance.png" alt="" class="program-card__icon" width="24" height="24" loading="lazy" /></span>
+              <h3 class="program-card__title">Law Entrance</h3>
+            </header>
+            <p class="program-card__lead">
+              Full syllabus coverage, mocks, and analytics aligned to competitive exams. Weekly tests with detailed solutions.
+            </p>
+            <hr class="program-card__line" />
+            <ul class="program-card__list">
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Full syllabus &amp; timed mock exams</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Performance analytics &amp; weak-area focus</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Weekly tests with detailed explanations</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+        <article class="card card--program">
+          <div class="program-card__inner">
+            <header class="program-card__head">
+              <span class="feat-icon" aria-hidden="true"><img src="image/foundation.png" alt="" class="program-card__icon" width="24" height="24" loading="lazy" /></span>
+              <h3 class="program-card__title">Foundation</h3>
+            </header>
+            <p class="program-card__lead">
+              Concept-first modules with practice sheets and dedicated doubt windows. Build fundamentals that last.
+            </p>
+            <hr class="program-card__line" />
+            <ul class="program-card__list">
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Concept-first modules &amp; clarity drills</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Practice sheets &amp; structured assignments</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Dedicated doubt-clearing windows</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+        <article class="card card--program">
+          <div class="program-card__inner">
+            <header class="program-card__head">
+              <span class="feat-icon" aria-hidden="true"><img src="image/crash%20course.png" alt="" class="program-card__icon" width="24" height="24" loading="lazy" /></span>
+              <h3 class="program-card__title">Crash &amp; Revision</h3>
+            </header>
+            <p class="program-card__lead">
+              Intensive schedules for last-mile revision and test strategy—without burning out.
+            </p>
+            <hr class="program-card__line" />
+            <ul class="program-card__list">
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>High-intensity revision schedules</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Test strategy &amp; time management</span>
+              </li>
+              <li>
+                <span class="program-card__check" aria-hidden="true"><img src="image/checkmark.png" alt="" class="program-card__check-img" width="18" height="18" loading="lazy" /></span>
+                <span>Structured pacing to avoid burnout</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="enquiry" style="padding-top: 1rem">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="enquiry-heading">Request a Callback</h2>
+        <p class="section__sub">Share your details—we’ll reach out with batch timings, fees, and next steps.</p>
+      </div>
+      <div class="enquiry-layout">
+        <div class="enquiry-aside">
+          <ul>
+            <li><i class="fa-solid fa-circle-check"></i> Response within 1–2 business days</li>
+            <li><i class="fa-solid fa-circle-check"></i> Counselling for batch &amp; study plan</li>
+            <li><i class="fa-solid fa-circle-check"></i> Your enquiry syncs to our CRM for follow-up</li>
+          </ul>
+        </div>
+        <section class="enquiry-form-box" aria-labelledby="enquiry-heading">
+          <div id="enquiry-alert"></div>
+          <form id="form-enquiry" class="enquiry-form" action="#">
+            <div class="enquiry-form__column">
+              <div class="enquiry-form__input-box">
+                <label for="enq-name">Full name</label>
+                <input id="enq-name" name="name" required autocomplete="name" placeholder="Example: John Doe" type="text" />
+              </div>
+              <div class="enquiry-form__input-box">
+                <label for="enq-email">Email</label>
+                <input id="enq-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+              </div>
+            </div>
+            <div class="enquiry-form__column">
+              <div class="enquiry-form__input-box">
+                <label for="enq-phone">Phone</label>
+                <input id="enq-phone" name="phone" type="tel" required autocomplete="tel" placeholder="Your phone number" />
+              </div>
+              <div class="enquiry-form__input-box">
+                <label for="enq-course">Interested in</label>
+                <div class="enquiry-form__select-wrap">
+                  <select id="enq-course" name="course">
+                    <option>CLAT Intensive</option>
+                    <option>Foundation batch</option>
+                    <option>Crash / revision</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="enquiry-form__input-box enquiry-form__input-box--message">
+              <label for="enq-note">Message (optional)</label>
+              <textarea id="enq-note" name="note" placeholder="Timing, location, or questions…"></textarea>
+            </div>
+            <button type="submit" class="enquiry-form__submit">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit enquiry
+            </button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--testimonials" id="testimonials" aria-labelledby="testimonials-heading">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="testimonials-heading">What Students Say</h2>
+        <p class="section__sub">Real feedback from learners who use the portal for classes, mocks, and mentor support.</p>
+        <p class="section__sub section__sub--google-note">
+          <img src="image/google.png" alt="" width="18" height="18" class="section__google-mark" loading="lazy" /> Reviews shown as posted on Google
+        </p>
+      </div>
+      <div class="testimonial-carousel" data-per-page="3">
+        <button type="button" class="testimonial-nav testimonial-nav--prev" aria-label="Previous testimonials" hidden>
+          <i class="fa-solid fa-angle-left" aria-hidden="true"></i>
+        </button>
+
+      <div class="testimonial-grid">
+        <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Ananya P.</h3>
+                  <p class="testimonial-card__context">CLAT aspirant · Malleshwaram</p>
+                  <time class="testimonial-card__time" datetime="2025-10-15">5 months ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                Mocks and analytics on the portal made it easy to see weak topics. Doubt windows and structured modules kept me consistent through the year.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Rahul K.</h3>
+                  <p class="testimonial-card__context">Foundation batch · Jayanagar</p>
+                  <time class="testimonial-card__time" datetime="2025-12-15">3 months ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                Concept-first classes and practice sheets matched what I needed. Having everything in one place—materials, deadlines, announcements—saved time.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Sneha M.</h3>
+                  <p class="testimonial-card__context">Working professional · Indiranagar</p>
+                  <time class="testimonial-card__time" datetime="2026-03-20">2 weeks ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                Revision and crash schedules were intense but clear. The UI works well on phone between work breaks—I could stay on track without friction.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Vikram S.</h3>
+                  <p class="testimonial-card__context">Law entrance aspirant · Yelahanka</p>
+                  <time class="testimonial-card__time" datetime="2026-02-03">1 month ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                The mock-to-revision workflow helped me fix my mistakes quickly. I could track weak chapters and practice targeted questions every week.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Divya R.</h3>
+                  <p class="testimonial-card__context">Foundation batch · Malleshwaram</p>
+                  <time class="testimonial-card__time" datetime="2025-09-01">6 months ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                Clear concepts, timely assignments, and regular doubts kept my preparation consistent. The platform made revision scheduling feel effortless.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Aarav N.</h3>
+                  <p class="testimonial-card__context">Crash revision · Jayanagar</p>
+                  <time class="testimonial-card__time" datetime="2025-11-20">4 months ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                The revision plan was structured and realistic. I improved speed in questions and my accuracy went up because feedback was immediate.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Meera S.</h3>
+                  <p class="testimonial-card__context">Working professional · Indiranagar</p>
+                  <time class="testimonial-card__time" datetime="2026-03-10">3 weeks ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                I loved the bite-sized updates. I could complete practice during breaks and still stay aligned with deadlines across sections.
+              </blockquote>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-card__inner">
+              <div class="testimonial-card__head">
+                <div class="testimonial-card__avatar">
+                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
+                </div>
+                <div class="testimonial-card__identity">
+                  <h3 class="testimonial-card__name">Kabir T.</h3>
+                  <p class="testimonial-card__context">CLAT GK &amp; CA · Yelahanka</p>
+                  <time class="testimonial-card__time" datetime="2026-03-25">1 week ago</time>
+                </div>
+                <div class="testimonial-card__brand">
+                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
+                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
+                </div>
+              </div>
+              <div class="testimonial-card__rating">
+                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
+                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+              </div>
+              <blockquote class="testimonial-card__quote">
+                The study structure and test reminders helped me stay consistent. I could quickly review wrong answers and improve in the next attempt.
+              </blockquote>
+            </div>
+          </article>
+        </div>
+
+        <button type="button" class="testimonial-nav testimonial-nav--next" aria-label="Next testimonials">
+          <i class="fa-solid fa-angle-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--branches" id="branches" aria-labelledby="branches-heading">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="branches-heading">Our Branches</h2>
+        <p class="section__sub">Visit CLATutor in person—three centres in Bangalore for classes, mocks, and counselling.</p>
+      </div>
+      <div class="branches-grid">
+        <article class="branch-card">
+          <!-- Video: https://www.youtube.com/watch?v=ODxLY8ezJyA (Malleshwaram) -->
+          <div class="branch-card__embed">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/ODxLY8ezJyA?rel=0"
+              title="CLATutor Malleshwaram branch video"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="branch-card__body">
+            <h3 class="branch-card__title">Malleshwaram</h3>
+            <p class="branch-card__line">North Bangalore · Classroom &amp; hybrid options</p>
+            <p class="branch-card__line">CLAT · IPMAT · CUET law · Doubt labs</p>
+            <div class="branch-card__bottom">
+              <a
+                class="branch-card__map-btn"
+                href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="branch-card">
+          <!-- Video: https://www.youtube.com/watch?v=K-lhWbXnkng (Jayanagar) -->
+          <div class="branch-card__embed">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/K-lhWbXnkng?rel=0"
+              title="CLATutor Jayanagar branch video"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="branch-card__body">
+            <h3 class="branch-card__title">Jayanagar</h3>
+            <p class="branch-card__line">South Bangalore · Easy metro access</p>
+            <p class="branch-card__line">Foundation · Intensive · Crash batches</p>
+            <div class="branch-card__bottom">
+              <a
+                class="branch-card__map-btn"
+                href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="branch-card">
+          <!-- Video: https://www.youtube.com/watch?v=IThL9TtD0WQ (Yelahanka) -->
+          <div class="branch-card__embed">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/IThL9TtD0WQ?rel=0"
+              title="CLATutor Yelahanka branch video"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="branch-card__body">
+            <h3 class="branch-card__title">Yelahanka</h3>
+            <p class="branch-card__line">North Bangalore · Near airport corridor</p>
+            <p class="branch-card__line">Weekend focus · Working-professional friendly</p>
+            <div class="branch-card__bottom">
+              <a
+                class="branch-card__map-btn"
+                href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="container site-footer__grid">
+        <div class="site-footer__brand">
+          <div class="site-footer__social" aria-label="Social links">
+            <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="https://wa.me/918150884422" class="site-footer__social-link site-footer__social-link--whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--telegram" aria-label="Telegram"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
+            <a
+              href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website"
+              class="site-footer__social-link site-footer__social-link--email"
+              aria-label="Email hello@clatutor.com"
+              title="Email hello@clatutor.com"
+            ><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
+          </div>
+          <div class="site-footer__logo-block">
+            <span class="site-footer__logo-mark" aria-hidden="true"><img src="image/gavel%20clat%20tutor.png" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="site-footer__logo-word">CLAT<span class="site-footer__logo-accent">utor</span></span>
+          </div>
+          <p class="site-footer__tagline">Shaping Minds Since 2007</p>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">CLAT<span class="site-footer__logo-accent">utor</span></h3>
+          <ul class="site-footer__links">
+            <li><a href="html_files/history.html">History</a></li>
+            <li><a href="html_files/overview.html">Overview</a></li>
+            <li><a href="html_files/career.html">Career</a></li>
+            <li><a href="#">Faculty Team</a></li>
+            <li><a href="html_files/whyclattutor.html">CLAT Bangalore</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Law World</h3>
+          <ul class="site-footer__links">
+            <li><a href="html_files/clat.html">CLAT</a></li>
+            <li><a href="html_files/ipmat.html">IPMAT</a></li>
+            <li><a href="html_files/career.html">Career</a></li>
+            <li><a href="#">Franchise</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Program</h3>
+          <ul class="site-footer__links">
+            <li><a href="html_files/courses.html">Courses</a></li>
+            <li><a href="html_files/achievement.html">Achievements</a></li>
+            <li><a href="#">Gallery</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a href="#">Blogs</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col site-footer__col--contact">
+          <h3 class="site-footer__heading">Contact Us</h3>
+          <ul class="site-footer__contact">
+            <li>
+              <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>(+91) 8150884422</span></a>
+            </li>
+            <li>
+              <a href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website" title="Email hello@clatutor.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>hello@clatutor.com</span></a>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Malleshwaram <a href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Jayanagar <a href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Yelahanka <a href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <div class="container site-footer__bar-inner">
+        <p class="site-footer__copy">
+          Copyright © 2021 CLATutor.com by MTe., All Rights Reserved
+        </p>
+        <nav class="site-footer__legal" aria-label="Legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms and Conditions</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/data-store.js"></script>
+  <script src="js/public-forms-api.js"></script>
+  <script src="js/main-dropdown.js"></script>
+  <script src="js/pyq-modal.js"></script>
+  <script>
+    /* YouTube iframes need http(s); hint when opened from disk */
+    (function () {
+      if (window.location.protocol !== 'file:') return;
+      var bar = document.createElement('div');
+      bar.className = 'file-protocol-banner';
+      bar.setAttribute('role', 'status');
+      bar.innerHTML =
+        '<span class="file-protocol-banner__text"><strong>Preview tip:</strong> Branch videos play inside the page when this site is served over <code>http://</code>. Double-click <code>serve-local.cmd</code> in this folder, then use the address it opens.</span>';
+      var announce = document.querySelector('.announce-bar');
+      if (announce && announce.parentNode) {
+        announce.parentNode.insertBefore(bar, announce.nextSibling);
+      } else {
+        document.body.insertBefore(bar, document.body.firstChild);
+      }
+    })();
+  </script>
+  <script>
+    var formEnquiry = document.getElementById('form-enquiry');
+    if (formEnquiry) {
+      formEnquiry.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (typeof PublicFormsApi === 'undefined') {
+          var miss = document.getElementById('enquiry-alert');
+          if (miss) {
+            miss.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Form could not load. Please refresh the page.</span></div>';
+          }
+          return;
+        }
+        var fd = new FormData(formEnquiry);
+        var fullname = (fd.get('name') || '').toString().trim();
+        var email = (fd.get('email') || '').toString().trim();
+        var phoneRaw = (fd.get('phone') || '').toString().trim();
+        var interestedIn = (fd.get('course') || '').toString().trim();
+        var message = (fd.get('note') || '').toString().trim();
+        var phone = PublicFormsApi.phoneToNumber(phoneRaw);
+        if (!Number.isFinite(phone)) {
+          var warn = document.getElementById('enquiry-alert');
+          if (warn) {
+            warn.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Please enter a valid phone number (digits only).</span></div>';
+          }
+          return;
+        }
+        var submitBtn = formEnquiry.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        PublicFormsApi.postRequestCallback({
+          fullname: fullname,
+          email: email,
+          phone: phone,
+          interested_in: interestedIn,
+          message: message || null,
+        })
+          .then(function (res) {
+            if (submitBtn) submitBtn.disabled = false;
+            var box = document.getElementById('enquiry-alert');
+            if (res.ok && (res.status === 201 || res.status === 200)) {
+              if (typeof DataStore !== 'undefined') {
+                DataStore.addLead({
+                  name: fullname,
+                  email: email,
+                  phone: phoneRaw,
+                  courseInterest: interestedIn,
+                  source: 'Website enquiry',
+                  stage: 'new',
+                });
+                DataStore.addNotification({
+                  title: 'New lead',
+                  body: 'A new enquiry was captured from the website form.',
+                  audience: 'crm',
+                });
+              }
+              if (box) {
+                box.innerHTML =
+                  '<div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>Thank you. Our team will contact you shortly.</span></div>';
+              }
+              formEnquiry.reset();
+            } else {
+              var msg =
+                res.data && res.data.message
+                  ? res.data.message
+                  : 'Something went wrong. Please try again.';
+              if (box) {
+                box.innerHTML =
+                  '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>';
+                var span = box.querySelector('.alert-error span');
+                if (span) span.textContent = msg;
+              }
+            }
+          })
+          .catch(function () {
+            if (submitBtn) submitBtn.disabled = false;
+            var box = document.getElementById('enquiry-alert');
+            if (box) {
+              box.innerHTML =
+                '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Network error. Please check your connection and try again.</span></div>';
+            }
+          });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      (function initIndexMobileNav() {
+        var mq = window.matchMedia('(max-width: 991px)');
+        var header = document.getElementById('site-header');
+        var toggle = document.getElementById('site-nav-toggle');
+        var nav = document.getElementById('primary-nav');
+        var backdrop = document.getElementById('site-nav-backdrop');
+        if (!header || !toggle || !nav || !backdrop) return;
+
+        function updateNavOffset() {
+          var root = document.documentElement;
+          if (!mq.matches) {
+            root.style.removeProperty('--mobile-nav-offset');
+            return;
+          }
+          /* Align drawer top with bottom of yellow announce bar (not below full header). */
+          var bar = document.querySelector('.announce-bar');
+          var offset = 0;
+          if (bar) {
+            offset = Math.max(0, Math.round(bar.getBoundingClientRect().bottom));
+          }
+          root.style.setProperty('--mobile-nav-offset', offset + 'px');
+        }
+
+        function setOpen(open) {
+          updateNavOffset();
+          if (open) {
+            header.classList.add('site-header--nav-open');
+            document.body.classList.add('site-nav-open');
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.setAttribute('aria-label', 'Close menu');
+            nav.removeAttribute('aria-hidden');
+            backdrop.hidden = false;
+            backdrop.setAttribute('aria-hidden', 'false');
+          } else {
+            header.classList.remove('site-header--nav-open');
+            document.body.classList.remove('site-nav-open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'Open menu');
+            if (mq.matches) {
+              nav.setAttribute('aria-hidden', 'true');
+            } else {
+              nav.removeAttribute('aria-hidden');
+            }
+            backdrop.hidden = true;
+            backdrop.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        function closeIfMobile() {
+          if (mq.matches) setOpen(false);
+        }
+
+        toggle.addEventListener('click', function () {
+          if (!mq.matches) return;
+          setOpen(!header.classList.contains('site-header--nav-open'));
+        });
+
+        backdrop.addEventListener('click', closeIfMobile);
+
+        var closeBtn = document.getElementById('site-nav-close');
+        if (closeBtn) closeBtn.addEventListener('click', closeIfMobile);
+
+        nav.addEventListener('click', function (e) {
+          if (!mq.matches) return;
+          var t = e.target;
+          if (t && t.closest && t.closest('a[href]')) closeIfMobile();
+        });
+
+        window.addEventListener('resize', function () {
+          updateNavOffset();
+          if (!mq.matches) setOpen(false);
+        });
+
+        window.addEventListener('scroll', function () {
+          if (!mq.matches) return;
+          updateNavOffset();
+        }, { passive: true });
+
+        var announceEl = document.querySelector('.announce-bar');
+        if (announceEl && typeof ResizeObserver !== 'undefined') {
+          var ro = new ResizeObserver(function () {
+            updateNavOffset();
+          });
+          ro.observe(announceEl);
+        }
+
+        if (mq.addEventListener) {
+          mq.addEventListener('change', function (e) {
+            if (!e.matches) setOpen(false);
+          });
+        } else if (mq.addListener) {
+          mq.addListener(function () {
+            if (!mq.matches) setOpen(false);
+          });
+        }
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          if (!document.body.classList.contains('site-nav-open')) return;
+          if (!mq.matches) return;
+          setOpen(false);
+        });
+
+        updateNavOffset();
+        if (mq.matches) nav.setAttribute('aria-hidden', 'true');
+      })();
+
+      var modal = document.getElementById('enroll-popup');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'enroll-popup';
+        modal.className = 'enroll-modal';
+        modal.setAttribute('aria-hidden', 'true');
+        modal.innerHTML =
+          '<div class="enroll-modal__backdrop" data-close="true" aria-hidden="true"></div>' +
+          '<div class="enroll-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="enroll-modal-title">' +
+          '  <div class="enroll-modal__head">' +
+          '    <div class="enroll-modal__titles">' +
+          '      <div class="enroll-modal__badge"><img src="image/announcement.png" alt="" class="enroll-modal__badge-icon" width="18" height="18" loading="lazy" /> CLAT Dec 2026</div>' +
+          '      <h2 id="enroll-modal-title" class="enroll-modal__title enroll-modal__shine">Your NLS Journey Starts Here</h2>' +
+          '    </div>' +
+          '    <button type="button" class="enroll-modal__close" data-close="true" aria-label="Close popup">' +
+          '      <i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
+          '    </button>' +
+          '  </div>' +
+          '  <div class="enroll-modal__body">' +
+          '    <p class="enroll-modal__headline"><img src="image/gavel%20clat%20tutor.png" class="enroll-modal__law-icon enroll-modal__law-icon--headline" alt="Law" /> CLAT Dec 2026/2027 NEW Batch Begins 15th April</p>' +
+          '    <p class="enroll-modal__sub">The students who rise highest are the ones who start before everyone else.</p>' +
+          '    <ul class="enroll-modal__list">' +
+          '      <li>This is your moment to turn intention into action.</li>' +
+          '      <li>Seats are filling. Take the first step today.</li>' +
+          '      <li>Contact us with the form below or call <a class="enroll-modal__tel" href="tel:8150884422">8150884422</a> to secure your spot now.</li>' +
+          '    </ul>' +
+          '    <div class="enroll-modal__cta">' +
+          '      <a href="html_files/admission.html" class="btn btn-primary enroll-modal__cta-btn"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ENROLL NOW</a>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>';
+        document.body.appendChild(modal);
+      }
+
+      var prevOverflow = document.body.style.overflow;
+      var openTimer = null;
+
+      var close = function () {
+        if (openTimer) clearTimeout(openTimer);
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = prevOverflow;
+      };
+
+      modal.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('[data-close="true"]') : null;
+        if (el) close();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) close();
+      });
+
+      // Testimonials carousel (shows 3 at a time)
+      var testimonialCarousel = document.querySelector('.testimonial-carousel');
+      if (testimonialCarousel) {
+        var perPageAttr = testimonialCarousel.getAttribute('data-per-page');
+        var perPage = parseInt(perPageAttr, 10);
+        if (!perPage || perPage < 1 || isNaN(perPage)) perPage = 3;
+
+        var cards = Array.prototype.slice.call(testimonialCarousel.querySelectorAll('.testimonial-card'));
+        var prevBtn = testimonialCarousel.querySelector('.testimonial-nav--prev');
+        var nextBtn = testimonialCarousel.querySelector('.testimonial-nav--next');
+
+        var page = 0;
+        var maxPage = cards.length === 0 ? 0 : Math.max(0, Math.ceil(cards.length / perPage) - 1);
+
+        var render = function () {
+          if (!cards.length) return;
+
+          var start = page * perPage;
+          var end = start + perPage;
+
+          cards.forEach(function (card, idx) {
+            var visible = idx >= start && idx < end;
+            card.style.display = visible ? 'block' : 'none';
+          });
+
+          var atFirst = page <= 0;
+          var atLast = page >= maxPage || cards.length <= perPage;
+
+          if (prevBtn) {
+            prevBtn.hidden = atFirst;
+            prevBtn.setAttribute('aria-hidden', atFirst ? 'true' : 'false');
+          }
+          if (nextBtn) {
+            nextBtn.hidden = atLast;
+            nextBtn.setAttribute('aria-hidden', atLast ? 'true' : 'false');
+          }
+        };
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function () {
+            if (page > 0) {
+              page -= 1;
+              render();
+            }
+          });
+        }
+
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function () {
+            if (page < maxPage) {
+              page += 1;
+              render();
+            }
+          });
+        }
+
+        render();
+      }
+
+      /* Footer email icon: explicit mailto navigation (some embedded/preview browsers ignore default <a> mailto) */
+      var footerEmailBtn = document.querySelector('.site-footer__social-link--email');
+      if (footerEmailBtn) {
+        footerEmailBtn.addEventListener('click', function (e) {
+          var href = footerEmailBtn.getAttribute('href');
+          if (!href || href.indexOf('mailto:') !== 0) return;
+          e.preventDefault();
+          window.location.assign(href);
+        });
+      }
+
+      openTimer = setTimeout(function () {
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

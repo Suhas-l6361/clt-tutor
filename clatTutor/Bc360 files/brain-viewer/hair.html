@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Hair Viewer - Professional</title>
+  <!-- Font Awesome for back button icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Security and Authentication Scripts -->
+  <script src="../js/simple-auth.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  <script src="../js/ultra-protection.js"></script>
+  
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    #hairCanvas {
+      display: block;
+      cursor: grab;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #hairCanvas:active {
+      cursor: grabbing;
+    }
+    
+    /* Back Button - Responsive */
+    #back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 44px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    
+    #back-button:hover {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+    }
+    
+    #back-button:active {
+      transform: translateY(0);
+    }
+    
+    #back-button i {
+      font-size: 16px;
+    }
+    
+    /* Controls Panel - Responsive */
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 280px;
+      z-index: 100;
+    }
+    
+    #controls h3 {
+      margin-bottom: 8px;
+      color: #4fc3f7;
+      font-size: 16px;
+    }
+    
+    #controls p {
+      margin: 4px 0;
+      opacity: 0.9;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      z-index: 200;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      #controls {
+        top: 5px;
+        left: 5px;
+        padding: 8px;
+        font-size: 10px;
+        max-width: 200px;
+      }
+      
+      #controls h3 {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+      
+      #controls p {
+        font-size: 9px;
+        margin: 3px 0;
+      }
+      
+      #loading {
+        font-size: 14px;
+        padding: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #controls {
+        max-width: 150px;
+        padding: 6px;
+        font-size: 9px;
+      }
+      
+      #controls h3 {
+        font-size: 12px;
+      }
+      
+      #controls p {
+        font-size: 8px;
+      }
+      
+      #loading {
+        font-size: 12px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Back Button -->
+  <a href="../student-module/3dworld.html" id="back-button">
+    <i class="fas fa-arrow-left"></i>
+    Back to 3D World
+  </a>
+  
+  <div id="container">
+    <canvas id="hairCanvas"></canvas>
+    <div id="loading">Loading 3D Hair Model...</div>
+    <div id="controls" style="display: none;">
+      <h3>💇 3D Hair Viewer</h3>
+      <p><strong>Left Click + Drag:</strong> Rotate</p>
+      <p><strong>Right Click + Drag:</strong> Pan</p>
+      <p><strong>Scroll Wheel:</strong> Zoom</p>
+      <p><strong>Middle Click + Drag:</strong> Pan</p>
+      <p><strong>R:</strong> Reset View | <strong>F:</strong> Focus</p>
+    </div>
+  </div>
+  <script>
+    // Authentication Check for Hair Viewer
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            const allowedUserTypes = ['student', 'teacher', 'admin'];
+            if (!allowedUserTypes.includes(userData.userType)) {
+              alert('🚫 Access Denied!\n\nYou are not authorized to view 3D educational content.');
+              window.location.href = '../login.html';
+              return;
+            }
+          } else {
+            alert('🚫 Authentication Required!\n\nPlease log in to access 3D educational content.');
+            window.location.href = '../login.html';
+          }
+        } else {
+          alert('🚫 Security System Not Loaded!');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+  </script>
+  
+  <script type="module" src="js/hair.js"></script>
+</body>
+</html>

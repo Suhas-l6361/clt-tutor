@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students — CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <style>
+    .crm-actions-panel {
+      margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid var(--line-light);
+      border-radius: 12px;
+      padding: 0.9rem;
+      box-shadow: var(--shadow-card);
+    }
+    .crm-actions-panel h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .crm-actions-panel .api-meta {
+      margin: -0.25rem 0 0.75rem;
+      font-size: 0.76rem;
+      color: #475569;
+    }
+    .radio-inputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 0.6rem;
+      user-select: none;
+    }
+    .radio-inputs > label {
+      display: block;
+      margin: 0;
+    }
+    .radio-input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .radio-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      min-height: 98px;
+      border-radius: 10px;
+      border: 1.8px solid #d3dcee;
+      background: #fff;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+      transition: 0.15s ease;
+      cursor: pointer;
+      position: relative;
+      text-align: center;
+      padding: 0.55rem 0.45rem;
+    }
+    .radio-tile:before {
+      content: "";
+      position: absolute;
+      width: 0.72rem;
+      height: 0.72rem;
+      border: 2px solid #b5bfd9;
+      background-color: #fff;
+      border-radius: 50%;
+      top: 0.28rem;
+      left: 0.28rem;
+      opacity: 0;
+      transform: scale(0);
+      transition: 0.2s ease;
+    }
+    .radio-tile:hover {
+      border-color: #2260ff;
+      box-shadow: 0 8px 14px rgba(34, 96, 255, 0.12);
+    }
+    .radio-tile:hover:before {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .radio-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #2260ff;
+      background: #eef3ff;
+      font-size: 1.05rem;
+    }
+    .radio-label {
+      color: #374151;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .radio-input:checked + .radio-tile {
+      border-color: #2260ff;
+      box-shadow: 0 7px 14px rgba(34, 96, 255, 0.18);
+    }
+    .radio-input:checked + .radio-tile:before {
+      transform: scale(1);
+      opacity: 1;
+      background-color: #2260ff;
+      border-color: #2260ff;
+    }
+    @media (max-width: 760px) {
+      .radio-inputs {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+      }
+    }
+    @media (max-width: 480px) {
+      .radio-inputs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .crm-modal[hidden],
+    .crm-success[hidden] {
+      display: none;
+    }
+    .crm-modal,
+    .crm-success {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .crm-modal__backdrop,
+    .crm-success__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.58);
+    }
+    .crm-modal__dialog {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 100%);
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      transform-origin: top center;
+      transform: perspective(1200px) rotateX(-180deg) scale(0.92);
+      opacity: 0;
+      transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.45s ease;
+    }
+    .crm-modal.open .crm-modal__dialog {
+      transform: perspective(1200px) rotateX(0deg) scale(1);
+      opacity: 1;
+    }
+    .reg-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 20px;
+      background-color: #1a1a1a;
+      color: #fff;
+      border: 1px solid #333;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.32);
+    }
+    .reg-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    .reg-title {
+      font-size: 1.55rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-left: 24px;
+      color: #00bfff;
+      margin: 0;
+    }
+    .reg-title::before,
+    .reg-title::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      left: 0;
+      background-color: #00bfff;
+    }
+    .reg-title::before { width: 12px; height: 12px; }
+    .reg-title::after {
+      width: 12px;
+      height: 12px;
+      animation: pulse 1s linear infinite;
+    }
+    .reg-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #242424;
+      color: #fff;
+      cursor: pointer;
+    }
+    .reg-message {
+      font-size: 13.5px;
+      color: rgba(255, 255, 255, 0.72);
+      margin: 0 0 0.1rem;
+    }
+    .reg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    .reg-grid .full {
+      grid-column: 1 / -1;
+    }
+    .reg-form label {
+      position: relative;
+      display: block;
+    }
+    .reg-form .input,
+    .reg-form .select {
+      background-color: #333;
+      color: #fff;
+      width: 100%;
+      padding: 12px 10px 7px;
+      outline: 0;
+      border: 1px solid rgba(105, 105, 105, 0.4);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    .reg-form .select {
+      padding-top: 13px;
+      padding-bottom: 10px;
+    }
+    .reg-form label .input + span,
+    .reg-form label .select + span {
+      color: rgba(255, 255, 255, 0.5);
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      font-size: 0.82rem;
+      transition: 0.25s ease;
+      pointer-events: none;
+    }
+    .reg-form label .input:focus + span,
+    .reg-form label .input:not(:placeholder-shown) + span,
+    .reg-form label .select:focus + span,
+    .reg-form label .select:not([value=""]) + span {
+      color: #00bfff;
+      top: 2px;
+      font-size: 0.66rem;
+      font-weight: 600;
+    }
+    .dob-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+    .dob-row select {
+      background-color: #333;
+      color: #fff;
+      width: 100%;
+      padding: 9px 10px;
+      outline: 0;
+      border: 1px solid rgba(105, 105, 105, 0.4);
+      border-radius: 10px;
+      font-size: 0.86rem;
+    }
+    .field-label-above {
+      display: block;
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin: 0 0 0.3rem 0.2rem;
+      line-height: 1.2;
+      min-height: 1.2em;
+    }
+    .reg-form .input.input--stacked {
+      padding: 10px 10px;
+    }
+    .reg-grid--ca-top {
+      align-items: start;
+    }
+    .reg-grid--ca-top > div {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .file-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #232323;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 10px;
+      padding: 0.5rem 0.7rem;
+    }
+    .file-input-wrap label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+    .file-input-wrap input[type="file"] {
+      width: 100%;
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    .file-input-wrap input[type="file"]::file-selector-button {
+      margin-right: 0.6rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      border-radius: 8px;
+      background: rgba(14, 165, 233, 0.15);
+      color: #e0f2fe;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .upload-file-name {
+      margin-top: 0.3rem;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.84);
+      word-break: break-all;
+    }
+    .reg-btns {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+      flex-wrap: nowrap;
+      position: sticky;
+      bottom: 0;
+      background: #1a1a1a;
+      padding-top: 0.3rem;
+      z-index: 2;
+    }
+    .fancy-btn {
+      border: none;
+      min-width: 0;
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      cursor: pointer;
+    }
+    .fancy-btn--submit { background: #0ea5e9; }
+    .fancy-btn--reset { background: #374151; }
+    .fancy-btn span {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      transform: scale(0);
+      left: -14px;
+      top: -72px;
+      z-index: -1;
+      transition: transform 0.55s ease;
+    }
+    .fancy-btn--submit span:nth-child(1) { background: #0284c7; }
+    .fancy-btn--submit span:nth-child(2) { background: #0369a1; transition-duration: 0.7s; }
+    .fancy-btn--reset span:nth-child(1) { background: #1f2937; }
+    .fancy-btn--reset span:nth-child(2) { background: #111827; transition-duration: 0.7s; }
+    .fancy-btn:hover span { transform: scale(1); }
+    .reg-status {
+      font-size: 0.82rem;
+      color: #7dd3fc;
+      min-height: 18px;
+      margin: 0;
+    }
+    .crm-success__card {
+      position: relative;
+      z-index: 1;
+      width: min(420px, 100%);
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #d6e6d8;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+      padding: 1rem;
+      text-align: center;
+    }
+    .crm-success__card i {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ecfdf3;
+      color: #15803d;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 0.45rem;
+    }
+    .crm-success__card h4 {
+      margin: 0.1rem 0 0.3rem;
+      font-size: 1.05rem;
+    }
+    .crm-success__card p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 0.9rem;
+    }
+    .crm-success__close {
+      margin-top: 0.9rem;
+      border: none;
+      background: #111827;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .crm-success__card--error {
+      border-color: #fecaca;
+    }
+    .crm-success__card--error i {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+    .crm-loading__card {
+      position: relative;
+      z-index: 1;
+      width: min(430px, 100%);
+      background: #111827;
+      color: #fff;
+      border-radius: 16px;
+      border: 1px solid #2d3748;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.32);
+      padding: 1rem;
+      text-align: center;
+    }
+    .crm-loading__card h4 {
+      margin: 0.2rem 0 0.2rem;
+      font-size: 1.02rem;
+    }
+    .crm-loading__card p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 0.86rem;
+    }
+    .crm-loader-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      min-height: 220px;
+      padding: 0.5rem 0;
+    }
+    /* Author `display:flex` wins over the [hidden] UA rule — must force hide inactive panels */
+    .crm-loader-panel[hidden] {
+      display: none !important;
+    }
+    .crm-loader-caption {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    /* Faculty — Uiverse dots (namespaced) */
+    .crm-faculty-dots {
+      position: relative;
+      overflow: hidden;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+    .crm-faculty-dots .fdots {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      perspective: 200px;
+      transform-style: preserve-3d;
+      animation: crm_fdots 10000ms linear infinite;
+    }
+    .crm-faculty-dots .fdots:nth-child(1) { animation-name: crm_fdots; }
+    .crm-faculty-dots .fdots:nth-child(2) { animation-name: crm_fdots2; }
+    .crm-faculty-dots .fdots:nth-child(3) { animation-name: crm_fdots3; }
+    .crm-faculty-dots .fdots:nth-child(4) { animation-name: crm_fdots4; }
+    .crm-faculty-dots .fdots:nth-child(5) { animation-name: crm_fdots5; }
+    .crm-faculty-dots .fdots:nth-child(6) { animation-name: crm_fdots6; }
+    @keyframes crm_fdots {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(-50px); }
+      50% { transform: rotateX(60deg) rotateZ(5760deg) translateZ(-100px); }
+      100% { transform: rotateX(30deg) rotateZ(11520deg) translateZ(-50px); }
+    }
+    @keyframes crm_fdots2 {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(-36px); }
+      50% { transform: rotateX(60deg) rotateZ(2880deg) translateZ(-72px); }
+      100% { transform: rotateX(30deg) rotateZ(5760deg) translateZ(-36px); }
+    }
+    @keyframes crm_fdots3 {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(-24px); }
+      50% { transform: rotateX(60deg) rotateZ(1440deg) translateZ(-48px); }
+      100% { transform: rotateX(30deg) rotateZ(2880deg) translateZ(-24px); }
+    }
+    @keyframes crm_fdots4 {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(-14px); }
+      50% { transform: rotateX(60deg) rotateZ(720deg) translateZ(-28px); }
+      100% { transform: rotateX(30deg) rotateZ(1440deg) translateZ(-14px); }
+    }
+    @keyframes crm_fdots5 {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(-6px); }
+      50% { transform: rotateX(60deg) rotateZ(360deg) translateZ(-12px); }
+      100% { transform: rotateX(30deg) rotateZ(720deg) translateZ(-6px); }
+    }
+    @keyframes crm_fdots6 {
+      0% { transform: rotateX(30deg) rotateZ(0deg) translateZ(0px); }
+      50% { transform: rotateX(60deg) rotateZ(180deg) translateZ(-3px); }
+      100% { transform: rotateX(30deg) rotateZ(360deg) translateZ(0px); }
+    }
+    .crm-faculty-dots .fdot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      margin-left: -5px;
+      margin-top: -5px;
+      border-radius: 100px;
+      background-color: #1e3f57;
+      transform-style: preserve-3d;
+    }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot { background-color: #1e3f57; }
+    .crm-faculty-dots .fdots:nth-child(1) .fdot:nth-child(1) { transform: rotateZ(0) translateY(-10px); }
+    .crm-faculty-dots .fdots:nth-child(1) .fdot:nth-child(2) { transform: rotateZ(90deg) translateY(-10px) translateZ(-140px); }
+    .crm-faculty-dots .fdots:nth-child(1) .fdot:nth-child(3) { transform: rotateZ(180deg) translateY(-10px); }
+    .crm-faculty-dots .fdots:nth-child(1) .fdot:nth-child(4) { transform: rotateZ(270deg) translateY(-10px) translateZ(-140px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot { background-color: #295068; }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(1) { transform: rotateZ(0) translateY(-22px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(2) { transform: rotateZ(45deg) translateY(-22px) translateZ(-120px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(3) { transform: rotateZ(90deg) translateY(-22px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(4) { transform: rotateZ(135deg) translateY(-22px) translateZ(-120px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(5) { transform: rotateZ(180deg) translateY(-22px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(6) { transform: rotateZ(225deg) translateY(-22px) translateZ(-120px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(7) { transform: rotateZ(270deg) translateY(-22px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot:nth-child(8) { transform: rotateZ(315deg) translateY(-22px) translateZ(-120px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot { background-color: #3b6a83; }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot { background-color: #4d86a0; }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(1) { transform: rotateZ(0) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(2) { transform: rotateZ(30deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(3) { transform: rotateZ(60deg) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(4) { transform: rotateZ(90deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(5) { transform: rotateZ(120deg) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(6) { transform: rotateZ(150deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(7) { transform: rotateZ(180deg) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(8) { transform: rotateZ(210deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(9) { transform: rotateZ(240deg) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(10) { transform: rotateZ(270deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(11) { transform: rotateZ(300deg) translateY(-34px); }
+    .crm-faculty-dots .fdots:nth-child(3) .fdot:nth-child(12) { transform: rotateZ(330deg) translateY(-34px) translateZ(-100px); }
+    .crm-faculty-dots .fdots:nth-child(2) .fdot { background-color: #5ea0ba; }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(1) { transform: rotateZ(0) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(2) { transform: rotateZ(20deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(3) { transform: rotateZ(40deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(4) { transform: rotateZ(60deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(5) { transform: rotateZ(80deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(6) { transform: rotateZ(100deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(7) { transform: rotateZ(120deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(8) { transform: rotateZ(140deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(9) { transform: rotateZ(160deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(10) { transform: rotateZ(180deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(11) { transform: rotateZ(200deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(12) { transform: rotateZ(220deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(13) { transform: rotateZ(240deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(14) { transform: rotateZ(260deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(15) { transform: rotateZ(280deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(16) { transform: rotateZ(300deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(17) { transform: rotateZ(320deg) translateY(-46px); }
+    .crm-faculty-dots .fdots:nth-child(4) .fdot:nth-child(18) { transform: rotateZ(340deg) translateY(-46px) translateZ(-80px); }
+    .crm-faculty-dots .fdots:nth-child(1) .fdot { background-color: #6bb1cd; }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(1) { transform: rotateZ(0) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(2) { transform: rotateZ(15deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(3) { transform: rotateZ(30deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(4) { transform: rotateZ(45deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(5) { transform: rotateZ(60deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(6) { transform: rotateZ(75deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(7) { transform: rotateZ(90deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(8) { transform: rotateZ(105deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(9) { transform: rotateZ(120deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(10) { transform: rotateZ(135deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(11) { transform: rotateZ(150deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(12) { transform: rotateZ(165deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(13) { transform: rotateZ(180deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(14) { transform: rotateZ(195deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(15) { transform: rotateZ(210deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(16) { transform: rotateZ(225deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(17) { transform: rotateZ(240deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(18) { transform: rotateZ(255deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(19) { transform: rotateZ(270deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(20) { transform: rotateZ(285deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(21) { transform: rotateZ(300deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(22) { transform: rotateZ(315deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(23) { transform: rotateZ(330deg) translateY(-58px); }
+    .crm-faculty-dots .fdots:nth-child(5) .fdot:nth-child(24) { transform: rotateZ(345deg) translateY(-58px) translateZ(-40px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(1) { transform: rotateZ(0deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(2) { transform: rotateZ(10deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(3) { transform: rotateZ(20deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(4) { transform: rotateZ(30deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(5) { transform: rotateZ(40deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(6) { transform: rotateZ(50deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(7) { transform: rotateZ(60deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(8) { transform: rotateZ(70deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(9) { transform: rotateZ(80deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(10) { transform: rotateZ(90deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(11) { transform: rotateZ(100deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(12) { transform: rotateZ(110deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(13) { transform: rotateZ(120deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(14) { transform: rotateZ(130deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(15) { transform: rotateZ(140deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(16) { transform: rotateZ(150deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(17) { transform: rotateZ(160deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(18) { transform: rotateZ(170deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(19) { transform: rotateZ(180deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(20) { transform: rotateZ(190deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(21) { transform: rotateZ(200deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(22) { transform: rotateZ(210deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(23) { transform: rotateZ(220deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(24) { transform: rotateZ(230deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(25) { transform: rotateZ(240deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(26) { transform: rotateZ(250deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(27) { transform: rotateZ(260deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(28) { transform: rotateZ(270deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(29) { transform: rotateZ(280deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(30) { transform: rotateZ(290deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(31) { transform: rotateZ(300deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(32) { transform: rotateZ(310deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(33) { transform: rotateZ(320deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(34) { transform: rotateZ(330deg) translateY(-70px) translateZ(-20px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(35) { transform: rotateZ(340deg) translateY(-70px); }
+    .crm-faculty-dots .fdots:nth-child(6) .fdot:nth-child(36) { transform: rotateZ(350deg) translateY(-70px) translateZ(-20px); }
+    /* Class — balance balls */
+    .crm-class-balls {
+      text-align: center;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: 40px 0 20px;
+    }
+    .crm-class-balls .crm-cball {
+      display: block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 8px 5px, white 5%, black);
+      position: relative;
+      transform-origin: 50% -100px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+    }
+    .crm-class-balls .crm-cball:last-child { animation: crm_balance_right 1.2s infinite linear; }
+    .crm-class-balls .crm-cball:first-child { animation: crm_balance_left 1.2s infinite linear; }
+    @keyframes crm_balance_right {
+      0% { transform: rotate(0deg); animation-timing-function: linear; }
+      50% { transform: rotate(0deg); animation-timing-function: ease-out; }
+      75% { transform: rotate(-30deg); animation-timing-function: ease-in; }
+    }
+    @keyframes crm_balance_left {
+      0% { transform: rotate(0deg); animation-timing-function: ease-out; }
+      25% { transform: rotate(30deg); animation-timing-function: ease-in; }
+      50% { transform: rotate(0deg); animation-timing-function: linear; }
+    }
+    /* CA — typewriter */
+    .crm-ca-typewriter {
+      --blue: #8b5cf6;
+      --blue-dark: #fdba74;
+      --key: #fff;
+      --paper: #eef0fd;
+      --text: #d3d4ec;
+      --tool: #fbc56c;
+      --duration: 3s;
+      position: relative;
+      margin: 0 auto;
+      min-height: 72px;
+      padding: 6px 0 10px;
+      -webkit-animation: crm_ca_bounce var(--duration) linear infinite;
+      animation: crm_ca_bounce var(--duration) linear infinite;
+    }
+    .crm-ca-typewriter .crm-ca-slide {
+      position: relative;
+      width: 92px;
+      height: 20px;
+      border-radius: 3px;
+      margin-left: 14px;
+      transform: translateX(14px);
+      background: linear-gradient(var(--blue), var(--blue-dark));
+      -webkit-animation: crm_ca_slide var(--duration) ease infinite;
+      animation: crm_ca_slide var(--duration) ease infinite;
+    }
+    .crm-ca-typewriter .crm-ca-slide:before,
+    .crm-ca-typewriter .crm-ca-slide:after,
+    .crm-ca-typewriter .crm-ca-slide i:before {
+      content: "";
+      position: absolute;
+      background: var(--tool);
+    }
+    .crm-ca-typewriter .crm-ca-slide:before { width: 2px; height: 8px; top: 6px; left: 100%; }
+    .crm-ca-typewriter .crm-ca-slide:after { left: 94px; top: 3px; height: 14px; width: 6px; border-radius: 3px; }
+    .crm-ca-typewriter .crm-ca-slide i {
+      display: block;
+      position: absolute;
+      right: 100%;
+      width: 6px;
+      height: 4px;
+      top: 4px;
+      background: var(--tool);
+    }
+    .crm-ca-typewriter .crm-ca-slide i:before { right: 100%; top: -2px; width: 4px; border-radius: 2px; height: 14px; }
+    .crm-ca-typewriter .crm-ca-paper {
+      position: absolute;
+      left: 24px;
+      top: -26px;
+      width: 40px;
+      height: 46px;
+      border-radius: 5px;
+      background: var(--paper);
+      transform: translateY(46px);
+      -webkit-animation: crm_ca_paper var(--duration) linear infinite;
+      animation: crm_ca_paper var(--duration) linear infinite;
+    }
+    .crm-ca-typewriter .crm-ca-paper:before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 7px;
+      border-radius: 2px;
+      height: 4px;
+      transform: scaleY(0.8);
+      background: var(--text);
+      box-shadow: 0 12px 0 var(--text), 0 24px 0 var(--text), 0 36px 0 var(--text);
+    }
+    .crm-ca-typewriter .crm-ca-keyboard {
+      width: 120px;
+      height: 56px;
+      margin-top: -10px;
+      z-index: 1;
+      position: relative;
+    }
+    .crm-ca-typewriter .crm-ca-keyboard:before,
+    .crm-ca-typewriter .crm-ca-keyboard:after { content: ""; position: absolute; }
+    .crm-ca-typewriter .crm-ca-keyboard:before {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 7px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      transform: perspective(10px) rotateX(2deg);
+      transform-origin: 50% 100%;
+    }
+    .crm-ca-typewriter .crm-ca-keyboard:after {
+      left: 2px;
+      top: 25px;
+      width: 11px;
+      height: 4px;
+      border-radius: 2px;
+      box-shadow:
+        15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+        75px 0 0 var(--key), 90px 0 0 var(--key),
+        22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+        60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      -webkit-animation: crm_ca_keyboard var(--duration) linear infinite;
+      animation: crm_ca_keyboard var(--duration) linear infinite;
+    }
+    @keyframes crm_ca_bounce {
+      85%, 92%, 100% { transform: translateY(0); }
+      89% { transform: translateY(-4px); }
+      95% { transform: translateY(2px); }
+    }
+    @keyframes crm_ca_slide {
+      5% { transform: translateX(14px); }
+      15%, 30% { transform: translateX(6px); }
+      40%, 55% { transform: translateX(0); }
+      65%, 70% { transform: translateX(-4px); }
+      80%, 89% { transform: translateX(-12px); }
+      100% { transform: translateX(14px); }
+    }
+    @keyframes crm_ca_paper {
+      5% { transform: translateY(46px); }
+      20%, 30% { transform: translateY(34px); }
+      40%, 55% { transform: translateY(22px); }
+      65%, 70% { transform: translateY(10px); }
+      80%, 85% { transform: translateY(0); }
+      92%, 100% { transform: translateY(46px); }
+    }
+    @keyframes crm_ca_keyboard {
+      5%, 12%, 21%, 30%, 39%, 48%, 57%, 66%, 75%, 84% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      9% {
+        box-shadow:
+          15px 2px 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      18% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 2px 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      27% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 12px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      36% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 12px 0 var(--key),
+          60px 12px 0 var(--key), 68px 12px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      45% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 2px 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      54% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 2px 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      63% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 12px 0 var(--key);
+      }
+      72% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 2px 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 10px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+      81% {
+        box-shadow:
+          15px 0 0 var(--key), 30px 0 0 var(--key), 45px 0 0 var(--key), 60px 0 0 var(--key),
+          75px 0 0 var(--key), 90px 0 0 var(--key),
+          22px 10px 0 var(--key), 37px 12px 0 var(--key), 52px 10px 0 var(--key),
+          60px 10px 0 var(--key), 68px 10px 0 var(--key), 83px 10px 0 var(--key);
+      }
+    }
+    /* Notes — simplified 3D stack (StealthWorm-inspired, valid CSS) */
+    .crm-notes-loader {
+      margin: 0 auto;
+      display: flex;
+      width: 10rem;
+      height: 10rem;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      border-radius: 50%;
+      border: 0.35rem solid #52c5ff;
+      background: radial-gradient(circle at 50% 30%, #1a1a2e 0%, #0d1117 70%);
+    }
+    .crm-notes-loader .crm-nl-spin {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(82, 197, 255, 0.25);
+      border-top-color: #52c5ff;
+      border-radius: 50%;
+      animation: crm_nl_spin 1s linear infinite;
+    }
+    @keyframes crm_nl_spin { to { transform: rotate(360deg); } }
+    /* Achiever bar loader */
+    .crm-ach-bar-loader {
+      width: 90px;
+      height: 14px;
+      box-shadow: 0 3px 0 #c74d4d;
+      position: relative;
+      margin: 0 auto;
+      clip-path: inset(-40px 0 -5px);
+    }
+    .crm-ach-bar-loader:before {
+      content: "";
+      position: absolute;
+      inset: auto calc(50% - 17px) 0;
+      height: 50px;
+      --g: no-repeat linear-gradient(#d2d3e0 0 0);
+      background: var(--g), var(--g), var(--g), var(--g);
+      background-size: 16px 14px;
+      animation: crm_ach_l7_1 2s infinite linear, crm_ach_l7_2 2s infinite linear;
+    }
+    @keyframes crm_ach_l7_1 {
+      0%, 100% { background-position: 0 -50px, 100% -50px; }
+      17.5% { background-position: 0 100%, 100% -50px, 0 -50px, 100% -50px; }
+      35% { background-position: 0 100%, 100% 100%, 0 -50px, 100% -50px; }
+      52.5% { background-position: 0 100%, 100% 100%, 0 calc(100% - 16px), 100% -50px; }
+      70%, 98% { background-position: 0 100%, 100% 100%, 0 calc(100% - 16px), 100% calc(100% - 16px); }
+    }
+    @keyframes crm_ach_l7_2 {
+      0%, 70% { transform: translate(0); }
+      100% { transform: translate(200%); }
+    }
+    .loader {
+      --dur: 2s;
+      display: block;
+      margin: 0 auto 0.2rem;
+      width: 7.2em;
+      height: auto;
+    }
+    .loader__glare-top,
+    .loader__glare-bottom,
+    .loader__model,
+    .loader__motion-thick,
+    .loader__motion-medium,
+    .loader__motion-thin,
+    .loader__sand-drop,
+    .loader__sand-fill,
+    .loader__sand-grain-left,
+    .loader__sand-grain-right,
+    .loader__sand-line-left,
+    .loader__sand-line-right,
+    .loader__sand-mound-top,
+    .loader__sand-mound-bottom {
+      animation-duration: var(--dur);
+      animation-timing-function: cubic-bezier(0.83, 0, 0.17, 1);
+      animation-iteration-count: infinite;
+    }
+    .loader__glare-top { animation-name: glare-top; }
+    .loader__glare-bottom { animation-name: glare-bottom; }
+    .loader__model { animation-name: loader-flip; transform-origin: 12.25px 16.75px; }
+    .loader__motion-thick,
+    .loader__motion-medium,
+    .loader__motion-thin { transform-origin: 26px 26px; }
+    .loader__motion-thick { animation-name: motion-thick; }
+    .loader__motion-medium { animation-name: motion-medium; }
+    .loader__motion-thin { animation-name: motion-thin; }
+    .loader__sand-drop { animation-name: sand-drop; }
+    .loader__sand-fill { animation-name: sand-fill; }
+    .loader__sand-grain-left { animation-name: sand-grain-left; }
+    .loader__sand-grain-right { animation-name: sand-grain-right; }
+    .loader__sand-line-left { animation-name: sand-line-left; }
+    .loader__sand-line-right { animation-name: sand-line-right; }
+    .loader__sand-mound-top { animation-name: sand-mound-top; }
+    .loader__sand-mound-bottom { animation-name: sand-mound-bottom; transform-origin: 12.25px 31.5px; }
+    @keyframes pulse { from { transform: scale(0.9); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+    @keyframes loader-flip { from { transform: translate(13.75px, 9.25px) rotate(-180deg); } 24%, to { transform: translate(13.75px, 9.25px) rotate(0); } }
+    @keyframes glare-top { from { stroke: rgba(255,255,255,0); } 24%, to { stroke: white; } }
+    @keyframes glare-bottom { from { stroke: white; } 24%, to { stroke: rgba(255,255,255,0); } }
+    @keyframes motion-thick { from { animation-timing-function: cubic-bezier(0.33,0,0.67,0); stroke: rgba(255,255,255,0); stroke-dashoffset: 153.94; transform: rotate(0.67turn);} 20% { animation-timing-function: cubic-bezier(0.33,1,0.67,1); stroke: rgb(230,230,230); stroke-dashoffset: 141.11; transform: rotate(1turn);} 40%,to { stroke: rgba(255,255,255,0); stroke-dashoffset:153.94; transform: rotate(1.33turn);} }
+    @keyframes motion-medium { from,8% { animation-timing-function:cubic-bezier(0.33,0,0.67,0); stroke:rgba(255,255,255,0); stroke-dashoffset:153.94; transform:rotate(0.5turn);} 20% { animation-timing-function:cubic-bezier(0.33,1,0.67,1); stroke:white; stroke-dashoffset:147.53; transform:rotate(0.83turn);} 32%,to { stroke:rgba(255,255,255,0); stroke-dashoffset:153.94; transform:rotate(1.17turn);} }
+    @keyframes motion-thin { from,4% { animation-timing-function:cubic-bezier(0.33,0,0.67,0); stroke:rgba(255,255,255,0); stroke-dashoffset:153.94; transform:rotate(0.33turn);} 24% { animation-timing-function:cubic-bezier(0.33,1,0.67,1); stroke:rgb(180,180,180); stroke-dashoffset:134.7; transform:rotate(0.67turn);} 44%,to { stroke:rgba(255,255,255,0); stroke-dashoffset:153.94; transform:rotate(1turn);} }
+    @keyframes sand-drop { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:1; } 70%,to { stroke-dashoffset:-107; } }
+    @keyframes sand-fill { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:55; } 70%,to { stroke-dashoffset:-54; } }
+    @keyframes sand-grain-left { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:29; } 70%,to { stroke-dashoffset:-22; } }
+    @keyframes sand-grain-right { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:27; } 70%,to { stroke-dashoffset:-24; } }
+    @keyframes sand-line-left { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:53; } 70%,to { stroke-dashoffset:-55; } }
+    @keyframes sand-line-right { from,10% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); stroke-dashoffset:14; } 70%,to { stroke-dashoffset:-24.5; } }
+    @keyframes sand-mound-top { from,10% { animation-timing-function:linear; transform:translate(0,0);} 15% { animation-timing-function:cubic-bezier(0.12,0,0.39,0); transform:translate(0,1.5px);} 51%,to { transform:translate(0,13px);} }
+    @keyframes sand-mound-bottom { from,31% { animation-timing-function:cubic-bezier(0.61,1,0.88,1); transform:scale(1,0);} 56%,to { transform:scale(1,1);} }
+    @media (max-width: 900px) {
+      .reg-grid { grid-template-columns: 1fr; }
+      .reg-btns { flex-wrap: wrap; }
+    }
+    @media (max-width: 560px) {
+      .reg-btns {
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+    }
+  </style>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="crm-actions-panel">
+      <h3><i class="fa-solid fa-bolt" style="color: var(--accent)"></i> Quick Add Actions</h3>
+      <p id="students-api-meta" class="api-meta">Loading student records...</p>
+      <div class="radio-inputs" role="group" aria-label="Quick add actions">
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-student">
+            <span class="radio-icon"><i class="fa-solid fa-user-plus"></i></span>
+            <span class="radio-label">ADD STUDENT</span>
+          </span>
+        </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-faculty">
+            <span class="radio-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+            <span class="radio-label">ADD FACULTY</span>
+          </span>
+        </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-achievers-list">
+            <span class="radio-icon"><i class="fa-solid fa-trophy"></i></span>
+            <span class="radio-label">ADD ACHIEVERS LIST</span>
+          </span>
+        </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-ca">
+            <span class="radio-icon"><i class="fa-solid fa-newspaper"></i></span>
+            <span class="radio-label">ADD CA</span>
+          </span>
+        </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-class-room-images">
+            <span class="radio-icon"><i class="fa-solid fa-images"></i></span>
+            <span class="radio-label">ADD CLASS ROOM IMAGES</span>
+          </span>
+        </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-notes">
+            <span class="radio-icon"><i class="fa-solid fa-note-sticky"></i></span>
+            <span class="radio-label">ADD NOTES</span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <div id="add-student-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-student-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-student-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Student</h2>
+          <button type="button" class="reg-close" data-close-student-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <p class="reg-message">Fill details once and create a complete student profile.</p>
+
+        <div class="reg-grid">
+          <label>
+            <input id="sf-name" class="input" type="text" placeholder=" " required />
+            <span>Name</span>
+          </label>
+          <label>
+            <input id="sf-email" class="input" type="email" placeholder=" " required />
+            <span>Email</span>
+          </label>
+          <label>
+            <input id="sf-phone" class="input" type="tel" placeholder=" " required />
+            <span>Phone Number</span>
+          </label>
+          <label>
+            <input id="sf-org" class="input" type="text" placeholder=" " />
+            <span>School/College</span>
+          </label>
+          <label>
+            <input id="sf-stream" class="input" type="text" placeholder=" " />
+            <span>Stream</span>
+          </label>
+          <label>
+            <input id="sf-batch" class="input" type="text" placeholder=" " />
+            <span>Batch</span>
+          </label>
+          <label>
+            <select id="sf-branch" class="select">
+              <option value="">Select branch</option>
+              <option value="MALLESHWARM">MALLESHWARM</option>
+              <option value="JAYANAGAR">JAYANAGAR</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+            </select>
+            <span>Branch</span>
+          </label>
+          <label>
+            <input id="sf-source" class="input" type="text" placeholder=" " />
+            <span>Source of Information</span>
+          </label>
+          <label class="full">
+            <input id="sf-address" class="input" type="text" placeholder=" " />
+            <span>Address</span>
+          </label>
+          <label>
+            <input id="sf-target-year" class="input" type="text" placeholder=" " />
+            <span>Target Year</span>
+          </label>
+          <div>
+            <span style="display:block;font-size:0.72rem;color:#9ca3af;margin:0 0 0.3rem 0.2rem;">Date of Birth</span>
+            <div class="dob-row">
+              <select id="sf-dob-day"><option value="">Day</option></select>
+              <select id="sf-dob-month"><option value="">Month</option></select>
+              <select id="sf-dob-year"><option value="">Year</option></select>
+            </div>
+          </div>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="sf-image">Upload Image</label>
+              <input id="sf-image" type="file" accept="image/*" />
+            </div>
+            <div id="sf-image-name" class="upload-file-name">No file selected</div>
+          </div>
+        </div>
+
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset">
+            <span></span><span></span>Reset
+          </button>
+          <button type="submit" class="fancy-btn fancy-btn--submit">
+            <span></span><span></span>Submit
+          </button>
+        </div>
+        <p id="sf-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-achiever-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-achiever-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-achiever-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Achiever</h2>
+          <button type="button" class="reg-close" data-close-achiever-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <p class="reg-message">Record a top ranker or achiever with exam details and photo.</p>
+
+        <div class="reg-grid">
+          <label>
+            <input id="af-name" class="input" type="text" placeholder=" " required />
+            <span>Name</span>
+          </label>
+          <label>
+            <input id="af-percentage" class="input" type="text" placeholder=" " required />
+            <span>Percentage / Score</span>
+          </label>
+          <label>
+            <input id="af-exam" class="input" type="text" placeholder=" " required />
+            <span>Exam</span>
+          </label>
+          <label>
+            <input id="af-city" class="input" type="text" placeholder=" " required />
+            <span>City</span>
+          </label>
+          <label>
+            <select id="af-branch" class="select">
+              <option value="">Select branch</option>
+              <option value="MALLESHWARM">MALLESHWARM</option>
+              <option value="JAYANAGAR">JAYANAGAR</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+            </select>
+            <span>Branch</span>
+          </label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="af-image">Upload Image</label>
+              <input id="af-image" type="file" accept="image/*" required />
+            </div>
+            <div id="af-image-name" class="upload-file-name">No file selected</div>
+          </div>
+        </div>
+
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset">
+            <span></span><span></span>Reset
+          </button>
+          <button type="submit" class="fancy-btn fancy-btn--submit">
+            <span></span><span></span>Submit
+          </button>
+        </div>
+        <p id="af-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-student-success" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-success__card">
+      <i class="fa-solid fa-circle-check"></i>
+      <h4>Student Added Successfully</h4>
+      <p>The profile has been created and saved.</p>
+      <button id="close-success-popup" class="crm-success__close" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="add-student-error" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-success__card crm-success__card--error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <h4>Unable to Add Student</h4>
+      <p id="add-student-error-message">Something went wrong. Please try again.</p>
+      <button id="close-error-popup" class="crm-success__close" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="add-student-loading" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-loading__card">
+      <svg aria-label="Loading" role="img" viewBox="0 0 56 56" class="loader">
+        <clipPath id="sand-mound-top">
+          <path d="M 14.613 13.087 C 15.814 12.059 19.3 8.039 20.3 6.539 C 21.5 4.789 21.5 2.039 21.5 2.039 L 3 2.039 C 3 2.039 3 4.789 4.2 6.539 C 5.2 8.039 8.686 12.059 9.887 13.087 C 11 14.039 12.25 14.039 12.25 14.039 C 12.25 14.039 13.5 14.039 14.613 13.087 Z" class="loader__sand-mound-top"></path>
+        </clipPath>
+        <clipPath id="sand-mound-bottom">
+          <path d="M 14.613 20.452 C 15.814 21.48 19.3 25.5 20.3 27 C 21.5 28.75 21.5 31.5 21.5 31.5 L 3 31.5 C 3 31.5 3 28.75 4.2 27 C 5.2 25.5 8.686 21.48 9.887 20.452 C 11 19.5 12.25 19.5 12.25 19.5 C 12.25 19.5 13.5 19.5 14.613 20.452 Z" class="loader__sand-mound-bottom"></path>
+        </clipPath>
+        <g transform="translate(2,2)">
+          <g transform="rotate(-90,26,26)" stroke-linecap="round" stroke-dashoffset="153.94" stroke-dasharray="153.94 153.94" stroke="hsl(0,0%,100%)" fill="none">
+            <circle transform="rotate(0,26,26)" r="24.5" cy="26" cx="26" stroke-width="2.5" class="loader__motion-thick"></circle>
+            <circle transform="rotate(90,26,26)" r="24.5" cy="26" cx="26" stroke-width="1.75" class="loader__motion-medium"></circle>
+            <circle transform="rotate(180,26,26)" r="24.5" cy="26" cx="26" stroke-width="1" class="loader__motion-thin"></circle>
+          </g>
+          <g transform="translate(13.75,9.25)" class="loader__model">
+            <path d="M 1.5 2 L 23 2 C 23 2 22.5 8.5 19 12 C 16 15.5 13.5 13.5 13.5 16.75 C 13.5 20 16 18 19 21.5 C 22.5 25 23 31.5 23 31.5 L 1.5 31.5 C 1.5 31.5 2 25 5.5 21.5 C 8.5 18 11 20 11 16.75 C 11 13.5 8.5 15.5 5.5 12 C 2 8.5 1.5 2 1.5 2 Z" fill="hsl(208,90%,85%)"></path>
+            <g stroke-linecap="round" stroke="hsl(35,90%,90%)">
+              <line y2="20.75" x2="12" y1="15.75" x1="12" stroke-dasharray="0.25 33.75" stroke-width="1" class="loader__sand-grain-left"></line>
+              <line y2="21.75" x2="12.5" y1="16.75" x1="12.5" stroke-dasharray="0.25 33.75" stroke-width="1" class="loader__sand-grain-right"></line>
+              <line y2="31.5" x2="12.25" y1="18" x1="12.25" stroke-dasharray="0.5 107.5" stroke-width="1" class="loader__sand-drop"></line>
+              <line y2="31.5" x2="12.25" y1="14.75" x1="12.25" stroke-dasharray="54 54" stroke-width="1.5" class="loader__sand-fill"></line>
+              <g stroke-width="0" fill="hsl(35,90%,90%)">
+                <path d="M 12.25 15 L 15.392 13.486 C 21.737 11.168 22.5 2 22.5 2 L 2 2.013 C 2 2.013 2.753 11.046 9.009 13.438 L 12.25 15 Z" clip-path="url(#sand-mound-top)"></path>
+                <path d="M 12.25 18.5 L 15.392 20.014 C 21.737 22.332 22.5 31.5 22.5 31.5 L 2 31.487 C 2 31.487 2.753 22.454 9.009 20.062 Z" clip-path="url(#sand-mound-bottom)"></path>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <h4>Submitting student profile...</h4>
+      <p>Please wait while we upload and save details.</p>
+    </div>
+  </div>
+
+  <div id="add-achiever-loading" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-loading__card">
+      <div class="crm-ach-bar-loader" aria-hidden="true"></div>
+      <h4>Submitting achiever record...</h4>
+      <p>Please wait while we upload and save details.</p>
+    </div>
+  </div>
+
+  <div id="add-faculty-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-faculty-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-faculty-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Faculty</h2>
+          <button type="button" class="reg-close" data-close-faculty-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="reg-message">Submit to save faculty details. Login credentials are managed by the system.</p>
+        <div class="reg-grid">
+          <label><input id="ff-name" class="input" type="text" placeholder=" " required /><span>Name</span></label>
+          <label><input id="ff-email" class="input" type="email" placeholder=" " required /><span>Email</span></label>
+          <label><input id="ff-phone" class="input" type="tel" placeholder=" " required /><span>Phone</span></label>
+          <label><input id="ff-education" class="input" type="text" placeholder=" " /><span>Education</span></label>
+          <label><input id="ff-city" class="input" type="text" placeholder=" " /><span>City</span></label>
+          <label>
+            <select id="ff-branch" class="select"><option value="">Select branch</option><option value="MALLESHWARM">MALLESHWARM</option><option value="JAYANAGAR">JAYANAGAR</option><option value="YALAHANKA">YALAHANKA</option></select>
+            <span>Branch</span>
+          </label>
+          <label class="full"><input id="ff-address" class="input" type="text" placeholder=" " /><span>Address</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="ff-image">Photo</label>
+              <input id="ff-image" type="file" accept="image/*" />
+            </div>
+            <div id="ff-image-name" class="upload-file-name">No file selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset"><span></span><span></span>Reset</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="ff-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-class-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-class-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-class-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Class Room Images</h2>
+          <button type="button" class="reg-close" data-close-class-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="reg-message">Upload one or more images and set location.</p>
+        <div class="reg-grid">
+          <label class="full"><input id="cf-location" class="input" type="text" placeholder=" " required /><span>Location</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="cf-images">Images</label>
+              <input id="cf-images" type="file" accept="image/*" multiple />
+            </div>
+            <div id="cf-images-name" class="upload-file-name">No files selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset"><span></span><span></span>Reset</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="cf-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-ca-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-ca-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-ca-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Current Affairs</h2>
+          <button type="button" class="reg-close" data-close-ca-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reg-grid reg-grid--ca-top">
+          <div>
+            <span class="field-label-above">Date (optional)</span>
+            <div class="dob-row">
+              <select id="ca-date-day"><option value="">Day</option></select>
+              <select id="ca-date-month"><option value="">Month</option></select>
+              <select id="ca-date-year"><option value="">Year</option></select>
+            </div>
+          </div>
+          <div>
+            <span class="field-label-above">Title / Name (optional)</span>
+            <input id="ca-name" class="input input--stacked" type="text" placeholder="" autocomplete="off" />
+          </div>
+          <label class="full"><textarea id="ca-links" class="input" rows="2" placeholder=" " style="min-height:52px;padding-top:14px;"></textarea><span>Links (optional, one per line)</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="ca-files">Files (optional — images, PDF, Word)</label>
+              <input id="ca-files" type="file" multiple accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword" />
+            </div>
+            <div id="ca-files-name" class="upload-file-name">No files selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset"><span></span><span></span>Reset</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="ca-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-notes-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-notes-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-notes-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Notes</h2>
+          <button type="button" class="reg-close" data-close-notes-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reg-grid">
+          <label><input id="nf-date" class="input" type="date" required /><span>Date</span></label>
+          <label class="full"><input id="nf-details" class="input" type="text" placeholder=" " required maxlength="100" /><span>Details</span></label>
+          <label class="full"><textarea id="nf-links" class="input" rows="2" placeholder=" " style="min-height:52px;padding-top:14px;"></textarea><span>Links (one per line)</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="nf-files">Files</label>
+              <input id="nf-files" type="file" multiple accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword" />
+            </div>
+            <div id="nf-files-name" class="upload-file-name">No files selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset"><span></span><span></span>Reset</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="nf-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="crm-generic-success" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-success__card">
+      <i class="fa-solid fa-circle-check"></i>
+      <h4 id="crm-generic-success-title">Saved</h4>
+      <p id="crm-generic-success-msg">Done.</p>
+      <button id="crm-generic-success-close" class="crm-success__close" type="button">Close</button>
+    </div>
+  </div>
+  <div id="crm-generic-error" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-success__card crm-success__card--error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <h4 id="crm-generic-error-title">Something went wrong</h4>
+      <p id="crm-generic-error-msg">Please try again.</p>
+      <button id="crm-generic-error-close" class="crm-success__close" type="button">Close</button>
+    </div>
+  </div>
+  <div id="crm-generic-loading" class="crm-success" hidden>
+    <div class="crm-success__backdrop"></div>
+    <div class="crm-loading__card" style="min-height: 280px;">
+      <div id="crm-loader-faculty" class="crm-loader-panel" hidden>
+        <div class="crm-faculty-dots"><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div><div class="fdots"><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div></div></div>
+        <p class="crm-loader-caption">Adding faculty...</p>
+      </div>
+      <div id="crm-loader-class" class="crm-loader-panel" hidden>
+        <div class="crm-class-balls" aria-hidden="true">
+          <span class="crm-cball"></span><span class="crm-cball"></span><span class="crm-cball"></span><span class="crm-cball"></span><span class="crm-cball"></span>
+        </div>
+        <p class="crm-loader-caption">Uploading class images...</p>
+      </div>
+      <div id="crm-loader-ca" class="crm-loader-panel" hidden>
+        <div class="crm-ca-typewriter" aria-hidden="true">
+          <div class="crm-ca-slide"><i></i></div>
+          <div class="crm-ca-paper"></div>
+          <div class="crm-ca-keyboard"></div>
+        </div>
+        <p class="crm-loader-caption">Data Adding...</p>
+      </div>
+      <div id="crm-loader-notes" class="crm-loader-panel" hidden>
+        <div class="crm-notes-loader" aria-hidden="true"><div class="crm-nl-spin"></div></div>
+        <p class="crm-loader-caption">Saving notes...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'students.html', title: 'Students', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      var API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+      var modal = document.getElementById('add-student-modal');
+      var successPopup = document.getElementById('add-student-success');
+      var errorPopup = document.getElementById('add-student-error');
+      var errorMessageEl = document.getElementById('add-student-error-message');
+      var loadingPopup = document.getElementById('add-student-loading');
+      var form = document.getElementById('add-student-form');
+      var statusEl = document.getElementById('sf-status');
+      var apiMetaEl = document.getElementById('students-api-meta');
+      var imageInput = document.getElementById('sf-image');
+      var imageNameEl = document.getElementById('sf-image-name');
+      var daySelect = document.getElementById('sf-dob-day');
+      var monthSelect = document.getElementById('sf-dob-month');
+      var yearSelect = document.getElementById('sf-dob-year');
+      var studentsCache = [];
+
+      var achieverModal = document.getElementById('add-achiever-modal');
+      var achieverForm = document.getElementById('add-achiever-form');
+      var achieverLoadingPopup = document.getElementById('add-achiever-loading');
+      var achieverImageInput = document.getElementById('af-image');
+      var achieverImageNameEl = document.getElementById('af-image-name');
+      var ACHIEVE_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_achieve';
+      var FACULTY_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/faculty';
+      var CLASS_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/class';
+      var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
+      var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+
+      var facultyModal = document.getElementById('add-faculty-modal');
+      var classModal = document.getElementById('add-class-modal');
+      var caModal = document.getElementById('add-ca-modal');
+      var notesModal = document.getElementById('add-notes-modal');
+      var genericLoading = document.getElementById('crm-generic-loading');
+      var genericSuccess = document.getElementById('crm-generic-success');
+      var genericError = document.getElementById('crm-generic-error');
+
+      function openCrmModal(el) {
+        if (!el) return;
+        el.hidden = false;
+        requestAnimationFrame(function () { el.classList.add('open'); });
+      }
+      function closeCrmModal(el) {
+        if (!el) return;
+        el.classList.remove('open');
+        setTimeout(function () { el.hidden = true; }, 220);
+      }
+      function showGenericSuccess(title, msg) {
+        var t = document.getElementById('crm-generic-success-title');
+        var m = document.getElementById('crm-generic-success-msg');
+        if (t) t.textContent = title || 'Saved';
+        if (m) m.textContent = msg || '';
+        if (genericSuccess) genericSuccess.hidden = false;
+      }
+      function showGenericError(msg, title) {
+        var m = document.getElementById('crm-generic-error-msg');
+        var te = document.getElementById('crm-generic-error-title');
+        if (te) te.textContent = title || 'Something went wrong';
+        if (m) m.textContent = msg || 'Please try again.';
+        if (genericError) genericError.hidden = false;
+      }
+      var crmLoadingStartedAt = 0;
+      var CRM_LOADER_MIN_MS = 1800;
+
+      function showCrmLoading(kind) {
+        crmLoadingStartedAt = Date.now();
+        var panels = ['faculty', 'class', 'ca', 'notes'];
+        panels.forEach(function (k) {
+          var p = document.getElementById('crm-loader-' + k);
+          if (p) p.hidden = k !== kind;
+        });
+        if (genericLoading) genericLoading.hidden = false;
+      }
+      async function hideCrmLoading() {
+        var elapsed = Date.now() - crmLoadingStartedAt;
+        if (elapsed < CRM_LOADER_MIN_MS) {
+          await new Promise(function (resolve) {
+            setTimeout(resolve, CRM_LOADER_MIN_MS - elapsed);
+          });
+        }
+        if (genericLoading) genericLoading.hidden = true;
+      }
+      function randomPassword() {
+        var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+        var s = '';
+        for (var i = 0; i < 10; i += 1) s += chars[Math.floor(Math.random() * chars.length)];
+        return s;
+      }
+      async function uploadFileToBucket(apiBase, file, folderPrefix) {
+        if (!file) return null;
+        var fileName = folderPrefix + '/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(apiBase, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) throw new Error(signedData.message || 'Failed to get upload URL');
+        var putRes = await fetch(signedData.uploadUrl, { method: 'PUT', headers: { 'Content-Type': fileType }, body: file });
+        if (!putRes.ok) throw new Error('Upload failed');
+        return signedData.key || fileName;
+      }
+      async function uploadMany(apiBase, files, folderPrefix) {
+        var keys = [];
+        var list = files && files.length ? Array.prototype.slice.call(files) : [];
+        for (var i = 0; i < list.length; i += 1) {
+          keys.push(await uploadFileToBucket(apiBase, list[i], folderPrefix));
+        }
+        return keys;
+      }
+
+      Array.prototype.slice.call(document.querySelectorAll('.radio-tile')).forEach(function (tile) {
+        tile.addEventListener('click', function () {
+          var target = tile.getAttribute('data-go');
+          if (target === 'students.html#add-student') {
+            modal.hidden = false;
+            requestAnimationFrame(function () {
+              modal.classList.add('open');
+            });
+            return;
+          }
+          if (target === 'students.html#add-achievers-list') {
+            if (achieverModal) {
+              achieverModal.hidden = false;
+              requestAnimationFrame(function () {
+                achieverModal.classList.add('open');
+              });
+            }
+            return;
+          }
+          if (target === 'students.html#add-faculty') {
+            openCrmModal(facultyModal);
+            return;
+          }
+          if (target === 'students.html#add-class-room-images') {
+            openCrmModal(classModal);
+            return;
+          }
+          if (target === 'students.html#add-ca') {
+            openCrmModal(caModal);
+            return;
+          }
+          if (target === 'students.html#add-notes') {
+            openCrmModal(notesModal);
+            return;
+          }
+          if (target) window.location.href = target;
+        });
+      });
+
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-student-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () {
+          modal.classList.remove('open');
+          setTimeout(function () {
+            modal.hidden = true;
+          }, 220);
+        });
+      });
+
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-achiever-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () {
+          if (!achieverModal) return;
+          achieverModal.classList.remove('open');
+          setTimeout(function () {
+            achieverModal.hidden = true;
+          }, 220);
+        });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-faculty-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(facultyModal); });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-class-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(classModal); });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-ca-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(caModal); });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-notes-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(notesModal); });
+      });
+      var ffImage = document.getElementById('ff-image');
+      var ffImageName = document.getElementById('ff-image-name');
+      if (ffImage && ffImageName) {
+        ffImage.addEventListener('change', function () {
+          var f = ffImage.files && ffImage.files[0];
+          ffImageName.textContent = f ? f.name : 'No file selected';
+        });
+      }
+      var cfImages = document.getElementById('cf-images');
+      var cfImagesName = document.getElementById('cf-images-name');
+      if (cfImages && cfImagesName) {
+        cfImages.addEventListener('change', function () {
+          var n = cfImages.files ? cfImages.files.length : 0;
+          cfImagesName.textContent = n ? n + ' file(s) selected' : 'No files selected';
+        });
+      }
+      var caFiles = document.getElementById('ca-files');
+      var caFilesName = document.getElementById('ca-files-name');
+      if (caFiles && caFilesName) {
+        caFiles.addEventListener('change', function () {
+          var n = caFiles.files ? caFiles.files.length : 0;
+          caFilesName.textContent = n ? n + ' file(s) selected' : 'No files selected';
+        });
+      }
+      var nfFiles = document.getElementById('nf-files');
+      var nfFilesName = document.getElementById('nf-files-name');
+      if (nfFiles && nfFilesName) {
+        nfFiles.addEventListener('change', function () {
+          var n = nfFiles.files ? nfFiles.files.length : 0;
+          nfFilesName.textContent = n ? n + ' file(s) selected' : 'No files selected';
+        });
+      }
+      var gsClose = document.getElementById('crm-generic-success-close');
+      var geClose = document.getElementById('crm-generic-error-close');
+      if (gsClose && genericSuccess) gsClose.addEventListener('click', function () { genericSuccess.hidden = true; });
+      if (geClose && genericError) geClose.addEventListener('click', function () { genericError.hidden = true; });
+
+      function fillDobOptions() {
+        for (var d = 1; d <= 31; d += 1) {
+          var o1 = document.createElement('option');
+          o1.value = String(d).padStart(2, '0');
+          o1.textContent = String(d);
+          daySelect.appendChild(o1);
+        }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach(function (m, i) {
+          var o2 = document.createElement('option');
+          o2.value = String(i + 1).padStart(2, '0');
+          o2.textContent = m;
+          monthSelect.appendChild(o2);
+        });
+        var thisYear = new Date().getFullYear();
+        for (var y = thisYear - 10; y >= thisYear - 55; y -= 1) {
+          var o3 = document.createElement('option');
+          o3.value = String(y);
+          o3.textContent = String(y);
+          yearSelect.appendChild(o3);
+        }
+      }
+      fillDobOptions();
+
+      function fillCaDateOptions() {
+        var caDay = document.getElementById('ca-date-day');
+        var caMonth = document.getElementById('ca-date-month');
+        var caYear = document.getElementById('ca-date-year');
+        if (!caDay || !caMonth || !caYear) return;
+        for (var d = 1; d <= 31; d += 1) {
+          var o1 = document.createElement('option');
+          o1.value = String(d).padStart(2, '0');
+          o1.textContent = String(d);
+          caDay.appendChild(o1);
+        }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach(function (m, i) {
+          var o2 = document.createElement('option');
+          o2.value = String(i + 1).padStart(2, '0');
+          o2.textContent = m;
+          caMonth.appendChild(o2);
+        });
+        var thisYear = new Date().getFullYear();
+        for (var y = thisYear + 1; y >= thisYear - 15; y -= 1) {
+          var o3 = document.createElement('option');
+          o3.value = String(y);
+          o3.textContent = String(y);
+          caYear.appendChild(o3);
+        }
+      }
+      fillCaDateOptions();
+
+      imageInput.addEventListener('change', function () {
+        var f = imageInput.files && imageInput.files[0];
+        imageNameEl.textContent = f ? f.name : 'No file selected';
+      });
+
+      async function fetchStudents() {
+        try {
+          var res = await fetch(API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch students');
+          studentsCache = Array.isArray(data) ? data : [];
+          if (apiMetaEl) {
+            apiMetaEl.textContent = 'Connected. Total students: ' + studentsCache.length;
+          }
+        } catch (err) {
+          if (apiMetaEl) apiMetaEl.textContent = 'Retrieval failed: ' + err.message;
+        }
+      }
+      fetchStudents();
+
+      function safeFileName(name) {
+        return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '_');
+      }
+
+      async function uploadImageIfAny(file) {
+        if (!file) return null;
+        var fileName = 'student-images/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+
+        var signedRes = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Image upload failed');
+        return signedData.key || fileName;
+      }
+
+      async function uploadAchieverImageIfAny(file) {
+        if (!file) return null;
+        var fileName = 'achiever-images/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(ACHIEVE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Image upload failed');
+        return signedData.key || fileName;
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        statusEl.textContent = '';
+        var loadingStart = Date.now();
+        loadingPopup.hidden = false;
+        try {
+          var name = document.getElementById('sf-name').value.trim();
+          var email = document.getElementById('sf-email').value.trim();
+          var phone = document.getElementById('sf-phone').value.trim();
+          var previousOrg = document.getElementById('sf-org').value.trim();
+          var stream = document.getElementById('sf-stream').value.trim();
+          var batch = document.getElementById('sf-batch').value.trim();
+          var branch = document.getElementById('sf-branch').value.trim();
+          var source = document.getElementById('sf-source').value.trim();
+          var address = document.getElementById('sf-address').value.trim();
+          var targetYear = document.getElementById('sf-target-year').value.trim();
+          var day = daySelect.value;
+          var month = monthSelect.value;
+          var year = yearSelect.value;
+          var dob = year && month && day ? (year + '-' + month + '-' + day) : null;
+          var file = imageInput.files && imageInput.files[0];
+
+          if (!name || !email || !phone) {
+            throw new Error('Name, email, and phone are required');
+          }
+
+          var imgKey = await uploadImageIfAny(file);
+          var session = Auth.getSession ? Auth.getSession() : null;
+          var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+
+          var createRes = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+              phone: Number(phone),
+              dob: dob,
+              previous_organisation: previousOrg || null,
+              batch: batch || null,
+              branch: branch || null,
+              stream: stream || null,
+              address: address || null,
+              source_of_info: source || null,
+              targetYear: targetYear || null,
+              img_url: imgKey || null,
+              added_by: addedBy,
+            }),
+          });
+          var createData = await createRes.json();
+          if (!createRes.ok) throw new Error(createData.message || 'Failed to create student profile');
+
+          var elapsed = Date.now() - loadingStart;
+          if (elapsed < CRM_LOADER_MIN_MS) {
+            await new Promise(function (resolve) { setTimeout(resolve, CRM_LOADER_MIN_MS - elapsed); });
+          }
+
+          statusEl.textContent = '';
+          loadingPopup.hidden = true;
+          modal.classList.remove('open');
+          modal.hidden = true;
+          form.reset();
+          imageNameEl.textContent = 'No file selected';
+          daySelect.value = '';
+          monthSelect.value = '';
+          yearSelect.value = '';
+          await fetchStudents();
+          successPopup.hidden = false;
+        } catch (err) {
+          var elapsedErr = Date.now() - loadingStart;
+          if (elapsedErr < CRM_LOADER_MIN_MS) {
+            await new Promise(function (resolve) { setTimeout(resolve, CRM_LOADER_MIN_MS - elapsedErr); });
+          }
+          loadingPopup.hidden = true;
+          statusEl.textContent = '';
+          if (errorMessageEl) errorMessageEl.textContent = err.message || 'Something went wrong';
+          if (errorPopup) errorPopup.hidden = false;
+        }
+      });
+
+      var closeSuccess = document.getElementById('close-success-popup');
+      if (closeSuccess) {
+        closeSuccess.addEventListener('click', function () {
+          successPopup.hidden = true;
+        });
+      }
+      var closeError = document.getElementById('close-error-popup');
+      if (closeError) {
+        closeError.addEventListener('click', function () {
+          if (errorPopup) errorPopup.hidden = true;
+        });
+      }
+
+      if (achieverImageInput && achieverImageNameEl) {
+        achieverImageInput.addEventListener('change', function () {
+          var f = achieverImageInput.files && achieverImageInput.files[0];
+          achieverImageNameEl.textContent = f ? f.name : 'No file selected';
+        });
+      }
+
+      if (achieverForm) {
+        achieverForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var afStatus = document.getElementById('af-status');
+          if (afStatus) afStatus.textContent = '';
+          var loadingStart = Date.now();
+          if (achieverLoadingPopup) achieverLoadingPopup.hidden = false;
+          try {
+            var aname = document.getElementById('af-name').value.trim();
+            var pct = document.getElementById('af-percentage').value.trim();
+            var exam = document.getElementById('af-exam').value.trim();
+            var city = document.getElementById('af-city').value.trim();
+            var abranch = document.getElementById('af-branch').value.trim();
+            var afile = achieverImageInput && achieverImageInput.files && achieverImageInput.files[0];
+            if (!aname || !pct || !exam || !city) {
+              throw new Error('Name, percentage, exam, and city are required');
+            }
+            if (!afile) {
+              throw new Error('Please select an image');
+            }
+            var imgKey = await uploadAchieverImageIfAny(afile);
+            if (!imgKey) throw new Error('Image upload failed');
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var createRes = await fetch(ACHIEVE_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: aname,
+                percentage: pct,
+                exam: exam,
+                city: city,
+                branch: abranch || null,
+                img_url: imgKey,
+                added_by: addedBy,
+              }),
+            });
+            var createData = await createRes.json();
+            if (!createRes.ok) throw new Error(createData.message || 'Failed to save achiever');
+            var elapsed = Date.now() - loadingStart;
+            if (elapsed < CRM_LOADER_MIN_MS) {
+              await new Promise(function (resolve) { setTimeout(resolve, CRM_LOADER_MIN_MS - elapsed); });
+            }
+            if (achieverLoadingPopup) achieverLoadingPopup.hidden = true;
+            if (achieverModal) {
+              achieverModal.classList.remove('open');
+              achieverModal.hidden = true;
+            }
+            achieverForm.reset();
+            if (achieverImageNameEl) achieverImageNameEl.textContent = 'No file selected';
+            showGenericSuccess('Achiever added successfully', 'The record has been saved.');
+          } catch (err) {
+            var elapsedAchErr = Date.now() - loadingStart;
+            if (elapsedAchErr < CRM_LOADER_MIN_MS) {
+              await new Promise(function (resolve) { setTimeout(resolve, CRM_LOADER_MIN_MS - elapsedAchErr); });
+            }
+            if (achieverLoadingPopup) achieverLoadingPopup.hidden = true;
+            if (afStatus) afStatus.textContent = '';
+            showGenericError(err.message || 'Failed to add achiever.', 'Could not add achiever');
+          }
+        });
+      }
+
+      var facultyForm = document.getElementById('add-faculty-form');
+      if (facultyForm) {
+        facultyForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('ff-status');
+          if (st) st.textContent = '';
+          showCrmLoading('faculty');
+          try {
+            var imgEl = document.getElementById('ff-image');
+            var img = imgEl && imgEl.files && imgEl.files[0];
+            var imgKey = img ? await uploadFileToBucket(FACULTY_API_URL, img, 'faculty-images') : null;
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var pwd = randomPassword();
+            var res = await fetch(FACULTY_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: document.getElementById('ff-name').value.trim(),
+                email: document.getElementById('ff-email').value.trim(),
+                phone: Number(document.getElementById('ff-phone').value.trim()),
+                education: document.getElementById('ff-education').value.trim() || null,
+                city: document.getElementById('ff-city').value.trim() || null,
+                branch: document.getElementById('ff-branch').value.trim() || null,
+                address: document.getElementById('ff-address').value.trim() || null,
+                img_url: imgKey,
+                password: pwd,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to save faculty');
+            await hideCrmLoading();
+            closeCrmModal(facultyModal);
+            facultyForm.reset();
+            if (ffImageName) ffImageName.textContent = 'No file selected';
+            showGenericSuccess('Faculty added successfully', 'The record has been saved.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to add faculty.', 'Could not add faculty');
+          }
+        });
+      }
+
+      var classForm = document.getElementById('add-class-form');
+      if (classForm) {
+        classForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('cf-status');
+          if (st) st.textContent = '';
+          showCrmLoading('class');
+          try {
+            var files = document.getElementById('cf-images').files;
+            if (!files || !files.length) throw new Error('Select at least one image');
+            var keys = await uploadMany(CLASS_API_URL, files, 'class-images');
+            var loc = document.getElementById('cf-location').value.trim();
+            if (!loc) throw new Error('Location is required');
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(CLASS_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image_url: keys, location: loc, added_by: addedBy }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to save');
+            await hideCrmLoading();
+            closeCrmModal(classModal);
+            classForm.reset();
+            if (cfImagesName) cfImagesName.textContent = 'No files selected';
+            showGenericSuccess('Class images saved successfully', 'The record has been saved.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to save class images.', 'Could not save class images');
+          }
+        });
+      }
+
+      var caForm = document.getElementById('add-ca-form');
+      if (caForm) {
+        caForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('ca-status');
+          if (st) st.textContent = '';
+          showCrmLoading('ca');
+          try {
+            var caD = document.getElementById('ca-date-day');
+            var caM = document.getElementById('ca-date-month');
+            var caY = document.getElementById('ca-date-year');
+            var dv = caD && caD.value;
+            var mv = caM && caM.value;
+            var yv = caY && caY.value;
+            var dateStr = null;
+            if (dv || mv || yv) {
+              if (!dv || !mv || !yv) {
+                throw new Error('Select day, month, and year for the date, or leave all three empty.');
+              }
+              dateStr = yv + '-' + mv + '-' + dv;
+            }
+            var nameStr = document.getElementById('ca-name').value.trim();
+            var linksStr = document.getElementById('ca-links').value.trim();
+            var files = document.getElementById('ca-files').files;
+            var keys = files && files.length ? await uploadMany(CA_API_URL, files, 'ca-files') : [];
+            if (!dateStr && !nameStr && !linksStr && !keys.length) {
+              throw new Error('Add at least one of: date, title, links, or file upload.');
+            }
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(CA_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                date: dateStr,
+                name: nameStr || null,
+                img_url: keys.length ? keys : null,
+                links: linksStr || null,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to save');
+            await hideCrmLoading();
+            closeCrmModal(caModal);
+            caForm.reset();
+            if (caD) caD.value = '';
+            if (caM) caM.value = '';
+            if (caY) caY.value = '';
+            if (caFilesName) caFilesName.textContent = 'No files selected';
+            showGenericSuccess('Current affairs saved successfully', 'The record has been saved.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to save current affairs.', 'Could not save CA');
+          }
+        });
+      }
+
+      var notesForm = document.getElementById('add-notes-form');
+      if (notesForm) {
+        notesForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('nf-status');
+          if (st) st.textContent = '';
+          showCrmLoading('notes');
+          try {
+            var files = document.getElementById('nf-files').files;
+            var keys = files && files.length ? await uploadMany(NOTES_API_URL, files, 'notes-files') : [];
+            var linkText = document.getElementById('nf-links').value.trim();
+            var linkArr = linkText
+              ? linkText.split(/[\n,]+/).map(function (s) { return s.trim(); }).filter(Boolean)
+              : [];
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(NOTES_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                date: document.getElementById('nf-date').value,
+                details: document.getElementById('nf-details').value.trim(),
+                img_url: keys.length ? keys : null,
+                link: linkArr.length ? linkArr : null,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to save');
+            await hideCrmLoading();
+            closeCrmModal(notesModal);
+            notesForm.reset();
+            if (nfFilesName) nfFilesName.textContent = 'No files selected';
+            showGenericSuccess('Notes saved successfully', 'The record has been saved.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to save notes.', 'Could not save notes');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

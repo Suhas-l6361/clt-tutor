@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Performance Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --sidebar1: #2c5530;
+      --sidebar2: #4a7c59;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #e67e22;
+      --accent-light: #f8f9fa;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --label: #1e293b;
+      --input: #334155;
+      --subtle: #64748b;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #f1f5f9 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(230, 126, 34, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(44, 85, 48, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.05) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 10;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 100%;
+      height: 50px;
+      border-radius: 3px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: contain;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .sidebar-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      filter: none !important;
+      -webkit-filter: none !important;
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+      z-index: 1;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1.3px solid var(--border);
+      padding: 10px 32px 10px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(44, 85, 48, 0.1);
+    }
+    .top-bar .fa-chart-bar {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      right: 19px;
+      z-index: 9999;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px rgba(44, 85, 48, 0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .sidebar-hamburger.menu-open {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .sidebar-hamburger:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      transform: scale(1.05);
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(44, 85, 48, 0.2);
+      z-index: 899;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Performance Dashboard Styles */
+    .dashboard-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .dashboard-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--label);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--subtle);
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    /* Performance Trend Chart */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: 20px;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 16px;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--label);
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* Rank Display */
+    .rank-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .rank-card {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rank-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(230, 126, 34, 0.1) 0%, rgba(230, 126, 34, 0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .rank-card:hover::before {
+      width: 100%;
+    }
+
+    .rank-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .rank-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .rank-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 4px;
+    }
+
+    .rank-details {
+      font-size: 0.875rem;
+      color: var(--subtle);
+    }
+
+    .top-students {
+      margin-top: 20px;
+    }
+
+    .top-students h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .top-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .top-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: var(--accent-light);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .top-item:hover {
+      background: rgba(230, 126, 34, 0.1);
+      transform: translateX(4px);
+    }
+
+    .top-position {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .top-position.gold {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #1a1a1a;
+    }
+
+    .top-position.silver {
+      background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+      color: #1a1a1a;
+    }
+
+    .top-position.bronze {
+      background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+      color: white;
+    }
+
+    .top-name {
+      flex: 1;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--label);
+    }
+
+    .top-score {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* Progress Chart */
+    .progress-chart-container {
+      position: relative;
+      height: 250px;
+      margin-top: 20px;
+    }
+
+    /* Tips Section */
+    .tips-container {
+      margin-top: 20px;
+    }
+
+    .tip-item {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tip-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(230, 126, 34, 0.1) 0%, rgba(230, 126, 34, 0.05) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .tip-item:hover::before {
+      width: 100%;
+    }
+
+    .tip-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tip-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tip-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: white;
+    }
+
+    .tip-icon.improvement {
+      background: var(--green);
+    }
+
+    .tip-icon.strength {
+      background: var(--blue);
+    }
+
+    .tip-icon.warning {
+      background: var(--warning);
+    }
+
+    .tip-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--label);
+    }
+
+    .tip-content {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      line-height: 1.4;
+    }
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: fixed;
+      top: 78px;
+      right: 19px;
+      z-index: 9998;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    .language-toggle {
+      background: linear-gradient(135deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: fixed;
+      top: 130px;
+      right: 19px;
+      z-index: 9998;
+      box-shadow: 0 2px 12px rgba(44, 85, 48, 0.25);
+      min-width: 80px;
+    }
+
+    .language-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(44, 85, 48, 0.35);
+    }
+
+    .language-toggle:active {
+      transform: translateY(0);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 910;
+        transition: left 0.25s;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .rank-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 250px;
+      }
+
+      .progress-chart-container {
+        height: 200px;
+      }
+
+      .dashboard-section {
+        padding: 16px;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-container {
+        padding: 10px;
+      }
+      
+      .chart-container {
+        height: 200px;
+      }
+
+      .progress-chart-container {
+        height: 180px;
+      }
+
+      .rank-number {
+        font-size: 2rem;
+      }
+
+      .top-students h4 {
+        font-size: 0.875rem;
+      }
+
+      .top-item {
+        padding: 6px 8px;
+      }
+
+      .top-name {
+        font-size: 0.8rem;
+      }
+
+      .top-score {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar-hamburger {
+        display: block;
+        top: 18px;
+        right: 19px;
+        left: auto;
+      }
+    }
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+      .theme-toggle {
+        top: 78px;
+        right: 8px;
+      }
+      .language-toggle {
+        top: 130px;
+        right: 8px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        min-width: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="sidebar-icon"> <span class="translate" data-en="Home" data-kn="ಮುಖಪುಟ">Home</span></a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="sidebar-icon"> <span class="translate" data-en="Attendance" data-kn="ಹಾಜರಾತಿ">Attendance</span></a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" class="sidebar-icon"> <span class="translate" data-en="Assignments" data-kn="ಮನೆಕೆಲಸ">Assignments</span></a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" class="sidebar-icon"> <span class="translate" data-en="Timetable" data-kn="ಸಮಯ ಕೋಷ್ಟಕ">Timetable</span></a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" class="sidebar-icon"> <span class="translate" data-en="Marks" data-kn="ಅಂಕಗಳು">Marks</span></a></li>
+          <li><a href="./performance.html" class="active"><img src="./assets/performance.png" alt="Performance" class="sidebar-icon"> <span class="translate" data-en="Performance" data-kn="ಕಾರ್ಯಸಾಧನೆ">Performance</span></a></li>
+          <li><a href="./content_access.html"><img src="./assets/content sharing.png" alt="Content" class="sidebar-icon"> <span class="translate" data-en="Content" data-kn="ವಿಷಯ">Content</span></a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" class="sidebar-icon"> <span class="translate" data-en="Gallery" data-kn="ಚಿತ್ರಶಾಲೆ">Gallery</span></a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="sidebar-icon"> <span class="translate" data-en="Announcement" data-kn="ಪ್ರಕಟಣೆ">Announcement</span></a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="sidebar-icon"> <span class="translate" data-en="News" data-kn="ಸುದ್ದಿ">News</span></a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" class="sidebar-icon"> <span class="translate" data-en="Communication" data-kn="ಸಂವಹನ">Communication</span></a></li>
+          <li><a href="./Scholarship.html"><img src="./assets/scholarship.png" alt="Scholarships" class="sidebar-icon"> <span class="translate" data-en="Scholarships" data-kn="ವಿದ್ಯಾರ್ಥಿವೇತನ">Scholarships</span></a></li>
+          <li><a href="./explore.html"><img src="./assets/explore.png" alt="Explore" class="sidebar-icon"> <span class="translate" data-en="Explore" data-kn="ಅನ್ವೇಷಿಸಿ">Explore</span></a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" class="sidebar-icon"> <span class="translate" data-en="Fees" data-kn="ಶುಲ್ಕ">Fees</span></a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="sidebar-icon"> <span class="translate" data-en="Change Password" data-kn="ಗುಪ್ತಪದ ಬದಲಾಯಿಸಿ">Change Password</span></a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> <span class="translate" data-en="Logout" data-kn="ನಿರ್ಗಮಿಸು">Logout</span></a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <i class="fas fa-chart-bar"></i>
+        <span id="pageTitle">Performance Dashboard</span>
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+        <button class="language-toggle" id="languageToggle">ಕನ್ನಡ</button>
+      </div>
+      <div class="dashboard-container">
+        <!-- Performance Trend Chart -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div>
+              <div class="section-title">
+                <i class="fas fa-chart-line"></i>
+                <span class="translate" data-en="Subject-Wise Performance Trend" data-kn="ವಿಷಯದ ಪ್ರಕಾರ ಕಾರ್ಯಸಾಧನೆಯ ಪ್ರವೃತ್ತಿ">Subject-Wise Performance Trend</span>
+              </div>
+              <div class="section-subtitle translate" data-en="Track your progress across all subjects over time" data-kn="ಎಲ್ಲಾ ವಿಷಯಗಳಲ್ಲಿ ನಿಮ್ಮ ಪ್ರಗತಿಯನ್ನು ಪತ್ತೆಹಚ್ಚಿ">Track your progress across all subjects over time</div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: #3b82f6;"></div>
+              <span class="translate" data-en="Mathematics" data-kn="ಗಣಿತ">Mathematics</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #10b981;"></div>
+              <span class="translate" data-en="English" data-kn="ಇಂಗ್ಲೀಷ್">English</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #f59e0b;"></div>
+              <span class="translate" data-en="Science" data-kn="ವಿಜ್ಞಾನ">Science</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #8b5cf6;"></div>
+              <span class="translate" data-en="History" data-kn="ಇತಿಹಾಸ">History</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ef4444;"></div>
+              <span class="translate" data-en="Computer Science" data-kn="ಕಂಪ್ಯೂಟರ್ ವಿಜ್ಞಾನ">Computer Science</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rank Display -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div>
+              <div class="section-title">
+                <i class="fas fa-trophy"></i>
+                <span class="translate" data-en="Academic Rankings" data-kn="ಶೈಕ್ಷಣಿಕ ಶ್ರೇಯಾಂಕ">Academic Rankings</span>
+              </div>
+              <div class="section-subtitle translate" data-en="Your position among peers" data-kn="ಸಹಪಾಠಿಗಳಲ್ಲಿ ನಿಮ್ಮ ಸ್ಥಾನ">Your position among peers</div>
+            </div>
+          </div>
+          <div class="rank-cards">
+            <div class="rank-card">
+              <div class="rank-number">#5</div>
+              <div class="rank-label translate" data-en="Class Rank" data-kn="ತರಗತಿ ಶ್ರೇಯಾಂಕ">Class Rank</div>
+              <div class="rank-details translate" data-en="Out of 40 students" data-kn="40 ವಿದ್ಯಾರ್ಥಿಗಳಲ್ಲಿ">Out of 40 students</div>
+            </div>
+            <div class="rank-card">
+              <div class="rank-number">#2</div>
+              <div class="rank-label translate" data-en="Section Rank" data-kn="ವಿಭಾಗ ಶ್ರೇಯಾಂಕ">Section Rank</div>
+              <div class="rank-details translate" data-en="In Section B" data-kn="ವಿಭಾಗ B ನಲ್ಲಿ">In Section B</div>
+            </div>
+          </div>
+          <div class="top-students">
+            <h4 class="translate" data-en="Top 3 Performers" data-kn="ಉತ್ತಮ 3 ಮಂದಿ">Top 3 Performers</h4>
+            <div class="top-list">
+              <div class="top-item">
+                <div class="top-position gold">1</div>
+                <div class="top-name">Alex Smith</div>
+                <div class="top-score">95%</div>
+              </div>
+              <div class="top-item">
+                <div class="top-position silver">2</div>
+                <div class="top-name">Maria Johnson</div>
+                <div class="top-score">92%</div>
+              </div>
+              <div class="top-item">
+                <div class="top-position bronze">3</div>
+                <div class="top-name">David Wilson</div>
+                <div class="top-score">89%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Over Months -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div>
+              <div class="section-title">
+                <i class="fas fa-trending-up"></i>
+                <span class="translate" data-en="Overall Progress" data-kn="ಒಟ್ಟಾರೆ ಪ್ರಗತಿ">Overall Progress</span>
+              </div>
+              <div class="section-subtitle translate" data-en="Monthly performance trends" data-kn="ಮಾಸಿಕ ಕಾರ್ಯಸಾಧನೆಯ ಪ್ರವೃತ್ತಿ">Monthly performance trends</div>
+            </div>
+          </div>
+          <div class="progress-chart-container">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Tips for Improvement -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div>
+              <div class="section-title">
+                <i class="fas fa-lightbulb"></i>
+                <span class="translate" data-en="Personalized Tips" data-kn="ವೈಯಕ್ತಿಕ ಸಲಹೆಗಳು">Personalized Tips</span>
+              </div>
+              <div class="section-subtitle translate" data-en="AI-powered recommendations for improvement" data-kn="ಸುಧಾರಣೆಗಾಗಿ AI ಶಿಫಾರಸುಗಳು">AI-powered recommendations for improvement</div>
+            </div>
+          </div>
+          <div class="tips-container" id="tipsContainer">
+            <!-- Tips will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Hamburger & sidebar show/hide
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true;
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false;
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!menuOpen) openSidebar();
+      else closeSidebar();
+    });
+    
+    sidebarOverlay.addEventListener('click', function() {
+      closeSidebar();
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = false;
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--bg', '#0f0f0f');
+        document.documentElement.style.setProperty('--card', '#1a1a1a');
+        document.documentElement.style.setProperty('--border', '#404040');
+        document.documentElement.style.setProperty('--label', '#ffffff');
+        document.documentElement.style.setProperty('--input', '#e5e5e5');
+        document.documentElement.style.setProperty('--subtle', '#a0a0a0');
+        document.documentElement.style.setProperty('--accent-light', '#1a1a1a');
+        themeIcon.className = 'fas fa-sun';
+      } else {
+        document.documentElement.style.setProperty('--bg', '#f8f9fa');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#e2e8f0');
+        document.documentElement.style.setProperty('--label', '#1e293b');
+        document.documentElement.style.setProperty('--input', '#334155');
+        document.documentElement.style.setProperty('--subtle', '#64748b');
+        document.documentElement.style.setProperty('--accent-light', '#f8f9fa');
+        themeIcon.className = 'fas fa-moon';
+      }
+    });
+
+    // Performance Data
+    const performanceData = {
+      labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [
+        {
+          label: 'Mathematics',
+          data: [75, 82, 78, 85, 88, 92],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'English',
+          data: [88, 85, 90, 87, 92, 95],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Science',
+          data: [80, 83, 85, 82, 87, 89],
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'History',
+          data: [85, 88, 86, 90, 88, 91],
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Computer Science',
+          data: [90, 87, 92, 89, 94, 96],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    };
+
+    // Progress Data
+    const progressData = {
+      labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Overall Performance',
+        data: [83.6, 85.0, 86.2, 86.6, 89.8, 92.6],
+        borderColor: '#e67e22',
+        backgroundColor: 'rgba(230, 126, 34, 0.1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#e67e22',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6
+      }]
+    };
+
+    // Chart Configuration
+    const chartConfig = {
+      type: 'line',
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#e67e22',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              title: function(context) {
+                return context[0].label;
+              },
+              label: function(context) {
+                return context.dataset.label + ' – ' + context.parsed.y + ' marks';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#6c757d'
+            }
+          },
+          y: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#6c757d',
+              callback: function(value) {
+                return value + '%';
+              }
+            },
+            min: 60,
+            max: 100
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        }
+      }
+    };
+
+    // Initialize Charts
+    const performanceChart = new Chart(
+      document.getElementById('performanceChart'),
+      {
+        ...chartConfig,
+        data: performanceData
+      }
+    );
+
+    const progressChart = new Chart(
+      document.getElementById('progressChart'),
+      {
+        ...chartConfig,
+        data: progressData
+      }
+    );
+
+    // AI Tips Logic
+    const tipsData = [
+      {
+        type: 'improvement',
+        title: 'Mathematics Improvement',
+        content: 'Your Math score dropped for 2 months. Try these NCERT practice worksheets and focus on problem-solving techniques.',
+        icon: 'fas fa-calculator'
+      },
+      {
+        type: 'strength',
+        title: 'English Excellence',
+        content: 'You do best in English! Consider participating in essay competitions and creative writing workshops.',
+        icon: 'fas fa-book'
+      },
+      {
+        type: 'warning',
+        title: 'Science Consistency',
+        content: 'Science scores are fluctuating. Maintain regular study habits and practice lab work regularly.',
+        icon: 'fas fa-flask'
+      },
+      {
+        type: 'improvement',
+        title: 'Study Schedule',
+        content: 'Create a balanced study schedule focusing on weaker subjects while maintaining your strengths.',
+        icon: 'fas fa-clock'
+      }
+    ];
+
+    // Render Tips
+    function renderTips() {
+      const tipsContainer = document.getElementById('tipsContainer');
+      tipsContainer.innerHTML = '';
+
+      tipsData.forEach(tip => {
+        const tipElement = document.createElement('div');
+        tipElement.className = 'tip-item';
+        tipElement.innerHTML = `
+          <div class="tip-header">
+            <div class="tip-icon ${tip.type}">
+              <i class="${tip.icon}"></i>
+            </div>
+            <div class="tip-title">${tip.title}</div>
+          </div>
+          <div class="tip-content">${tip.content}</div>
+        `;
+        tipsContainer.appendChild(tipElement);
+      });
+    }
+
+    // Initialize the dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTips();
+    });
+
+    // Language Toggle Functionality
+    let currentLanguage = localStorage.getItem('selectedLanguage') || 'en'; // Load saved language or default to English
+
+    const translations = {
+      pageTitle: {
+        en: 'Performance Dashboard',
+        kn: 'ಕಾರ್ಯಸಾಧನೆಯ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್'
+      }
+    };
+
+    const tipTranslations = {
+      tips: [
+        {
+          type: 'improvement',
+          title: { en: 'Mathematics Improvement', kn: 'ಗಣಿತದಲ್ಲಿ ಸುಧಾರಣೆ' },
+          content: { 
+            en: 'Your Math score dropped for 2 months. Try these NCERT practice worksheets and focus on problem-solving techniques.',
+            kn: '2 ತಿಂಗಳಿಂದ ನಿಮ್ಮ ಗಣಿತದ ಅಂಕಗಳು ಕುಸಿದಿವೆ. NCERT ಅಭ್ಯಾಸ ಪತ್ರಿಕೆಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ ಮತ್ತು ಸಮಸ್ಯೆ ಪರಿಹರಿಸುವ ತಂತ್ರಗಳ ಮೇಲೆ ಗಮನ ಹರಿಸಿ.'
+          },
+          icon: 'fas fa-calculator'
+        },
+        {
+          type: 'strength',
+          title: { en: 'English Excellence', kn: 'ಇಂಗ್ಲೀಷ್‌ನಲ್ಲಿ ಉತ್ಕೃಷ್ಟತೆ' },
+          content: { 
+            en: 'You do best in English! Consider participating in essay competitions and creative writing workshops.',
+            kn: 'ನೀವು ಇಂಗ್ಲೀಷ್‌ನಲ್ಲಿ ಅತ್ಯುತ್ತಮವಾಗಿದ್ದೀರಿ! ಪ್ರಬಂಧ ಸ್ಪರ್ಧೆಗಳು ಮತ್ತು ಸೃಜನಶೀಲ ಬರವಣಿಗೆ ಕಾರ್ಯಾಗಾರಗಳಲ್ಲಿ ಭಾಗವಹಿಸಲು ಯೋಚಿಸಿ.'
+          },
+          icon: 'fas fa-book'
+        },
+        {
+          type: 'warning',
+          title: { en: 'Science Consistency', kn: 'ವಿಜ್ಞಾನದಲ್ಲಿ ಸ್ಥಿರತೆ' },
+          content: { 
+            en: 'Science scores are fluctuating. Maintain regular study habits and practice lab work regularly.',
+            kn: 'ವಿಜ್ಞಾನದ ಅಂಕಗಳು ಏರು ಪೇರಾಗುತ್ತಿವೆ. ನಿಯಮಿತ ಅಧ್ಯಯನದ ಅಭ್ಯಾಸವನ್ನು ಕಾಯ್ದುಕೊಳ್ಳಿ ಮತ್ತು ಪ್ರಯೋಗಾಲಯದ ಕೆಲಸವನ್ನು ನಿಯಮಿತವಾಗಿ ಅಭ್ಯಾಸ ಮಾಡಿ.'
+          },
+          icon: 'fas fa-flask'
+        },
+        {
+          type: 'improvement',
+          title: { en: 'Study Schedule', kn: 'ಅಧ್ಯಯನ ವೇಳಾಪಟ್ಟಿ' },
+          content: { 
+            en: 'Create a balanced study schedule focusing on weaker subjects while maintaining your strengths.',
+            kn: 'ನಿಮ್ಮ ಸಾಮರ್ಥ್ಯಗಳನ್ನು ಕಾಯ್ದುಕೊಂಡು ದುರ್ಬಲ ವಿಷಯಗಳ ಮೇಲೆ ಕೇಂದ್ರೀಕರಿಸುವ ಸಮತೋಲಿತ ಅಧ್ಯಯನ ವೇಳಾಪಟ್ಟಿಯನ್ನು ರಚಿಸಿ.'
+          },
+          icon: 'fas fa-clock'
+        }
+      ]
+    };
+
+    function switchLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'kn' : 'en';
+      
+      // Save language preference to localStorage
+      localStorage.setItem('selectedLanguage', currentLanguage);
+      
+      // Apply the language change
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      // Update language toggle button text
+      const languageToggle = document.getElementById('languageToggle');
+      languageToggle.textContent = currentLanguage === 'en' ? 'ಕನ್ನಡ' : 'English';
+      
+      // Update page title
+      document.getElementById('pageTitle').textContent = translations.pageTitle[currentLanguage];
+      
+      // Update all translatable elements
+      const translatableElements = document.querySelectorAll('.translate');
+      translatableElements.forEach(element => {
+        const enText = element.getAttribute('data-en');
+        const knText = element.getAttribute('data-kn');
+        
+        if (enText && knText) {
+          element.textContent = currentLanguage === 'en' ? enText : knText;
+        }
+      });
+      
+      // Update tips
+      renderTipsWithLanguage();
+      
+      // Update chart labels
+      updateChartLabels();
+    }
+
+    function renderTipsWithLanguage() {
+      const tipsContainer = document.getElementById('tipsContainer');
+      tipsContainer.innerHTML = '';
+
+      tipTranslations.tips.forEach(tip => {
+        const tipElement = document.createElement('div');
+        tipElement.className = 'tip-item';
+        tipElement.innerHTML = `
+          <div class="tip-header">
+            <div class="tip-icon ${tip.type}">
+              <i class="${tip.icon}"></i>
+            </div>
+            <div class="tip-title">${tip.title[currentLanguage]}</div>
+          </div>
+          <div class="tip-content">${tip.content[currentLanguage]}</div>
+        `;
+        tipsContainer.appendChild(tipElement);
+      });
+    }
+
+    function updateChartLabels() {
+      // Update Performance Chart labels
+      const subjectLabels = {
+        en: ['Mathematics', 'English', 'Science', 'History', 'Computer Science'],
+        kn: ['ಗಣಿತ', 'ಇಂಗ್ಲೀಷ್', 'ವಿಜ್ಞಾನ', 'ಇತಿಹಾಸ', 'ಕಂಪ್ಯೂಟರ್ ವಿಜ್ಞಾನ']
+      };
+
+      performanceChart.data.datasets.forEach((dataset, index) => {
+        dataset.label = subjectLabels[currentLanguage][index];
+      });
+      performanceChart.update();
+
+      // Update Progress Chart label
+      const progressLabel = {
+        en: 'Overall Performance',
+        kn: 'ಒಟ್ಟಾರೆ ಕಾರ್ಯಸಾಧನೆ'
+      };
+      progressChart.data.datasets[0].label = progressLabel[currentLanguage];
+      progressChart.update();
+    }
+
+    // Add event listener for language toggle
+    document.getElementById('languageToggle').addEventListener('click', switchLanguage);
+
+    // Apply saved language on page load
+    window.addEventListener('load', function() {
+      applyLanguage();
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/auth-protected.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking for Parents Module
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a parent
+            if (userData.userType !== 'parents' && userData.userType !== 'parent') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access parents module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access parent-only content');
+              
+              // Show security alert and redirect
+              alert(`🚫 Access Denied!\n\nThis module is restricted to parents only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ Parent authentication successful for performance:', userData);
+            
+            // Update UI with parent information
+            updateParentUI(userData);
+            
+            // Track parent activity
+            trackParentActivity(userData);
+            
+          } else {
+            console.log('❌ No valid session found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.error('❌ UserSession not available, redirecting to login');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Update UI with parent information
+    function updateParentUI(userData) {
+      // Update any user display elements
+      const userNameElements = document.querySelectorAll('.user-name, .parent-name, .welcome-text');
+      userNameElements.forEach(element => {
+        if (userData.name || userData.displayName) {
+          element.textContent = `Welcome, ${userData.name || userData.displayName}`;
+        }
+      });
+
+      // Update parent ID if displayed
+      const parentIdElements = document.querySelectorAll('.parent-id');
+      parentIdElements.forEach(element => {
+        if (userData.parent_userId || userData.id) {
+          element.textContent = `Parent ID: ${userData.parent_userId || userData.id}`;
+        }
+      });
+
+      console.log('✅ Parent UI updated with user data');
+    }
+
+    // Track parent activity for security monitoring
+    function trackParentActivity(userData) {
+      const activityData = {
+        timestamp: new Date().toISOString(),
+        userType: userData.userType,
+        userId: userData.parent_userId || userData.id,
+        page: 'performance',
+        action: 'page_access'
+      };
+      
+      console.log('📊 Parent activity tracked:', activityData);
+      
+      // Store activity in session storage for security monitoring
+      const activities = JSON.parse(sessionStorage.getItem('parent_activities') || '[]');
+      activities.push(activityData);
+      
+      // Keep only last 10 activities
+      if (activities.length > 10) {
+        activities.splice(0, activities.length - 10);
+      }
+      
+      sessionStorage.setItem('parent_activities', JSON.stringify(activities));
+    }
+
+    // Enhanced security: Monitor for suspicious activity
+    function monitorParentSecurity() {
+      const activities = JSON.parse(sessionStorage.getItem('parent_activities') || '[]');
+      const recentActivities = activities.filter(activity => {
+        const activityTime = new Date(activity.timestamp);
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        return activityTime > fiveMinutesAgo;
+      });
+
+      if (recentActivities.length > 20) {
+        console.warn('🚨 SECURITY WARNING: Unusual parent activity detected');
+        // Could implement additional security measures here
+      }
+    }
+
+    // Run security monitoring every minute
+    setInterval(monitorParentSecurity, 60000);
+
+    // Professional logout function for parents
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = '../login.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+

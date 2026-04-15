@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+    <title>BC360 - Student Analytics</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --danger: #ef5350;
+      --warning: #ffa726;
+      --info: #2196f3;
+      --note: #e6f2fa;
+      --paper: #fffbe6;
+      --video: #e8f7f1;
+      --link: #f6f2fa;
+      --saved: #ffe5e5;
+      --upcoming: #e8f5e8;
+      --completed: #f5f5f5;
+      --pending: #fff3e0;
+      --approved: #e8f5e8;
+      --rejected: #ffebee;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw;}
+    .sidebar {
+      width: var(--sidebar-width); min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.25rem; font-weight: 700; padding: 32px 0 14px 19px; letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px; border-radius: 9px; border: 1.5px solid #fff; background: #fff; object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center;
+      padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s ease; font-weight: 500; gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center;
+      gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh;
+      background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; padding: 20px; transition: margin-left 0.28s;
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff;
+      color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer; transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3; }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block; }
+
+    /* Analytics Dashboard Styles */
+    .analytics-container {
+      width: 100%;
+      max-width: 1400px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      transition: box-shadow 0.18s;
+    }
+    
+    .analytics-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--accent-light);
+    }
+    
+    .analytics-header i {
+      font-size: 2.2rem;
+      color: var(--accent);
+    }
+    
+    .analytics-header h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0;
+      line-height: 1.13;
+    }
+    
+    .analytics-filters {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .filter-label {
+      font-weight: 600;
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+    
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: white;
+      color: var(--input);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border 0.2s;
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .time-filter {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .time-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--input);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    
+    .time-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    
+    .time-btn:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+    
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .analytics-card {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 25px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .analytics-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(32, 145, 148, 0.15);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+    
+    .card-icon.engagement {
+      background: linear-gradient(135deg, var(--accent), #167e84);
+    }
+    
+    .card-icon.screen-time {
+      background: linear-gradient(135deg, var(--success), #1e8a4a);
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin: 0;
+    }
+    
+    .engagement-rankings {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s;
+    }
+    
+    .rank-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .rank-number {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
+    .rank-3 { background: linear-gradient(135deg, #CD7F32, #B8860B); }
+    .rank-other { background: var(--subtle); }
+    
+    .student-info {
+      flex: 1;
+    }
+    
+    .student-name {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 3px;
+    }
+    
+    .student-class {
+      font-size: 0.85rem;
+      color: var(--subtle);
+    }
+    
+    .engagement-stats {
+      text-align: right;
+    }
+    
+    .screen-time {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 3px;
+    }
+    
+    .content-count {
+      font-size: 0.85rem;
+      color: var(--subtle);
+    }
+    
+    .screen-time-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .time-category {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    
+    .category-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .category-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: white;
+    }
+    
+    .icon-notes { background: var(--info); }
+    .icon-videos { background: var(--accent); }
+    .icon-assignments { background: var(--warning); }
+    .icon-quizzes { background: var(--success); }
+    
+    .category-name {
+      font-weight: 500;
+      color: var(--label);
+    }
+    
+    .category-time {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .total-time {
+      margin-top: 20px;
+      padding: 15px;
+      background: var(--accent-light);
+      border-radius: 8px;
+      text-align: center;
+      border: 2px solid var(--accent);
+    }
+    
+    .total-time-label {
+      font-size: 0.9rem;
+      color: var(--subtle);
+      margin-bottom: 5px;
+    }
+    
+    .total-time-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .student-detail-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--subtle);
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+    
+    .chart-container {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .chart-title {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .performance-prediction {
+      grid-column: 1 / -1;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    
+    .prediction-high {
+      background: #e8f5e8;
+      border: 2px solid var(--success);
+    }
+    
+    .prediction-moderate {
+      background: #fff3e0;
+      border: 2px solid var(--warning);
+    }
+    
+    .prediction-low {
+      background: #ffebee;
+      border: 2px solid var(--danger);
+    }
+    
+    .prediction-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    
+    .prediction-title {
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .prediction-high .prediction-title { color: var(--success); }
+    .prediction-moderate .prediction-title { color: var(--warning); }
+    .prediction-low .prediction-title { color: var(--danger); }
+    
+    .prediction-message {
+      color: var(--subtle);
+      font-size: 0.95rem;
+    }
+    
+    @media (max-width: 768px) {
+      .analytics-container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      .analytics-header h2 {
+        font-size: 1.8rem;
+      }
+      
+      .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .analytics-filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Custom Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .popup {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transform: scale(0.7);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    
+    .popup-overlay.show .popup {
+      transform: scale(1);
+    }
+    
+    .popup-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    
+    .popup-icon.success {
+      color: var(--success);
+    }
+    
+    .popup-icon.error {
+      color: var(--danger);
+    }
+    
+    .popup-icon.warning {
+      color: var(--warning);
+    }
+    
+    .popup-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--input);
+    }
+    
+    .popup-message {
+      font-size: 1rem;
+      color: var(--subtle);
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    
+    .popup-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    
+    .popup-btn:hover {
+      background: #167e84;
+      transform: translateY(-2px);
+    }
+    
+    .popup-btn.error {
+      background: var(--danger);
+    }
+    
+    .popup-btn.error:hover {
+      background: #d32f2f;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .change-password-container { 
+        padding: 20px; 
+        margin: 20px;
+      }
+      .cp-btn-row { 
+        flex-direction: column; 
+        gap: 12px;
+      }
+      .cp-btn { 
+        width: 100%; 
+        justify-content: center; 
+      }
+      .popup {
+        padding: 25px 20px;
+        margin: 20px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .change-password-container { 
+        padding: 16px; 
+        margin: 10px;
+      }
+      .change-password-header h2 { 
+        font-size: 1.8rem; 
+      }
+      .change-password-label { 
+        font-size: 1.1rem; 
+      }
+      .cp-input { 
+        font-size: 1rem; 
+        padding: 12px 10px; 
+      }
+      .popup {
+        padding: 20px 15px;
+        margin: 15px;
+      }
+      .popup-title {
+        font-size: 1.2rem;
+      }
+      .popup-message {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <!-- Custom Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup" id="popup">
+      <div class="popup-icon" id="popupIcon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="popup-title" id="popupTitle">Success!</div>
+      <div class="popup-message" id="popupMessage">Your password has been changed successfully.</div>
+      <button class="popup-btn" id="popupBtn">OK</button>
+    </div>
+  </div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" class="active"><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="analytics-container">
+        <div class="analytics-header">
+          <i class="fas fa-chart-line"></i>
+          <h2>Screen Time Analytics & Engagement Ranking</h2>
+        </div>
+        
+        <!-- Filters -->
+        <div class="analytics-filters">
+          <div class="filter-group">
+            <label class="filter-label">Class:</label>
+            <select class="filter-select" id="classFilter">
+              <option value="all">All Classes</option>
+              <option value="6A">Class 6A</option>
+              <option value="6B">Class 6B</option>
+              <option value="7A">Class 7A</option>
+              <option value="7B">Class 7B</option>
+              <option value="8A">Class 8A</option>
+              <option value="8B">Class 8B</option>
+              <option value="9A">Class 9A</option>
+              <option value="9B">Class 9B</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Subject:</label>
+            <select class="filter-select" id="subjectFilter">
+              <option value="all">All Subjects</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="english">English</option>
+              <option value="history">History</option>
+              <option value="geography">Geography</option>
+            </select>
+          </div>
+          
+          <div class="time-filter">
+            <button class="time-btn active" data-period="7">Last 7 Days</button>
+            <button class="time-btn" data-period="30">Last 30 Days</button>
+            <button class="time-btn" data-period="term">This Term</button>
+          </div>
+        </div>
+        
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+          <!-- Engagement Rankings -->
+          <div class="analytics-card">
+            <div class="card-header">
+              <div class="card-icon engagement">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <h3 class="card-title">Engagement Rankings</h3>
+            </div>
+            <div class="engagement-rankings" id="engagementRankings">
+              <!-- Rankings will be populated by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Screen Time Breakdown -->
+          <div class="analytics-card">
+            <div class="card-header">
+              <div class="card-icon screen-time">
+                <i class="fas fa-clock"></i>
+              </div>
+              <h3 class="card-title">Screen Time Breakdown</h3>
+            </div>
+            <div class="screen-time-breakdown" id="screenTimeBreakdown">
+              <!-- Screen time will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Student Detail Modal -->
+      <div class="student-detail-modal" id="studentModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Student Analytics</h3>
+            <button class="close-modal" onclick="closeStudentModal()">&times;</button>
+          </div>
+          <div class="modal-grid">
+            <div class="chart-container">
+              <h4 class="chart-title">Daily Screen Time (Last 7 Days)</h4>
+              <div id="dailyChart" style="height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--subtle);">
+                Chart visualization would appear here
+              </div>
+            </div>
+            <div class="chart-container">
+              <h4 class="chart-title">Content Type Distribution</h4>
+              <div id="pieChart" style="height: 200px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--subtle);">
+                Pie chart would appear here
+              </div>
+            </div>
+            <div class="performance-prediction" id="performancePrediction">
+              <!-- Performance prediction will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Sample analytics data
+    const analyticsData = {
+      students: [
+        {
+          id: 1,
+          name: "Ankit R.",
+          class: "9A",
+          totalTime: "5h 17m",
+          contentCount: 32,
+          screenTime: {
+            notes: "1h 12m",
+            videos: "3h 40m",
+            assignments: "25m",
+            quizzes: "0m"
+          },
+          dailyData: [45, 67, 89, 34, 78, 92, 56],
+          contentDistribution: {
+            notes: 25,
+            videos: 60,
+            assignments: 10,
+            quizzes: 5
+          },
+          performance: "high"
+        },
+        {
+          id: 2,
+          name: "Mansi K.",
+          class: "9A",
+          totalTime: "4h 52m",
+          contentCount: 28,
+          screenTime: {
+            notes: "1h 30m",
+            videos: "2h 45m",
+            assignments: "37m",
+            quizzes: "0m"
+          },
+          dailyData: [38, 45, 67, 89, 56, 78, 34],
+          contentDistribution: {
+            notes: 30,
+            videos: 55,
+            assignments: 12,
+            quizzes: 3
+          },
+          performance: "high"
+        },
+        {
+          id: 3,
+          name: "Raghav P.",
+          class: "9A",
+          totalTime: "4h 25m",
+          contentCount: 26,
+          screenTime: {
+            notes: "1h 5m",
+            videos: "2h 30m",
+            assignments: "50m",
+            quizzes: "0m"
+          },
+          dailyData: [23, 45, 67, 34, 56, 78, 89],
+          contentDistribution: {
+            notes: 20,
+            videos: 65,
+            assignments: 15,
+            quizzes: 0
+          },
+          performance: "moderate"
+        },
+        {
+          id: 4,
+          name: "Priya S.",
+          class: "8B",
+          totalTime: "3h 15m",
+          contentCount: 18,
+          screenTime: {
+            notes: "45m",
+            videos: "2h 10m",
+            assignments: "20m",
+            quizzes: "0m"
+          },
+          dailyData: [12, 23, 34, 45, 56, 67, 78],
+          contentDistribution: {
+            notes: 15,
+            videos: 70,
+            assignments: 10,
+            quizzes: 5
+          },
+          performance: "moderate"
+        },
+        {
+          id: 5,
+          name: "Aditya V.",
+          class: "7A",
+          totalTime: "2h 30m",
+          contentCount: 15,
+          screenTime: {
+            notes: "30m",
+            videos: "1h 45m",
+            assignments: "15m",
+            quizzes: "0m"
+          },
+          dailyData: [8, 15, 23, 34, 45, 56, 67],
+          contentDistribution: {
+            notes: 10,
+            videos: 80,
+            assignments: 8,
+            quizzes: 2
+          },
+          performance: "low"
+        }
+      ]
+    };
+
+    let currentPeriod = 7;
+    let currentClass = 'all';
+    let currentSubject = 'all';
+
+    // Initialize analytics
+    function initializeAnalytics() {
+      renderEngagementRankings();
+      renderScreenTimeBreakdown();
+      setupEventListeners();
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Time period buttons
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentPeriod = parseInt(this.dataset.period);
+          updateAnalytics();
+        });
+      });
+
+      // Filter selects
+      document.getElementById('classFilter').addEventListener('change', function() {
+        currentClass = this.value;
+        updateAnalytics();
+      });
+
+      document.getElementById('subjectFilter').addEventListener('change', function() {
+        currentSubject = this.value;
+        updateAnalytics();
+      });
+    }
+
+    // Render engagement rankings
+    function renderEngagementRankings() {
+      const container = document.getElementById('engagementRankings');
+      container.innerHTML = '';
+
+      analyticsData.students.forEach((student, index) => {
+        const rankItem = document.createElement('div');
+        rankItem.className = 'rank-item';
+        rankItem.onclick = () => openStudentModal(student);
+
+        const rankClass = index < 3 ? `rank-${index + 1}` : 'rank-other';
+        const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+
+        rankItem.innerHTML = `
+          <div class="rank-number ${rankClass}">${index + 1}</div>
+          <div class="student-info">
+            <div class="student-name">${rankEmoji} ${student.name}</div>
+            <div class="student-class">${student.class}</div>
+          </div>
+          <div class="engagement-stats">
+            <div class="screen-time">${student.totalTime}</div>
+            <div class="content-count">${student.contentCount} contents</div>
+          </div>
+        `;
+
+        container.appendChild(rankItem);
+      });
+    }
+
+    // Render screen time breakdown
+    function renderScreenTimeBreakdown() {
+      const container = document.getElementById('screenTimeBreakdown');
+      container.innerHTML = '';
+
+      // Get average screen time across all students
+      const avgScreenTime = {
+        notes: "1h 4m",
+        videos: "2h 42m",
+        assignments: "29m",
+        quizzes: "0m"
+      };
+
+      const categories = [
+        { key: 'videos', name: 'Video Lectures', icon: 'fas fa-play', time: avgScreenTime.videos },
+        { key: 'notes', name: 'Study Notes', icon: 'fas fa-file-alt', time: avgScreenTime.notes },
+        { key: 'assignments', name: 'Assignments', icon: 'fas fa-tasks', time: avgScreenTime.assignments },
+        { key: 'quizzes', name: 'Quizzes', icon: 'fas fa-question-circle', time: avgScreenTime.quizzes }
+      ];
+
+      categories.forEach(category => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'time-category';
+
+        categoryDiv.innerHTML = `
+          <div class="category-info">
+            <div class="category-icon icon-${category.key}">
+              <i class="${category.icon}"></i>
+            </div>
+            <div class="category-name">${category.name}</div>
+          </div>
+          <div class="category-time">${category.time}</div>
+        `;
+
+        container.appendChild(categoryDiv);
+      });
+
+      // Add total time
+      const totalDiv = document.createElement('div');
+      totalDiv.className = 'total-time';
+      totalDiv.innerHTML = `
+        <div class="total-time-label">Total Average Screen Time</div>
+        <div class="total-time-value">4h 15m</div>
+      `;
+      container.appendChild(totalDiv);
+    }
+
+    // Open student detail modal
+    function openStudentModal(student) {
+      document.getElementById('modalTitle').textContent = `${student.name} - ${student.class} Analytics`;
+      document.getElementById('studentModal').style.display = 'flex';
+      
+      renderPerformancePrediction(student);
+    }
+
+    // Close student modal
+    function closeStudentModal() {
+      document.getElementById('studentModal').style.display = 'none';
+    }
+
+    // Render performance prediction
+    function renderPerformancePrediction(student) {
+      const container = document.getElementById('performancePrediction');
+      
+      let predictionClass, icon, title, message;
+      
+      switch(student.performance) {
+        case 'high':
+          predictionClass = 'prediction-high';
+          icon = 'fas fa-arrow-up';
+          title = '✅ Consistent Learner';
+          message = 'Student shows excellent engagement patterns. Likely to maintain or improve performance.';
+          break;
+        case 'moderate':
+          predictionClass = 'prediction-moderate';
+          icon = 'fas fa-minus';
+          title = '⚠️ Moderate Engagement';
+          message = 'Student has decent engagement but could improve. Consider additional support.';
+          break;
+        case 'low':
+          predictionClass = 'prediction-low';
+          icon = 'fas fa-arrow-down';
+          title = '⚠️ Likely Drop in Performance';
+          message = 'Low engagement detected. Immediate intervention recommended.';
+          break;
+      }
+
+      container.className = `performance-prediction ${predictionClass}`;
+      container.innerHTML = `
+        <div class="prediction-icon">
+          <i class="${icon}"></i>
+        </div>
+        <div class="prediction-title">${title}</div>
+        <div class="prediction-message">${message}</div>
+      `;
+    }
+
+    // Update analytics based on filters
+    function updateAnalytics() {
+      // In a real application, this would fetch filtered data from the server
+      // For now, we'll just re-render with current data
+      renderEngagementRankings();
+      renderScreenTimeBreakdown();
+    }
+
+    // Custom Popup Functions
+    function showPopup(type, title, message) {
+      const popupOverlay = document.getElementById('popupOverlay');
+      const popupIcon = document.getElementById('popupIcon');
+      const popupTitle = document.getElementById('popupTitle');
+      const popupMessage = document.getElementById('popupMessage');
+      const popupBtn = document.getElementById('popupBtn');
+      
+      // Set icon based on type
+      popupIcon.className = 'popup-icon ' + type;
+      if (type === 'success') {
+        popupIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        popupBtn.className = 'popup-btn';
+      } else if (type === 'error') {
+        popupIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+        popupBtn.className = 'popup-btn error';
+      } else if (type === 'warning') {
+        popupIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        popupBtn.className = 'popup-btn';
+      }
+      
+      popupTitle.textContent = title;
+      popupMessage.textContent = message;
+      
+      popupOverlay.classList.add('show');
+      
+      // Close popup when clicking OK button
+      popupBtn.onclick = function() {
+        popupOverlay.classList.remove('show');
+      };
+      
+      // Close popup when clicking overlay
+      popupOverlay.onclick = function(e) {
+        if (e.target === popupOverlay) {
+          popupOverlay.classList.remove('show');
+        }
+      };
+      
+      // Auto close success popup after 3 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          popupOverlay.classList.remove('show');
+        }, 3000);
+      }
+    }
+
+    // Initialize the analytics system
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeAnalytics();
+    });
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

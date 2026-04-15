@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Subject Treasure Hunt</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --orange: #f97316;
+      --green: #10b981;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .back-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .game-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      flex: 1;
+    }
+
+    .progress-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--label);
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--orange));
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .score-display {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .map-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .map-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .map-tile {
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--accent-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-tile.locked {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+    }
+
+    .map-tile.unlocked {
+      background: linear-gradient(135deg, var(--green), var(--accent));
+      color: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    .map-tile.completed {
+      background: linear-gradient(135deg, var(--success), var(--green));
+      color: white;
+      border-color: var(--success);
+    }
+
+    .map-tile:hover:not(.locked) {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+    }
+
+    .map-tile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border-radius: 8px;
+    }
+
+    .question-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      color: var(--label);
+      margin-bottom: 25px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .option-button {
+      background: var(--accent-light);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 1rem;
+      color: var(--label);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option-button:hover {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+      transform: translateX(5px);
+    }
+
+    .option-button.correct {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .option-button.incorrect {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .option-button.selected {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.2);
+    }
+
+    .feedback-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback-message.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .feedback-message.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .next-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .next-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .next-button:disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .treasure-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .treasure-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .treasure-content {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .treasure-modal.show .treasure-content {
+      transform: scale(1);
+    }
+
+    .treasure-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    .treasure-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    .treasure-message {
+      color: var(--label);
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .treasure-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .treasure-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .game-area {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .progress-info {
+        justify-content: center;
+      }
+      
+      .map-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-header">
+      <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Games
+      </button>
+      <h1 class="game-title">🗺️ Subject Treasure Hunt</h1>
+      <div class="progress-info">
+        <span class="score-display">Score: <span id="score">0</span></span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <span>Progress: <span id="progress">0</span>/16</span>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="map-container">
+        <h2 class="map-title">📚 Knowledge Map</h2>
+        <div class="map-grid" id="mapGrid">
+          <!-- Map tiles will be generated by JavaScript -->
+        </div>
+      </div>
+
+      <div class="question-container">
+        <h2 class="question-title">❓ Current Challenge</h2>
+        <div id="questionText" class="question-text">
+          Click on an unlocked tile to start your adventure!
+        </div>
+        <div class="options-container" id="optionsContainer">
+          <!-- Options will be generated by JavaScript -->
+        </div>
+        <div class="feedback-message" id="feedbackMessage"></div>
+        <button class="next-button" id="nextButton" onclick="nextQuestion()" disabled>
+          Next Question
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Treasure Modal -->
+  <div class="treasure-modal" id="treasureModal">
+    <div class="treasure-content">
+      <div class="treasure-icon">🏆</div>
+      <h2 class="treasure-title">Treasure Found!</h2>
+      <p class="treasure-message" id="treasureMessage">
+        Congratulations! You've unlocked a new area and found a treasure!
+      </p>
+      <button class="treasure-button" onclick="closeTreasureModal()">
+        Continue Adventure
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Game data
+    const gameData = {
+      currentTile: null,
+      score: 0,
+      progress: 0,
+      completedTiles: new Set(),
+      unlockedTiles: new Set([0]), // Start with first tile unlocked
+      questions: [
+        {
+          id: 1,
+          question: "What is the capital of France?",
+          options: ["London", "Berlin", "Paris", "Madrid"],
+          correct: 2,
+          subject: "Geography"
+        },
+        {
+          id: 2,
+          question: "Which planet is known as the Red Planet?",
+          options: ["Venus", "Mars", "Jupiter", "Saturn"],
+          correct: 1,
+          subject: "Science"
+        },
+        {
+          id: 3,
+          question: "What is 15 × 7?",
+          options: ["95", "105", "115", "125"],
+          correct: 1,
+          subject: "Mathematics"
+        },
+        {
+          id: 4,
+          question: "Who wrote 'Romeo and Juliet'?",
+          options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+          correct: 1,
+          subject: "Literature"
+        },
+        {
+          id: 5,
+          question: "What is the chemical symbol for gold?",
+          options: ["Ag", "Au", "Fe", "Cu"],
+          correct: 1,
+          subject: "Chemistry"
+        },
+        {
+          id: 6,
+          question: "Which year did World War II end?",
+          options: ["1943", "1944", "1945", "1946"],
+          correct: 2,
+          subject: "History"
+        },
+        {
+          id: 7,
+          question: "What is the largest ocean on Earth?",
+          options: ["Atlantic", "Indian", "Arctic", "Pacific"],
+          correct: 3,
+          subject: "Geography"
+        },
+        {
+          id: 8,
+          question: "What is the square root of 144?",
+          options: ["10", "11", "12", "13"],
+          correct: 2,
+          subject: "Mathematics"
+        },
+        {
+          id: 9,
+          question: "Which element has the atomic number 1?",
+          options: ["Helium", "Hydrogen", "Lithium", "Carbon"],
+          correct: 1,
+          subject: "Chemistry"
+        },
+        {
+          id: 10,
+          question: "Who painted the Mona Lisa?",
+          options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
+          correct: 1,
+          subject: "Art"
+        },
+        {
+          id: 11,
+          question: "What is the main function of the heart?",
+          options: ["Digestion", "Pumping blood", "Breathing", "Thinking"],
+          correct: 1,
+          subject: "Biology"
+        },
+        {
+          id: 12,
+          question: "Which country is home to the kangaroo?",
+          options: ["New Zealand", "South Africa", "Australia", "India"],
+          correct: 2,
+          subject: "Geography"
+        },
+        {
+          id: 13,
+          question: "What is the largest planet in our solar system?",
+          options: ["Earth", "Mars", "Jupiter", "Saturn"],
+          correct: 2,
+          subject: "Science"
+        },
+        {
+          id: 14,
+          question: "What is 8² + 6²?",
+          options: ["100", "110", "120", "130"],
+          correct: 0,
+          subject: "Mathematics"
+        },
+        {
+          id: 15,
+          question: "Who was the first President of the United States?",
+          options: ["Thomas Jefferson", "John Adams", "George Washington", "Benjamin Franklin"],
+          correct: 2,
+          subject: "History"
+        },
+        {
+          id: 16,
+          question: "What is the chemical formula for water?",
+          options: ["CO₂", "H₂O", "O₂", "N₂"],
+          correct: 1,
+          subject: "Chemistry"
+        }
+      ]
+    };
+
+    let currentQuestion = null;
+    let selectedAnswer = null;
+
+    // Initialize the game
+    function initGame() {
+      renderMap();
+      updateProgress();
+    }
+
+    // Render the map grid
+    function renderMap() {
+      const mapGrid = document.getElementById('mapGrid');
+      mapGrid.innerHTML = '';
+
+      for (let i = 0; i < 16; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'map-tile';
+        
+        if (gameData.completedTiles.has(i)) {
+          tile.classList.add('completed');
+          tile.innerHTML = '🏆';
+        } else if (gameData.unlockedTiles.has(i)) {
+          tile.classList.add('unlocked');
+          tile.innerHTML = '🔓';
+        } else {
+          tile.classList.add('locked');
+          tile.innerHTML = '🔒';
+        }
+
+        tile.onclick = () => selectTile(i);
+        mapGrid.appendChild(tile);
+      }
+    }
+
+    // Select a tile
+    function selectTile(tileIndex) {
+      if (!gameData.unlockedTiles.has(tileIndex)) {
+        return; // Tile is locked
+      }
+
+      gameData.currentTile = tileIndex;
+      const questionIndex = tileIndex % gameData.questions.length;
+      currentQuestion = gameData.questions[questionIndex];
+      
+      displayQuestion(currentQuestion);
+    }
+
+    // Display question
+    function displayQuestion(question) {
+      const questionText = document.getElementById('questionText');
+      const optionsContainer = document.getElementById('optionsContainer');
+      const nextButton = document.getElementById('nextButton');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+
+      questionText.textContent = question.question;
+      feedbackMessage.style.display = 'none';
+      nextButton.disabled = true;
+      selectedAnswer = null;
+
+      optionsContainer.innerHTML = '';
+      question.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-button';
+        button.textContent = option;
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    // Select an answer
+    function selectAnswer(answerIndex) {
+      selectedAnswer = answerIndex;
+      const buttons = document.querySelectorAll('.option-button');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      const nextButton = document.getElementById('nextButton');
+
+      buttons.forEach((button, index) => {
+        button.classList.remove('selected', 'correct', 'incorrect');
+        if (index === answerIndex) {
+          button.classList.add('selected');
+        }
+        if (index === currentQuestion.correct) {
+          button.classList.add('correct');
+        } else if (index === answerIndex && answerIndex !== currentQuestion.correct) {
+          button.classList.add('incorrect');
+        }
+      });
+
+      if (answerIndex === currentQuestion.correct) {
+        feedbackMessage.textContent = '✅ Correct! Well done!';
+        feedbackMessage.className = 'feedback-message success';
+        gameData.score += 10;
+      } else {
+        feedbackMessage.textContent = `❌ Incorrect. The correct answer is: ${currentQuestion.options[currentQuestion.correct]}`;
+        feedbackMessage.className = 'feedback-message error';
+      }
+
+      feedbackMessage.style.display = 'block';
+      nextButton.disabled = false;
+    }
+
+    // Next question
+    function nextQuestion() {
+      if (selectedAnswer === currentQuestion.correct) {
+        // Mark tile as completed
+        gameData.completedTiles.add(gameData.currentTile);
+        gameData.progress++;
+
+        // Unlock next tile if available
+        const nextTile = gameData.currentTile + 1;
+        if (nextTile < 16) {
+          gameData.unlockedTiles.add(nextTile);
+        }
+
+        // Show treasure modal
+        showTreasureModal();
+
+        // Update display
+        renderMap();
+        updateProgress();
+      }
+
+      // Reset question area
+      const questionText = document.getElementById('questionText');
+      const optionsContainer = document.getElementById('optionsContainer');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      const nextButton = document.getElementById('nextButton');
+
+      questionText.textContent = 'Click on an unlocked tile to start your adventure!';
+      optionsContainer.innerHTML = '';
+      feedbackMessage.style.display = 'none';
+      nextButton.disabled = true;
+    }
+
+    // Show treasure modal
+    function showTreasureModal() {
+      const modal = document.getElementById('treasureModal');
+      const message = document.getElementById('treasureMessage');
+      
+      const treasures = [
+        "You've unlocked a new area and found a golden knowledge gem!",
+        "Congratulations! You've discovered a rare learning crystal!",
+        "Amazing! You've found a treasure chest of wisdom!",
+        "Excellent! You've uncovered a magical study scroll!",
+        "Fantastic! You've discovered an ancient knowledge artifact!"
+      ];
+      
+      message.textContent = treasures[Math.floor(Math.random() * treasures.length)];
+      modal.classList.add('show');
+    }
+
+    // Close treasure modal
+    function closeTreasureModal() {
+      document.getElementById('treasureModal').classList.remove('show');
+    }
+
+    // Update progress display
+    function updateProgress() {
+      document.getElementById('score').textContent = gameData.score;
+      document.getElementById('progress').textContent = gameData.progress;
+      
+      const progressPercentage = (gameData.progress / 16) * 100;
+      document.getElementById('progressFill').style.width = progressPercentage + '%';
+    }
+
+    // Go back to games hub
+    function goBack() {
+      window.location.href = './games.html';
+    }
+
+    // Initialize the game when page loads
+    document.addEventListener('DOMContentLoaded', initGame);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

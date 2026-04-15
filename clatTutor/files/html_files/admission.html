@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Admission — Enroll | CLATutor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/header-nav.css" />
+  <link rel="stylesheet" href="../css/index.css" />
+  <link rel="stylesheet" href="../css/admission.css" />
+  <script src="../js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body class="page-public page-admission">
+  <header class="site-header">
+    <div class="container inner">
+      <div class="header-left">
+        <a href="../index.html" class="logo" style="text-decoration: none; color: inherit"
+          ><img src="../image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></a
+        >
+        <span class="logo__tag">Shaping Minds Since 2007</span>
+      </div>
+      <nav class="header-center site-nav" aria-label="Primary">
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/main.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Main <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
+            <a href="../index.html" role="menuitem"><img src="../image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
+            <a href="../index.html#programs" role="menuitem"><img src="../image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
+            <a href="../index.html#testimonials" role="menuitem"><img src="../image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
+            <a href="../login.html" role="menuitem"><img src="../image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
+            <a href="achievement.html" role="menuitem"><img src="../image/achivement.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Achievements</a>
+          </div>
+        </details>
+
+        <a class="site-nav__link" href="whyclattutor.html"><img src="../image/why.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /><span class="site-nav__link-label">Why CLAT<span class="logo__accent">utor</span>?</span></a>
+        <a class="site-nav__link" href="admission.html" aria-current="page"><img src="../image/admission.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Admission</a>
+        <a class="site-nav__link" href="clatgk&amp;ck.html"><img src="../image/clat%20gk.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT GK &amp; CA</a>
+        <details class="site-nav__details">
+          <summary>
+            <img src="../image/exams.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Exams <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
+          </summary>
+          <div class="site-nav__dropdown" role="menu" aria-label="Exams menu">
+            <a href="clat.html" role="menuitem"><img src="../image/clat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> CLAT</a>
+            <a href="ipmat.html" role="menuitem"><img src="../image/ipmat.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> IPMAT</a>
+          </div>
+        </details>
+        <a class="site-nav__link" href="courses.html"><img src="../image/courses.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Courses</a>
+        <a class="site-nav__link" href="contactus.html"><img src="../image/phone.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Contact us</a>
+      </nav>
+
+      <div class="header-right nav-actions nav-auth">
+        <a href="../login.html" class="hero-btn-animated hero-btn-animated--ghost site-header__login">
+          <img src="../image/login.png" alt="" class="nav-auth__btn-icon" width="18" height="18" loading="lazy" />
+          <span class="text">Log In</span>
+          <span class="circle"></span>
+          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <div class="admission-page-bg">
+      <div class="admission-shell">
+        <div class="admission-card">
+          <header class="admission-card__head">
+            <h1 class="admission-card__title">Become a CLATutor Student Today! Enroll Now</h1>
+            <p class="admission-card__tagline">Crack CLAT the smart way – land your dream NLU today</p>
+          </header>
+
+          <form id="form-admission" class="admission-form" action="#" method="post" novalidate>
+            <div class="admission-form__grid">
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-target-year">Target Year:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-target-year"
+                  name="targetYear"
+                  autocomplete="off"
+                  required
+                  placeholder="Example: 2026"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-course">Course:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-course"
+                  name="course"
+                  autocomplete="off"
+                  required
+                  placeholder="Example: CLAT 2027 Offline"
+                />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-student-name">Student Name:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-student-name"
+                  name="studentName"
+                  autocomplete="name"
+                  required
+                  placeholder="Example: John Doe"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-parent-name">Parent Name:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-parent-name"
+                  name="parentName"
+                  autocomplete="name"
+                  placeholder="Example: John Doe"
+                />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-student-email">Student Email:</label>
+                <input
+                  class="admission-field__input"
+                  type="email"
+                  id="admission-student-email"
+                  name="studentEmail"
+                  autocomplete="email"
+                  required
+                  placeholder="Example: johndoe@gmail.com"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-parent-email">Parent Email:</label>
+                <input
+                  class="admission-field__input"
+                  type="email"
+                  id="admission-parent-email"
+                  name="parentEmail"
+                  autocomplete="email"
+                  placeholder="Example: johndoe@gmail.com"
+                />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-student-phone">Student Phone Number:</label>
+                <input
+                  class="admission-field__input"
+                  type="tel"
+                  id="admission-student-phone"
+                  name="studentPhone"
+                  autocomplete="tel"
+                  required
+                  placeholder="Example: +91 9984003218"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-parent-phone">Parent Phone Number:</label>
+                <input
+                  class="admission-field__input"
+                  type="tel"
+                  id="admission-parent-phone"
+                  name="parentPhone"
+                  autocomplete="tel"
+                  placeholder="Example: +91 9984003218"
+                />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-dob">Student Date Of Birth:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-dob"
+                  name="studentDob"
+                  autocomplete="bday"
+                  placeholder="Example: 02/12/2006"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-address">Address:</label>
+                <textarea
+                  class="admission-field__input admission-field__textarea"
+                  id="admission-address"
+                  name="address"
+                  rows="2"
+                  placeholder="Example: House no, Apartment, Street name, Area, Zip Code"
+                ></textarea>
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-school">School/College:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-school"
+                  name="school"
+                  autocomplete="organization"
+                  placeholder="Example: TISB"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-stream">Stream:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-stream"
+                  name="stream"
+                  autocomplete="off"
+                  placeholder="Example: Humanities"
+                />
+              </div>
+
+              <div class="admission-field admission-field--full">
+                <label class="admission-field__label" for="admission-source">Source of Information:</label>
+                <textarea
+                  class="admission-field__input admission-field__textarea"
+                  id="admission-source"
+                  name="sourceInfo"
+                  rows="3"
+                  placeholder="Example: Google"
+                ></textarea>
+              </div>
+            </div>
+
+            <div id="admission-alert" class="admission-alert" aria-live="polite"></div>
+            <button type="submit" class="admission-submit">Enroll Now!</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="container site-footer__grid">
+        <div class="site-footer__brand">
+          <div class="site-footer__social" aria-label="Social links">
+            <a href="#" class="site-footer__social-link site-footer__social-link--facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--twitter" aria-label="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
+            <a href="https://wa.me/918150884422" class="site-footer__social-link site-footer__social-link--whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+            <a href="#" class="site-footer__social-link site-footer__social-link--telegram" aria-label="Telegram"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
+            <a
+              href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website"
+              class="site-footer__social-link site-footer__social-link--email"
+              aria-label="Email hello@clatutor.com"
+              title="Email hello@clatutor.com"
+              ><i class="fa-solid fa-envelope" aria-hidden="true"></i
+            ></a>
+          </div>
+          <div class="site-footer__logo-block">
+            <span class="site-footer__logo-mark" aria-hidden="true"><img src="../image/gavel%20clat%20tutor.png" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="site-footer__logo-word">CLAT<span class="site-footer__logo-accent">utor</span></span>
+          </div>
+          <p class="site-footer__tagline">Shaping Minds Since 2007</p>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">CLAT<span class="site-footer__logo-accent">utor</span></h3>
+          <ul class="site-footer__links">
+            <li><a href="history.html">History</a></li>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="career.html">Career</a></li>
+            <li><a href="#">Faculty Team</a></li>
+            <li><a href="whyclattutor.html">CLAT Bangalore</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Law World</h3>
+          <ul class="site-footer__links">
+            <li><a href="clat.html">CLAT</a></li>
+            <li><a href="ipmat.html">IPMAT</a></li>
+            <li><a href="career.html">Career</a></li>
+            <li><a href="#">Franchise</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3 class="site-footer__heading">Program</h3>
+          <ul class="site-footer__links">
+            <li><a href="courses.html">Courses</a></li>
+            <li><a href="achievement.html">Achievements</a></li>
+            <li><a href="#">Gallery</a></li>
+            <li><a href="../index.html#testimonials">Testimonials</a></li>
+            <li><a href="#">Blogs</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col site-footer__col--contact">
+          <h3 class="site-footer__heading">Contact Us</h3>
+          <ul class="site-footer__contact">
+            <li>
+              <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>(+91) 8150884422</span></a>
+            </li>
+            <li>
+              <a href="mailto:hello@clatutor.com?subject=Enquiry%20from%20CLATutor%20website" title="Email hello@clatutor.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>hello@clatutor.com</span></a>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Malleshwaram <a href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Jayanagar <a href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+            <li class="site-footer__contact-loc">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Yelahanka <a href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7" target="_blank" rel="noopener noreferrer">View Map</a></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <div class="container site-footer__bar-inner">
+        <p class="site-footer__copy">Copyright © 2021 CLATutor.com by MTe., All Rights Reserved</p>
+        <nav class="site-footer__legal" aria-label="Legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms and Conditions</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/public-forms-api.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/main-dropdown.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById('form-admission');
+      var alertBox = document.getElementById('admission-alert');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        if (typeof PublicFormsApi === 'undefined') {
+          if (alertBox) {
+            alertBox.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Form could not load. Please refresh the page.</span></div>';
+          }
+          return;
+        }
+        var fd = new FormData(form);
+        var student = (fd.get('studentName') || '').toString().trim();
+        var email = (fd.get('studentEmail') || '').toString().trim();
+        var phoneRaw = (fd.get('studentPhone') || '').toString().trim();
+        var studentPhoneNum = PublicFormsApi.phoneToNumber(phoneRaw);
+        if (!Number.isFinite(studentPhoneNum)) {
+          if (alertBox) {
+            alertBox.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid student phone number.</span></div>';
+          }
+          return;
+        }
+        var parentPhoneRaw = (fd.get('parentPhone') || '').toString().trim();
+        var parentPhoneNum = parentPhoneRaw ? PublicFormsApi.phoneToNumber(parentPhoneRaw) : null;
+        if (parentPhoneRaw && !Number.isFinite(parentPhoneNum)) {
+          if (alertBox) {
+            alertBox.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid parent phone number.</span></div>';
+          }
+          return;
+        }
+        var courseBits = [
+          'Target: ' + (fd.get('targetYear') || '').toString().trim(),
+          'Course: ' + (fd.get('course') || '').toString().trim(),
+          'Parent: ' + (fd.get('parentName') || '').toString().trim(),
+          'School: ' + (fd.get('school') || '').toString().trim(),
+          'Stream: ' + (fd.get('stream') || '').toString().trim(),
+        ]
+          .filter(function (s) {
+            return !/^[^:]+:\s*$/.test(s);
+          })
+          .join(' · ');
+        var sourceInfo = (fd.get('sourceInfo') || '').toString().trim();
+        var interest = courseBits + (sourceInfo ? ' · Heard via: ' + sourceInfo : '');
+        var payload = {
+          target_year: (fd.get('targetYear') || '').toString().trim(),
+          course: (fd.get('course') || '').toString().trim(),
+          student_name: student,
+          parentName: (fd.get('parentName') || '').toString().trim() || null,
+          student_email: email,
+          parent_email: (fd.get('parentEmail') || '').toString().trim() || null,
+          student_PhoneNumber: studentPhoneNum,
+          parent_PhoneNumber:
+            parentPhoneNum != null && Number.isFinite(parentPhoneNum) ? parentPhoneNum : null,
+          student_dob: (fd.get('studentDob') || '').toString().trim() || null,
+          address: (fd.get('address') || '').toString().trim() || null,
+          school_college: (fd.get('school') || '').toString().trim() || null,
+          stream: (fd.get('stream') || '').toString().trim() || null,
+          source_of_info: sourceInfo || null,
+        };
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        PublicFormsApi.postEnrollRequest(payload)
+          .then(function (res) {
+            if (submitBtn) submitBtn.disabled = false;
+            if (res.ok && (res.status === 201 || res.status === 200)) {
+              if (typeof DataStore !== 'undefined') {
+                DataStore.addLead({
+                  name: student,
+                  email: email,
+                  phone: phoneRaw,
+                  courseInterest: interest,
+                  source: 'Admission page',
+                  stage: 'new',
+                });
+                DataStore.addNotification({
+                  title: 'Admission form',
+                  body: 'A new enrollment request was submitted from the Admission page.',
+                  audience: 'crm',
+                });
+              }
+              if (alertBox) {
+                alertBox.innerHTML =
+                  '<div class="alert alert-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Thank you. Our team will contact you shortly.</span></div>';
+              }
+              form.reset();
+            } else {
+              var msg =
+                res.data && res.data.message
+                  ? res.data.message
+                  : 'Something went wrong. Please try again.';
+              if (alertBox) {
+                alertBox.innerHTML =
+                  '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></div>';
+                var span = alertBox.querySelector('.alert-error span');
+                if (span) span.textContent = msg;
+              }
+            }
+          })
+          .catch(function () {
+            if (submitBtn) submitBtn.disabled = false;
+            if (alertBox) {
+              alertBox.innerHTML =
+                '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Network error. Please try again.</span></div>';
+            }
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

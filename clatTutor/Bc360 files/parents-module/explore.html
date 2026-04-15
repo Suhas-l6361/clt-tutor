@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Parent Video Learning Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --sidebar1: #2c5530;
+      --sidebar2: #4a7c59;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #e67e22;
+      --accent-light: #f8f9fa;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --label: #1e293b;
+      --input: #334155;
+      --subtle: #64748b;
+      --error: #ef4444;
+      --required: #f59e0b;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --yellow: #fbbf24;
+      --video-main: #ffffff;
+      --video-card: #f8f9fa;
+      --video-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --video-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+      --video-title: #1e293b;
+      --primary-blue: #007bff;
+      --primary-teal: #20c997;
+      --language-kannada: #6f42c1;
+      --language-english: #17a2b8;
+      --drawer-bg: rgba(0, 0, 0, 0.8);
+    }
+
+    [data-theme="light"] {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --video-main: #ffffff;
+      --video-card: #f8f9fa;
+      --border: #e2e8f0;
+      --label: #2d3748;
+      --input: #4a5568;
+      --subtle: #718096;
+      --accent-light: #f8f9fa;
+      --video-title: #2d3748;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a1a;
+      --card: #2d2d2d;
+      --video-main: #2d2d2d;
+      --video-card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --accent-light: #1a1a1a;
+      --video-title: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(230, 126, 34, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(44, 85, 48, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(52, 152, 219, 0.05) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw; }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; padding: 10px 6px; transition: transform 0.2s; }
+    .sidebar .brand img { width: 100%; height: 50px; border-radius: 3px; object-fit: contain; transition: transform 0.2s; }
+    .sidebar .brand:hover img { transform: scale(1.05); }
+    .sidebar hr { border: 0; border-top: 1.3px solid rgba(255,255,255,0.2); margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a { color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center; padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s; font-weight: 500; gap: 13px; position: relative; overflow: hidden; }
+    .sidebar ul li a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar ul li a:hover::before { width: 100%; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar .logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;}
+    .sidebar .logout a { color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s; position: relative; overflow: hidden; }
+    .sidebar .logout a::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); transition: width 0.3s; }
+    .sidebar .logout a:hover::before { width: 100%; }
+    .sidebar .logout a:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+    .sidebar-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      filter: none !important;
+      -webkit-filter: none !important;
+    }
+    .main-content { margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 0; transition: margin-left 0.28s; z-index: 1; }
+    .top-bar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 20px 30px; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.01em; color: var(--label); position: relative; z-index: 2; box-shadow: 0 2px 20px rgba(44, 85, 48, 0.1); }
+    .top-bar .fa-play-circle { font-size: 2.1rem; color: var(--accent);}
+    .sidebar-hamburger { display: none; position: fixed; top: 18px; right: 19px; z-index: 9999; font-size: 2.1rem; background: #fff; color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px rgba(44, 85, 48, 0.15); cursor: pointer; transition: background 0.18s, color 0.18s;}
+    .sidebar-hamburger.menu-open { background: var(--accent-light); color: var(--accent);}
+    .sidebar-hamburger .fa-times { display: none;}
+    .sidebar-hamburger.menu-open .fa-bars { display: none;}
+    .sidebar-hamburger.menu-open .fa-times { display: inline;}
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(44, 85, 48, 0.2); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block;}
+
+    .theme-toggle {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: fixed;
+      top: 90px;
+      right: 19px;
+      z-index: 9998;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      opacity: 0.9;
+    }
+
+    .language-toggle {
+      background: linear-gradient(135deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: fixed;
+      top: 130px;
+      right: 19px;
+      z-index: 9998;
+      box-shadow: 0 2px 12px rgba(44, 85, 48, 0.25);
+      min-width: 80px;
+    }
+
+    .language-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(44, 85, 48, 0.35);
+    }
+
+    .language-toggle:active {
+      transform: translateY(0);
+    }
+
+    /* Video Learning Portal Styles */
+    .video-root {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--video-main);
+      border-radius: 22px;
+      padding: 36px 35px 30px 35px;
+      box-shadow: var(--video-shadow);
+      min-height: 80vh;
+      border: 1px solid var(--border);
+    }
+    
+    .video-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 29px;
+    }
+    
+    .video-title-bar i {
+      font-size: 2rem;
+      color: var(--primary-blue);
+      background: rgba(0, 123, 255, 0.1);
+      border-radius: 17px;
+      padding: 7px 11px;
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+    }
+    
+    .video-title-bar .video-title {
+      font-size: 1.29rem;
+      color: var(--video-title);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* Search Bar */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 50px;
+      background: var(--video-card);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      color: var(--label);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--subtle);
+      font-size: 1.2rem;
+      z-index: 2;
+    }
+
+    .search-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--video-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 8px;
+      box-shadow: var(--video-shadow);
+      z-index: 10;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .search-suggestions.show {
+      display: block;
+    }
+
+    .suggestion-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(0, 123, 255, 0.1);
+    }
+
+    .suggestion-item .suggestion-title {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 4px;
+    }
+
+    .suggestion-item .suggestion-subtitle {
+      font-size: 0.9rem;
+      color: var(--subtle);
+    }
+
+    /* Video Grid */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .video-card {
+      background: var(--video-card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--video-shadow-hover);
+      border-color: var(--primary-blue);
+    }
+
+    .video-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, var(--primary-blue), var(--primary-teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .video-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-blue);
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    .video-card:hover .play-button {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .video-info {
+      padding: 16px;
+    }
+
+    .video-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .language-tag {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .language-kannada {
+      background: rgba(111, 66, 193, 0.2);
+      color: var(--language-kannada);
+      border: 1px solid rgba(111, 66, 193, 0.3);
+    }
+
+    .language-english {
+      background: rgba(23, 162, 184, 0.2);
+      color: var(--language-english);
+      border: 1px solid rgba(23, 162, 184, 0.3);
+    }
+
+    .video-duration-text {
+      color: var(--subtle);
+      font-size: 0.9rem;
+    }
+
+    .video-description {
+      color: var(--subtle);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Video Player Modal */
+    .video-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      backdrop-filter: blur(8px);
+    }
+
+    .video-modal.show {
+      display: flex;
+    }
+
+    .video-modal-content {
+      background: var(--video-card);
+      border-radius: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 1000px;
+      overflow: hidden;
+      position: relative;
+      animation: modalSlideIn 0.4s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .video-player-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .video-player-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary-blue), var(--primary-teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .video-modal-header {
+      padding: 20px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .video-modal-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .video-modal-close {
+      background: none;
+      border: none;
+      color: var(--subtle);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--label);
+    }
+
+    .video-modal-controls {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .language-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--video-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--label);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .language-toggle:hover {
+      border-color: var(--primary-blue);
+    }
+
+    .language-toggle i {
+      font-size: 1rem;
+    }
+
+    .video-modal-body {
+      padding: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .video-transcript {
+      background: var(--video-main);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .transcript-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .transcript-content {
+      color: var(--label);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--subtle);
+    }
+
+    .no-results-icon {
+      font-size: 4rem;
+      color: var(--subtle);
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .no-results-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 12px;
+    }
+
+    .no-results-message {
+      font-size: 1rem;
+      line-height: 1.5;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar-hamburger {
+        display: block;
+        top: 18px;
+        right: 19px;
+        left: auto;
+      }
+      .theme-toggle {
+        top: 90px;
+        right: 19px;
+      }
+      .video-root { padding: 22px 2vw 18px 2vw; }
+      .video-grid { grid-template-columns: 1fr; }
+      .search-bar { max-width: 100%; }
+      .video-modal-content { max-width: 95vw; }
+      .video-player-container { height: 250px; }
+      .video-modal-header { padding: 16px 20px 0; }
+      .video-modal-controls { padding: 12px 20px; }
+      .video-modal-body { padding: 20px; }
+    }
+    
+    @media (max-width: 600px) {
+      .sidebar-hamburger {
+        right: 8px;
+        top: 10px;
+        font-size: 2.0rem;
+        padding: 4px 10px 5px 10px;
+      }
+      .theme-toggle {
+        top: 90px;
+        right: 8px;
+      }
+      .language-toggle {
+        top: 142px;
+        right: 8px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        min-width: 70px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .video-root { padding: 15px; margin: 10px; }
+      .video-title-bar .video-title { font-size: 1.1rem; }
+      .video-card { margin-bottom: 16px; }
+      .video-thumbnail { height: 150px; }
+      .video-info { padding: 12px; }
+      .video-modal-content { max-width: 98vw; }
+      .video-player-container { height: 200px; }
+      .video-modal-title { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img style="width:180px" src="./logo.png"/>
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="sidebar-icon"> <span class="translate" data-en="Home" data-kn="ಮುಖಪುಟ">Home</span></a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="sidebar-icon"> <span class="translate" data-en="Attendance" data-kn="ಹಾಜರಾತಿ">Attendance</span></a></li>
+          <li><a href="./assignments.html"><img src="./assets/assignements.png" alt="Assignments" class="sidebar-icon"> <span class="translate" data-en="Assignments" data-kn="ಮನೆಕೆಲಸ">Assignments</span></a></li>
+          <li><a href="./time_table.html"><img src="./assets/time table.png" alt="Timetable" class="sidebar-icon"> <span class="translate" data-en="Timetable" data-kn="ಸಮಯ ಕೋಷ್ಟಕ">Timetable</span></a></li>
+          <li><a href="./marks.html"><img src="./assets/marks upload.png" alt="Marks" class="sidebar-icon"> <span class="translate" data-en="Marks" data-kn="ಅಂಕಗಳು">Marks</span></a></li>
+          <li><a href="./performance.html"><img src="./assets/performance.png" alt="Performance" class="sidebar-icon"> <span class="translate" data-en="Performance" data-kn="ಕಾರ್ಯಸಾಧನೆ">Performance</span></a></li>
+          <li><a href="./gallery.html"><img src="./assets/view gallery.png" alt="Gallery" class="sidebar-icon"> <span class="translate" data-en="Gallery" data-kn="ಚಿತ್ರಶಾಲೆ">Gallery</span></a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="sidebar-icon"> <span class="translate" data-en="Announcement" data-kn="ಪ್ರಕಟಣೆ">Announcement</span></a></li>
+          <li><a href="./communication.html"><img src="./assets/communication.png" alt="Communication" class="sidebar-icon"> <span class="translate" data-en="Communication" data-kn="ಸಂವಹನ">Communication</span></a></li>
+          <li><a href="./explore.html" class="active"><img src="./assets/explore.png" alt="Explore" class="sidebar-icon"> <span class="translate" data-en="Explore" data-kn="ಅನ್ವೇಷಿಸಿ">Explore</span></a></li>
+          <li><a href="./fees.html"><img src="./assets/fees.png" alt="Fees" class="sidebar-icon"> <span class="translate" data-en="Fees" data-kn="ಶುಲ್ಕ">Fees</span></a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="sidebar-icon"> <span class="translate" data-en="Change Password" data-kn="ಗುಪ್ತಪದ ಬದಲಾಯಿಸಿ">Change Password</span></a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> <span class="translate" data-en="Logout" data-kn="ನಿರ್ಗಮಿಸು">Logout</span></a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <button class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun"></i>
+        </button>
+        <button class="language-toggle" id="languageToggle">ಕನ್ನಡ</button>
+      </div>
+
+      <div class="video-root">
+        <div class="video-title-bar">
+          <i class="fas fa-play-circle"></i>
+          <span class="video-title">Parent Video Learning Portal</span>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search for videos... (e.g., 'Reproduction in Plants' or 'ಪ್ರಜೆನನೆ ಗಿಡಗಳಲ್ಲಿ')" autocomplete="off">
+            <div class="search-suggestions" id="searchSuggestions">
+              <!-- Suggestions will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Grid -->
+        <div class="video-grid" id="videoGrid">
+          <!-- Video cards will be populated by JavaScript -->
+        </div>
+
+        <!-- No Results -->
+        <div class="no-results" id="noResults" style="display: none;">
+          <div class="no-results-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <div class="no-results-title">Oops! No videos found</div>
+          <div class="no-results-message">Try searching with different keywords or check your spelling. You can search in both English and Kannada.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div class="video-modal" id="videoModal">
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <div>
+          <div class="video-modal-title" id="modalVideoTitle">Video Title</div>
+        </div>
+        <button class="video-modal-close" onclick="closeVideoModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="video-player-container">
+        <video class="video-player" id="videoPlayer" controls>
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-player-placeholder" id="videoPlaceholder">
+          <i class="fas fa-play-circle"></i>
+          <span>Video Player</span>
+        </div>
+      </div>
+      
+      <div class="video-modal-controls">
+        <button class="language-toggle" id="languageToggle" onclick="toggleLanguage()">
+          <i class="fas fa-language"></i>
+          <span id="languageText">Switch to Kannada</span>
+        </button>
+      </div>
+      
+      <div class="video-modal-body">
+        <div class="video-transcript">
+          <div class="transcript-title">
+            <i class="fas fa-file-alt"></i>
+            Video Transcript
+          </div>
+          <div class="transcript-content" id="videoTranscript">
+            This video explains the concepts in detail. The transcript will be available here.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    
+    function openSidebar() {
+      menuOpen = true; 
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); 
+      sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    
+    function closeSidebar() {
+      menuOpen = false; 
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); 
+      sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); 
+      (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    
+    sidebarOverlay.addEventListener('click', function() { 
+      closeSidebar(); 
+    });
+    
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    let isDarkMode = false; // Start with light mode for parents
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      isDarkMode = savedTheme === 'dark';
+    }
+
+    function applyTheme() {
+      if (isDarkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+      }
+    }
+
+    applyTheme();
+
+    themeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      applyTheme();
+    });
+
+    // Video Learning Portal Data
+    const videoData = [
+      {
+        id: 1,
+        title: 'Reproduction in Plants',
+        titleKannada: 'ಗಿಡಗಳಲ್ಲಿ ಸಂತಾನೋತ್ಪತ್ತಿ',
+        description: 'Learn about the different methods of reproduction in plants including sexual and asexual reproduction.',
+        descriptionKannada: 'ಸಸ್ಯಗಳಲ್ಲಿ ಲೈಂಗಿಕ ಮತ್ತು ಅಲೈಂಗಿಕ ಸಂತಾನೋತ್ಪತ್ತಿಯ ವಿವಿಧ ವಿಧಾನಗಳ ಬಗ್ಗೆ ತಿಳಿಯಿರಿ.',
+        duration: '12:45',
+        language: 'english',
+        thumbnail: 'https://via.placeholder.com/320x180/007bff/ffffff?text=Reproduction+in+Plants',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+        transcript: 'This video covers the fundamental concepts of plant reproduction...',
+        transcriptKannada: 'ಈ ವೀಡಿಯೊ ಸಸ್ಯ ಸಂತಾನೋತ್ಪತ್ತಿಯ ಮೂಲಭೂತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಒಳಗೊಂಡಿದೆ...'
+      },
+      {
+        id: 2,
+        title: 'Human Digestive System',
+        titleKannada: 'ಮಾನವ ಜೀರ್ಣಾಂಗ ವ್ಯವಸ್ಥೆ',
+        description: 'Understanding the human digestive system and its functions.',
+        descriptionKannada: 'ಮಾನವ ಜೀರ್ಣಾಂಗ ವ್ಯವಸ್ಥೆ ಮತ್ತು ಅದರ ಕಾರ್ಯಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುವುದು.',
+        duration: '15:30',
+        language: 'kannada',
+        thumbnail: 'https://via.placeholder.com/320x180/20c997/ffffff?text=Human+Digestive+System',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+        transcript: 'The human digestive system is a complex network...',
+        transcriptKannada: 'ಮಾನವ ಜೀರ್ಣಾಂಗ ವ್ಯವಸ್ಥೆಯು ಸಂಕೀರ್ಣ ಜಾಲವಾಗಿದೆ...'
+      },
+      {
+        id: 3,
+        title: 'Chemical Bonding',
+        titleKannada: 'ರಾಸಾಯನಿಕ ಬಂಧನ',
+        description: 'Explore different types of chemical bonds and their properties.',
+        descriptionKannada: 'ವಿವಿಧ ರೀತಿಯ ರಾಸಾಯನಿಕ ಬಂಧಗಳು ಮತ್ತು ಅವುಗಳ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
+        duration: '18:20',
+        language: 'english',
+        thumbnail: 'https://via.placeholder.com/320x180/6f42c1/ffffff?text=Chemical+Bonding',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4',
+        transcript: 'Chemical bonding is the force that holds atoms together...',
+        transcriptKannada: 'ರಾಸಾಯನಿಕ ಬಂಧನವು ಪರಮಾಣುಗಳನ್ನು ಒಟ್ಟಿಗೆ ಹಿಡಿದಿಡುವ ಶಕ್ತಿಯಾಗಿದೆ...'
+      },
+      {
+        id: 4,
+        title: 'Photosynthesis Process',
+        titleKannada: 'ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ ಪ್ರಕ್ರಿಯೆ',
+        description: 'Detailed explanation of the photosynthesis process in plants.',
+        descriptionKannada: 'ಸಸ್ಯಗಳಲ್ಲಿ ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ ಪ್ರಕ್ರಿಯೆಯ ವಿವರವಾದ ವಿವರಣೆ.',
+        duration: '14:15',
+        language: 'kannada',
+        thumbnail: 'https://via.placeholder.com/320x180/17a2b8/ffffff?text=Photosynthesis+Process',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+        transcript: 'Photosynthesis is the process by which plants convert light energy...',
+        transcriptKannada: 'ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆಯು ಸಸ್ಯಗಳು ಬೆಳಕಿನ ಶಕ್ತಿಯನ್ನು ಪರಿವರ್ತಿಸುವ ಪ್ರಕ್ರಿಯೆಯಾಗಿದೆ...'
+      },
+      {
+        id: 5,
+        title: 'Electric Circuits',
+        titleKannada: 'ವಿದ್ಯುತ್ ಸರ್ಕ್ಯೂಟ್‌ಗಳು',
+        description: 'Learn about electric circuits, current, voltage, and resistance.',
+        descriptionKannada: 'ವಿದ್ಯುತ್ ಸರ್ಕ್ಯೂಟ್‌ಗಳು, ಪ್ರವಾಹ, ವೋಲ್ಟೇಜ್ ಮತ್ತು ಪ್ರತಿರೋಧದ ಬಗ್ಗೆ ತಿಳಿಯಿರಿ.',
+        duration: '16:40',
+        language: 'english',
+        thumbnail: 'https://via.placeholder.com/320x180/ffc107/ffffff?text=Electric+Circuits',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+        transcript: 'An electric circuit is a path through which electric current flows...',
+        transcriptKannada: 'ವಿದ್ಯುತ್ ಸರ್ಕ್ಯೂಟ್ ಎಂದರೆ ವಿದ್ಯುತ್ ಪ್ರವಾಹ ಹರಿಯುವ ಮಾರ್ಗ...'
+      },
+      {
+        id: 6,
+        title: 'Cell Division',
+        titleKannada: 'ಕೋಶ ವಿಭಜನೆ',
+        description: 'Understanding mitosis and meiosis processes in cell division.',
+        descriptionKannada: 'ಕೋಶ ವಿಭಜನೆಯಲ್ಲಿ ಮೈಟೋಸಿಸ್ ಮತ್ತು ಮಿಯೋಸಿಸ್ ಪ್ರಕ್ರಿಯೆಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುವುದು.',
+        duration: '13:25',
+        language: 'kannada',
+        thumbnail: 'https://via.placeholder.com/320x180/dc3545/ffffff?text=Cell+Division',
+        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4',
+        transcript: 'Cell division is the process by which a parent cell divides...',
+        transcriptKannada: 'ಕೋಶ ವಿಭಜನೆಯು ಮೂಲ ಕೋಶ ವಿಭಜನೆಯಾಗುವ ಪ್ರಕ್ರಿಯೆಯಾಗಿದೆ...'
+      }
+    ];
+
+    // Search suggestions
+    const searchSuggestions = [
+      'Reproduction in Plants',
+      'ಪ್ರಜೆನನೆ ಗಿಡಗಳಲ್ಲಿ',
+      'Human Digestive System',
+      'ಮಾನವ ಜೀರ್ಣಾಂಗ ವ್ಯವಸ್ಥೆ',
+      'Chemical Bonding',
+      'ರಾಸಾಯನಿಕ ಬಂಧನ',
+      'Photosynthesis',
+      'ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ',
+      'Electric Circuits',
+      'ವಿದ್ಯುತ್ ಸರ್ಕ್ಯೂಟ್‌ಗಳು',
+      'Cell Division',
+      'ಕೋಶ ವಿಭಜನೆ'
+    ];
+
+    // Video Learning Portal Functions
+    let currentVideo = null;
+    let videoLanguage = 'english';
+
+    // Search functionality
+    function initializeSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const searchSuggestions = document.getElementById('searchSuggestions');
+
+      searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        if (query.length > 0) {
+          showSearchSuggestions(query);
+        } else {
+          hideSearchSuggestions();
+          displayAllVideos();
+        }
+      });
+
+      searchInput.addEventListener('focus', function() {
+        if (this.value.length > 0) {
+          showSearchSuggestions(this.value.toLowerCase());
+        }
+      });
+
+      // Close suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+          hideSearchSuggestions();
+        }
+      });
+    }
+
+    function showSearchSuggestions(query) {
+      const suggestions = searchSuggestions.filter(suggestion => 
+        suggestion.toLowerCase().includes(query)
+      );
+      
+      const suggestionsContainer = document.getElementById('searchSuggestions');
+      suggestionsContainer.innerHTML = '';
+      
+      if (suggestions.length > 0) {
+        suggestions.forEach(suggestion => {
+          const item = document.createElement('div');
+          item.className = 'suggestion-item';
+          item.innerHTML = `
+            <div class="suggestion-title">${suggestion}</div>
+            <div class="suggestion-subtitle">Click to search</div>
+          `;
+          item.addEventListener('click', () => {
+            document.getElementById('searchInput').value = suggestion;
+            hideSearchSuggestions();
+            searchVideos(suggestion);
+          });
+          suggestionsContainer.appendChild(item);
+        });
+        suggestionsContainer.classList.add('show');
+      } else {
+        hideSearchSuggestions();
+      }
+    }
+
+    function hideSearchSuggestions() {
+      document.getElementById('searchSuggestions').classList.remove('show');
+    }
+
+    function searchVideos(query) {
+      const filteredVideos = videoData.filter(video => 
+        video.title.toLowerCase().includes(query.toLowerCase()) ||
+        video.titleKannada.includes(query) ||
+        video.description.toLowerCase().includes(query.toLowerCase()) ||
+        video.descriptionKannada.includes(query)
+      );
+      
+      displayVideos(filteredVideos);
+    }
+
+    function displayAllVideos() {
+      displayVideos(videoData);
+    }
+
+    function displayVideos(videos) {
+      const videoGrid = document.getElementById('videoGrid');
+      const noResults = document.getElementById('noResults');
+      
+      if (videos.length === 0) {
+        videoGrid.style.display = 'none';
+        noResults.style.display = 'block';
+      } else {
+        videoGrid.style.display = 'grid';
+        noResults.style.display = 'none';
+        
+        videoGrid.innerHTML = videos.map(video => `
+          <div class="video-card" onclick="openVideoModal(${video.id})">
+            <div class="video-thumbnail">
+              <img src="${video.thumbnail}" alt="${video.title}">
+              <div class="play-button">
+                <i class="fas fa-play"></i>
+              </div>
+              <div class="video-duration">${video.duration}</div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">${video.title}</div>
+              <div class="video-meta">
+                <span class="language-tag language-${video.language}">
+                  ${video.language === 'kannada' ? 'ಕನ್ನಡ' : 'English'}
+                </span>
+                <span class="video-duration-text">${video.duration} mins</span>
+              </div>
+              <div class="video-description">${video.description}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function openVideoModal(videoId) {
+      currentVideo = videoData.find(video => video.id === videoId);
+      videoLanguage = currentVideo.language;
+      
+      const modal = document.getElementById('videoModal');
+      const videoPlayer = document.getElementById('videoPlayer');
+      const videoPlaceholder = document.getElementById('videoPlaceholder');
+      const modalTitle = document.getElementById('modalVideoTitle');
+      const languageText = document.getElementById('languageText');
+      const transcript = document.getElementById('videoTranscript');
+      
+      // Set video source
+      videoPlayer.src = currentVideo.videoUrl;
+      videoPlayer.style.display = 'block';
+      videoPlaceholder.style.display = 'none';
+      
+      // Set title and language
+      modalTitle.textContent = videoLanguage === 'english' ? currentVideo.title : currentVideo.titleKannada;
+      languageText.textContent = videoLanguage === 'english' ? 'Switch to Kannada' : 'Switch to English';
+      
+      // Set transcript
+      transcript.textContent = videoLanguage === 'english' ? currentVideo.transcript : currentVideo.transcriptKannada;
+      
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('videoModal');
+      const videoPlayer = document.getElementById('videoPlayer');
+      
+      videoPlayer.pause();
+      videoPlayer.src = '';
+      modal.classList.remove('show');
+      document.body.style.overflow = 'auto';
+      
+      currentVideo = null;
+    }
+
+    function toggleLanguage() {
+      if (!currentVideo) return;
+      
+      videoLanguage = videoLanguage === 'english' ? 'kannada' : 'english';
+      
+      const modalTitle = document.getElementById('modalVideoTitle');
+      const languageText = document.getElementById('languageText');
+      const transcript = document.getElementById('videoTranscript');
+      
+      modalTitle.textContent = videoLanguage === 'english' ? currentVideo.title : currentVideo.titleKannada;
+      languageText.textContent = videoLanguage === 'english' ? 'Switch to Kannada' : 'Switch to English';
+      transcript.textContent = videoLanguage === 'english' ? currentVideo.transcript : currentVideo.transcriptKannada;
+    }
+
+    // Initialize video learning portal
+    function initVideoPortal() {
+      initializeSearch();
+      displayAllVideos();
+      
+      // Close modal when clicking outside
+      document.getElementById('videoModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeVideoModal();
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeVideoModal();
+        }
+      });
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initVideoPortal);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/auth-protected.js"></script>
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking for Parents Module
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a parent
+            if (userData.userType !== 'parents' && userData.userType !== 'parent') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access parents module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access parent-only content');
+              
+              // Show security alert and redirect
+              alert(`🚫 Access Denied!\n\nThis module is restricted to parents only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ Parent authentication successful for explore:', userData);
+            
+            // Update UI with parent information
+            updateParentUI(userData);
+            
+            // Track parent activity
+            trackParentActivity(userData);
+            
+          } else {
+            console.log('❌ No valid session found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.error('❌ UserSession not available, redirecting to login');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Update UI with parent information
+    function updateParentUI(userData) {
+      // Update any user display elements
+      const userNameElements = document.querySelectorAll('.user-name, .parent-name, .welcome-text');
+      userNameElements.forEach(element => {
+        if (userData.name || userData.displayName) {
+          element.textContent = `Welcome, ${userData.name || userData.displayName}`;
+        }
+      });
+
+      // Update parent ID if displayed
+      const parentIdElements = document.querySelectorAll('.parent-id');
+      parentIdElements.forEach(element => {
+        if (userData.parent_userId || userData.id) {
+          element.textContent = `Parent ID: ${userData.parent_userId || userData.id}`;
+        }
+      });
+
+      console.log('✅ Parent UI updated with user data');
+    }
+
+    // Track parent activity for security monitoring
+    function trackParentActivity(userData) {
+      const activityData = {
+        timestamp: new Date().toISOString(),
+        userType: userData.userType,
+        userId: userData.parent_userId || userData.id,
+        page: 'explore',
+        action: 'page_access'
+      };
+      
+      console.log('📊 Parent activity tracked:', activityData);
+      
+      // Store activity in session storage for security monitoring
+      const activities = JSON.parse(sessionStorage.getItem('parent_activities') || '[]');
+      activities.push(activityData);
+      
+      // Keep only last 10 activities
+      if (activities.length > 10) {
+        activities.splice(0, activities.length - 10);
+      }
+      
+      sessionStorage.setItem('parent_activities', JSON.stringify(activities));
+    }
+
+    // Enhanced security: Monitor for suspicious activity
+    function monitorParentSecurity() {
+      const activities = JSON.parse(sessionStorage.getItem('parent_activities') || '[]');
+      const recentActivities = activities.filter(activity => {
+        const activityTime = new Date(activity.timestamp);
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        return activityTime > fiveMinutesAgo;
+      });
+
+      if (recentActivities.length > 20) {
+        console.warn('🚨 SECURITY WARNING: Unusual parent activity detected');
+        // Could implement additional security measures here
+      }
+    }
+
+    // Run security monitoring every minute
+    setInterval(monitorParentSecurity, 60000);
+
+    // Language Toggle Functionality
+    let currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+
+    function switchLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'kn' : 'en';
+      localStorage.setItem('selectedLanguage', currentLanguage);
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const languageToggle = document.getElementById('languageToggle');
+      languageToggle.textContent = currentLanguage === 'en' ? 'ಕನ್ನಡ' : 'English';
+      
+      const translatableElements = document.querySelectorAll('.translate');
+      translatableElements.forEach(element => {
+        const enText = element.getAttribute('data-en');
+        const knText = element.getAttribute('data-kn');
+        if (enText && knText) {
+          element.textContent = currentLanguage === 'en' ? enText : knText;
+        }
+      });
+    }
+
+    document.getElementById('languageToggle').addEventListener('click', switchLanguage);
+    window.addEventListener('load', function() { applyLanguage(); });
+
+    // Professional logout function for parents
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = '../login.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

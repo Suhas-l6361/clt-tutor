@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BC360</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Performance optimization: Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  </noscript>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --error: #ff547c;
+      --required: #ffbd03;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--sidebar-shadow);
+      z-index: 1050;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      transition: left 0.28s;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 32px 0 14px 19px;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #fff;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr {
+      border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px;
+    }
+    .sidebar ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff;
+      font-size: 1.06rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 10px 12px 24px;
+      border-radius: 7px 0 0 7px;
+      transition: all 0.22s ease;
+      font-weight: 500;
+      gap: 13px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      margin-top: 15px;
+      padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px 10px 24px;
+      border-radius: 6px;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      width: calc(100vw - var(--sidebar-width));
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      padding: 0;
+      transition: margin-left 0.28s;
+    }
+    .main-content.menu-open {
+      pointer-events: none;
+    }
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #f8fafd;
+      border-bottom: 1.3px solid var(--border);
+      padding: 25px 32px 18px 32px;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--accent);
+      position: relative;
+      z-index: 2;
+    }
+    .top-bar .fa-user-graduate {
+      font-size: 2.1rem;
+      color: var(--accent);
+    }
+    .sidebar-hamburger {
+      display: none;
+      position: fixed;
+      top: 17px;
+      right: 20px;
+      z-index: 2001;
+      font-size: 2.1rem;
+      background: #fff;
+      color: var(--sidebar1);
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px 7px 14px;
+      box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open {
+      background: #e4f0fc;
+      color: #217ee3;
+    }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18);
+      z-index: 2000;
+      transition: opacity 0.2s;
+    }
+    .sidebar-overlay.active { display: block; }
+    .form-card {
+      width: 100%;
+      background: var(--card);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      padding: 34px 18px 18px 18px;
+      border-bottom: 1.5px solid var(--border);
+      border-top: 4px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 1150px;
+      margin: 20px auto 0 auto;
+    }
+    .form-section-title {
+      font-size: 1.11rem;
+      font-weight: 700;
+      margin: 17px 0 7px 0;
+      color: #238178;
+      letter-spacing: 0.01em;
+      padding-top: 5px;
+    }
+    .class-select-row {
+      display: flex;
+      gap: 17px;
+      margin-bottom: 24px;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .class-radio-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1.01rem;
+      color: var(--label);
+      padding: 7px 18px 7px 12px;
+      background: var(--accent-light);
+      border: 1.7px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border .15s, color .18s, background .16s;
+      font-weight: 600;
+      min-width: 96px;
+      user-select: none;
+    }
+    .class-radio-btn.selected {
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      background: #f6fbff;
+    }
+    .class-radio-btn input[type="radio"] {
+      display: none;
+    }
+    .required-info-bar {
+      display: flex;
+      align-items: center;
+      background: #fff9e0;
+      color: #bc9000;
+      font-weight: 600;
+      padding: 9px 13px;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      gap: 9px;
+      box-shadow: 0 1px 5px #ffecba14;
+    }
+    .required-badge {
+      background: var(--required);
+      color: #fff;
+      font-size: 0.9em;
+      font-weight: 700;
+      border-radius: 5px;
+      padding: 1.5px 8px;
+      margin-left: 5px;
+    }
+    .form-fields {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 10px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+    .field-label {
+      min-width: 200px;
+      font-size: 1.01rem;
+      color: var(--label);
+      font-weight: 600;
+      margin-bottom: 0;
+      letter-spacing: 0.01em;
+    }
+    .required-label {
+      color: var(--required);
+      font-weight: 700;
+    }
+    .input-group {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .input-group .fa {
+      position: absolute;
+      left: 12px;
+      color: var(--accent);
+      font-size: 1.01rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.89;
+    }
+    .input-group input, .input-group select, .input-group textarea {
+      width: 100%;
+      font-size: 1.03rem;
+      padding: 10px 12px 10px 37px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: #fafdff;
+      color: var(--input);
+      outline: none;
+      transition: border .16s;
+      font-family: inherit;
+    }
+    .input-group textarea { resize: vertical; min-height: 38px; }
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+      border-color: var(--accent);
+    }
+    .input-group input[type="file"] {
+      padding-left: 37px !important;
+      background: none;
+    }
+    .input-group input[type="file"]::-webkit-file-upload-button {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: none;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.13s;
+      margin-right: 7px;
+    }
+    .input-group input[type="file"]:hover::-webkit-file-upload-button {
+      background: #c0f2f7;
+    }
+    .photo-preview, .sign-preview {
+      width: 46px; height: 46px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-left: 13px;
+      box-shadow: 0 1px 5px #2563eb12;
+      border: 1.5px solid var(--border);
+      display: none;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 5px;
+    }
+    .submit-btn {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 38px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background .13s;
+      margin-bottom: 3px;
+      box-shadow: 0 2px 5px #20919420;
+    }
+    .submit-btn:hover { background: #15626a; }
+    .reset-btn {
+      background: #fff;
+      color: var(--accent);
+      font-weight: 700;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background .14s, color .14s;
+      margin-bottom: 3px;
+    }
+    .reset-btn:hover { background: var(--accent-light); color: #15626a; }
+    .students-table-container {
+      margin: 0;
+      padding: 0 0 22px 0;
+      width: 100%;
+      max-width: 1150px;
+      background: var(--card);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .students-table-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 0 11px 14px;
+      padding-top: 23px;
+      padding-bottom: 4px;
+      letter-spacing: 0.01em;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .download-row {
+      margin: 8px 0 8px 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .excel-btn, .pdf-btn {
+      background: var(--success);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 1px 5px #20919413;
+      transition: background 0.18s;
+    }
+    .pdf-btn { background: #ff7d1c;}
+    .excel-btn:hover { background: #1fae57;}
+    .pdf-btn:hover { background: #e34f0d;}
+    .students-table-scroll {
+      overflow-x: auto;
+      width: 100%;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1200px;
+      background: #fafdff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1.5px 9px #20919409;
+      margin: 0;
+    }
+    th, td {
+      padding: 8px 7px;
+      text-align: left;
+      border-bottom: 1.2px solid #e3e7ef;
+      vertical-align: middle;
+      font-size: 0.97rem;
+      white-space: nowrap;
+    }
+    th {
+      background: #eaf7f8;
+      color: #0d7377;
+      font-weight: 700;
+    }
+    td {
+      color: #28444b;
+      font-weight: 500;
+      background: #fff;
+    }
+    tr th, tr td { border: 1px solid #e7eded; }
+    .actions button {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      font-size: .97rem;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+    .edit-btn { background: #d1f2ea; color: #076f60;}
+    .del-btn { background: #ffe2e2; color: #d6002b;}
+    .edit-btn:hover { background: #14b79d; color: #fff;}
+    .del-btn:hover { background: #ff1c1c; color: #fff;}
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-right: 5px;
+      transition: all 0.3s ease;
+    }
+    .edit-btn {
+      background: var(--primary-color);
+      color: white;
+    }
+    .del-btn {
+      background: var(--danger);
+      color: white;
+    }
+    .table-photo, .table-sign {
+      width: 33px; height: 33px;
+      border-radius: 5px;
+      object-fit: cover;
+      box-shadow: 0 1px 6px #20919413;
+      border: 1.1px solid #e3e7ef;
+    }
+    .hidden { display: none !important; }
+    .required-input {
+      border-color: var(--required) !important;
+      background: #fff7e0 !important;
+      box-shadow: 0 1px 4px #ffbd0333;
+    }
+    #casteSelectMaster { width: 120px; min-width: 120px; max-width: 140px; }
+
+    @media (max-width: 1150px) {
+      .sidebar {
+        left: -260px;
+        position: fixed;
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        z-index: 3001;
+        transition: left 0.25s;
+        overflow-y: auto !important;
+        max-height: 100vh !important;
+        scrollbar-width: thin;
+      }
+      .sidebar.menu-open {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100vw;
+      }
+      .sidebar-hamburger { display: block; }
+      .sidebar-overlay { display: none; }
+      .sidebar-overlay.active { display: block; }
+    }
+    @media (max-width: 900px) {
+      .form-card, .students-table-container {max-width: 100vw;}
+      th, td {font-size: 0.96rem;}
+      table {min-width: 900px;}
+    }
+    @media (max-width: 700px) {
+      .form-card, .students-table-container {padding: 8px 2vw;}
+      .form-card {padding: 12px 2vw 10px 2vw;}
+      .field-label {min-width: 93px;}
+      table {min-width: 590px;}
+      .main-content {min-width: 0; width: 100vw;}
+      .top-bar {padding: 16px 7px 13px 9px;}
+      .class-select-row {gap: 7px;}
+      .sidebar-hamburger {
+        right: 10px;
+        top: 10px;
+        font-size: 2rem;
+        padding: 4px 12px 5px 12px;
+      }
+    }
+    @media (max-width: 500px) {
+      .form-card {padding: 6px 2vw;}
+      .top-bar {padding: 10px 3px;}
+      .students-table-title {font-size: 0.97rem;}
+      th, td {font-size: 0.93rem;}
+      .field-label {font-size: 0.97rem;}
+      table {min-width: 800px;}
+      .sidebar-hamburger {
+        right: 7px;
+        top: 7px;
+        font-size: 1.7rem;
+        padding: 2.5px 10px 3px 10px;
+      }
+    }
+    @media (max-width: 440px) {
+      .field-row {flex-direction: column;align-items:flex-start;}
+      .input-group{width:100%;}
+      .field-label{margin-bottom: 3px;}
+      table {min-width: 600px;}
+    }
+
+    /* Action Button Styles - Same as admin-module */
+    .action-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 3px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 60px;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    
+    .action-btn:active {
+      transform: translateY(-1px);
+    }
+    
+    .action-btn.edit-btn {
+      background: linear-gradient(135deg, var(--accent), #1a7a7c);
+    }
+    
+    .action-btn.edit-btn:hover {
+      background: linear-gradient(135deg, #1a7a7c, var(--accent));
+    }
+    
+    .action-btn.delete-btn {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .action-btn.delete-btn:hover {
+      background: linear-gradient(135deg, #c82333, #dc3545);
+    }
+
+    /* Animation keyframes */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html" class="active"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html" ><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html" ><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./time_table.html" ><img src="./assets/time table.png" alt="Timetable Management" class="menu-icon"> Timetable Management</a></li>
+          <li><a href="./content_sharing.html" ><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <img src="./assets/student dashboard.png" alt="Student Registration" style="width: 20px; height: 20px; margin-right: 10px;">
+        Student Registration - Masters
+      </div>
+      <div class="form-card">
+        <form id="masterForm" autocomplete="off">
+          <div class="class-select-row" id="classRadioGroup">
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="1-10th"/>1-10th</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="PUC"/>PUC</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="Degree"/>Degree</label>
+            <label class="class-radio-btn selected"><input type="radio" name="classGroup" value="Masters" checked/>Masters</label>
+            <label class="class-radio-btn"><input type="radio" name="classGroup" value="Engineering"/>Engineering</label>
+          </div>
+
+          <div class="form-fields" id="fields-Master">
+            <div class="form-section-title">
+              <img src="./assets/student dashboard.png" alt="Personal Information" style="width: 20px; height: 20px; margin-right: 10px;">
+              Personal Information
+            </div>
+            <div class="field-row"><span class="field-label">Full Name</span>
+              <div class="input-group"><i class="fa fa-user"></i>
+                <input type="text" name="fullName" id="fullNameMaster" placeholder="Student's full name"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Date of Birth</span>
+              <div class="input-group"><i class="fa fa-calendar"></i>
+                <input type="date" name="dob" id="dobMaster" max="2025-12-31"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Gender</span>
+              <div class="input-group"><i class="fa fa-venus-mars"></i>
+                <select name="gender" id="genderMaster">
+                  <option value="">Select Gender</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label">Aadhar Number</span>
+              <div class="input-group"><i class="fa fa-id-card"></i>
+                <input type="text" name="aadhar" id="aadharMaster" pattern="^\d{4}\s?\d{4}\s?\d{4}$" maxlength="14" placeholder="XXXX XXXX XXXX"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Parent Name</span>
+              <div class="input-group"><i class="fa fa-user-tie"></i>
+                <input type="text" name="guardian" id="guardianMaster" placeholder="Father/Mother/Guardian"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Contact Number</span>
+              <div class="input-group"><i class="fa fa-phone"></i>
+                <input type="tel" name="contact" id="contactMaster" pattern="^\d{10}$" maxlength="10" placeholder="10-digit number"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Email Address</span>
+              <div class="input-group"><i class="fa fa-envelope"></i>
+                <input type="email" name="email" id="emailMaster" placeholder="example@email.com"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Address</span>
+              <div class="input-group"><i class="fa fa-map-marker-alt"></i>
+                <textarea name="address" id="addressMaster" rows="3" placeholder="District, State"></textarea></div>
+            </div>
+            <div class="form-section-title">
+              <img src="./assets/assignements.png" alt="Academic Details" style="width: 20px; height: 20px; margin-right: 10px;">
+              Academic Details
+            </div>
+            <div class="field-row"><span class="field-label">Current Year</span>
+              <div class="input-group"><i class="fa fa-layer-group"></i>
+                <select name="year" id="yearMaster">
+                  <option value="">Select Year</option>
+                  <option>1st Year</option><option>2nd Year</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label">Academic Year</span>
+              <div class="input-group"><i class="fa fa-calendar-days"></i>
+                <input type="text" name="academicYear" id="academicYearMaster" placeholder="2024-25"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Course</span>
+              <div class="input-group"><i class="fa fa-graduation-cap"></i>
+                <select name="course" id="courseMaster">
+                  <option value="">Select Course</option>
+                  <option>MSc</option><option>MA</option><option>MCom</option><option>MCA</option><option>MBA</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label">College/Institution Name</span>
+              <div class="input-group"><i class="fa fa-school"></i>
+                <input type="text" name="college" id="collegeMaster" placeholder="College name"/></div>
+            </div>
+            <div class="form-section-title">
+              <img src="./assets/analytics.png" alt="Other Details" style="width: 20px; height: 20px; margin-right: 10px;">
+              Other Details
+            </div>
+            <div class="field-row"><span class="field-label">Caste/Category</span>
+              <div class="input-group"><i class="fa fa-users"></i>
+                <select name="caste" id="casteSelectMaster">
+                  <option value="">Select Caste</option>
+                  <option>General</option><option>SC</option><option>ST</option><option>OBC</option><option>Other</option>
+                </select>
+
+              </div>
+            </div>
+            <div class="field-row"><span class="field-label">Sub Caste</span>
+              <div class="input-group"><i class="fa fa-user-tag"></i>
+                <input type="text" name="subCaste" id="subCasteMaster" placeholder="Sub Caste (Optional)"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Blood Group</span>
+              <div class="input-group"><i class="fa fa-droplet"></i>
+                <select name="blood" id="bloodMaster">
+                  <option value="">Select Blood Group</option>
+                  <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label">Disability</span>
+              <div class="input-group"><i class="fa fa-wheelchair"></i>
+                <select name="disability" id="disabilityMaster">
+                  <option value="">Select</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select></div>
+            </div>
+            <div class="field-row"><span class="field-label">Total Fees</span>
+              <div class="input-group"><i class="fa fa-money-bill"></i>
+                <input type="number" name="totalFees" id="totalFeesMaster" min="0" step="0.01" placeholder="Total Fees"/></div>
+            </div>
+            <div class="field-row"><span class="field-label">Paid Fees</span>
+              <div class="input-group"><i class="fa fa-money-bill-wave"></i>
+                <input type="number" name="paidFees" id="paidFeesMaster" min="0" step="0.01" placeholder="Paid Fees"/></div>
+            </div>
+            <div class="btn-row">
+              <button class="submit-btn" type="submit" id="registerBtn">Register</button>
+              <button class="reset-btn" type="button" id="resetBtn">Reset</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="students-table-container" id="tableSectionMaster" style="display:none;">
+        <div class="students-table-title">
+          <img src="./assets/student dashboard.png" alt="Registered Students" style="width: 20px; height: 20px; margin-right: 10px;"> Registered Students (Masters)
+        </div>
+        <div class="download-row">
+          <button class="excel-btn" id="excelBtnMaster"><i class="fas fa-file-excel" style="margin-right: 5px;"></i>Download Excel</button>
+          <button class="pdf-btn" id="pdfBtnMaster"><i class="fas fa-file-pdf" style="margin-right: 5px;"></i>Download PDF</button>
+        </div>
+        <div class="students-table-scroll">
+          <table id="studentsTableMaster">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Guardian</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Year</th>
+                <th>Course</th>
+                <th>College</th>
+                <th>Total Fees</th>
+                <th>Paid Fees</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsBodyMaster"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    function openMenu() {
+      sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open');
+      sidebarOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    menuToggle.onclick = function() {
+      if(sidebar.classList.contains('menu-open')) closeMenu();
+      else openMenu();
+    };
+    sidebarOverlay.onclick = closeMenu;
+    window.addEventListener('resize', ()=> {
+      if(window.innerWidth>1150) closeMenu();
+    });
+    Array.from(sidebar.querySelectorAll('a')).forEach(a=>{
+      a.onclick=()=>{ if(window.innerWidth<=1150) closeMenu(); location.href=a.getAttribute('href'); }
+    });
+    document.querySelector('.sidebar .logout a').onclick = function(e){ e.preventDefault(); closeMenu(); location.href='./login.html'; };
+
+    function randomStudentID(prefix) {
+      return prefix + '-' + Math.floor(100000 + Math.random() * 900000);
+    }
+    function randomPassword(len=8){
+      const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+      let pwd="";
+      for(let i=0;i<len;i++)pwd+=chars[Math.floor(Math.random()*chars.length)];
+      return pwd;
+    }
+    let editImageDataUrl = "", editSignDataUrl = "";
+
+    const radios = document.querySelectorAll('.class-radio-btn');
+    radios.forEach(label => {
+      label.onclick = function(){
+        radios.forEach(l=>l.classList.remove('selected'));
+        label.classList.add('selected');
+        const val = label.querySelector('input').value;
+        if(val === "1-10th") window.location.href = "./student_school.html";
+        else if(val === "PUC") window.location.href = "./student_puc.html";
+        else if(val === "Degree") window.location.href = "./student_degree.html";
+        else if(val === "Masters") location.reload();
+        else if(val === "Engineering") window.location.href = "./student_engineer.html";
+      }
+    });
+
+    document.getElementById('casteSelectMaster').onchange = function(){
+      const isOther = this.value === 'Other';
+      // Show "Sub Caste" field only when "Other" is selected
+      const subCasteField = document.getElementById('subCasteMaster').parentElement.parentElement;
+      subCasteField.classList[isOther ? 'remove' : 'add']('hidden');
+    };
+
+    // Photo and signature upload handlers - commented out as these fields don't exist in current HTML
+    // document.querySelector('input[name="photo"]').onchange = function(e) {
+    //   let preview = document.getElementById('photoPreviewMaster');
+    //   if(this.files && this.files[0]) {
+    //     let reader = new FileReader();
+    //     reader.onload = function(ev) {
+    //       preview.src = ev.target.result;
+    //       preview.style.display = 'block';
+    //       editImageDataUrl = ev.target.result;
+    //     }
+    //     reader.readAsDataURL(this.files[0]);
+    //   } else {
+    //     if(editImageDataUrl) {
+    //       preview.src = editImageDataUrl;
+    //       preview.style.display = 'block';
+    //     } else {
+    //       preview.style.display = 'none';
+    //       preview.src = '';
+    //     }
+    //   }
+    // }
+    // document.querySelector('input[name="sign"]').onchange = function(e) {
+    //   let preview = document.getElementById('signPreviewMaster');
+    //   if(this.files && this.files[0]) {
+    //     let reader = new FileReader();
+    //     reader.onload = function(ev) {
+    //       preview.src = ev.target.result;
+    //       preview.style.display = 'block';
+    //       editSignDataUrl = ev.target.result;
+    //     }
+    //     reader.readAsDataURL(this.files[0]);
+    //   } else {
+    //     if(editSignDataUrl) {
+    //       preview.src = editSignDataUrl;
+    //       preview.style.display = 'block';
+    //     } else {
+    //       preview.style.display = 'none';
+    //       preview.src = '';
+    //     }
+    //   }
+    // }
+    document.getElementById('resetBtn').onclick = function(){
+      let f = document.forms.masterForm;
+      f.reset();
+      // Hide Sub Caste field on reset
+      const subCasteField = document.getElementById('subCasteMaster').parentElement.parentElement;
+      subCasteField.classList.add('hidden');
+      editIndex = null;
+      document.getElementById('tableSectionMaster').style.display = (studentsMaster.length) ? "" : "none";
+    }
+
+
+
+
+
+    async function loadStudents() {
+      try {
+        console.log('Loading students from API...');
+        const response = await fetch(GET_MASTER_STUDENTS_API, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const result = await response.json();
+        console.log('Load students result:', result);
+        
+        if (response.ok && result.success && result.students) {
+          studentsMaster = result.students;
+          console.log('Loaded students data:', studentsMaster);
+          console.log('First student structure:', studentsMaster[0]);
+          updateTable();
+          document.getElementById('tableSectionMaster').style.display = studentsMaster.length > 0 ? "" : "none";
+        } else {
+          console.error('Failed to load students:', result.message);
+        }
+      } catch (error) {
+        console.error('Error loading students:', error);
+      }
+    }
+
+    function updateTable() {
+      const tbody = document.getElementById('studentsBodyMaster');
+      tbody.innerHTML = '';
+      
+      if (studentsMaster.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = '<td colspan="12" style="text-align:center; padding: 20px;">No Master students found</td>';
+        tbody.appendChild(noDataRow);
+        return;
+      }
+      
+      studentsMaster.forEach((student, index) => {
+        console.log(`Processing student ${index}:`, student);
+        console.log('Student fields:', {
+          student_id: student.student_id,
+          full_name: student.full_name,
+          dob: student.dob,
+          gender: student.gender,
+          guardian_name: student.guardian_name,
+          contact: student.contact,
+          email: student.email,
+          current_year: student.current_year,
+          course: student.course,
+          institution_name: student.institution_name,
+          total_fees: student.total_fees,
+          paid_fees: student.paid_fees
+        });
+        const row = document.createElement('tr');
+        row.className = 'student-row';
+        row.setAttribute('data-student', JSON.stringify(student));
+
+        // Format DOB to show only date
+        let formattedDob = 'N/A';
+        if (student.dob) {
+          try {
+            const date = new Date(student.dob);
+            if (!isNaN(date.getTime())) {
+              formattedDob = date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+            }
+          } catch (error) {
+            console.error('Error formatting date:', error);
+          }
+        }
+
+        row.innerHTML = `
+          <td>${student.student_id || 'N/A'}</td>
+          <td>${student.full_name || 'N/A'}</td>
+          <td>${formattedDob}</td>
+          <td>${student.gender || 'N/A'}</td>
+          <td>${student.guardian_name || 'N/A'}</td>
+          <td>${student.contact || 'N/A'}</td>
+          <td>${student.email || 'N/A'}</td>
+          <td>${student.current_year || 'N/A'}</td>
+          <td>${student.course || 'N/A'}</td>
+          <td>${student.institution_name || 'N/A'}</td>
+          <td>${student.total_fees || 'N/A'}</td>
+          <td>${student.paid_fees || 'N/A'}</td>
+          <td class="actions">
+            <button class="action-btn edit-btn" title="Edit Student"><i class="fas fa-edit"></i></button>
+            <button class="action-btn delete-btn" title="Delete Student"><i class="fas fa-trash"></i></button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Reattach event listeners
+      attachTableEventListeners();
+    }
+
+    // Attach Event Listeners to Table - Same as student_degree.html
+    function attachTableEventListeners() {
+      // Edit Button
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.student-row');
+          currentEditingRow = row;
+          const studentData = JSON.parse(row.getAttribute('data-student'));
+          
+          // Populate form fields
+          const form = document.getElementById('masterForm');
+          form.elements['fullName'].value = studentData.full_name || '';
+          
+          // Format date for input field (convert from ISO string to YYYY-MM-DD)
+          if (studentData.dob) {
+            const date = new Date(studentData.dob);
+            const formattedDate = date.toISOString().split('T')[0];
+            form.elements['dob'].value = formattedDate;
+          } else {
+            form.elements['dob'].value = '';
+          }
+          
+          form.elements['gender'].value = studentData.gender || '';
+          form.elements['aadhar'].value = studentData.adhar || '';
+          form.elements['guardian'].value = studentData.guardian_name || '';
+          form.elements['contact'].value = studentData.contact || '';
+          form.elements['email'].value = studentData.email || '';
+          form.elements['address'].value = studentData.address || '';
+          form.elements['year'].value = studentData.current_year || '';
+          form.elements['academicYear'].value = studentData.academic_year || '';
+          form.elements['course'].value = studentData.course || '';
+          form.elements['college'].value = studentData.institution_name || '';
+          form.elements['blood'].value = studentData.blood || '';
+          form.elements['disability'].value = studentData.disability || '';
+          form.elements['totalFees'].value = studentData.total_fees || '';
+          form.elements['paidFees'].value = studentData.paid_fees || '';
+          
+          // Handle caste field for editing
+          const casteSelect = document.getElementById('casteSelect');
+          const subCasteField = document.getElementById('subCaste').parentElement.parentElement;
+          
+          // Check if the student's caste is not in the predefined options
+          const predefinedCastes = ['General', 'SC', 'ST', 'OBC'];
+          if (!predefinedCastes.includes(studentData.caste)) {
+            casteSelect.value = 'Other';
+            subCasteField.classList.remove('hidden');
+            form.elements['subCaste'].value = studentData.caste;
+            form.elements['subCaste'].required = true;
+          } else {
+            casteSelect.value = studentData.caste;
+            subCasteField.classList.add('hidden');
+            form.elements['subCaste'].value = '';
+            form.elements['subCaste'].required = false;
+          }
+          
+          // Find the correct index for this student
+          const studentIndex = studentsMaster.findIndex(s => s.student_id === studentData.student_id);
+          editIndex = studentIndex;
+          
+          // Change button text to Update Student
+          document.querySelector('button[type="submit"]').textContent = 'Update Student';
+        });
+      });
+
+      // Delete Button
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const row = e.target.closest('.student-row');
+          const studentData = row.getAttribute('data-student') ? JSON.parse(row.getAttribute('data-student')) : {};
+          
+          const confirmed = await showAlert(
+            'Delete Student',
+            `Are you sure you want to delete ${studentData.full_name || 'this student'}?`,
+            'warning',
+            true
+          );
+          
+          if (confirmed) {
+            try {
+              showLoading();
+              
+              const response = await fetch(ADD_MASTER_STUDENT_API, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  student_id: studentData.student_id
+                })
+              });
+              
+              const result = await response.json();
+              
+              if (response.ok && result.success) {
+                // Remove the row from the table
+                row.remove();
+                
+                // Update the global students data
+                studentsMaster = studentsMaster.filter(student => student.student_id !== studentData.student_id);
+                
+                hideLoading();
+                await showAlert('Success', 'Student deleted successfully', 'success');
+              } else {
+                let errorMessage = 'Failed to delete student';
+                if (result.message) {
+                  errorMessage = result.message;
+                } else if (response.status === 404) {
+                  errorMessage = 'Student not found';
+                } else if (response.status === 400) {
+                  errorMessage = 'Invalid request';
+                }
+                hideLoading();
+                await showAlert('Error', errorMessage, 'error');
+              }
+            } catch (error) {
+              console.error('Error deleting student:', error);
+              let errorMessage = 'Failed to delete student';
+              
+              if (error.name === 'SyntaxError') {
+                errorMessage = 'Invalid response from server';
+              } else if (error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your connection.';
+              }
+              
+              hideLoading();
+              await showAlert('Error', errorMessage, 'error');
+            }
+          }
+        });
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('masterForm').reset();
+      document.getElementById('subCasteMaster').parentElement.parentElement.classList.add('hidden');
+      editIndex = null;
+      document.querySelector('button[type="submit"]').textContent = 'Register Student';
+    }
+
+    // Make closeModal globally accessible
+    window.closeModal = function(result) {
+      const modal = document.querySelector('.alert-modal');
+      if (modal) {
+        modal.remove();
+      }
+    };
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStudents();
+    });
+
+
+
+    document.getElementById('excelBtnMaster').onclick = function(){
+      alert("Excel download will be implemented here.");
+    };
+    document.getElementById('pdfBtnMaster').onclick = function(){
+      alert("PDF download will be implemented here.");
+    };
+    document.getElementById('fields-Master').classList.remove('hidden');
+
+    // Validation functions
+    function validateAadhar(aadhar) {
+      const cleanAadhar = aadhar.replace(/\s/g, '');
+      return /^\d{12}$/.test(cleanAadhar);
+    }
+
+    function validatePhone(phone) {
+      return /^\d{10}$/.test(phone);
+    }
+
+    function validateEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Form submission handler - Same as admin module
+    document.getElementById('masterForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const studentData = {};
+      
+      for(let [key, value] of formData.entries()) {
+        studentData[key] = value;
+      }
+
+      // Handle caste value - if "Other" is selected, use the specified caste
+      if (studentData.caste === 'Other' && studentData.otherCaste) {
+        studentData.caste = studentData.otherCaste;
+      }
+      // Remove the otherCaste field as it's not needed in the final data
+      delete studentData.otherCaste;
+
+      // No validation required - all fields are optional
+
+      // Get current authenticated teacher data
+      const userData = window.UserSession ? window.UserSession.getUserData() : null;
+      if (!userData || !userData.isAuthenticated) {
+        await showAlert('Error', 'Session expired. Please login again.', 'error');
+        window.location.href = '../login.html';
+        return;
+      }
+
+      // Prepare data for backend - Same as admin module
+      const backendData = {
+        full_name: studentData.fullName,
+        dob: studentData.dob,
+        gender: studentData.gender,
+        adhar: studentData.aadhar ? studentData.aadhar.replace(/\s/g, '') : '',
+        guardian_name: studentData.guardian,
+        contact: parseInt(studentData.contact),
+        email: studentData.email,
+        address: studentData.address,
+        current_year: studentData.year,
+        academic_year: studentData.academicYear,
+        course: studentData.course,
+        institution_name: userData.user.institution_name, // Use authenticated teacher's institution
+        institution_id: userData.user.institution_id, // Add institution_id
+        teacher_id: userData.user.teacher_id, // Add teacher_id
+        caste: studentData.caste,
+        subCaste: studentData.subCaste || '',
+        blood: studentData.blood,
+        disability: studentData.disability || '',
+        total_fees: parseInt(studentData.totalFees),
+        paid_fees: parseInt(studentData.paidFees)
+      };
+
+      // No validation required - all fields are optional
+      console.log('Form data prepared for submission.');
+
+      // Test database connection first
+      try {
+        console.log('Testing database connection...');
+        const testResponse = await fetch(ADD_MASTER_STUDENT_API + '?test=db', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const testResult = await testResponse.json();
+        console.log('Database test result:', testResult);
+        
+        if (!testResult.success) {
+          await showAlert('Error', 'Database connection failed. Please try again later.', 'error');
+          return;
+        }
+        
+        console.log('Database connection successful. Proceeding with registration...');
+      } catch (testError) {
+        console.error('Database test failed:', testError);
+        await showAlert('Error', 'Unable to connect to database. Please try again later.', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        
+        // Use parallel processing for new student registration
+        if(editIndex === null) {
+          console.log('Using parallel processing for new Master student registration...');
+          const parallelResults = await parallelMasterStudentRegistration(backendData, studentData);
+          
+          // Process results
+          const masterResult = await parallelResults.masterResponse.json();
+          const studentResult = await parallelResults.studentResponse.json();
+          const parentResult = await parallelResults.parentResponse.json();
+          
+          console.log('Parallel processing results:', { masterResult, studentResult, parentResult });
+          
+          // Handle results and send emails
+          if (parallelResults.masterResponse.ok && masterResult.success) {
+            console.log('Master student added successfully:', masterResult);
+            
+            // Send emails in parallel
+            const emailResults = await sendStudentEmails(studentData, masterResult.student_id, masterResult.password, 
+              `Master Student and Parent added successfully! All welcome emails and credentials have been sent to: ${studentData.email}\n\n📋 Registration Details:\n• Student ID: ${masterResult.student_id}\n• Student Password: ${masterResult.password}\n• Parent User ID: ${masterResult.parent_userId}\n• Parent Password: ${masterResult.parent_password}`);
+            
+            hideLoading();
+            await showAlert('Success!', emailResults, 'success');
+            resetForm();
+            loadStudents(true); // Force refresh cache
+          } else {
+            hideLoading();
+            await showAlert('Error', masterResult.message || 'Failed to add Master student', 'error');
+          }
+          return;
+        }
+        
+        if(editIndex !== null) {
+          // Update existing student
+          backendData.student_id = studentsMaster[editIndex].student_id;
+          
+          const response = await fetch(ADD_MASTER_STUDENT_API, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendData)
+          });
+
+          const result = await response.json();
+          hideLoading();
+
+          if (response.ok && result.success) {
+            await showAlert('Success', 'Student updated successfully', 'success');
+            editIndex = null;
+            document.querySelector('button[type="submit"]').textContent = 'Register Student';
+            resetForm();
+            loadStudents(); // Reload students after updating
+          } else {
+            const errorMessage = result.message || 'Failed to update student';
+            await showAlert('Error', errorMessage, 'error');
+          }
+        } else {
+          // Check if contact number already exists in general student database first
+          try {
+            const checkResponse = await fetch(`${STUDENT_API}?contact=${backendData.contact}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (checkResponse.ok) {
+              const checkResult = await checkResponse.json();
+              if (checkResult.students && checkResult.students.length > 0) {
+                hideLoading();
+                await showAlert('Error', 'Student exists and Number already in use', 'error');
+                return;
+              }
+            }
+          } catch (checkError) {
+            console.error('Error checking contact number:', checkError);
+          }
+
+          // Check if parent contact number already exists in parents database
+          try {
+            const parentCheckResponse = await fetch(`${PARENTS_API}?contact=${backendData.contact}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (parentCheckResponse.ok) {
+              const parentCheckResult = await parentCheckResponse.json();
+              if (parentCheckResult.parents && parentCheckResult.parents.length > 0) {
+                hideLoading();
+                await showAlert('Error', 'Parent exists and Number already in use', 'error');
+                return;
+              }
+            }
+          } catch (parentCheckError) {
+            console.error('Error checking parent contact number:', parentCheckError);
+          }
+
+          // PRE-CHECK: Test all APIs before adding to any
+          let allApisAvailable = true;
+          let apiErrors = [];
+
+          // Test STUDENT_API
+          try {
+            const studentTestResponse = await fetch(STUDENT_API, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (!studentTestResponse.ok) {
+              allApisAvailable = false;
+              apiErrors.push('Student API is not available');
+            }
+          } catch (studentTestError) {
+            allApisAvailable = false;
+            apiErrors.push('Student API connection failed');
+          }
+
+          // Test PARENTS_API
+          try {
+            const parentTestResponse = await fetch(PARENTS_API, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (!parentTestResponse.ok) {
+              allApisAvailable = false;
+              apiErrors.push('Parent API is not available');
+            }
+          } catch (parentTestError) {
+            allApisAvailable = false;
+            apiErrors.push('Parent API connection failed');
+          }
+
+          // If any API is not available, don't proceed
+          if (!allApisAvailable) {
+            hideLoading();
+            const errorMessage = `Cannot register student. The following APIs are not available:\n\n${apiErrors.join('\n')}\n\nPlease try again later or contact support.`;
+            await showAlert('Registration Failed', errorMessage, 'error');
+            return;
+          }
+
+
+
+          // Add new student to master students table first
+          console.log('Sending data to Master API:', backendData);
+          const response = await fetch(ADD_MASTER_STUDENT_API, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendData)
+          });
+
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            hideLoading();
+            const errorMessage = result.message || 'Failed to add student to master database';
+            await showAlert('Error', errorMessage, 'error');
+            return;
+          }
+
+          // If master student added successfully, proceed to add to students table
+          try {
+            const studentsTableData = {
+              student_id: result.student_id,
+              password: result.password,
+              full_name: studentData.fullName,
+              contact: parseInt(studentData.contact),
+              academic_year: studentData.academicYear
+            };
+            
+            const studentResponse = await fetch(STUDENT_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(studentsTableData)
+            });
+            
+            const studentResult = await studentResponse.json();
+            
+            if (!studentResponse.ok || !studentResult.success) {
+              hideLoading();
+              await showAlert('Error', 'Failed to add student to general database. Please try again.', 'error');
+              return;
+            }
+          } catch (studentError) {
+            hideLoading();
+            console.error('Error storing in students table:', studentError);
+            await showAlert('Error', 'Failed to add student to general database. Please try again.', 'error');
+            return;
+          }
+
+          // If both master and general student added successfully, proceed to add parent
+          try {
+            const parentTableData = {
+              parent_userId: result.parent_userId,
+              parent_password: result.parent_password,
+              full_name: studentData.guardian,
+              contact: parseInt(studentData.contact),
+              academic_year: studentData.academicYear
+            };
+
+            const parentResponse = await fetch(PARENTS_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(parentTableData)
+            });
+
+            const parentResult = await parentResponse.json();
+
+            if (!parentResponse.ok || !parentResult.success) {
+              hideLoading();
+              await showAlert('Error', 'Failed to add parent information. Please try again.', 'error');
+              return;
+            }
+          } catch (parentError) {
+            hideLoading();
+            console.error('Error storing in parents table:', parentError);
+            await showAlert('Error', 'Failed to add parent information. Please try again.', 'error');
+            return;
+          }
+          
+          // All three APIs succeeded
+          hideLoading();
+          await showAlert(
+            'Success!', 
+            `Student and Parent added successfully!\n\nStudent ID: ${result.student_id}\nStudent Password: ${result.password}\nParent User ID: ${result.parent_userId}\nParent Password: ${result.parent_password}\n\nPlease save this information securely.`, 
+            'success'
+          );
+          resetForm();
+          loadStudents(); // Reload students after adding
+        }
+      } catch (error) {
+        console.error('Error registering student:', error);
+        let errorMessage = 'Failed to register student';
+        
+        if (error.name === 'SyntaxError') {
+          errorMessage = 'Invalid response from server';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        hideLoading();
+        await showAlert('Error', errorMessage, 'error');
+      }
+    });
+
+    // API Configuration - Same as admin-module
+    const ADD_MASTER_STUDENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addMasterStudent';
+    const GET_MASTER_STUDENTS_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/addMasterStudent';
+    const STUDENT_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/student';
+    const PARENTS_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/parents';
+    const WELCOME_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/welcomeMessage';
+    const CREDENTIALS_EMAIL_API = 'https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/credentials';
+
+    // Global variables
+    let studentsMaster = [];
+    let editIndex = null;
+    let currentEditingRow = null;
+    
+    // Performance optimization: Simple caching
+    let studentsCache = null;
+    let lastCacheTime = 0;
+    const CACHE_DURATION = 30 * 1000; // 30 seconds cache for faster updates
+    
+    // Performance optimization: Debounced search
+    let searchTimeout;
+    let currentPage = 0;
+    const studentsPerPage = 20; // Show 20 students at a time for better performance
+    
+    // Email functionality for student and parent
+    async function sendStudentEmails(studentData, studentId, password, baseMessage) {
+      try {
+        console.log('Step 4: Sending welcome and credentials emails...');
+        
+        // Send student credentials email
+        const studentCredentialsData = {
+          email: studentData.email,
+          name: studentData.fullName,
+          student_id: studentId,
+          password: password
+        };
+        
+        const studentCredentialsResponse = await fetch(CREDENTIALS_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentCredentialsData)
+        });
+        
+        const studentCredentialsResult = await studentCredentialsResponse.json();
+        console.log('Student credentials email sent successfully');
+        
+        // Send parent credentials email
+        const parentCredentialsData = {
+          email: studentData.email,
+          name: studentData.guardian,
+          parent_userId: `BcMas${Math.floor(Math.random() * 900) + 100}`,
+          parent_password: Math.random().toString(36).substring(2, 8).toUpperCase()
+        };
+        
+        const parentCredentialsResponse = await fetch(CREDENTIALS_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parentCredentialsData)
+        });
+        
+        const parentCredentialsResult = await parentCredentialsResponse.json();
+        console.log('Parent credentials email sent successfully');
+        
+        // Send welcome emails
+        const studentWelcomeData = {
+          email: studentData.email,
+          name: studentData.fullName
+        };
+        
+        const studentWelcomeResponse = await fetch(WELCOME_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentWelcomeData)
+        });
+        
+        const studentWelcomeResult = await studentWelcomeResponse.json();
+        console.log('Student welcome email sent successfully');
+        
+        const parentWelcomeData = {
+          email: studentData.email,
+          name: studentData.guardian
+        };
+        
+        const parentWelcomeResponse = await fetch(WELCOME_EMAIL_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parentWelcomeData)
+        });
+        
+        const parentWelcomeResult = await parentWelcomeResponse.json();
+        console.log('Parent welcome email sent successfully');
+        
+        const emailResults = [
+          studentCredentialsResult,
+          parentCredentialsResult,
+          studentWelcomeResult,
+          parentWelcomeResult
+        ];
+        
+        console.log('All email results:', emailResults);
+        
+        return baseMessage;
+      } catch (error) {
+        console.error('Email sending failed:', error);
+        return `${baseMessage}\n\n📧 Email service is currently unavailable.\n\n⚠️ Please save these credentials securely as emails won't be sent.`;
+      }
+    }
+    
+    // Performance optimization: Parallel processing for Master student registration
+    async function parallelMasterStudentRegistration(backendData, studentData) {
+      console.log('Starting parallel Master student registration...');
+      
+      // Prepare all API calls
+      const masterStudentPromise = fetch(ADD_MASTER_STUDENT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(backendData)
+      });
+      
+      const studentsTablePromise = fetch(STUDENT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: backendData.full_name,
+          contact: backendData.contact,
+          email: backendData.email,
+          academic_year: backendData.academic_year,
+          institution_id: backendData.institution_id,
+          teacher_id: backendData.teacher_id
+        })
+      });
+      
+      const parentPromise = fetch(PARENTS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_id: 'temp', // Will be updated after Master student is created
+          parent_name: backendData.guardian_name,
+          contact: backendData.contact,
+          email: backendData.email,
+          institution_id: backendData.institution_id,
+          teacher_id: backendData.teacher_id
+        })
+      });
+      
+      // Execute all API calls in parallel
+      console.log('Executing parallel API calls...');
+      const [masterResponse, studentResponse, parentResponse] = await Promise.all([
+        masterStudentPromise,
+        studentsTablePromise,
+        parentPromise
+      ]);
+      
+      console.log('All parallel API calls completed');
+      
+      return {
+        masterResponse,
+        studentResponse,
+        parentResponse
+      };
+    }
+    
+    // Performance optimization: Debounced search function
+    function debouncedSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+        if (searchTerm.trim() === '') {
+          updateTable(); // Show all students if no search term
+          return;
+        }
+        
+        // Filter students based on search term
+        const filteredStudents = studentsMaster.filter(student => 
+          student.full_name?.toLowerCase().includes(searchTerm) ||
+          student.student_id?.toString().includes(searchTerm) ||
+          student.contact?.toString().includes(searchTerm) ||
+          student.current_class?.toLowerCase().includes(searchTerm) ||
+          student.guardian_name?.toLowerCase().includes(searchTerm)
+        );
+        
+        // Update table with filtered results
+        const tbody = document.querySelector('#studentsTableMaster tbody');
+        if (tbody) {
+          tbody.innerHTML = '';
+          
+          if (filteredStudents.length === 0) {
+            const noDataRow = document.createElement('tr');
+            noDataRow.innerHTML = '<td colspan="11" style="text-align:center; padding: 20px;">No students found matching your search</td>';
+            tbody.appendChild(noDataRow);
+            return;
+          }
+          
+          filteredStudents.forEach((student, index) => {
+            const row = document.createElement('tr');
+            row.className = 'student-row';
+            row.setAttribute('data-student', JSON.stringify(student));
+            
+            // Format DOB to show only date
+            let formattedDob = 'N/A';
+            if (student.dob) {
+              try {
+                const date = new Date(student.dob);
+                if (!isNaN(date.getTime())) {
+                  formattedDob = date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                }
+              } catch (error) {
+                console.error('Error formatting date:', error);
+              }
+            }
+            
+            row.innerHTML = `
+              <td>${student.student_id || 'N/A'}</td>
+              <td>${student.full_name || 'N/A'}</td>
+              <td>${formattedDob}</td>
+              <td>${student.gender || 'N/A'}</td>
+              <td>${student.guardian_name || 'N/A'}</td>
+              <td>${student.contact || 'N/A'}</td>
+              <td>${student.email || 'N/A'}</td>
+              <td>${student.current_class || 'N/A'}</td>
+              <td>${student.institute_name || 'N/A'}</td>
+              <td>₹${student.Total_fees || 'N/A'}</td>
+              <td>₹${student.paid_Fees || 'N/A'}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" onclick="editStudent(${index})" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteStudent(${index})" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+      }, 300); // 300ms delay for debouncing
+    }
+    
+    // Performance optimization: Setup function
+    function setupPerformanceOptimizations() {
+      // Preload critical resources
+      const criticalResources = [
+        'https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'
+      ];
+      
+      criticalResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = resource;
+        link.as = 'style';
+        link.onload = function() {
+          this.rel = 'stylesheet';
+        };
+        document.head.appendChild(link);
+      });
+      
+      // Setup intersection observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Load content when it comes into view
+              entry.target.classList.add('loaded');
+            }
+          });
+        });
+        
+        // Observe elements that should be lazy loaded
+        document.querySelectorAll('.lazy-load').forEach(el => {
+          observer.observe(el);
+        });
+      }
+      
+      // Setup service worker for caching (if available and not file:// protocol)
+      if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('Service worker registration failed:', err);
+        });
+      } else if (window.location.protocol === 'file:') {
+        console.log('Service worker skipped - file:// protocol not supported');
+      }
+    }
+
+    // Custom Alert Function - Same as admin-module
+    function showAlert(title, message, type = 'info', showCancel = false) {
+      return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'alert-modal';
+        modal.style.cssText = `
+          display: block;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          animation: fadeIn 0.3s;
+        `;
+
+        let iconClass = 'fas fa-info-circle';
+        switch (type) {
+          case 'success': iconClass = 'fas fa-check-circle'; break;
+          case 'error': iconClass = 'fas fa-exclamation-circle'; break;
+          case 'warning': iconClass = 'fas fa-exclamation-triangle'; break;
+        }
+
+        // Helper function to close modal and resolve
+        const closeModal = (result) => {
+          modal.remove();
+          resolve(result);
+        };
+
+        modal.innerHTML = `
+          <div style="
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            animation: slideIn 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          ">
+            <span style="
+              position: absolute;
+              top: 15px;
+              right: 20px;
+              font-size: 24px;
+              cursor: pointer;
+              color: #999;
+            " id="closeBtn">&times;</span>
+            <div style="font-size: 3rem; margin-bottom: 20px; color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8'};">
+              <i class="${iconClass}"></i>
+            </div>
+            <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 15px; color: #333;">${title}</h3>
+            <p style="font-size: 1rem; color: #666; margin-bottom: 25px; line-height: 1.5;">${message}</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+              ${showCancel ? '<button id="cancelBtn" style="padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; background: #6c757d; color: white; min-width: 100px;">Cancel</button>' : ''}
+              <button id="okBtn" style="padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer; background: #3A1C71; color: white; min-width: 100px;">OK</button>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners after creating the modal
+        const closeBtn = modal.querySelector('#closeBtn');
+        const okBtn = modal.querySelector('#okBtn');
+        const cancelBtn = modal.querySelector('#cancelBtn');
+
+        closeBtn.addEventListener('click', () => closeModal(false));
+        okBtn.addEventListener('click', () => closeModal(true));
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', () => closeModal(false));
+        }
+
+        document.body.appendChild(modal);
+
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            closeModal(false);
+          }
+        };
+      });
+    }
+
+    // Loading Modal Functions
+    function showLoading() {
+      // Remove any existing loading popup first
+      const existingLoading = document.getElementById('loadingPopup');
+      if (existingLoading) {
+        console.log('Removing existing loading popup before creating new one');
+        existingLoading.remove();
+      }
+      
+      const loading = document.createElement('div');
+      loading.id = 'loadingPopup';
+      loading.style.cssText = `
+        display: block;
+        position: fixed;
+        z-index: 3000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      `;
+      loading.innerHTML = `
+        <div style="
+          background: #ffffff;
+          margin: 20% auto;
+          padding: 40px;
+          border-radius: 12px;
+          width: 90%;
+          max-width: 300px;
+          text-align: center;
+          position: relative;
+          color: #333;
+        ">
+          <div style="
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #3A1C71;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+          "></div>
+          <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; color: #3A1C71;">BC360</div>
+          <div style="font-size: 0.9rem; color: #666;">Loading...</div>
+        </div>
+      `;
+      document.body.appendChild(loading);
+      console.log('Loading popup created and added to DOM');
+    }
+
+    function hideLoading() {
+      const loading = document.getElementById('loadingPopup');
+      if (loading) {
+        console.log('Removing loading popup');
+        loading.remove();
+      } else {
+        console.log('No loading popup found to remove');
+      }
+    }
+
+    // Validation functions
+    function validateAadhar(aadhar) {
+      const aadharRegex = /^\d{12}$/;
+      return aadharRegex.test(aadhar.replace(/\s/g, ''));
+    }
+
+    function validatePhone(phone) {
+      const phoneRegex = /^\d{10}$/;
+      return phoneRegex.test(phone);
+    }
+
+    // Test API function
+    async function testAPI() {
+      try {
+        console.log('Testing Master API connection...');
+        const response = await fetch(GET_MASTER_STUDENTS_API + '?test=db', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const result = await response.json();
+        console.log('Master API Test Result:', result);
+        
+        if (result.success) {
+          console.log('Master API is working correctly');
+          console.log('Database connection:', result.tableExists ? 'OK' : 'Table not found');
+          console.log('Student count:', result.studentCount);
+        } else {
+          console.log('Master API test failed:', result.message);
+        }
+        return result;
+      } catch (error) {
+        console.error('Master API test error:', error);
+        throw error;
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup performance optimizations (non-blocking)
+      setTimeout(() => {
+        setupPerformanceOptimizations();
+      }, 100);
+      
+      // Setup search functionality
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+      }
+      
+      // Show loading popup immediately when page loads
+      showLoading();
+      
+      // Set a maximum loading time to prevent infinite loading
+      const loadingTimeout = setTimeout(() => {
+        console.log('Loading timeout reached, hiding loading spinner');
+        hideLoading();
+      }, 5000); // 5 seconds maximum loading time
+      
+      // Load students immediately without API test (faster loading)
+      loadStudents().then(() => {
+        console.log('Master Students loaded successfully');
+        clearTimeout(loadingTimeout);
+        hideLoading();
+      }).catch((error) => {
+        console.error('Error loading Master students:', error);
+        clearTimeout(loadingTimeout);
+        hideLoading();
+      });
+      
+      // Test API in background (non-blocking)
+      setTimeout(() => {
+        testAPI().catch(error => {
+          console.log('Background API test failed:', error);
+        });
+      }, 1000);
+    });
+
+    // Load Students from Backend - Same as admin-module
+    async function loadStudents(forceRefresh = false) {
+      console.log('loadStudents function called');
+      
+      // Check cache first (unless force refresh)
+      const now = Date.now();
+      if (!forceRefresh && studentsCache && (now - lastCacheTime) < CACHE_DURATION) {
+        console.log('Using cached Master students data');
+        studentsMaster = studentsCache;
+        updateTable();
+        document.getElementById('tableSectionMaster').style.display = 'block';
+        hideLoading(); // Hide loading immediately for cached data
+        return;
+      }
+      
+      // Don't show loading for cached data, only for fresh API calls
+      if (!studentsCache) {
+        showLoading();
+      }
+      
+      try {
+        // Get current teacher's institution_id from session
+        let userData = null;
+        if (window.UserSession && window.UserSession.getUserData) {
+          userData = window.UserSession.getUserData();
+        } else {
+          // Fallback: get from localStorage directly
+          const storedUser = localStorage.getItem('bc3620_user');
+          if (storedUser) {
+            try {
+              userData = JSON.parse(storedUser);
+            } catch (e) {
+              console.warn('Failed to parse stored user data:', e);
+            }
+          }
+        }
+        
+        const institution_id = userData ? (userData.institution_id || userData.user?.institution_id) : null;
+        
+        if (!institution_id) {
+          console.error('No institution_id found in user session');
+          studentsMaster = [];
+          updateTable();
+          document.getElementById('tableSectionMaster').style.display = 'block';
+          hideLoading();
+          return;
+        }
+        
+        console.log('Fetching Master students from API with institution_id filter:', GET_MASTER_STUDENTS_API);
+        console.log('Filtering by institution_id:', institution_id);
+        
+        const response = await fetch(`${GET_MASTER_STUDENTS_API}?institution_id=${institution_id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log('API Response status:', response.status);
+        console.log('API Response ok:', response.ok);
+
+        const result = await response.json();
+        console.log('API Response data:', result);
+
+        if (response.ok && result.success && result.students) {
+          console.log('Master Students found:', result.students.length);
+          studentsMaster = result.students;
+          
+          // Update cache
+          studentsCache = studentsMaster;
+          lastCacheTime = now;
+          
+          // Immediate UI update
+          updateTable();
+          document.getElementById('tableSectionMaster').style.display = 'block';
+          hideLoading(); // Hide loading immediately after data is loaded
+        } else {
+          // Don't show error popup for empty results, just log it
+          console.log('No Master students found or failed to load:', result.message || 'No data');
+          console.log('Response success:', result.success);
+          console.log('Students array:', result.students);
+          studentsMaster = [];
+          updateTable();
+          document.getElementById('tableSectionMaster').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error loading Master students:', error);
+        
+        // Only show critical errors, log others
+        if (error.name === 'SyntaxError' || error.message.includes('JSON')) {
+          console.error('Server response error:', error);
+        } else if (error.message.includes('fetch')) {
+          console.error('Network error:', error);
+        } else {
+          console.error('Unknown error:', error);
+        }
+        
+        // Set empty students array and show table anyway
+        studentsMaster = [];
+        updateTable();
+        document.getElementById('tableSectionMaster').style.display = 'block';
+      } finally {
+        console.log('loadStudents finally block - calling hideLoading()');
+        hideLoading();
+      }
+    }
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

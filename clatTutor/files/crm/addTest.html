@@ -1,0 +1,3264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Test — CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <style>
+    .at-page {
+      --at-ink: #1a1408;
+      --at-muted: #5c4a2a;
+      --at-gold: #ffcc00;
+      --at-gold-deep: #c9a000;
+      --at-pick: #2563eb;
+      --at-card: #ffffff;
+      --at-line: #ead9a3;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 0 2.5rem;
+    }
+    .at-page * {
+      box-sizing: border-box;
+    }
+    .at-bento {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-rows: auto auto;
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .at-bento {
+        grid-template-columns: 1fr;
+      }
+      .at-upload-pair {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    .at-card {
+      background: var(--at-card);
+      border: 1px solid var(--at-line);
+      border-radius: 16px;
+      padding: 1.15rem 1.2rem 1.25rem;
+      box-shadow: 0 4px 18px rgba(146, 98, 0, 0.07);
+    }
+    .at-card--upload {
+      grid-row: span 2;
+      border-left: 4px solid var(--at-gold);
+      display: flex;
+      flex-direction: column;
+    }
+    .at-card h2 {
+      margin: 0 0 0.2rem;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--at-ink);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .at-card h2 i {
+      color: var(--at-gold-deep);
+      font-size: 1.05rem;
+    }
+    .at-card .at-sub {
+      margin: 0 0 1rem;
+      font-size: 0.82rem;
+      color: var(--at-muted);
+      line-height: 1.45;
+    }
+    .at-upload-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin-top: 0.35rem;
+    }
+    .at-upload-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .at-upload-col-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+      margin-bottom: 0.4rem;
+    }
+    .at-drop {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 150px;
+      padding: 0.85rem;
+      border: 2px dashed #d4bc6a;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fffdf9 0%, #fff8e8 100%);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .at-drop:hover,
+    .at-drop.at-drop--active {
+      border-color: var(--at-gold);
+      background: #fffef5;
+      box-shadow: inset 0 0 0 1px rgba(255, 204, 0, 0.25);
+    }
+    .at-drop i.fa-cloud-arrow-up {
+      font-size: 1.65rem;
+      color: var(--at-gold-deep);
+      opacity: 0.9;
+    }
+    .at-drop strong {
+      font-size: 0.88rem;
+      color: var(--at-ink);
+      text-align: center;
+    }
+    .at-drop span {
+      font-size: 0.72rem;
+      color: var(--at-muted);
+      text-align: center;
+    }
+    .at-file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .at-file-meta {
+      margin-top: 0.45rem;
+      font-size: 0.75rem;
+      color: var(--at-muted);
+      word-break: break-all;
+    }
+    .at-file-meta.at-ok {
+      color: #15803d;
+      font-weight: 600;
+    }
+    .at-field {
+      margin-bottom: 0.85rem;
+    }
+    .at-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--at-muted);
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .at-field input[type="text"] {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid #e5d5a8;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      background: #fffefb;
+    }
+    .at-datetime-wrap {
+      position: relative;
+      display: block;
+    }
+    .at-datetime-wrap .at-when-input {
+      width: 100%;
+      padding: 0.65rem 2.5rem 0.65rem 0.75rem;
+      border: 1px solid #e5d5a8;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      background: #fffefb;
+      cursor: pointer;
+    }
+    .at-datetime-wrap .at-when-input:focus {
+      outline: none;
+      border-color: var(--at-gold);
+      box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);
+    }
+    .at-datetime-wrap > i {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--at-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .at-schedule-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .at-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .at-btn:active {
+      transform: translateY(1px);
+    }
+    .at-btn--gold {
+      background: linear-gradient(180deg, #ffe066 0%, var(--at-gold) 100%);
+      color: #1a1408;
+      box-shadow: 0 4px 12px rgba(201, 160, 0, 0.35);
+    }
+    .at-btn--gold:hover {
+      box-shadow: 0 6px 16px rgba(201, 160, 0, 0.45);
+    }
+    .at-btn--ghost {
+      background: transparent;
+      border: 1.5px solid #d4bc6a;
+      color: var(--at-ink);
+    }
+    .at-btn--ghost:hover {
+      border-color: var(--at-gold-deep);
+      background: rgba(255, 204, 0, 0.08);
+    }
+    .at-schedule-panel {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+    .at-schedule-panel.at-open {
+      max-height: 280px;
+      opacity: 1;
+      margin-bottom: 0.5rem;
+    }
+    .at-card--wide {
+      grid-column: 1 / -1;
+    }
+    .at-branch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 0.55rem;
+      margin: 0.75rem 0 1rem;
+    }
+    .at-branch {
+      position: relative;
+    }
+    .at-branch input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+    .at-branch label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.4rem 0.6rem;
+      border-radius: 11px;
+      border: 1.5px solid #e8d9b0;
+      background: #fffefb;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--at-ink);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      text-align: center;
+    }
+    .at-branch input:checked + label {
+      border-color: var(--at-gold-deep);
+      background: linear-gradient(180deg, #fff9e0 0%, #fff3c4 100%);
+      box-shadow: 0 2px 8px rgba(201, 160, 0, 0.2);
+    }
+    .at-branch input:focus-visible + label {
+      outline: 2px solid var(--at-gold);
+      outline-offset: 2px;
+    }
+    .at-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 0.25rem;
+      border-top: 1px solid #f0e6cc;
+      margin-top: 0.25rem;
+    }
+    .at-hint {
+      font-size: 0.78rem;
+      color: var(--at-muted);
+      max-width: 28rem;
+      line-height: 1.45;
+    }
+    .at-toast-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+    .at-toast-wrap.at-toast--show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .at-toast-wrap[hidden] {
+      display: none !important;
+    }
+    .at-toast-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 20, 8, 0.4);
+      backdrop-filter: blur(5px);
+    }
+    .at-toast-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      padding: 1.35rem 1.35rem 1.25rem;
+      background: linear-gradient(180deg, #fffefb 0%, #fff8ec 100%);
+      border: 1px solid var(--at-line);
+      border-radius: 20px;
+      box-shadow: 0 24px 48px rgba(92, 74, 42, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--at-ink);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.32s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    .at-toast-wrap.at-toast--show .at-toast-card {
+      transform: translateY(0) scale(1);
+    }
+    .at-toast-card__close {
+      position: absolute;
+      top: 0.65rem;
+      right: 0.65rem;
+      width: 2rem;
+      height: 2rem;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--at-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      line-height: 1;
+      transition: background 0.15s, color 0.15s;
+    }
+    .at-toast-card__close:hover {
+      background: rgba(234, 217, 163, 0.45);
+      color: var(--at-ink);
+    }
+    .at-toast-card__icon {
+      width: 3rem;
+      height: 3rem;
+      margin: 0 auto 0.75rem;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fff3c4 0%, #ffe8a0 100%);
+      border: 1px solid #f0d78a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--at-gold-deep);
+      font-size: 1.35rem;
+    }
+    .at-toast-card__icon.at-toast-card__icon--success {
+      background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+      border-color: #86efac;
+      color: #166534;
+    }
+    .at-toast-card__icon.at-toast-card__icon--error {
+      background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+    .at-toast-card__title {
+      margin: 0 0 0.5rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--at-ink);
+      letter-spacing: -0.02em;
+    }
+    .at-toast-card__msg {
+      margin: 0 0 1.15rem;
+      font-size: 0.88rem;
+      color: var(--at-muted);
+      line-height: 1.55;
+    }
+    .at-toast-card__actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .at-toast-card__ok {
+      min-width: 7.5rem;
+      padding: 0.55rem 1.25rem;
+      font-weight: 600;
+    }
+    /* Flatpickr — calendar + time, blue selection like reference */
+    .flatpickr-calendar {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+      border-radius: 12px !important;
+    }
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: var(--at-pick) !important;
+      border-color: var(--at-pick) !important;
+      color: #fff !important;
+    }
+    .flatpickr-day:hover {
+      background: #dbeafe !important;
+      border-color: #93c5fd !important;
+    }
+    .flatpickr-time input:hover,
+    .flatpickr-time .flatpickr-am-pm:hover,
+    .flatpickr-time input:focus,
+    .numInputWrapper:hover {
+      background: #eff6ff !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year {
+      font-weight: 600 !important;
+    }
+    /* Submitting popup — centered card over dim backdrop */
+    .at-loader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10005;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(26, 20, 8, 0.42);
+      backdrop-filter: blur(6px);
+    }
+    .at-loader-overlay[hidden] {
+      display: none !important;
+    }
+    .at-submit-popup {
+      width: min(420px, 100%);
+      background: linear-gradient(180deg, #fffdf9 0%, #fffefb 100%);
+      border: 1px solid var(--at-line);
+      border-radius: 20px;
+      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.14);
+      padding: 1.5rem 1.65rem 1.6rem;
+      text-align: center;
+    }
+    .at-submit-popup__title {
+      margin: 0 0 0.35rem;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-submit-popup__hint {
+      margin: 0 0 1rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--at-muted);
+      line-height: 1.45;
+      min-height: 1.2em;
+    }
+    .at-submit-popup__hint:empty {
+      display: none;
+    }
+    .at-loader-inner {
+      text-align: center;
+      padding: 0;
+    }
+    .at-loader-inner p {
+      margin: 1rem 0 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--at-ink);
+    }
+    .loader-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+    }
+    .juggler {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .head {
+      width: 24px;
+      height: 24px;
+      background: #2c3e50;
+      border-radius: 50%;
+      position: absolute;
+      top: -34px;
+      left: -12px;
+      animation: head-drop 6s infinite;
+      transform-origin: center bottom;
+    }
+    .body {
+      width: 16px;
+      height: 40px;
+      background: #2c3e50;
+      border-radius: 8px;
+      position: absolute;
+      top: -5px;
+      left: -8px;
+    }
+    .arm {
+      width: 8px;
+      height: 32px;
+      background: #2c3e50;
+      border-radius: 4px;
+      position: absolute;
+      top: -2px;
+      transform-origin: 4px 4px;
+    }
+    .right-arm {
+      left: 2px;
+      animation: right-arm-juggle 6s infinite;
+    }
+    .left-arm {
+      left: -10px;
+      animation: left-arm-juggle 6s infinite;
+    }
+    .ball {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -12px;
+      margin-left: -7px;
+    }
+    .ball-1 {
+      background: #ff4757;
+      animation: ball1 6s infinite;
+    }
+    .ball-2 {
+      background: #1e90ff;
+      animation: ball2 6s infinite;
+    }
+    .ball-3 {
+      background: #2ed573;
+      animation: ball3 6s infinite;
+    }
+    @keyframes head-drop {
+      0%, 50% { transform: rotate(0deg) translate(0, 0); }
+      55%, 65% { transform: rotate(8deg) translate(1px, 0); }
+      60%, 70% { transform: rotate(-8deg) translate(-1px, 0); }
+      75% { transform: rotate(0deg) translate(0, 0); }
+      80%, 100% { transform: rotate(-20deg) translate(-2px, 5px); }
+    }
+    @keyframes right-arm-juggle {
+      0%, 8.33%, 16.66%, 25%, 33.33%, 41.66%, 50% { transform: rotate(-50deg); }
+      4.16%, 12.5%, 20.83%, 29.16%, 37.5%, 45.83% { transform: rotate(-10deg); }
+      55% { transform: rotate(-70deg); }
+      60% { transform: rotate(0deg); }
+      68% { transform: rotate(-80deg); }
+      75%, 100% { transform: rotate(10deg); }
+    }
+    @keyframes left-arm-juggle {
+      0%, 8.33%, 16.66%, 25%, 33.33%, 41.66%, 50% { transform: rotate(40deg); }
+      4.16%, 12.5%, 20.83%, 29.16%, 37.5%, 45.83% { transform: rotate(10deg); }
+      55% { transform: rotate(60deg); }
+      62% { transform: rotate(-10deg); }
+      70% { transform: rotate(70deg); }
+      75%, 100% { transform: rotate(-10deg); }
+    }
+    @keyframes ball1 {
+      0%, 25%, 50% { transform: translate(25px, 20px); animation-timing-function: ease-out; opacity: 1; }
+      8.33%, 33.33% { transform: translate(0px, -45px); animation-timing-function: ease-in; }
+      16.66%, 41.66% { transform: translate(-25px, 20px); animation-timing-function: linear; }
+      58.33% { transform: translate(15px, -65px); animation-timing-function: ease-in; }
+      66.66% { transform: translate(-30px, 30px); animation-timing-function: linear; }
+      75% { transform: translate(30px, 15px); animation-timing-function: ease-in; }
+      80% { transform: translate(35px, 60px); animation-timing-function: ease-out; }
+      85% { transform: translate(40px, 50px); animation-timing-function: ease-in; }
+      90% { transform: translate(45px, 60px); opacity: 1; }
+      95%, 100% { transform: translate(45px, 60px); opacity: 0; }
+    }
+    @keyframes ball2 {
+      0%, 25%, 50% { transform: translate(-25px, 20px); animation-timing-function: linear; opacity: 1; }
+      8.33%, 33.33% { transform: translate(25px, 20px); animation-timing-function: ease-out; }
+      16.66%, 41.66% { transform: translate(0px, -45px); animation-timing-function: ease-in; }
+      58.33% { transform: translate(35px, 10px); animation-timing-function: ease-out; }
+      66.66% { transform: translate(-10px, -55px); animation-timing-function: ease-in; }
+      75% { transform: translate(-35px, 25px); animation-timing-function: linear; }
+      83% { transform: translate(-40px, 60px); animation-timing-function: ease-out; }
+      88% { transform: translate(-45px, 52px); animation-timing-function: ease-in; }
+      93% { transform: translate(-50px, 60px); opacity: 1; }
+      98%, 100% { transform: translate(-50px, 60px); opacity: 0; }
+    }
+    @keyframes ball3 {
+      0%, 25%, 50% { transform: translate(0px, -45px); animation-timing-function: ease-in; opacity: 1; }
+      8.33%, 33.33% { transform: translate(-25px, 20px); animation-timing-function: linear; }
+      16.66%, 41.66% { transform: translate(25px, 20px); animation-timing-function: ease-out; }
+      58.33% { transform: translate(-15px, 35px); animation-timing-function: linear; }
+      66.66% { transform: translate(35px, 0px); animation-timing-function: ease-out; }
+      75% { transform: translate(5px, -15px); animation-timing-function: ease-in; }
+      81% { transform: translate(10px, 60px); animation-timing-function: ease-out; }
+      86% { transform: translate(15px, 55px); animation-timing-function: ease-in; }
+      91% { transform: translate(20px, 60px); opacity: 1; }
+      96%, 100% { transform: translate(20px, 60px); opacity: 0; }
+    }
+    .at-preview-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .at-preview-wrap[hidden] {
+      display: none !important;
+    }
+    .at-preview-hint {
+      font-size: 0.72rem;
+      color: var(--at-muted);
+      flex: 1;
+      min-width: 140px;
+    }
+    #at-ak-standalone-modal {
+      z-index: 10004;
+    }
+    #at-success-modal {
+      z-index: 10007;
+    }
+    #at-error-modal {
+      z-index: 10008;
+    }
+    .at-error-modal__inner {
+      padding: 1.6rem 1.35rem 1.1rem;
+      text-align: center;
+    }
+    .at-error-modal__icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+      border: 1px solid #fca5a5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b91c1c;
+      font-size: 1.65rem;
+    }
+    .at-error-modal__inner h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-error-modal__text {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--at-muted);
+      line-height: 1.55;
+      text-align: left;
+    }
+    .at-error-modal__foot {
+      padding: 0.85rem 1.25rem 1.2rem;
+      border-top: 1px solid #f0e6cc;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(180deg, #fffef8 0%, #fffefb 100%);
+    }
+    .at-success-modal__inner {
+      padding: 1.6rem 1.35rem 1.1rem;
+      text-align: center;
+    }
+    .at-success-modal__icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+      border: 1px solid #86efac;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #166534;
+      font-size: 1.75rem;
+    }
+    .at-success-modal__inner h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-success-modal__text {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--at-muted);
+      line-height: 1.55;
+      text-align: left;
+    }
+    .at-success-modal__text strong {
+      color: var(--at-ink);
+      font-weight: 600;
+    }
+    .at-success-modal__foot {
+      padding: 0.85rem 1.25rem 1.2rem;
+      border-top: 1px solid #f0e6cc;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(180deg, #fffef8 0%, #fffefb 100%);
+    }
+    .at-preview-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .at-preview-modal[hidden] {
+      display: none !important;
+    }
+    .at-preview-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 20, 8, 0.45);
+      backdrop-filter: blur(2px);
+    }
+    .at-preview-modal__dialog {
+      position: relative;
+      width: min(560px, 100%);
+      max-height: min(88vh, 640px);
+      display: flex;
+      flex-direction: column;
+      background: #fffefb;
+      border: 1px solid var(--at-line);
+      border-radius: 18px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+    .at-preview-modal__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid #f0e6cc;
+      background: linear-gradient(180deg, #fffdf7 0%, #fffefb 100%);
+    }
+    .at-preview-modal__head h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-preview-modal__meta {
+      margin: 0.2rem 0 0;
+      font-size: 0.78rem;
+      color: var(--at-muted);
+      font-weight: 600;
+    }
+    .at-preview-modal__close {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 10px;
+      background: #f5efe0;
+      color: var(--at-ink);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .at-preview-modal__close:hover {
+      background: #ead9a3;
+    }
+    .at-preview-modal__body {
+      padding: 1rem 1.15rem 1.1rem;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    /* Mammoth HTML + inline images from .docx */
+    .at-docx-html {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--at-ink);
+      word-break: break-word;
+    }
+    .at-docx-html p {
+      margin: 0 0 0.5rem;
+    }
+    .at-docx-html p:last-child {
+      margin-bottom: 0;
+    }
+    .at-docx-html img {
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0.5rem auto;
+    }
+    .at-docx-html table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0.5rem 0;
+      font-size: 0.82rem;
+    }
+    .at-docx-html th,
+    .at-docx-html td {
+      border: 1px solid #c4b8a0;
+      padding: 0.35rem 0.45rem;
+      text-align: left;
+    }
+    .at-quiz-rich {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      background: #f8f6f0;
+      border: 1px dashed #c9b896;
+      border-radius: 12px;
+    }
+    .at-quiz-rich .at-quiz-stem-label {
+      display: block;
+      margin-bottom: 0.45rem;
+    }
+    .at-ak-slide__word-rich {
+      margin-top: 0.75rem;
+    }
+    .at-ak-slide__word-rich .at-ak-slide__reason-label {
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    /* Pasted screenshots / pictures under Reason: (Word stores these as images, not real tables) */
+    .at-ak-slide__word-rich .at-docx-html img {
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0.65rem auto;
+    }
+    /* Answer-key Reason: text + optional real Word tables */
+    .at-ak-slide__word-rich .at-docx-html {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--at-ink);
+    }
+    .at-ak-slide__word-rich .at-docx-html strong {
+      font-weight: 700;
+    }
+    .at-ak-slide__word-rich .at-docx-html table {
+      border: 1px solid #000;
+      width: 100%;
+      margin: 0.5rem 0 0.75rem;
+      font-size: 0.85rem;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+    .at-ak-slide__word-rich .at-docx-html th,
+    .at-ak-slide__word-rich .at-docx-html td {
+      border: 1px solid #000;
+      padding: 0.4rem 0.5rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .at-quiz-directions {
+      font-size: 0.82rem;
+      color: var(--at-muted);
+      line-height: 1.5;
+      padding: 0.65rem 0.75rem;
+      margin-bottom: 0.85rem;
+      background: #fff9e6;
+      border: 1px solid #f0e0b8;
+      border-radius: 10px;
+    }
+    .at-quiz-directions[hidden] {
+      display: none !important;
+    }
+    .at-quiz-stem {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--at-ink);
+      line-height: 1.55;
+      margin-bottom: 0.75rem;
+      padding: 0.85rem 0.95rem;
+      background: #faf7ef;
+      border: 1px solid #e8dcc4;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .at-quiz-linked {
+      margin-bottom: 0.85rem;
+      padding: 0.75rem 0.9rem;
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--at-ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .at-quiz-linked--repeat {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      border-left-color: #64748b;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .at-quiz-question-card {
+      margin-bottom: 0.75rem;
+      padding: 0.9rem 1rem;
+      background: #ffffff;
+      border: 1px solid #c4b8a8;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.55;
+      color: var(--at-ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .at-quiz-stem-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+      margin-bottom: 0.45rem;
+    }
+    .at-quiz-options-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+      margin: 0 0 0.45rem;
+    }
+    .at-quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .at-quiz-option {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1.5px solid #e8dcc4;
+      background: #fff;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: var(--at-ink);
+    }
+    .at-quiz-option__lbl {
+      flex-shrink: 0;
+      font-weight: 700;
+      color: var(--at-gold-deep);
+      min-width: 1.25rem;
+    }
+    .at-quiz-option--correct {
+      border-color: #15803d;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
+      box-shadow: 0 0 0 1px rgba(21, 128, 61, 0.2);
+    }
+    .at-quiz-answer-tag {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #15803d;
+    }
+    .at-quiz-answer-tag[hidden] {
+      display: none !important;
+    }
+    .at-quiz-answer-block {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed #d4c4a8;
+    }
+    .at-quiz-answer-block .at-quiz-answer-tag {
+      margin-top: 0;
+    }
+    .at-quiz-solution {
+      margin-top: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--at-ink);
+    }
+    .at-quiz-solution__label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+      margin-bottom: 0.35rem;
+    }
+    .at-quiz-solution__body {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .at-preview-modal__foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #f0e6cc;
+      background: #fffcf5;
+    }
+    .at-preview-modal__nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .at-preview-answer-missing {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--at-muted);
+      line-height: 1.5;
+    }
+    .at-preview-passage-hint {
+      margin: 0 0 0.5rem;
+      font-size: 0.78rem;
+      color: var(--at-muted);
+      line-height: 1.45;
+    }
+    .at-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .at-ak-block {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f0e6cc;
+    }
+    .at-ak-block:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .at-ak-qnum {
+      margin: 0 0 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+    }
+    .at-ak-slide {
+      text-align: left;
+    }
+    .at-ak-slide__answer {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--at-ink);
+      line-height: 1.5;
+    }
+    .at-ak-slide__answer strong {
+      color: var(--at-gold-deep);
+      font-weight: 700;
+    }
+    .at-ak-slide__kw {
+      font-weight: 700;
+      color: var(--at-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .at-ak-slide__reason {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      background: linear-gradient(180deg, #fffdf7 0%, #fff8ec 100%);
+      border: 1px solid var(--at-line);
+      border-radius: 14px;
+      border-left: 4px solid var(--at-gold);
+    }
+    .at-ak-slide__reason-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--at-muted);
+      margin-bottom: 0.45rem;
+    }
+    .at-ak-slide__reason-body {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--at-ink);
+    }
+    .at-ak-slide__no-reason {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--at-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="at-page">
+      <form id="at-form" class="at-bento" novalidate>
+        <div class="at-card at-card--upload">
+          <h2><i class="fa-solid fa-file-arrow-up"></i> Test materials</h2>
+          <p class="at-sub">Accepted: PDF, Microsoft Word (.doc, .docx). One file each for question paper and answer key.</p>
+          <div class="at-field" style="margin-bottom: 0.75rem">
+            <label for="at-title">Assessment title</label>
+            <input id="at-title" name="title" type="text" required placeholder="e.g. Legal reasoning — Weekly drill 12" autocomplete="off" />
+          </div>
+          <div class="at-upload-pair">
+            <div class="at-upload-col">
+              <div class="at-upload-col-title">Question paper</div>
+              <input id="at-file-q" class="at-file-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              <div id="at-drop-q" class="at-drop" tabindex="0" role="button" aria-label="Upload question paper">
+                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                <strong>Drop or click to upload</strong>
+                <span>PDF or Word</span>
+              </div>
+              <div id="at-meta-q" class="at-file-meta" hidden></div>
+              <div id="at-preview-wrap" class="at-preview-wrap" hidden>
+                <button type="button" id="at-btn-preview" class="at-btn at-btn--ghost">
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i> Preview
+                </button>
+                <span id="at-preview-hint" class="at-preview-hint"></span>
+              </div>
+            </div>
+            <div class="at-upload-col">
+              <div class="at-upload-col-title">Answer key</div>
+              <input id="at-file-a" class="at-file-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              <div id="at-drop-a" class="at-drop" tabindex="0" role="button" aria-label="Upload answer key">
+                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                <strong>Drop or click to upload</strong>
+                <span>PDF or Word</span>
+              </div>
+              <div id="at-meta-a" class="at-file-meta" hidden></div>
+              <div id="at-answer-preview-wrap" class="at-preview-wrap" hidden>
+                <button type="button" id="at-btn-preview-answer-standalone" class="at-btn at-btn--ghost">
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i> Answer preview
+                </button>
+                <span class="at-preview-hint">Opens parsed answers &amp; solutions from this file (.docx).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="at-card">
+          <h2><i class="fa-regular fa-calendar-days"></i> Schedule</h2>
+          <p class="at-sub">Choose when this test should go live or be emailed.</p>
+          <div class="at-schedule-actions">
+            <button type="button" class="at-btn at-btn--gold" id="at-schedule-toggle" aria-expanded="false">
+              <i class="fa-solid fa-clock"></i> Set schedule
+            </button>
+            <button type="button" class="at-btn at-btn--ghost" id="at-clear-schedule" title="Clear scheduled time">Clear</button>
+          </div>
+          <div id="at-schedule-panel" class="at-schedule-panel">
+            <div class="at-field">
+              <label for="at-when">Go-live date &amp; time</label>
+              <div class="at-datetime-wrap">
+                <input id="at-when" name="scheduledAt" type="text" class="at-when-input" placeholder="dd-mm-yyyy --:--" readonly autocomplete="off" />
+                <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+          <p class="at-hint" style="margin: 0">Tip: leave schedule empty to keep as draft.</p>
+        </div>
+
+        <div class="at-card at-card--wide">
+          <h2><i class="fa-solid fa-paper-plane"></i> Select branch</h2>
+          <p class="at-sub">Choose branches to notify. All three locations auto-select when you pick ALL BRANCH, and ALL BRANCH selects when all three are chosen.</p>
+          <div class="at-field" style="margin-bottom: 0.5rem">
+            <label>Branches</label>
+          </div>
+          <div class="at-branch-grid" role="group" aria-label="Branches">
+            <div class="at-branch"><input type="checkbox" name="branch" value="MALLESHWARAM" id="br-mal" data-branch="loc" /><label for="br-mal">MALLESHWARAM</label></div>
+            <div class="at-branch"><input type="checkbox" name="branch" value="JAYANAGARA" id="br-jay" data-branch="loc" /><label for="br-jay">JAYANAGARA</label></div>
+            <div class="at-branch"><input type="checkbox" name="branch" value="YALAAHANKA" id="br-yal" data-branch="loc" /><label for="br-yal">YALAAHANKA</label></div>
+            <div class="at-branch"><input type="checkbox" name="branch" value="ALL BRANCH" id="br-all" /><label for="br-all">ALL BRANCH</label></div>
+          </div>
+          <div class="at-actions-bar">
+            <p class="at-hint">Review question paper, answer key, and branches before you submit.</p>
+            <button type="submit" class="at-btn at-btn--gold" style="padding-left: 1.5rem; padding-right: 1.5rem">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <div id="at-loader-overlay" class="at-loader-overlay" hidden>
+    <div class="at-submit-popup" role="dialog" aria-modal="true" aria-labelledby="at-loader-title" aria-busy="true">
+      <h3 id="at-loader-title" class="at-submit-popup__title">Please wait</h3>
+      <p id="at-loader-caption" class="at-submit-popup__hint"></p>
+      <div class="at-loader-inner">
+        <div class="loader-wrapper">
+          <div class="juggler">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arm right-arm"></div>
+            <div class="arm left-arm"></div>
+          </div>
+          <div class="ball ball-1"></div>
+          <div class="ball ball-2"></div>
+          <div class="ball ball-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-success-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-success-title">
+    <div class="at-preview-modal__backdrop" id="at-success-backdrop"></div>
+    <div class="at-preview-modal__dialog" style="width: min(440px, 100%); max-height: min(85vh, 520px)">
+      <div class="at-success-modal__inner">
+        <div class="at-success-modal__icon" aria-hidden="true">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 id="at-success-title">Test saved successfully</h3>
+        <p id="at-success-msg" class="at-success-modal__text"></p>
+      </div>
+      <div class="at-success-modal__foot">
+        <button type="button" class="at-btn at-btn--gold" id="at-success-ok" style="min-width: 8rem">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-error-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-error-title">
+    <div class="at-preview-modal__backdrop" id="at-error-backdrop"></div>
+    <div class="at-preview-modal__dialog" style="width: min(440px, 100%); max-height: min(85vh, 520px)">
+      <div class="at-error-modal__inner">
+        <div class="at-error-modal__icon" aria-hidden="true">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h3 id="at-error-title">Something went wrong</h3>
+        <p id="at-error-msg" class="at-error-modal__text"></p>
+      </div>
+      <div class="at-error-modal__foot">
+        <button type="button" class="at-btn at-btn--gold" id="at-error-ok" style="min-width: 8rem">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-toast" class="at-toast-wrap" role="presentation" hidden>
+    <div class="at-toast-backdrop" id="at-toast-backdrop" tabindex="-1" aria-hidden="true"></div>
+    <div
+      class="at-toast-card"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="at-toast-title-el"
+      aria-describedby="at-toast-msg-el"
+    >
+      <button type="button" class="at-toast-card__close" id="at-toast-close" aria-label="Close message">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <div class="at-toast-card__icon" id="at-toast-icon-wrap" aria-hidden="true">
+        <i class="fa-solid fa-circle-info" id="at-toast-icon" aria-hidden="true"></i>
+      </div>
+      <h3 class="at-toast-card__title" id="at-toast-title-el">Notice</h3>
+      <p class="at-toast-card__msg" id="at-toast-msg-el"></p>
+      <div class="at-toast-card__actions">
+        <button type="button" class="at-btn at-btn--gold at-toast-card__ok" id="at-toast-ok">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-preview-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-preview-title">
+    <div class="at-preview-modal__backdrop" id="at-preview-backdrop"></div>
+    <div class="at-preview-modal__dialog">
+      <div class="at-preview-modal__head">
+        <div>
+          <h3 id="at-preview-title">Quiz preview</h3>
+          <p id="at-preview-sub" class="at-preview-modal__meta"></p>
+        </div>
+        <button type="button" class="at-preview-modal__close" id="at-preview-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="at-preview-modal__body" id="at-preview-body"></div>
+      <div class="at-preview-modal__foot">
+        <span id="at-preview-count" class="at-preview-hint" style="margin: 0"></span>
+        <div class="at-preview-modal__nav">
+          <button type="button" class="at-btn at-btn--ghost" id="at-preview-prev"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+          <button type="button" class="at-btn at-btn--gold" id="at-preview-next">Next <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-ak-standalone-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-ak-standalone-title">
+    <div class="at-preview-modal__backdrop" id="at-ak-standalone-backdrop"></div>
+    <div class="at-preview-modal__dialog" style="width: min(800px, 100%); max-height: min(88vh, 720px)">
+      <div class="at-preview-modal__head">
+        <div>
+          <h3 id="at-ak-standalone-title">Answer key preview</h3>
+          <p id="at-ak-standalone-sub" class="at-preview-modal__meta"></p>
+        </div>
+        <button type="button" class="at-preview-modal__close" id="at-ak-standalone-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="at-preview-modal__body" id="at-ak-standalone-body"></div>
+      <div class="at-preview-modal__foot">
+        <span id="at-ak-standalone-count" class="at-preview-hint" style="margin: 0"></span>
+        <div class="at-preview-modal__nav">
+          <button type="button" class="at-btn at-btn--ghost" id="at-ak-standalone-prev">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Previous
+          </button>
+          <button type="button" class="at-btn at-btn--gold" id="at-ak-standalone-next">
+            Next <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'addTest.html', title: 'Add Test', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+
+      var form = document.getElementById('at-form');
+      var fileQ = document.getElementById('at-file-q');
+      var fileA = document.getElementById('at-file-a');
+      var dropQ = document.getElementById('at-drop-q');
+      var dropA = document.getElementById('at-drop-a');
+      var metaQ = document.getElementById('at-meta-q');
+      var metaA = document.getElementById('at-meta-a');
+      var scheduleToggle = document.getElementById('at-schedule-toggle');
+      var schedulePanel = document.getElementById('at-schedule-panel');
+      var clearSchedule = document.getElementById('at-clear-schedule');
+      var whenInput = document.getElementById('at-when');
+      var toast = document.getElementById('at-toast');
+      var toastMsg = document.getElementById('at-toast-msg-el');
+      var toastTitle = document.getElementById('at-toast-title-el');
+      var toastOk = document.getElementById('at-toast-ok');
+      var toastClose = document.getElementById('at-toast-close');
+      var toastBackdrop = document.getElementById('at-toast-backdrop');
+      var toastIconWrap = document.getElementById('at-toast-icon-wrap');
+      var toastIcon = document.getElementById('at-toast-icon');
+      var loaderOverlay = document.getElementById('at-loader-overlay');
+      var loaderTitleEl = document.getElementById('at-loader-title');
+      var loaderCaption = document.getElementById('at-loader-caption');
+      var successModal = document.getElementById('at-success-modal');
+      var successMsgEl = document.getElementById('at-success-msg');
+      var successTitleEl = document.getElementById('at-success-title');
+      var successOkBtn = document.getElementById('at-success-ok');
+      var errorModalEl = document.getElementById('at-error-modal');
+      var errorMsgEl = document.getElementById('at-error-msg');
+      var errorTitleEl = document.getElementById('at-error-title');
+      var errorOkBtn = document.getElementById('at-error-ok');
+      var toastTimer;
+      var fpWhen = null;
+
+      var brMal = document.getElementById('br-mal');
+      var brJay = document.getElementById('br-jay');
+      var brYal = document.getElementById('br-yal');
+      var brAll = document.getElementById('br-all');
+      var locBoxes = [brMal, brJay, brYal];
+      var syncing = false;
+
+      function showLoader(caption, ms, done) {
+        if (loaderTitleEl) loaderTitleEl.textContent = 'Please wait';
+        loaderCaption.textContent = caption || '';
+        loaderOverlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () {
+          loaderOverlay.hidden = true;
+          document.body.style.overflow = '';
+          if (typeof done === 'function') done();
+        }, ms || 1500);
+      }
+
+      function hideToast() {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        toast.classList.remove('at-toast--show');
+        document.body.style.overflow = '';
+        setTimeout(function () {
+          toast.hidden = true;
+        }, 280);
+      }
+
+      function hideErrorModal() {
+        if (errorModalEl) errorModalEl.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function showErrorModal(title, msg) {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        if (toast && !toast.hidden) hideToast();
+        if (errorTitleEl) errorTitleEl.textContent = title || 'Something went wrong';
+        if (errorMsgEl) errorMsgEl.textContent = msg || '';
+        if (errorModalEl) {
+          errorModalEl.hidden = false;
+          document.body.style.overflow = 'hidden';
+          requestAnimationFrame(function () {
+            if (errorOkBtn) errorOkBtn.focus();
+          });
+        }
+      }
+
+      function showToast(title, msg) {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        var t = String(title || '');
+        var m = String(msg || '');
+        var ok = /success|queued|done|saved/i.test(t + ' ' + m);
+        var isErr =
+          /could not|failed|error|missing|required|invalid|network|not found|unauthorized|forbidden|parse issue|no answers|unable|wrong|upload failed|could not save|question paper|answer key|select branch|preview needs|automatic parsing|no questions|choose a pdf|not\.docx/i.test(
+            t + ' ' + m
+          );
+        if (isErr) {
+          showErrorModal(title || 'Something went wrong', m);
+          return;
+        }
+        toastTitle.textContent = title || 'Notice';
+        toastMsg.textContent = msg || '';
+        if (toastIconWrap && toastIcon) {
+          toastIconWrap.classList.remove('at-toast-card__icon--success', 'at-toast-card__icon--error');
+          if (ok) {
+            toastIconWrap.classList.add('at-toast-card__icon--success');
+            toastIcon.className = 'fa-solid fa-circle-check';
+          } else {
+            toastIcon.className = 'fa-solid fa-circle-info';
+          }
+        }
+        toast.hidden = false;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(function () {
+          toast.classList.add('at-toast--show');
+          if (toastOk) toastOk.focus();
+        });
+        toastTimer = setTimeout(hideToast, 9000);
+      }
+
+      function bindToastDismiss() {
+        function onDismiss() {
+          hideToast();
+        }
+        if (toastOk) toastOk.addEventListener('click', onDismiss);
+        if (toastClose) toastClose.addEventListener('click', onDismiss);
+        if (toastBackdrop) toastBackdrop.addEventListener('click', onDismiss);
+      }
+      bindToastDismiss();
+
+      function extOk(name) {
+        var n = String(name || '').toLowerCase();
+        return n.endsWith('.pdf') || n.endsWith('.doc') || n.endsWith('.docx');
+      }
+
+      function fmtSize(bytes) {
+        if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+        return Math.round((bytes / (1024 * 1024)) * 10) / 10 + ' MB';
+      }
+
+      function isDocx(name) {
+        return String(name || '').toLowerCase().endsWith('.docx');
+      }
+
+      function escapeHtml(s) {
+        if (!s) return '';
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      function hideSuccessModal() {
+        if (successModal) successModal.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function showSuccessModal(details) {
+        var tid = details && details.testId != null ? details.testId : '';
+        var branches = (details && details.branches) || [];
+        var scheduledDate = details && details.scheduledDate ? details.scheduledDate : null;
+        if (successTitleEl) successTitleEl.textContent = 'Test saved successfully';
+        var lines = [];
+        if (tid !== '' && tid != null) {
+          lines.push('<strong>Test ID</strong> ' + escapeHtml(String(tid)));
+        }
+        lines.push('<strong>Branches</strong> ' + escapeHtml(branches.join(', ')));
+        if (scheduledDate) {
+          lines.push('<strong>Go-live date</strong> ' + escapeHtml(String(scheduledDate)));
+        } else {
+          lines.push('<span style="opacity:0.92">No date set — saved as draft.</span>');
+        }
+        if (successMsgEl) successMsgEl.innerHTML = lines.join('<br>');
+        if (successModal) {
+          successModal.hidden = false;
+          document.body.style.overflow = 'hidden';
+          requestAnimationFrame(function () {
+            if (successOkBtn) successOkBtn.focus();
+          });
+        }
+      }
+
+      if (successOkBtn) successOkBtn.addEventListener('click', hideSuccessModal);
+      if (errorOkBtn) errorOkBtn.addEventListener('click', hideErrorModal);
+
+      function normalizeExamText(raw) {
+        var t = String(raw || '')
+          .replace(/\r\n/g, '\n')
+          .replace(/\r/g, '\n')
+          .replace(/\u00a0/g, ' ');
+        t = t.replace(/(\d{1,3})\.([A-Za-z])/g, function (_, n, letter) {
+          return n + '. ' + letter;
+        });
+        /** "48.(1) …" — Word often has no space after the period; question regex requires "48. ". */
+        t = t.replace(/(^|\n)(\d{1,3})\.\(/g, function (_, lb, n) {
+          return lb + n + '. (';
+        });
+        /** "IFFJ 48.(1) …" — next question glued on the same line as last option text */
+        t = t.replace(/([^\n\s])(\s+)(\d{1,3})\.\(/g, function (full, before, sp, num) {
+          var n = parseInt(num, 10);
+          if (n >= 1 && n <= 199) return before + '\n' + num + '. (';
+          return full;
+        });
+        t = t.replace(/([^\n])(\s)(\d{1,3})\.\s/g, function (full, before, sp, num) {
+          var n = parseInt(num, 10);
+          if (n >= 1 && n <= 199) return before + '\n' + num + '. ';
+          return full;
+        });
+        t = t.replace(/([^\n])(\s*)(Direction\s)/gi, function (full, before, sp, dir) {
+          return before + '\n' + dir;
+        });
+        return t.trim();
+      }
+
+      function isStrictOptionLine(line) {
+        var s = String(line || '').trim();
+        if (!s) return false;
+        if (/^\[[A-D]\]\s*\S/.test(s)) return true;
+        if (/^\[[A-D]\]\s*$/.test(s)) return true;
+        if (/^[A-D]\s{2,}\S/.test(s)) return true;
+        if (/^[A-D][\.:\)]\s*\S/.test(s)) return true;
+        if (/^[A-D][\.:\)]\s*$/.test(s)) return true;
+        if (/^[A-D]\s+\S/.test(s) && !/^A\s+and\s+R\b/i.test(s)) return true;
+        return false;
+      }
+
+      function matchOptionLineStart(s) {
+        var t = String(s || '').trim();
+        if (!t) return null;
+        var m = t.match(/^\[([A-D])\]\s*(.*)$/);
+        if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
+        m = t.match(/^([A-D])\s{2,}(\S[\s\S]*)$/);
+        if (m) return { letter: m[1].toUpperCase(), rest: m[2].trim(), raw: t };
+        m = t.match(/^([A-D])\s*[\.:\)]\s*(.*)$/);
+        if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
+        if (/^[A-D]\s+\S/.test(t) && !/^A\s+and\s+R\b/i.test(t)) {
+          m = t.match(/^([A-D])\s+(\S[\s\S]*)$/);
+          if (m) return { letter: m[1].toUpperCase(), rest: m[2].trim(), raw: t };
+        }
+        return null;
+      }
+
+      /** Lines after D that belong to a reading passage (RC / LR), not to option D. */
+      function isReadingPassageBoundaryLine(trimmed) {
+        if (!trimmed) return false;
+        if (/^(RC|LR|LE|AR|GK|QA)$/i.test(trimmed)) return true;
+        if (/^Direction(s)?\s+for\s+questions?/i.test(trimmed)) return true;
+        if (/^Read\s+the\s+given\s+passage/i.test(trimmed)) return true;
+        return false;
+      }
+
+      /** If passage was glued into D’s text, split it off into a tail for the next question(s). */
+      function splitReadingPassageFromOptionD(opts) {
+        var tail = '';
+        if (!opts || opts.length < 4) return { options: opts, tail: tail };
+        var last = opts.length - 1;
+        if (opts[last].letter !== 'D' || !opts[last].text) return { options: opts, tail: tail };
+        var t = opts[last].text;
+        var parts = t.split(/\n(?=\s*(?:RC|LR|LE|AR|GK|QA)\s*(?:\n|$))/i);
+        if (parts.length < 2) parts = t.split(/\n(?=Direction\s+for\s+questions?)/i);
+        if (parts.length < 2) parts = t.split(/\n(?=Read\s+the\s+given\s+passage)/i);
+        if (parts.length >= 2) {
+          opts[last] = { letter: 'D', text: parts[0].trim() };
+          tail = parts.slice(1).join('\n').trim();
+        }
+        return { options: opts, tail: tail };
+      }
+
+      function extractOptionsFromOptionLines(lines) {
+        var opts = [];
+        var current = null;
+        var tailFromIdx = -1;
+        var i = 0;
+        for (i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          var trimmed = line.trim();
+          if (!trimmed) {
+            if (current) current.text += '\n';
+            continue;
+          }
+          var start = matchOptionLineStart(trimmed);
+          if (start) {
+            if (!current) {
+              current = { letter: start.letter, text: start.rest };
+            } else if (start.letter === current.letter) {
+              current.text += (current.text ? '\n' : '') + trimmed;
+            } else {
+              opts.push(current);
+              current = { letter: start.letter, text: start.rest };
+            }
+          } else if (current) {
+            if (opts.length === 3 && current.letter === 'D' && isReadingPassageBoundaryLine(trimmed)) {
+              opts.push(current);
+              current = null;
+              tailFromIdx = i;
+              break;
+            }
+            current.text += (current.text ? '\n' : '') + trimmed;
+          }
+        }
+        if (current) opts.push(current);
+        var tail = '';
+        if (tailFromIdx >= 0) tail = lines.slice(tailFromIdx).join('\n').trim();
+        var split = splitReadingPassageFromOptionD(opts);
+        opts = split.options;
+        if (!tail && split.tail) tail = split.tail;
+        return { options: opts, tail: tail };
+      }
+
+      function stripStemNoise(stem) {
+        return String(stem || '')
+          .replace(/^Direction\s+for\s+questions?\s+[\d\s\-–—,to]+\s*:?\s*/gim, '')
+          .replace(/^Directions\s+for\s+questions?\s+[\d\s\-–—,to]+\s*:?\s*/gim, '')
+          .replace(/^AR\s+Directions\s+for\s+questions?\s+[\d\s\-–—,to]+\s*:?\s*/gim, '')
+          .replace(/\nDirection\s+for\s+questions?\s+[\d\s\-–—,to]+\s*:?\s*/gim, '\n')
+          .replace(/\nDirections\s+for\s+questions?\s+[\d\s\-–—,to]+\s*:?\s*/gim, '\n')
+          .trim();
+      }
+
+      function stripDirectionBleedFromText(s) {
+        return String(s || '')
+          .replace(/\s+Direction(s)?\s+for\s+questions?\s+[\d\s\-–—,to\s]+\s*:\s*[\s\S]*$/i, '')
+          .replace(/\s+AR\s+Direction(s)?\s+for\s+questions?\s+[\d\s\-–—,to\s]+\s*:\s*[\s\S]*$/i, '')
+          .trim();
+      }
+
+      /** Strips glued instructions from option text only (not from full question stems). */
+      function stripInstructionBleedFromText(s) {
+        var t = stripDirectionBleedFromText(s);
+        t = t.replace(/\s+(LE\s*)?\(?\s*Question\s+No\.[\s\S]*$/i, '');
+        t = t.replace(/\s+Principle\s*\d*\s*:\s*[\s\S]*$/i, '');
+        t = t.replace(/\s+Facts:\s*[\s\S]*$/i, '');
+        return t.trim();
+      }
+
+      /**
+       * Clean stem before options: direction bleed only. Never strip Principle/Facts/Question lines —
+       * those are the legal passage (Word repeats them per question).
+       */
+      function stripQuestionStemForParse(stem) {
+        var t = String(stem || '');
+        t = stripStemNoise(t);
+        t = stripDirectionBleedFromText(t);
+        return t.trim();
+      }
+
+      function splitTrailingInstruction(s) {
+        var orig = String(s || '').trim();
+        if (!orig) return { clean: '', tail: '' };
+        var m = orig.match(/^([\s\S]*?)(\s+(?:LE\s*)?\(?\s*Question\s+No\.[\s\S]*)$/i);
+        if (m) return { clean: m[1].trim(), tail: m[2].trim() };
+        m = orig.match(/^([\s\S]*?)(\s+Principle\s*\d*\s*:\s*[\s\S]*)$/i);
+        if (m) return { clean: m[1].trim(), tail: m[2].trim() };
+        m = orig.match(/^([\s\S]*?)(\s+Facts:\s*[\s\S]*)$/i);
+        if (m) return { clean: m[1].trim(), tail: m[2].trim() };
+        return { clean: stripInstructionBleedFromText(orig), tail: '' };
+      }
+
+      function parseBlockBody(body) {
+        var raw = String(body || '').trim();
+        if (!raw) return { stem: '', options: [], bleedForward: '' };
+        var lines = raw.split(/\n/);
+        var firstOpt = -1;
+        for (var j = 0; j < lines.length; j++) {
+          if (isStrictOptionLine(lines[j])) {
+            firstOpt = j;
+            break;
+          }
+        }
+        if (firstOpt === -1) {
+          return { stem: stripStemNoise(raw), options: [], bleedForward: '' };
+        }
+        var stem = lines.slice(0, firstOpt).join('\n').trim();
+        var optLines = lines.slice(firstOpt);
+        var optResult = extractOptionsFromOptionLines(optLines);
+        var options = optResult.options;
+        if (!options.length) return { stem: stem || stripStemNoise(raw), options: [], bleedForward: '' };
+        stem = stripQuestionStemForParse(stem);
+        var bleedParts = [];
+        options = options.map(function (o) {
+          var sp = splitTrailingInstruction(o.text);
+          if (sp.tail) bleedParts.push(sp.tail);
+          return { letter: o.letter, text: sp.clean };
+        });
+        var bleedForward = bleedParts.filter(Boolean).join('\n\n');
+        if (optResult.tail) {
+          bleedForward = bleedForward ? bleedForward + '\n\n' + optResult.tail : optResult.tail;
+        }
+        return { stem: stem, options: options, bleedForward: bleedForward };
+      }
+
+      /** Marker lines are not shown in preview; tolerate common typos. */
+      function normalizeMarkerOuter(line) {
+        return String(line || '')
+          .trim()
+          .replace(/\s+/g, ' ');
+      }
+
+      function isInformationStartLine(line) {
+        var s = normalizeMarkerOuter(line);
+        return (
+          /^\(Information starts\)$/i.test(s) ||
+          /^\(Infromation starts\)$/i.test(s)
+        );
+      }
+
+      function isInformationEndLine(line) {
+        var s = normalizeMarkerOuter(line);
+        return (
+          /^\(Information ends\)$/i.test(s) ||
+          /^\(Infromation ends\)$/i.test(s)
+        );
+      }
+
+      function isParagraphStartLine(line) {
+        return /^\(Paragraph starts\)$/i.test(normalizeMarkerOuter(line));
+      }
+
+      function isParagraphEndLine(line) {
+        return /^\(Paragraph ends\)$/i.test(normalizeMarkerOuter(line));
+      }
+
+      /**
+       * New question only on "N. " with N digits; first token after that must not start with a–z
+       * (avoids "1. in each …" inside loose text). Sub-options like "a." stay inside the block until "6.".
+       */
+      function matchQuestionHeaderLine(line) {
+        var m = String(line || '').match(/^\s*(\d{1,3})\.\s(\S)/);
+        if (!m) return null;
+        var n = parseInt(m[1], 10);
+        if (n < 1 || n > 199) return null;
+        if (/[a-z]/.test(m[2].charAt(0))) return null;
+        return n;
+      }
+
+      function isSectionTagLine(line) {
+        return /^(LR|LE|AR|GK|RC|QA)$/i.test(normalizeMarkerOuter(line));
+      }
+
+      /**
+       * Parses papers that use (Information starts)/(Information ends) and (Paragraph starts)/(Paragraph ends).
+       * Questions are split only on lines matching matchQuestionHeaderLine; everything until the next such line
+       * belongs to that question (including sub-lines "a.", "b.", etc.).
+       */
+      function parseQuestionsFromText(text) {
+        var normalized = normalizeExamText(text);
+        var lines = normalized.split('\n');
+        var globInfo = '';
+        var globPara = '';
+        var passageCount = 0;
+        var currentPassageIndex = 0;
+        var rawQuestions = [];
+
+        var i = 0;
+        while (i < lines.length) {
+          var t = lines[i].trim();
+
+          if (isInformationStartLine(lines[i])) {
+            i++;
+            var ib = [];
+            while (i < lines.length && !isInformationEndLine(lines[i])) {
+              ib.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            globInfo = ib.join('\n').trim();
+            continue;
+          }
+
+          if (isParagraphStartLine(lines[i])) {
+            i++;
+            var pb = [];
+            while (i < lines.length && !isParagraphEndLine(lines[i])) {
+              pb.push(lines[i]);
+              i++;
+            }
+            if (i < lines.length) i++;
+            globPara = pb.join('\n').trim();
+            passageCount++;
+            currentPassageIndex = passageCount;
+            continue;
+          }
+
+          if (isInformationEndLine(lines[i]) || isParagraphEndLine(lines[i])) {
+            i++;
+            continue;
+          }
+
+          if (isSectionTagLine(lines[i])) {
+            var tag = normalizeMarkerOuter(lines[i]);
+            globInfo = globInfo ? globInfo + '\n\n' + tag : tag;
+            i++;
+            continue;
+          }
+
+          var qn = matchQuestionHeaderLine(lines[i]);
+          if (qn != null) {
+            var snapInfo = globInfo;
+            var snapPara = globPara;
+            var snapPassageIndex = snapPara ? currentPassageIndex : 0;
+            var start = i;
+            i++;
+            while (i < lines.length) {
+              if (isInformationStartLine(lines[i]) || isParagraphStartLine(lines[i])) break;
+              if (matchQuestionHeaderLine(lines[i]) != null) break;
+              i++;
+            }
+            var block = lines.slice(start, i).join('\n').trim();
+            rawQuestions.push({
+              num: qn,
+              block: block,
+              contextInfo: snapInfo,
+              contextParagraph: snapPara,
+              passageIndex: snapPassageIndex,
+            });
+            continue;
+          }
+
+          i++;
+        }
+
+        var questions = [];
+        for (var rq = 0; rq < rawQuestions.length; rq++) {
+          var rqItem = rawQuestions[rq];
+          var parsed = parseBlockBody(rqItem.block);
+          if (!parsed.options || parsed.options.length === 0) {
+            continue;
+          }
+          var markerCtx = !!(rqItem.contextInfo || rqItem.contextParagraph);
+          questions.push({
+            number: rqItem.num,
+            stem: parsed.stem,
+            options: parsed.options,
+            bleedForward: parsed.bleedForward || '',
+            contextInfo: rqItem.contextInfo || '',
+            contextParagraph: rqItem.contextParagraph || '',
+            passageIndex: rqItem.passageIndex || 0,
+            markerContext: markerCtx,
+          });
+        }
+
+        questions.sort(function (a, b) {
+          return a.number - b.number;
+        });
+
+        for (var qi = 0; qi < questions.length - 1; qi++) {
+          var bf = questions[qi].bleedForward;
+          if (bf) {
+            questions[qi + 1].stem = bf + (questions[qi + 1].stem ? '\n\n' + questions[qi + 1].stem : '');
+          }
+          delete questions[qi].bleedForward;
+        }
+        if (questions.length) delete questions[questions.length - 1].bleedForward;
+
+        if (!questions.length) {
+          return {
+            directions: [],
+            questions: [],
+            error: rawQuestions.length
+              ? 'Found numbered questions but no A–D options. Check option lines (A/B/C/D or [A]…).'
+              : 'No questions found. Use lines like "1. …" and wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends).',
+          };
+        }
+        return { directions: [], questions: questions, error: null };
+      }
+
+      function getAnswerLetter(entry) {
+        if (entry == null) return '';
+        if (typeof entry === 'string') return entry;
+        return entry.letter || '';
+      }
+
+      function getAnswerSolution(entry) {
+        if (entry == null || typeof entry === 'string') return '';
+        return (entry.solution && String(entry.solution).trim()) || '';
+      }
+
+      function countAnswerKeyEntries(map) {
+        var n = 0;
+        if (!map) return 0;
+        Object.keys(map).forEach(function (k) {
+          if (getAnswerLetter(map[k])) n++;
+        });
+        return n;
+      }
+
+      /** Word often uses curly quotes; normalise so /"([A-D])"/ matches. */
+      function normalizeAnswerKeyQuotes(s) {
+        return String(s || '')
+          .replace(/\u201c|\u201d|\u00ab|\u00bb/g, '"')
+          .replace(/\u2018|\u2019/g, "'");
+      }
+
+      /** Letter only from the answer tail (before Solution / Reason), so explanation text cannot confuse the match. */
+      function extractCorrectOptionLetter(tail) {
+        var t = normalizeAnswerKeyQuotes(tail).replace(/\t/g, ' ');
+        var block = t.split(/\bSolution\s*:/i)[0].split(/\bReason\s*:/i)[0];
+        block = (block || t).trim();
+        var lm =
+          block.match(/Correct\s+Option\s+is\s*:\s*["']?\s*([A-D])\s*["']?/i) ||
+          block.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
+          block.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+          block.match(/["']([A-D])["']/) ||
+          block.match(/^\s*["']?([A-D])["']?\s*$/i);
+        return lm ? lm[1].toUpperCase() : null;
+      }
+
+      /**
+       * Mammoth often outputs many "N.Answer:" blocks in one paragraph (no newline between them), or splits
+       * Word list numbering as "N." on one line and "Answer:" on the next. Line-start-only parsing would then
+       * miss most questions and only pick up short forms (e.g. 49.B) that sit on their own lines.
+       */
+      function normalizeAnswerKeyLayout(text) {
+        var s = String(text || '').replace(/\r\n?/g, '\n');
+        s = normalizeAnswerKeyQuotes(s);
+        s = s.replace(/\t/g, ' ');
+        // Word tables often put "16.Answer:" on one row and "Correct Option is: …" on the next — merge for parsing.
+        s = s.replace(
+          /(^|\n)(\d{1,3})\s*\.\s*Answer\s*:\s*(?:\n\s*)+((?:Correct\s+option\s+is)\s*:[^\n]+)/gi,
+          function (full, lb, n, co) {
+            return lb + n + '.Answer: ' + co.trim();
+          }
+        );
+        s = s.replace(
+          /(^|\n)(\d{1,3})Answer\s*:\s*(?:\n\s*)+((?:Correct\s+option\s+is)\s*:[^\n]+)/gi,
+          function (full, lb, n, co) {
+            return lb + n + 'Answer: ' + co.trim();
+          }
+        );
+        // Word numbered list: "12." or "12" then newline "Answer: …" → keep text after Answer:
+        s = s.replace(/^(\d{1,3})\s*\.?\s*\n\s*Answer\s*:\s*(.*)$/gim, '$1.Answer: $2');
+        s = s.replace(/([^\n])\n(\d{1,3})\s*\.?\s*\n\s*Answer\s*:\s*([^\n]*)/gi, '$1\n$2.Answer: $3');
+        // Section label run into first answer: "LR1.Answer" → "LR" + newline + "1.Answer"
+        s = s.replace(/(^|\n)(LR|LE|AR|GK|RC|QA)(?=(\d{1,3})\s*\.\s*Answer\s*:)/gi, '$1$2\n');
+        // Multiple long-form answers in one line: insert newline before each "N.Answer:" / "NAnswer:"
+        // Use (?<!\d) so "11.Answer:" / "11.B" is NOT split after the first 1 (was breaking Q10–Q99).
+        s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.\s*Answer\s*:)/gi, '\n');
+        s = s.replace(/(?<!\d)(?=([0-9]{1,3})Answer\s*:)/gi, '\n');
+        s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.\s*[A-Da-d]\b)/gi, '\n');
+        return s;
+      }
+
+      /**
+       * Parses answer keys like:
+       *   16.Answer: Correct Option is: "B" (same line or Correct Option on the line below)
+       *   39Answer: Correct Option is: "C" (no dot before Answer)
+       *   Reason: or Solution: on the next line or after the answer on the same line
+       *   14.B then Reason: … (compact form)
+       *   49.B / 52. C (letter only, optional reason lines after)
+       */
+      function parseAnswerKeyText(text) {
+        var map = Object.create(null);
+        var lines = normalizeAnswerKeyLayout(text).split('\n');
+        var i = 0;
+
+        function isSectionHeader(t) {
+          return /^(LR|LE|AR|GK|RC|QA)$/i.test(t);
+        }
+
+        while (i < lines.length) {
+          var t = lines[i].trim();
+          if (!t) {
+            i++;
+            continue;
+          }
+          if (isSectionHeader(t)) {
+            i++;
+            continue;
+          }
+
+          var am =
+            t.match(/^(\d+)\s*\.\s*Answer\s*:\s*(.*)$/i) || t.match(/^(\d+)Answer\s*:\s*(.*)$/i);
+          if (am) {
+            var qn = parseInt(am[1], 10);
+            if (qn < 1 || qn > 199) {
+              i++;
+              continue;
+            }
+            var tail = normalizeAnswerKeyQuotes((am[2] || '').trim());
+            var letter = extractCorrectOptionLetter(tail);
+            var solParts = [];
+            var mTail = tail.match(/\b(?:Solution|Reason)\s*:\s*([\s\S]*)$/i);
+            if (mTail && mTail[1]) {
+              var tailReason = mTail[1].trim();
+              if (tailReason) solParts.push(tailReason);
+            }
+            i++;
+            while (i < lines.length) {
+              var nt = lines[i].trim();
+              if (!nt) {
+                i++;
+                continue;
+              }
+              if (/^(\d+)\s*\.\s*Answer\s*:/i.test(nt) || /^(\d+)Answer\s*:/i.test(nt)) break;
+              if (/^(\d+)\s*[\.\)]\s*[A-Da-d]\b/.test(nt)) break;
+              if (/^(\d+)\s+[A-Da-d]\b/.test(nt)) break;
+              if (isSectionHeader(nt)) break;
+              if (/^\s*(?:Solution|Reason)\s*:/i.test(lines[i])) {
+                solParts.push(lines[i].replace(/^\s*(?:Solution|Reason)\s*:\s*/i, '').trim());
+              } else {
+                solParts.push(nt);
+              }
+              i++;
+            }
+            if (letter) {
+              map[qn] = { letter: letter, solution: solParts.join('\n').trim() };
+            }
+            continue;
+          }
+
+          var smLine = lines[i];
+          var sm =
+            smLine.match(/^\s*(\d{1,3})\s*[\.\)]\s*([A-Da-d])\b/) ||
+            smLine.match(/^\s*(\d{1,3})\s+([A-Da-d])\b/);
+          if (sm) {
+            var qnSm = parseInt(sm[1], 10);
+            if (qnSm < 1 || qnSm > 199) {
+              i++;
+              continue;
+            }
+            var letterSm = sm[2].toUpperCase();
+            var restSm = smLine.slice(sm.index + sm[0].length).replace(/^\s+/, '');
+            var solPartsSm = [];
+            var inlineSol = restSm.match(/\b(?:Solution|Reason)\s*:\s*([\s\S]*)$/i);
+            if (inlineSol && inlineSol[1]) {
+              solPartsSm.push(inlineSol[1].trim());
+            }
+            i++;
+            while (i < lines.length) {
+              var ntSm = lines[i].trim();
+              if (!ntSm) {
+                i++;
+                continue;
+              }
+              if (/^(\d+)\s*\.\s*Answer\s*:/i.test(ntSm) || /^(\d+)Answer\s*:/i.test(ntSm)) break;
+              if (
+                /^\s*(\d{1,3})\s*[\.\)]\s*[A-Da-d]\b/.test(lines[i]) ||
+                /^\s*(\d{1,3})\s+[A-Da-d]\b/.test(lines[i])
+              ) {
+                break;
+              }
+              if (isSectionHeader(ntSm)) break;
+              if (/^\s*(?:Solution|Reason)\s*:/i.test(lines[i])) {
+                solPartsSm.push(lines[i].replace(/^\s*(?:Solution|Reason)\s*:\s*/i, '').trim());
+              } else {
+                solPartsSm.push(ntSm);
+              }
+              i++;
+            }
+            map[qnSm] = { letter: letterSm, solution: solPartsSm.join('\n').trim() };
+            continue;
+          }
+
+          var loose = t.match(/(?:question|q)\s*\.?\s*(\d+)\s*[:.\)]\s*([A-Da-d])\b/i);
+          if (loose) {
+            var qL = parseInt(loose[1], 10);
+            if (qL >= 1 && qL <= 199) {
+              map[qL] = { letter: loose[2].toUpperCase(), solution: '' };
+            }
+            i++;
+            continue;
+          }
+
+          i++;
+        }
+        var cleaned = Object.create(null);
+        Object.keys(map).forEach(function (k) {
+          var nk = parseInt(k, 10);
+          if (nk >= 1 && nk <= 199) cleaned[k] = map[k];
+        });
+        return cleaned;
+      }
+
+      function buildAnswerKeyHtml(entry) {
+        var letter = getAnswerLetter(entry);
+        if (!letter) {
+          return '<p class="at-quiz-answer-tag" hidden>Correct answer: —</p>';
+        }
+        var sol = getAnswerSolution(entry);
+        var html =
+          '<div class="at-quiz-answer-block">' +
+          '<p class="at-quiz-answer-tag"><span class="at-ak-slide__kw">Answer</span> · ' +
+          '<span class="at-ak-slide__kw">Correct option is</span> "' +
+          escapeHtml(letter) +
+          '"</p>';
+        if (sol) {
+          html +=
+            '<div class="at-quiz-solution" role="region" aria-label="Reason">' +
+            '<span class="at-quiz-solution__label">Reason</span>' +
+            '<div class="at-quiz-solution__body">' +
+            escapeHtml(sol).replace(/\n/g, '<br />') +
+            '</div></div>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      /** Content for the answer-only popup (includes “no entry” message). */
+      function buildAnswerPreviewContent(entry, qNum) {
+        var letter = getAnswerLetter(entry);
+        if (!letter) {
+          return (
+            '<p class="at-preview-answer-missing">No answer key entry for question ' +
+            escapeHtml(String(qNum)) +
+            '.</p>'
+          );
+        }
+        return buildAnswerKeyHtml(entry);
+      }
+
+      /** One slide in standalone answer-key modal (answer + reason). */
+      function buildStandaloneAnswerSlide(entry, qNum, nextQNum) {
+        var letter = getAnswerLetter(entry);
+        if (!letter) {
+          return (
+            '<p class="at-preview-answer-missing">No answer for question ' +
+            escapeHtml(String(qNum)) +
+            '.</p>'
+          );
+        }
+        var reason = getAnswerSolution(entry);
+        var wordRich =
+          akStandaloneState.docHtml &&
+          extractAnswerKeyBlockHtml(akStandaloneState.docHtml, qNum, nextQNum);
+        var html =
+          '<section class="at-ak-slide">' +
+          '<p class="at-ak-slide__answer">' +
+          '<span class="at-ak-slide__kw">Question</span> <strong>' +
+          escapeHtml(String(qNum)) +
+          '</strong> · ' +
+          '<span class="at-ak-slide__kw">Correct option is</span> ' +
+          '<strong>"' +
+          escapeHtml(letter) +
+          '"</strong>' +
+          '</p>';
+        if (wordRich) {
+          html +=
+            '<div class="at-ak-slide__word-rich">' +
+            '<span class="at-ak-slide__reason-label">Reason (as in Word — text &amp; pictures)</span>' +
+            '<div class="at-docx-html">' +
+            wordRich +
+            '</div></div>';
+        } else if (reason) {
+          html +=
+            '<div class="at-ak-slide__reason">' +
+            '<span class="at-ak-slide__reason-label">Reason</span>' +
+            '<div class="at-ak-slide__reason-body">' +
+            escapeHtml(reason).replace(/\n/g, '<br />') +
+            '</div></div>';
+        } else {
+          html +=
+            '<p class="at-ak-slide__no-reason">No explanation was found for this question (add a Reason or Solution block in the Word file).</p>';
+        }
+        html += '</section>';
+        return html;
+      }
+
+      function renderAkStandaloneSlide() {
+        var keys = akStandaloneState.keys;
+        var idx = akStandaloneState.index;
+        if (!keys.length || !akStandaloneBody) return;
+        var k = keys[idx];
+        var nextK = keys[idx + 1] != null ? keys[idx + 1] : null;
+        akStandaloneBody.innerHTML = buildStandaloneAnswerSlide(akStandaloneState.map[k], k, nextK);
+        if (akStandaloneCount) {
+          akStandaloneCount.textContent = 'Slide ' + (idx + 1) + ' / ' + keys.length;
+        }
+        if (akStandaloneSub) {
+          akStandaloneSub.textContent =
+            'Question ' +
+            k +
+            ' · ' +
+            keys.length +
+            ' answer' +
+            (keys.length === 1 ? '' : 's') +
+            ' in file';
+        }
+        if (akStandalonePrev) akStandalonePrev.disabled = idx <= 0;
+        if (akStandaloneNext) akStandaloneNext.disabled = idx >= keys.length - 1;
+      }
+
+      function extractDocxText(file, cb) {
+        if (typeof mammoth === 'undefined') {
+          cb(new Error('Document reader not loaded. Refresh the page.'));
+          return;
+        }
+        if (!isDocx(file.name)) {
+          cb(new Error('Automatic parsing needs a .docx file.'));
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function () {
+          mammoth
+            .extractRawText({ arrayBuffer: reader.result })
+            .then(function (r) {
+              cb(null, r.value || '');
+            })
+            .catch(function () {
+              cb(new Error('Could not read this Word file.'));
+            });
+        };
+        reader.onerror = function () {
+          cb(new Error('Could not read the file.'));
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      /**
+       * Inline every Word picture as a data-URI <img> (pasted “tables” are often bitmaps, not HTML tables).
+       * Always set convertImage — if omitted, Mammoth may omit images from HTML entirely.
+       */
+      function mammothConvertImageToDataUri(image) {
+        return image.read('base64').then(function (imageBuffer) {
+          return {
+            src: 'data:' + image.contentType + ';base64,' + imageBuffer,
+          };
+        });
+      }
+
+      /**
+       * Single file read: raw text for parsing + HTML (inline images + real tables when Word has them).
+       */
+      function extractDocxWithHtml(file, cb) {
+        if (typeof mammoth === 'undefined') {
+          cb(new Error('Document reader not loaded. Refresh the page.'));
+          return;
+        }
+        if (!isDocx(file.name)) {
+          cb(new Error('Automatic parsing needs a .docx file.'));
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function () {
+          var buf = reader.result;
+          var htmlOpts = {
+            convertImage: mammothConvertImageToDataUri,
+          };
+          mammoth
+            .extractRawText({ arrayBuffer: buf })
+            .then(function (raw) {
+              return mammoth
+                .convertToHtml({ arrayBuffer: buf }, htmlOpts)
+                .then(function (htmlRes) {
+                  return {
+                    text: (raw && raw.value) || '',
+                    html: (htmlRes && htmlRes.value) || '',
+                  };
+                })
+                .catch(function () {
+                  return { text: (raw && raw.value) || '', html: '' };
+                });
+            })
+            .then(function (both) {
+              cb(null, both);
+            })
+            .catch(function () {
+              cb(new Error('Could not read this Word file.'));
+            });
+        };
+        reader.onerror = function () {
+          cb(new Error('Could not read the file.'));
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      function normalizeNodeTextForMatch(node) {
+        return (node.textContent || '').replace(/\u00a0/g, ' ').trim();
+      }
+
+      /** Mammoth often nests a single div chain; unwrap until we see multiple block siblings (p, table, …). */
+      function getEffectiveRootForHtmlSlice(wrap) {
+        if (!wrap || !wrap.children.length) return wrap;
+        var el = wrap;
+        while (el.children.length === 1 && el.firstElementChild.tagName === 'DIV') {
+          var inner = el.firstElementChild;
+          if (inner.children.length > 1) return inner;
+          el = inner;
+        }
+        return el;
+      }
+
+      function extractTopLevelHtmlSlice(html, startTest, nextTest) {
+        var doc = new DOMParser().parseFromString(
+          '<div class="at-docx-root">' + html + '</div>',
+          'text/html'
+        );
+        var wrap = doc.querySelector('.at-docx-root');
+        if (!wrap) return '';
+        var effective = getEffectiveRootForHtmlSlice(wrap);
+        var nodes = Array.prototype.slice.call(effective.children);
+        if (!nodes.length) return '';
+        var startIdx = -1;
+        for (var i = 0; i < nodes.length; i++) {
+          if (startTest(nodes[i])) {
+            startIdx = i;
+            break;
+          }
+        }
+        if (startIdx < 0) return '';
+        var endIdx = nodes.length;
+        if (typeof nextTest === 'function') {
+          for (var j = startIdx + 1; j < nodes.length; j++) {
+            if (nextTest(nodes[j])) {
+              endIdx = j;
+              break;
+            }
+          }
+        }
+        var out = [];
+        for (var k = startIdx; k < endIdx; k++) {
+          out.push(nodes[k].outerHTML);
+        }
+        return out.join('');
+      }
+
+      /** Quiz paper: block starting with "N." until next question number. */
+      function extractQuestionPaperHtmlFragment(html, qNum, nextQNum) {
+        var esc = String(qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var startRe = new RegExp('^\\s*' + esc + '\\.\\s');
+        var nextEsc =
+          nextQNum != null ? String(nextQNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+        var nextRe = nextEsc ? new RegExp('^\\s*' + nextEsc + '\\.\\s') : null;
+        return extractTopLevelHtmlSlice(
+          html,
+          function (node) {
+            return startRe.test(normalizeNodeTextForMatch(node));
+          },
+          nextRe
+            ? function (node) {
+                return nextRe.test(normalizeNodeTextForMatch(node));
+              }
+            : null
+        );
+      }
+
+      /** Answer key: block starting with N.Answer: / N.B / NAnswer: until next N. */
+      function extractAnswerKeyBlockHtml(html, qNum, nextQNum) {
+        var esc = String(qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var startReAns = new RegExp('^\\s*' + esc + '\\s*\\.\\s*Answer\\s*:', 'i');
+        var startReLetter = new RegExp('^\\s*' + esc + '\\s*\\.\\s*[A-D]\\b', 'i');
+        var startReNoDot = new RegExp('^\\s*' + esc + '\\s*Answer\\s*:', 'i');
+        function isStart(node) {
+          var t = normalizeNodeTextForMatch(node);
+          return startReAns.test(t) || startReLetter.test(t) || startReNoDot.test(t);
+        }
+        var nextEsc =
+          nextQNum != null ? String(nextQNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+        function isNext(node) {
+          if (!nextEsc) return false;
+          var tag = (node.tagName || '').toUpperCase();
+          if (tag === 'TABLE' || tag === 'TBODY' || tag === 'THEAD' || tag === 'TR') return false;
+          var t = normalizeNodeTextForMatch(node);
+          return (
+            new RegExp('^\\s*' + nextEsc + '\\s*\\.\\s*Answer\\s*:', 'i').test(t) ||
+            new RegExp('^\\s*' + nextEsc + '\\s*\\.\\s*[A-D]\\b', 'i').test(t) ||
+            new RegExp('^\\s*' + nextEsc + '\\s*Answer\\s*:', 'i').test(t)
+          );
+        }
+        var slice = extractTopLevelHtmlSlice(html, isStart, nextEsc ? isNext : null);
+        if (slice) return slice;
+        /* Word often outputs <p>…</p><p>Reason:</p><table>…</table> as siblings; unwrap may still miss. */
+        var doc = new DOMParser().parseFromString(
+          '<div class="at-docx-root">' + html + '</div>',
+          'text/html'
+        );
+        var wrap = doc.querySelector('.at-docx-root');
+        if (!wrap) return '';
+        var startEl = null;
+        var ps = wrap.querySelectorAll('p');
+        for (var pi = 0; pi < ps.length; pi++) {
+          var p = ps[pi];
+          if (p.closest('td, th')) continue;
+          if (isStart(p)) {
+            startEl = p;
+            break;
+          }
+        }
+        if (!startEl) return '';
+        var out = [];
+        var el = startEl;
+        while (el) {
+          if (
+            el !== startEl &&
+            (el.tagName === 'P' || el.tagName === 'DIV') &&
+            isNext(el)
+          ) {
+            break;
+          }
+          out.push(el.outerHTML);
+          el = el.nextElementSibling;
+        }
+        return out.join('');
+      }
+
+      var previewWrap = document.getElementById('at-preview-wrap');
+      var btnPreview = document.getElementById('at-btn-preview');
+      var previewHint = document.getElementById('at-preview-hint');
+      var previewModal = document.getElementById('at-preview-modal');
+      var previewClose = document.getElementById('at-preview-close');
+      var previewBody = document.getElementById('at-preview-body');
+      var previewSub = document.getElementById('at-preview-sub');
+      var previewCount = document.getElementById('at-preview-count');
+      var previewPrev = document.getElementById('at-preview-prev');
+      var previewNext = document.getElementById('at-preview-next');
+      var previewState = {
+        directions: [],
+        questions: [],
+        answers: {},
+        index: 0,
+        passageFirstQ: {},
+        docHtml: '',
+      };
+
+      function updatePreviewWrap() {
+        if (!fileQ.files || !fileQ.files.length || !extOk(fileQ.files[0].name)) {
+          previewWrap.hidden = true;
+          return;
+        }
+        previewWrap.hidden = false;
+        if (isDocx(fileQ.files[0].name)) {
+          btnPreview.disabled = false;
+          previewHint.textContent = 'Parse & preview quiz before submit.';
+        } else {
+          btnPreview.disabled = true;
+          previewHint.textContent = 'Automatic preview uses .docx for the question paper.';
+        }
+      }
+
+      var answerPreviewWrap = document.getElementById('at-answer-preview-wrap');
+      var btnPreviewAnswerStandalone = document.getElementById('at-btn-preview-answer-standalone');
+      var akStandaloneModal = document.getElementById('at-ak-standalone-modal');
+      var akStandaloneBody = document.getElementById('at-ak-standalone-body');
+      var akStandaloneTitle = document.getElementById('at-ak-standalone-title');
+      var akStandaloneSub = document.getElementById('at-ak-standalone-sub');
+      var akStandaloneClose = document.getElementById('at-ak-standalone-close');
+      var akStandalonePrev = document.getElementById('at-ak-standalone-prev');
+      var akStandaloneNext = document.getElementById('at-ak-standalone-next');
+      var akStandaloneCount = document.getElementById('at-ak-standalone-count');
+      var akStandaloneState = { map: {}, keys: [], index: 0, docHtml: '' };
+
+      function updateAnswerPreviewWrap() {
+        if (!answerPreviewWrap) return;
+        var show = !!(fileA.files && fileA.files[0] && isDocx(fileA.files[0].name));
+        answerPreviewWrap.hidden = !show;
+      }
+
+      function closeAkStandaloneModal() {
+        if (akStandaloneModal) akStandaloneModal.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function runStandaloneAnswerKeyPreview() {
+        if (!fileA.files || !fileA.files[0]) {
+          showToast('Answer key', 'Choose an answer key file first.');
+          return;
+        }
+        if (!isDocx(fileA.files[0].name)) {
+          showToast('Answer preview', 'Automatic parsing needs a .docx answer key.');
+          return;
+        }
+        if (loaderTitleEl) loaderTitleEl.textContent = 'Reading answer key…';
+        loaderCaption.textContent = 'Parsing solutions from your .docx…';
+        loaderOverlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        extractDocxWithHtml(fileA.files[0], function (err, res) {
+          loaderOverlay.hidden = true;
+          document.body.style.overflow = '';
+          if (err || !res) {
+            showToast('Could not read file', (err && err.message) || 'Try another .docx file.');
+            return;
+          }
+          var map = parseAnswerKeyText(res.text);
+          var n = countAnswerKeyEntries(map);
+          if (!n) {
+            showToast(
+              'No answers found',
+              'Use 16.Answer: Correct Option is: "B" (tabs OK) with Reason:, or 16.B with Reason:, or Solution: instead of Reason.'
+            );
+            return;
+          }
+          var keys = Object.keys(map)
+            .map(function (k) {
+              return parseInt(k, 10);
+            })
+            .sort(function (a, b) {
+              return a - b;
+            });
+          akStandaloneState.map = map;
+          akStandaloneState.keys = keys;
+          akStandaloneState.index = 0;
+          akStandaloneState.docHtml = res.html || '';
+          if (akStandaloneTitle) akStandaloneTitle.textContent = 'Answer key preview';
+          renderAkStandaloneSlide();
+          if (akStandaloneModal) {
+            akStandaloneModal.hidden = false;
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      }
+
+      function closePreviewModal() {
+        previewModal.hidden = true;
+      }
+
+      function splitStemLinkedAndQuestion(stem, qNum) {
+        var s = String(stem || '');
+        var esc = String(qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var re = new RegExp('^([\\s\\S]*?)(\\n\\s*' + esc + '\\.\\s+[A-Za-z][\\s\\S]*)$');
+        var m = s.match(re);
+        if (!m) return { linked: '', main: s };
+        var linkedOk =
+          /Principle|Facts|Question\s+No|Condition\s*\d+/i.test(m[1]) ||
+          /(?:^|\n)\s*(?:RC|LR|LE|AR|GK|QA)\s*(?:\n|$)/i.test(m[1]) ||
+          /Direction\s+for\s+questions?/i.test(m[1]) ||
+          /Read\s+the\s+given\s+passage/i.test(m[1]);
+        if (m[1].trim().length > 15 && linkedOk) {
+          return { linked: m[1].trim(), main: m[2].trim() };
+        }
+        return { linked: '', main: s };
+      }
+
+      function stripLeadingQuestionNumber(text, qNum) {
+        var esc = String(qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return String(text || '')
+          .replace(new RegExp('^\\s*' + esc + '\\.\\s*'), '')
+          .trim();
+      }
+
+      /** When stem has Principle/Facts/Conditions, keep passage separate from the actual MCQ line(s). */
+      function splitPassageVersusQuestion(mainStem, qNum) {
+        var s = String(mainStem || '').replace(/\r\n/g, '\n').trim();
+        if (!s) return { passage: '', question: '' };
+        var hasLegalPassage =
+          /\bFacts:/i.test(s) ||
+          /\bPrinciple\s*\d*\s*:/i.test(s) ||
+          /\bCondition\s*\d+\s*:/i.test(s) ||
+          /(?:^|\n)\s*(?:RC|LR|LE|AR|GK|QA)\s*(?:\n|$)/i.test(s) ||
+          /Direction\s+for\s+questions?/i.test(s) ||
+          /Read\s+the\s+given\s+passage/i.test(s);
+        if (!hasLegalPassage) {
+          return { passage: '', question: s };
+        }
+        var esc = String(qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var qLine = new RegExp(
+          '(?:^|\\n)\\s*(?:' +
+            esc +
+            '\\.\\s*)?(Does|Which|What|Who|Whether|State|Are|Is|How|Explain|Choose|Select|Suppose|If|Offend|Decide\\s+whether|The\\s+book)\\b',
+          'i'
+        );
+        var match = qLine.exec(s);
+        if (!match) {
+          var decide = s.match(/^([\s\S]*?\bDecide\.)\s*\n+([\s\S]+)$/i);
+          if (decide && decide[2].trim().length > 10 && hasLegalPassage) {
+            return { passage: decide[1].trim(), question: decide[2].trim() };
+          }
+          return { passage: '', question: s };
+        }
+        var beforeQ = s.slice(0, match.index);
+        var passageOk =
+          /\bFacts:/i.test(beforeQ) ||
+          /\bPrinciple\s*\d*\s*:/i.test(beforeQ) ||
+          /\bCondition\s*\d+\s*:/i.test(beforeQ) ||
+          /(?:^|\n)\s*(?:RC|LR|LE|AR|GK|QA)\s*(?:\n|$)/i.test(beforeQ) ||
+          /Direction\s+for\s+questions?/i.test(beforeQ) ||
+          /Read\s+the\s+given\s+passage/i.test(beforeQ);
+        if (passageOk) {
+          var passage = s.slice(0, match.index).trim();
+          var question = s.slice(match.index).replace(/^\s*\n?/, '').trim();
+          if (question.length > 5 && passage.length > 10) {
+            return { passage: passage, question: question };
+          }
+        }
+        var decide2 = s.match(/^([\s\S]*?\bDecide\.)\s*\n+([\s\S]+)$/i);
+        if (decide2 && decide2[2].trim().length > 10 && hasLegalPassage) {
+          return { passage: decide2[1].trim(), question: decide2[2].trim() };
+        }
+        return { passage: '', question: s };
+      }
+
+      function getQuestionPassageData(q) {
+        if (q.markerContext) {
+          var stemSplitM = splitStemLinkedAndQuestion(q.stem, q.number);
+          var stemMainM = stemSplitM.main || q.stem;
+          var pqM = splitPassageVersusQuestion(stemMainM, q.number);
+          return {
+            passagePieces: [],
+            stemSplit: stemSplitM,
+            pq: pqM,
+            stemMain: stemMainM,
+          };
+        }
+        var stemSplit = splitStemLinkedAndQuestion(q.stem, q.number);
+        var stemMain = stemSplit.main || q.stem;
+        var pq = splitPassageVersusQuestion(stemMain, q.number);
+        var passagePieces = [];
+        if (stemSplit.linked) passagePieces.push(stemSplit.linked);
+        if (pq.passage) passagePieces.push(pq.passage);
+        return {
+          passagePieces: passagePieces,
+          stemSplit: stemSplit,
+          pq: pq,
+          stemMain: stemMain,
+        };
+      }
+
+      function passageSignatureFromPieces(pieces) {
+        if (!pieces || !pieces.length) return '';
+        return pieces.join('\n\n').replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+
+      function passagePreviewLabel(pieces) {
+        var j = (pieces || []).join('\n');
+        if (
+          /(?:^|\n)\s*RC\s*(?:\n|$)/im.test(j) ||
+          /Direction\s+for\s+questions?/i.test(j) ||
+          /Read\s+the\s+given\s+passage/i.test(j)
+        ) {
+          return 'Reading comprehension passage';
+        }
+        return 'Shared passage (Principle / Facts)';
+      }
+
+      /** First question number where this passage text appears (for de-duplicating preview). */
+      function buildPassageFirstQuestionMap(questions) {
+        var map = Object.create(null);
+        for (var i = 0; i < questions.length; i++) {
+          var qq = questions[i];
+          var d = getQuestionPassageData(qq);
+          if (!d.passagePieces.length) continue;
+          var sig = passageSignatureFromPieces(d.passagePieces);
+          if (!sig) continue;
+          if (map[sig] === undefined) map[sig] = qq.number;
+        }
+        return map;
+      }
+
+      function renderPreviewSlide() {
+        var qs = previewState.questions;
+        var idx = previewState.index;
+        var total = qs.length;
+        var q = qs[idx];
+        if (!q) return;
+
+        var akN = countAnswerKeyEntries(previewState.answers);
+        previewCount.textContent = (idx + 1) + ' / ' + total;
+
+        var dirHtml = '';
+        if (idx === 0 && previewState.directions.length) {
+          dirHtml =
+            '<div class="at-quiz-directions" role="note"><strong>Directions</strong> <span style="font-weight:500;opacity:0.9">(short summary — full passage is not repeated here)</span><br />' +
+            escapeHtml(previewState.directions.join('\n')).replace(/\n/g, '<br />') +
+            '</div>';
+        }
+
+        var markerInfoHtml = '';
+        if (q.contextInfo && !q.contextParagraph) {
+          markerInfoHtml =
+            '<div class="at-quiz-directions at-quiz-marker-info" role="note">' +
+            '<strong>Directions for this set</strong><br />' +
+            escapeHtml(q.contextInfo).replace(/\n/g, '<br />') +
+            '</div>';
+        }
+        var markerPassageHtml = '';
+        if (q.contextParagraph) {
+          var passageHeading =
+            q.passageIndex > 0 ? 'Passage ' + q.passageIndex : 'Passage';
+          markerPassageHtml =
+            '<div class="at-quiz-linked at-quiz-marker-passage" role="region" aria-label="' +
+            escapeHtml(passageHeading) +
+            '">' +
+            '<span class="at-quiz-stem-label">' +
+            escapeHtml(passageHeading) +
+            '</span>' +
+            escapeHtml(q.contextParagraph).replace(/\n/g, '<br />') +
+            '</div>';
+        }
+
+        var optsHtml = (q.options || [])
+          .map(function (o) {
+            var correct = getAnswerLetter(previewState.answers[q.number]);
+            var cls = 'at-quiz-option' + (correct && correct === o.letter ? ' at-quiz-option--correct' : '');
+            return (
+              '<div class="' +
+              cls +
+              '" data-letter="' +
+              escapeHtml(o.letter) +
+              '"><span class="at-quiz-option__lbl">' +
+              escapeHtml(o.letter) +
+              '.</span><span>' +
+              escapeHtml(o.text) +
+              '</span></div>'
+            );
+          })
+          .join('');
+
+        var pd = getQuestionPassageData(q);
+        var stemSplit = pd.stemSplit;
+        var stemMain = pd.stemMain;
+        var pq = pd.pq;
+        var passagePieces = pd.passagePieces;
+
+        var markerSlideCtx = !!(q.contextInfo || q.contextParagraph);
+        var useSplitPassage = passagePieces.length > 0 || markerSlideCtx;
+        var sig = passageSignatureFromPieces(passagePieces);
+        var firstQForPassage =
+          sig && previewState.passageFirstQ ? previewState.passageFirstQ[sig] : undefined;
+        var passageIsRepeat =
+          !markerSlideCtx &&
+          useSplitPassage &&
+          passagePieces.length > 0 &&
+          firstQForPassage != null &&
+          q.number > firstQForPassage;
+        var questionBody = useSplitPassage
+          ? pq.question || stemMain
+          : stemMain;
+        if (useSplitPassage) {
+          questionBody = stripLeadingQuestionNumber(questionBody, q.number);
+        }
+
+        var passageHtml = '';
+        if (passagePieces.length > 0) {
+          if (passageIsRepeat) {
+            passageHtml =
+              '<div class="at-quiz-linked at-quiz-linked--repeat" role="region" aria-label="Shared passage reference">' +
+              '<span class="at-quiz-stem-label">Shared passage</span>' +
+              'Same passage as <strong>Question ' +
+              escapeHtml(String(firstQForPassage)) +
+              '</strong>. Open that slide for the full text — this slide shows only the question and options below.' +
+              '</div>';
+          } else {
+            passageHtml =
+              '<div class="at-quiz-linked" role="region" aria-label="Reading or legal passage">' +
+              '<span class="at-quiz-stem-label">' +
+              escapeHtml(passagePreviewLabel(passagePieces)) +
+              '</span>' +
+              escapeHtml(passagePieces.join('\n\n')).replace(/\n/g, '<br />') +
+              '</div>';
+          }
+        }
+
+        var subParts =
+          'Q' +
+          q.number +
+          ' · Slide ' +
+          (idx + 1) +
+          ' of ' +
+          total;
+        if (passageIsRepeat) {
+          subParts += ' · Same passage group as Q' + firstQForPassage;
+        }
+        subParts += akN ? ' · Answer key on' : ' · Add .docx answer key to show correct option';
+        previewSub.textContent = subParts;
+
+        var stemHtml;
+        if (useSplitPassage) {
+          stemHtml =
+            '<div class="at-quiz-question-card" role="region" aria-label="Question text">' +
+            '<span class="at-quiz-stem-label">Question ' +
+            escapeHtml(String(q.number)) +
+            '</span>' +
+            escapeHtml(questionBody) +
+            '</div>';
+        } else {
+          stemHtml =
+            '<div class="at-quiz-stem"><span class="at-quiz-stem-label">Question ' +
+            escapeHtml(String(q.number)) +
+            '</span>' +
+            escapeHtml(questionBody) +
+            '</div>';
+        }
+
+        var questionMainHtml =
+          stemHtml +
+          '<p class="at-quiz-options-label">Options</p><div class="at-quiz-options">' +
+          optsHtml +
+          '</div>';
+
+        var nextQNum = idx < total - 1 ? previewState.questions[idx + 1].number : null;
+        var richFrag =
+          previewState.docHtml &&
+          extractQuestionPaperHtmlFragment(previewState.docHtml, q.number, nextQNum);
+        var richHtml = '';
+        if (richFrag) {
+          richHtml =
+            '<div class="at-quiz-rich at-docx-html" role="region" aria-label="Original Word layout with images">' +
+            '<span class="at-quiz-stem-label">Original layout (text &amp; pictures from Word)</span>' +
+            richFrag +
+            '</div>';
+        }
+
+        var passageHint = '';
+        if (passagePieces.length > 0 || markerSlideCtx) {
+          passageHint =
+            akN > 0
+              ? '<p class="at-preview-passage-hint">Correct options are highlighted when an answer key .docx is loaded.</p>'
+              : '<p class="at-preview-passage-hint">Question and options are below.</p>';
+        }
+
+        previewBody.innerHTML =
+          markerInfoHtml +
+          markerPassageHtml +
+          dirHtml +
+          passageHtml +
+          passageHint +
+          questionMainHtml +
+          richHtml;
+
+        previewPrev.disabled = idx <= 0;
+        previewNext.disabled = idx >= total - 1;
+      }
+
+      function openPreviewModal() {
+        previewModal.hidden = false;
+        renderPreviewSlide();
+      }
+
+      function runQuizPreview() {
+        if (!fileQ.files || !fileQ.files[0] || !isDocx(fileQ.files[0].name)) {
+          showToast('Preview needs .docx', 'Upload a .docx question paper to parse and preview.');
+          return;
+        }
+        if (loaderTitleEl) loaderTitleEl.textContent = 'Analysing document…';
+        loaderCaption.textContent = 'Reading your question paper…';
+        loaderOverlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        extractDocxWithHtml(fileQ.files[0], function (err, res) {
+          if (err || !res) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            showToast('Preview failed', (err && err.message) || 'Could not read the file.');
+            return;
+          }
+          var qDocHtml = res.html || '';
+          var parsed = parseQuestionsFromText(res.text);
+          if (parsed.error || !parsed.questions.length) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            showToast('Parse issue', parsed.error || 'No questions found.');
+            return;
+          }
+
+          function finishOpen(ansMap) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            previewState = {
+              directions: parsed.directions,
+              questions: parsed.questions,
+              answers: ansMap || {},
+              index: 0,
+              passageFirstQ: buildPassageFirstQuestionMap(parsed.questions),
+              docHtml: qDocHtml,
+            };
+            document.getElementById('at-preview-title').textContent =
+              'Quiz preview · ' + parsed.questions.length + ' question(s)';
+            openPreviewModal();
+          }
+
+          if (fileA.files && fileA.files[0] && isDocx(fileA.files[0].name)) {
+            extractDocxText(fileA.files[0], function (e2, aText) {
+              var ansMap = !e2 && aText ? parseAnswerKeyText(aText) : {};
+              finishOpen(ansMap);
+            });
+          } else {
+            finishOpen({});
+          }
+        });
+      }
+
+      btnPreview.addEventListener('click', runQuizPreview);
+      if (btnPreviewAnswerStandalone) {
+        btnPreviewAnswerStandalone.addEventListener('click', runStandaloneAnswerKeyPreview);
+      }
+      if (akStandaloneClose) akStandaloneClose.addEventListener('click', closeAkStandaloneModal);
+      if (akStandalonePrev) {
+        akStandalonePrev.addEventListener('click', function () {
+          if (akStandaloneState.index > 0) {
+            akStandaloneState.index--;
+            renderAkStandaloneSlide();
+          }
+        });
+      }
+      if (akStandaloneNext) {
+        akStandaloneNext.addEventListener('click', function () {
+          if (akStandaloneState.index < akStandaloneState.keys.length - 1) {
+            akStandaloneState.index++;
+            renderAkStandaloneSlide();
+          }
+        });
+      }
+      previewClose.addEventListener('click', closePreviewModal);
+      previewPrev.addEventListener('click', function () {
+        if (previewState.index > 0) {
+          previewState.index--;
+          renderPreviewSlide();
+        }
+      });
+      previewNext.addEventListener('click', function () {
+        if (previewState.index < previewState.questions.length - 1) {
+          previewState.index++;
+          renderPreviewSlide();
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (toast && !toast.hidden && toast.classList.contains('at-toast--show')) {
+          hideToast();
+          e.preventDefault();
+          return;
+        }
+        if (errorModalEl && !errorModalEl.hidden) {
+          hideErrorModal();
+          e.preventDefault();
+          return;
+        }
+        if (successModal && !successModal.hidden) {
+          hideSuccessModal();
+          e.preventDefault();
+          return;
+        }
+        if (akStandaloneModal && !akStandaloneModal.hidden) {
+          closeAkStandaloneModal();
+          e.preventDefault();
+          return;
+        }
+        if (!previewModal.hidden) closePreviewModal();
+      });
+
+      function setFileList(input, metaEl, files, onValid) {
+        if (!files || !files.length) {
+          metaEl.hidden = true;
+          metaEl.textContent = '';
+          metaEl.classList.remove('at-ok');
+          if (metaEl.id === 'at-meta-q') updatePreviewWrap();
+          if (metaEl.id === 'at-meta-a') updateAnswerPreviewWrap();
+          return;
+        }
+        var f = files[0];
+        if (!extOk(f.name)) {
+          metaEl.hidden = false;
+          metaEl.classList.remove('at-ok');
+          metaEl.textContent = 'Please choose a PDF or Word file.';
+          input.value = '';
+          if (metaEl.id === 'at-meta-q') updatePreviewWrap();
+          if (metaEl.id === 'at-meta-a') updateAnswerPreviewWrap();
+          return;
+        }
+        metaEl.hidden = false;
+        metaEl.classList.add('at-ok');
+        metaEl.textContent = 'Selected: ' + f.name + ' (' + fmtSize(f.size) + ')';
+        if (metaEl.id === 'at-meta-q') updatePreviewWrap();
+        if (metaEl.id === 'at-meta-a') updateAnswerPreviewWrap();
+        if (typeof onValid === 'function') onValid();
+      }
+
+      function bindDrop(input, drop, meta) {
+        function runAfterValid() {
+          showLoader('Uploading…', 1500, function () {});
+        }
+        drop.addEventListener('click', function () {
+          input.click();
+        });
+        drop.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            input.click();
+          }
+        });
+        input.addEventListener('change', function () {
+          setFileList(input, meta, input.files, runAfterValid);
+        });
+        ;['dragenter', 'dragover'].forEach(function (ev) {
+          drop.addEventListener(ev, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            drop.classList.add('at-drop--active');
+          });
+        });
+        ;['dragleave', 'drop'].forEach(function (ev) {
+          drop.addEventListener(ev, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            drop.classList.remove('at-drop--active');
+          });
+        });
+        drop.addEventListener('drop', function (e) {
+          var dt = e.dataTransfer;
+          if (!dt || !dt.files || !dt.files.length) return;
+          input.files = dt.files;
+          setFileList(input, meta, input.files, runAfterValid);
+        });
+      }
+
+      bindDrop(fileQ, dropQ, metaQ);
+      bindDrop(fileA, dropA, metaA);
+
+      if (typeof flatpickr !== 'undefined') {
+        fpWhen = flatpickr(whenInput, {
+          enableTime: true,
+          dateFormat: 'Y-m-d H:i',
+          altInput: true,
+          altFormat: 'd-m-Y H:i',
+          time_24hr: true,
+          minuteIncrement: 1,
+          allowInput: false,
+          clickOpens: true,
+          appendTo: document.body,
+          onReady: function (selectedDates, dateStr, instance) {
+            if (instance.altInput) {
+              instance.altInput.placeholder = 'dd-mm-yyyy --:--';
+              instance.altInput.classList.add('at-when-input');
+            }
+          },
+        });
+      }
+
+      function allLocSelected() {
+        return locBoxes.every(function (el) {
+          return el && el.checked;
+        });
+      }
+
+      brAll.addEventListener('change', function () {
+        if (syncing) return;
+        syncing = true;
+        if (brAll.checked) {
+          locBoxes.forEach(function (el) {
+            if (el) el.checked = true;
+          });
+        } else {
+          locBoxes.forEach(function (el) {
+            if (el) el.checked = false;
+          });
+        }
+        syncing = false;
+      });
+
+      locBoxes.forEach(function (el) {
+        if (!el) return;
+        el.addEventListener('change', function () {
+          if (syncing) return;
+          syncing = true;
+          if (allLocSelected()) brAll.checked = true;
+          else brAll.checked = false;
+          syncing = false;
+        });
+      });
+
+      scheduleToggle.addEventListener('click', function () {
+        var open = !schedulePanel.classList.contains('at-open');
+        schedulePanel.classList.toggle('at-open', open);
+        scheduleToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      clearSchedule.addEventListener('click', function () {
+        if (fpWhen) fpWhen.clear();
+        else whenInput.value = '';
+        schedulePanel.classList.remove('at-open');
+        scheduleToggle.setAttribute('aria-expanded', 'false');
+      });
+
+      function resolveBranchesForPayload() {
+        var checked = Array.prototype.slice
+          .call(form.querySelectorAll('input[name="branch"]:checked'))
+          .map(function (c) {
+            return c.value;
+          });
+        if (checked.indexOf('ALL BRANCH') >= 0 || allLocSelected()) {
+          return ['MALLESHWARAM', 'JAYANAGARA', 'YALAAHANKA'];
+        }
+        return checked.filter(function (v) {
+          return v !== 'ALL BRANCH';
+        });
+      }
+
+      function guessContentType(fileName, fileType) {
+        if (fileType && String(fileType).trim()) return String(fileType).trim();
+        var lower = (fileName || '').toLowerCase();
+        if (lower.endsWith('.pdf')) return 'application/pdf';
+        if (lower.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        if (lower.endsWith('.doc')) return 'application/msword';
+        return 'application/octet-stream';
+      }
+
+      function readFileAsDataUrl(file) {
+        return new Promise(function (resolve, reject) {
+          var r = new FileReader();
+          r.onload = function () {
+            resolve(r.result);
+          };
+          r.onerror = function () {
+            reject(new Error('Could not read file'));
+          };
+          r.readAsDataURL(file);
+        });
+      }
+
+      var addTestApiUrl =
+        (window.APP_CONFIG && window.APP_CONFIG.ADD_TEST_API) ||
+        'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/add_test';
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var title = (document.getElementById('at-title').value || '').trim();
+        if (!title) {
+          showToast('Missing title', 'Please enter an assessment title.');
+          document.getElementById('at-title').focus();
+          return;
+        }
+        if (!fileQ.files || !fileQ.files.length || !extOk(fileQ.files[0].name)) {
+          showToast('Question paper required', 'Upload a PDF or Word file for the question paper.');
+          dropQ.focus();
+          return;
+        }
+        if (!fileA.files || !fileA.files.length || !extOk(fileA.files[0].name)) {
+          showToast('Answer key required', 'Upload a PDF or Word file for the answer key.');
+          dropA.focus();
+          return;
+        }
+        var branches = resolveBranchesForPayload();
+        if (!branches.length) {
+          showToast('Select branch', 'Choose at least one branch or ALL BRANCH.');
+          return;
+        }
+        var scheduledFull = '';
+        if (fpWhen && fpWhen.selectedDates && fpWhen.selectedDates.length) {
+          scheduledFull = fpWhen.formatDate(fpWhen.selectedDates[0], 'Y-m-d H:i');
+        }
+        var scheduledDateOnly = scheduledFull ? scheduledFull.slice(0, 10) : null;
+
+        var fq = fileQ.files[0];
+        var fa = fileA.files[0];
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        if (loaderTitleEl) loaderTitleEl.textContent = 'Submitting your test';
+        loaderCaption.textContent = 'Preparing files…';
+        loaderOverlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        Promise.all([readFileAsDataUrl(fq), readFileAsDataUrl(fa)])
+          .then(function (pair) {
+            loaderCaption.textContent = 'Uploading to server…';
+            var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+            var addedBy = sess && sess.user && sess.user.email ? String(sess.user.email).trim() : null;
+
+            var payload = {
+              title: title,
+              scheduled: scheduledDateOnly,
+              selected_branch: branches,
+              question_paper_base64: pair[0],
+              question_paper_file_name: fq.name,
+              question_paper_content_type: guessContentType(fq.name, fq.type),
+              answer_key_base64: pair[1],
+              answer_key_file_name: fa.name,
+              answer_key_content_type: guessContentType(fa.name, fa.type),
+            };
+            if (addedBy) payload.added_by = addedBy;
+
+            return fetch(addTestApiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }).then(function (res) {
+              return res.text().then(function (text) {
+                var data = {};
+                if (text) {
+                  try {
+                    data = JSON.parse(text);
+                  } catch (parseErr) {
+                    data = { message: text.slice(0, 200) };
+                  }
+                }
+                return { ok: res.ok, status: res.status, data: data };
+              });
+            });
+          })
+          .then(function (result) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            if (submitBtn) submitBtn.disabled = false;
+            if (result.ok) {
+              var tid = result.data && result.data.test_id != null ? result.data.test_id : '';
+              showSuccessModal({
+                testId: tid,
+                branches: branches,
+                scheduledDate: scheduledDateOnly,
+              });
+              if (typeof Auth !== 'undefined' && Auth.trackActivity) {
+                Auth.trackActivity('add_test_submit', { test_id: tid || null });
+              }
+            } else {
+              var msg =
+                (result.data && (result.data.message || result.data.error)) ||
+                'Request failed (' + result.status + ')';
+              showToast('Could not save', String(msg));
+            }
+          })
+          .catch(function (err) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            if (submitBtn) submitBtn.disabled = false;
+            console.error('[Add Test]', err);
+            showToast('Upload failed', (err && err.message) || 'Network error. Try again.');
+          });
+      });
+    });
+  </script>
+</body>
+</html>

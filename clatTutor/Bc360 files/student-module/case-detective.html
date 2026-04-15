@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Case Detective</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+      --green: #10b981;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .back-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .game-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      flex: 1;
+    }
+
+    .game-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--label);
+    }
+
+    .score-display {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .case-number {
+      font-weight: 600;
+      color: var(--purple);
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .case-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .case-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .case-story {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      color: var(--label);
+    }
+
+    .clues-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .clue-item {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .clue-icon {
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    .clue-text {
+      color: var(--label);
+      font-size: 0.95rem;
+    }
+
+    .question-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      color: var(--label);
+      margin-bottom: 25px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .option-button {
+      background: var(--accent-light);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 1rem;
+      color: var(--label);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .option-button:hover {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.1);
+      transform: translateX(5px);
+    }
+
+    .option-button.correct {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .option-button.incorrect {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .option-button.selected {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.2);
+    }
+
+    .feedback-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback-message.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .feedback-message.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .next-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .next-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .next-button:disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .case-complete-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .case-complete-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .case-complete-content {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .case-complete-modal.show .case-complete-content {
+      transform: scale(1);
+    }
+
+    .case-complete-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--success);
+    }
+
+    .case-complete-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 15px;
+    }
+
+    .case-complete-message {
+      color: var(--label);
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .case-complete-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .case-complete-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .game-area {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .game-info {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-header">
+      <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Games
+      </button>
+      <h1 class="game-title">🔍 Case Detective</h1>
+      <div class="game-info">
+        <span class="score-display">Score: <span id="score">0</span></span>
+        <span class="case-number">Case: <span id="caseNumber">1</span>/5</span>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="case-container">
+        <h2 class="case-title">📋 Case File</h2>
+        <div class="case-story" id="caseStory">
+          Click "Start Investigation" to begin solving mysteries!
+        </div>
+        <div class="clues-container" id="cluesContainer">
+          <!-- Clues will be generated by JavaScript -->
+        </div>
+      </div>
+
+      <div class="question-container">
+        <h2 class="question-title">❓ Investigation Question</h2>
+        <div class="question-text" id="questionText">
+          Ready to put your detective skills to the test?
+        </div>
+        <div class="options-container" id="optionsContainer">
+          <!-- Options will be generated by JavaScript -->
+        </div>
+        <div class="feedback-message" id="feedbackMessage"></div>
+        <button class="next-button" id="nextButton" onclick="nextQuestion()" disabled>
+          Start Investigation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Complete Modal -->
+  <div class="case-complete-modal" id="caseCompleteModal">
+    <div class="case-complete-content">
+      <div class="case-complete-icon">🎯</div>
+      <h2 class="case-complete-title">Case Solved!</h2>
+      <p class="case-complete-message" id="caseCompleteMessage">
+        Excellent detective work! You've successfully solved this case.
+      </p>
+      <button class="case-complete-button" onclick="closeCaseCompleteModal()">
+        Next Case
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Game data
+    const gameData = {
+      currentCase: 0,
+      score: 0,
+      cases: [
+        {
+          title: "The Missing Lab Sample",
+          story: "Dr. Smith reported that a crucial lab sample has gone missing from the science lab. The sample was last seen at 2:30 PM, and the lab was locked at 3:00 PM. Three students were in the lab during that time: Alice (who left at 2:45 PM), Bob (who left at 2:50 PM), and Carol (who left at 2:55 PM).",
+          clues: [
+            "🔍 Lab was locked at 3:00 PM sharp",
+            "📝 Alice left at 2:45 PM",
+            "📝 Bob left at 2:50 PM", 
+            "📝 Carol left at 2:55 PM",
+            "🔐 Only students with access cards can enter/exit",
+            "📦 Sample container was found empty at 2:55 PM"
+          ],
+          question: "Based on the timeline and evidence, who is most likely responsible for the missing sample?",
+          options: [
+            "Alice - she had the most time alone with the sample",
+            "Bob - he left right before the sample was discovered missing",
+            "Carol - she was the last person to leave before the sample went missing",
+            "Someone else - the evidence is inconclusive"
+          ],
+          correct: 2,
+          explanation: "Carol was the last person in the lab and left at 2:55 PM, which is when the sample was discovered missing. This timeline strongly suggests she was responsible."
+        },
+        {
+          title: "The Library Mystery",
+          story: "A rare book has been damaged in the library. The librarian found torn pages near the study area. Four students were studying there: David (studying Math), Emma (studying History), Frank (studying Science), and Grace (studying Literature).",
+          clues: [
+            "📚 The damaged book was a rare History text",
+            "🕐 Incident occurred between 4:00-5:00 PM",
+            "📝 David was solving complex equations",
+            "📝 Emma was taking detailed notes",
+            "📝 Frank was conducting experiments",
+            "📝 Grace was reading poetry"
+          ],
+          question: "Who is most likely responsible for damaging the History book?",
+          options: [
+            "David - he was focused on Math problems",
+            "Emma - she was studying History and using the book",
+            "Frank - his experiments might have caused damage",
+            "Grace - she was reading different material"
+          ],
+          correct: 1,
+          explanation: "Emma was studying History and taking detailed notes, which likely involved using the History book. The damage probably occurred during her study session."
+        },
+        {
+          title: "The Cafeteria Incident",
+          story: "A food fight broke out in the cafeteria during lunch. The principal needs to identify who started it. Witnesses saw four students in the area: Henry (eating pizza), Iris (drinking juice), Jack (eating salad), and Kate (eating pasta).",
+          clues: [
+            "🍕 Henry was eating pizza with his hands",
+            "🥤 Iris spilled her juice accidentally",
+            "🥗 Jack was eating salad with a fork",
+            "🍝 Kate was eating pasta with a spoon",
+            "💥 Food fight started with flying pizza",
+            "👀 Multiple witnesses confirmed the sequence"
+          ],
+          question: "Based on the evidence, who most likely started the food fight?",
+          options: [
+            "Henry - he was eating pizza with his hands",
+            "Iris - she spilled her juice first",
+            "Jack - his salad could have been thrown",
+            "Kate - her pasta could have been the weapon"
+          ],
+          correct: 0,
+          explanation: "Henry was eating pizza with his hands, and the food fight started with flying pizza. This strongly suggests he was the instigator."
+        },
+        {
+          title: "The Computer Lab Mystery",
+          story: "A computer in the lab has been infected with a virus. The IT department traced the infection to a USB drive. Four students used the computer: Leo (transferring photos), Mia (downloading software), Noah (backing up files), and Olivia (installing updates).",
+          clues: [
+            "💾 Leo was transferring photos from his phone",
+            "⬇️ Mia was downloading software from the internet",
+            "💿 Noah was backing up files to a USB drive",
+            "🔄 Olivia was installing system updates",
+            "🦠 Virus was found on a USB drive",
+            "🔍 IT traced the source to external media"
+          ],
+          question: "Who is most likely responsible for the virus infection?",
+          options: [
+            "Leo - his phone might have been infected",
+            "Mia - she was downloading software",
+            "Noah - he was using a USB drive",
+            "Olivia - her updates might have been compromised"
+          ],
+          correct: 2,
+          explanation: "Noah was using a USB drive, and the virus was found on a USB drive. This is the most direct connection to the infection source."
+        },
+        {
+          title: "The Art Studio Case",
+          story: "A valuable painting has been damaged in the art studio. The art teacher found paint splatters on the floor. Four students were working there: Paul (painting landscapes), Quinn (sculpting clay), Rachel (drawing portraits), and Sam (making collages).",
+          clues: [
+            "🎨 Paul was using oil paints",
+            "🧱 Quinn was working with clay",
+            "✏️ Rachel was using pencils",
+            "📰 Sam was cutting and pasting paper",
+            "💧 Paint splatters were found on the floor",
+            "🖼️ The damaged painting was near the paint area"
+          ],
+          question: "Who is most likely responsible for the paint damage?",
+          options: [
+            "Paul - he was using oil paints",
+            "Quinn - his clay work might have caused splatters",
+            "Rachel - her pencils could have damaged the painting",
+            "Sam - his cutting might have caused damage"
+          ],
+          correct: 0,
+          explanation: "Paul was using oil paints, and paint splatters were found on the floor. This directly connects him to the paint-related damage."
+        }
+      ]
+    };
+
+    let currentCase = null;
+    let selectedAnswer = null;
+
+    // Initialize the game
+    function initGame() {
+      loadCase(gameData.currentCase);
+    }
+
+    // Load case
+    function loadCase(caseIndex) {
+      if (caseIndex >= gameData.cases.length) {
+        // All cases completed
+        showGameComplete();
+        return;
+      }
+
+      currentCase = gameData.cases[caseIndex];
+      selectedAnswer = null;
+      
+      displayCase(currentCase);
+      displayQuestion(currentCase);
+      
+      document.getElementById('caseNumber').textContent = caseIndex + 1;
+      document.getElementById('nextButton').textContent = 'Submit Answer';
+      document.getElementById('nextButton').disabled = true;
+      document.getElementById('feedbackMessage').style.display = 'none';
+    }
+
+    // Display case
+    function displayCase(caseData) {
+      document.getElementById('caseStory').innerHTML = `
+        <strong>${caseData.title}</strong><br><br>
+        ${caseData.story}
+      `;
+      
+      const cluesContainer = document.getElementById('cluesContainer');
+      cluesContainer.innerHTML = '';
+      
+      caseData.clues.forEach(clue => {
+        const clueItem = document.createElement('div');
+        clueItem.className = 'clue-item';
+        clueItem.innerHTML = `
+          <span class="clue-icon">${clue.split(' ')[0]}</span>
+          <span class="clue-text">${clue.split(' ').slice(1).join(' ')}</span>
+        `;
+        cluesContainer.appendChild(clueItem);
+      });
+    }
+
+    // Display question
+    function displayQuestion(caseData) {
+      document.getElementById('questionText').textContent = caseData.question;
+      
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+      
+      caseData.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-button';
+        button.textContent = option;
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    // Select answer
+    function selectAnswer(answerIndex) {
+      selectedAnswer = answerIndex;
+      const buttons = document.querySelectorAll('.option-button');
+      const feedbackMessage = document.getElementById('feedbackMessage');
+      const nextButton = document.getElementById('nextButton');
+
+      buttons.forEach((button, index) => {
+        button.classList.remove('selected', 'correct', 'incorrect');
+        if (index === answerIndex) {
+          button.classList.add('selected');
+        }
+        if (index === currentCase.correct) {
+          button.classList.add('correct');
+        } else if (index === answerIndex && answerIndex !== currentCase.correct) {
+          button.classList.add('incorrect');
+        }
+      });
+
+      if (answerIndex === currentCase.correct) {
+        feedbackMessage.innerHTML = `✅ Correct! ${currentCase.explanation}`;
+        feedbackMessage.className = 'feedback-message success';
+        gameData.score += 50;
+      } else {
+        feedbackMessage.innerHTML = `❌ Incorrect. ${currentCase.explanation}`;
+        feedbackMessage.className = 'feedback-message error';
+      }
+
+      feedbackMessage.style.display = 'block';
+      nextButton.disabled = false;
+      nextButton.textContent = 'Next Case';
+      document.getElementById('score').textContent = gameData.score;
+    }
+
+    // Next question/case
+    function nextQuestion() {
+      if (selectedAnswer === null) {
+        return; // No answer selected
+      }
+
+      if (selectedAnswer === currentCase.correct) {
+        // Case solved, move to next case
+        gameData.currentCase++;
+        loadCase(gameData.currentCase);
+      } else {
+        // Wrong answer, try again
+        selectedAnswer = null;
+        displayQuestion(currentCase);
+        document.getElementById('nextButton').disabled = true;
+        document.getElementById('nextButton').textContent = 'Submit Answer';
+        document.getElementById('feedbackMessage').style.display = 'none';
+      }
+    }
+
+    // Show case complete modal
+    function showCaseComplete() {
+      const modal = document.getElementById('caseCompleteModal');
+      const message = document.getElementById('caseCompleteMessage');
+      
+      const messages = [
+        "Excellent detective work! You've successfully solved this case using your logical reasoning skills.",
+        "Outstanding investigation! Your attention to detail and analytical thinking led to the correct conclusion.",
+        "Brilliant detective work! You've proven your ability to analyze clues and solve mysteries.",
+        "Fantastic investigation! Your logical reasoning and observation skills are top-notch.",
+        "Amazing detective work! You've demonstrated excellent problem-solving abilities."
+      ];
+      
+      message.textContent = messages[Math.floor(Math.random() * messages.length)];
+      modal.classList.add('show');
+    }
+
+    // Close case complete modal
+    function closeCaseCompleteModal() {
+      document.getElementById('caseCompleteModal').classList.remove('show');
+    }
+
+    // Show game complete
+    function showGameComplete() {
+      const modal = document.getElementById('caseCompleteModal');
+      const icon = document.getElementById('caseCompleteIcon');
+      const title = document.getElementById('caseCompleteTitle');
+      const message = document.getElementById('caseCompleteMessage');
+      const button = document.querySelector('.case-complete-button');
+      
+      icon.textContent = '🏆';
+      title.textContent = 'All Cases Solved!';
+      title.style.color = 'var(--accent)';
+      message.textContent = `Congratulations! You've solved all 5 cases and earned ${gameData.score} points. You're a master detective!`;
+      button.textContent = 'Back to Games';
+      button.onclick = goBack;
+      
+      modal.classList.add('show');
+    }
+
+    // Go back to games hub
+    function goBack() {
+      window.location.href = './games.html';
+    }
+
+    // Initialize the game when page loads
+    document.addEventListener('DOMContentLoaded', initGame);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

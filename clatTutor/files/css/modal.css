@@ -1,0 +1,318 @@
+/* Dedicated promo modal styles (loaded after app.css) */
+
+.enroll-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+.enroll-modal.open {
+  display: flex !important;
+}
+
+.enroll-modal__backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.58) !important;
+  cursor: pointer !important;
+  z-index: 0 !important;
+}
+
+.enroll-modal__dialog {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(860px, 100%) !important;
+  max-height: min(86vh, 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  background: var(--white) !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25) !important;
+  isolation: isolate !important;
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease) !important;
+}
+
+/* Rotating amber ring — same theme as Programs cards; scoped to enroll dialog only */
+.enroll-modal__dialog::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 100px !important;
+  height: 140% !important;
+  z-index: 0 !important;
+  margin: 0 !important;
+  background-image: linear-gradient(
+    180deg,
+    #fff3c4 0%,
+    var(--accent) 35%,
+    #e6a800 70%,
+    #b8860b 100%
+  ) !important;
+  transform-origin: center center !important;
+  animation: enroll-modal-rot-border 3.5s linear infinite !important;
+  pointer-events: none !important;
+}
+
+.enroll-modal__dialog::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 3px !important;
+  z-index: 1 !important;
+  border-radius: 11px !important;
+  background: var(--white) !important;
+  pointer-events: none !important;
+}
+
+.enroll-modal__dialog .enroll-modal__head,
+.enroll-modal__dialog .enroll-modal__body {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.enroll-modal.open .enroll-modal__dialog {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+@keyframes enroll-modal-rot-border {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enroll-modal__dialog::before {
+    animation: none !important;
+  }
+}
+
+.enroll-modal__head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  flex-shrink: 0 !important;
+  padding: 1.1rem 1.1rem 0.85rem !important;
+  border-bottom: 1px solid var(--line-light) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 204, 0, 0.24) 0%,
+    rgba(255, 204, 0, 0.06) 50%,
+    rgba(255, 255, 255, 1) 100%
+  ) !important;
+}
+
+.enroll-modal__badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  padding: 0.35rem 0.65rem !important;
+  border-radius: 999px !important;
+  background: var(--paper) !important;
+  border: 1px solid var(--line-light) !important;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  color: var(--black) !important;
+  margin-bottom: 0.55rem !important;
+}
+
+.enroll-modal__badge-icon {
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.enroll-modal__law-icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+}
+
+.enroll-modal__title {
+  margin: 0 !important;
+  font-size: clamp(1.25rem, 2.6vw, 1.85rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--black) !important;
+  line-height: 1.3 !important;
+}
+
+/* Horizontal light sweep on title (gradient clipped to text — “white” band moves across) */
+.enroll-modal__title.enroll-modal__shine {
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.98) 0%,
+    rgba(255, 255, 255, 0.95) 45%,
+    rgba(0, 0, 0, 0.98) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: enroll-modal-shine 2.8s linear infinite !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+@keyframes enroll-modal-shine {
+  0% {
+    background-position: -140% 0;
+  }
+  100% {
+    background-position: 140% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enroll-modal__title.enroll-modal__shine {
+    animation: none !important;
+    background: none !important;
+    color: var(--black) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+}
+
+.enroll-modal__close {
+  flex-shrink: 0 !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  color: var(--black) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.05rem !important;
+  transition: background 0.15s var(--ease), transform 0.15s var(--ease) !important;
+}
+
+.enroll-modal__close:hover {
+  background: var(--paper) !important;
+  transform: translateY(-1px) !important;
+}
+
+.enroll-modal__body {
+  padding: 1.15rem 1.15rem 1.35rem !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+.enroll-modal__headline {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+  flex-wrap: wrap !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  letter-spacing: normal !important;
+  color: var(--black) !important;
+}
+
+.enroll-modal__law-icon--headline {
+  margin-top: 1px !important;
+}
+
+.enroll-modal__sub {
+  margin: 0.75rem 0 0 !important;
+  text-align: center !important;
+  color: var(--muted) !important;
+  font-size: 0.95rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 1.55 !important;
+}
+
+.enroll-modal__list {
+  margin: 1rem 0 0 !important;
+  padding-left: 1.2rem !important;
+  color: var(--muted) !important;
+  line-height: 1.75 !important;
+  font-weight: 400 !important;
+}
+
+.enroll-modal__cta {
+  margin-top: 1.2rem !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.enroll-modal__cta-btn {
+  width: min(260px, 100%) !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  position: relative !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  transition: box-shadow 0.25s ease, transform 0.15s ease !important;
+}
+
+.enroll-modal__cta-btn:hover,
+.enroll-modal__cta-btn:focus,
+.enroll-modal__cta-btn:active {
+  text-decoration: none !important;
+}
+
+/* Hover/press effect (PRESS IN) for popup CTA only */
+.enroll-modal__cta-btn:hover {
+  box-shadow:
+    inset 0px -6px 18px -6px rgba(0, 0, 0, 0.35),
+    inset 0px 6px 18px -6px rgba(0, 0, 0, 0.18);
+}
+
+.enroll-modal__cta-btn:active {
+  transform: scale(0.96) !important;
+  box-shadow:
+    inset 0px -12px 12px -6px rgba(0, 0, 0, 0.5),
+    inset 0px 12px 12px -6px rgba(0, 0, 0, 0.35);
+}
+
+/* Scale icon/text slightly on hover + active */
+.enroll-modal__cta-btn > * {
+  transition: transform 0.2s ease !important;
+}
+
+.enroll-modal__cta-btn:hover > *,
+.enroll-modal__cta-btn:focus > * {
+  transform: scale(0.9) !important;
+}
+
+.enroll-modal__cta-btn:active > * {
+  transform: scale(0.8) !important;
+}
+
+.enroll-modal__tel {
+  color: var(--link) !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.enroll-modal__tel:hover,
+.enroll-modal__tel:focus,
+.enroll-modal__tel:active {
+  color: var(--link-hover) !important;
+  text-decoration: none !important;
+}
+

@@ -1,0 +1,2681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>BC360</title>
+    
+    <!-- Security Headers (Meta tags only) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    
+    <!-- Additional Protection -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- Performance Optimization -->
+    <meta http-equiv="Cache-Control" content="public, max-age=3600">
+    <meta http-equiv="Expires" content="3600">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="./css/clean-protected-styles.css" rel="stylesheet">
+    <style>
+        /* Additional inline styles for animations and unique features */
+
+        /* Animated background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(118, 75, 162, 0.05) 25%, rgba(118, 75, 162, 0.05) 50%, transparent 75%);
+            animation: rotate 20s linear infinite;
+        }
+
+        .background-animation::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 70%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 80%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 90%; animation-delay: 5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Moving stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+
+        /* Different sized stars for variety */
+        .star:nth-child(1) { width: 3px; height: 3px; top: 8%; left: 8%; animation-delay: 0s; }
+        .star:nth-child(2) { width: 2px; height: 2px; top: 18%; left: 18%; animation-delay: 0.8s; }
+        .star:nth-child(3) { width: 4px; height: 4px; top: 28%; left: 28%; animation-delay: 1.6s; }
+        .star:nth-child(4) { width: 2px; height: 2px; top: 38%; left: 38%; animation-delay: 2.4s; }
+        .star:nth-child(5) { width: 3px; height: 3px; top: 48%; left: 48%; animation-delay: 3.2s; }
+        .star:nth-child(6) { width: 2px; height: 2px; top: 58%; left: 58%; animation-delay: 0.4s; }
+        .star:nth-child(7) { width: 4px; height: 4px; top: 68%; left: 68%; animation-delay: 1.2s; }
+        .star:nth-child(8) { width: 3px; height: 3px; top: 78%; left: 78%; animation-delay: 2.0s; }
+        .star:nth-child(9) { width: 2px; height: 2px; top: 88%; left: 88%; animation-delay: 2.8s; }
+        .star:nth-child(10) { width: 3px; height: 3px; top: 12%; left: 85%; animation-delay: 3.6s; }
+        .star:nth-child(11) { width: 4px; height: 4px; top: 22%; left: 92%; animation-delay: 0.2s; }
+        .star:nth-child(12) { width: 2px; height: 2px; top: 32%; left: 12%; animation-delay: 1.0s; }
+        .star:nth-child(13) { width: 3px; height: 3px; top: 42%; left: 22%; animation-delay: 1.8s; }
+        .star:nth-child(14) { width: 2px; height: 2px; top: 52%; left: 32%; animation-delay: 2.6s; }
+        .star:nth-child(15) { width: 4px; height: 4px; top: 62%; left: 42%; animation-delay: 3.4s; }
+        .star:nth-child(16) { width: 3px; height: 3px; top: 72%; left: 52%; animation-delay: 0.6s; }
+        .star:nth-child(17) { width: 2px; height: 2px; top: 82%; left: 62%; animation-delay: 1.4s; }
+        .star:nth-child(18) { width: 3px; height: 3px; top: 92%; left: 72%; animation-delay: 2.2s; }
+        .star:nth-child(19) { width: 4px; height: 4px; top: 6%; left: 75%; animation-delay: 3.0s; }
+        .star:nth-child(20) { width: 2px; height: 2px; top: 16%; left: 82%; animation-delay: 0.8s; }
+
+        @keyframes twinkle {
+            0%, 100% { 
+                opacity: 0.2; 
+                transform: scale(1) rotate(0deg); 
+                box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+            }
+            25% { 
+                opacity: 0.6; 
+                transform: scale(1.2) rotate(90deg); 
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.5) rotate(180deg); 
+                box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+            }
+            75% { 
+                opacity: 0.6; 
+                transform: scale(1.2) rotate(270deg); 
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        /* Shooting stars */
+        .shooting-star {
+            position: absolute;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            animation: shoot 6s linear infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .shooting-star:nth-child(21) { top: 15%; left: -120px; animation-delay: 0s; }
+        .shooting-star:nth-child(22) { top: 45%; left: -120px; animation-delay: 3s; }
+        .shooting-star:nth-child(23) { top: 75%; left: -120px; animation-delay: 6s; }
+
+        @keyframes shoot {
+            0% { 
+                transform: translateX(0) rotate(-35deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 1; 
+            }
+            90% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateX(300px) rotate(-35deg); 
+                opacity: 0; 
+            }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            color: white;
+            padding: 40px;
+        }
+
+        .hero-content {
+            max-width: 500px;
+        }
+
+        .brand-logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #a1a1aa;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+            line-height: 1.5;
+        }
+
+        /* Login Card */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* Role Selection */
+        .role-section {
+            margin-bottom: 32px;
+        }
+
+        .role-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .role-option {
+            position: relative;
+        }
+
+        .role-option input[type="radio"] {
+            display: none;
+        }
+
+        .role-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-option label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .role-option input[type="radio"]:checked + label {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .role-option input[type="radio"]:checked + label::before {
+            opacity: 1;
+        }
+
+        .role-option i {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            color: #000000;
+        }
+
+        .role-option span {
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+            color: #000000;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+            font-family: inherit;
+            color: #1f2937;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input:focus + i {
+            color: #6366f1;
+        }
+
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Password Toggle Button */
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Adjust password input padding to accommodate toggle button */
+        .form-group:has(.password-toggle) .form-input {
+            padding-right: 48px;
+        }
+
+        /* Login Button */
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        /* Forgot Password */
+        .forgot-password {
+            text-align: center;
+        }
+
+        .forgot-password a {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .footer p {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* Enhanced Loading Animation with Speed Indicators */
+        .login-button.loading {
+            pointer-events: none;
+            position: relative;
+            opacity: 0.8;
+        }
+
+        /* Modern loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff40;
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Performance and Security Dashboard */
+        .performance-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .security-dashboard {
+            min-width: 200px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-row span {
+            font-weight: 500;
+        }
+
+        /* Security status indicators */
+        .security-dashboard .metric-row span:contains("LOW") {
+            color: #10b981;
+        }
+
+        .security-dashboard .metric-row span:contains("MEDIUM") {
+            color: #f59e0b;
+        }
+
+        .security-dashboard .metric-row span:contains("HIGH") {
+            color: #ef4444;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #5856eb, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-button i {
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-section {
+                text-align: center;
+                padding: 20px;
+                padding-top: 70px;
+            }
+
+            .hero-content {
+                max-width: 100%;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 40px auto 0;
+            }
+
+            /* Hide hero features on medium screens, show below login */
+            .hero-section .features-grid {
+                display: none;
+            }
+
+            /* Show features below login form on medium screens */
+            .login-card .features-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-top: 32px;
+                max-width: none;
+            }
+
+            .login-card .feature-card {
+                background: rgba(99, 102, 241, 0.05);
+                border: 1px solid rgba(99, 102, 241, 0.1);
+                padding: 20px;
+            }
+
+            .login-card .feature-card .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .login-card .feature-card .feature-title {
+                color: #374151;
+                font-size: 0.9rem;
+            }
+
+            .login-card .feature-card .feature-desc {
+                color: #6b7280;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+            }
+
+            .hero-section {
+                padding-top: 60px;
+            }
+
+            .login-card {
+                padding: 32px 24px;
+                border-radius: 20px;
+            }
+
+            .brand-logo {
+                font-size: 2.5rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .login-title {
+                font-size: 1.75rem;
+            }
+
+            .role-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .role-option label {
+                padding: 16px 12px;
+            }
+
+            .form-input {
+                padding: 14px 14px 14px 44px;
+            }
+
+            .form-group:has(.password-toggle) .form-input {
+                padding-right: 48px;
+            }
+
+            .login-button {
+                padding: 14px;
+            }
+
+            /* Show features below login form on small screens */
+            .hero-section .features-grid {
+                display: none;
+            }
+
+            .login-card .features-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 32px;
+            }
+
+            .login-card .feature-card {
+                background: rgba(99, 102, 241, 0.05);
+                border: 1px solid rgba(99, 102, 241, 0.1);
+                padding: 20px;
+                text-align: center;
+            }
+
+            .login-card .feature-card .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                margin: 0 auto 12px;
+            }
+
+            .login-card .feature-card .feature-title {
+                color: #374151;
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+
+            .login-card .feature-card .feature-desc {
+                color: #6b7280;
+                font-size: 0.8rem;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+            }
+
+            .hero-section {
+                padding-top: 50px;
+            }
+
+            .login-card {
+                padding: 24px 20px;
+                border-radius: 16px;
+            }
+
+            .brand-logo {
+                font-size: 2rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .features-grid {
+                gap: 16px;
+            }
+
+            .feature-card {
+                padding: 20px;
+            }
+
+            .role-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .role-option label {
+                padding: 12px 8px;
+            }
+
+            .role-option i {
+                font-size: 1.4rem;
+            }
+
+            .role-option span {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Hide mobile features on large screens */
+        #mobileFeatures {
+            display: none;
+        }
+
+        /* Big screen optimizations to prevent scrolling */
+        @media (min-width: 1025px) {
+            .main-container {
+                max-width: 1200px;
+                gap: 25px;
+            }
+
+            .hero-section {
+                padding: 25px;
+            }
+
+            .brand-logo {
+                font-size: 3rem;
+                margin-bottom: 12px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+                margin-bottom: 12px;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: 25px;
+            }
+
+            .features-grid {
+                gap: 14px;
+                margin-top: 25px;
+            }
+
+            .feature-card {
+                padding: 18px;
+            }
+
+            .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+
+            .feature-title {
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+
+            .feature-desc {
+                font-size: 0.8rem;
+            }
+
+            .login-card {
+                padding: 35px 30px;
+            }
+
+            .login-header {
+                margin-bottom: 25px;
+            }
+
+            .login-title {
+                font-size: 1.8rem;
+            }
+
+            .login-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .role-section {
+                margin-bottom: 20px;
+            }
+
+            .role-title {
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+            }
+
+            .role-grid {
+                gap: 8px;
+            }
+
+            .role-option label {
+                padding: 14px 10px;
+            }
+
+            .role-option i {
+                font-size: 1.6rem;
+                margin-bottom: 6px;
+            }
+
+            .role-option span {
+                font-size: 0.85rem;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-label {
+                font-size: 0.85rem;
+                margin-bottom: 5px;
+            }
+
+            .form-input {
+                padding: 12px 12px 12px 40px;
+                font-size: 0.9rem;
+            }
+
+            .form-group:has(.password-toggle) .form-input {
+                padding-right: 48px;
+            }
+
+            .login-button {
+                padding: 12px;
+                font-size: 0.9rem;
+                margin-bottom: 18px;
+            }
+
+            .forgot-password a {
+                font-size: 0.85rem;
+            }
+
+            .footer {
+                margin-top: 20px;
+                padding: 14px;
+            }
+
+            .footer p {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Custom Popup Styles */
+        .custom-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .custom-popup {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: popupSlideIn 0.3s ease-out;
+            position: relative;
+        }
+        
+        @keyframes popupSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .custom-popup-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .custom-popup.success .custom-popup-icon {
+            color: #28a745;
+        }
+        
+        .custom-popup.error .custom-popup-icon {
+            color: #dc3545;
+        }
+        
+        .custom-popup.warning .custom-popup-icon {
+            color: #ffc107;
+        }
+        
+        .custom-popup.info .custom-popup-icon {
+            color: #17a2b8;
+        }
+        
+        .custom-popup-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .custom-popup-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .custom-popup-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .custom-popup-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+        
+        .custom-popup-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .custom-popup-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .custom-popup-btn.secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #dee2e6;
+        }
+        
+        .custom-popup-btn.secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .custom-popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-popup-close:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        /* Forgot Password Popup Styles */
+        .forgot-password-popup {
+            max-width: 450px;
+            width: 90%;
+            text-align: left;
+        }
+        
+        .forgot-password-popup .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .forgot-password-popup .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password-popup .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+            font-family: inherit;
+            color: #1f2937;
+            box-sizing: border-box;
+        }
+        
+        .forgot-password-popup .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Password input container */
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-input-container .form-input {
+            padding-right: 40px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+        
+        .password-toggle:hover {
+            color: #6366f1;
+        }
+        
+        .otp-inputs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        /* Responsive OTP layout */
+        @media (min-width: 1024px) {
+            .otp-inputs {
+                flex-wrap: nowrap;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            .otp-inputs {
+                max-width: 200px;
+                margin: 20px auto;
+            }
+        }
+        
+        .otp-input {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        
+        .otp-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .otp-input.filled {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .forgot-password-popup .custom-popup-buttons {
+            margin-top: 25px;
+        }
+        
+        .forgot-password-popup .custom-popup-btn {
+            width: 100%;
+            padding: 12px 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="./home.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+
+    <!-- Background Animation -->
+    <div class="background-animation"></div>
+    
+    <!-- Moving Stars -->
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+    </div>
+    
+    <!-- Floating Particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <!-- <div class="brand-logo">BC360</div> -->
+                <h1 class="hero-title">Transform Your Learning Experience</h1>
+                <p class="hero-subtitle">
+                    Discover a comprehensive learning management system designed to empower students, 
+                    teachers, and administrators with cutting-edge tools and seamless collaboration.
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="feature-title">Smart Analytics</h3>
+                        <p class="feature-desc">AI-powered insights to track progress and optimize learning outcomes</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="feature-title">Real-time Collaboration</h3>
+                        <p class="feature-desc">Connect instantly with peers and educators across the platform</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Enterprise Security</h3>
+                        <p class="feature-desc">Bank-level encryption and privacy protection for your data</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Mobile First</h3>
+                        <p class="feature-desc">Access your learning materials anywhere, anytime, on any device</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="login-header">
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Sign in to continue your journey</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="role-section">
+                    <h3 class="role-title">Select Your Role</h3>
+                    <div class="role-grid">
+                        <div class="role-option">
+                            <input type="radio" id="teacher" name="role" value="teacher">
+                            <label for="teacher">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>Teacher</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" id="student" name="role" value="student">
+                            <label for="student">
+                                <i class="fas fa-user-graduate"></i>
+                                <span>Student</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" id="parent" name="role" value="parents">
+                            <label for="parent">
+                                <i class="fas fa-users"></i>
+                                <span>Parent</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" id="admin" name="role" value="admin">
+                            <label for="admin">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Admin</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userId" class="form-label" id="userIdLabel">User ID</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="userId" class="form-input" placeholder="Enter your user ID" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="showForgotPasswordPopup()">Forgot your password?</a>
+                </div>
+            </form>
+
+            <div class="footer">
+                <p>&copy; <span id="currentYear"></span> BC360 All rights reserved.</p>
+            </div>
+
+            <!-- Features section for small and medium screens -->
+            <div class="features-grid" id="mobileFeatures">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Analytics</h3>
+                    <p class="feature-desc">AI-powered insights to track progress and optimize learning outcomes</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Collaboration</h3>
+                    <p class="feature-desc">Connect instantly with peers and educators across the platform</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-desc">Bank-level encryption and privacy protection for your data</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile First</h3>
+                    <p class="feature-desc">Access your learning materials anywhere, anytime, on any device</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- Local file optimization -->
+  
+  <!-- Include the PROTECTED authentication system with fallback -->
+  <script src="./js/ultra-protection.js" onerror="this.onerror=null;this.src='./js/simple-protection.js'"></script>
+  <script src="./js/simple-auth.js"></script>
+  <script src="./js/auth-protected.js"></script>
+  <script src="./js/user-session.js"></script>
+  
+  <!-- Behavioral Tracking for Security -->
+  <script>
+    // Track user behavior for security analysis
+    document.addEventListener('DOMContentLoaded', function() {
+      let mouseMovements = 0;
+      let keyPresses = 0;
+      let clickEvents = 0;
+      
+      // Track mouse movements
+      document.addEventListener('mousemove', function() {
+        mouseMovements++;
+        localStorage.setItem('mouse_movements', mouseMovements.toString());
+      });
+      
+      // Track keyboard events
+      document.addEventListener('keydown', function() {
+        keyPresses++;
+        localStorage.setItem('key_presses', keyPresses.toString());
+      });
+      
+      // Track clicks
+      document.addEventListener('click', function() {
+        clickEvents++;
+        localStorage.setItem('click_events', clickEvents.toString());
+      });
+      
+      // Track scroll events
+      let scrollEvents = 0;
+      document.addEventListener('scroll', function() {
+        scrollEvents++;
+        localStorage.setItem('scroll_events', scrollEvents.toString());
+      });
+      
+      console.log('🔍 Behavioral tracking initialized for security analysis');
+      
+      // IMMEDIATE PAGE SAVE PREVENTION - Fallback
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.keyCode === 83) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          alert('🚫 Save functionality is disabled for security!');
+          console.warn('🚫 Page save attempt blocked by login page protection!');
+          return false;
+        }
+        
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 83) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          alert('🚫 Save As functionality is disabled for security!');
+          console.warn('🚫 Page save as attempt blocked by login page protection!');
+          return false;
+        }
+      }, true);
+      
+      console.log('🛡️ IMMEDIATE Page Save Prevention Active on Login!');
+    });
+  </script>
+
+    <script>
+        // Custom Popup System
+        function showCustomPopup(type, title, message, onClose = null, showDefaultOK = true) {
+            // Remove any existing popup
+            const existingPopup = document.querySelector('.custom-popup-overlay');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+            
+            // Create popup overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-popup-overlay';
+            
+            // Create popup content
+            const popup = document.createElement('div');
+            popup.className = `custom-popup ${type}`;
+            
+            // Icons for different types
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            // Build popup content
+            let popupContent = `
+                <button class="custom-popup-close" onclick="closeCustomPopup()">&times;</button>
+                <div class="custom-popup-icon">${icons[type] || icons.info}</div>
+                <div class="custom-popup-title">${title}</div>
+                <div class="custom-popup-message">${message}</div>
+            `;
+            
+            // Only add default OK button if showDefaultOK is true
+            if (showDefaultOK) {
+                popupContent += `
+                    <div class="custom-popup-buttons">
+                        <button class="custom-popup-btn primary" onclick="closeCustomPopup()">OK</button>
+                    </div>
+                `;
+            }
+            
+            popup.innerHTML = popupContent;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Store close callback
+            overlay._onClose = onClose;
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeCustomPopup();
+                }
+            });
+            
+            // Close on Escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    closeCustomPopup();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+        }
+        
+        function closeCustomPopup() {
+            const popup = document.querySelector('.custom-popup-overlay');
+            if (popup) {
+                popup.style.animation = 'popupSlideOut 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (popup._onClose) {
+                        popup._onClose();
+                    }
+                    popup.remove();
+                }, 300);
+            }
+        }
+        
+        // Add slide out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes popupSlideOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(-20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Wait for the PROTECTED auth script to load
+        function waitForAuth() {
+            return new Promise((resolve) => {
+                if (window.SecureAuth) {
+                    console.log('🛡️ SecureAuth loaded successfully');
+                    resolve();
+                } else {
+                    setTimeout(() => waitForAuth().then(resolve), 100);
+                }
+            });
+        }
+        // Update field labels based on selected role
+        function updateFieldLabels(userType) {
+            const userIdLabel = document.getElementById('userIdLabel');
+            const userIdInput = document.getElementById('userId');
+            
+            const fieldMappings = {
+                student: { label: 'Student ID', placeholder: 'Enter your student ID' },
+                teacher: { label: 'Teacher ID', placeholder: 'Enter your teacher ID' },
+                admin: { label: 'Admin ID', placeholder: 'Enter your admin ID' },
+                parents: { label: 'Parent User ID', placeholder: 'Enter your parent user ID' }
+            };
+            
+            const mapping = fieldMappings[userType];
+            if (mapping) {
+                userIdLabel.textContent = mapping.label;
+                userIdInput.placeholder = mapping.placeholder;
+            }
+        }
+
+        // Handle role selection
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    updateFieldLabels(this.value);
+                }
+            });
+        });
+
+        // Optimized form submission with speed enhancements
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.querySelector('.login-button');
+            const role = document.querySelector('input[name="role"]:checked');
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!role) {
+                showCustomPopup('warning', 'Role Required', 'Please select your role (Teacher, Student, Admin, or Parent) to continue with the login process.', function() {
+                    // Focus on role selection after popup closes
+                    const roleOptions = document.querySelectorAll('input[name="role"]');
+                    if (roleOptions.length > 0) {
+                        roleOptions[0].focus();
+                    }
+                });
+                return;
+            }
+
+            if (!userId || !password) {
+                // Don't show another popup if role is missing to avoid clearing the role message
+                if (!document.querySelector('input[name="role"]:checked')) {
+                    return;
+                }
+                showCustomPopup('error', 'Missing Information', 'Please fill in all required fields (User ID and Password) to continue.', function() {
+                    // Focus on the first empty field
+                    if (!userId) {
+                        document.getElementById('userId').focus();
+                    } else if (!password) {
+                        document.getElementById('password').focus();
+                    }
+                });
+                return;
+            }
+
+            // Enhanced loading state with progress indicator
+            loginBtn.classList.add('loading');
+            loginBtn.innerHTML = '<div class="loading-spinner"></div> Authenticating...';
+            loginBtn.disabled = true;
+
+            // Start performance timer
+            const startTime = performance.now();
+
+            try {
+                // Parallel loading: Wait for auth system and prepare credentials simultaneously
+                const [authReady] = await Promise.all([
+                    waitForAuth(),
+                    // Pre-validate credentials for faster processing
+                    Promise.resolve({
+                        userType: role.value,
+                        id: userId,
+                        password: password
+                    })
+                ]);
+                
+                // Check if SecureAuth is available
+                if (!window.SecureAuth) {
+                    throw new Error('Authentication system not loaded. Please refresh the page.');
+                }
+
+                // Prepare credentials
+                const credentials = {
+                    userType: role.value,
+                    id: userId,
+                    password: password
+                };
+
+                console.log('🚀 Fast login attempt with credentials:', credentials);
+
+                // FAST authentication with shorter timeout
+                const loginPromise = window.SecureAuth.login(credentials);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Login timeout. Please try again.')), 5000)
+                );
+
+                const result = await Promise.race([loginPromise, timeoutPromise]);
+
+                // Calculate performance metrics
+                const endTime = performance.now();
+                const loginTime = Math.round(endTime - startTime);
+                console.log(`⚡ Login completed in ${loginTime}ms`);
+
+                if (result.success) {
+                    // Success notification with performance info
+                    showNotification(`🎉 Welcome back, ${result.user.name || 'User'}! Login took ${loginTime}ms. Redirecting...`, 'success');
+
+                    // Ultra-fast redirect
+            setTimeout(() => {
+                        // Preload the dashboard page for faster navigation
+                        const dashboardUrl = getDashboardUrl(role.value);
+                        preloadPage(dashboardUrl);
+                        window.location.href = dashboardUrl;
+                    }, 500); // Reduced to 500ms for faster redirect
+                }
+            } catch (error) {
+                console.error('❌ Login failed:', error);
+                
+                // Calculate failed login time
+                const endTime = performance.now();
+                const loginTime = Math.round(endTime - startTime);
+                console.log(`⏱️ Failed login took ${loginTime}ms`);
+                
+                // Reset form fields
+                const userIdField = document.getElementById('userId');
+                const passwordField = document.getElementById('password');
+                if (userIdField) userIdField.value = '';
+                if (passwordField) passwordField.value = '';
+                
+                // Remove loading state
+                loginBtn.classList.remove('loading');
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                loginBtn.disabled = false;
+                
+                // Show professional and friendly error popup
+                showCustomPopup('error', 'Invalid Credentials', 'The User ID or Password you entered is incorrect. Please double-check your credentials and try again.', function() {
+                    // Clear password field and focus on User ID for retry
+                    document.getElementById('password').value = '';
+                    document.getElementById('userId').focus();
+                });
+            }
+        });
+
+        // Helper function to get dashboard URL
+        function getDashboardUrl(userType) {
+            const urls = {
+                student: './student-module/home.html',
+                teacher: './teacher-module/home.html',
+                admin: './admin/admindashboard.html',
+                parents: './parents-module/attendance.html'
+            };
+            return urls[userType] || './login.html';
+        }
+
+        // Preload page for faster navigation
+        function preloadPage(url) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        // Enhanced security and performance monitoring
+        function displaySecurityMetrics() {
+            if (window.SimpleAuth && window.SimpleAuth.getLoadMetrics) {
+                const metrics = window.SimpleAuth.getLoadMetrics();
+                const securityStatus = getSecurityStatus();
+                
+                console.log('📊 System Metrics:', metrics);
+                console.log('🛡️ Security Status:', securityStatus);
+                
+                // Display enhanced monitoring dashboard
+                const dashboard = document.createElement('div');
+                dashboard.className = 'performance-indicator security-dashboard';
+                dashboard.innerHTML = `
+                    <div class="metric-row">
+                        <span>👥 Users: ${metrics.concurrentUsers}</span>
+                        <span>⚡ Cache: ${metrics.cacheHitRate}%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>🕐 Response: ${metrics.averageResponseTime}ms</span>
+                        <span>📈 Load: ${metrics.systemCapacity}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>🛡️ Security: ${securityStatus.level}</span>
+                        <span>🚫 Blocked: ${securityStatus.blockedRequests}</span>
+                    </div>
+                `;
+                
+                // Remove existing dashboard
+                const existing = document.querySelector('.security-dashboard');
+                if (existing) existing.remove();
+                
+                document.body.appendChild(dashboard);
+                
+                // Update every 5 seconds
+                setTimeout(displaySecurityMetrics, 5000);
+            }
+        }
+
+        // Get security status
+        function getSecurityStatus() {
+            const now = Date.now();
+            const clientId = window.SimpleAuth?.getClientId?.() || 'unknown';
+            const requestHistory = window.SECURITY_CONFIG?.requestHistory?.get(clientId) || [];
+            const recentRequests = requestHistory.filter(time => now - time < 60000);
+            
+            return {
+                level: recentRequests.length > 5 ? 'HIGH' : recentRequests.length > 2 ? 'MEDIUM' : 'LOW',
+                blockedRequests: window.SECURITY_CONFIG?.blockedIPs?.size || 0,
+                activeRequests: recentRequests.length
+            };
+        }
+
+        // Ultra-strong protection is now handled by ultra-protection.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Allow F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C for responsive design
+            console.log('✅ Developer tools enabled for responsive design');
+            console.log('🛡️ Ultra-Strong Protection Active - View Source Completely Blocked!');
+            
+            // Start monitoring
+            setTimeout(displaySecurityMetrics, 2000);
+        });
+
+        // Role selection animation
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Remove active state from all options
+                document.querySelectorAll('.role-option label').forEach(label => {
+                    label.style.transform = 'translateY(0)';
+                });
+                
+                // Add active state to selected option
+                if (this.checked) {
+                    this.nextElementSibling.style.transform = 'translateY(-3px)';
+                }
+            });
+        });
+
+        // Enhanced Notification system with toast messages
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Add icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">${icons[type] || icons.info}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+
+            // Auto remove after longer duration for better visibility
+            const duration = message.includes('Please select your role') ? 5000 : 3000; // 5 seconds for role selection, 3 for others
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+        
+        // Toast notification for password errors
+        function showToast(message, type = 'error') {
+            showNotification(message, type);
+        }
+
+        // Alert configuration
+        const alertConfig = {
+            duration: 3000,
+            position: 'top-right',
+            animation: 'slideIn',
+            autoClose: true
+        };
+
+        // Set current year
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Forgot Password Flow
+        let forgotPasswordStep = 1;
+        let userEmail = '';
+        let generatedOTP = '';
+        
+        // ⚡ Speed Optimization: API Cache System
+        const apiCache = {
+            data: null,
+            timestamp: null,
+            duration: 5 * 60 * 1000 // 5 minutes cache
+        };
+        
+        // ⚡ Speed Optimization: Parallel API Calls
+        async function fetchAllUserData() {
+            const now = Date.now();
+            
+            // Check cache first
+            if (apiCache.data && apiCache.timestamp && (now - apiCache.timestamp) < apiCache.duration) {
+                console.log('🚀 Using cached data for faster loading');
+                return apiCache.data;
+            }
+            
+            console.log('🔄 Fetching fresh data from APIs...');
+            const startTime = performance.now();
+            
+            try {
+                // ⚡ Parallel API calls for maximum speed
+                const [studentsRes, teachersRes, parentsRes, adminRes] = await Promise.all([
+                    fetch('https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/student'),
+                    fetch('https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher'),
+                    fetch('https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/parents'),
+                    fetch('https://fowh69kcfd.execute-api.ap-south-1.amazonaws.com/dev/addCollege')
+                ]);
+                
+                // Parse all responses in parallel
+                const [studentsData, teachersData, parentsData, adminData] = await Promise.all([
+                    studentsRes.json(),
+                    teachersRes.json(),
+                    parentsRes.json(),
+                    adminRes.json()
+                ]);
+                
+                const endTime = performance.now();
+                const fetchTime = Math.round(endTime - startTime);
+                console.log(`⚡ Data fetched in ${fetchTime}ms`);
+                
+                // Debug API responses
+                console.log('🔍 API Response Debug:', {
+                    students: studentsData,
+                    teachers: teachersData,
+                    parents: parentsData,
+                    admin: adminData
+                });
+                
+                // Cache the data with proper array validation
+                const allData = {
+                    students: Array.isArray(studentsData.students) ? studentsData.students : [],
+                    teachers: Array.isArray(teachersData.teachers) ? teachersData.teachers : [],
+                    parents: Array.isArray(parentsData.parents) ? parentsData.parents : [],
+                    admin: Array.isArray(adminData) ? adminData : (Array.isArray(adminData.colleges) ? adminData.colleges : (Array.isArray(adminData.data) ? adminData.data : []))
+                };
+                
+                apiCache.data = allData;
+                apiCache.timestamp = now;
+                
+                return allData;
+            } catch (error) {
+                console.error('❌ Error fetching user data:', error);
+                throw new Error('Failed to fetch user data. Please try again.');
+            }
+        }
+        
+        // ⚡ Speed Optimization: Fast User Validation
+        async function validateUserAndSendOTP(userId, email) {
+            try {
+                // Show loading state
+                showCustomPopup('info', 'Validating User', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin-bottom: 15px;">🔍</div>
+                        <p style="color: #6b7280; margin-bottom: 10px;">Validating your credentials...</p>
+                        <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); animation: loadingBar 2s ease-in-out infinite;"></div>
+                        </div>
+                    </div>
+                `, null, false);
+                
+                // Add loading animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes loadingBar {
+                        0% { transform: translateX(-100%); }
+                        50% { transform: translateX(0%); }
+                        100% { transform: translateX(100%); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                const startTime = performance.now();
+                
+                // Fetch all user data in parallel
+                const userData = await fetchAllUserData();
+                
+                // ⚡ Speed Optimization: Fast user lookup
+                let foundUser = null;
+                let userType = null;
+                
+                // Check students first (most common)
+                if (userData.students.length > 0) {
+                    foundUser = userData.students.find(user => 
+                        user.student_id == userId && user.email === email
+                    );
+                    if (foundUser) userType = 'student';
+                }
+                
+                // Check teachers if not found in students
+                if (!foundUser && userData.teachers.length > 0) {
+                    foundUser = userData.teachers.find(user => 
+                        user.teacher_id == userId && user.email === email
+                    );
+                    if (foundUser) userType = 'teacher';
+                }
+                
+                // Check parents if not found in teachers
+                if (!foundUser && userData.parents.length > 0) {
+                    foundUser = userData.parents.find(user => 
+                        user.parent_userId == userId && user.email === email
+                    );
+                    if (foundUser) userType = 'parent';
+                }
+                
+                // Check admin if not found in parents
+                if (!foundUser && userData.admin && Array.isArray(userData.admin) && userData.admin.length > 0) {
+                    console.log('🔍 Checking admin data:', userData.admin);
+                    foundUser = userData.admin.find(user => 
+                        user.admin_id == userId && user.email === email
+                    );
+                    if (foundUser) {
+                        userType = 'admin';
+                        console.log('✅ Admin user found:', foundUser);
+                    }
+                }
+                
+                const endTime = performance.now();
+                const validationTime = Math.round(endTime - startTime);
+                console.log(`⚡ User validation completed in ${validationTime}ms`);
+                
+                if (!foundUser) {
+                    // Check if user ID exists but email doesn't match
+                    const userIdExists = (userData.students && userData.students.some(u => u.student_id == userId)) ||
+                                      (userData.teachers && userData.teachers.some(u => u.teacher_id == userId)) ||
+                                      (userData.parents && userData.parents.some(u => u.parent_userId == userId)) ||
+                                      (userData.admin && Array.isArray(userData.admin) && userData.admin.some(u => u.admin_id == userId));
+                    
+                    if (userIdExists) {
+                        showCustomPopup('error', 'Email Mismatch', `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                                <h3 style="margin-bottom: 15px; color: #1f2937;">Email Doesn't Match</h3>
+                                <p style="color: #6b7280; margin-bottom: 25px;">
+                                    The email address you entered doesn't match the one registered for this User ID.
+                                </p>
+                                <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                                    Try Again
+                                </button>
+                            </div>
+                        `, null);
+                        return;
+                    } else {
+                        showCustomPopup('error', 'Invalid Credentials', `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                                <h3 style="margin-bottom: 15px; color: #1f2937;">Invalid User ID or Email</h3>
+                                <p style="color: #6b7280; margin-bottom: 25px;">
+                                    The User ID or Email you entered doesn't exist in our system. Please check your credentials and try again.
+                                </p>
+                                <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                                    Try Again
+                                </button>
+                            </div>
+                        `, null);
+                        return;
+                    }
+                }
+                
+                // User found and validated - send OTP
+                console.log(`✅ User validated: ${userType} - ${foundUser.name || foundUser.teacher_name || 'User'}`);
+                
+                // Send OTP to validated email
+                const otpResponse = await fetch('https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/otp/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        firebase_uid: null // Optional field
+                    })
+                });
+                
+                const otpResult = await otpResponse.json();
+                
+                if (otpResult.success) {
+                    userEmail = email;
+                    forgotPasswordStep = 2;
+                    
+                    // Generate random 6-digit OTP for frontend validation
+                    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                    
+                    // Show OTP popup
+                    showCustomPopup('success', 'OTP Sent Successfully', `
+                        <div class="forgot-password-popup">
+                            <p style="text-align: center; margin-bottom: 20px; color: #6b7280;">
+                                We've sent a 6-digit OTP to <strong>${email}</strong>
+                            </p>
+                            <div class="otp-inputs">
+                                <input type="text" class="otp-input" maxlength="1" data-index="0" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                                <input type="text" class="otp-input" maxlength="1" data-index="1" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                                <input type="text" class="otp-input" maxlength="1" data-index="2" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                                <input type="text" class="otp-input" maxlength="1" data-index="3" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                                <input type="text" class="otp-input" maxlength="1" data-index="4" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                                <input type="text" class="otp-input" maxlength="1" data-index="5" oninput="handleOTPInput(this)" onkeydown="handleOTPKeydown(event, this)">
+                            </div>
+                            <div class="custom-popup-buttons">
+                                <button class="custom-popup-btn primary" onclick="verifyOTP()">Verify OTP</button>
+                            </div>
+                        </div>
+                    `, null, false);
+                    
+                    // Focus on first OTP input
+                    setTimeout(() => {
+                        const firstOTPInput = document.querySelector('.otp-input[data-index="0"]');
+                        if (firstOTPInput) firstOTPInput.focus();
+                    }, 100);
+                } else {
+                    throw new Error(otpResult.message || 'Failed to send OTP');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error in user validation:', error);
+                showCustomPopup('error', 'Validation Failed', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                        <h3 style="margin-bottom: 15px; color: #1f2937;">Validation Error</h3>
+                        <p style="color: #6b7280; margin-bottom: 25px;">
+                            ${error.message || 'An error occurred while validating your credentials. Please try again.'}
+                        </p>
+                        <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                            Try Again
+                        </button>
+                    </div>
+                `, null);
+            }
+        }
+
+        function showForgotPasswordPopup() {
+            forgotPasswordStep = 1;
+            showCustomPopup('info', 'Reset Password', `
+                <div class="forgot-password-popup">
+                    <div class="form-group">
+                        <label class="form-label">Enter your User ID</label>
+                        <input type="text" id="forgotUserId" class="form-input" placeholder="Enter your User ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Enter your email address</label>
+                        <input type="email" id="forgotEmail" class="form-input" placeholder="Enter your registered email" required>
+                    </div>
+                    <div class="custom-popup-buttons">
+                        <button class="custom-popup-btn primary" onclick="submitEmail()">Send OTP</button>
+                    </div>
+                </div>
+            `, null, false);
+            
+            // Focus on User ID input
+            setTimeout(() => {
+                const userIdInput = document.getElementById('forgotUserId');
+                if (userIdInput) userIdInput.focus();
+            }, 100);
+        }
+
+        function submitEmail() {
+            const userIdInput = document.getElementById('forgotUserId');
+            const emailInput = document.getElementById('forgotEmail');
+            const userId = userIdInput.value.trim();
+            const email = emailInput.value.trim();
+            
+            if (!userId) {
+                showCustomPopup('error', 'User ID Required', 'Please enter your User ID.', null);
+                return;
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                showCustomPopup('error', 'Invalid Email', 'Please enter a valid email address.', null);
+                return;
+            }
+            
+            // ⚡ Use the new fast validation system
+            validateUserAndSendOTP(userId, email);
+        }
+
+        function handleOTPInput(input) {
+            const value = input.value;
+            const index = parseInt(input.dataset.index);
+            
+            // Only allow numbers
+            if (!/^\d$/.test(value)) {
+                input.value = '';
+                return;
+            }
+            
+            input.classList.add('filled');
+            
+            // Move to next input
+            if (value && index < 5) {
+                const nextInput = document.querySelector(`.otp-input[data-index="${index + 1}"]`);
+                if (nextInput) nextInput.focus();
+            }
+        }
+
+        function handleOTPKeydown(event, input) {
+            const index = parseInt(input.dataset.index);
+            
+            // Handle backspace
+            if (event.key === 'Backspace' && !input.value && index > 0) {
+                const prevInput = document.querySelector(`.otp-input[data-index="${index - 1}"]`);
+                if (prevInput) {
+                    prevInput.focus();
+                    prevInput.value = '';
+                    prevInput.classList.remove('filled');
+                }
+            }
+        }
+
+        async function verifyOTP() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
+            
+            if (enteredOTP.length !== 6) {
+                showCustomPopup('error', 'Incomplete OTP', 'Please enter all 6 digits of the OTP.', null);
+                return;
+            }
+            
+            try {
+                // Show loading state
+                showCustomPopup('info', 'Verifying OTP', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin-bottom: 15px;">🔍</div>
+                        <p style="color: #6b7280; margin-bottom: 10px;">Verifying your OTP...</p>
+                        <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); animation: loadingBar 2s ease-in-out infinite;"></div>
+                        </div>
+                    </div>
+                `, null, false);
+                
+                // Call the real OTP verification API
+                const response = await fetch('https://9vgcxcrvdi.execute-api.ap-south-1.amazonaws.com/dev/otp/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        otp: enteredOTP,
+                        firebase_uid: null
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ OTP verified successfully');
+                    forgotPasswordStep = 3;
+                    showNewPasswordPopup();
+                } else {
+                    console.error('❌ OTP verification failed:', result.message);
+                    showCustomPopup('error', 'OTP Verification Failed', `
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                            <h3 style="margin-bottom: 15px; color: #1f2937;">Invalid OTP</h3>
+                            <p style="color: #6b7280; margin-bottom: 25px;">
+                                ${result.message || 'The OTP you entered is incorrect or has expired. Please try again.'}
+                            </p>
+                            <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                                Try Again
+                            </button>
+                        </div>
+                    `, null);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error verifying OTP:', error);
+                showCustomPopup('error', 'Verification Error', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                        <h3 style="margin-bottom: 15px; color: #1f2937;">Verification Failed</h3>
+                        <p style="color: #6b7280; margin-bottom: 25px;">
+                            An error occurred while verifying your OTP. Please try again.
+                        </p>
+                        <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                            Try Again
+                        </button>
+                    </div>
+                `, null);
+            }
+        }
+
+        function showNewPasswordPopup() {
+            showCustomPopup('success', 'Set New Password', `
+                <div class="forgot-password-popup">
+                    <p style="text-align: center; margin-bottom: 20px; color: #6b7280;">
+                        Create a new password for your account
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" required>
+                            <span class="password-toggle" onclick="togglePassword('newPassword')">👁️</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password" required>
+                            <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</span>
+                        </div>
+                    </div>
+                    <div class="custom-popup-buttons">
+                        <button class="custom-popup-btn primary" onclick="updatePassword()">Update Password</button>
+                    </div>
+                </div>
+            `, null, false);
+            
+            // Focus on new password input
+            setTimeout(() => {
+                const newPasswordInput = document.getElementById('newPassword');
+                if (newPasswordInput) newPasswordInput.focus();
+            }, 100);
+        }
+
+        async function updatePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!newPassword || newPassword.length < 6) {
+                showToast('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Passwords do not match. Please try again.', 'error');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                showCustomPopup('info', 'Updating Password', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin-bottom: 15px;">🔄</div>
+                        <p style="color: #6b7280; margin-bottom: 10px;">Updating your password...</p>
+                        <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); animation: loadingBar 2s ease-in-out infinite;"></div>
+                        </div>
+                    </div>
+                `, null, false);
+                
+                // Get user data to determine which API to call
+                const userData = await fetchAllUserData();
+                let updateSuccess = false;
+                let userType = null;
+                let userId = null;
+                
+                // Find the user and determine their type
+                if (userData.students && userData.students.length > 0) {
+                    const student = userData.students.find(user => user.email === userEmail);
+                    if (student) {
+                        userType = 'student';
+                        userId = student.student_id;
+                    }
+                }
+                
+                if (!userType && userData.teachers && userData.teachers.length > 0) {
+                    const teacher = userData.teachers.find(user => user.email === userEmail);
+                    if (teacher) {
+                        userType = 'teacher';
+                        userId = teacher.teacher_id;
+                    }
+                }
+                
+                if (!userType && userData.parents && userData.parents.length > 0) {
+                    const parent = userData.parents.find(user => user.email === userEmail);
+                    if (parent) {
+                        userType = 'parent';
+                        userId = parent.parent_userId;
+                    }
+                }
+                
+                if (!userType && userData.admin && userData.admin.length > 0) {
+                    const admin = userData.admin.find(user => user.email === userEmail);
+                    if (admin) {
+                        userType = 'admin';
+                        userId = admin.admin_id;
+                    }
+                }
+                
+                if (!userType || !userId) {
+                    throw new Error('User not found in system');
+                }
+                
+                // Call appropriate API based on user type with proper CORS handling
+                let updateResponse;
+                const requestOptions = {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: newPassword })
+                };
+                
+                // Handle different user types with correct API endpoints
+                switch (userType) {
+                    case 'student':
+                        updateResponse = await fetch(`https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/student/${userId}`, requestOptions);
+                        break;
+                    case 'teacher':
+                        updateResponse = await fetch(`https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/teacher/${userId}`, requestOptions);
+                        break;
+                    case 'parent':
+                        updateResponse = await fetch(`https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/parents/${userId}`, requestOptions);
+                        break;
+                    case 'admin':
+                        updateResponse = await fetch(`https://fowh69kcfd.execute-api.ap-south-1.amazonaws.com/dev/addCollege`, {
+                            method: 'PUT',
+                            headers: { 
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                admin_id: userId,
+                                password: newPassword 
+                            })
+                        });
+                        break;
+                    default:
+                        throw new Error('Invalid user type');
+                }
+                
+                // Check if response is ok
+                if (!updateResponse.ok) {
+                    const errorText = await updateResponse.text();
+                    let errorMessage = 'Failed to update password';
+                    
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        // If response is not JSON, use status text
+                        errorMessage = `Server error: ${updateResponse.status} ${updateResponse.statusText}`;
+                    }
+                    
+                    showToast(errorMessage, 'error');
+                    throw new Error(errorMessage);
+                }
+                
+                const updateResult = await updateResponse.json();
+                
+                if (updateResult.success) {
+                    updateSuccess = true;
+                } else {
+                    const errorMessage = updateResult.message || 'Failed to update password';
+                    showToast(errorMessage, 'error');
+                    throw new Error(errorMessage);
+                }
+                
+                if (updateSuccess) {
+                    // Show success message with proper centering
+                    showCustomPopup('success', 'Password Updated', `
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 48px; margin-bottom: 15px; color: #10b981;">✅</div>
+                            <h3 style="margin-bottom: 10px; color: #1f2937;">Success!</h3>
+                            <p style="color: #6b7280; margin-bottom: 20px;">Password updated successfully.</p>
+                            <button class="custom-popup-btn primary" onclick="closeCustomPopup(); resetForgotPasswordFlow()">
+                                Continue to Login
+                            </button>
+                        </div>
+                    `, null);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error updating password:', error);
+                
+                // Show toast for network/CORS errors
+                if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+                    showToast('Network error: Unable to connect to server. Please check your internet connection.', 'error');
+                } else {
+                    showToast(error.message || 'An error occurred while updating your password.', 'error');
+                }
+                
+                // Show simplified error popup without Try Again button
+                showCustomPopup('error', 'Password Update Failed', `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px; color: #ef4444;">⚠️</div>
+                        <h3 style="margin-bottom: 15px; color: #1f2937;">Update Failed</h3>
+                        <p style="color: #6b7280; margin-bottom: 25px;">
+                            ${error.message.includes('Failed to fetch') ? 'Network connection failed. Please check your internet connection and try again.' : error.message || 'An error occurred while updating your password.'}
+                        </p>
+                        <button class="custom-popup-btn primary" onclick="closeCustomPopup()">
+                            Close
+                        </button>
+                    </div>
+                `, null);
+            }
+        }
+
+        function resetForgotPasswordFlow() {
+            forgotPasswordStep = 1;
+            userEmail = '';
+            generatedOTP = '';
+        }
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.parentElement.querySelector('.password-toggle');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Password toggle functionality
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = passwordToggle.querySelector('i');
+
+        passwordToggle.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+                passwordToggle.setAttribute('title', 'Hide password');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+                passwordToggle.setAttribute('title', 'Show password');
+            }
+        });
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to feature cards
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add focus effects to form inputs
+            const formInputs = document.querySelectorAll('.form-input');
+            formInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Show welcome alert on page load
+            setTimeout(() => {
+                showNotification('Welcome to BC360! Please select your role and sign in.', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+</html>

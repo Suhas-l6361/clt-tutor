@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Institute Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/app.css" />
+  <script src="js/site-protection.js" data-protection-mode="login"></script>
+</head>
+<body class="page-login">
+  <div class="login-page">
+    <div class="login-hero">
+      <div class="login-hero-card">
+        <div class="login-hero-card__badge" aria-hidden="true">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div class="login-hero-card__body">
+          <div class="login-hero-card__intro">
+            <p class="brand-tag login-hero-card__eyebrow">Institute Portal</p>
+            <h2 class="login-hero__title">Learn with clarity. Track with confidence.</h2>
+            <hr class="login-hero__rule" />
+            <p class="login-hero__text">Access your courses, materials, and announcements—or manage leads and student communication from the CRM workspace.</p>
+          </div>
+          <div class="login-hero-card__features-col">
+            <div class="login-hero__features">
+              <div class="login-hero__feat">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                  <strong class="login-hero__feat-title">Secure session</strong>
+                  <span class="login-hero__feat-desc">Role-based access for students &amp; staff</span>
+                </div>
+              </div>
+              <div class="login-hero__feat">
+                <i class="fa-solid fa-chart-line"></i>
+                <div>
+                  <strong class="login-hero__feat-title">Progress &amp; CRM</strong>
+                  <span class="login-hero__feat-desc">Engagement tools aligned to your workflow</span>
+                </div>
+              </div>
+              <div class="login-hero__feat">
+                <i class="fa-solid fa-mobile-screen"></i>
+                <div>
+                  <strong class="login-hero__feat-title">Responsive UI</strong>
+                  <span class="login-hero__feat-desc">Works on desktop, tablet &amp; phone</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-panel">
+      <div class="login-card">
+        <h1>Welcome back</h1>
+        <div id="login-alert"></div>
+        <form id="form-login" autocomplete="on">
+          <div class="form-group">
+            <span class="text-muted" style="font-size: 0.8rem; font-weight: 600">I am signing in as</span>
+            <div class="role-grid" style="margin-top: 0.5rem">
+              <div class="role-option">
+                <input type="radio" name="role" id="role-student" value="student" checked />
+                <label for="role-student"><i class="fa-solid fa-user-graduate"></i> <b>Student</b></label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="role-crm" value="crm" />
+                <label for="role-crm"><i class="fa-solid fa-headset"></i> <b>CRM</b></label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group form-group--float">
+            <div class="form-control form-control--login">
+              <span class="form-control__icon form-control__icon--user" aria-hidden="true">
+                <i class="fa-solid fa-id-card"></i>
+              </span>
+              <input id="login-id" name="login" type="email" autocomplete="email" required />
+              <label for="login-id">
+                <span style="transition-delay: 0ms">E</span><span style="transition-delay: 50ms">m</span><span style="transition-delay: 100ms">a</span><span style="transition-delay: 150ms">i</span><span style="transition-delay: 200ms">l</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group form-group--float">
+            <div class="form-control form-control--login form-control--password">
+              <span class="form-control__icon form-control__icon--lock" aria-hidden="true">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input id="password" name="password" type="password" autocomplete="current-password" required />
+              <label for="password">
+                <span style="transition-delay: 0ms">P</span><span style="transition-delay: 50ms">a</span><span style="transition-delay: 100ms">s</span><span style="transition-delay: 150ms">s</span><span style="transition-delay: 200ms">w</span><span style="transition-delay: 250ms">o</span><span style="transition-delay: 300ms">r</span><span style="transition-delay: 350ms">d</span>
+              </label>
+              <button type="button" class="pw-toggle form-control__toggle" id="pw-toggle" aria-label="Show password" tabindex="0">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn-continue-pill">
+            <span>Continue</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 74 74"
+              height="34"
+              width="34"
+              aria-hidden="true"
+            >
+              <circle stroke-width="3" stroke="black" r="35.5" cy="37" cx="37"></circle>
+              <path
+                fill="black"
+                d="M25 35.5C24.1716 35.5 23.5 36.1716 23.5 37C23.5 37.8284 24.1716 38.5 25 38.5V35.5ZM49.0607 38.0607C49.6464 37.4749 49.6464 36.5251 49.0607 35.9393L39.5147 26.3934C38.9289 25.8076 37.9792 25.8076 37.3934 26.3934C36.8076 26.9792 36.8076 27.9289 37.3934 28.5147L45.8787 37L37.3934 45.4853C36.8076 46.0711 36.8076 47.0208 37.3934 47.6066C37.9792 48.1924 38.9289 48.1924 39.5147 47.6066L49.0607 38.0607ZM25 38.5L48 38.5V35.5L25 35.5V38.5Z"
+              ></path>
+            </svg>
+          </button>
+        </form>
+        <p class="back-link">
+          <a href="index.html" class="login-back-btn" aria-label="Back to website">
+            <svg class="login-back-btn__icon" height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024" aria-hidden="true"><path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"></path></svg>
+            <span>Back</span>
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      Auth.redirectIfAuthed();
+      if (!document.getElementById('login-spinner-styles')) {
+        var spinnerStyle = document.createElement('style');
+        spinnerStyle.id = 'login-spinner-styles';
+        spinnerStyle.textContent =
+          '.login-loader-wrap{position:relative;width:128px;height:128px;transform:perspective(206px) rotateX(45deg);margin:0 auto;}' +
+          '.login-loader-outer{box-sizing:border-box;animation:loginSpin 3s linear infinite;height:100%;}' +
+          '.login-loader-inner{position:absolute;border-radius:50%;width:64px;height:64px;}' +
+          '.login-loader-tl{top:0;left:0;border-top:8px solid #ef4444;border-left:10px solid #ef4444;animation:loginSpin 1s ease-in-out infinite;}' +
+          '.login-loader-tr{top:0;right:0;border-top:8px solid #0575E6;border-right:10px solid #0575E6;animation:loginSpin 1s ease-in-out infinite;}' +
+          '.login-loader-br{bottom:0;right:0;border-bottom:8px solid #00F260;border-right:10px solid #00F260;animation:loginSpin 1s ease-in-out infinite;}' +
+          '.login-loader-bl{bottom:0;left:0;border-bottom:8px solid #e9e93e;border-left:10px solid #e9e93e;animation:loginSpin 1s ease-in-out infinite;}' +
+          '@keyframes loginSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}';
+        document.head.appendChild(spinnerStyle);
+      }
+      function showPopup(message, type, autoCloseMs) {
+        var isError = type === 'error';
+        var isSuccess = type === 'success';
+        var color = isError ? '#b91c1c' : (isSuccess ? '#166534' : '#0f766e');
+        var bg = isError ? '#fef2f2' : (isSuccess ? '#f0fdf4' : '#ecfeff');
+        var border = isError ? '#fecaca' : (isSuccess ? '#bbf7d0' : '#a5f3fc');
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.42);display:flex;align-items:center;justify-content:center;z-index:10000;padding:1rem;';
+        var card = document.createElement('div');
+        card.style.cssText = 'width:min(420px,100%);background:#fff;border-radius:14px;border:1px solid ' + border + ';padding:1rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);';
+        card.innerHTML =
+          '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.55rem;color:' + color + ';font-weight:700;">' +
+          '<i class="fa-solid ' + (isError ? 'fa-circle-exclamation' : (isSuccess ? 'fa-circle-check' : 'fa-circle-info')) + '"></i><span>' + (isError ? 'Login Error' : (isSuccess ? 'Login Success' : 'Info')) + '</span></div>' +
+          '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:10px;padding:0.7rem;color:#111827;font-size:0.92rem;">' + message + '</div>' +
+          (autoCloseMs ? '' : '<div style="margin-top:0.8rem;display:flex;justify-content:flex-end;"><button id="popup-ok-btn" type="button" style="border:none;background:#111827;color:#fff;border-radius:8px;padding:0.5rem 0.9rem;cursor:pointer;">OK</button></div>');
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+        var close = function () { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+        var okBtn = card.querySelector('#popup-ok-btn');
+        if (okBtn) okBtn.addEventListener('click', close);
+        if (autoCloseMs) setTimeout(close, autoCloseMs);
+      }
+      function showLoadingPopup(message) {
+        var overlay = document.createElement('div');
+        overlay.id = 'login-loading-popup';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.42);display:flex;align-items:center;justify-content:center;z-index:10001;padding:1rem;';
+        var card = document.createElement('div');
+        card.style.cssText = 'width:min(420px,100%);background:#fff;border-radius:14px;border:1px solid #dbeafe;padding:1.2rem;box-shadow:0 20px 40px rgba(0,0,0,0.25);text-align:center;';
+        card.innerHTML =
+          '<div class="login-loader-wrap"><div class="login-loader-outer">' +
+          '<div class="login-loader-inner login-loader-tl"></div>' +
+          '<div class="login-loader-inner login-loader-tr"></div>' +
+          '<div class="login-loader-inner login-loader-br"></div>' +
+          '<div class="login-loader-inner login-loader-bl"></div>' +
+          '</div></div>' +
+          '<div style="margin-top:0.95rem;color:#0f172a;font-weight:700;">' + (message || 'Logging in...') + '</div>' +
+          '<div style="margin-top:0.2rem;color:#64748b;font-size:0.86rem;">Please wait...</div>';
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+      }
+      function closeLoadingPopup() {
+        var el = document.getElementById('login-loading-popup');
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      var pw = document.getElementById('password');
+      var toggle = document.getElementById('pw-toggle');
+      toggle.addEventListener('click', function () {
+        var show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        toggle.querySelector('i').className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+      });
+
+      document.getElementById('form-login').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var roleEl = document.querySelector('input[name="role"]:checked');
+        var role = roleEl ? roleEl.value : 'student';
+        var fd = new FormData(e.target);
+        var res = await Auth.login(role, fd.get('login'), fd.get('password'));
+        var box = document.getElementById('login-alert');
+        box.innerHTML = '';
+        if (!res.ok) {
+          showPopup(res.error || 'Unable to login', 'error');
+          return;
+        }
+        showLoadingPopup('Login successful. Preparing dashboard...');
+        setTimeout(function () {
+          closeLoadingPopup();
+          showPopup('Login successful. Redirecting...', 'success', 900);
+        }, 2000);
+        setTimeout(function () {
+          if (role === 'student') window.location.href = 'student/dashboard.html';
+          else window.location.href = 'crm/dashboard.html';
+        }, 2900);
+      });
+    });
+  </script>
+</body>
+</html>

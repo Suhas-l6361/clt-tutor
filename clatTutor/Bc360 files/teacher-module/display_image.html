@@ -1,0 +1,3841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Gallery</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sidebar1: #0b3558;
+      --sidebar2: #1277bc;
+      --sidebar-shadow: 0 4px 26px #1d26401c;
+      --sidebar-width: 245px;
+      --accent: #209194;
+      --accent-light: #e6f7f9;
+      --bg: #f5f6fa;
+      --card: #fff;
+      --border: #e3e7ef;
+      --label: #264a5e;
+      --input: #234042;
+      --subtle: #6e96a5;
+      --radius: 13px;
+      --shadow: 0 1.5px 10px #1d264015;
+      --success: #26bf67;
+      --danger: #ef5350;
+      --warning: #ffa726;
+      --info: #2196f3;
+      --note: #e6f2fa;
+      --paper: #fffbe6;
+      --video: #e8f7f1;
+      --link: #f6f2fa;
+      --saved: #ffe5e5;
+      --upcoming: #e8f5e8;
+      --completed: #f5f5f5;
+      --pending: #fff3e0;
+      --approved: #e8f5e8;
+      --rejected: #ffebee;
+      --gallery-main: #edf3fc;
+      --gallery-card: #ffffffd9;
+      --gallery-shadow: 0 3px 18px 4px #b7c8ed32;
+      --gallery-shadow-hover: 0 6px 24px 6px #9db4e522;
+      --gallery-title: #264a5e;
+      --gallery-date: #209194;
+      --gallery-danger: #ef5350;
+      --gallery-plus: #26bf67;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+    .app-flex { display: flex; flex-direction: row; min-height: 100vh; width: 100vw;}
+    .sidebar {
+      width: var(--sidebar-width); min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--sidebar1) 0%, var(--sidebar2) 100%);
+      color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: var(--sidebar-shadow); z-index: 10; height: 100vh; position: fixed; left: 0; top: 0;
+      transition: left 0.28s; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cce6ff #fff;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; background: #f1f5fc;}
+    .sidebar::-webkit-scrollbar-thumb { background: #cce6ff; border-radius: 4px;}
+    .sidebar .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.25rem; font-weight: 700; padding: 32px 0 14px 19px; letter-spacing: 0.02em;
+      transition: transform 0.2s ease;
+    }
+    .sidebar .brand:hover {
+      transform: translateX(5px);
+    }
+    .sidebar .brand img {
+      width: 36px; height: 36px; border-radius: 9px; border: 1.5px solid #fff; background: #fff; object-fit: cover;
+      box-shadow: 0 2px 5px #26bf6720;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar .brand:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px #26bf6740;
+    }
+    .sidebar hr { border: 0; border-top: 1.3px solid #ffffff22; margin: 0 12px 16px 12px; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li { margin: 0; }
+    .sidebar ul li a {
+      color: #fff; font-size: 1.06rem; text-decoration: none; display: flex; align-items: center;
+      padding: 12px 10px 12px 24px; border-radius: 7px 0 0 7px; transition: all 0.22s ease; font-weight: 500; gap: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar ul li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a:hover::before {
+      width: 100%;
+    }
+    .sidebar ul li a.active, .sidebar ul li a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar ul li a i {
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .sidebar ul li a:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
+    
+    /* Custom PNG Icon Styles */
+    .sidebar ul li a .menu-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      transition: transform 0.2s ease;
+    }
+    .sidebar ul li a:hover .menu-icon {
+      transform: scale(1.1);
+    }
+    .sidebar .logout {
+      border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding: 24px 0 28px 10px;
+    }
+    .sidebar .logout a {
+      color: #fff; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center;
+      gap: 11px; padding: 10px 12px 10px 24px; border-radius: 6px; transition: all 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .logout a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      transition: width 0.3s ease;
+    }
+    .sidebar .logout a:hover::before {
+      width: 100%;
+    }
+    .sidebar .logout a:hover { 
+      background: rgba(255,255,255,0.15); 
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar .logout a i {
+      transition: transform 0.2s ease;
+    }
+    .sidebar .logout a:hover i {
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      margin-left: var(--sidebar-width); flex: 1; width: calc(100vw - var(--sidebar-width)); min-height: 100vh;
+      background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; padding: 20px; transition: margin-left 0.28s;
+    }
+
+    /* Hamburger/Close icon */
+    .sidebar-hamburger {
+      display: none; position: fixed; top: 18px; left: 19px; z-index: 9999; font-size: 2.1rem; background: #fff;
+      color: var(--sidebar1); border: none; border-radius: 7px; padding: 6px 14px 7px 14px; box-shadow: 0 2px 12px #1d264010;
+      cursor: pointer; transition: background 0.18s, color 0.18s;
+    }
+    .sidebar-hamburger.menu-open { background: #e4f0fc; color: #217ee3; }
+    .sidebar-hamburger .fa-times { display: none; }
+    .sidebar-hamburger.menu-open .fa-bars { display: none; }
+    .sidebar-hamburger.menu-open .fa-times { display: inline; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(30,40,60,0.18); z-index: 899; transition: opacity 0.2s;}
+    .sidebar-overlay.active { display: block; }
+
+    /* Gallery Styles */
+    .gallery-root {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--gallery-main);
+      border-radius: 22px;
+      padding: 36px 35px 30px 35px;
+      box-shadow: 0 8px 38px 2px #b8d2fa36;
+      min-height: 80vh;
+    }
+    
+    @media (max-width: 800px) {
+      .gallery-root {padding: 22px 2vw 18px 2vw;}
+    }
+    
+    .gallery-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 29px;
+    }
+    
+    .gallery-title-bar i {
+      font-size: 2rem;
+      color: var(--accent);
+      background: var(--accent-light);
+      border-radius: 17px;
+      padding: 7px 11px;
+      box-shadow: 0 2px 8px #ddeafd88;
+    }
+    
+    .gallery-title-bar .gallery-title {
+      font-size: 1.29rem;
+      color: var(--gallery-title);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    
+    .gallery-publish-list {
+      display: flex;
+      flex-direction: column;
+      gap: 27px;
+    }
+    
+    .gallery-publish-card {
+      background: var(--gallery-card);
+      border-radius: 17px;
+      box-shadow: var(--gallery-shadow);
+      padding: 18px 22px 22px 22px;
+      transition: box-shadow 0.18s, transform 0.19s;
+      display: flex;
+      gap: 22px;
+      position: relative;
+      align-items: flex-start;
+      border: 1.5px solid #ddeafd;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+    
+    .gallery-publish-card:hover {
+      box-shadow: var(--gallery-shadow-hover);
+      transform: translateY(-4px) scale(1.017);
+    }
+    
+    .gallery-card-delete {
+      position: absolute;
+      top: 13px; right: 52px;
+      background: #fce0e0;
+      color: var(--gallery-danger);
+      border: none;
+      border-radius: 50%;
+      width: 34px; height: 34px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 8px #ffbcbc22;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.16s, color 0.13s;
+      opacity: 0.8;
+    }
+    
+    .gallery-card-delete:hover { 
+      background: #ffe0e8; 
+      color: #d82b36; 
+      opacity: 1; 
+    }
+    
+    .gallery-card-plus {
+      position: absolute;
+      top: 13px; right: 13px;
+      background: #e3ffe9;
+      color: var(--gallery-plus);
+      border: none;
+      border-radius: 50%;
+      width: 34px; height: 34px;
+      cursor: pointer;
+      font-size: 1.23rem;
+      box-shadow: 0 2px 8px #a2f2be22;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.14s, color 0.12s;
+      opacity: 0.84;
+    }
+    
+    .gallery-card-plus:hover { 
+      background: #d2f6db; 
+      color: #0fa24a; 
+      opacity: 1;
+    }
+    
+    .gallery-bulk-section {
+      margin-bottom: 13px;
+    }
+    
+    .gallery-bulk-date {
+      font-size: 1.05rem;
+      color: var(--gallery-date);
+      font-weight: 600;
+      margin-bottom: 7px;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .gallery-bulk-thumbs {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 310px;
+      padding-bottom: 5px;
+    }
+    
+    .gallery-thumb-wrap {
+      position: relative;
+      display: inline-block;
+      min-width: 87px;
+      min-height: 87px;
+    }
+    
+    .gallery-thumb {
+      width: 87px; height: 87px;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 2px 7px #3a1c7122;
+      border: 2px solid #f7faff;
+      cursor: pointer;
+      background: #fff;
+      transition: border 0.16s, box-shadow 0.13s;
+      position: relative;
+    }
+    
+    .gallery-thumb:hover {
+      border: 2px solid var(--accent);
+      box-shadow: 0 5px 15px #405dc744;
+      z-index: 1;
+    }
+    
+    .gallery-thumb-delete {
+      position: absolute;
+      top: 3px; right: 3px;
+      background: #fff5f5;
+      color: var(--gallery-danger);
+      border: none;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.14s;
+    }
+    
+    .gallery-thumb-delete:hover {
+      background: #ffe0e8;
+    }
+    
+    .gallery-meta {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .gallery-meta-title {
+      font-size: 1.1rem;
+      color: var(--gallery-title);
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .gallery-meta-desc {
+      font-size: 0.95rem;
+      color: var(--subtle);
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+    
+    .gallery-icon {
+      color: var(--accent);
+    }
+
+    /* Instagram-like Gallery Styles */
+    .instagram-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .instagram-gallery {
+        max-width: 100%;
+        padding: 15px;
+        gap: 15px;
+      }
+      .album-container {
+        width: calc(50% - 8px) !important;
+        min-width: 350px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .instagram-gallery {
+        padding: 10px;
+        gap: 10px;
+      }
+      .album-container {
+        width: 100% !important;
+        min-width: 300px !important;
+      }
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .instagram-gallery {
+        padding: 8px;
+        gap: 8px;
+      }
+      .album-container {
+        min-width: 280px !important;
+      }
+      .image-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 4px !important;
+      }
+    }
+
+    .instagram-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .instagram-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .instagram-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .instagram-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #3A1C71, #D76D77);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .instagram-user-info {
+      flex: 1;
+    }
+
+    .instagram-username {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .instagram-date {
+      color: #666;
+      font-size: 0.8rem;
+    }
+
+    .instagram-content {
+      position: relative;
+    }
+
+    .instagram-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .instagram-video {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .instagram-actions {
+      padding: 12px 16px;
+    }
+
+    .instagram-action-buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .instagram-action-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color 0.3s;
+      padding: 4px;
+    }
+
+    .instagram-action-btn.like {
+      color: #666;
+    }
+
+    .instagram-action-btn.like.active {
+      color: #e91e63;
+    }
+
+    .instagram-action-btn.comment {
+      color: #666;
+    }
+
+    .instagram-action-btn.comment:hover {
+      color: #3A1C71;
+    }
+
+    .instagram-action-btn.download {
+      color: #666;
+    }
+
+    .instagram-action-btn.download:hover {
+      color: #4caf50;
+    }
+
+    .instagram-action-btn.share {
+      color: #666;
+    }
+
+    .instagram-action-btn.share:hover {
+      color: #2196f3;
+    }
+
+    .instagram-action-btn.delete {
+      color: #666;
+    }
+
+    .instagram-action-btn.delete:hover {
+      color: #f44336;
+    }
+
+    .instagram-likes {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .instagram-description {
+      color: #333;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .instagram-comments-preview {
+      color: #666;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .instagram-comments-preview:hover {
+      color: #333;
+    }
+
+    /* Enhanced Modal Styles */
+    .enhanced-modal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(5px);
+    }
+    .enhanced-modal {
+      background: white;
+      border-radius: 12px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 800px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .enhanced-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      background: #f8f9fa;
+    }
+    .enhanced-modal-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .enhanced-modal-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+    .enhanced-modal-username {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    .enhanced-modal-date {
+      color: #666;
+      font-size: 12px;
+    }
+    .enhanced-modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+    .enhanced-modal-close:hover {
+      background: #f0f0f0;
+    }
+    .enhanced-modal-content {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 70vh;
+    }
+    .enhanced-modal-media {
+      position: relative;
+      width: 100%;
+      max-height: 400px;
+      overflow: hidden;
+    }
+    .enhanced-modal-img,
+    .enhanced-modal-video {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+    }
+    .enhanced-modal-actions {
+      display: flex;
+      gap: 15px;
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .enhanced-action-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #666;
+    }
+    .enhanced-action-btn:hover {
+      background: #f0f0f0;
+    }
+    .enhanced-action-btn.like-btn.active {
+      color: #e91e63;
+    }
+    .enhanced-action-btn.like-btn.active i {
+      animation: heartBeat 0.3s ease-in-out;
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .enhanced-action-btn.delete-btn {
+      color: #dc3545;
+      background: rgba(220, 53, 69, 0.1);
+    }
+    .enhanced-action-btn.delete-btn:hover {
+      background: #ffe6e6;
+      color: #c82333;
+      transform: scale(1.05);
+    }
+    .like-count,
+    .comment-count {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .enhanced-modal-description {
+      padding: 15px 20px;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.5;
+      border-bottom: 1px solid #eee;
+    }
+    .enhanced-modal-comments-section {
+      padding: 15px 20px;
+      display: none;
+    }
+    .enhanced-modal-comments-section.has-comments {
+      display: block;
+    }
+    /* Comment Platform Overlay */
+    .comment-platform-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 20000;
+      backdrop-filter: blur(5px);
+    }
+    .comment-platform {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInUp 0.3s ease-out;
+    }
+    @keyframes slideInUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .comment-platform-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      background: #f8f9fa;
+    }
+    .comment-platform-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .comment-platform-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #666;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .comment-platform-close:hover {
+      background: #f0f0f0;
+    }
+    .comment-platform-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(80vh - 80px);
+    }
+    .comment-platform .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      max-height: 400px;
+    }
+    .comment-platform .comment-input-section {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      background: #f8f9fa;
+    }
+    .comment-platform .comment-input {
+      border-radius: 25px;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+    .comment-platform .comment-submit-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+    }
+    /* Responsive Comment Platform */
+    @media (max-width: 768px) {
+      .comment-platform {
+        width: 95%;
+        max-height: 90vh;
+      }
+      
+      .comment-platform-content {
+        max-height: calc(90vh - 80px);
+      }
+      
+      .comment-platform .comments-list {
+        max-height: 350px;
+        padding: 15px;
+      }
+      
+      .comment-platform .comment-input-section {
+        padding: 15px;
+      }
+    }
+    @media (max-width: 480px) {
+      .comment-platform {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        max-height: 100vh;
+      }
+      
+      .comment-platform-content {
+        max-height: calc(100vh - 80px);
+      }
+      
+      .comment-platform .comments-list {
+        max-height: 300px;
+        padding: 12px;
+      }
+      
+      .comment-platform .comment-input-section {
+        padding: 12px;
+      }
+    }
+    .comments-header h4 {
+      margin: 0 0 15px 0;
+      color: #333;
+      font-size: 16px;
+    }
+    .comments-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .comment-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      position: relative;
+    }
+    .comment-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* User type specific avatar colors */
+    .comment-avatar.student {
+      background: linear-gradient(135deg, #26bf67 0%, #20a085 100%);
+    }
+    .comment-avatar.teacher {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    }
+    .comment-avatar.admin {
+      background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+    }
+    .comment-avatar.parent {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+    .comment-avatar.parents {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+    
+    /* User type badges */
+    .user-type-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 500;
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+    
+    .user-type-badge.student {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    .user-type-badge.teacher {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    .user-type-badge.admin {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    .user-type-badge.parent {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+    .user-type-badge.parents {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+    
+    /* Comment date styling */
+    .comment-date {
+      font-size: 10px;
+      color: #999;
+      margin-top: 2px;
+    }
+    
+    .no-comments {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 20px;
+    }
+    
+    /* Loading states */
+    .loading-comments {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+      font-size: 14px;
+    }
+    
+    .loading-comments::before {
+      content: '⏳ ';
+      margin-right: 8px;
+    }
+    
+    /* Optimistic update styling */
+    .comment-item.optimistic {
+      opacity: 0.7;
+    }
+    
+    /* Button loading state */
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .comment-content {
+      flex: 1;
+    }
+    .comment-author {
+      font-weight: 600;
+      font-size: 12px;
+      color: #333;
+      margin-bottom: 2px;
+    }
+    .comment-text {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+    
+    /* Delete comment button */
+    .delete-comment-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      transition: all 0.2s;
+      opacity: 0.7;
+    }
+    
+    .delete-comment-btn:hover {
+      color: #dc3545;
+      background: rgba(220, 53, 69, 0.1);
+      opacity: 1;
+    }
+    
+    .delete-comment-btn:active {
+      transform: scale(0.95);
+    }
+    .comment-input-section {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .comment-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .comment-input:focus {
+      border-color: #667eea;
+    }
+    .comment-submit-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .comment-submit-btn:hover {
+      background: #5a6fd8;
+    }
+    .enhanced-modal-nav {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #eee;
+    }
+    .enhanced-nav-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .enhanced-nav-btn:hover {
+      background: #5a6fd8;
+    }
+    .enhanced-nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    /* Responsive Modal */
+    @media (max-width: 768px) {
+      .enhanced-modal {
+        width: 95vw;
+        max-height: 95vh;
+      }
+      
+      .enhanced-modal-actions {
+        gap: 10px;
+        padding: 12px 15px;
+      }
+      
+      .enhanced-action-btn {
+        font-size: 16px;
+        padding: 6px;
+      }
+      
+      .enhanced-modal-img,
+      .enhanced-modal-video {
+        height: auto;
+        max-height: 60vh;
+      }
+    }
+    @media (max-width: 480px) {
+      .enhanced-modal {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+      }
+      
+      .enhanced-modal-img,
+      .enhanced-modal-video {
+        height: auto;
+        max-height: 50vh;
+      }
+      
+      .enhanced-modal-actions {
+        gap: 8px;
+        padding: 10px 12px;
+      }
+      
+      .enhanced-action-btn {
+        font-size: 14px;
+        padding: 5px;
+      }
+    }
+    
+    /* Modal Styles */
+    .gallery-modal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .gallery-modal {
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .gallery-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--subtle);
+      cursor: pointer;
+      z-index: 1;
+    }
+    
+    .gallery-modal-img {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .gallery-modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--gallery-title);
+      margin-bottom: 8px;
+    }
+    
+    .gallery-modal-desc {
+      font-size: 0.95rem;
+      color: var(--subtle);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    
+    .gallery-modal-date {
+      font-size: 0.9rem;
+      color: var(--gallery-date);
+      margin-bottom: 15px;
+    }
+    
+    .gallery-modal-nav {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .gallery-modal-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    
+    .gallery-modal-btn:hover {
+      background: #167e84;
+    }
+    
+    .gallery-modal-download,
+    .gallery-modal-delete {
+      background: var(--subtle);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    
+    .gallery-modal-download:hover {
+      background: #5a7a8a;
+    }
+    
+    .gallery-modal-delete {
+      background: var(--gallery-danger);
+    }
+    
+    .gallery-modal-delete:hover {
+      background: #d32f2f;
+    }
+    
+    /* Add Bulk Modal */
+    .add-bulk-modal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    
+    .add-bulk-modal {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+    
+    .add-bulk-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--subtle);
+      cursor: pointer;
+    }
+    
+    .add-bulk-form-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 8px;
+      margin-top: 15px;
+    }
+    
+    .add-bulk-form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      transition: border 0.2s;
+    }
+    
+    .add-bulk-form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .add-bulk-form-desc {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: border 0.2s;
+    }
+    
+    .add-bulk-form-desc:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .add-bulk-form-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+    }
+    
+    .add-bulk-form-btn:hover {
+      background: #167e84;
+    }
+    
+    .add-bulk-preview-thumbs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    
+    .add-bulk-preview-thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1150px) {
+      .sidebar { left: -260px; position: fixed; width: var(--sidebar-width); max-width: var(--sidebar-width); z-index: 910; transition: left 0.25s;}
+      .sidebar.menu-open { left: 0;}
+      .main-content { margin-left: 0; width: 100vw;}
+      .sidebar-hamburger { display: block; left: auto; right: 19px;}
+      .sidebar-overlay { display: none;}
+      .sidebar-overlay.active { display: block;}
+    }
+
+    /* User-Friendly Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 15000;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .popup-overlay.show {
+      display: flex !important;
+    }
+
+    .popup-container {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      max-width: 90vw;
+      width: 400px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInUp 0.3s ease-out;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .popup-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .popup-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .popup-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .popup-content {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .popup-message {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .popup-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .popup-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 100px;
+    }
+
+    .popup-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .popup-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .popup-btn.secondary {
+      background: #f8f9fa;
+      color: #666;
+      border: 1px solid #e9ecef;
+    }
+
+    .popup-btn.secondary:hover {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .popup-btn.danger {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      color: white;
+    }
+
+    .popup-btn.danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .popup-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .popup-icon.success { color: #28a745; }
+    .popup-icon.error { color: #dc3545; }
+    .popup-icon.warning { color: #ffc107; }
+    .popup-icon.info { color: #17a2b8; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(30px) scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive Popup */
+    @media (max-width: 768px) {
+      .popup-container {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 20px;
+      }
+      
+      .popup-header {
+        padding: 18px 20px;
+      }
+      
+      .popup-title {
+        font-size: 1.1rem;
+      }
+      
+      .popup-content {
+        padding: 20px;
+      }
+      
+      .popup-message {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+      }
+      
+      .popup-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .popup-btn {
+        width: 100%;
+        padding: 14px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .popup-container {
+        width: 98vw;
+        max-width: 98vw;
+        margin: 10px;
+      }
+      
+      .popup-header {
+        padding: 16px 18px;
+      }
+      
+      .popup-title {
+        font-size: 1rem;
+      }
+      
+      .popup-content {
+        padding: 18px;
+      }
+      
+      .popup-message {
+        font-size: 0.9rem;
+        margin-bottom: 18px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar-hamburger { left: auto; right: 19px;}
+      .gallery-publish-card { 
+        padding: 15px; 
+        flex-direction: column;
+      }
+      .gallery-bulk-thumbs {
+        max-width: 100%;
+      }
+      .gallery-modal {
+        margin: 20px;
+        padding: 15px;
+      }
+      .add-bulk-modal {
+        margin: 20px;
+        padding: 20px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .gallery-root { 
+        padding: 15px; 
+        margin: 10px;
+      }
+      .gallery-title-bar .gallery-title { 
+        font-size: 1.1rem; 
+      }
+      .gallery-meta-title { 
+        font-size: 1rem; 
+      }
+      .gallery-modal {
+        margin: 10px;
+        padding: 10px;
+      }
+      .add-bulk-modal {
+        margin: 10px;
+        padding: 15px;
+      }
+    }
+  </style>
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  <script src="../js/professional-logout.js"></script>
+</head>
+<body>
+  <button class="sidebar-hamburger" id="menuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  <div class="app-flex">
+    <div class="sidebar" id="sidebar">
+      <div>
+        <div class="brand">
+          <img src="./BC360-logo.jpg"/>
+          Teacher Panel
+        </div>
+        <hr>
+        <ul>
+          <li><a href="./home.html"><img src="./assets/home_1299859.png" alt="Home" class="menu-icon"> Home</a></li>
+          <li><a href="./student_school.html"><img src="./assets/student dashboard.png" alt="Add Students" class="menu-icon"> Add Students</a></li>
+          <li><a href="./attendance.html"><img src="./assets/attendance.png" alt="Attendance" class="menu-icon"> Attendance</a></li>
+          <li><a href="./attendance_retrival.html"><img src="./assets/analytics.png" alt="Attendance Reports" class="menu-icon"> Attendance Reports</a></li>
+          <li><a href="./lesson-planner.html"><img src="./assets/lesson planner.png" alt="Lesson Planner" class="menu-icon"> Lesson Planner</a></li>
+          <li><a href="./Assignment_management.html"><img src="./assets/assignements.png" alt="Assignment Management" class="menu-icon"> Assignment Management</a></li>
+          <li><a href="./online_text.html"><img src="./assets/online test.png" alt="Online Text" class="menu-icon"> Online Text</a></li>
+          <li><a href="./marks_entry.html"><img src="./assets/marks upload.png" alt="Marks Entry" class="menu-icon"> Marks Entry</a></li>
+          <li><a href="./student_dashboard.html"><img src="./assets/student dashboard.png" alt="Performance Dashboard" class="menu-icon"> Performance Dashboard</a></li>
+          <li><a href="./content_sharing.html"><img src="./assets/content sharing.png" alt="Content Sharing" class="menu-icon"> Content Sharing</a></li>
+          <li><a href="./auto_assignment.html"><img src="./assets/ai queation.png" alt="AI Question Gen" class="menu-icon"> AI Question Gen</a></li>
+          <li><a href="./image_upload.html"><img src="./assets/gallery upload.png" alt="Upload Images" class="menu-icon"> Upload Images</a></li>
+          <li><a href="./display_image.html" class="active"><img src="./assets/view gallery.png" alt="Gallery" class="menu-icon"> Gallery</a></li>
+          <li><a href="./respond_parent.html"><img src="./assets/parents communication.png" alt="Parent Communication" class="menu-icon"> Parent Communication</a></li>
+          <li><a href="./student_analystics.html" ><img src="./assets/analytics.png" alt="Student Analytics" class="menu-icon"> Student Analytics</a></li>
+          <li><a href="./announcement.html"><img src="./assets/announcement.png" alt="Announcement" class="menu-icon"> Announcement</a></li>
+          <li><a href="./news.html"><img src="./assets/news.png" alt="News" class="menu-icon"> News</a></li>
+          <li><a href="./changePassword.html"><img src="./assets/change password.png" alt="Change Password" class="menu-icon"> Change Password</a></li>
+        </ul>
+      </div>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Logout</a>
+      </div>
+    </div>
+    <div class="main-content" id="mainContent">
+      <div class="gallery-root">
+        <div class="gallery-title-bar">
+          <img src="./assets/view gallery.png" alt="BC360 Gallery" style="width: 20px; height: 20px; margin-right: 10px;">
+          <span class="gallery-title">BC360 Gallery</span>
+        </div>
+        <div class="instagram-gallery" id="instagramGallery"></div>
+      </div>
+      
+      <!-- Enhanced Gallery Modal -->
+      <div class="enhanced-modal-bg" id="enhancedModal" aria-modal="false">
+        <div class="enhanced-modal">
+          <div class="enhanced-modal-header">
+            <div class="enhanced-modal-user-info">
+              <div class="enhanced-modal-avatar">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="enhanced-modal-user-details">
+                <div class="enhanced-modal-username" id="modalUsername">Teacher</div>
+                <div class="enhanced-modal-date" id="modalDate"></div>
+              </div>
+            </div>
+            <button class="enhanced-modal-close" id="enhancedModalClose">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          
+          <div class="enhanced-modal-content">
+            <div class="enhanced-modal-media">
+              <img class="enhanced-modal-img" id="enhancedModalImg" src="" alt="Gallery Image">
+              <video class="enhanced-modal-video" id="enhancedModalVideo" controls style="display: none;">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            
+            <div class="enhanced-modal-actions">
+              <button class="enhanced-action-btn like-btn" id="modalLikeBtn" data-liked="false">
+                <i class="fas fa-heart"></i>
+                <span class="like-count" id="modalLikeCount">0</span>
+              </button>
+              <button class="enhanced-action-btn comment-btn" id="modalCommentBtn">
+                <i class="fas fa-comment"></i>
+                <span class="comment-count" id="modalCommentCount">0</span>
+              </button>
+              <button class="enhanced-action-btn share-btn" id="modalShareBtn">
+                <i class="fas fa-share"></i>
+              </button>
+              <button class="enhanced-action-btn download-btn" id="modalDownloadBtn">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="enhanced-action-btn delete-btn" id="modalDeleteBtn" title="Delete this media" onclick="handleModalDeleteDirect()">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            
+            <div class="enhanced-modal-description" id="modalDescription"></div>
+            
+            <!-- Comment Platform Overlay -->
+            <div class="comment-platform-overlay" id="commentPlatformOverlay">
+              <div class="comment-platform">
+                <div class="comment-platform-header">
+                  <h3>Comments</h3>
+                  <button class="comment-platform-close" id="commentPlatformClose">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="comment-platform-content">
+                  <div class="comments-list" id="modalCommentsList">
+                    <!-- Comments will be loaded here -->
+                  </div>
+                  <div class="comment-input-section">
+                    <input type="text" id="modalCommentInput" placeholder="Add a comment..." class="comment-input">
+                    <button id="modalSubmitComment" class="comment-submit-btn">
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="enhanced-modal-nav">
+            <button class="enhanced-nav-btn" id="enhancedModalPrev">
+              <i class="fa-solid fa-chevron-left"></i>
+              Prev
+            </button>
+            <button class="enhanced-nav-btn" id="enhancedModalNext">
+              Next
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Add Bulk Modal -->
+      <div class="add-bulk-modal-bg" id="addBulkModal" aria-modal="false">
+        <div class="add-bulk-modal">
+          <button class="add-bulk-modal-close" id="addBulkModalClose"><i class="fa-solid fa-xmark"></i></button>
+          <form id="addBulkForm">
+            <div class="add-bulk-form-label">Choose images</div>
+            <input class="add-bulk-form-input" id="addBulkImagesInput" type="file" accept="image/jpeg,image/png,image/jpg" multiple required>
+            <div class="add-bulk-preview-thumbs" id="addBulkPreview"></div>
+            <div class="add-bulk-form-label">Date</div>
+            <input class="add-bulk-form-input" id="addBulkDate" type="date" required>
+            <div class="add-bulk-form-label">Description</div>
+            <textarea class="add-bulk-form-desc" id="addBulkDesc" rows="2" required placeholder="Short description..."></textarea>
+            <button class="add-bulk-form-btn" type="submit">Upload</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User-Friendly Popup System -->
+  <div id="popupOverlay" class="popup-overlay">
+    <div class="popup-container">
+      <div class="popup-header">
+        <h3 class="popup-title" id="popupTitle">
+          <i class="fas fa-info-circle popup-icon info" id="popupIcon"></i>
+          <span id="popupTitleText">Information</span>
+        </h3>
+        <button class="popup-close" id="popupClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="popup-content">
+        <div class="popup-message" id="popupMessage">
+          This is a sample message.
+        </div>
+        <div class="popup-buttons" id="popupButtons">
+          <button class="popup-btn primary" id="popupConfirm">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    let menuOpen = false;
+    function openSidebar() {
+      menuOpen = true; sidebar.classList.add('menu-open');
+      menuToggle.classList.add('menu-open'); sidebarOverlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      menuOpen = false; sidebar.classList.remove('menu-open');
+      menuToggle.classList.remove('menu-open'); sidebarOverlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+    }
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation(); (!menuOpen ? openSidebar() : closeSidebar());
+    });
+    sidebarOverlay.addEventListener('click', function() { closeSidebar(); });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1150 && menuOpen) closeSidebar();
+    });
+    sidebar.querySelectorAll('a').forEach(a => {
+      a.onclick = () => { if(window.innerWidth <= 1150) closeSidebar(); }
+    });
+
+    // API Configuration
+    const UPLOAD_ALBUM_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-album';
+    
+    // Gallery Interactions API (same as student module)
+    const GALLERY_INTERACTIONS_API = 'https://aszlb917ri.execute-api.ap-south-1.amazonaws.com/dev/gallery-interactions';
+    
+    // Performance Optimization: Cache system
+    const interactionsCache = new Map();
+    const CACHE_DURATION = 30000; // 30 seconds cache
+    
+    // Cache helper functions
+    function getCacheKey(albumId, imageId) {
+      return `${albumId}_${imageId}`;
+    }
+    
+    function getCachedInteractions(albumId, imageId) {
+      const key = getCacheKey(albumId, imageId);
+      const cached = interactionsCache.get(key);
+      
+      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        console.log('Using cached interactions for:', key);
+        return cached.data;
+      }
+      
+      return null;
+    }
+    
+    function setCachedInteractions(albumId, imageId, data) {
+      const key = getCacheKey(albumId, imageId);
+      interactionsCache.set(key, {
+        data: data,
+        timestamp: Date.now()
+      });
+      console.log('Cached interactions for:', key);
+    }
+    
+    function invalidateCache(albumId, imageId) {
+      const key = getCacheKey(albumId, imageId);
+      interactionsCache.delete(key);
+      console.log('Invalidated cache for:', key);
+    }
+    const UPLOAD_IMAGE_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-image';
+    const UPLOAD_VIDEO_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/upload-video';
+    const DELETE_S3_API = 'https://1efeuebkh9.execute-api.ap-south-1.amazonaws.com/dev/api/delete-s3-object';
+    
+    // Global data storage
+    let albums = [];
+    let currentAlbumIndex = null;
+    let currentImageIndex = null;
+    let currentCommentAlbum = null;
+    let currentCommentMedia = null;
+    let currentCommentType = null;
+    
+    // Performance optimization: Caching
+    let albumsCache = null;
+    let lastCacheTime = 0;
+    const ALBUMS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    // Utility Functions
+    function showLoading(message = 'Loading...') {
+      console.log('Loading:', message);
+    }
+
+    function hideLoading() {
+      console.log('Loading complete');
+    }
+
+    function showPopup(title, message, type = 'info', showCancel = false) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('popupOverlay');
+        const titleEl = document.getElementById('popupTitleText');
+        const messageEl = document.getElementById('popupMessage');
+        const iconEl = document.getElementById('popupIcon');
+        const buttonsEl = document.getElementById('popupButtons');
+        const closeBtn = document.getElementById('popupClose');
+        const confirmBtn = document.getElementById('popupConfirm');
+        
+        // Set content
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        
+        // Set icon based on type
+        let iconClass = 'fas fa-info-circle info';
+        switch (type) {
+          case 'success': iconClass = 'fas fa-check-circle success'; break;
+          case 'error': iconClass = 'fas fa-exclamation-circle error'; break;
+          case 'warning': iconClass = 'fas fa-exclamation-triangle warning'; break;
+          case 'danger': iconClass = 'fas fa-times-circle error'; break;
+        }
+        iconEl.className = iconClass;
+        
+        // Setup buttons
+        if (showCancel) {
+          buttonsEl.innerHTML = `
+            <button class="popup-btn secondary" id="popupCancel">Cancel</button>
+            <button class="popup-btn primary" id="popupConfirm">Confirm</button>
+          `;
+        } else {
+          buttonsEl.innerHTML = `<button class="popup-btn primary" id="popupConfirm">OK</button>`;
+        }
+        
+        // Show popup
+        overlay.classList.add('show');
+        
+        // Handle events
+        const handleClose = (result) => {
+          overlay.classList.remove('show');
+          resolve(result);
+        };
+        
+        // Button events
+        document.getElementById('popupConfirm').onclick = () => handleClose(true);
+        if (showCancel) {
+          document.getElementById('popupCancel').onclick = () => handleClose(false);
+        }
+        
+        // Close button and overlay click
+        closeBtn.onclick = () => handleClose(false);
+        overlay.onclick = (e) => {
+          if (e.target === overlay) handleClose(false);
+        };
+        
+        // Enter key for confirm, Escape for cancel
+        const handleKeydown = (e) => {
+          if (e.key === 'Enter') {
+            handleClose(true);
+            document.removeEventListener('keydown', handleKeydown);
+          } else if (e.key === 'Escape') {
+            handleClose(false);
+            document.removeEventListener('keydown', handleKeydown);
+          }
+        };
+        document.addEventListener('keydown', handleKeydown);
+      });
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'No Date';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Invalid Date';
+        return date.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      } catch (error) {
+        return 'Invalid Date';
+      }
+    }
+
+    function getTeacherName(teacherId) {
+      if (!teacherId) return 'BC360 Teacher';
+      return `Teacher ${teacherId}`;
+    }
+
+    function getImagesFromAlbum(album) {
+      let images = [];
+      
+      if (!album) {
+        console.error('getImagesFromAlbum: album parameter is null or undefined');
+        return [];
+      }
+      
+      console.log('Getting images from album:', album);
+      console.log('img_url value:', album.img_url, 'Type:', typeof album.img_url);
+      
+      const possibleImageFields = ['img_url', 'image_url', 'images', 'imageUrls', 'image_urls'];
+      let imageData = null;
+      
+      for (const field of possibleImageFields) {
+        if (album[field]) {
+          console.log(`Found image data in field: ${field}`, album[field]);
+          imageData = album[field];
+          break;
+        }
+      }
+      
+      if (imageData) {
+        if (typeof imageData === 'string') {
+          try {
+            const parsed = JSON.parse(imageData);
+            images = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            console.warn('Failed to parse image data JSON:', e);
+            images = Array.isArray(imageData) ? imageData : [];
+          }
+        } else if (Array.isArray(imageData)) {
+          images = imageData;
+        } else {
+          console.warn('Image data is neither string nor array:', imageData);
+        }
+      }
+      
+      console.log('Returning images with original structure:', images);
+      return images;
+    }
+
+    function getVideosFromAlbum(album) {
+      let videos = [];
+      
+      if (!album) {
+        console.error('getVideosFromAlbum: album parameter is null or undefined');
+        return [];
+      }
+      
+      console.log('Getting videos from album:', album);
+      
+      const possibleVideoFields = ['video_url', 'videoUrl', 'videos', 'videoUrls', 'video_urls'];
+      let videoData = null;
+      
+      for (const field of possibleVideoFields) {
+        if (album[field]) {
+          console.log(`Found video data in field: ${field}`, album[field]);
+          videoData = album[field];
+          break;
+        }
+      }
+      
+      if (videoData) {
+        if (typeof videoData === 'string') {
+          try {
+            const parsed = JSON.parse(videoData);
+            videos = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            console.warn('Failed to parse video data JSON:', e);
+            videos = Array.isArray(videoData) ? videoData : [];
+          }
+        } else if (Array.isArray(videoData)) {
+          videos = videoData;
+        } else {
+          console.warn('Video data is neither string nor array:', videoData);
+        }
+      }
+      
+      console.log('Returning videos with original structure:', videos);
+      return videos;
+    }
+
+    function getImageUrlsFromAlbum(album) {
+      const images = getImagesFromAlbum(album);
+      const urls = [];
+      
+      images.forEach(img => {
+        if (typeof img === 'string' && img.trim() !== '') {
+          urls.push(img);
+        } else if (typeof img === 'object' && img !== null) {
+          if (img.url && typeof img.url === 'string') {
+            urls.push(img.url);
+          } else if (img.key && typeof img.key === 'string') {
+            urls.push(`https://admin-image-upload-bc360.s3.amazonaws.com/${img.key}`);
+          }
+        }
+      });
+      
+      return urls;
+    }
+
+    function getVideoUrlsFromAlbum(album) {
+      const videos = getVideosFromAlbum(album);
+      const urls = [];
+      
+      videos.forEach(video => {
+        if (typeof video === 'string' && video.trim() !== '') {
+          urls.push(video);
+        } else if (typeof video === 'object' && video !== null) {
+          if (video.url && typeof video.url === 'string') {
+            urls.push(video.url);
+          } else if (video.key && typeof video.key === 'string') {
+            urls.push(`https://admin-video-upload-bc360.s3.amazonaws.com/${video.key}`);
+          }
+        }
+      });
+      
+      return urls;
+    }
+
+    let instagramGallery = document.getElementById('instagramGallery');
+
+    // Load albums from API
+    async function loadAlbums(showLoadingPopup = false, forceRefresh = false) {
+      try {
+        const now = Date.now();
+        if (!forceRefresh && albumsCache && (now - lastCacheTime) < ALBUMS_CACHE_DURATION) {
+          console.log('Using cached albums data');
+          albums = albumsCache;
+          renderInstagramGallery();
+          return;
+        }
+        
+        if (showLoadingPopup) {
+          showLoading('Loading gallery...');
+        }
+        
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          console.warn('Failed to load albums from server');
+          albums = getDummyAlbums();
+          renderInstagramGallery();
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+        
+        const data = await response.json();
+        console.log('API Response:', data);
+        
+        let rawAlbums = [];
+        if (data.albums && Array.isArray(data.albums)) {
+          rawAlbums = data.albums;
+        } else if (Array.isArray(data)) {
+          rawAlbums = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawAlbums = data.data;
+        } else {
+          console.warn('No valid albums data found in response');
+          albums = getDummyAlbums();
+          renderInstagramGallery();
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+        
+        // Get current user data for filtering
+        const userData = window.UserSession ? window.UserSession.getUserData() : null;
+        if (!userData || !userData.isAuthenticated) {
+          console.error('User not authenticated');
+          albums = [];
+          renderInstagramGallery();
+          if (showLoadingPopup) hideLoading();
+          return;
+        }
+        
+        const currentInstitutionId = userData.user?.institution_id;
+        const teacherId = userData.user?.teacher_id;
+        
+        console.log('🔍 Filtering albums for institution_id:', currentInstitutionId);
+        console.log('🔍 Current teacher_id:', teacherId);
+        console.log('📊 Raw albums before filtering:', rawAlbums.length, 'albums');
+        
+        // Apply filters
+        albums = rawAlbums.filter(album => {
+          console.log('🔍 Checking album:', album.id, {
+            teacher_sent: album.teacher_sent,
+            institution_id: album.institution_id,
+            teacher_id: album.teacher_id,
+            admin_id: album.admin_id
+          });
+          
+          // Filter 1: Only show albums from current institution
+          if (currentInstitutionId && album.institution_id && album.institution_id.toString() !== currentInstitutionId.toString()) {
+            console.log('🚫 Filtering out album from different institution:', album.id, 'album institution_id:', album.institution_id, 'current:', currentInstitutionId);
+            return false;
+          }
+          
+          // Filter 2: Show albums if:
+          // - teacher_sent == 1 (uploaded by teacher) AND same institution
+          // - OR admin_id == teacher_id (uploaded by current teacher as admin)
+          // - OR any album from same institution (regardless of who uploaded)
+          const isTeacherUploaded = album.teacher_sent === 1 || album.teacher_sent === true;
+          const isAdminUploadedByCurrentTeacher = album.admin_id && album.admin_id.toString() === teacherId.toString();
+          const isFromSameInstitution = currentInstitutionId && album.institution_id && album.institution_id.toString() === currentInstitutionId.toString();
+          
+          // Show if it's from same institution (regardless of uploader)
+          if (isFromSameInstitution) {
+            console.log('✅ Including album from same institution:', album.id, 'institution_id:', album.institution_id);
+            return true;
+          }
+          
+          // Also show if uploaded by current teacher (even if different institution - for teacher's own uploads)
+          if (isTeacherUploaded || isAdminUploadedByCurrentTeacher) {
+            console.log('✅ Including album uploaded by current teacher:', album.id, 'teacher_sent:', album.teacher_sent, 'admin_id:', album.admin_id);
+            return true;
+          }
+          
+          console.log('🚫 Filtering out album:', album.id, 'not from same institution and not uploaded by current teacher');
+          return false;
+        });
+        
+        console.log('📊 Filtered albums result:', albums.length, 'albums after filtering');
+        
+        albumsCache = albums;
+        lastCacheTime = now;
+        
+        renderInstagramGallery();
+        
+        if (showLoadingPopup) hideLoading();
+      } catch (error) {
+        console.warn('Error loading albums:', error);
+        albums = getDummyAlbums();
+        renderInstagramGallery();
+        if (showLoadingPopup) hideLoading();
+      }
+    }
+
+    // Dummy data for testing
+    function getDummyAlbums() {
+      return [
+        {
+          id: 1,
+          admin_id: 'teacher1',
+          institution_id: 'inst1',
+          description: 'School Annual Day Celebration',
+          select_date: '2024-01-15',
+          img_url: JSON.stringify([
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=400&q=80'
+          ]),
+          video_url: JSON.stringify([]),
+          toStudent: true,
+          toTeacher: true,
+          toParents: false,
+          created_at: '2024-01-15T10:00:00Z'
+        },
+        {
+          id: 2,
+          admin_id: 'teacher2',
+          institution_id: 'inst1',
+          description: 'Sports Day Highlights',
+          select_date: '2024-01-20',
+          img_url: JSON.stringify([
+            'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1424746219973-8fe3bd07d8e3?auto=format&fit=crop&w=400&q=80'
+          ]),
+          video_url: JSON.stringify([]),
+          toStudent: true,
+          toTeacher: false,
+          toParents: true,
+          created_at: '2024-01-20T14:30:00Z'
+        }
+      ];
+    }
+
+    // Render Instagram-style gallery
+    function renderInstagramGallery() {
+      instagramGallery.innerHTML = "";
+      
+      console.log('Albums data:', albums);
+      
+      if (albums.length === 0) {
+        instagramGallery.innerHTML = `
+          <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh; width: 100%;">
+            <div style="text-align: center; padding: 60px 20px; color: #666;">
+              <i class="fas fa-images" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
+              <h3>No Albums Found</h3>
+              <p>Upload some images or videos to see them here.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Create horizontal container for albums
+      const albumsContainer = document.createElement('div');
+      albumsContainer.style.display = 'flex';
+      albumsContainer.style.flexWrap = 'wrap';
+      albumsContainer.style.gap = '20px';
+      albumsContainer.style.width = '100%';
+      albumsContainer.style.maxWidth = '1400px';
+      albumsContainer.style.margin = '0 auto';
+      
+      albums.forEach((album, albumIndex) => {
+        console.log('Processing album:', album);
+        
+        const images = getImageUrlsFromAlbum(album);
+        const videos = getVideoUrlsFromAlbum(album);
+        const allMedia = [...images, ...videos];
+        
+        console.log('Images:', images, 'Videos:', videos, 'All Media:', allMedia);
+        
+        if (allMedia.length === 0) {
+          console.log('No media found for album:', albumIndex);
+          return;
+        }
+        
+        // Create album container
+        const albumContainer = document.createElement('div');
+        albumContainer.className = 'album-container';
+        albumContainer.style.width = '1200px';
+        albumContainer.style.minWidth = '500px';
+        albumContainer.style.border = '1px solid #e0e0e0';
+        albumContainer.style.borderRadius = '12px';
+        albumContainer.style.overflow = 'hidden';
+        albumContainer.style.backgroundColor = '#fff';
+        albumContainer.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        albumContainer.style.display = 'flex';
+        albumContainer.style.flexDirection = 'column';
+        
+        // Album header
+        const albumHeader = document.createElement('div');
+        albumHeader.style.padding = '15px';
+        albumHeader.style.borderBottom = '1px solid #e0e0e0';
+        albumHeader.style.backgroundColor = '#f8f9fa';
+        albumHeader.style.display = 'flex';
+        albumHeader.style.justifyContent = 'space-between';
+        albumHeader.style.alignItems = 'center';
+        
+        // Get current user data for proper filtering
+        const userData = window.UserSession ? window.UserSession.getUserData() : null;
+        const teacherId = userData?.user?.teacher_id;
+        
+        // Check if this album was uploaded by current teacher (either as teacher or admin)
+        const isTeacherUploaded = album.teacher_sent === 1 || album.teacher_sent === true;
+        const isAdminUploadedByCurrentTeacher = album.admin_id && album.admin_id.toString() === teacherId.toString();
+        const canDelete = isTeacherUploaded || isAdminUploadedByCurrentTeacher;
+        
+        albumHeader.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+              <i class="fa-solid fa-images"></i>
+            </div>
+            <div>
+              <div style="font-weight: 600; font-size: 14px; color: #333;">${album.description || 'Untitled Album'}</div>
+              <div style="font-size: 12px; color: #666;">${formatDate(album.select_date)} • ${images.length} images${videos.length > 0 ? ` • ${videos.length} videos` : ''}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${canDelete ? `
+            <div style="display: flex; gap: 6px;">
+              <button onclick="addMoreToAlbum(${albumIndex})" style="width: 30px; height: 30px; border: none; background: #28a745; color: white; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button onclick="deleteAlbum(${albumIndex})" style="width: 30px; height: 30px; border: none; background: #dc3545; color: white; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            ` : `
+            <div style="background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-user-shield"></i>
+              Sent by Admin
+            </div>
+            `}
+          </div>
+        `;
+        
+        albumContainer.appendChild(albumHeader);
+        
+        // Album content - Simple grid with 3 images per row
+        const albumContent = document.createElement('div');
+        albumContent.style.padding = '15px';
+        albumContent.style.flex = '1';
+        
+        // Create grid container for images
+        const imageGrid = document.createElement('div');
+        imageGrid.style.display = 'grid';
+        imageGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        imageGrid.style.gap = '8px';
+        imageGrid.style.width = '100%';
+        
+        allMedia.forEach((media, mediaIndex) => {
+          if (typeof media !== 'string') {
+            console.warn('Media is not a string:', media, 'Type:', typeof media);
+            return;
+          }
+          
+          const imageContainer = document.createElement('div');
+          imageContainer.style.position = 'relative';
+          imageContainer.style.aspectRatio = '1';
+          imageContainer.style.borderRadius = '8px';
+          imageContainer.style.overflow = 'hidden';
+          imageContainer.style.cursor = 'pointer';
+          imageContainer.style.border = '1px solid #e0e0e0';
+          
+          const isVideo = media.includes('video') || media.includes('.mp4') || media.includes('.mov');
+          
+          // Calculate correct indices for images and videos
+          let imageIndex = -1;
+          let videoIndex = -1;
+          
+          if (isVideo) {
+            videoIndex = videos.indexOf(media);
+          } else {
+            imageIndex = images.indexOf(media);
+          }
+          
+          console.log('Media processing:', {
+            media,
+            isVideo,
+            imageIndex,
+            videoIndex,
+            images: images.length,
+            videos: videos.length
+          });
+          
+          if (isVideo) {
+            imageContainer.innerHTML = `
+              <video src="${media}" style="width: 100%; height: 100%; object-fit: cover;">
+                Your browser does not support the video tag.
+              </video>
+              <div style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">
+                <i class="fas fa-play"></i>
+              </div>
+            `;
+          } else {
+            imageContainer.innerHTML = `
+              <img src="${media}" alt="Gallery Image" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            `;
+          }
+          
+          // Add click event to open enhanced modal
+          imageContainer.addEventListener('click', function(e) {
+            console.log('Image container clicked!', e.target);
+            if (e.target.closest('button')) {
+              console.log('Click was on a button, ignoring');
+              return;
+            }
+            const correctIndex = isVideo ? videoIndex : imageIndex;
+            console.log('Opening modal for:', { 
+              albumIndex, 
+              mediaIndex: correctIndex, 
+              type: isVideo ? 'video' : 'image',
+              originalMediaIndex: mediaIndex,
+              imageIndex,
+              videoIndex,
+              media
+            });
+            openEnhancedModal(albumIndex, correctIndex, isVideo ? 'video' : 'image');
+          });
+          
+          // Add delete button for individual media
+          // Add delete button for individual media only if album was uploaded by current teacher
+          if (canDelete) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.style.cssText = `
+              position: absolute;
+              top: 5px;
+              right: 5px;
+              background: rgba(220, 53, 69, 0.9);
+              color: white;
+              border: none;
+              border-radius: 50%;
+              width: 25px;
+              height: 25px;
+              cursor: pointer;
+              font-size: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 10;
+              transition: background 0.3s;
+            `;
+            deleteBtn.onmouseover = () => deleteBtn.style.background = 'rgba(220, 53, 69, 1)';
+            deleteBtn.onmouseout = () => deleteBtn.style.background = 'rgba(220, 53, 69, 0.9)';
+            deleteBtn.onclick = (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              console.log('=== DELETE BUTTON CLICKED ===');
+              const correctIndex = isVideo ? videoIndex : imageIndex;
+              console.log('Delete button clicked for:', { 
+                albumIndex, 
+                mediaIndex: correctIndex, 
+                type: isVideo ? 'video' : 'image',
+                originalMediaIndex: mediaIndex,
+                imageIndex,
+                videoIndex
+              });
+              console.log('Calling deleteIndividualMedia...');
+              deleteIndividualMedia(albumIndex, correctIndex, isVideo ? 'video' : 'image');
+              console.log('=== DELETE BUTTON CLICK ENDED ===');
+            };
+            
+            imageContainer.appendChild(deleteBtn);
+          }
+          imageGrid.appendChild(imageContainer);
+        });
+        
+        albumContent.appendChild(imageGrid);
+        albumContainer.appendChild(albumContent);
+        albumsContainer.appendChild(albumContainer);
+      });
+      
+      instagramGallery.appendChild(albumsContainer);
+    }
+
+    // Enhanced Modal Functions
+    function openEnhancedModal(albumIndex, mediaIndex, mediaType) {
+      console.log('openEnhancedModal called with:', { albumIndex, mediaIndex, mediaType });
+      
+      const album = albums[albumIndex];
+      console.log('Album data:', album);
+      
+      const images = getImageUrlsFromAlbum(album);
+      const videos = getVideoUrlsFromAlbum(album);
+      
+      console.log('Images array:', images);
+      console.log('Videos array:', videos);
+      
+      let mediaUrl = '';
+      if (mediaType === 'video') {
+        mediaUrl = videos[mediaIndex];
+      } else {
+        mediaUrl = images[mediaIndex];
+      }
+      
+      console.log('Selected media URL:', mediaUrl);
+      
+      if (!mediaUrl) {
+        console.error('Media URL not found for index:', mediaIndex);
+        showPopup('Error', 'Media not found!', 'error');
+        return;
+      }
+      
+      currentAlbumIndex = albumIndex;
+      currentImageIndex = mediaIndex;
+      currentCommentType = mediaType;
+      
+      const modal = document.getElementById('enhancedModal');
+      const modalImg = document.getElementById('enhancedModalImg');
+      const modalVideo = document.getElementById('enhancedModalVideo');
+      const modalUsername = document.getElementById('modalUsername');
+      const modalDate = document.getElementById('modalDate');
+      const modalDescription = document.getElementById('modalDescription');
+      
+      modalUsername.textContent = getTeacherName(album.admin_id);
+      modalDate.textContent = formatDate(album.select_date);
+      modalDescription.textContent = album.description || '';
+      
+      // Get current user data for proper filtering
+      const userData = window.UserSession ? window.UserSession.getUserData() : null;
+      const teacherId = userData?.user?.teacher_id;
+      
+      // Check if this album was uploaded by current teacher (either as teacher or admin)
+      const isTeacherUploaded = album.teacher_sent === 1 || album.teacher_sent === true;
+      const isAdminUploadedByCurrentTeacher = album.admin_id && album.admin_id.toString() === teacherId.toString();
+      const canDelete = isTeacherUploaded || isAdminUploadedByCurrentTeacher;
+      
+      const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+      
+      // Show/hide delete button based on whether current teacher can delete
+      if (canDelete) {
+        modalDeleteBtn.style.display = 'flex';
+      } else {
+        modalDeleteBtn.style.display = 'none';
+      }
+      
+      if (mediaType === 'video') {
+        modalImg.style.display = 'none';
+        modalVideo.style.display = 'block';
+        modalVideo.src = mediaUrl;
+      } else {
+        modalVideo.style.display = 'none';
+        modalImg.style.display = 'block';
+        modalImg.src = mediaUrl;
+      }
+      
+      modal.style.display = 'flex';
+      loadModalLikesAndComments(albumIndex, mediaIndex, mediaType);
+    }
+
+    function closeEnhancedModal() {
+      const modal = document.getElementById('enhancedModal');
+      modal.style.display = 'none';
+    }
+
+    // API Functions for Gallery Interactions (Teacher Module)
+    
+    // Get teacher data from session (same pattern as assignments)
+    function getCurrentTeacher() {
+      const userData = window.UserSession ? window.UserSession.getUserData() : null;
+      if (!userData || !userData.isAuthenticated) {
+        console.error('Teacher not authenticated');
+        return null;
+      }
+      
+      // Debug logging
+      console.log('Teacher userData:', userData);
+      console.log('Teacher user object:', userData.user);
+      console.log('Available fields:', Object.keys(userData.user || {}));
+      console.log('teacher_name:', userData.user?.teacher_name);
+      console.log('full_name:', userData.user?.full_name);
+      console.log('name:', userData.user?.name);
+      
+      // Extract teacher name - the data is directly in userData.user
+      let teacherName = userData.user?.teacher_name || 
+                       userData.user?.full_name || 
+                       userData.user?.name || 
+                       'Teacher';
+      
+      console.log('Extracted teacherName:', teacherName);
+      
+      // Additional fallback if still undefined
+      if (!teacherName || teacherName === 'undefined' || teacherName === 'null') {
+        teacherName = 'Teacher';
+        console.log('Using fallback teacherName:', teacherName);
+      }
+      
+      const teacherData = {
+        user_id: userData.user.teacher_id || userData.user.id,      // Teacher ID with fallback
+        user_name: teacherName,     // Teacher name with robust fallbacks
+        user_type: userData.userType || 'teacher'            // "teacher" with fallback
+      };
+      
+      console.log('Final teacher data:', teacherData);
+      return teacherData;
+    }
+
+    // Toggle like/unlike (Teacher)
+    async function toggleLike(albumId, imageId) {
+      const teacher = getCurrentTeacher();
+      if (!teacher) {
+        showPopup('Error', 'Authentication Required', 'Please log in to like images.', 'OK');
+        return null;
+      }
+
+      try {
+        console.log('Attempting to toggle like for:', { albumId, imageId, user: teacher.user_id });
+        
+        const response = await fetch(`${GALLERY_INTERACTIONS_API}/like`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: teacher.user_id,           // teacher_id
+            user_name: teacher.user_name,       // teacher full_name
+            user_type: teacher.user_type,       // "teacher"
+            image_id: imageId,
+            album_id: albumId
+          })
+        });
+
+        console.log('Like response status:', response.status);
+        console.log('Like response headers:', response.headers);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Like response error:', errorText);
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Teacher like toggled successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('Error toggling teacher like:', error);
+        
+        // Handle CORS errors specifically
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          console.log('CORS error detected, API might not be deployed yet');
+          showPopup('Warning', 'Feature Temporarily Unavailable', 'Like functionality is being updated. Please try again in a few minutes.', 'OK');
+        } else {
+          showPopup('Error', 'Failed to update like', error.message, 'OK');
+        }
+        return null;
+      }
+    }
+
+    // Add comment (Teacher)
+    async function addComment(albumId, imageId, commentText) {
+      const teacher = getCurrentTeacher();
+      if (!teacher) {
+        showPopup('Error', 'Authentication Required', 'Please log in to add comments.', 'OK');
+        return null;
+      }
+
+      // Debug logging for comment submission
+      console.log('Adding comment with teacher data:', teacher);
+      console.log('Teacher user_name:', teacher.user_name);
+      console.log('Teacher user_id:', teacher.user_id);
+      console.log('Teacher user_type:', teacher.user_type);
+
+      try {
+        console.log('Attempting to add comment for:', { albumId, imageId, user: teacher.user_id });
+        
+        const response = await fetch(`${GALLERY_INTERACTIONS_API}/comment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: teacher.user_id,           // teacher_id
+            user_name: teacher.user_name,       // teacher full_name
+            user_type: teacher.user_type,       // "teacher"
+            image_id: imageId,
+            album_id: albumId,
+            comment_text: commentText
+          })
+        });
+
+        console.log('Comment response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Comment response error:', errorText);
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Teacher comment added successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('Error adding teacher comment:', error);
+        
+        // Handle CORS errors specifically
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          console.log('CORS error detected, API might not be deployed yet');
+          showPopup('Warning', 'Feature Temporarily Unavailable', 'Comment functionality is being updated. Please try again in a few minutes.', 'OK');
+        } else {
+          showPopup('Error', 'Failed to add comment', error.message, 'OK');
+        }
+        return null;
+      }
+    }
+
+    // Delete comment (Teacher)
+    async function deleteComment(interactionId, timestamp, albumId, imageId) {
+      const teacher = getCurrentTeacher();
+      if (!teacher) {
+        showPopup('Error', 'Authentication Required', 'Please log in to delete comments.', 'OK');
+        return null;
+      }
+
+      try {
+        console.log('Attempting to delete comment for:', { interactionId, timestamp, user: teacher.user_id });
+        
+        const response = await fetch(`${GALLERY_INTERACTIONS_API}/comment`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            interaction_id: interactionId,
+            timestamp: timestamp,
+            user_id: teacher.user_id,           // teacher_id
+            user_type: teacher.user_type        // "teacher"
+          })
+        });
+
+        console.log('Delete comment response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Delete comment response error:', errorData);
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Comment deleted successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+        
+        // Handle CORS errors specifically
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          console.log('CORS error detected, API might not be deployed yet');
+          showPopup('Warning', 'Feature Temporarily Unavailable', 'Comment deletion is being updated. Please try again in a few minutes.', 'OK');
+        } else {
+          showPopup('Error', 'Failed to delete comment', error.message, 'OK');
+        }
+        return null;
+      }
+    }
+
+    // Get all interactions (likes + comments) - shows all user types with caching
+    async function getInteractions(albumId, imageId, forceRefresh = false) {
+      // Check cache first (unless force refresh)
+      if (!forceRefresh) {
+        const cached = getCachedInteractions(albumId, imageId);
+        if (cached) {
+          return cached;
+        }
+      }
+
+      try {
+        console.log('Fetching interactions from API for:', albumId, imageId);
+        const response = await fetch(`${GALLERY_INTERACTIONS_API}/interactions?image_id=${imageId}&album_id=${albumId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log('Interactions response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Interactions response error:', errorText);
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Interactions loaded (teacher view):', result);
+        
+        // Cache the result
+        setCachedInteractions(albumId, imageId, result);
+        
+        return result;
+      } catch (error) {
+        console.error('Error loading interactions:', error);
+        
+        // Handle CORS errors specifically
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          console.log('CORS error detected for interactions, using cached data if available');
+          const cached = getCachedInteractions(albumId, imageId);
+          return cached || {
+            likes_count: 0,
+            comments_count: 0,
+            likes: [],
+            comments: []
+          };
+        }
+        
+        // Return cached data if available, otherwise empty data
+        const cached = getCachedInteractions(albumId, imageId);
+        return cached || {
+          likes_count: 0,
+          comments_count: 0,
+          likes: [],
+          comments: []
+        };
+      }
+    }
+
+    async function loadModalLikesAndComments(albumIndex, mediaIndex, mediaType) {
+      try {
+        const album = albums[albumIndex];
+        if (!album) {
+          console.error('Album not found for index:', albumIndex);
+          return;
+        }
+
+        const images = getImageUrlsFromAlbum(album);
+        const videos = getVideoUrlsFromAlbum(album);
+        const allMedia = [...images, ...videos];
+        
+        if (mediaIndex >= allMedia.length) {
+          console.error('Media index out of range:', mediaIndex, 'Total media:', allMedia.length);
+          return;
+        }
+
+        // Create unique image ID (using album ID and media index)
+        const albumId = album.id || `album_${albumIndex}`;
+        const imageId = `image_${mediaIndex}`;
+
+        const likeBtn = document.getElementById('modalLikeBtn');
+        const likeCount = document.getElementById('modalLikeCount');
+        const commentCount = document.getElementById('modalCommentCount');
+        
+        // Show loading state immediately
+        likeCount.textContent = '...';
+        commentCount.textContent = '...';
+        
+        // Load interactions with caching (fast)
+        const interactions = await getInteractions(albumId, imageId);
+        
+        // Check if current teacher liked this image
+        const currentTeacher = getCurrentTeacher();
+        const hasTeacherLiked = currentTeacher ? 
+          interactions.likes.some(like => like.user_id === currentTeacher.user_id) : false;
+        
+        // Update UI immediately
+        likeBtn.dataset.liked = hasTeacherLiked;
+        likeBtn.classList.toggle('active', hasTeacherLiked);
+        likeCount.textContent = interactions.likes_count;
+        commentCount.textContent = interactions.comments_count;
+        
+        // Update navigation buttons state
+        updateNavigationButtons(albumIndex, mediaIndex);
+        
+        console.log('Modal interactions loaded (teacher):', {
+          albumId,
+          imageId,
+          likes_count: interactions.likes_count,
+          comments_count: interactions.comments_count,
+          hasTeacherLiked
+        });
+        
+      } catch (error) {
+        console.error('Error loading modal interactions:', error);
+        // Fallback to empty state
+        const likeBtn = document.getElementById('modalLikeBtn');
+        const likeCount = document.getElementById('modalLikeCount');
+        const commentCount = document.getElementById('modalCommentCount');
+        
+        likeBtn.dataset.liked = false;
+        likeBtn.classList.remove('active');
+        likeCount.textContent = '0';
+        commentCount.textContent = '0';
+      }
+    }
+
+    function loadModalLikesAndComments_OLD(albumIndex, mediaIndex, mediaType) {
+      // Load likes and comments from localStorage for demo
+      const likeKey = `like_${albumIndex}_${mediaIndex}_${mediaType}`;
+      const commentKey = `comments_${albumIndex}_${mediaIndex}_${mediaType}`;
+      
+      const isLiked = localStorage.getItem(likeKey) === 'true';
+      const comments = JSON.parse(localStorage.getItem(commentKey) || '[]');
+      
+      const likeBtn = document.getElementById('modalLikeBtn');
+      const likeCount = document.getElementById('modalLikeCount');
+      const commentCount = document.getElementById('modalCommentCount');
+      
+      likeBtn.dataset.liked = isLiked;
+      likeBtn.classList.toggle('active', isLiked);
+      likeCount.textContent = isLiked ? '1' : '0';
+      commentCount.textContent = comments.length;
+      
+      // Update navigation buttons state
+      updateNavigationButtons(albumIndex, mediaIndex);
+    }
+
+    function updateNavigationButtons(albumIndex, mediaIndex) {
+      const album = albums[albumIndex];
+      const images = getImageUrlsFromAlbum(album);
+      const videos = getVideoUrlsFromAlbum(album);
+      const allMedia = [...images, ...videos];
+      
+      const prevBtn = document.getElementById('enhancedModalPrev');
+      const nextBtn = document.getElementById('enhancedModalNext');
+      
+      // Disable/enable prev button
+      if (allMedia.length <= 1 || mediaIndex === 0) {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = '0.5';
+        prevBtn.style.cursor = 'not-allowed';
+      } else {
+        prevBtn.disabled = false;
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+      }
+      
+      // Disable/enable next button
+      if (allMedia.length <= 1 || mediaIndex === allMedia.length - 1) {
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = '0.5';
+        nextBtn.style.cursor = 'not-allowed';
+      } else {
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = '1';
+        nextBtn.style.cursor = 'pointer';
+      }
+    }
+
+    function renderModalComments(comments) {
+      const commentsList = document.getElementById('modalCommentsList');
+      commentsList.innerHTML = '';
+      
+      console.log('renderModalComments called with:', comments);
+      console.log('comments.length:', comments.length);
+      
+      if (comments.length === 0) {
+        console.log('No comments found, showing empty state');
+        commentsList.innerHTML = '<div class="no-comments">No comments yet</div>';
+        return;
+      }
+      
+      // Sort comments by timestamp (newest first)
+      const sortedComments = comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      sortedComments.forEach(comment => {
+        const commentItem = document.createElement('div');
+        commentItem.className = 'comment-item';
+        
+        // Get first letter of user name for avatar
+        const avatarLetter = comment.user_name ? comment.user_name.charAt(0).toUpperCase() : 'U';
+        
+        // Format user type for display
+        const userTypeDisplay = formatUserType(comment.user_type);
+        
+        // Format timestamp
+        const date = new Date(comment.timestamp);
+        const timeAgo = getTimeAgo(date);
+        
+        // Check if current user is the author of this comment
+        const currentTeacher = getCurrentTeacher();
+        const isCurrentUserComment = currentTeacher && comment.user_id === currentTeacher.user_id;
+        
+        // Create delete button HTML if it's the current user's comment
+        const deleteButtonHtml = isCurrentUserComment ? 
+          `<button class="delete-comment-btn" onclick="handleDeleteComment('${comment.interaction_id}', '${comment.timestamp}', ${currentAlbumIndex}, ${currentImageIndex})" title="Delete comment">
+            <i class="fas fa-trash"></i>
+          </button>` : '';
+        
+        commentItem.innerHTML = `
+          <div class="comment-avatar ${comment.user_type.toLowerCase()}">${avatarLetter}</div>
+          <div class="comment-content">
+            <div class="comment-author">
+              ${comment.user_name}
+              <span class="user-type-badge ${comment.user_type.toLowerCase()}">${userTypeDisplay}</span>
+            </div>
+            <div class="comment-text">${comment.comment_text}</div>
+            <div class="comment-date">${timeAgo}</div>
+          </div>
+          ${deleteButtonHtml}
+        `;
+        commentsList.appendChild(commentItem);
+      });
+    }
+
+    // Handle delete comment with confirmation
+    async function handleDeleteComment(interactionId, timestamp, albumId, imageId) {
+      // Show confirmation dialog
+      const confirmed = await showPopup(
+        'Delete Comment', 
+        'Are you sure you want to delete this comment? This action cannot be undone.', 
+        'warning', 
+        true
+      );
+      
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        // Delete comment via API
+        const result = await deleteComment(interactionId, timestamp, albumId, imageId);
+        
+        if (result) {
+          // Optimistic UI update - remove the deleted comment immediately
+          const commentsList = document.getElementById('modalCommentsList');
+          const commentElements = commentsList.querySelectorAll('.comment-item');
+          
+          // Store current UI state before making changes
+          const currentUIState = {
+            commentElements: Array.from(commentElements).length,
+            commentCount: parseInt(document.getElementById('modalCommentCount').textContent) || 0
+          };
+          
+          // Find and remove the deleted comment from DOM
+          let commentRemoved = false;
+          commentElements.forEach(element => {
+            const deleteBtn = element.querySelector('.delete-comment-btn');
+            if (deleteBtn && deleteBtn.onclick && 
+                deleteBtn.onclick.toString().includes(interactionId)) {
+              element.remove();
+              commentRemoved = true;
+              console.log('Removed deleted comment from DOM');
+            }
+          });
+          
+          // Update comment count optimistically
+          const commentCount = document.getElementById('modalCommentCount');
+          const newCount = Math.max(0, currentUIState.commentCount - 1);
+          commentCount.textContent = newCount;
+          
+          // Only do background refresh if we actually removed a comment
+          if (commentRemoved) {
+            // Invalidate cache and refresh in background (non-blocking)
+            invalidateCache(albumId, imageId);
+            setTimeout(async () => {
+              try {
+                const interactions = await getInteractions(albumId, imageId, true);
+                console.log('Background refresh - interactions:', interactions);
+                
+                // Only update if we got MORE comments than expected (someone else added a comment)
+                // Don't update if API returns fewer or same comments (it might be a cache/DB issue)
+                if (interactions.comments.length > newCount) {
+                  console.log('Background refresh found new comments, updating UI');
+                  renderModalComments(interactions.comments);
+                  commentCount.textContent = interactions.comments_count;
+                } else if (interactions.comments.length === newCount && interactions.comments.length > 0) {
+                  console.log('Background refresh confirmed correct count, updating with fresh data');
+                  renderModalComments(interactions.comments);
+                  commentCount.textContent = interactions.comments_count;
+                } else {
+                  console.log('Background refresh returned incorrect data, keeping optimistic update');
+                  // Don't update the UI - keep the optimistic state
+                }
+              } catch (error) {
+                console.log('Background refresh failed, keeping optimistic update:', error);
+              }
+            }, 1000); // Increased delay to give DB more time
+          }
+          
+          console.log('Comment deleted successfully:', result);
+        }
+      } catch (error) {
+        console.error('Error handling comment deletion:', error);
+        showPopup('Error', 'Failed to delete comment', 'Please try again.', 'OK');
+      }
+    }
+
+    // Helper function to format user type for display
+    function formatUserType(userType) {
+      switch(userType.toLowerCase()) {
+        case 'student':
+          return 'Student';
+        case 'teacher':
+          return 'Teacher';
+        case 'admin':
+          return 'Admin';
+        case 'parent':
+        case 'parents':
+          return 'Parent';
+        default:
+          return userType;
+      }
+    }
+
+    // Helper function to format time ago
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+      
+      if (diffInSeconds < 60) {
+        return 'just now';
+      } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes}m ago`;
+      } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours}h ago`;
+      } else if (diffInSeconds < 604800) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days}d ago`;
+      } else if (diffInSeconds < 2592000) {
+        const weeks = Math.floor(diffInSeconds / 604800);
+        return `${weeks}w ago`;
+      } else if (diffInSeconds < 31536000) {
+        const months = Math.floor(diffInSeconds / 2592000);
+        return `${months}mo ago`;
+      } else {
+        const years = Math.floor(diffInSeconds / 31536000);
+        return `${years}y ago`;
+      }
+    }
+
+    function addEnhancedModalEventListeners() {
+      const modal = document.getElementById('enhancedModal');
+      const closeBtn = document.getElementById('enhancedModalClose');
+      const likeBtn = document.getElementById('modalLikeBtn');
+      const commentBtn = document.getElementById('modalCommentBtn');
+      const shareBtn = document.getElementById('modalShareBtn');
+      const downloadBtn = document.getElementById('modalDownloadBtn');
+      const deleteBtn = document.getElementById('modalDeleteBtn');
+      const prevBtn = document.getElementById('enhancedModalPrev');
+      const nextBtn = document.getElementById('enhancedModalNext');
+      
+      closeBtn.onclick = closeEnhancedModal;
+      
+      likeBtn.onclick = () => handleModalLike();
+      commentBtn.onclick = () => openCommentPlatform();
+      shareBtn.onclick = () => handleModalShare();
+      downloadBtn.onclick = () => handleModalDownload();
+      deleteBtn.onclick = () => handleModalDeleteDirect();
+      
+      prevBtn.onclick = () => navigateModalPrev();
+      nextBtn.onclick = () => navigateModalNext();
+      
+      // Close modal when clicking outside
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          closeEnhancedModal();
+        }
+      };
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', handleModalKeyboard);
+    }
+
+    async function handleModalLike() {
+      try {
+        const album = albums[currentAlbumIndex];
+        if (!album) {
+          console.error('Album not found for currentAlbumIndex:', currentAlbumIndex);
+          return;
+        }
+
+        const albumId = album.id || `album_${currentAlbumIndex}`;
+        const imageId = `image_${currentImageIndex}`;
+
+        const likeBtn = document.getElementById('modalLikeBtn');
+        const likeCount = document.getElementById('modalLikeCount');
+        
+        // Optimistic UI update (immediate response)
+        const currentLiked = likeBtn.dataset.liked === 'true';
+        const newLikedState = !currentLiked;
+        const currentCount = parseInt(likeCount.textContent) || 0;
+        
+        // Update UI immediately
+        likeBtn.dataset.liked = newLikedState;
+        likeBtn.classList.toggle('active', newLikedState);
+        likeCount.textContent = newLikedState ? currentCount + 1 : Math.max(0, currentCount - 1);
+        
+        // Invalidate cache for this image
+        invalidateCache(albumId, imageId);
+
+        // Toggle like via API (background)
+        const result = await toggleLike(albumId, imageId);
+        
+        if (result) {
+          // Update with actual API response
+          const interactions = await getInteractions(albumId, imageId, true); // Force refresh
+          likeCount.textContent = interactions.likes_count;
+          
+          console.log('Teacher like toggled successfully:', result);
+        } else {
+          // Revert optimistic update on error
+          likeBtn.dataset.liked = currentLiked;
+          likeBtn.classList.toggle('active', currentLiked);
+          likeCount.textContent = currentCount;
+        }
+      } catch (error) {
+        console.error('Error handling modal like:', error);
+        showPopup('Error', 'Failed to update like', 'Please try again.', 'OK');
+      }
+    }
+
+    async function openCommentPlatform() {
+      const overlay = document.getElementById('commentPlatformOverlay');
+      overlay.style.display = 'flex';
+      
+      // Show loading state immediately
+      const commentsList = document.getElementById('modalCommentsList');
+      commentsList.innerHTML = '<div class="loading-comments">Loading comments...</div>';
+      
+      try {
+        const album = albums[currentAlbumIndex];
+        if (!album) {
+          console.error('Album not found for currentAlbumIndex:', currentAlbumIndex);
+          return;
+        }
+
+        const albumId = album.id || `album_${currentAlbumIndex}`;
+        const imageId = `image_${currentImageIndex}`;
+
+        // Load comments from API (with caching - should be fast)
+        const interactions = await getInteractions(albumId, imageId);
+        renderModalComments(interactions.comments);
+        
+        // Setup comment submission
+        const submitBtn = document.getElementById('modalSubmitComment');
+        const input = document.getElementById('modalCommentInput');
+        
+        submitBtn.onclick = () => handleModalCommentSubmit();
+        input.onkeypress = (e) => {
+          if (e.key === 'Enter') {
+            handleModalCommentSubmit();
+          }
+        };
+        
+        console.log('Comment platform opened with', interactions.comments.length, 'comments (teacher view)');
+      } catch (error) {
+        console.error('Error opening comment platform:', error);
+        renderModalComments([]);
+      }
+    }
+
+    function closeCommentPlatform() {
+      const overlay = document.getElementById('commentPlatformOverlay');
+      overlay.style.display = 'none';
+    }
+
+    function handleModalShare() {
+      const album = albums[currentAlbumIndex];
+      const images = getImageUrlsFromAlbum(album);
+      const videos = getVideoUrlsFromAlbum(album);
+      const mediaUrl = currentCommentType === 'video' ? videos[currentImageIndex] : images[currentImageIndex];
+      
+      if (navigator.share) {
+        navigator.share({
+          title: album.description || 'BC360 Gallery',
+          text: album.description || 'Check out this image from BC360!',
+          url: mediaUrl
+        });
+      } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(mediaUrl).then(() => {
+          showPopup('Success', 'Link copied to clipboard!', 'success');
+        });
+      }
+    }
+
+    async function handleModalDownload() {
+      try {
+        const album = albums[currentAlbumIndex];
+        const images = getImageUrlsFromAlbum(album);
+        const videos = getVideoUrlsFromAlbum(album);
+        const mediaUrl = currentCommentType === 'video' ? videos[currentImageIndex] : images[currentImageIndex];
+        
+        const fileName = `bc360_${album.description || 'gallery'}_${Date.now()}.${currentCommentType === 'video' ? 'mp4' : 'jpg'}`;
+
+        // Extract S3 key from URL
+        const s3Key = mediaUrl.split('s3.amazonaws.com/')[1];
+
+        // Get presigned download URL
+        const response = await fetch(`${UPLOAD_ALBUM_API}/download?key=${encodeURIComponent(s3Key)}&filename=${encodeURIComponent(fileName)}`);
+        if (!response.ok) {
+          throw new Error(`Failed to get download URL: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // Create download link with presigned URL
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.download = data.filename;
+        link.style.display = 'none';
+        link.target = '_blank';
+        
+        // Add link to DOM, click it, and clean up
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // No popup - download starts silently
+      } catch (error) {
+        console.error('Download error:', error);
+        showPopup('Error', 'Download Failed', 'Failed to download file', error.message);
+      }
+    }
+
+    async function handleModalDeleteDirect() {
+      // Call deleteIndividualMedia directly - it will handle its own confirmation
+      await deleteIndividualMedia(currentAlbumIndex, currentImageIndex, currentCommentType);
+      closeEnhancedModal();
+    }
+
+    async function handleModalCommentSubmit() {
+      const input = document.getElementById('modalCommentInput');
+      const commentText = input.value.trim();
+      
+      if (!commentText) return;
+      
+      try {
+        const album = albums[currentAlbumIndex];
+        if (!album) {
+          console.error('Album not found for currentAlbumIndex:', currentAlbumIndex);
+          return;
+        }
+
+        const albumId = album.id || `album_${currentAlbumIndex}`;
+        const imageId = `image_${currentImageIndex}`;
+
+        // Clear input immediately (optimistic UI)
+        input.value = '';
+        
+        // Show loading state
+        const submitBtn = document.getElementById('modalSubmitComment');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Posting...';
+        submitBtn.disabled = true;
+
+        // Add comment via API
+        const result = await addComment(albumId, imageId, commentText);
+        
+        if (result) {
+          // Invalidate cache to force refresh
+          invalidateCache(albumId, imageId);
+          
+          // Reload comments from API to get updated list
+          const interactions = await getInteractions(albumId, imageId, true); // Force refresh
+          renderModalComments(interactions.comments);
+          
+          // Update comment count in modal
+          const commentCount = document.getElementById('modalCommentCount');
+          commentCount.textContent = interactions.comments_count;
+          
+          console.log('Teacher comment added successfully:', result);
+        } else {
+          // Restore comment text on error
+          input.value = commentText;
+        }
+        
+        // Restore button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+        showPopup('Error', 'Failed to add comment', 'Please try again.', 'OK');
+        
+        // Restore button state
+        const submitBtn = document.getElementById('modalSubmitComment');
+        submitBtn.textContent = 'Post';
+        submitBtn.disabled = false;
+      }
+    }
+
+    function navigateModalPrev() {
+      const album = albums[currentAlbumIndex];
+      const images = getImageUrlsFromAlbum(album);
+      const videos = getVideoUrlsFromAlbum(album);
+      const allMedia = [...images, ...videos];
+      
+      if (allMedia.length <= 1 || currentImageIndex === 0) return;
+      
+      currentImageIndex = currentImageIndex - 1;
+      
+      // Determine if current media is video or image
+      const currentMedia = allMedia[currentImageIndex];
+      const isVideo = currentMedia.includes('video') || currentMedia.includes('.mp4') || currentMedia.includes('.mov');
+      currentCommentType = isVideo ? 'video' : 'image';
+      
+      // Update modal content
+      const modalImg = document.getElementById('enhancedModalImg');
+      const modalVideo = document.getElementById('enhancedModalVideo');
+      
+      if (isVideo) {
+        modalImg.style.display = 'none';
+        modalVideo.style.display = 'block';
+        modalVideo.src = currentMedia;
+      } else {
+        modalVideo.style.display = 'none';
+        modalImg.style.display = 'block';
+        modalImg.src = currentMedia;
+      }
+      
+      loadModalLikesAndComments(currentAlbumIndex, currentImageIndex, currentCommentType);
+    }
+
+    function navigateModalNext() {
+      const album = albums[currentAlbumIndex];
+      const images = getImageUrlsFromAlbum(album);
+      const videos = getVideoUrlsFromAlbum(album);
+      const allMedia = [...images, ...videos];
+      
+      if (allMedia.length <= 1 || currentImageIndex === allMedia.length - 1) return;
+      
+      currentImageIndex = currentImageIndex + 1;
+      
+      // Determine if current media is video or image
+      const currentMedia = allMedia[currentImageIndex];
+      const isVideo = currentMedia.includes('video') || currentMedia.includes('.mp4') || currentMedia.includes('.mov');
+      currentCommentType = isVideo ? 'video' : 'image';
+      
+      // Update modal content
+      const modalImg = document.getElementById('enhancedModalImg');
+      const modalVideo = document.getElementById('enhancedModalVideo');
+      
+      if (isVideo) {
+        modalImg.style.display = 'none';
+        modalVideo.style.display = 'block';
+        modalVideo.src = currentMedia;
+      } else {
+        modalVideo.style.display = 'none';
+        modalImg.style.display = 'block';
+        modalImg.src = currentMedia;
+      }
+      
+      loadModalLikesAndComments(currentAlbumIndex, currentImageIndex, currentCommentType);
+    }
+
+    function handleModalKeyboard(e) {
+      if (document.getElementById('enhancedModal').style.display === 'flex') {
+        switch (e.key) {
+          case 'ArrowLeft':
+            navigateModalPrev();
+            break;
+          case 'ArrowRight':
+            navigateModalNext();
+            break;
+          case 'Escape':
+            closeEnhancedModal();
+            break;
+        }
+      }
+    }
+
+    // Album management functions
+    async function deleteAlbum(albumIndex) {
+      try {
+        console.log('deleteAlbum called with albumIndex:', albumIndex);
+        
+        // Validate inputs
+        if (albumIndex < 0 || albumIndex >= albums.length) {
+          throw new Error(`Invalid album index: ${albumIndex} (total albums: ${albums.length})`);
+        }
+        
+        const album = albums[albumIndex];
+        console.log('Found album to delete:', album);
+        
+        if (!album) {
+          throw new Error('Album not found');
+        }
+        
+        const confirmed = await showPopup('Delete Album', 'Are you sure you want to delete this entire album? This action cannot be undone.', 'warning', true);
+        if (!confirmed) return;
+        
+        showLoading('Deleting album...');
+        
+        // Delete all media from S3 first
+        const images = getImagesFromAlbum(album);
+        const videos = getVideosFromAlbum(album);
+        const allMedia = [...images, ...videos];
+        
+        console.log('Deleting media from S3:', allMedia.length, 'items');
+        
+        for (const media of allMedia) {
+          let s3Key = null;
+          if (typeof media === 'string') {
+            if (media.includes('s3.amazonaws.com/')) {
+              s3Key = media.split('s3.amazonaws.com/')[1];
+            }
+          } else if (media && typeof media === 'object') {
+            s3Key = media.key;
+          }
+          
+          if (s3Key) {
+            try {
+              const deleteS3Response = await fetch(DELETE_S3_API, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  key: s3Key
+                })
+              });
+              
+              if (!deleteS3Response.ok) {
+                console.warn(`Failed to delete S3 object: ${s3Key}`);
+              } else {
+                console.log(`Successfully deleted S3 object: ${s3Key}`);
+              }
+            } catch (error) {
+              console.warn(`Error deleting S3 object ${s3Key}:`, error);
+            }
+          }
+        }
+        
+        // Delete album from database
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: album.id
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to delete album from database');
+        }
+        
+        // Remove from local array
+        albums.splice(albumIndex, 1);
+        
+        hideLoading();
+        await showPopup('Success', 'Album deleted successfully!', 'success');
+        renderInstagramGallery();
+        
+      } catch (error) {
+        console.error('Error deleting album:', error);
+        hideLoading();
+        await showPopup('Error', 'Failed to delete album: ' + error.message, 'error');
+      }
+    }
+
+    async function addMoreToAlbum(albumIndex) {
+      // This would open a modal to add more media to the album
+      await showPopup(
+        'Add Media',
+        'Add more media functionality would be implemented here',
+        'info'
+      );
+    }
+
+    async function deleteIndividualMedia(albumIndex, mediaIndex, mediaType) {
+      try {
+        console.log('=== deleteIndividualMedia START ===');
+        console.log('deleteIndividualMedia called with:', { albumIndex, mediaIndex, mediaType });
+        console.log('Current albums array length:', albums.length);
+        
+        // Validate inputs
+        if (albumIndex < 0 || albumIndex >= albums.length) {
+          throw new Error(`Invalid album index: ${albumIndex} (total albums: ${albums.length})`);
+        }
+        
+        const album = albums[albumIndex];
+        console.log('Found album:', album);
+        
+        if (!album) {
+          throw new Error('Album not found');
+        }
+        
+        const type = mediaType === 'image' ? 'image' : 'video';
+        const confirmed = await showPopup('Delete Media', `Are you sure you want to delete this ${type}? This action cannot be undone.`, 'warning', true);
+        if (!confirmed) return;
+        
+        showLoading(`Deleting ${type}...`);
+        
+        // Double-check albums array hasn't changed
+        console.log('Albums array before deletion:', albums.length);
+        if (albumIndex >= albums.length) {
+          throw new Error(`Album index ${albumIndex} is now out of bounds. Albums length: ${albums.length}`);
+        }
+        
+        const images = getImagesFromAlbum(album);
+        const videos = getVideosFromAlbum(album);
+        
+        let mediaToDelete = null;
+        let updatedImages = [...images];
+        let updatedVideos = [...videos];
+        
+        if (mediaType === 'image') {
+          if (mediaIndex >= 0 && mediaIndex < images.length) {
+            mediaToDelete = images[mediaIndex];
+            updatedImages.splice(mediaIndex, 1);
+          } else {
+            throw new Error(`Image index ${mediaIndex} is out of range. Total images: ${images.length}`);
+          }
+        } else {
+          if (mediaIndex >= 0 && mediaIndex < videos.length) {
+            mediaToDelete = videos[mediaIndex];
+            updatedVideos.splice(mediaIndex, 1);
+          } else {
+            throw new Error(`Video index ${mediaIndex} is out of range. Total videos: ${videos.length}`);
+          }
+        }
+        
+        if (!mediaToDelete) {
+          throw new Error(`${type} not found`);
+        }
+        
+        // Extract S3 key from media object
+        let s3Key = null;
+        if (typeof mediaToDelete === 'string') {
+          // If it's a direct URL, extract the key
+          if (mediaToDelete.includes('s3.amazonaws.com/')) {
+            s3Key = mediaToDelete.split('s3.amazonaws.com/')[1];
+          }
+        } else if (mediaToDelete && typeof mediaToDelete === 'object') {
+          s3Key = mediaToDelete.key;
+        }
+        
+        // Delete from S3 if we have the key
+        if (s3Key) {
+          try {
+            const deleteS3Response = await fetch(DELETE_S3_API, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                key: s3Key
+              })
+            });
+            
+            if (!deleteS3Response.ok) {
+              console.warn('Failed to delete from S3, but continuing with database update');
+            } else {
+              console.log('S3 deletion successful');
+            }
+          } catch (error) {
+            console.warn('S3 deletion failed:', error);
+          }
+        }
+        
+        // Update album in database with new media arrays
+        const updatedAlbum = {
+          id: album.id,
+          description: album.description,
+          select_date: album.select_date,
+          toStudent: album.toStudent,
+          toTeacher: album.toTeacher,
+          toParents: album.toParents,
+          img_url: JSON.stringify(updatedImages),
+          video_url: JSON.stringify(updatedVideos)
+        };
+        
+        const response = await fetch(UPLOAD_ALBUM_API, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedAlbum)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update album');
+        }
+        
+        // Update local album data
+        album.img_url = updatedAlbum.img_url;
+        album.video_url = updatedAlbum.video_url;
+        
+        // If no media left, delete the entire album
+        if (updatedImages.length === 0 && updatedVideos.length === 0) {
+          await deleteAlbum(albumIndex);
+          return;
+        }
+        
+        hideLoading();
+        await showPopup('Success', `${type} deleted successfully!`, 'success');
+        renderInstagramGallery();
+        console.log('=== deleteIndividualMedia END ===');
+        
+      } catch (error) {
+        hideLoading();
+        await showPopup('Error', `Failed to delete ${mediaType}: ` + error.message, 'error');
+        console.log('=== deleteIndividualMedia ERROR END ===');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      addEnhancedModalEventListeners();
+      
+      // Close comment platform
+      const commentCloseBtn = document.getElementById('commentPlatformClose');
+      const commentOverlay = document.getElementById('commentPlatformOverlay');
+      
+      commentCloseBtn.onclick = closeCommentPlatform;
+      commentOverlay.onclick = (e) => {
+        if (e.target === commentOverlay) {
+          closeCommentPlatform();
+        }
+      };
+      
+      // Load albums
+      loadAlbums(true);
+    });
+  </script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a teacher
+            if (userData.userType !== 'teacher') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access teacher module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access teacher-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to teachers only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Professional logout functionality for teachers
+    function logout() {
+      if (window.professionalLogout) {
+        window.professionalLogout.triggerLogout();
+      } else {
+        // Fallback implementation
+        if (confirm('Are you sure you want to log out?')) {
+          if (window.UserSession) {
+            window.UserSession.logout();
+          } else {
+            localStorage.removeItem('bc3620_user');
+            localStorage.removeItem('bc3620_userType');
+            localStorage.removeItem('bc3620_loginTime');
+          }
+          window.location.href = '../login.html';
+        }
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+
+    // Expose functions for HTML onclick
+    window.handleDeleteComment = handleDeleteComment;
+  </script>
+</body>
+</html>

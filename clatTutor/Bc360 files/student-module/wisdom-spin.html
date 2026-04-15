@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title>BC360 - Daily Wisdom Spin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent: #fbbf24;
+      --accent-light: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --border: #404040;
+      --label: #ffffff;
+      --input: #e5e5e5;
+      --subtle: #a0a0a0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+      --green: #10b981;
+      --orange: #f97316;
+      --radius: 13px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%);
+      min-height: 100vh;
+      width: 100vw;
+      color: var(--input);
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .back-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .game-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      flex: 1;
+    }
+
+    .game-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--label);
+    }
+
+    .wisdom-points {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .last-spin {
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .wheel-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .wheel {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      position: relative;
+      background: conic-gradient(
+        from 0deg,
+        var(--accent) 0deg 45deg,
+        var(--blue) 45deg 90deg,
+        var(--green) 90deg 135deg,
+        var(--purple) 135deg 180deg,
+        var(--orange) 180deg 225deg,
+        var(--pink) 225deg 270deg,
+        var(--warning) 270deg 315deg,
+        var(--success) 315deg 360deg
+      );
+      transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .wheel.spinning {
+      animation: spin 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(1440deg); }
+    }
+
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: var(--card);
+      border: 4px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--accent);
+      z-index: 10;
+    }
+
+    .wheel-section {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      transform-origin: 100% 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .wheel-section:nth-child(1) { transform: rotate(0deg); }
+    .wheel-section:nth-child(2) { transform: rotate(45deg); }
+    .wheel-section:nth-child(3) { transform: rotate(90deg); }
+    .wheel-section:nth-child(4) { transform: rotate(135deg); }
+    .wheel-section:nth-child(5) { transform: rotate(180deg); }
+    .wheel-section:nth-child(6) { transform: rotate(225deg); }
+    .wheel-section:nth-child(7) { transform: rotate(270deg); }
+    .wheel-section:nth-child(8) { transform: rotate(315deg); }
+
+    .spin-button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+    }
+
+    .spin-button:hover {
+      background: #f59e0b;
+      transform: translateY(-2px);
+    }
+
+    .spin-button:disabled {
+      background: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      min-height: 500px;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--label);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .result-content {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 20px;
+      text-align: center;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .result-text {
+      font-size: 1.1rem;
+      color: var(--label);
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .result-type {
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .challenge-container {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .challenge-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .challenge-text {
+      color: var(--label);
+      margin-bottom: 15px;
+    }
+
+    .challenge-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--label);
+      margin-bottom: 10px;
+    }
+
+    .challenge-button {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .challenge-button:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+      .game-area {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .game-info {
+        justify-content: center;
+      }
+      
+      .wheel {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-header">
+      <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Games
+      </button>
+      <h1 class="game-title">🎡 Daily Wisdom Spin</h1>
+      <div class="game-info">
+        <span class="wisdom-points">Wisdom Points: <span id="wisdomPoints">0</span> ⭐</span>
+        <span class="last-spin">Last Spin: <span id="lastSpin">Never</span></span>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="wheel-container">
+        <h2 class="wheel-title">🎡 Spin the Wheel of Wisdom</h2>
+        <div class="wheel" id="wheel">
+          <div class="wheel-center">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="wheel-section">Quote</div>
+          <div class="wheel-section">Challenge</div>
+          <div class="wheel-section">Tip</div>
+          <div class="wheel-section">Fact</div>
+          <div class="wheel-section">Quote</div>
+          <div class="wheel-section">Challenge</div>
+          <div class="wheel-section">Tip</div>
+        </div>
+        <button class="spin-button" id="spinButton" onclick="spinWheel()">
+          Spin Today
+        </button>
+      </div>
+
+      <div class="result-container">
+        <h2 class="result-title">💡 Today's Wisdom</h2>
+        <div class="result-content" id="resultContent">
+          <div class="result-icon">🎡</div>
+          <div class="result-text">Click "Spin Today" to get your daily dose of wisdom!</div>
+          <div class="result-type">Ready to Spin</div>
+        </div>
+        
+        <div class="challenge-container" id="challengeContainer" style="display: none;">
+          <div class="challenge-title">🎯 Mini Challenge</div>
+          <div class="challenge-text" id="challengeText"></div>
+          <input type="text" class="challenge-input" id="challengeInput" placeholder="Enter your answer...">
+          <button class="challenge-button" onclick="submitChallenge()">Submit Answer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game data
+    const gameData = {
+      wisdomPoints: 0,
+      lastSpinDate: null,
+      wisdomItems: {
+        quotes: [
+          { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", points: 10 },
+          { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela", points: 15 },
+          { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", points: 12 }
+        ],
+        challenges: [
+          { question: "What is the square root of 144?", answer: "12", points: 20 },
+          { question: "Name the capital of Japan.", answer: "tokyo", points: 15 },
+          { question: "What is 15 × 7?", answer: "105", points: 18 }
+        ],
+        tips: [
+          { title: "Math Shortcut", text: "To multiply any number by 11, write the number twice and add the digits in the middle.", example: "23 × 11 = 253", points: 10 },
+          { title: "Study Hack", text: "Study in 25-minute blocks with 5-minute breaks (Pomodoro Technique).", example: "25 min study + 5 min break", points: 12 }
+        ],
+        facts: [
+          { title: "Science Fact", text: "A day on Venus is longer than its year! Venus takes 243 Earth days to rotate but only 225 Earth days to orbit the Sun.", points: 8 },
+          { title: "Math Fact", text: "The number 0 is the only number that cannot be represented in Roman numerals.", points: 6 }
+        ]
+      }
+    };
+
+    let currentChallenge = null;
+    let canSpin = true;
+
+    // Initialize the game
+    function initGame() {
+      loadGameState();
+      updateDisplay();
+      checkDailySpin();
+    }
+
+    // Load game state from localStorage
+    function loadGameState() {
+      const saved = localStorage.getItem('wisdomSpinGame');
+      if (saved) {
+        const data = JSON.parse(saved);
+        gameData.wisdomPoints = data.wisdomPoints || 0;
+        gameData.lastSpinDate = data.lastSpinDate || null;
+      }
+    }
+
+    // Save game state to localStorage
+    function saveGameState() {
+      localStorage.setItem('wisdomSpinGame', JSON.stringify({
+        wisdomPoints: gameData.wisdomPoints,
+        lastSpinDate: gameData.lastSpinDate
+      }));
+    }
+
+    // Check if user can spin today
+    function checkDailySpin() {
+      const today = new Date().toDateString();
+      if (gameData.lastSpinDate === today) {
+        canSpin = false;
+        document.getElementById('spinButton').disabled = true;
+        document.getElementById('spinButton').textContent = 'Already Spun Today';
+      }
+    }
+
+    // Update display
+    function updateDisplay() {
+      document.getElementById('wisdomPoints').textContent = gameData.wisdomPoints;
+      
+      const lastSpin = gameData.lastSpinDate ? 
+        new Date(gameData.lastSpinDate).toLocaleDateString() : 'Never';
+      document.getElementById('lastSpin').textContent = lastSpin;
+    }
+
+    // Spin the wheel
+    function spinWheel() {
+      if (!canSpin) return;
+
+      const wheel = document.getElementById('wheel');
+      const spinButton = document.getElementById('spinButton');
+      
+      spinButton.disabled = true;
+      spinButton.textContent = 'Spinning...';
+      
+      wheel.classList.add('spinning');
+      
+      const result = generateRandomResult();
+      
+      setTimeout(() => {
+        wheel.classList.remove('spinning');
+        showResult(result);
+        spinButton.textContent = 'Already Spun Today';
+        canSpin = false;
+      }, 3000);
+    }
+
+    // Generate random result
+    function generateRandomResult() {
+      const types = ['quotes', 'challenges', 'tips', 'facts'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const items = gameData.wisdomItems[type];
+      const item = items[Math.floor(Math.random() * items.length)];
+      
+      return { type, item };
+    }
+
+    // Show result
+    function showResult(result) {
+      const resultContent = document.getElementById('resultContent');
+      const challengeContainer = document.getElementById('challengeContainer');
+      
+      let icon, text, typeText;
+      
+      switch (result.type) {
+        case 'quotes':
+          icon = '💭';
+          text = `"${result.item.text}"<br><em>- ${result.item.author}</em>`;
+          typeText = 'Motivational Quote';
+          break;
+        case 'challenges':
+          icon = '🎯';
+          text = result.item.question;
+          typeText = 'Mini Challenge';
+          currentChallenge = result.item;
+          challengeContainer.style.display = 'block';
+          document.getElementById('challengeText').textContent = result.item.question;
+          break;
+        case 'tips':
+          icon = '💡';
+          text = `<strong>${result.item.title}</strong><br>${result.item.text}<br><em>Example: ${result.item.example}</em>`;
+          typeText = 'Study Tip';
+          break;
+        case 'facts':
+          icon = '📚';
+          text = `<strong>${result.item.title}</strong><br>${result.item.text}`;
+          typeText = 'Fun Fact';
+          break;
+      }
+      
+      resultContent.innerHTML = `
+        <div class="result-icon">${icon}</div>
+        <div class="result-text">${text}</div>
+        <div class="result-type">${typeText}</div>
+      `;
+      
+      gameData.lastSpinDate = new Date().toDateString();
+      gameData.wisdomPoints += result.item.points;
+      
+      saveGameState();
+      updateDisplay();
+    }
+
+    // Submit challenge answer
+    function submitChallenge() {
+      if (!currentChallenge) return;
+      
+      const input = document.getElementById('challengeInput');
+      const userAnswer = input.value.trim().toLowerCase();
+      const correctAnswer = currentChallenge.answer.toLowerCase();
+      
+      if (userAnswer === correctAnswer) {
+        gameData.wisdomPoints += currentChallenge.points;
+        saveGameState();
+        updateDisplay();
+        
+        input.value = '';
+        document.getElementById('challengeContainer').style.display = 'none';
+        
+        const resultContent = document.getElementById('resultContent');
+        resultContent.innerHTML = `
+          <div class="result-icon">✅</div>
+          <div class="result-text">Correct! You earned ${currentChallenge.points} wisdom points!</div>
+          <div class="result-type">Challenge Completed</div>
+        `;
+      } else {
+        input.style.borderColor = 'var(--danger)';
+        setTimeout(() => {
+          input.style.borderColor = 'var(--border)';
+        }, 1000);
+      }
+    }
+
+    // Go back to games hub
+    function goBack() {
+      window.location.href = './games.html';
+    }
+
+    // Initialize the game when page loads
+    document.addEventListener('DOMContentLoaded', initGame);
+  </script>
+
+  <!-- Include the authentication system -->
+  <script src="../js/user-session.js"></script>
+  
+  <script>
+    // Authentication check and user tracking
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for auth system to load
+      setTimeout(() => {
+        if (window.UserSession) {
+          const userData = window.UserSession.getUserData();
+          if (userData && userData.isAuthenticated) {
+            // 🛡️ SECURITY CHECK: Verify user is actually a student
+            if (userData.userType !== 'student') {
+              console.log('❌ UNAUTHORIZED ACCESS DENIED:', userData.userType, 'trying to access student module');
+              console.log('🚨 Security Alert: User', userData.displayName, 'with role', userData.userType, 'attempted to access student-only content');
+              
+              // Show security alert
+              alert(`🚫 Access Denied!\n\nThis module is restricted to students only.\nYour current role: ${userData.userType}\n\nYou will be redirected to the login page.`);
+              
+              // Clear potentially compromised session
+              window.UserSession.clearUserData();
+              
+              // Redirect to login
+              window.location.href = '../login.html';
+              return;
+            }
+            
+            console.log('✅ User authenticated:', userData.displayName, '(' + userData.userType + ')');
+            
+            // Update user info in UI if elements exist
+            const userNameElements = document.querySelectorAll('.user-name, .user-display-name');
+            userNameElements.forEach(element => {
+              element.textContent = userData.displayName;
+            });
+            
+            const userTypeElements = document.querySelectorAll('.user-type, .user-role');
+            userTypeElements.forEach(element => {
+              element.textContent = userData.userType.charAt(0).toUpperCase() + userData.userType.slice(1);
+            });
+            
+            const userIdElements = document.querySelectorAll('.user-id');
+            userIdElements.forEach(element => {
+              element.textContent = userData.userId;
+            });
+          } else {
+            // Redirect to login if no user
+            console.log('❌ No authenticated user found, redirecting to login');
+            window.location.href = '../login.html';
+          }
+        } else {
+          console.log('❌ UserSession not loaded');
+          window.location.href = '../login.html';
+        }
+      }, 100);
+    });
+
+    // Logout functionality
+    function logout() {
+      if (window.UserSession) {
+        window.UserSession.logout();
+      } else {
+        // Fallback logout
+        localStorage.removeItem('bc3620_user');
+        localStorage.removeItem('bc3620_userType');
+        localStorage.removeItem('bc3620_loginTime');
+        // Redirect to login page
+        window.location.href = '../login.html';
+      }
+    }
+
+    // Add logout event listeners to any logout buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutButtons = document.querySelectorAll('.logout-btn, .logout-button, [onclick*="logout"]');
+      logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          logout();
+        });
+      });
+    });
+  </script>
+</body>
+</html> 
