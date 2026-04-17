@@ -22,6 +22,16 @@
       margin: 0 auto;
       padding: 0 0 2.5rem;
     }
+    .at-page__top {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0 0 0.8rem;
+    }
+    .at-history-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
     .at-page * {
       box-sizing: border-box;
     }
@@ -231,6 +241,15 @@
     .at-btn--ghost:hover {
       border-color: var(--at-gold-deep);
       background: rgba(255, 204, 0, 0.08);
+    }
+    .at-btn--danger {
+      background: #b91c1c;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(127, 29, 29, 0.28);
+    }
+    .at-btn--danger:hover {
+      background: #991b1b;
+      box-shadow: 0 6px 16px rgba(127, 29, 29, 0.34);
     }
     .at-schedule-panel {
       overflow: hidden;
@@ -982,6 +1001,25 @@
       color: var(--at-gold-deep);
       min-width: 1.25rem;
     }
+    .at-quiz-option__body {
+      flex: 1;
+      min-width: 0;
+    }
+    .at-quiz-inline-images {
+      margin-top: 0.5rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .at-quiz-inline-images img {
+      width: auto;
+      max-width: min(520px, 100%);
+      max-height: 300px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      object-fit: contain;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
     .at-quiz-option--correct {
       border-color: #15803d;
       background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
@@ -1061,6 +1099,115 @@
       cursor: not-allowed;
       box-shadow: none;
     }
+    .at-history-modal__dialog {
+      width: min(1080px, 98%);
+      max-height: min(88vh, 760px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .at-history-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .at-history-toolbar__sub {
+      margin: 0.2rem 0 0;
+      font-size: 0.82rem;
+      color: var(--at-muted);
+    }
+    .at-history-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .at-history-card {
+      border: 1px solid #e7d9b7;
+      border-radius: 12px;
+      background: #fffdf8;
+      padding: 0.85rem 0.9rem;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .at-history-card__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .at-history-card__title {
+      margin: 0;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-history-card__meta {
+      margin: 0.2rem 0 0;
+      font-size: 0.78rem;
+      color: var(--at-muted);
+    }
+    .at-history-badges {
+      display: inline-flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .at-history-badge {
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0.3rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid #e8dcc4;
+      background: #fff;
+      color: #6a4b13;
+      white-space: nowrap;
+    }
+    .at-history-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .at-history-empty {
+      border: 1px dashed #d9c089;
+      border-radius: 12px;
+      padding: 1rem;
+      background: #fffdf7;
+      color: var(--at-muted);
+      font-size: 0.86rem;
+    }
+    .at-doc-viewer__dialog {
+      width: min(1120px, 98%);
+      max-height: min(90vh, 800px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .at-doc-viewer__frame {
+      width: 100%;
+      height: min(72vh, 640px);
+      border: 1px solid #e7d9b7;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .at-doc-viewer__html {
+      width: 100%;
+      height: min(72vh, 640px);
+      overflow: auto;
+      border: 1px solid #e7d9b7;
+      border-radius: 12px;
+      background: #fff;
+      padding: 0.85rem 0.9rem;
+    }
+    .at-doc-viewer__loading {
+      display: grid;
+      place-items: center;
+      min-height: min(72vh, 640px);
+      color: var(--at-muted);
+      font-size: 0.9rem;
+      border: 1px dashed #e7d9b7;
+      border-radius: 12px;
+      background: #fffdf8;
+    }
     .at-ak-block {
       margin-bottom: 1.25rem;
       padding-bottom: 1rem;
@@ -1134,6 +1281,11 @@
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
     <div class="at-page">
+      <div class="at-page__top">
+        <button type="button" class="at-btn at-btn--ghost at-history-btn" id="at-btn-history">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+        </button>
+      </div>
       <form id="at-form" class="at-bento" novalidate>
         <div class="at-card at-card--upload">
           <h2><i class="fa-solid fa-file-arrow-up"></i> Test materials</h2>
@@ -1342,6 +1494,50 @@
     </div>
   </div>
 
+  <div id="at-history-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-history-title">
+    <div class="at-preview-modal__backdrop" id="at-history-backdrop"></div>
+    <div class="at-preview-modal__dialog at-history-modal__dialog">
+      <div class="at-preview-modal__head at-history-toolbar">
+        <div>
+          <h3 id="at-history-title">My test history</h3>
+          <p id="at-history-sub" class="at-history-toolbar__sub">Recently uploaded tests by your account.</p>
+        </div>
+        <button type="button" class="at-preview-modal__close" id="at-history-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="at-preview-modal__body">
+        <div id="at-history-list" class="at-history-list"></div>
+      </div>
+      <div class="at-preview-modal__foot">
+        <span id="at-history-count" class="at-preview-hint" style="margin: 0"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-doc-viewer-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-doc-viewer-title">
+    <div class="at-preview-modal__backdrop" id="at-doc-viewer-backdrop"></div>
+    <div class="at-preview-modal__dialog at-doc-viewer__dialog">
+      <div class="at-preview-modal__head">
+        <div>
+          <h3 id="at-doc-viewer-title">File preview</h3>
+          <p id="at-doc-viewer-sub" class="at-preview-modal__meta"></p>
+        </div>
+        <button type="button" class="at-preview-modal__close" id="at-doc-viewer-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="at-preview-modal__body">
+        <div id="at-doc-viewer-loading" class="at-doc-viewer__loading" hidden>Loading preview…</div>
+        <div id="at-doc-viewer-html" class="at-doc-viewer__html at-docx-html" hidden></div>
+        <iframe id="at-doc-viewer-frame" class="at-doc-viewer__frame" title="Uploaded file preview"></iframe>
+      </div>
+      <div class="at-preview-modal__foot">
+        <div class="at-preview-modal__nav">
+          <a id="at-doc-viewer-open" class="at-btn at-btn--gold" href="#" target="_blank" rel="noopener noreferrer">
+            <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> Open in new tab
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="../js/config.js"></script>
@@ -1396,6 +1592,22 @@
       var brAll = document.getElementById('br-all');
       var locBoxes = [brMal, brJay, brYal];
       var syncing = false;
+      var btnHistory = document.getElementById('at-btn-history');
+      var historyModal = document.getElementById('at-history-modal');
+      var historyClose = document.getElementById('at-history-close');
+      var historyBackdrop = document.getElementById('at-history-backdrop');
+      var historyList = document.getElementById('at-history-list');
+      var historyCount = document.getElementById('at-history-count');
+      var historySub = document.getElementById('at-history-sub');
+      var docViewerModal = document.getElementById('at-doc-viewer-modal');
+      var docViewerClose = document.getElementById('at-doc-viewer-close');
+      var docViewerBackdrop = document.getElementById('at-doc-viewer-backdrop');
+      var docViewerTitle = document.getElementById('at-doc-viewer-title');
+      var docViewerSub = document.getElementById('at-doc-viewer-sub');
+      var docViewerFrame = document.getElementById('at-doc-viewer-frame');
+      var docViewerHtml = document.getElementById('at-doc-viewer-html');
+      var docViewerLoading = document.getElementById('at-doc-viewer-loading');
+      var docViewerOpen = document.getElementById('at-doc-viewer-open');
 
       function showLoader(caption, ms, done) {
         if (loaderTitleEl) loaderTitleEl.textContent = 'Please wait';
@@ -1710,6 +1922,78 @@
         return { clean: stripInstructionBleedFromText(orig), tail: '' };
       }
 
+      function normalizeInlineImageUrl(url) {
+        var u = String(url || '').trim();
+        if (!/^https?:\/\//i.test(u)) return '';
+        while (/[),.;]$/.test(u)) u = u.slice(0, -1);
+        var m = u.match(/^https?:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//i);
+        if (m && m[1]) {
+          return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
+        }
+        var m2 = u.match(/^https?:\/\/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/i);
+        if (m2 && m2[1]) {
+          return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w1600';
+        }
+        return u;
+      }
+
+      /**
+       * Supports both:
+       *   (img url :- https://...)
+       *   img url :- https://...
+       */
+      function extractInlineImageUrls(text) {
+        var raw = String(text || '');
+        var images = [];
+        var lines = raw.split('\n');
+        var cleaned = [];
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          var work = line;
+
+          work = work.replace(/\(\s*img\s*url\s*[:\-]+\s*(https?:\/\/[^\s)]+)\s*\)/gi, function (_, url) {
+            var ok = normalizeInlineImageUrl(url);
+            if (ok) images.push(ok);
+            return '';
+          });
+
+          var solo = work.match(/^\s*img\s*url\s*[:\-]+\s*(https?:\/\/\S+)\s*$/i);
+          if (solo) {
+            var okSolo = normalizeInlineImageUrl(solo[1]);
+            if (okSolo) images.push(okSolo);
+            work = '';
+          }
+
+          if (work.trim()) cleaned.push(work.trim());
+        }
+
+        var uniq = [];
+        var seen = {};
+        for (var j = 0; j < images.length; j++) {
+          var key = images[j];
+          if (!seen[key]) {
+            seen[key] = true;
+            uniq.push(key);
+          }
+        }
+        return { clean: cleaned.join('\n').trim(), images: uniq };
+      }
+
+      function renderInlineImageUrls(urls) {
+        if (!urls || !urls.length) return '';
+        var items = urls
+          .map(function (u) {
+            return (
+              '<img src="' +
+              escapeHtml(u) +
+              '" alt="Question related image" loading="lazy" referrerpolicy="no-referrer" />'
+            );
+          })
+          .join('');
+        return '<div class="at-quiz-inline-images">' + items + '</div>';
+      }
+
       function parseBlockBody(body) {
         var raw = String(body || '').trim();
         if (!raw) return { stem: '', options: [], bleedForward: '' };
@@ -1730,17 +2014,20 @@
         var options = optResult.options;
         if (!options.length) return { stem: stem || stripStemNoise(raw), options: [], bleedForward: '' };
         stem = stripQuestionStemForParse(stem);
+        var stemParts = extractInlineImageUrls(stem);
+        stem = stemParts.clean;
         var bleedParts = [];
         options = options.map(function (o) {
           var sp = splitTrailingInstruction(o.text);
           if (sp.tail) bleedParts.push(sp.tail);
-          return { letter: o.letter, text: sp.clean };
+          var opParts = extractInlineImageUrls(sp.clean);
+          return { letter: o.letter, text: opParts.clean, images: opParts.images };
         });
         var bleedForward = bleedParts.filter(Boolean).join('\n\n');
         if (optResult.tail) {
           bleedForward = bleedForward ? bleedForward + '\n\n' + optResult.tail : optResult.tail;
         }
-        return { stem: stem, options: options, bleedForward: bleedForward };
+        return { stem: stem, images: stemParts.images, options: options, bleedForward: bleedForward };
       }
 
       /** Marker lines are not shown in preview; tolerate common typos. */
@@ -1884,6 +2171,7 @@
           questions.push({
             number: rqItem.num,
             stem: parsed.stem,
+            images: parsed.images || [],
             options: parsed.options,
             bleedForward: parsed.bleedForward || '',
             contextInfo: rqItem.contextInfo || '',
@@ -1927,6 +2215,11 @@
       function getAnswerSolution(entry) {
         if (entry == null || typeof entry === 'string') return '';
         return (entry.solution && String(entry.solution).trim()) || '';
+      }
+
+      function getAnswerSolutionImages(entry) {
+        if (entry == null || typeof entry === 'string') return [];
+        return Array.isArray(entry.solutionImages) ? entry.solutionImages : [];
       }
 
       function countAnswerKeyEntries(map) {
@@ -2057,7 +2350,8 @@
               i++;
             }
             if (letter) {
-              map[qn] = { letter: letter, solution: solParts.join('\n').trim() };
+              var parsedSol = extractInlineImageUrls(solParts.join('\n').trim());
+              map[qn] = { letter: letter, solution: parsedSol.clean, solutionImages: parsedSol.images };
             }
             continue;
           }
@@ -2101,7 +2395,8 @@
               }
               i++;
             }
-            map[qnSm] = { letter: letterSm, solution: solPartsSm.join('\n').trim() };
+            var parsedSolSm = extractInlineImageUrls(solPartsSm.join('\n').trim());
+            map[qnSm] = { letter: letterSm, solution: parsedSolSm.clean, solutionImages: parsedSolSm.images };
             continue;
           }
 
@@ -2109,7 +2404,7 @@
           if (loose) {
             var qL = parseInt(loose[1], 10);
             if (qL >= 1 && qL <= 199) {
-              map[qL] = { letter: loose[2].toUpperCase(), solution: '' };
+              map[qL] = { letter: loose[2].toUpperCase(), solution: '', solutionImages: [] };
             }
             i++;
             continue;
@@ -2131,18 +2426,20 @@
           return '<p class="at-quiz-answer-tag" hidden>Correct answer: —</p>';
         }
         var sol = getAnswerSolution(entry);
+        var solImages = getAnswerSolutionImages(entry);
         var html =
           '<div class="at-quiz-answer-block">' +
           '<p class="at-quiz-answer-tag"><span class="at-ak-slide__kw">Answer</span> · ' +
           '<span class="at-ak-slide__kw">Correct option is</span> "' +
           escapeHtml(letter) +
           '"</p>';
-        if (sol) {
+        if (sol || (solImages && solImages.length)) {
           html +=
             '<div class="at-quiz-solution" role="region" aria-label="Reason">' +
             '<span class="at-quiz-solution__label">Reason</span>' +
             '<div class="at-quiz-solution__body">' +
             escapeHtml(sol).replace(/\n/g, '<br />') +
+            renderInlineImageUrls(solImages) +
             '</div></div>';
         }
         html += '</div>';
@@ -2173,6 +2470,7 @@
           );
         }
         var reason = getAnswerSolution(entry);
+        var reasonImages = getAnswerSolutionImages(entry);
         var wordRich =
           akStandaloneState.docHtml &&
           extractAnswerKeyBlockHtml(akStandaloneState.docHtml, qNum, nextQNum);
@@ -2194,12 +2492,13 @@
             '<div class="at-docx-html">' +
             wordRich +
             '</div></div>';
-        } else if (reason) {
+        } else if (reason || (reasonImages && reasonImages.length)) {
           html +=
             '<div class="at-ak-slide__reason">' +
             '<span class="at-ak-slide__reason-label">Reason</span>' +
             '<div class="at-ak-slide__reason-body">' +
             escapeHtml(reason).replace(/\n/g, '<br />') +
+            renderInlineImageUrls(reasonImages) +
             '</div></div>';
         } else {
           html +=
@@ -2741,8 +3040,9 @@
               escapeHtml(o.letter) +
               '"><span class="at-quiz-option__lbl">' +
               escapeHtml(o.letter) +
-              '.</span><span>' +
-              escapeHtml(o.text) +
+              '.</span><span class="at-quiz-option__body">' +
+              escapeHtml(o.text).replace(/\n/g, '<br />') +
+              renderInlineImageUrls(o.images || []) +
               '</span></div>'
             );
           })
@@ -2813,14 +3113,16 @@
             '<span class="at-quiz-stem-label">Question ' +
             escapeHtml(String(q.number)) +
             '</span>' +
-            escapeHtml(questionBody) +
+            escapeHtml(questionBody).replace(/\n/g, '<br />') +
+            renderInlineImageUrls(q.images || []) +
             '</div>';
         } else {
           stemHtml =
             '<div class="at-quiz-stem"><span class="at-quiz-stem-label">Question ' +
             escapeHtml(String(q.number)) +
             '</span>' +
-            escapeHtml(questionBody) +
+            escapeHtml(questionBody).replace(/\n/g, '<br />') +
+            renderInlineImageUrls(q.images || []) +
             '</div>';
         }
 
@@ -3153,6 +3455,332 @@
       var addTestApiUrl =
         (window.APP_CONFIG && window.APP_CONFIG.ADD_TEST_API) ||
         'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/add_test';
+
+      function currentUserAliases() {
+        var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        var user = sess && sess.user ? sess.user : null;
+        var vals = [];
+        function add(v) {
+          var s = String(v == null ? '' : v).trim().toLowerCase();
+          if (!s) return;
+          if (vals.indexOf(s) === -1) vals.push(s);
+        }
+        if (user) {
+          add(user.email);
+          add(user.login);
+          add(user.name);
+          add(user.id);
+        }
+        return vals;
+      }
+
+      function splitBranchesLabel(v) {
+        if (v == null) return [];
+        if (Array.isArray(v)) return v.map(String);
+        if (typeof v === 'string') {
+          try {
+            var p = JSON.parse(v);
+            if (Array.isArray(p)) return p.map(String);
+          } catch (e) {}
+          if (v.trim()) return [v.trim()];
+        }
+        return [];
+      }
+
+      function asLocalDateTime(v) {
+        if (!v) return '';
+        var d = new Date(v);
+        if (Number.isNaN(d.getTime())) return String(v);
+        return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+
+      function resolveFileViewerUrl(rawUrl) {
+        var u = String(rawUrl || '').trim();
+        if (!/^https?:\/\//i.test(u)) return '';
+        var clean = u.split('#')[0];
+        var noQuery = clean.split('?')[0].toLowerCase();
+        if (noQuery.endsWith('.pdf')) return u;
+        if (noQuery.endsWith('.doc') || noQuery.endsWith('.docx')) {
+          return 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(u);
+        }
+        return 'https://docs.google.com/gview?embedded=1&url=' + encodeURIComponent(u);
+      }
+
+      function extractBase64Payload(input) {
+        var s = String(input || '').trim();
+        if (!s) return '';
+        var idx = s.indexOf(',');
+        return idx >= 0 ? s.slice(idx + 1) : s;
+      }
+
+      function base64ToArrayBuffer(base64) {
+        var raw = extractBase64Payload(base64);
+        var binary = atob(raw);
+        var len = binary.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes.buffer;
+      }
+
+      function showDocViewerMode(mode, loadingText) {
+        if (docViewerLoading) {
+          docViewerLoading.hidden = mode !== 'loading';
+          if (!docViewerLoading.hidden) docViewerLoading.textContent = loadingText || 'Loading preview…';
+        }
+        if (docViewerHtml) docViewerHtml.hidden = mode !== 'html';
+        if (docViewerFrame) docViewerFrame.hidden = mode !== 'frame';
+      }
+
+      function showFileFromApiInline(testRow, fileUrl, kind) {
+        if (!testRow || testRow.test_id == null) return Promise.reject(new Error('Missing test id'));
+        var wantsAnswer = String(kind || '').toLowerCase() === 'answer';
+        var apiUrl =
+          addTestApiUrl +
+          (addTestApiUrl.indexOf('?') >= 0 ? '&' : '?') +
+          'test_id=' +
+          encodeURIComponent(String(testRow.test_id)) +
+          (wantsAnswer ? '&answer=1' : '&paper=1');
+        showDocViewerMode('loading', 'Loading file from server…');
+        return fetch(apiUrl, { method: 'GET', credentials: 'omit' })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) throw new Error((data && data.message) || 'Could not load file');
+              return data || {};
+            });
+          })
+          .then(function (data) {
+            if (!data.content_base64) throw new Error('Missing file payload');
+            var fileName = String(data.file_name || fileUrl || '').toLowerCase();
+            if (fileName.endsWith('.pdf')) {
+              var pdfBuf = base64ToArrayBuffer(data.content_base64);
+              var blob = new Blob([pdfBuf], { type: data.content_type || 'application/pdf' });
+              var pdfUrl = URL.createObjectURL(blob);
+              if (docViewerFrame) docViewerFrame.src = pdfUrl;
+              showDocViewerMode('frame');
+              return;
+            }
+            var buf = base64ToArrayBuffer(data.content_base64);
+            var htmlOpts = {
+              convertImage: mammoth.images.inline(mammothConvertImageToDataUri),
+              includeEmbeddedStyleMap: true,
+              includeDefaultStyleMap: true,
+            };
+            return mammoth.convertToHtml({ arrayBuffer: buf }, htmlOpts).then(function (htmlRes) {
+              var html = (htmlRes && htmlRes.value) || '';
+              if (!html.trim()) throw new Error('Could not parse Word content');
+              if (docViewerHtml) docViewerHtml.innerHTML = html;
+              showDocViewerMode('html');
+            });
+          });
+      }
+
+      function openDocViewer(kindLabel, testRow, fileUrl) {
+        if (!docViewerModal || !docViewerFrame || !fileUrl) return;
+        var viewerUrl = resolveFileViewerUrl(fileUrl);
+        var lowerUrl = String(fileUrl || '').split('?')[0].toLowerCase();
+        var isWordFile = lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx');
+        if (!viewerUrl) {
+          showToast('File unavailable', 'Could not open this file.');
+          return;
+        }
+        if (docViewerTitle) docViewerTitle.textContent = kindLabel + ' · Test #' + (testRow.test_id || '');
+        if (docViewerSub) docViewerSub.textContent = testRow.title || 'Untitled test';
+        if (docViewerFrame) docViewerFrame.src = 'about:blank';
+        if (docViewerHtml) docViewerHtml.innerHTML = '';
+        showDocViewerMode('frame');
+        if (/^Question paper$/i.test(kindLabel) || /^Answer key$/i.test(kindLabel)) {
+          showFileFromApiInline(testRow, fileUrl, /^Answer key$/i.test(kindLabel) ? 'answer' : 'paper').catch(function () {
+            if (isWordFile) {
+              if (docViewerFrame) docViewerFrame.src = 'about:blank';
+              showDocViewerMode('loading', 'Preview failed. Please use "Open in new tab" to download/view this file.');
+              return;
+            }
+            if (docViewerFrame) docViewerFrame.src = viewerUrl;
+            showDocViewerMode('frame');
+          });
+        } else if (docViewerFrame) {
+          docViewerFrame.src = viewerUrl;
+        }
+        if (docViewerOpen) docViewerOpen.href = fileUrl;
+        docViewerModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDocViewer() {
+        if (docViewerModal) docViewerModal.hidden = true;
+        if (docViewerFrame) docViewerFrame.src = 'about:blank';
+        if (docViewerHtml) docViewerHtml.innerHTML = '';
+        showDocViewerMode('frame');
+        document.body.style.overflow = '';
+      }
+
+      function closeHistoryModal() {
+        if (historyModal) historyModal.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function deleteHistoryTest(row) {
+        var id = row && row.test_id != null ? parseInt(String(row.test_id), 10) : NaN;
+        if (!Number.isFinite(id)) return Promise.reject(new Error('Invalid test id'));
+        return fetch(addTestApiUrl, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test_id: id }),
+        }).then(function (res) {
+          return res.json().catch(function () {
+            return {};
+          }).then(function (data) {
+            if (!res.ok) throw new Error((data && data.message) || 'Could not delete test');
+            return data || {};
+          });
+        });
+      }
+
+      function renderHistoryRows(rows) {
+        if (!historyList) return;
+        historyList.innerHTML = '';
+        if (!rows.length) {
+          historyList.innerHTML = '<div class="at-history-empty">No tests uploaded by your account yet.</div>';
+          if (historyCount) historyCount.textContent = '0 tests';
+          return;
+        }
+        rows.forEach(function (row) {
+          var branches = splitBranchesLabel(row.selected_branch);
+          var createdAt = asLocalDateTime(row.created_at);
+          var sched = row.scheduled ? asLocalDateTime(row.scheduled) : '';
+          var qUrl = row.question_paper_url ? String(row.question_paper_url).trim() : '';
+          var aUrl = row.answer_key_url ? String(row.answer_key_url).trim() : '';
+          var card = document.createElement('article');
+          card.className = 'at-history-card';
+          card.innerHTML =
+            '<div class="at-history-card__head">' +
+            '<div><h4 class="at-history-card__title">' +
+            escapeHtml(row.title || 'Untitled test') +
+            '</h4><p class="at-history-card__meta">Test #' +
+            escapeHtml(String(row.test_id || '')) +
+            (createdAt ? ' · Added ' + escapeHtml(createdAt) : '') +
+            '</p></div>' +
+            '<div class="at-history-badges">' +
+            (sched ? '<span class="at-history-badge">Scheduled ' + escapeHtml(sched) + '</span>' : '<span class="at-history-badge">Draft</span>') +
+            (branches.length ? '<span class="at-history-badge">' + escapeHtml(branches.join(', ')) + '</span>' : '') +
+            '</div></div>' +
+            '<div class="at-history-actions">' +
+            '<button type="button" class="at-btn at-btn--ghost" data-h-action="q"' +
+            (qUrl ? '' : ' disabled') +
+            '><i class="fa-regular fa-file-lines" aria-hidden="true"></i> View question</button>' +
+            '<button type="button" class="at-btn at-btn--ghost" data-h-action="a"' +
+            (aUrl ? '' : ' disabled') +
+            '><i class="fa-regular fa-file" aria-hidden="true"></i> View answer</button>' +
+            '<button type="button" class="at-btn at-btn--danger" data-h-action="d">' +
+            '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete</button>' +
+            '</div>';
+          var qBtn = card.querySelector('[data-h-action="q"]');
+          var aBtn = card.querySelector('[data-h-action="a"]');
+          var dBtn = card.querySelector('[data-h-action="d"]');
+          if (qBtn && qUrl) {
+            qBtn.addEventListener('click', function () {
+              openDocViewer('Question paper', row, qUrl);
+            });
+          }
+          if (aBtn && aUrl) {
+            aBtn.addEventListener('click', function () {
+              openDocViewer('Answer key', row, aUrl);
+            });
+          }
+          if (dBtn) {
+            dBtn.addEventListener('click', function () {
+              var ok = window.confirm(
+                'Delete this test permanently?\n\nThis removes the DB record and both files from S3.\nTest #' +
+                  String(row.test_id || '') +
+                  ' - ' +
+                  String(row.title || 'Untitled test')
+              );
+              if (!ok) return;
+              dBtn.disabled = true;
+              dBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Deleting...';
+              deleteHistoryTest(row)
+                .then(function () {
+                  showToast('Deleted', 'Test deleted from database and storage.');
+                  card.remove();
+                  if (historyList && !historyList.children.length) {
+                    historyList.innerHTML = '<div class="at-history-empty">No tests uploaded by your account yet.</div>';
+                  }
+                  if (historyCount) {
+                    var total = historyList ? historyList.querySelectorAll('.at-history-card').length : 0;
+                    historyCount.textContent = total + ' test' + (total === 1 ? '' : 's');
+                  }
+                })
+                .catch(function (err) {
+                  dBtn.disabled = false;
+                  dBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete';
+                  showToast('Delete failed', (err && err.message) || 'Could not delete this test right now.');
+                });
+            });
+          }
+          historyList.appendChild(card);
+        });
+        if (historyCount) historyCount.textContent = rows.length + ' test' + (rows.length === 1 ? '' : 's');
+      }
+
+      function openHistoryModal() {
+        if (!historyModal) return;
+        var aliases = currentUserAliases();
+        if (!aliases.length) {
+          showToast('History', 'Please sign in again to load your upload history.');
+          return;
+        }
+        historyModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        if (historyList) historyList.innerHTML = '<div class="at-history-empty">Loading your uploaded tests…</div>';
+        if (historySub) historySub.textContent = 'Recently uploaded tests by your account.';
+
+        fetch(addTestApiUrl, { method: 'GET' })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) throw new Error((data && data.message) || 'Could not load history');
+              return Array.isArray(data) ? data : [];
+            });
+          })
+          .then(function (rows) {
+            var mine = rows.filter(function (r) {
+              var who = String((r && r.added_by) || '').trim().toLowerCase();
+              return who && aliases.indexOf(who) !== -1;
+            });
+            mine.sort(function (a, b) {
+              var da = new Date(a && a.created_at ? a.created_at : 0).getTime();
+              var db = new Date(b && b.created_at ? b.created_at : 0).getTime();
+              return db - da;
+            });
+            if (historySub) historySub.textContent = 'Showing tests uploaded by your current login.';
+            renderHistoryRows(mine);
+          })
+          .catch(function (err) {
+            if (historyList) {
+              historyList.innerHTML =
+                '<div class="at-history-empty">Could not load history right now. ' +
+                escapeHtml((err && err.message) || 'Network error') +
+                '</div>';
+            }
+            if (historyCount) historyCount.textContent = '';
+          });
+      }
+
+      if (btnHistory) btnHistory.addEventListener('click', openHistoryModal);
+      if (historyClose) historyClose.addEventListener('click', closeHistoryModal);
+      if (historyBackdrop) historyBackdrop.addEventListener('click', closeHistoryModal);
+      if (docViewerClose) docViewerClose.addEventListener('click', closeDocViewer);
+      if (docViewerBackdrop) docViewerBackdrop.addEventListener('click', closeDocViewer);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (docViewerModal && !docViewerModal.hidden) {
+          closeDocViewer();
+          return;
+        }
+        if (historyModal && !historyModal.hidden) {
+          closeHistoryModal();
+        }
+      });
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();

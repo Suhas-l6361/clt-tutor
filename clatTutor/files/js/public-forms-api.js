@@ -58,6 +58,17 @@
       }
       return postJson(u, payload);
     },
+    postContactUs: function (payload) {
+      var u = C.CONTACT_US_API;
+      if (!u) {
+        return Promise.resolve({
+          ok: false,
+          status: 0,
+          data: { message: 'CONTACT_US_API not configured' },
+        });
+      }
+      return postJson(u, payload);
+    },
     postDownloadAnswer: function (payload) {
       var u = C.DOWNLOAD_ANSWER_API;
       if (!u) {

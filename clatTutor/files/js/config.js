@@ -17,6 +17,9 @@ const APP_CONFIG = {
   /** Public site — admission enrollment form (POST JSON) */
   ENROLL_REQUEST_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/enrollrequest',
+  /** Public site — contact us form (POST JSON) */
+  CONTACT_US_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/contactUs',
   /** Public site — PYQ download modal (POST JSON) */
   DOWNLOAD_ANSWER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/downloadAnswer',

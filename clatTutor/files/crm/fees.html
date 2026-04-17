@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM fees</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="crm-wrap">
+      <section class="crm-hero">
+        <div>
+          <h2>Fees Management</h2>
+          <p>Track fee plans, due amounts, and payment updates in one place.</p>
+        </div>
+        <div class="crm-pill"><i class="fa-solid fa-indian-rupee-sign"></i><span>CRM fees</span></div>
+      </section>
+
+      <section class="crm-grid">
+        <div class="crm-card">
+          <h3><i class="fa-solid fa-wallet"></i> Fees Module</h3>
+          <p style="margin:0;color:#6b7280;line-height:1.6;">
+            This page is ready in CRM navigation. You can now add your fees table, payment entries, and fee status actions here.
+          </p>
+          <div class="crm-actions" style="margin-top:1rem;">
+            <a href="students.html" class="crm-action"><i class="fa-solid fa-id-card"></i> Open Student Data</a>
+            <a href="retrival.html" class="crm-action"><i class="fa-solid fa-table-list"></i> Open Retrieval</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'fees.html', title: 'Fees', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+    });
+  </script>
+</body>
+</html>

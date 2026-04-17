@@ -6,12 +6,17 @@
   <!-- YouTube embeds need an http(s) origin. From disk, run serve-local.cmd in this folder, then open the URL it shows. -->
   <!-- Lets YouTube embeds receive a Referer; avoids Error 153 with strict/no-referrer defaults -->
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Institute Portal — Programs &amp; Admissions</title>
+  <title>CLAT Coaching Jayanagar | CLATutor Bangalore</title>
+  <meta
+    name="description"
+    content="CLAT coaching at CLATutor Jayanagar, South Bangalore. Watch the campus demo, get directions, and enquire — student login works the same as the main site."
+  />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/header-nav.css" />
   <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="css/branch-landing.css" />
   <link rel="stylesheet" href="css/modal.css" />
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
@@ -19,7 +24,7 @@
   <script src="js/site-protection.js" data-protection-mode="public"></script>
   <script src="js/branch-home.js"></script>
 </head>
-<body class="page-public">
+<body class="page-public branch-landing branch-jayanagar">
   <a class="announce-bar announce-bar--cta" href="#" id="pyq-download-trigger" aria-haspopup="dialog" aria-controls="pyq-modal">
     <span class="announce-bar__lead">Previous Year Question Papers &amp; Answer Key.</span>
     <img src="image/download.png" alt="" class="announce-bar__icon" width="18" height="18" loading="lazy" />
@@ -181,7 +186,7 @@
               <img src="image/main.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Main <i class="fa-solid fa-angle-down" aria-hidden="true"></i>
             </summary>
             <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
-              <a href="index.html" role="menuitem" aria-current="page"><img src="image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
+              <a href="index.html" role="menuitem"><img src="image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
               <a href="#programs" role="menuitem"><img src="image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
               <a href="#testimonials" role="menuitem"><img src="image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
               <a href="login.html" role="menuitem"><img src="image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
@@ -227,6 +232,14 @@
     </div>
     <div class="site-nav-backdrop" id="site-nav-backdrop" hidden aria-hidden="true"></div>
   </header>
+
+  <div class="branch-hero-strip" aria-label="Jayanagar campus">
+    <div class="container branch-hero-strip__inner">
+      <p class="branch-hero-strip__eyebrow">Bangalore · CLAT coaching</p>
+      <h1 class="branch-hero-strip__title">Jayanagar campus</h1>
+      <p class="branch-hero-strip__sub">South Bangalore · Easy metro access · Foundation · Intensive · Crash batches</p>
+    </div>
+  </div>
 
   <section class="hero">
     <div class="container">
@@ -352,7 +365,7 @@
     <div class="container">
       <div class="section__head">
         <h2 id="enquiry-heading">Request a Callback</h2>
-        <p class="section__sub">Share your details—we’ll reach out with batch timings, fees, and next steps.</p>
+        <p class="section__sub">Share your details—we’ll reach out with Jayanagar batch timings, fees, and next steps.</p>
       </div>
       <div class="enquiry-layout">
         <div class="enquiry-aside">
@@ -365,6 +378,7 @@
         <section class="enquiry-form-box" aria-labelledby="enquiry-heading">
           <div id="enquiry-alert"></div>
           <form id="form-enquiry" class="enquiry-form" action="#">
+            <input type="hidden" name="campus" value="Jayanagar" />
             <div class="enquiry-form__column">
               <div class="enquiry-form__input-box">
                 <label for="enq-name">Full name</label>
@@ -409,7 +423,7 @@
     <div class="container">
       <div class="section__head">
         <h2 id="testimonials-heading">What Students Say</h2>
-        <p class="section__sub">Real feedback from learners who use the portal for classes, mocks, and mentor support.</p>
+        <p class="section__sub">What students say about classes and support at our Jayanagar centre.</p>
         <p class="section__sub section__sub--google-note">
           <img src="image/google.png" alt="" width="18" height="18" class="section__google-mark" loading="lazy" /> Reviews shown as posted on Google
         </p>
@@ -427,35 +441,7 @@
                   <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
                 </div>
                 <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Ananya P.</h3>
-                  <p class="testimonial-card__context">CLAT aspirant · Malleshwaram</p>
-                  <time class="testimonial-card__time" datetime="2025-10-15">5 months ago</time>
-                </div>
-                <div class="testimonial-card__brand">
-                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
-                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
-                </div>
-              </div>
-              <div class="testimonial-card__rating">
-                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
-                </div>
-                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </div>
-              <blockquote class="testimonial-card__quote">
-                Mocks and analytics on the portal made it easy to see weak topics. Doubt windows and structured modules kept me consistent through the year.
-              </blockquote>
-            </div>
-          </article>
-
-          <article class="testimonial-card">
-            <div class="testimonial-card__inner">
-              <div class="testimonial-card__head">
-                <div class="testimonial-card__avatar">
-                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
-                </div>
-                <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Rahul K.</h3>
+                  <h3 class="testimonial-card__name">Devika Rao</h3>
                   <p class="testimonial-card__context">Foundation batch · Jayanagar</p>
                   <time class="testimonial-card__time" datetime="2025-12-15">3 months ago</time>
                 </div>
@@ -471,35 +457,7 @@
                 <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
               </div>
               <blockquote class="testimonial-card__quote">
-                Concept-first classes and practice sheets matched what I needed. Having everything in one place—materials, deadlines, announcements—saved time.
-              </blockquote>
-            </div>
-          </article>
-
-          <article class="testimonial-card">
-            <div class="testimonial-card__inner">
-              <div class="testimonial-card__head">
-                <div class="testimonial-card__avatar">
-                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
-                </div>
-                <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Sneha M.</h3>
-                  <p class="testimonial-card__context">Working professional · Indiranagar</p>
-                  <time class="testimonial-card__time" datetime="2026-03-20">2 weeks ago</time>
-                </div>
-                <div class="testimonial-card__brand">
-                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
-                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
-                </div>
-              </div>
-              <div class="testimonial-card__rating">
-                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
-                </div>
-                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </div>
-              <blockquote class="testimonial-card__quote">
-                Revision and crash schedules were intense but clear. The UI works well on phone between work breaks—I could stay on track without friction.
+                Jayanagar 4th Block is perfect for me—Green Line metro and short walks from home. Concept drills here are slow and thorough; I never felt rushed past a topic I didn’t own yet.
               </blockquote>
             </div>
           </article>
@@ -511,63 +469,7 @@
                   <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
                 </div>
                 <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Vikram S.</h3>
-                  <p class="testimonial-card__context">Law entrance aspirant · Yelahanka</p>
-                  <time class="testimonial-card__time" datetime="2026-02-03">1 month ago</time>
-                </div>
-                <div class="testimonial-card__brand">
-                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
-                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
-                </div>
-              </div>
-              <div class="testimonial-card__rating">
-                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
-                </div>
-                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </div>
-              <blockquote class="testimonial-card__quote">
-                The mock-to-revision workflow helped me fix my mistakes quickly. I could track weak chapters and practice targeted questions every week.
-              </blockquote>
-            </div>
-          </article>
-
-          <article class="testimonial-card">
-            <div class="testimonial-card__inner">
-              <div class="testimonial-card__head">
-                <div class="testimonial-card__avatar">
-                  <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
-                </div>
-                <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Divya R.</h3>
-                  <p class="testimonial-card__context">Foundation batch · Malleshwaram</p>
-                  <time class="testimonial-card__time" datetime="2025-09-01">6 months ago</time>
-                </div>
-                <div class="testimonial-card__brand">
-                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
-                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
-                </div>
-              </div>
-              <div class="testimonial-card__rating">
-                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
-                </div>
-                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </div>
-              <blockquote class="testimonial-card__quote">
-                Clear concepts, timely assignments, and regular doubts kept my preparation consistent. The platform made revision scheduling feel effortless.
-              </blockquote>
-            </div>
-          </article>
-
-          <article class="testimonial-card">
-            <div class="testimonial-card__inner">
-              <div class="testimonial-card__head">
-                <div class="testimonial-card__avatar">
-                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
-                </div>
-                <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Aarav N.</h3>
+                  <h3 class="testimonial-card__name">Karthik B.</h3>
                   <p class="testimonial-card__context">Crash revision · Jayanagar</p>
                   <time class="testimonial-card__time" datetime="2025-11-20">4 months ago</time>
                 </div>
@@ -583,7 +485,7 @@
                 <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
               </div>
               <blockquote class="testimonial-card__quote">
-                The revision plan was structured and realistic. I improved speed in questions and my accuracy went up because feedback was immediate.
+                South Bangalore traffic is brutal—this Jayanagar batch timing avoided peak jams. Crash mocks were brutal too, but every paper was discussed line-by-line the next morning.
               </blockquote>
             </div>
           </article>
@@ -595,9 +497,9 @@
                   <img class="testimonial-card__photo" src="image/girl.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
                 </div>
                 <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Meera S.</h3>
-                  <p class="testimonial-card__context">Working professional · Indiranagar</p>
-                  <time class="testimonial-card__time" datetime="2026-03-10">3 weeks ago</time>
+                  <h3 class="testimonial-card__name">Meera Krishnan</h3>
+                  <p class="testimonial-card__context">Evening batch · Jayanagar</p>
+                  <time class="testimonial-card__time" datetime="2026-03-20">2 weeks ago</time>
                 </div>
                 <div class="testimonial-card__brand">
                   <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
@@ -611,35 +513,7 @@
                 <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
               </div>
               <blockquote class="testimonial-card__quote">
-                I loved the bite-sized updates. I could complete practice during breaks and still stay aligned with deadlines across sections.
-              </blockquote>
-            </div>
-          </article>
-
-          <article class="testimonial-card">
-            <div class="testimonial-card__inner">
-              <div class="testimonial-card__head">
-                <div class="testimonial-card__avatar">
-                  <img class="testimonial-card__photo" src="image/boy.png" alt="" width="48" height="48" loading="lazy" decoding="async" />
-                </div>
-                <div class="testimonial-card__identity">
-                  <h3 class="testimonial-card__name">Kabir T.</h3>
-                  <p class="testimonial-card__context">CLAT GK &amp; CA · Yelahanka</p>
-                  <time class="testimonial-card__time" datetime="2026-03-25">1 week ago</time>
-                </div>
-                <div class="testimonial-card__brand">
-                  <span class="testimonial-card__g-tip" role="tooltip">Posted on</span>
-                  <img src="image/google.png" alt="Google" width="24" height="24" class="testimonial-card__google" loading="lazy" />
-                </div>
-              </div>
-              <div class="testimonial-card__rating">
-                <div class="testimonial-card__stars" aria-label="5 out of 5 stars">
-                  <i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i><i class="fa-solid fa-star" aria-hidden="true"></i>
-                </div>
-                <span class="testimonial-card__verified" title="Google review"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              </div>
-              <blockquote class="testimonial-card__quote">
-                The study structure and test reminders helped me stay consistent. I could quickly review wrong answers and improve in the next attempt.
+                I work in Koramangala—Jayanagar evening classes meant I could hit the gym, eat, then revise legal maxims without a cross-city trek. Portal reminders synced with what we covered in the room.
               </blockquote>
             </div>
           </article>
@@ -655,94 +529,37 @@
   <section class="section section--branches" id="branches" aria-labelledby="branches-heading">
     <div class="container">
       <div class="section__head">
-        <h2 id="branches-heading">Our Branches</h2>
-        <p class="section__sub">Visit CLATutor in person—three centres in Bangalore for classes, mocks, and counselling.</p>
+        <h2 id="branches-heading">This campus</h2>
+        <p class="section__sub">Walk through CLATutor Jayanagar—watch the demo video, then open directions on Google Maps.</p>
       </div>
-      <div class="branches-grid">
-        <article class="branch-card">
-          <!-- Video: https://www.youtube.com/watch?v=ODxLY8ezJyA (Malleshwaram) -->
-          <div class="branch-card__embed">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/ODxLY8ezJyA?rel=0"
-              title="CLATutor Malleshwaram branch video"
-              loading="lazy"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <div class="branch-card__body">
-            <h3 class="branch-card__title">Malleshwaram</h3>
-            <p class="branch-card__line">North Bangalore · Classroom &amp; hybrid options</p>
-            <p class="branch-card__line">CLAT · IPMAT · CUET law · Doubt labs</p>
-            <div class="branch-card__bottom">
-              <a
-                class="branch-card__map-btn"
-                href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
-              </a>
+      <div class="branches-grid branches-grid--campus-split">
+        <article class="branch-card branch-card--campus-split">
+          <div class="branch-card__media-row">
+            <!-- Video: https://www.youtube.com/watch?v=K-lhWbXnkng (Jayanagar) -->
+            <div class="branch-card__embed">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/K-lhWbXnkng?rel=0"
+                title="CLATutor Jayanagar branch video"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
             </div>
-          </div>
-        </article>
-
-        <article class="branch-card">
-          <!-- Video: https://www.youtube.com/watch?v=K-lhWbXnkng (Jayanagar) -->
-          <div class="branch-card__embed">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/K-lhWbXnkng?rel=0"
-              title="CLATutor Jayanagar branch video"
-              loading="lazy"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            ></iframe>
+            <div class="branch-card__embed branch-card__embed--map" aria-label="Institute location on Google Maps">
+              <iframe
+                src="https://www.google.com/maps/embed?origin=mfe&amp;pb=!1m3!2m1!1s12.9326962%2C77.5847188!6i17"
+                title="CLATutor Jayanagar institute location on Google Maps"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              ></iframe>
+            </div>
           </div>
           <div class="branch-card__body">
             <h3 class="branch-card__title">Jayanagar</h3>
             <p class="branch-card__line">South Bangalore · Easy metro access</p>
             <p class="branch-card__line">Foundation · Intensive · Crash batches</p>
-            <div class="branch-card__bottom">
-              <a
-                class="branch-card__map-btn"
-                href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
-              </a>
-            </div>
-          </div>
-        </article>
-
-        <article class="branch-card">
-          <!-- Video: https://www.youtube.com/watch?v=IThL9TtD0WQ (Yelahanka) -->
-          <div class="branch-card__embed">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/IThL9TtD0WQ?rel=0"
-              title="CLATutor Yelahanka branch video"
-              loading="lazy"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <div class="branch-card__body">
-            <h3 class="branch-card__title">Yelahanka</h3>
-            <p class="branch-card__line">North Bangalore · Near airport corridor</p>
-            <p class="branch-card__line">Weekend focus · Working-professional friendly</p>
-            <div class="branch-card__bottom">
-              <a
-                class="branch-card__map-btn"
-                href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> View on Google Maps
-              </a>
-            </div>
           </div>
         </article>
       </div>
@@ -816,15 +633,7 @@
             </li>
             <li class="site-footer__contact-loc">
               <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-              <span>Malleshwaram <a href="https://maps.app.goo.gl/EiNdeCRDbUCDwTYy6" target="_blank" rel="noopener noreferrer">View Map</a></span>
-            </li>
-            <li class="site-footer__contact-loc">
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
               <span>Jayanagar <a href="https://maps.app.goo.gl/oZpb1ysGubKbwwy47" target="_blank" rel="noopener noreferrer">View Map</a></span>
-            </li>
-            <li class="site-footer__contact-loc">
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-              <span>Yelahanka <a href="https://maps.app.goo.gl/nQwDfWAQppEn2MUU7" target="_blank" rel="noopener noreferrer">View Map</a></span>
             </li>
           </ul>
         </div>
@@ -875,7 +684,11 @@
         var email = (fd.get('email') || '').toString().trim();
         var phoneRaw = (fd.get('phone') || '').toString().trim();
         var interestedIn = (fd.get('course') || '').toString().trim();
+        var campusTag = (fd.get('campus') || '').toString().trim();
         var message = (fd.get('note') || '').toString().trim();
+        if (campusTag) {
+          message = message ? message + '\n\nCampus: ' + campusTag : 'Campus: ' + campusTag;
+        }
         var phone = PublicFormsApi.phoneToNumber(phoneRaw);
         if (!Number.isFinite(phone)) {
           var warn = document.getElementById('enquiry-alert');

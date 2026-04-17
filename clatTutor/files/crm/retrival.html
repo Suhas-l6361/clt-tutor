@@ -80,6 +80,7 @@
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Password</th>
                 <th>Phone</th>
                 <th>DOB</th>
                 <th>Source</th>
@@ -408,7 +409,7 @@
 
       var STUDENT_HEAD_HTML =
         '<tr>' +
-        '<th>Name</th><th>Email</th><th>Phone</th><th>DOB</th><th>Source</th>' +
+        '<th>Name</th><th>Email</th><th>Password</th><th>Phone</th><th>DOB</th><th>Source</th>' +
         '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th>' +
         '</tr>';
       var ACHIEVER_HEAD_HTML =
@@ -440,6 +441,28 @@
         return text(v).replace(/[&<>"']/g, function (ch) {
           return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
         });
+      }
+
+      function getPasswordValue(row) {
+        if (!row || typeof row !== 'object') return '';
+        var direct =
+          row.password ||
+          row.pass_word ||
+          row.student_password ||
+          row.user_password ||
+          row.passcode ||
+          row.pass_code ||
+          row.passwd ||
+          '';
+        if (direct) return String(direct);
+        var keys = Object.keys(row);
+        for (var i = 0; i < keys.length; i += 1) {
+          var k = keys[i];
+          if (/pass(word|code)?|passwd/i.test(k) && row[k] != null && row[k] !== '') {
+            return String(row[k]);
+          }
+        }
+        return '';
       }
 
       function firstStoredKey(val) {
@@ -580,7 +603,7 @@
         }
         if (!role) {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="11">Select a category above to load data.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="12">Select a category above to load data.</td></tr>';
           countEl.textContent = '0 rows';
           roleMessageEl.textContent = 'Select a button above to view data.';
           metaEl.textContent = 'Choose a category to load records.';
@@ -606,7 +629,7 @@
           loadNotesData();
         } else {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="11">Unknown category.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="12">Unknown category.</td></tr>';
           countEl.textContent = '0 rows';
           metaEl.textContent = 'Unknown action.';
         }
@@ -661,7 +684,7 @@
 
       function renderRows(rows) {
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="11">No student records found.</td></tr>';
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="12">No student records found.</td></tr>';
           countEl.textContent = '0 rows';
           return;
         }
@@ -669,6 +692,7 @@
         tbody.innerHTML = rows.map(function (r) {
           var imageCell = '-';
           var imgKey = firstStoredKey(r.img_url) || r.img_url;
+          var passwordValue = getPasswordValue(r);
           if (imgKey) {
             imageCell = '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-show-image="' + safeHtml(imgKey) + '" data-image-api="student" title="Display Image" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Display Image</button>';
           }
@@ -677,6 +701,7 @@
             '<tr>' +
             '<td>' + safeHtml(r.name) + '</td>' +
             '<td>' + safeHtml(r.email) + '</td>' +
+            '<td>' + safeHtml(passwordValue) + '</td>' +
             '<td>' + safeHtml(r.phone) + '</td>' +
             '<td>' + safeHtml(r.dob ? asDateOnly(r.dob) : '') + '</td>' +
             '<td>' + safeHtml(r.source_of_info) + '</td>' +

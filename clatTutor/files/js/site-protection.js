@@ -24,6 +24,44 @@
     return;
   }
 
+  function getClatLogoFaviconPath() {
+    var path = '';
+    try {
+      path = String(window.location && window.location.pathname ? window.location.pathname : '');
+    } catch (e) {
+      path = '';
+    }
+    var marker = '/files/';
+    var idx = path.toLowerCase().indexOf(marker);
+    if (idx >= 0) {
+      return path.slice(0, idx + marker.length) + 'image/Clat%20Logo.png';
+    }
+    return 'image/Clat%20Logo.png';
+  }
+
+  function ensureFavicon() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    if (!head) return;
+    var href = getClatLogoFaviconPath();
+
+    function setOrCreate(selector, relValue) {
+      var el = head.querySelector(selector);
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', relValue);
+        head.appendChild(el);
+      }
+      el.setAttribute('type', 'image/png');
+      el.setAttribute('href', href);
+    }
+
+    setOrCreate('link[rel="icon"]', 'icon');
+    setOrCreate('link[rel="shortcut icon"]', 'shortcut icon');
+    setOrCreate('link[rel="apple-touch-icon"]', 'apple-touch-icon');
+  }
+
+  ensureFavicon();
+
   function stop(e) {
     e.preventDefault();
     e.stopPropagation();

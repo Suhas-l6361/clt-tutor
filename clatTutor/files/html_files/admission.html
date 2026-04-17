@@ -11,7 +11,9 @@
   <link rel="stylesheet" href="../css/header-nav.css" />
   <link rel="stylesheet" href="../css/index.css" />
   <link rel="stylesheet" href="../css/admission.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="public"></script>
+  <script src="../js/branch-home.js"></script>
 </head>
 <body class="page-public page-admission">
   <header class="site-header">
@@ -336,10 +338,16 @@
   <script src="../js/public-forms-api.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/main-dropdown.js"></script>
+  <script src="../js/friendly-popup.js"></script>
   <script>
     (function () {
       var form = document.getElementById('form-admission');
       var alertBox = document.getElementById('admission-alert');
+      function showAdmissionPopup(type, message) {
+        if (typeof window.showFriendlyPopup === 'function') {
+          window.showFriendlyPopup({ type: type, message: message });
+        }
+      }
       if (!form) return;
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -352,6 +360,7 @@
             alertBox.innerHTML =
               '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Form could not load. Please refresh the page.</span></div>';
           }
+          showAdmissionPopup('error', 'Form could not load. Please refresh the page.');
           return;
         }
         var fd = new FormData(form);
@@ -364,6 +373,7 @@
             alertBox.innerHTML =
               '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid student phone number.</span></div>';
           }
+          showAdmissionPopup('error', 'Please enter a valid student phone number.');
           return;
         }
         var parentPhoneRaw = (fd.get('parentPhone') || '').toString().trim();
@@ -373,6 +383,7 @@
             alertBox.innerHTML =
               '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid parent phone number.</span></div>';
           }
+          showAdmissionPopup('error', 'Please enter a valid parent phone number.');
           return;
         }
         var courseBits = [
@@ -429,6 +440,7 @@
                 alertBox.innerHTML =
                   '<div class="alert alert-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Thank you. Our team will contact you shortly.</span></div>';
               }
+              showAdmissionPopup('success', 'Thank you. Our team will contact you shortly.');
               form.reset();
             } else {
               var msg =
@@ -441,6 +453,7 @@
                 var span = alertBox.querySelector('.alert-error span');
                 if (span) span.textContent = msg;
               }
+              showAdmissionPopup('error', msg);
             }
           })
           .catch(function () {
@@ -449,6 +462,7 @@
               alertBox.innerHTML =
                 '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Network error. Please try again.</span></div>';
             }
+            showAdmissionPopup('error', 'Network error. Please try again.');
           });
       });
     })();

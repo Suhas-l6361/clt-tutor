@@ -17,6 +17,13 @@
     var loadTimer = null;
     var successTimer = null;
     var SUCCESS_AUTO_MS = 2000;
+    function showPyqPopup(type, message) {
+      if (typeof window.showFriendlyPopup === 'function') {
+        window.showFriendlyPopup({ type: type, message: message });
+      } else if (type !== 'success') {
+        window.alert(message);
+      }
+    }
 
     function hidePyqSuccess(closeModalAfter) {
       if (successTimer) {
@@ -152,12 +159,12 @@
         var api =
           typeof window.PublicFormsApi !== 'undefined' ? window.PublicFormsApi : null;
         if (!api) {
-          window.alert('Unable to submit. Please refresh the page.');
+          showPyqPopup('error', 'Unable to submit. Please refresh the page.');
           return;
         }
         var phoneNum = api.phoneToNumber(phoneRaw);
         if (!Number.isFinite(phoneNum)) {
-          window.alert('Please enter a valid phone number.');
+          showPyqPopup('error', 'Please enter a valid phone number.');
           return;
         }
         var submitBtn = pyqForm.querySelector('button[type="submit"]');
@@ -195,12 +202,12 @@
                 res.data && res.data.message
                   ? res.data.message
                   : 'Could not submit. Please try again.';
-              window.alert(msg);
+              showPyqPopup('error', msg);
             }
           })
           .catch(function () {
             if (submitBtn) submitBtn.disabled = false;
-            window.alert('Network error. Please try again.');
+            showPyqPopup('error', 'Network error. Please try again.');
           });
       });
     }

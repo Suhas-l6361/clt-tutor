@@ -36,6 +36,7 @@ function initAppChrome(opts) {
     { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'students.html', icon: 'fa-database', label: 'Add Data' },
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
+    { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'communications.html', icon: 'fa-comments', label: 'Communications' },
   ];
@@ -48,6 +49,7 @@ function initAppChrome(opts) {
     'leads.html': '../image/team.png',
     'students.html': '../image/resources.png',
     'addTest.html': '../image/test.png',
+    'fees.html': '../image/fees.png',
     'retrival.html': '../image/retrive data.png',
     'communications.html': '../image/phone.png',
   };

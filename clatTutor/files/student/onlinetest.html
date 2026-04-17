@@ -361,6 +361,24 @@
       white-space: pre-wrap;
       padding-top: 0.15rem;
     }
+    .exam-opt__body {
+      min-width: 0;
+    }
+    .exam-inline-images {
+      margin-top: 0.55rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .exam-inline-images img {
+      width: auto;
+      max-width: min(520px, 100%);
+      max-height: 280px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      object-fit: contain;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
 
     .exam-side__head {
       padding: 0.6rem 0.85rem;
@@ -852,6 +870,161 @@
       justify-content: flex-end;
       margin-top: 0.25rem;
     }
+    .exam-modal__dialog--answer {
+      width: min(1040px, 96vw);
+      max-height: min(92vh, 760px);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 0.8rem;
+      padding: 1.25rem 1.25rem 1rem;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 38%);
+    }
+    .exam-answer-lead {
+      margin: 0.2rem 0 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .exam-answer-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .exam-answer-filter {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #fff;
+      color: #334155;
+      padding: 0.38rem 0.72rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .exam-answer-filter.is-active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .exam-answer-body {
+      min-height: 0;
+      overflow: auto;
+      border: 1px solid #dbe5f1;
+      border-radius: 14px;
+      background: #fff;
+      padding: 0.85rem;
+    }
+    .exam-answer-loading {
+      color: #64748b;
+      font-size: 0.9rem;
+      padding: 0.55rem 0.4rem;
+    }
+    .exam-answer-loading[hidden] {
+      display: none !important;
+    }
+    .exam-answer-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .exam-answer-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.75rem 0.8rem;
+      background: #f8fafc;
+    }
+    .exam-answer-item[data-state='correct'] {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+    .exam-answer-item[data-state='wrong'] {
+      border-color: #fecaca;
+      background: #fef2f2;
+    }
+    .exam-answer-item[data-state='unanswered'] {
+      border-color: #fde68a;
+      background: #fffbeb;
+    }
+    .exam-answer-item__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 0.55rem;
+    }
+    .exam-answer-item__q {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .exam-answer-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .exam-answer-item[data-state='correct'] .exam-answer-badge {
+      border-color: #16a34a;
+      color: #166534;
+      background: #dcfce7;
+    }
+    .exam-answer-item[data-state='wrong'] .exam-answer-badge {
+      border-color: #dc2626;
+      color: #991b1b;
+      background: #fee2e2;
+    }
+    .exam-answer-item[data-state='unanswered'] .exam-answer-badge {
+      border-color: #d97706;
+      color: #92400e;
+      background: #fef3c7;
+    }
+    .exam-answer-stem {
+      color: #1e293b;
+      font-size: 0.9rem;
+      line-height: 1.58;
+      margin-bottom: 0.55rem;
+    }
+    .exam-answer-options {
+      display: grid;
+      gap: 0.45rem;
+    }
+    .exam-answer-opt {
+      border: 1px solid #dbe1ea;
+      border-radius: 10px;
+      padding: 0.48rem 0.6rem;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: #334155;
+      background: #fff;
+    }
+    .exam-answer-opt.is-correct {
+      border-color: #22c55e;
+      background: #ecfdf5;
+      color: #14532d;
+      font-weight: 600;
+    }
+    .exam-answer-opt.is-picked-wrong {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #7f1d1d;
+      font-weight: 600;
+    }
+    .exam-answer-opt__tag {
+      font-weight: 700;
+      font-size: 0.7rem;
+      margin-left: 0.4rem;
+      opacity: 0.9;
+    }
+    .exam-answer-empty {
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 0.9rem;
+      color: #64748b;
+      font-size: 0.9rem;
+      background: #f8fafc;
+    }
 
     @media (max-width: 1100px) {
       .exam-grid {
@@ -1036,7 +1209,33 @@
           <div class="exam-result-dash__sections" id="modal-res-sections" aria-label="Attempt by part"></div>
         </div>
         <div class="exam-modal__actions" id="modal-done-actions">
+          <button type="button" class="btn btn-exam-secondary" id="modal-done-view-answer" hidden>
+            <i class="fa-regular fa-eye"></i> View answer
+          </button>
           <button type="button" class="btn btn-exam-primary" id="modal-done-back">Back to dashboard</button>
+        </div>
+      </div>
+    </div>
+    <div class="exam-modal" id="modal-answer-review" hidden>
+      <div class="exam-modal__backdrop" data-answer-close></div>
+      <div class="exam-modal__dialog exam-modal__dialog--answer" role="dialog" aria-modal="true" aria-labelledby="modal-answer-title">
+        <div>
+          <h2 id="modal-answer-title">Answer analysis</h2>
+          <p class="exam-answer-lead">Correct answer is marked for each question. Your selected choice is also highlighted.</p>
+        </div>
+        <div class="exam-answer-filters" id="answer-filter-group">
+          <button type="button" class="exam-answer-filter is-active" data-af="all">All</button>
+          <button type="button" class="exam-answer-filter" data-af="correct">Correct</button>
+          <button type="button" class="exam-answer-filter" data-af="wrong">Wrong</button>
+          <button type="button" class="exam-answer-filter" data-af="unanswered">Unanswered</button>
+        </div>
+        <div class="exam-answer-body">
+          <div id="answer-review-loading" class="exam-answer-loading">Loading answer analysis…</div>
+          <div id="answer-review-list" class="exam-answer-list" hidden></div>
+          <div id="answer-review-empty" class="exam-answer-empty" hidden>No questions match this filter.</div>
+        </div>
+        <div class="exam-modal__actions">
+          <button type="button" class="btn btn-exam-primary" data-answer-close>Close</button>
         </div>
       </div>
     </div>
@@ -1241,6 +1440,9 @@
         var review = {};
         var timerId = null;
         var totalSec = 3600;
+        var answerKeyMapCache = null;
+        var answerKeyLoadPromise = null;
+        var answerReviewFilter = 'all';
 
         var refEmpty = document.getElementById('exam-ref-empty');
         var refBlocks = document.getElementById('exam-ref-blocks');
@@ -1328,6 +1530,26 @@
           refBlocks.innerHTML = html;
         }
 
+        function renderInlineImageUrls(urls) {
+          if (!urls || !urls.length) return '';
+          return (
+            '<div class="exam-inline-images">' +
+            urls
+              .filter(function (u) {
+                return /^https?:\/\//i.test(String(u || '').trim());
+              })
+              .map(function (u) {
+                return (
+                  '<img src="' +
+                  escHtml(String(u).trim()) +
+                  '" alt="Question related image" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fbkTried){this.style.display=\'none\';return;}var m=(this.src||\'\').match(/[?&]id=([a-zA-Z0-9_-]+)/);if(m&&m[1]){this.dataset.fbkTried=\'1\';this.src=\'https://drive.google.com/uc?export=view&id=\'+m[1];return;}this.style.display=\'none\';" />'
+                );
+              })
+              .join('') +
+            '</div>'
+          );
+        }
+
         function syncOptionSelectedClasses() {
           var labs = optsEl.querySelectorAll('.exam-opt');
           for (var i = 0; i < labs.length; i++) {
@@ -1343,7 +1565,7 @@
           ensurePalettePageIncludesCurrent();
           renderRef(q);
           qnoEl.textContent = 'Question ' + q.number;
-          stemEl.textContent = q.stem || '';
+          stemEl.innerHTML = escHtml(q.stem || '').replace(/\n/g, '<br />') + renderInlineImageUrls(q.images || []);
           optsEl.innerHTML = '';
           var opts = q.options || [];
           var sel = answers[qKey(q)] || '';
@@ -1367,8 +1589,10 @@
             badge.textContent = letter + '.';
 
             var txt = document.createElement('span');
-            txt.className = 'txt';
-            txt.textContent = o.text != null ? String(o.text) : '';
+            txt.className = 'txt exam-opt__body';
+            txt.innerHTML =
+              escHtml(o.text != null ? String(o.text) : '').replace(/\n/g, '<br />') +
+              renderInlineImageUrls(o.images || []);
 
             lab.appendChild(inp);
             lab.appendChild(badge);
@@ -1488,6 +1712,12 @@
         var modalDoneSummary = document.getElementById('modal-done-summary');
         var modalDoneLoading = document.getElementById('modal-done-loading');
         var modalDoneActions = document.getElementById('modal-done-actions');
+        var modalDoneViewAnswer = document.getElementById('modal-done-view-answer');
+        var modalAnswerReview = document.getElementById('modal-answer-review');
+        var answerFilterGroup = document.getElementById('answer-filter-group');
+        var answerReviewLoading = document.getElementById('answer-review-loading');
+        var answerReviewList = document.getElementById('answer-review-list');
+        var answerReviewEmpty = document.getElementById('answer-review-empty');
 
         function showGradingLoading() {
           if (timerId) {
@@ -1524,6 +1754,231 @@
             if (answers[qKey(qs[i])]) n++;
           }
           return n;
+        }
+
+        function extractTextFromAnswerViaApi(testId) {
+          var api = getAddTestApiUrl();
+          if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
+          var url =
+            api +
+            (api.indexOf('?') >= 0 ? '&' : '?') +
+            'test_id=' +
+            encodeURIComponent(String(testId)) +
+            '&answer=1';
+          return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (r) {
+            return r.json().then(function (data) {
+              if (!r.ok) {
+                throw new Error((data && data.message) || 'Could not load answer key (HTTP ' + r.status + ')');
+              }
+              if (!data || !data.content_base64) {
+                throw new Error(
+                  'Server did not return answer key data. Deploy latest add_test backend with GET answer=1 support.'
+                );
+              }
+              var name = String(data.file_name || '').toLowerCase();
+              var type = String(data.content_type || '').toLowerCase();
+              if (name.endsWith('.pdf') || type.indexOf('pdf') >= 0) {
+                throw new Error('Answer analysis currently supports Word answer keys only (.doc/.docx).');
+              }
+              var buf = base64ToArrayBuffer(data.content_base64);
+              if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
+              return mammoth.extractRawText({ arrayBuffer: buf });
+            });
+          }).then(function (res) {
+            return (res && res.value) || '';
+          });
+        }
+
+        function extractCorrectLetterFromText(raw) {
+          var t = String(raw == null ? '' : raw).trim();
+          if (!t) return '';
+          var block = t.split(/\bSolution\s*:/i)[0].split(/\bReason\s*:/i)[0];
+          var b = block.trim();
+          var m =
+            b.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
+            b.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+            b.match(/^\s*["']?\s*([A-D])\s*["']?\s*$/i) ||
+            b.match(/\b([A-D])\b/);
+          return m && m[1] ? String(m[1]).toUpperCase() : '';
+        }
+
+        function parseAnswerKeyText(text) {
+          var lines = String(text == null ? '' : text)
+            .replace(/\r\n?/g, '\n')
+            .split('\n');
+          var out = {};
+          for (var i = 0; i < lines.length; i++) {
+            var line = String(lines[i] || '').trim();
+            if (!line) continue;
+            var m = line.match(/^(\d{1,3})\s*[\.\)]\s*(.*)$/);
+            if (!m) continue;
+            var qn = String(parseInt(m[1], 10));
+            if (!qn) continue;
+            var tail = String(m[2] || '').trim();
+            var letter = extractCorrectLetterFromText(tail);
+            if (!letter && i + 1 < lines.length) {
+              letter = extractCorrectLetterFromText(String(lines[i + 1] || ''));
+              if (letter) i++;
+            }
+            if (letter) out[qn] = { letter: letter };
+          }
+          return out;
+        }
+
+        function applyAnswerReviewFilter(mode) {
+          answerReviewFilter = mode || 'all';
+          if (answerFilterGroup) {
+            var fBtns = answerFilterGroup.querySelectorAll('[data-af]');
+            for (var i = 0; i < fBtns.length; i++) {
+              var fb = fBtns[i];
+              fb.classList.toggle('is-active', fb.getAttribute('data-af') === answerReviewFilter);
+            }
+          }
+          if (!answerReviewList) return;
+          var rows = answerReviewList.querySelectorAll('.exam-answer-item');
+          var shown = 0;
+          for (var j = 0; j < rows.length; j++) {
+            var r = rows[j];
+            var state = r.getAttribute('data-state') || '';
+            var show = answerReviewFilter === 'all' || state === answerReviewFilter;
+            r.hidden = !show;
+            if (show) shown++;
+          }
+          if (answerReviewEmpty) answerReviewEmpty.hidden = shown !== 0;
+        }
+
+        function renderAnswerReview(map) {
+          if (!answerReviewList) return;
+          answerReviewList.innerHTML = '';
+          for (var i = 0; i < qs.length; i++) {
+            var q = qs[i];
+            var qn = qKey(q);
+            var picked = String(answers[qn] || '').toUpperCase();
+            var keyRow = map && map[qn] ? map[qn] : null;
+            var correct = keyRow && keyRow.letter ? String(keyRow.letter).toUpperCase() : '';
+            var state = 'unanswered';
+            var badge = 'Unanswered';
+            if (!correct) {
+              state = 'wrong';
+              badge = 'No key';
+            } else if (!picked) {
+              state = 'unanswered';
+              badge = 'Unanswered';
+            } else if (picked === correct) {
+              state = 'correct';
+              badge = 'Correct';
+            } else {
+              state = 'wrong';
+              badge = 'Wrong';
+            }
+
+            var row = document.createElement('article');
+            row.className = 'exam-answer-item';
+            row.setAttribute('data-state', state);
+
+            var opts = q.options || [];
+            var optionsHtml = '';
+            for (var oi = 0; oi < opts.length; oi++) {
+              var o = opts[oi];
+              var letter = String((o && o.letter) || String.fromCharCode(65 + oi)).toUpperCase();
+              var cls = 'exam-answer-opt';
+              var tag = '';
+              if (correct && letter === correct) {
+                cls += ' is-correct';
+                tag = '<span class="exam-answer-opt__tag">Correct answer</span>';
+              } else if (picked && letter === picked && picked !== correct) {
+                cls += ' is-picked-wrong';
+                tag = '<span class="exam-answer-opt__tag">Your choice</span>';
+              }
+              optionsHtml +=
+                '<div class="' +
+                cls +
+                '"><strong>' +
+                escHtml(letter) +
+                '.</strong> ' +
+                escHtml(o && o.text != null ? String(o.text) : '').replace(/\n/g, '<br />') +
+                tag +
+                '</div>';
+            }
+
+            row.innerHTML =
+              '<div class="exam-answer-item__head"><div class="exam-answer-item__q">Question ' +
+              escHtml(String(q.number)) +
+              '</div><span class="exam-answer-badge">' +
+              escHtml(badge) +
+              '</span></div>' +
+              '<div class="exam-answer-stem">' +
+              escHtml(q.stem || '').replace(/\n/g, '<br />') +
+              '</div>' +
+              '<div class="exam-answer-options">' +
+              optionsHtml +
+              '</div>';
+            answerReviewList.appendChild(row);
+          }
+          applyAnswerReviewFilter(answerReviewFilter || 'all');
+        }
+
+        function openAnswerReviewModal() {
+          if (!modalAnswerReview) return;
+          modalAnswerReview.hidden = false;
+          if (modalDone) modalDone.hidden = true;
+          if (answerReviewLoading) {
+            answerReviewLoading.hidden = false;
+            answerReviewLoading.textContent = 'Loading answer analysis…';
+          }
+          if (answerReviewList) {
+            answerReviewList.hidden = true;
+            answerReviewList.innerHTML = '';
+          }
+          if (answerReviewEmpty) answerReviewEmpty.hidden = true;
+
+          if (answerKeyMapCache) {
+            if (answerReviewLoading) answerReviewLoading.hidden = true;
+            if (answerReviewList) answerReviewList.hidden = false;
+            renderAnswerReview(answerKeyMapCache);
+            return;
+          }
+
+          if (!paper || paper.test_id == null || paper.test_id === '') {
+            if (answerReviewLoading) {
+              answerReviewLoading.hidden = false;
+              answerReviewLoading.textContent = 'Answer key is unavailable for this test.';
+            }
+            return;
+          }
+
+          if (!answerKeyLoadPromise) {
+            answerKeyLoadPromise = extractTextFromAnswerViaApi(paper.test_id)
+              .then(function (txt) {
+                var parsed = parseAnswerKeyText(txt || '');
+                if (!parsed || !Object.keys(parsed).length) {
+                  throw new Error('Answer key could not be parsed from this file.');
+                }
+                answerKeyMapCache = parsed;
+                return parsed;
+              })
+              .finally(function () {
+                answerKeyLoadPromise = null;
+              });
+          }
+
+          answerKeyLoadPromise
+            .then(function (map) {
+              if (answerReviewLoading) answerReviewLoading.hidden = true;
+              if (answerReviewList) answerReviewList.hidden = false;
+              renderAnswerReview(map || {});
+            })
+            .catch(function (err) {
+              if (answerReviewLoading) {
+                answerReviewLoading.hidden = false;
+                answerReviewLoading.textContent = (err && err.message ? err.message : 'Could not load answer analysis.');
+              }
+            });
+        }
+
+        function closeAnswerReviewModal() {
+          if (modalAnswerReview) modalAnswerReview.hidden = true;
+          if (modalDone) modalDone.hidden = false;
         }
 
         function fillResultsDashboard(submitResult) {
@@ -1670,6 +2125,7 @@
                 submitResult.correctAnswer != null);
 
             if (modalDoneSummary) modalDoneSummary.hidden = true;
+            if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = true;
 
             if (body) {
               body.hidden = false;
@@ -1689,6 +2145,7 @@
             if (!timedOut && hasStats && modalDoneSummary) {
               fillResultsDashboard(submitResult);
               modalDoneSummary.hidden = false;
+              if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = false;
             }
           }
         }
@@ -1769,6 +2226,21 @@
         document.getElementById('modal-done-back').addEventListener('click', function () {
           window.location.href = 'dashboard.html';
         });
+        if (modalDoneViewAnswer) {
+          modalDoneViewAnswer.addEventListener('click', function () {
+            openAnswerReviewModal();
+          });
+        }
+        if (answerFilterGroup) {
+          answerFilterGroup.addEventListener('click', function (e) {
+            var btn = e.target && e.target.closest ? e.target.closest('[data-af]') : null;
+            if (!btn) return;
+            applyAnswerReviewFilter(btn.getAttribute('data-af') || 'all');
+          });
+        }
+        Array.prototype.slice.call(document.querySelectorAll('[data-answer-close]')).forEach(function (el) {
+          el.addEventListener('click', closeAnswerReviewModal);
+        });
 
         function setupTopBarTitle(title) {
           var topbar = document.querySelector('.topbar');
@@ -1829,6 +2301,9 @@
         function showExamUi(p) {
           document.body.classList.add('exam-active');
           paper = p;
+          answerKeyMapCache = null;
+          answerKeyLoadPromise = null;
+          answerReviewFilter = 'all';
           qs = (paper.questions || []).slice().sort(function (a, b) {
             return a.number - b.number;
           });

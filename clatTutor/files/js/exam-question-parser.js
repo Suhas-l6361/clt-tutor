@@ -169,6 +169,64 @@
     return { clean: stripInstructionBleedFromText(orig), tail: '' };
   }
 
+  function normalizeInlineImageUrl(url) {
+    var u = String(url || '').trim();
+    if (!/^https?:\/\//i.test(u)) return '';
+    while (/[),.;]$/.test(u)) u = u.slice(0, -1);
+    var m = u.match(/^https?:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//i);
+    if (m && m[1]) {
+      return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
+    }
+    var m2 = u.match(/^https?:\/\/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/i);
+    if (m2 && m2[1]) {
+      return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w1600';
+    }
+    return u;
+  }
+
+  /**
+   * Supports:
+   *   (img url :- https://...)
+   *   img url :- https://...
+   */
+  function extractInlineImageUrls(text) {
+    var raw = String(text || '');
+    var images = [];
+    var lines = raw.split('\n');
+    var cleaned = [];
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var work = line;
+
+      work = work.replace(/\(\s*img\s*url\s*[:\-]+\s*(https?:\/\/[^\s)]+)\s*\)/gi, function (_, url) {
+        var ok = normalizeInlineImageUrl(url);
+        if (ok) images.push(ok);
+        return '';
+      });
+
+      var solo = work.match(/^\s*img\s*url\s*[:\-]+\s*(https?:\/\/\S+)\s*$/i);
+      if (solo) {
+        var okSolo = normalizeInlineImageUrl(solo[1]);
+        if (okSolo) images.push(okSolo);
+        work = '';
+      }
+
+      if (work.trim()) cleaned.push(work.trim());
+    }
+
+    var uniq = [];
+    var seen = {};
+    for (var j = 0; j < images.length; j++) {
+      var key = images[j];
+      if (!seen[key]) {
+        seen[key] = true;
+        uniq.push(key);
+      }
+    }
+    return { clean: cleaned.join('\n').trim(), images: uniq };
+  }
+
   function parseBlockBody(body) {
     var raw = String(body || '').trim();
     if (!raw) return { stem: '', options: [], bleedForward: '' };
@@ -189,17 +247,20 @@
     var options = optResult.options;
     if (!options.length) return { stem: stem || stripStemNoise(raw), options: [], bleedForward: '' };
     stem = stripQuestionStemForParse(stem);
+    var stemParts = extractInlineImageUrls(stem);
+    stem = stemParts.clean;
     var bleedParts = [];
     options = options.map(function (o) {
       var sp = splitTrailingInstruction(o.text);
       if (sp.tail) bleedParts.push(sp.tail);
-      return { letter: o.letter, text: sp.clean };
+      var opParts = extractInlineImageUrls(sp.clean);
+      return { letter: o.letter, text: opParts.clean, images: opParts.images };
     });
     var bleedForward = bleedParts.filter(Boolean).join('\n\n');
     if (optResult.tail) {
       bleedForward = bleedForward ? bleedForward + '\n\n' + optResult.tail : optResult.tail;
     }
-    return { stem: stem, options: options, bleedForward: bleedForward };
+    return { stem: stem, images: stemParts.images, options: options, bleedForward: bleedForward };
   }
 
   function normalizeMarkerOuter(line) {
@@ -325,6 +386,7 @@
       questions.push({
         number: rqItem.num,
         stem: parsed.stem,
+        images: parsed.images || [],
         options: parsed.options,
         bleedForward: parsed.bleedForward || '',
         contextInfo: rqItem.contextInfo || '',

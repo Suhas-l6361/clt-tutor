@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Contact Us — CLATutor</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
@@ -12,6 +15,7 @@
   <link rel="stylesheet" href="../css/index.css" />
   <link rel="stylesheet" href="../css/contactus.css" />
   <script src="../js/site-protection.js" data-protection-mode="public"></script>
+  <script src="../js/branch-home.js"></script>
 </head>
 <body class="page-public page-contact">
   <header class="site-header">
@@ -279,6 +283,7 @@
   </footer>
 
   <script src="../js/config.js"></script>
+  <script src="../js/public-forms-api.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/main-dropdown.js"></script>
   <script>
@@ -292,27 +297,78 @@
           form.reportValidity();
           return;
         }
+        if (typeof PublicFormsApi === 'undefined') {
+          if (alertBox) {
+            alertBox.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Form could not load. Please refresh the page.</span></div>';
+          }
+          return;
+        }
         var fd = new FormData(form);
-        if (typeof DataStore !== 'undefined') {
-          DataStore.addLead({
-            name: (fd.get('name') || '').toString().trim(),
-            email: (fd.get('email') || '').toString().trim(),
-            phone: (fd.get('phone') || '').toString().trim(),
-            courseInterest: (fd.get('subject') || '').toString().trim() + ' · ' + (fd.get('message') || '').toString().slice(0, 120),
-            source: 'Contact us page',
-            stage: 'new',
-          });
-          DataStore.addNotification({
-            title: 'Contact form',
-            body: 'A new message was sent from the Contact Us page.',
-            audience: 'crm',
-          });
+        var phoneRaw = (fd.get('phone') || '').toString().trim();
+        var phoneNum = PublicFormsApi.phoneToNumber(phoneRaw);
+        if (!Number.isFinite(phoneNum)) {
+          if (alertBox) {
+            alertBox.innerHTML =
+              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Please enter a valid phone number.</span></div>';
+          }
+          return;
         }
-        if (alertBox) {
-          alertBox.innerHTML =
-            '<div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>Thank you. Our team will contact you shortly.</span></div>';
-        }
-        form.reset();
+        var payload = {
+          name: (fd.get('name') || '').toString().trim(),
+          email: (fd.get('email') || '').toString().trim(),
+          phone: phoneNum,
+          subject: (fd.get('subject') || '').toString().trim(),
+          message: (fd.get('message') || '').toString().trim(),
+          isResponded: null,
+          respondedMessage: null,
+        };
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        PublicFormsApi.postContactUs(payload)
+          .then(function (res) {
+            if (submitBtn) submitBtn.disabled = false;
+            if (res.ok && (res.status === 201 || res.status === 200)) {
+              if (typeof DataStore !== 'undefined') {
+                DataStore.addLead({
+                  name: payload.name,
+                  email: payload.email,
+                  phone: phoneRaw,
+                  courseInterest: payload.subject + ' · ' + payload.message.slice(0, 120),
+                  source: 'Contact us page',
+                  stage: 'new',
+                });
+                DataStore.addNotification({
+                  title: 'Contact form',
+                  body: 'A new message was sent from the Contact Us page.',
+                  audience: 'crm',
+                });
+              }
+              if (alertBox) {
+                alertBox.innerHTML =
+                  '<div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>Thank you. Our team will contact you shortly.</span></div>';
+              }
+              form.reset();
+              return;
+            }
+            var msg =
+              res.data && res.data.message
+                ? res.data.message
+                : 'Something went wrong. Please try again.';
+            if (alertBox) {
+              alertBox.innerHTML =
+                '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>';
+              var span = alertBox.querySelector('.alert-error span');
+              if (span) span.textContent = msg;
+            }
+          })
+          .catch(function () {
+            if (submitBtn) submitBtn.disabled = false;
+            if (alertBox) {
+              alertBox.innerHTML =
+                '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i><span>Network error. Please try again.</span></div>';
+            }
+          });
       });
     })();
   </script>

@@ -1,0 +1,15 @@
+# Apache: extensionless URLs (e.g. /login -> login.html) without breaking /login.html
+# Requires: AllowOverride + mod_rewrite enabled on the server.
+<IfModule mod_rewrite.c>
+  Options -MultiViews
+  RewriteEngine On
+
+  # Skip if the request already matches a real file or directory
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # If name.html exists, serve it for /name
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>

@@ -1,0 +1,13 @@
+# Apache: extensionless URLs (e.g. /html_files/contactus -> contactus.html)
+# Same rules as parent; applies only to requests under this folder.
+<IfModule mod_rewrite.c>
+  Options -MultiViews
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>
