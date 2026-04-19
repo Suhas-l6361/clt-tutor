@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLATutor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/enrollment.css" />
+</head>
+<body class="app-body crm-dashboard enrollment-page">
+  <div id="stock" style="display: none">
+    <div class="crm-wrap enrollment-crm">
+      <header class="enrollment-crm__intro">
+        <h1 class="enrollment-crm__title">Enrollment &amp; leads</h1>
+        <p class="enrollment-crm__lead">
+          View submissions from the public site: callback requests, admission enrollment forms, and contact messages. Newest first.
+        </p>
+      </header>
+
+      <div class="enrollment-crm__toolbar">
+        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-callback" data-kind="callback">
+          <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
+          <span>Show request callback</span>
+        </button>
+        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-enroll" data-kind="enroll">
+          <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+          <span>Show enrollment details</span>
+        </button>
+        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-contact" data-kind="contact">
+          <i class="fa-solid fa-address-book" aria-hidden="true"></i>
+          <span>Show contact us</span>
+        </button>
+      </div>
+
+      <section id="enrollment-results" class="enrollment-crm__panel" hidden aria-live="polite">
+        <div class="enrollment-crm__panel-head">
+          <h2 id="enrollment-results-heading" class="enrollment-crm__panel-title">—</h2>
+        </div>
+        <p id="enrollment-loading" class="enrollment-loading" hidden>Loading…</p>
+        <p id="enrollment-error" class="enrollment-error" hidden></p>
+        <div id="enrollment-list" class="enrollment-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <div
+    id="enrollment-modal"
+    class="enrollment-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="enrollment-modal-title"
+  >
+    <div class="enrollment-modal__backdrop" data-enrollment-modal-close tabindex="-1"></div>
+    <div class="enrollment-modal__dialog">
+      <div class="enrollment-modal__head">
+        <h3 id="enrollment-modal-title" class="enrollment-modal__title">Details</h3>
+        <button type="button" class="enrollment-modal__close" data-enrollment-modal-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="enrollment-modal-body" class="enrollment-modal__body"></div>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js?v=20260420"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/enrollment-page.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'enrollment.html', title: 'Enrollment', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+    });
+  </script>
+</body>
+</html>

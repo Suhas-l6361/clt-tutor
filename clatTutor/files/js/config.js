@@ -20,9 +20,15 @@ const APP_CONFIG = {
   /** Public site — contact us form (POST JSON) */
   CONTACT_US_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/contactUs',
+  /** CRM — fee receipts (GET/POST/PUT/DELETE JSON) — same API Gateway stage as CONTACT_US_API */
+  FEES_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/fees',
   /** Public site — PYQ download modal (POST JSON) */
   DOWNLOAD_ANSWER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/downloadAnswer',
+  /** CRM — student list (GET array) — same stage as auth student_general_info */
+  STUDENT_GENERAL_INFO_API:
+    'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info',
   DEMO_MODE: true,
 };
 

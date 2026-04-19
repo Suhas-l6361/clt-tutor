@@ -3,35 +3,538 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CRM fees</title>
+  <title>CLATutor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../vendor/flatpickr/flatpickr.min.css" />
+  <link rel="stylesheet" href="../css/fees.css" />
 </head>
-<body class="app-body crm-dashboard">
+<body class="app-body crm-dashboard fees-page">
   <div id="stock" style="display: none">
-    <div class="crm-wrap">
-      <section class="crm-hero">
-        <div>
-          <h2>Fees Management</h2>
-          <p>Track fee plans, due amounts, and payment updates in one place.</p>
-        </div>
-        <div class="crm-pill"><i class="fa-solid fa-indian-rupee-sign"></i><span>CRM fees</span></div>
-      </section>
+    <div class="crm-wrap fees-receipt-scope">
+      <div class="fees-toolbar">
+        <button type="button" class="fees-btn fees-btn--toolbar" id="fees-btn-history" aria-label="Fee receipt history">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          <span>History</span>
+        </button>
+      </div>
+      <form id="fees-receipt-form" class="fees-doc fees-screen-only" autocomplete="off" novalidate>
+        <header class="fees-doc__head">
+          <div class="fees-doc__brand">
+            <div class="fees-doc__logo fees-doc__logo--img" title="CLATutor">
+              <img
+                src="../image/gavel clat tutor.png"
+                alt="CLATutor"
+                width="48"
+                height="48"
+                loading="lazy"
+                decoding="async"
+                onerror="this.onerror=null;this.src='../image/main.png'"
+              />
+            </div>
+            <div class="fees-doc__wordmark" aria-hidden="true">
+              <span class="fees-doc__logo-text">CLAT<span class="fees-doc__logo-accent">utor</span></span>
+            </div>
+          </div>
+          <div class="fees-doc__meta" aria-live="polite">
+            <div class="fees-meta-chip">
+              <span class="fees-meta-label">Receipt ID</span>
+              <span id="fees-receipt-id" class="fees-meta-value">—</span>
+            </div>
+            <div class="fees-meta-chip">
+              <span class="fees-meta-label">Receipt date</span>
+              <span id="fees-receipt-date" class="fees-meta-value">—</span>
+            </div>
+          </div>
+        </header>
 
-      <section class="crm-grid">
-        <div class="crm-card">
-          <h3><i class="fa-solid fa-wallet"></i> Fees Module</h3>
-          <p style="margin:0;color:#6b7280;line-height:1.6;">
-            This page is ready in CRM navigation. You can now add your fees table, payment entries, and fee status actions here.
+        <div class="fees-doc__body">
+          <div class="fees-doc__col fees-doc__col--main">
+            <section class="fees-panel fees-panel--student" aria-labelledby="fees-h-student">
+              <div class="fees-panel__head" id="fees-h-student">
+                <i class="fa-solid fa-user-graduate"></i>
+                Student
+              </div>
+              <div class="fees-panel__body">
+                <div class="fees-grid-2">
+                  <div class="fees-field fees-field--span2">
+                    <label class="fees-field-label" for="fees-student-search">Select student</label>
+                    <div class="fees-combo" id="fees-student-combo">
+                      <input
+                        type="text"
+                        id="fees-student-search"
+                        class="fees-input"
+                        autocomplete="off"
+                        spellcheck="false"
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-expanded="false"
+                        aria-controls="fees-student-listbox"
+                        placeholder="Search by name, ID, or phone…"
+                      />
+                      <input type="hidden" id="fees-student-id" name="studentId" value="" />
+                      <ul id="fees-student-listbox" class="fees-combo__list" role="listbox" hidden></ul>
+                    </div>
+                    <p class="fees-student-status" id="fees-student-status" aria-live="polite"></p>
+                  </div>
+
+                  <div id="fees-student-detail" class="fees-student-detail fees-field--span2" hidden>
+                    <div class="fees-student-detail__title">Student details</div>
+                    <dl class="fees-kv">
+                      <div class="fees-kv__row">
+                        <dt>Name</dt>
+                        <dd id="fees-disp-name">—</dd>
+                      </div>
+                      <div class="fees-kv__row">
+                        <dt>Student ID</dt>
+                        <dd id="fees-disp-student-id">—</dd>
+                      </div>
+                      <div class="fees-kv__row">
+                        <dt>Phone</dt>
+                        <dd id="fees-disp-phone">—</dd>
+                      </div>
+                      <div class="fees-kv__row">
+                        <dt>DOB</dt>
+                        <dd id="fees-disp-dob">—</dd>
+                      </div>
+                      <div class="fees-kv__row">
+                        <dt>Batch</dt>
+                        <dd id="fees-disp-batch">—</dd>
+                      </div>
+                      <div class="fees-kv__row">
+                        <dt>Branch</dt>
+                        <dd id="fees-disp-branch">—</dd>
+                      </div>
+                      <div class="fees-kv__row fees-kv__row--address">
+                        <dt>Address</dt>
+                        <dd id="fees-disp-address">—</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="fees-panel" aria-labelledby="fees-h-pay">
+              <div class="fees-panel__head" id="fees-h-pay">
+                <i class="fa-solid fa-money-check-dollar"></i>
+                Payment detail
+              </div>
+              <div class="fees-panel__body">
+                <div class="fees-grid-2">
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-pay-mode">Payment mode</label>
+                    <select id="fees-pay-mode" name="paymentMode" class="fees-input">
+                      <option value="">Select</option>
+                      <option value="cash">Cash</option>
+                      <option value="cheque">Cheque</option>
+                      <option value="online">Online / NEFT / IMPS</option>
+                      <option value="card">Card</option>
+                      <option value="upi">UPI</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-pay-date">Payment date</label>
+                    <input id="fees-pay-date" name="paymentDate" type="text" class="fees-input fees-input--mono fees-fp-date" readonly />
+                  </div>
+                  <div id="fees-pay-dynamic" class="fees-pay-dynamic fees-field--span2" hidden>
+                    <div class="fees-pay-block" data-pay="cheque" hidden>
+                      <div class="fees-grid-2">
+                        <div class="fees-field">
+                          <label class="fees-field-label" for="fees-cheque-no">Cheque no.</label>
+                          <input id="fees-cheque-no" name="chequeNo" type="text" class="fees-input fees-input--mono" autocomplete="off" />
+                        </div>
+                        <div class="fees-field">
+                          <label class="fees-field-label" for="fees-cheque-bank">Drawee bank</label>
+                          <input id="fees-cheque-bank" name="chequeBank" type="text" class="fees-input" autocomplete="off" />
+                        </div>
+                        <div class="fees-field fees-field--span2">
+                          <label class="fees-field-label" for="fees-cheque-branch">Branch</label>
+                          <input id="fees-cheque-branch" name="chequeBranch" type="text" class="fees-input" autocomplete="off" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fees-pay-block" data-pay="online" hidden>
+                      <div class="fees-grid-2">
+                        <div class="fees-field fees-field--span2">
+                          <label class="fees-field-label" for="fees-online-txn">Transaction ID / UTR</label>
+                          <input id="fees-online-txn" name="onlineTxnId" type="text" class="fees-input fees-input--mono" autocomplete="off" />
+                        </div>
+                        <div class="fees-field fees-field--span2">
+                          <label class="fees-field-label" for="fees-online-bank">Bank (optional)</label>
+                          <input id="fees-online-bank" name="onlineBank" type="text" class="fees-input" autocomplete="off" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fees-pay-block" data-pay="card" hidden>
+                      <div class="fees-grid-2">
+                        <div class="fees-field">
+                          <label class="fees-field-label" for="fees-card-last4">Card last 4 digits</label>
+                          <input id="fees-card-last4" name="cardLast4" type="text" class="fees-input fees-input--mono" inputmode="numeric" maxlength="4" autocomplete="off" />
+                        </div>
+                        <div class="fees-field">
+                          <label class="fees-field-label" for="fees-card-network">Network</label>
+                          <select id="fees-card-network" name="cardNetwork" class="fees-input">
+                            <option value="">Select</option>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="rupay">Rupay</option>
+                            <option value="amex">Amex</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fees-pay-block" data-pay="upi" hidden>
+                      <div class="fees-field">
+                        <label class="fees-field-label" for="fees-upi-txn">Transaction ID</label>
+                        <input id="fees-upi-txn" name="upiTransactionId" type="text" class="fees-input fees-input--mono" inputmode="text" autocomplete="off" placeholder="UTR / reference no." />
+                      </div>
+                    </div>
+                    <div class="fees-pay-block" data-pay="other" hidden>
+                      <div class="fees-field">
+                        <label class="fees-field-label" for="fees-other-detail">Payment details</label>
+                        <textarea id="fees-other-detail" name="otherPaymentDetail" class="fees-input" rows="2"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-amount-paid">Amount paid (INR)</label>
+                    <input id="fees-amount-paid" name="amountPaid" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                  </div>
+                  <div class="fees-field fees-field--span2">
+                    <label class="fees-field-label" for="fees-amount-words">Amount in words</label>
+                    <textarea id="fees-amount-words" name="amountInWords" class="fees-input" rows="2"></textarea>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="fees-doc__col fees-doc__col--side">
+            <section class="fees-panel" aria-labelledby="fees-h-fee">
+              <div class="fees-panel__head" id="fees-h-fee">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                Fee structure
+              </div>
+              <div class="fees-panel__body">
+                <div class="fees-table-wrap">
+                  <table class="fees-table">
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th class="fees-td-num">Amount (INR)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="fees-td-label">Admission fee (non-refundable)</td>
+                        <td class="fees-td-num">
+                          <input id="fees-admission" name="admissionFee" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fees-td-label">Base fee</td>
+                        <td class="fees-td-num">
+                          <input id="fees-base" name="baseFee" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fees-td-label">Installment premium</td>
+                        <td class="fees-td-num">
+                          <input id="fees-premium" name="installmentPremium" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fees-td-label">Other charges</td>
+                        <td class="fees-td-num">
+                          <input id="fees-other" name="otherCharges" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fees-td-label"><strong>Net payable</strong> <span class="fees-net-hint">(inclusive of taxes)</span></td>
+                        <td class="fees-td-num">
+                          <input id="fees-net-payable" name="netPayable" type="text" class="fees-input fees-input--mono" inputmode="decimal" readonly />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="fees-field">
+                  <label class="fees-field-label" for="fees-net-words">Total amount in words</label>
+                  <textarea id="fees-net-words" name="netPayableWords" class="fees-input" rows="2"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <section class="fees-panel" aria-labelledby="fees-h-inst">
+              <div class="fees-panel__head" id="fees-h-inst">
+                <i class="fa-solid fa-calendar-days"></i>
+                Installment plan
+              </div>
+              <div class="fees-panel__body">
+                <div class="fees-table-wrap">
+                  <table class="fees-table fees-table--install">
+                    <thead>
+                      <tr>
+                        <th class="fees-th-num">#</th>
+                        <th>Due date</th>
+                        <th class="fees-td-num">Installment (INR)</th>
+                        <th class="fees-th-action" aria-label="Row actions"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="fees-installment-tbody"></tbody>
+                  </table>
+                </div>
+                <div class="fees-install-toolbar">
+                  <button type="button" class="fees-btn-add" id="fees-install-add" aria-label="Add installment row">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add row</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <template id="fees-install-row-tpl">
+              <tr class="fees-install-row">
+                <td class="fees-install-num">1</td>
+                <td>
+                  <input type="text" class="fees-input fees-input--mono fees-fp-date fees-install-date" name="installmentDueDate[]" readonly />
+                </td>
+                <td class="fees-td-num">
+                  <input type="text" class="fees-input fees-input--mono fees-install-amt" name="installmentAmount[]" inputmode="decimal" />
+                </td>
+                <td class="fees-install-actions">
+                  <button type="button" class="fees-row-remove" hidden aria-label="Remove row">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </td>
+              </tr>
+            </template>
+
+            <section class="fees-panel" aria-labelledby="fees-h-due">
+              <div class="fees-panel__head" id="fees-h-due">
+                <i class="fa-solid fa-scale-balanced"></i>
+                Due detail
+              </div>
+              <div class="fees-panel__body">
+                <div class="fees-grid-2">
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-due-till">Due till date (INR)</label>
+                    <input id="fees-due-till" name="dueTillDateAmount" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                  </div>
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-received-total">Received (INR)</label>
+                    <input id="fees-received-total" name="receivedTotal" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                  </div>
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-balance">Balance (INR)</label>
+                    <input id="fees-balance" name="balance" type="text" class="fees-input fees-input--mono" readonly />
+                  </div>
+                  <div class="fees-field">
+                    <label class="fees-field-label" for="fees-due-total">Due total (INR)</label>
+                    <input id="fees-due-total" name="dueTotal" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="fees-actions" id="fees-actions" hidden>
+          <div class="fees-actions__inner">
+            <p class="fees-actions__note" id="fees-actions-note">
+              Student, payment mode, and amount paid are set. Save your receipt — you can print right after a successful save.
+            </p>
+            <div class="fees-actions__btns">
+              <button type="button" class="fees-btn fees-btn--primary" id="fees-btn-save" aria-label="Save receipt">
+                <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div id="fees-print-offer-modal" class="fees-print-offer" hidden>
+        <div class="fees-print-offer__backdrop" data-fees-print-offer-close tabindex="-1"></div>
+        <div
+          class="fees-print-offer__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fees-print-offer-title"
+          aria-describedby="fees-print-offer-desc"
+        >
+          <div class="fees-print-offer__icon" aria-hidden="true">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <h2 class="fees-print-offer__title" id="fees-print-offer-title">Saved successfully</h2>
+          <p class="fees-print-offer__desc" id="fees-print-offer-desc">
+            Would you like to print the receipt now?
           </p>
-          <div class="crm-actions" style="margin-top:1rem;">
-            <a href="students.html" class="crm-action"><i class="fa-solid fa-id-card"></i> Open Student Data</a>
-            <a href="retrival.html" class="crm-action"><i class="fa-solid fa-table-list"></i> Open Retrieval</a>
+          <div class="fees-print-offer__actions">
+            <button type="button" class="fees-btn fees-btn--ghost" id="fees-print-offer-dismiss">
+              Not now
+            </button>
+            <button type="button" class="fees-btn fees-btn--primary" id="fees-print-offer-print">
+              <i class="fa-solid fa-print" aria-hidden="true"></i>
+              <span>Print receipt</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section id="fees-print-sheet" class="fees-print-sheet" aria-hidden="true">
+        <header class="fees-print__head">
+          <div class="fees-print__brand">
+            <img
+              class="fees-print__logo"
+              src="../image/gavel clat tutor.png"
+              alt=""
+              width="40"
+              height="40"
+              onerror="this.onerror=null;this.src='../image/main.png'"
+            />
+            <div class="fees-print__brand-text">
+              <strong>CLATutor</strong>
+            </div>
+          </div>
+          <div class="fees-print__meta">
+            <div class="fees-print__meta-item">
+              <span class="fees-print__meta-label">Receipt ID</span>
+              <strong id="print-receipt-id">—</strong>
+            </div>
+            <div class="fees-print__meta-item">
+              <span class="fees-print__meta-label">Date</span>
+              <strong id="print-receipt-date">—</strong>
+            </div>
+          </div>
+        </header>
+
+        <div class="fees-print__main">
+          <div class="fees-print__card">
+            <div class="fees-print__title">Student</div>
+            <div class="fees-print__lines" id="print-student-lines"></div>
+          </div>
+
+          <hr class="fees-print__hr" />
+
+          <div class="fees-print__card">
+            <div class="fees-print__title">Payment</div>
+            <div class="fees-print__lines" id="print-payment-lines"></div>
+            <div class="fees-print__lines" id="print-payment-extra"></div>
+          </div>
+
+          <hr class="fees-print__hr" />
+
+          <div class="fees-print__card">
+            <div class="fees-print__title">Fee structure (INR)</div>
+            <div class="fees-print__grid2" id="print-fee-grid"></div>
+            <div class="fees-print__total-row">
+              <span>Net payable</span>
+              <strong id="print-net-inr">—</strong>
+            </div>
+            <p class="fees-print__words" id="print-net-words">—</p>
+          </div>
+
+          <div class="fees-print__card fees-print__card--compact" id="print-install-wrap">
+            <div class="fees-print__title">Installment plan</div>
+            <table class="fees-print__table" id="print-install-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Due date</th>
+                  <th class="fees-print__num">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="print-install-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="fees-print__card fees-print__card--compact">
+            <div class="fees-print__title">Due detail (INR)</div>
+            <div class="fees-print__grid2" id="print-due-grid"></div>
+          </div>
+        </div>
+
+        <div class="fees-print__sign">
+          <div class="fees-print__sign-col">
+            <span class="fees-print__sign-role">Customer</span>
+            <div class="fees-print__sign-line"></div>
+            <span class="fees-print__sign-hint">Signature</span>
+          </div>
+          <div class="fees-print__sign-col">
+            <span class="fees-print__sign-role">Institution head</span>
+            <div class="fees-print__sign-line"></div>
+            <span class="fees-print__sign-hint">Signature &amp; seal</span>
           </div>
         </div>
       </section>
+
+      <div id="fees-history-modal" class="fees-history-modal" hidden>
+        <div class="fees-history-modal__backdrop" data-fees-history-close tabindex="-1"></div>
+        <div
+          class="fees-history-modal__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fees-history-title"
+        >
+          <div class="fees-history-modal__head">
+            <h2 id="fees-history-title" class="fees-history-modal__title">Fee receipts</h2>
+            <button type="button" class="fees-history-modal__x" id="fees-history-close" aria-label="Close">×</button>
+          </div>
+          <div class="fees-history-modal__body">
+            <p id="fees-history-loading" class="fees-history-loading" hidden>Loading…</p>
+            <p id="fees-history-error" class="fees-history-error" hidden></p>
+            <div class="fees-history-table-wrap">
+              <table class="fees-history-table">
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th class="fees-history-table__th-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="fees-history-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="fees-history-detail-modal" class="fees-history-modal fees-history-modal--detail" hidden>
+        <div class="fees-history-modal__backdrop" data-fees-history-close tabindex="-1"></div>
+        <div
+          class="fees-history-modal__panel fees-history-modal__panel--detail"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fees-history-detail-title"
+        >
+          <div class="fees-history-modal__head">
+            <h2 id="fees-history-detail-title" class="fees-history-modal__title">Receipt details</h2>
+            <button
+              type="button"
+              class="fees-history-modal__x"
+              id="fees-history-detail-close"
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </div>
+          <div class="fees-history-detail-scroll" id="fees-history-detail-content"></div>
+          <div class="fees-history-detail-footer">
+            <button type="button" class="fees-btn fees-btn--ghost" id="fees-history-detail-close-2">Close</button>
+            <button type="button" class="fees-btn fees-btn--primary" id="fees-history-detail-print">
+              <i class="fa-solid fa-print" aria-hidden="true"></i>
+              <span>Print</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="app-root" class="app-shell"></div>
@@ -41,8 +544,10 @@
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js"></script>
+  <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
+  <script src="../vendor/flatpickr/flatpickr.min.js"></script>
+  <script src="../js/fees-page.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

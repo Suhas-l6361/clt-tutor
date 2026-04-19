@@ -1,0 +1,1360 @@
+/**
+ * Fees receipt UI — scoped to .fees-receipt-scope only (fees.html).
+ * Does not style global elements outside this wrapper.
+ */
+
+.fees-receipt-scope {
+  --fees-ink: #0f172a;
+  --fees-muted: #64748b;
+  --fees-line: #e2e8f0;
+  --fees-line-strong: #cbd5e1;
+  --fees-paper: #ffffff;
+  --fees-warm: #fffdf7;
+  --fees-accent: #b45309;
+  --fees-accent-soft: #fff7ed;
+  --fees-focus: rgba(180, 83, 9, 0.22);
+  --fees-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.92rem;
+  color: var(--fees-ink);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.fees-receipt-scope *,
+.fees-receipt-scope *::before,
+.fees-receipt-scope *::after {
+  box-sizing: border-box;
+}
+
+@keyframes fees-receipt-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fees-receipt-scope .fees-doc {
+  background: var(--fees-paper);
+  border: 1px solid #ead9a3;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+  overflow: visible;
+  animation: fees-receipt-fade-in 0.45s var(--fees-ease) both;
+}
+
+.fees-receipt-scope .fees-doc__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem 1.25rem;
+  align-items: start;
+  padding: 1.1rem 1.15rem;
+  background: linear-gradient(135deg, #fffceb 0%, #ffffff 55%);
+  border-bottom: 1px solid #ead9a3;
+}
+
+@media (max-width: 720px) {
+  .fees-receipt-scope .fees-doc__head {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fees-receipt-scope .fees-doc__brand {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.fees-receipt-scope .fees-doc__logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #ffd84a 0%, #ffcc00 55%, #d9a600 100%);
+  color: #1a1a1a;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.18);
+  transition: transform 0.25s var(--fees-ease), box-shadow 0.25s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-doc__logo--img {
+  padding: 4px;
+  overflow: hidden;
+}
+
+.fees-receipt-scope .fees-doc__logo--img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.fees-receipt-scope .fees-doc__logo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(180, 83, 9, 0.22);
+}
+
+.fees-receipt-scope .fees-doc__wordmark {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.fees-receipt-scope .fees-doc__logo-text {
+  font-family: 'Shrikhand', cursive;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #111;
+  line-height: 1.15;
+}
+
+.fees-receipt-scope .fees-doc__logo-accent {
+  color: #ffcc00;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.fees-receipt-scope .fees-field-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fees-muted);
+  margin-bottom: 0.28rem;
+}
+
+.fees-receipt-scope .fees-input {
+  width: 100%;
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--fees-line-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--fees-ink);
+  transition: border-color 0.2s var(--fees-ease), box-shadow 0.2s var(--fees-ease), background 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-input:hover {
+  border-color: #94a3b8;
+}
+
+.fees-receipt-scope .fees-input:focus {
+  outline: none;
+  border-color: var(--fees-accent);
+  box-shadow: 0 0 0 3px var(--fees-focus);
+}
+
+.fees-receipt-scope select.fees-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 1.75rem;
+}
+
+.fees-receipt-scope .fees-input--title {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 0.6rem;
+}
+
+.fees-receipt-scope .fees-input--mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.fees-receipt-scope .fees-input[readonly] {
+  background: var(--fees-warm);
+  color: #334155;
+  cursor: default;
+}
+
+.fees-receipt-scope .fees-fp-date,
+.fees-receipt-scope .fees-fp-alt {
+  cursor: pointer;
+  background: var(--fees-warm);
+}
+
+.fees-receipt-scope textarea.fees-input {
+  min-height: 3.25rem;
+  resize: vertical;
+}
+
+.fees-receipt-scope .fees-doc__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.fees-receipt-scope .fees-meta-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  padding: 0.5rem 0.72rem;
+  border-radius: 10px;
+  border: 1px solid #ecdca8;
+  background: #fff;
+  min-width: 9.5rem;
+  transition: border-color 0.2s var(--fees-ease), box-shadow 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-meta-chip:hover {
+  border-color: #d5b14a;
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.1);
+}
+
+.fees-receipt-scope .fees-meta-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fees-muted);
+}
+
+.fees-receipt-scope .fees-meta-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--fees-ink);
+}
+
+.fees-receipt-scope .fees-doc__body {
+  padding: 1rem 1.15rem 1.15rem;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1rem 1.1rem;
+  align-items: start;
+  isolation: isolate;
+}
+
+.fees-receipt-scope .fees-doc__col {
+  min-width: 0;
+}
+
+/* Main column stacks above side so student search dropdown isn’t covered by fee panels */
+.fees-receipt-scope .fees-doc__col--main {
+  position: relative;
+  z-index: 5;
+}
+
+.fees-receipt-scope .fees-doc__col--side {
+  position: relative;
+  z-index: 1;
+}
+
+/* Student panel must stack above Payment detail (next sibling) */
+.fees-receipt-scope .fees-panel--student {
+  position: relative;
+  z-index: 20;
+}
+
+.fees-receipt-scope .fees-doc__col--main > .fees-panel:not(.fees-panel--student) {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .fees-receipt-scope .fees-doc__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fees-receipt-scope .fees-panel {
+  border: 1px solid var(--fees-line);
+  border-radius: 12px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+/* Must come after .fees-panel — dropdown extends past panel; don’t clip */
+.fees-receipt-scope .fees-panel.fees-panel--student {
+  overflow: visible;
+}
+
+.fees-receipt-scope .fees-panel--student .fees-panel__body {
+  overflow: visible;
+}
+
+.fees-receipt-scope .fees-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  border-bottom: 1px solid var(--fees-line);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #475569;
+}
+
+.fees-receipt-scope .fees-panel__head i {
+  color: var(--fees-accent);
+  font-size: 0.85rem;
+}
+
+.fees-receipt-scope .fees-panel__body {
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.fees-receipt-scope .fees-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+@media (max-width: 520px) {
+  .fees-receipt-scope .fees-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fees-receipt-scope .fees-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.fees-receipt-scope .fees-field--span2 {
+  grid-column: 1 / -1;
+}
+
+.fees-receipt-scope .fees-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--fees-line-strong);
+  background: #fff;
+}
+
+.fees-receipt-scope .fees-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.fees-receipt-scope .fees-table th,
+.fees-receipt-scope .fees-table td {
+  border: 1px solid var(--fees-line);
+  padding: 0.4rem 0.45rem;
+  vertical-align: middle;
+}
+
+.fees-receipt-scope .fees-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+  text-align: left;
+  color: #334155;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fees-receipt-scope .fees-table td .fees-input {
+  border: none;
+  border-radius: 4px;
+  padding: 0.35rem 0.4rem;
+  background: transparent;
+}
+
+.fees-receipt-scope .fees-table td .fees-input:focus {
+  background: #fffbeb;
+}
+
+.fees-receipt-scope .fees-table .fees-td-num {
+  text-align: right;
+  width: 38%;
+}
+
+.fees-receipt-scope .fees-table .fees-td-label {
+  font-weight: 600;
+  color: #334155;
+  background: #fafafa;
+  width: 62%;
+}
+
+.fees-receipt-scope .fees-net-hint {
+  font-weight: 400;
+  color: var(--fees-muted);
+  font-size: 0.78rem;
+}
+
+.fees-receipt-scope .fees-combo {
+  position: relative;
+  z-index: 30;
+}
+
+.fees-receipt-scope .fees-combo__list {
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  max-height: min(240px, 50vh);
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--fees-line-strong);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+  animation: fees-receipt-fade-in 0.2s var(--fees-ease) both;
+}
+
+.fees-receipt-scope .fees-combo__list[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-combo__item {
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-combo__item:last-child {
+  border-bottom: none;
+}
+
+.fees-receipt-scope .fees-combo__item:hover,
+.fees-receipt-scope .fees-combo__item[aria-selected='true'] {
+  background: #fffbeb;
+}
+
+.fees-receipt-scope .fees-combo__item-name {
+  font-weight: 600;
+  color: var(--fees-ink);
+}
+
+.fees-receipt-scope .fees-combo__item-meta {
+  font-size: 0.76rem;
+  color: var(--fees-muted);
+  margin-top: 0.12rem;
+}
+
+.fees-receipt-scope .fees-student-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  color: var(--fees-muted);
+  min-height: 1.1em;
+}
+
+.fees-receipt-scope .fees-student-status.fees-student-status--err {
+  color: #b91c1c;
+}
+
+.fees-receipt-scope .fees-student-detail {
+  border: 1px solid var(--fees-line);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+  transition: opacity 0.2s var(--fees-ease), box-shadow 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-student-detail:not([hidden]) {
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.fees-receipt-scope .fees-student-detail__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fees-muted);
+  margin-bottom: 0.55rem;
+}
+
+.fees-receipt-scope .fees-kv {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fees-receipt-scope .fees-kv__row {
+  display: grid;
+  grid-template-columns: minmax(88px, 110px) 1fr;
+  gap: 0.5rem 0.75rem;
+  align-items: start;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 480px) {
+  .fees-receipt-scope .fees-kv__row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+.fees-receipt-scope .fees-kv__row dt {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fees-muted);
+}
+
+.fees-receipt-scope .fees-kv__row dd {
+  margin: 0;
+  color: var(--fees-ink);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.fees-receipt-scope .fees-kv__row--address dd {
+  line-height: 1.45;
+}
+
+.fees-receipt-scope .fees-pay-dynamic {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.15rem;
+}
+
+.fees-receipt-scope .fees-pay-dynamic[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-pay-block[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-install-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 0.35rem;
+}
+
+.fees-receipt-scope .fees-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #fff;
+  border: 1px solid #ecdca8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s var(--fees-ease), border-color 0.2s var(--fees-ease), transform 0.15s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-btn-add:hover {
+  background: #fffbeb;
+  border-color: #d5b14a;
+}
+
+.fees-receipt-scope .fees-btn-add:active {
+  transform: scale(0.98);
+}
+
+.fees-receipt-scope .fees-table--install .fees-th-num {
+  width: 2.25rem;
+  text-align: center;
+}
+
+.fees-receipt-scope .fees-table--install .fees-install-num {
+  text-align: center;
+  font-weight: 600;
+  color: #475569;
+  background: #fafafa;
+}
+
+.fees-receipt-scope .fees-table--install .fees-th-action {
+  width: 2.5rem;
+  text-align: center;
+}
+
+.fees-receipt-scope .fees-install-actions {
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.25rem !important;
+}
+
+.fees-receipt-scope .fees-row-remove {
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s var(--fees-ease), color 0.2s var(--fees-ease), border-color 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-row-remove:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.fees-receipt-scope .fees-row-remove[hidden] {
+  display: none !important;
+}
+
+/* Flatpickr popup — only on fees page (calendar appended to body) */
+body.fees-page .flatpickr-calendar {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  font-family: inherit !important;
+}
+
+body.fees-page .flatpickr-day.selected,
+body.fees-page .flatpickr-day.startRange,
+body.fees-page .flatpickr-day.endRange {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
+body.fees-page .flatpickr-day:hover {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+}
+
+body.fees-page .flatpickr-current-month .flatpickr-monthDropdown-months,
+body.fees-page .flatpickr-current-month input.cur-year {
+  font-weight: 600 !important;
+}
+
+/* Form actions — Save / Print */
+.fees-receipt-scope .fees-actions {
+  margin-top: 0.25rem;
+  padding: 1rem 1.15rem 1.15rem;
+  border-top: 1px solid #ead9a3;
+  background: linear-gradient(180deg, #fffdf7 0%, #ffffff 100%);
+  transition: opacity 0.25s var(--fees-ease), transform 0.25s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-actions[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-actions:not([hidden]) {
+  animation: fees-receipt-fade-in 0.35s var(--fees-ease) both;
+}
+
+.fees-receipt-scope .fees-actions__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1rem;
+  max-width: 100%;
+}
+
+.fees-receipt-scope .fees-actions__note {
+  margin: 0;
+  flex: 1 1 220px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #64748b;
+  max-width: 36rem;
+}
+
+.fees-receipt-scope .fees-actions__btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.fees-receipt-scope .fees-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s var(--fees-ease), border-color 0.2s var(--fees-ease), color 0.2s var(--fees-ease), transform 0.15s var(--fees-ease), box-shadow 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.fees-receipt-scope .fees-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fees-receipt-scope .fees-btn--primary {
+  background: linear-gradient(180deg, #ffe066 0%, #ffcc00 55%, #e6b800 100%);
+  border-color: #d9a600;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.15);
+}
+
+.fees-receipt-scope .fees-btn--primary:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.22);
+}
+
+.fees-receipt-scope .fees-btn--ghost {
+  background: #fff;
+  border-color: #ecdca8;
+  color: #0f172a;
+}
+
+.fees-receipt-scope .fees-btn--ghost:hover:not(:disabled) {
+  background: #fffbeb;
+  border-color: #d5b14a;
+}
+
+/* After-save print offer (fees page only) */
+.fees-receipt-scope .fees-print-offer {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.fees-receipt-scope .fees-print-offer[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-print-offer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.fees-receipt-scope .fees-print-offer__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 22rem;
+  padding: 1.35rem 1.35rem 1.15rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
+  text-align: center;
+  animation: fees-receipt-fade-in 0.3s var(--fees-ease) both;
+}
+
+.fees-receipt-scope .fees-print-offer__icon {
+  font-size: 2.25rem;
+  color: #16a34a;
+  margin-bottom: 0.35rem;
+  line-height: 1;
+}
+
+.fees-receipt-scope .fees-print-offer__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.fees-receipt-scope .fees-print-offer__desc {
+  margin: 0 0 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.fees-receipt-scope .fees-print-offer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+}
+
+body.fees-page.fees-print-offer-open {
+  overflow: hidden;
+}
+
+/* Toolbar — History (fees page only) */
+.fees-receipt-scope .fees-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.65rem;
+}
+
+.fees-receipt-scope .fees-btn--toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #ecdca8;
+  background: #fff;
+  color: var(--fees-ink);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  transition: background 0.2s var(--fees-ease), border-color 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-btn--toolbar:hover {
+  background: #fffbeb;
+  border-color: #d5b14a;
+}
+
+.fees-receipt-scope .fees-btn--xs {
+  padding: 0.32rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+/* History modals */
+.fees-receipt-scope .fees-history-modal--detail {
+  z-index: 13100;
+}
+
+.fees-receipt-scope .fees-history-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 13000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.fees-receipt-scope .fees-history-modal[hidden] {
+  display: none !important;
+}
+
+.fees-receipt-scope .fees-history-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(2px);
+}
+
+.fees-receipt-scope .fees-history-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 42rem;
+  max-height: min(88vh, 520px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.fees-receipt-scope .fees-history-modal__panel--detail {
+  max-width: 36rem;
+  max-height: min(92vh, 640px);
+}
+
+.fees-receipt-scope .fees-history-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--fees-line);
+  background: linear-gradient(180deg, #fffdf7 0%, #ffffff 100%);
+  flex-shrink: 0;
+}
+
+.fees-receipt-scope .fees-history-modal__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fees-ink);
+}
+
+.fees-receipt-scope .fees-history-modal__x {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  cursor: pointer;
+  color: var(--fees-muted);
+  border-radius: 6px;
+}
+
+.fees-receipt-scope .fees-history-modal__x:hover {
+  background: #f1f5f9;
+  color: var(--fees-ink);
+}
+
+.fees-receipt-scope .fees-history-modal__body {
+  padding: 0.75rem 1rem 1rem;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.fees-receipt-scope .fees-history-loading,
+.fees-receipt-scope .fees-history-error {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+}
+
+.fees-receipt-scope .fees-history-error {
+  color: #b91c1c;
+}
+
+.fees-receipt-scope .fees-history-table-wrap {
+  overflow: auto;
+  max-height: 360px;
+  border: 1px solid var(--fees-line);
+  border-radius: 10px;
+}
+
+.fees-receipt-scope .fees-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.fees-receipt-scope .fees-history-table th,
+.fees-receipt-scope .fees-history-table td {
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.fees-receipt-scope .fees-history-table thead th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fees-receipt-scope .fees-history-table__th-actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.fees-receipt-scope .fees-history-table__actions {
+  white-space: nowrap;
+}
+
+.fees-receipt-scope .fees-history-detail-scroll {
+  padding: 0.75rem 1rem 0.5rem;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.fees-receipt-scope .fees-history-detail__section {
+  margin-bottom: 1.1rem;
+}
+
+.fees-receipt-scope .fees-history-detail__section:last-child {
+  margin-bottom: 0;
+}
+
+.fees-receipt-scope .fees-history-detail__h {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.fees-receipt-scope .fees-history-detail__dl {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.fees-receipt-scope .fees-history-detail__row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 38%) 1fr;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.86rem;
+  align-items: start;
+}
+
+.fees-receipt-scope .fees-history-detail__k {
+  margin: 0;
+  color: var(--fees-muted);
+  font-weight: 500;
+}
+
+.fees-receipt-scope .fees-history-detail__v {
+  margin: 0;
+  color: var(--fees-ink);
+  word-break: break-word;
+}
+
+.fees-receipt-scope .fees-history-detail__pre {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid var(--fees-line);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 12rem;
+  overflow: auto;
+}
+
+.fees-receipt-scope .fees-history-detail-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--fees-line);
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+body.fees-page.fees-history-modal-open,
+body.fees-page.fees-history-detail-open {
+  overflow: hidden;
+}
+
+/* Dedicated one-page receipt — hidden on screen */
+.fees-receipt-scope .fees-print-sheet {
+  display: none !important;
+}
+
+/* —— Print: full A4, white paper, signatures at bottom —— */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body.fees-page {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    background: #fff !important;
+    margin: 0 !important;
+    min-height: 100%;
+  }
+
+  body.fees-page .sidebar,
+  body.fees-page .sidebar-backdrop,
+  body.fees-page .topbar {
+    display: none !important;
+  }
+
+  body.fees-page .main-wrap {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  body.fees-page .page-content {
+    padding: 0 !important;
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  body.fees-page #page-inner {
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  body.fees-page .fees-screen-only {
+    display: none !important;
+  }
+
+  body.fees-page .crm-wrap {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Fill printable area; flex pushes signature block to bottom */
+  body.fees-page .fees-print-sheet {
+    display: flex !important;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 277mm;
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    font-size: 9pt;
+    line-height: 1.35;
+    color: #0f172a;
+    background: #fff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 2px;
+    overflow: visible;
+  }
+
+  body.fees-page .fees-print__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 12px 16px 10px;
+    border-bottom: 2px solid #0f172a;
+    background: #fff !important;
+    flex-shrink: 0;
+  }
+
+  body.fees-page .fees-print__main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+    min-height: 0;
+  }
+
+  body.fees-page .fees-print__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  body.fees-page .fees-print__logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  body.fees-page .fees-print__brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  body.fees-page .fees-print__brand-text strong {
+    font-family: 'Shrikhand', cursive;
+    font-size: 16pt;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: #0f172a;
+  }
+
+  body.fees-page .fees-print__brand-text span {
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #475569;
+  }
+
+  body.fees-page .fees-print__meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  body.fees-page .fees-print__meta-item {
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    padding: 6px 12px;
+    background: #fff !important;
+    min-width: 7.5rem;
+  }
+
+  body.fees-page .fees-print__meta-label {
+    display: block;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    margin-bottom: 2px;
+  }
+
+  body.fees-page .fees-print__meta-item strong {
+    font-size: 10.5pt;
+    font-variant-numeric: tabular-nums;
+    color: #0f172a;
+  }
+
+  body.fees-page .fees-print__card {
+    padding: 8px 0 6px;
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__card--compact {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  body.fees-page .fees-print__title {
+    font-size: 7.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #0f172a;
+    margin: 0 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #cbd5e1;
+  }
+
+  body.fees-page .fees-print__hr {
+    height: 0;
+    margin: 4px 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    background: none;
+  }
+
+  body.fees-page .fees-print__line {
+    display: grid;
+    grid-template-columns: minmax(110px, 32%) 1fr;
+    gap: 4px 12px;
+    font-size: 9pt;
+    margin-bottom: 4px;
+  }
+
+  body.fees-page .fees-print__k {
+    font-weight: 600;
+    color: #334155;
+  }
+
+  body.fees-page .fees-print__v {
+    font-weight: 500;
+    color: #0f172a;
+    word-break: break-word;
+  }
+
+  body.fees-page .fees-print__grid2 {
+    display: grid;
+    gap: 4px;
+  }
+
+  body.fees-page .fees-print__total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 11pt;
+    color: #0f172a;
+  }
+
+  body.fees-page .fees-print__words {
+    margin: 6px 0 0;
+    font-size: 8.5pt;
+    font-style: italic;
+    color: #475569;
+  }
+
+  body.fees-page .fees-print__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-top: 4px;
+  }
+
+  body.fees-page .fees-print__table th,
+  body.fees-page .fees-print__table td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 8px;
+    text-align: left;
+  }
+
+  body.fees-page .fees-print__table th {
+    background: #f1f5f9 !important;
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #334155;
+  }
+
+  body.fees-page .fees-print__num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  body.fees-page .fees-print__sign {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 16px 16px 8px;
+    margin-top: auto;
+    border-top: 1px solid #94a3b8;
+    page-break-inside: avoid;
+    background: #fff !important;
+    flex-shrink: 0;
+  }
+
+  body.fees-page .fees-print__sign-col {
+    text-align: center;
+  }
+
+  body.fees-page .fees-print__sign-role {
+    display: block;
+    font-size: 8pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 28px;
+    color: #0f172a;
+  }
+
+  body.fees-page .fees-print__sign-line {
+    height: 1px;
+    background: #0f172a;
+    margin: 0 auto 5px;
+    max-width: 220px;
+  }
+
+  body.fees-page .fees-print__sign-hint {
+    font-size: 7.5pt;
+    color: #64748b;
+  }
+}
