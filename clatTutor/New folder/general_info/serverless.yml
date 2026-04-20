@@ -1,0 +1,226 @@
+service: Clatutor-General-Info
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  memorySize: 1024
+  timeout: 10
+  versionFunctions: false  # avoid new versions on each deploy to prevent code storage limit
+  deploymentBucket:
+    maxPreviousDeploymentArtifacts: 1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clatutor-student-image
+        - arn:aws:s3:::clatutor-student-image/*
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clatutor-achivers-image
+        - arn:aws:s3:::clatutor-achivers-image/*
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clututor-faculty-image
+        - arn:aws:s3:::clututor-faculty-image/*
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clututor-class-image
+        - arn:aws:s3:::clututor-class-image/*
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clututor-ca-images
+        - arn:aws:s3:::clututor-ca-images/*
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+        - s3:ListBucket
+        - s3:HeadObject
+      Resource:
+        - arn:aws:s3:::clat-tutor-notes
+        - arn:aws:s3:::clat-tutor-notes/*
+
+functions:
+
+  general_info:
+    handler: general_info.handler
+    events:
+      - http:
+          path: student_general_info
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  student_achieve:
+    handler: student_achieve.handler
+    events:
+      - http:
+          path: student_achieve
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  admin:
+    handler: admin.handler
+    events:
+      - http:
+          path: admin
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  faculty:
+    handler: faculty.handler
+    events:
+      - http:
+          path: faculty
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  class:
+    handler: class.handler
+    events:
+      - http:
+          path: class
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  currentAffairs:
+    handler: currentAffairs.handler
+    events:
+      - http:
+          path: currentAffairs
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+  notes:
+    handler: notes.handler
+    events:
+      - http:
+          path: notes
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+# Ensure API Gateway error responses (4XX/5XX) also include CORS headers
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Requested-With'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    GatewayResponseDefault5XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Requested-With'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!**/.git/**'
+    - '!**/.serverless/**'
+    - '!**/.vscode/**'
+    - '!**/.env'
+    - '!**/.env.*'
+    - '!**/README.md'
+    - '!**/*.md'
+    - '!**/package-lock.json'
+    - '!**/yarn.lock'
+    - '!**/.DS_Store'
+    - '!**/test/**'
+    - '!**/tests/**'
+    - '!**/__tests__/**'
+    - '!**/.gitignore'
+    - '!**/.npmignore'
