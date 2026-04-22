@@ -231,33 +231,9 @@
                     </thead>
                     <tbody>
                       <tr>
-                        <td class="fees-td-label">Admission fee (non-refundable)</td>
-                        <td class="fees-td-num">
-                          <input id="fees-admission" name="admissionFee" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="fees-td-label">Base fee</td>
+                        <td class="fees-td-label">Tuition fee</td>
                         <td class="fees-td-num">
                           <input id="fees-base" name="baseFee" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="fees-td-label">Installment premium</td>
-                        <td class="fees-td-num">
-                          <input id="fees-premium" name="installmentPremium" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="fees-td-label">Other charges</td>
-                        <td class="fees-td-num">
-                          <input id="fees-other" name="otherCharges" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="fees-td-label"><strong>Net payable</strong> <span class="fees-net-hint">(inclusive of taxes)</span></td>
-                        <td class="fees-td-num">
-                          <input id="fees-net-payable" name="netPayable" type="text" class="fees-input fees-input--mono" inputmode="decimal" readonly />
                         </td>
                       </tr>
                     </tbody>
@@ -315,32 +291,6 @@
               </tr>
             </template>
 
-            <section class="fees-panel" aria-labelledby="fees-h-due">
-              <div class="fees-panel__head" id="fees-h-due">
-                <i class="fa-solid fa-scale-balanced"></i>
-                Due detail
-              </div>
-              <div class="fees-panel__body">
-                <div class="fees-grid-2">
-                  <div class="fees-field">
-                    <label class="fees-field-label" for="fees-due-till">Due till date (INR)</label>
-                    <input id="fees-due-till" name="dueTillDateAmount" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                  </div>
-                  <div class="fees-field">
-                    <label class="fees-field-label" for="fees-received-total">Received (INR)</label>
-                    <input id="fees-received-total" name="receivedTotal" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                  </div>
-                  <div class="fees-field">
-                    <label class="fees-field-label" for="fees-balance">Balance (INR)</label>
-                    <input id="fees-balance" name="balance" type="text" class="fees-input fees-input--mono" readonly />
-                  </div>
-                  <div class="fees-field">
-                    <label class="fees-field-label" for="fees-due-total">Due total (INR)</label>
-                    <input id="fees-due-total" name="dueTotal" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
-                  </div>
-                </div>
-              </div>
-            </section>
           </div>
         </div>
 
@@ -454,22 +404,18 @@
             </table>
           </div>
 
-          <div class="fees-print__card fees-print__card--compact">
-            <div class="fees-print__title">Due detail (INR)</div>
-            <div class="fees-print__grid2" id="print-due-grid"></div>
-          </div>
         </div>
 
         <div class="fees-print__sign">
           <div class="fees-print__sign-col">
-            <span class="fees-print__sign-role">Customer</span>
-            <div class="fees-print__sign-line"></div>
+            <span class="fees-print__sign-role">Parents</span>
             <span class="fees-print__sign-hint">Signature</span>
+            <div class="fees-print__sign-line"></div>
           </div>
           <div class="fees-print__sign-col">
-            <span class="fees-print__sign-role">Institution head</span>
-            <div class="fees-print__sign-line"></div>
+            <span class="fees-print__sign-role">Institution Head</span>
             <span class="fees-print__sign-hint">Signature &amp; seal</span>
+            <div class="fees-print__sign-line"></div>
           </div>
         </div>
       </section>

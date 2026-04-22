@@ -8,6 +8,7 @@
     'courses.html': '../image/courses.png',
     'current-affairs.html': '../image/clat gk.png',
     'notifications.html': '../image/notification.png',
+    'changePassword.html': '../image/change-password.png',
     'dashboard.html#enrollment-form': '../image/enrollment form.png',
     'dashboard.html#note': '../image/note.png',
     'dashboard.html#downloads': '../image/download.png',

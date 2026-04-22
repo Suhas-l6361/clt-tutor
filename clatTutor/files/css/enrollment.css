@@ -161,6 +161,13 @@
   text-align: right;
 }
 
+.enrollment-table__th-responded,
+.enrollment-table__td-responded {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+}
+
 .enrollment-table__action {
   display: inline-flex;
   align-items: center;
@@ -180,6 +187,23 @@
 .enrollment-table__action:hover {
   background: linear-gradient(180deg, #fff4d6 0%, #fffbeb 100%);
   border-color: #a16207;
+}
+
+.enrollment-responded-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  user-select: none;
+}
+
+.enrollment-responded-toggle input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: #16a34a;
+  cursor: pointer;
 }
 
 /* Modal */

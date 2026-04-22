@@ -1,6 +1,6 @@
-/**
- * fees.html — receipt meta, totals, balance, Flatpickr dates, installments, payment mode.
- */
+  /**
+   * fees.html — receipt meta, totals, Flatpickr dates, installments, payment mode.
+   */
 (function () {
   'use strict';
 
@@ -370,17 +370,13 @@
 
     var feeGrid = document.getElementById('print-fee-grid');
     if (feeGrid) {
-      feeGrid.innerHTML =
-        printLineHtml('Admission fee (non-refundable)', valById('fees-admission')) +
-        printLineHtml('Base fee', valById('fees-base')) +
-        printLineHtml('Installment premium', valById('fees-premium')) +
-        printLineHtml('Other charges', valById('fees-other'));
+      feeGrid.innerHTML = printLineHtml('Tuition fee', valById('fees-base'));
     }
 
     var pnet = document.getElementById('print-net-inr');
     var pnw = document.getElementById('print-net-words');
     if (pnet) {
-      var nv = valById('fees-net-payable');
+      var nv = valById('fees-base');
       pnet.textContent = nv ? '₹ ' + nv : '—';
     }
     if (pnw) pnw.textContent = valById('fees-net-words') || '—';
@@ -416,11 +412,7 @@
 
     var dueG = document.getElementById('print-due-grid');
     if (dueG) {
-      dueG.innerHTML =
-        printLineHtml('Due till date', valById('fees-due-till')) +
-        printLineHtml('Received', valById('fees-received-total')) +
-        printLineHtml('Balance', valById('fees-balance')) +
-        printLineHtml('Due total', valById('fees-due-total'));
+      dueG.innerHTML = '';
     }
   }
 
@@ -526,17 +518,27 @@
 
     var feeGrid = document.getElementById('print-fee-grid');
     if (feeGrid) {
-      feeGrid.innerHTML =
-        printLineHtml('Admission fee (non-refundable)', rstr(row.admission_fess)) +
-        printLineHtml('Base fee', rstr(row.base_fees)) +
-        printLineHtml('Installment premium', rstr(row.installmentPremium)) +
-        printLineHtml('Other charges', rstr(row.other_Charge));
+      feeGrid.innerHTML = printLineHtml(
+        'Tuition fee',
+        rstr(
+          row.tution_fess != null && row.tution_fess !== ''
+            ? row.tution_fess
+            : row.base_fees != null && row.base_fees !== ''
+              ? row.base_fees
+              : row.netPayable
+        )
+      );
     }
 
     var pnet = document.getElementById('print-net-inr');
     var pnw = document.getElementById('print-net-words');
     if (pnet) {
-      var nv = row.netPayable;
+      var nv =
+        row.tution_fess != null && row.tution_fess !== ''
+          ? row.tution_fess
+          : row.base_fees != null && row.base_fees !== ''
+            ? row.base_fees
+            : row.netPayable;
       pnet.textContent = nv != null && rstr(nv) !== '' ? '₹ ' + rstr(nv) : '—';
     }
     if (pnw) pnw.textContent = rstr(row.amount_in_words_total) || '—';
@@ -579,11 +581,7 @@
 
     var dueG = document.getElementById('print-due-grid');
     if (dueG) {
-      dueG.innerHTML =
-        printLineHtml('Due till date', rstr(row.due_till_date)) +
-        printLineHtml('Received', rstr(row.received)) +
-        printLineHtml('Balance', rstr(row.balance)) +
-        printLineHtml('Due total', rstr(row.due_total));
+      dueG.innerHTML = '';
     }
   }
 
@@ -710,23 +708,19 @@
         ) +
         section(
           'Fee structure',
-          kvRow('Admission fee', row.admission_fess) +
-            kvRow('Base fee', row.base_fees) +
-            kvRow('Installment premium', row.installmentPremium) +
-            kvRow('Other charges', row.other_Charge) +
-            kvRow('Net payable', row.netPayable) +
+          kvRow(
+            'Tuition fee',
+            row.tution_fess != null && row.tution_fess !== ''
+              ? row.tution_fess
+              : row.base_fees != null && row.base_fees !== ''
+                ? row.base_fees
+                : row.netPayable
+          ) +
             kvRow('Total in words', row.amount_in_words_total)
         ) +
         '<section class="fees-history-detail__section"><h3 class="fees-history-detail__h">Installment plan</h3><pre class="fees-history-detail__pre">' +
         escHtml(planStr) +
-        '</pre></section>' +
-        section(
-          'Due',
-          kvRow('Due till date', row.due_till_date) +
-            kvRow('Received', row.received) +
-            kvRow('Balance', row.balance) +
-            kvRow('Due total', row.due_total)
-        );
+        '</pre></section>';
     }
 
     function openDetail(row) {
@@ -907,8 +901,12 @@
 
     function collectSnapshot() {
       var base = formToObject(form);
+      var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+      var user = session && session.user ? session.user : null;
+      var addedBy = user ? (user.email || user.login || user.name || '') : '';
       base.receiptIdDisplay = textSnap('fees-receipt-id');
       base.receiptDateDisplay = textSnap('fees-receipt-date');
+      base.addedBy = String(addedBy || '').trim() || null;
       base.studentDetail = {
         name: textSnap('fees-disp-name'),
         studentId: textSnap('fees-disp-student-id'),
@@ -1037,6 +1035,8 @@
     var selectedLabel = '';
     var activeIndex = -1;
     var filtered = [];
+    var isLoading = false;
+    var hasLoaded = false;
 
     var disp = {
       name: document.getElementById('fees-disp-name'),
@@ -1167,12 +1167,6 @@
       }
     });
 
-    search.addEventListener('focus', function () {
-      filtered = filterList(search.value);
-      renderList();
-      if (filtered.length) openList();
-    });
-
     search.addEventListener('blur', function () {
       setTimeout(function () {
         closeList();
@@ -1208,6 +1202,8 @@
     });
 
     async function load() {
+      if (isLoading) return;
+      isLoading = true;
       setStatus('Loading students…');
       try {
         var res = await fetch(getStudentApiUrl(), { method: 'GET' });
@@ -1216,6 +1212,7 @@
           throw new Error((data && data.message) || 'Request failed');
         }
         students = Array.isArray(data) ? data : [];
+        hasLoaded = true;
         setStatus(
           students.length
             ? students.length + ' students — type to filter and select.'
@@ -1224,39 +1221,58 @@
       } catch (err) {
         setStatus(err.message || 'Could not load student list', true);
         students = [];
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function refreshAndOpenList() {
+      filtered = filterList(search.value);
+      renderList();
+      if (filtered.length) {
+        openList();
+      } else {
+        closeList();
       }
     }
 
     load();
+
+    search.addEventListener('click', function () {
+      if (isLoading) return;
+      if (!hasLoaded || !students.length) {
+        load().then(refreshAndOpenList);
+        return;
+      }
+      refreshAndOpenList();
+    });
+
+    search.addEventListener('focus', function () {
+      if (isLoading) return;
+      if (!hasLoaded || !students.length) {
+        load().then(refreshAndOpenList);
+        return;
+      }
+      refreshAndOpenList();
+    });
   }
 
   function wireTotals() {
-    var admission = document.getElementById('fees-admission');
     var base = document.getElementById('fees-base');
-    var premium = document.getElementById('fees-premium');
-    var other = document.getElementById('fees-other');
-    var net = document.getElementById('fees-net-payable');
     var netWords = document.getElementById('fees-net-words');
 
     function recalcNet() {
-      var sum =
-        parseAmount(admission) +
-        parseAmount(base) +
-        parseAmount(premium) +
-        parseAmount(other);
-      if (net) {
-        net.value = sum ? String(sum) : '';
-        if (
-          netWords &&
-          document.activeElement !== netWords &&
-          !netWords.dataset.touched
-        ) {
-          netWords.value = sum ? inrToWords(sum) : '';
-        }
+      var sum = parseAmount(base);
+      if (
+        netWords &&
+        document.activeElement !== netWords &&
+        !netWords.dataset.touched
+      ) {
+        netWords.value = sum ? inrToWords(sum) : '';
       }
     }
 
-    [admission, base, premium, other].forEach(function (el) {
+    [base].forEach(function (el) {
       if (el) el.addEventListener('input', recalcNet);
     });
     if (netWords) {
@@ -1264,11 +1280,7 @@
         netWords.dataset.touched = netWords.value.trim() ? '1' : '';
       });
       netWords.addEventListener('focus', function () {
-        var sum =
-          parseAmount(admission) +
-          parseAmount(base) +
-          parseAmount(premium) +
-          parseAmount(other);
+        var sum = parseAmount(base);
         if (!netWords.value.trim() && sum) netWords.value = inrToWords(sum);
       });
     }
@@ -1417,7 +1429,6 @@
     wireStudentPicker();
     wireInstallments();
     wireTotals();
-    wireBalance();
     wirePaymentWords();
     wirePaymentMode();
     wireFeesActions();

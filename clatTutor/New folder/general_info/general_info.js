@@ -562,6 +562,19 @@ const updateGeneralInfo = async (body, event) => {
       updateFields.push('added_by = ?');
       updateParams.push((data.added_by == null ? null : String(data.added_by).trim()) || null);
     }
+    if (data.password !== undefined) {
+      const nextPassword = data.password == null ? '' : String(data.password).trim();
+      if (!nextPassword) {
+        connection.release();
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ message: 'password cannot be empty' }),
+        };
+      }
+      updateFields.push('password = ?');
+      updateParams.push(nextPassword);
+    }
     if (data.regenerate_password === true) {
       updateFields.push('password = ?');
       updateParams.push(generatePassword());
@@ -597,6 +610,18 @@ const updateGeneralInfo = async (body, event) => {
       } catch (_) {}
     }
     console.error('Error updating general info:', error);
+    if (error && error.code === 'ER_DUP_ENTRY') {
+      const msg = String(error.message || '').toLowerCase();
+      let friendly = 'Duplicate value found. Please use unique details.';
+      if (msg.includes('phone')) friendly = 'Phone number already exists.';
+      else if (msg.includes('email')) friendly = 'Email already exists.';
+      else if (msg.includes('password')) friendly = 'Password already in use. Please choose a different password.';
+      return {
+        statusCode: 409,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: friendly }),
+      };
+    }
     return {
       statusCode: 500,
       headers: corsHeaders,

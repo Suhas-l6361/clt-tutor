@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRM - General Info Upload Sample</title>
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -94,7 +96,8 @@
   </style>
   <script src="../js/site-protection.js" data-protection-mode="public"></script>
 </head>
-<body>
+<body class="app-body">
+  <div id="stock" style="display: none;">
   <div class="card">
     <h1>General Info + S3 Image Upload (Sample)</h1>
     <p class="hint">
@@ -126,8 +129,21 @@
     <div id="message"></div>
     <pre id="resultBox" hidden></pre>
   </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
 
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260420"></script>
+  <script src="../js/crm-chrome.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: '', title: 'General Info Upload', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+    });
+
     const form = document.getElementById('uploadForm');
     const submitBtn = document.getElementById('submitBtn');
     const message = document.getElementById('message');

@@ -1114,13 +1114,12 @@ body.fees-page.fees-history-detail-open {
     background: #fff !important;
   }
 
-  /* Fill printable area; flex pushes signature block to bottom */
+  /* Keep content natural so signature follows installment table */
   body.fees-page .fees-print-sheet {
-    display: flex !important;
-    flex-direction: column;
+    display: block !important;
     box-sizing: border-box;
     width: 100%;
-    min-height: 277mm;
+    min-height: 0;
     padding: 0;
     margin: 0;
     font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
@@ -1146,9 +1145,7 @@ body.fees-page.fees-history-detail-open {
   }
 
   body.fees-page .fees-print__main {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
+    display: block;
     padding: 0 16px;
     min-height: 0;
   }
@@ -1325,7 +1322,7 @@ body.fees-page.fees-history-detail-open {
     grid-template-columns: 1fr 1fr;
     gap: 32px;
     padding: 16px 16px 8px;
-    margin-top: auto;
+    margin-top: 20px;
     border-top: 1px solid #94a3b8;
     page-break-inside: avoid;
     background: #fff !important;
@@ -1334,6 +1331,9 @@ body.fees-page.fees-history-detail-open {
 
   body.fees-page .fees-print__sign-col {
     text-align: center;
+    display: grid;
+    justify-items: center;
+    row-gap: 6px;
   }
 
   body.fees-page .fees-print__sign-role {
@@ -1342,19 +1342,21 @@ body.fees-page.fees-history-detail-open {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: 28px;
+    margin-bottom: 8px;
     color: #0f172a;
   }
 
   body.fees-page .fees-print__sign-line {
     height: 1px;
     background: #0f172a;
-    margin: 0 auto 5px;
+    margin: 0 auto;
     max-width: 220px;
+    width: 100%;
   }
 
   body.fees-page .fees-print__sign-hint {
     font-size: 7.5pt;
     color: #64748b;
+    margin-bottom: 4px;
   }
 }

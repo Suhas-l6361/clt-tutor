@@ -2579,6 +2579,7 @@ textarea {
   border: 1.5px solid var(--black);
   padding: 0.55rem 0.75rem;
   background: var(--white);
+  text-decoration: none;
   transition:
     background 0.15s var(--ease),
     color 0.15s var(--ease);
@@ -2588,6 +2589,17 @@ textarea {
   background: var(--black);
   color: var(--white);
   border-color: var(--black);
+  text-decoration: none;
+}
+
+.sidebar .user-block .btn-ghost.active {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.sidebar .user-block #btn-change-password {
+  margin-bottom: 0.45rem;
 }
 
 .main-wrap {

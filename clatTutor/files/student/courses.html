@@ -8,6 +8,48 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/student-shell.css" />
+  <style>
+    .lms-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1rem; }
+    .lms-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04); }
+    .lms-title { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .lms-muted { margin: 0; color: var(--muted); font-size: 0.87rem; }
+    .course-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+    .course-card h4 { margin: 0 0 0.35rem; font-size: 1rem; }
+    .course-card .meta { margin: 0; color: var(--muted); font-size: 0.8rem; }
+    .course-card .cta-row { display: flex; gap: 0.45rem; margin-top: 0.8rem; }
+    .btn-mini { border: 1px solid #d6dbe4; border-radius: 9px; background: #fff; padding: 0.45rem 0.55rem; cursor: pointer; }
+    .lms-stat { display: grid; gap: 0.55rem; margin-top: 0.7rem; }
+    .lms-stat-item { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.85rem; }
+    .lms-pill { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid #d5dbe5; border-radius: 999px; padding: 0.28rem 0.55rem; font-size: 0.75rem; font-weight: 600; background: #fff; }
+    .lms-pill.active { border-color: #e6b800; background: #fff7d1; }
+    .lms-reco-list { list-style: none; margin: 0.7rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+    .lms-reco-list li { border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.7rem; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+
+    .video-modal__dialog { width: min(1200px, 96vw); max-height: 90vh; }
+    .lms-player-wrap { display: grid; grid-template-columns: 2fr 1fr; gap: 0.8rem; padding: 0.8rem; }
+    .lms-player-main { min-width: 0; }
+    .video-modal__frame-wrap { border-radius: 12px; overflow: hidden; border: 1px solid #dde3ec; }
+    .video-modal__iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; display: block; background: #000; }
+    .lms-player-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.65rem; }
+    .lms-player-actions button { border: 1px solid #d6dbe4; background: #fff; border-radius: 10px; padding: 0.45rem 0.62rem; font-weight: 600; cursor: pointer; }
+    .lms-player-actions button.active { background: #fff7d1; border-color: #e6b800; }
+    .lms-next-box { margin-top: 0.75rem; border: 1px solid #dbe2ec; border-radius: 12px; padding: 0.65rem 0.7rem; background: #f8fafc; }
+    .lms-next-box h4 { margin: 0 0 0.35rem; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; color: #344054; }
+    .lms-next-box p { margin: 0; font-size: 0.88rem; }
+
+    .lms-playlist { border: 1px solid #dde3ec; border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-height: 320px; }
+    .lms-playlist__head { padding: 0.7rem; background: #f8fafc; border-bottom: 1px solid #e3e8ef; }
+    .lms-playlist__head h3 { margin: 0; font-size: 0.92rem; }
+    .lms-playlist__list { margin: 0; padding: 0; list-style: none; overflow: auto; }
+    .lms-playlist__item { border-bottom: 1px solid #eef2f7; }
+    .lms-playlist__btn { width: 100%; text-align: left; border: 0; background: #fff; padding: 0.62rem 0.7rem; cursor: pointer; display: grid; gap: 0.2rem; }
+    .lms-playlist__btn:hover { background: #f8fafc; }
+    .lms-playlist__btn.active { background: #fff8de; }
+    .lms-playlist__name { font-size: 0.86rem; font-weight: 600; color: #0f172a; }
+    .lms-playlist__meta { font-size: 0.75rem; color: #64748b; }
+    @media (max-width: 1100px) { .lms-layout { grid-template-columns: 1fr; } .course-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 920px) { .lms-player-wrap { grid-template-columns: 1fr; } .course-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body class="app-body student-dashboard">
   <div id="stock" style="display: none">
@@ -15,7 +57,20 @@
       <i class="fa-solid fa-layer-group" style="color: var(--accent); margin-right: 0.35rem"></i>
       All modules for your enrolled batch. Open a card to access videos, PDFs, and quizzes (API-ready).
     </p>
-    <div class="course-grid" id="course-list"></div>
+    <div class="lms-layout">
+      <section class="lms-card">
+        <h3 class="lms-title">My Learning Paths</h3>
+        <p class="lms-muted">YouTube-style module access with resume, progress, and smart next suggestions.</p>
+        <div class="course-grid" id="course-list" style="margin-top:0.85rem;"></div>
+      </section>
+      <aside class="lms-card">
+        <h3 class="lms-title">Learning Snapshot</h3>
+        <p class="lms-muted">Live tracked on this device for this student account.</p>
+        <div class="lms-stat" id="lms-stat"></div>
+        <h4 style="margin:1rem 0 0.45rem;font-size:0.92rem;">Recommended Next</h4>
+        <ul class="lms-reco-list" id="lms-reco"></ul>
+      </aside>
+    </div>
 
     <div id="video-modal" class="video-modal" hidden aria-hidden="true">
       <div class="video-modal__backdrop" data-video-modal-close tabindex="-1"></div>
@@ -44,19 +99,39 @@
           >
           instead.
         </p>
-        <div class="video-modal__frame-wrap">
-          <iframe
-            id="video-modal-iframe"
-            class="video-modal__iframe"
-            title="YouTube video player"
-            width="560"
-            height="315"
-            src=""
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="no-referrer-when-downgrade"
-            allowfullscreen
-          ></iframe>
+        <div class="lms-player-wrap">
+          <div class="lms-player-main">
+            <div class="video-modal__frame-wrap">
+              <iframe
+                id="video-modal-iframe"
+                class="video-modal__iframe"
+                title="YouTube video player"
+                width="560"
+                height="315"
+                src=""
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <div class="lms-player-actions">
+              <button type="button" id="lms-like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
+              <button type="button" id="lms-bookmark-btn"><i class="fa-regular fa-bookmark"></i> Save</button>
+              <span class="lms-pill" id="lms-resume-pill"><i class="fa-regular fa-clock"></i> Resume enabled</span>
+              <span class="lms-pill" id="lms-progress-pill">0% complete</span>
+            </div>
+            <div class="lms-next-box" id="lms-next-box" hidden>
+              <h4>Next in Queue</h4>
+              <p id="lms-next-text">—</p>
+            </div>
+          </div>
+          <aside class="lms-playlist">
+            <div class="lms-playlist__head">
+              <h3 id="lms-playlist-title">Playlist</h3>
+            </div>
+            <ul class="lms-playlist__list" id="lms-playlist-list"></ul>
+          </aside>
         </div>
       </div>
     </div>
@@ -72,45 +147,66 @@
   <script src="../js/student-chrome.js"></script>
   <script>
     var PLAYLIST = 'PLL7UAbmnJDJEgc4bCzJVNN2V6bhM4uCtc';
-    /* nocookie + video id loads that clip; list= adds playlist sidebar. No &index= on embed (breaks player / Error 153). */
-    function ytEmbed(videoId) {
+    function ytEmbed(videoId, startSeconds) {
+      var start = Number(startSeconds || 0);
       return (
         'https://www.youtube-nocookie.com/embed/' +
         videoId +
-        '?list=' +
+        '?enablejsapi=1&list=' +
         PLAYLIST +
-        '&rel=0&modestbranding=1'
+        '&rel=0&modestbranding=1' +
+        (start > 0 ? '&start=' + Math.max(0, Math.floor(start)) : '')
       );
     }
     var DEMO_COURSES = [
       {
+        id: 'legal-reasoning',
         title: 'CLAT — Legal reasoning',
         meta: '12 videos · 4 quizzes',
         tag: 'Core',
-        pct: 62,
-        embed: ytEmbed('OvMWbfFAvHA'),
+        modules: [
+          { id: 'OvMWbfFAvHA', name: 'Introduction to Legal Reasoning', mins: 18 },
+          { id: 'zX8rN_GPEx4', name: 'Principles & Facts', mins: 22 },
+          { id: '3XkRCoFgI9Q', name: 'Statement Assumption Drills', mins: 16 },
+          { id: 'NiA26NIq4cg', name: 'Timed Section Practice', mins: 20 }
+        ]
       },
       {
+        id: 'english-comprehension',
         title: 'English & comprehension',
         meta: '8 videos · 2 quizzes',
         tag: 'Core',
-        pct: 40,
-        embed: ytEmbed('zX8rN_GPEx4'),
+        modules: [
+          { id: 'zX8rN_GPEx4', name: 'Reading Strategy', mins: 14 },
+          { id: 'OvMWbfFAvHA', name: 'Vocabulary in Context', mins: 17 },
+          { id: 'NiA26NIq4cg', name: 'Critical Passage Analysis', mins: 19 },
+          { id: '3XkRCoFgI9Q', name: 'Speed + Accuracy Drill', mins: 12 }
+        ]
       },
       {
+        id: 'logical-reasoning',
         title: 'Logical reasoning drills',
         meta: '6 practice sets',
         tag: 'Practice',
-        pct: 15,
-        embed: ytEmbed('3XkRCoFgI9Q'),
+        modules: [
+          { id: '3XkRCoFgI9Q', name: 'Statements & Conclusions', mins: 15 },
+          { id: 'OvMWbfFAvHA', name: 'Seating Arrangement Basics', mins: 21 },
+          { id: 'zX8rN_GPEx4', name: 'Blood Relation Tricks', mins: 13 },
+          { id: 'NiA26NIq4cg', name: 'Mixed LR Mock', mins: 24 }
+        ]
       },
       {
+        id: 'gk-current-affairs',
         title: 'GK & current affairs',
         meta: 'Weekly digest + tests',
         tag: 'Ongoing',
-        pct: 88,
-        embed: ytEmbed('NiA26NIq4cg'),
-      },
+        modules: [
+          { id: 'NiA26NIq4cg', name: 'Weekly CA Digest', mins: 15 },
+          { id: 'OvMWbfFAvHA', name: 'National Affairs Roundup', mins: 11 },
+          { id: 'zX8rN_GPEx4', name: 'International Affairs Roundup', mins: 12 },
+          { id: '3XkRCoFgI9Q', name: 'CA Practice Quiz Walkthrough', mins: 14 }
+        ]
+      }
     ];
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -123,7 +219,9 @@
       });
       applyStudentChrome();
       var wrap = document.getElementById('course-list');
-      if (!wrap) return;
+      var statWrap = document.getElementById('lms-stat');
+      var recoWrap = document.getElementById('lms-reco');
+      if (!wrap || !statWrap || !recoWrap) return;
       function escAttr(s) {
         return String(s)
           .replace(/&/g, '&amp;')
@@ -131,7 +229,63 @@
           .replace(/</g, '&lt;');
       }
 
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var userId = session && session.user && (session.user.id || session.user.email)
+        ? String(session.user.id || session.user.email)
+        : 'student';
+      var storageKey = 'lms_course_state_' + userId;
+      var lmsState = { courses: {}, lastCourseId: null };
+      try {
+        var raw = localStorage.getItem(storageKey);
+        if (raw) lmsState = Object.assign(lmsState, JSON.parse(raw));
+      } catch (_) {}
+      function saveLmsState() {
+        localStorage.setItem(storageKey, JSON.stringify(lmsState));
+      }
+      function getCourseState(courseId) {
+        if (!lmsState.courses[courseId]) {
+          lmsState.courses[courseId] = {
+            liked: false,
+            saved: false,
+            progressPct: 0,
+            lastVideoId: null,
+            lastSeconds: 0
+          };
+        }
+        return lmsState.courses[courseId];
+      }
+      function avgProgress() {
+        var vals = DEMO_COURSES.map(function (c) { return getCourseState(c.id).progressPct || 0; });
+        if (!vals.length) return 0;
+        var sum = vals.reduce(function (a, b) { return a + b; }, 0);
+        return Math.round(sum / vals.length);
+      }
+      function renderSnapshot() {
+        var likedCount = DEMO_COURSES.filter(function (c) { return getCourseState(c.id).liked; }).length;
+        var savedCount = DEMO_COURSES.filter(function (c) { return getCourseState(c.id).saved; }).length;
+        statWrap.innerHTML =
+          '<div class="lms-stat-item"><span>Overall progress</span><strong>' + avgProgress() + '%</strong></div>' +
+          '<div class="lms-stat-item"><span>Courses liked</span><strong>' + likedCount + '</strong></div>' +
+          '<div class="lms-stat-item"><span>Saved modules</span><strong>' + savedCount + '</strong></div>';
+      }
+      function renderRecommendations(activeCourseId) {
+        var list = DEMO_COURSES
+          .filter(function (c) { return c.id !== activeCourseId; })
+          .sort(function (a, b) {
+            return (getCourseState(a.id).progressPct || 0) - (getCourseState(b.id).progressPct || 0);
+          })
+          .slice(0, 3);
+        recoWrap.innerHTML = list
+          .map(function (c) {
+            var p = getCourseState(c.id).progressPct || 0;
+            return '<li><div><strong>' + c.title + '</strong><div class="lms-muted">' + c.meta + '</div></div><span class="lms-pill">' + p + '%</span></li>';
+          })
+          .join('');
+      }
+
       wrap.innerHTML = DEMO_COURSES.map(function (c) {
+        var st = getCourseState(c.id);
+        var pct = st.progressPct || 0;
         return (
           '<div class="card course-card">' +
           '<h4>' +
@@ -143,44 +297,228 @@
           c.tag +
           '</span></p>' +
           '<div class="progress" aria-label="Progress ' +
-          c.pct +
+          pct +
           '%"><div class="progress__bar" style="width:' +
-          c.pct +
+          pct +
           '%"></div></div>' +
           '<p class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0">' +
-          c.pct +
+          pct +
           '% complete</p>' +
-          '<button type="button" class="btn btn-primary btn-open-module" style="margin-top:1rem" data-embed="' +
-          escAttr(c.embed) +
+          '<div class="cta-row">' +
+          '<button type="button" class="btn btn-primary btn-open-module" data-course-id="' +
+          escAttr(c.id) +
           '"><i class="fa-solid fa-play"></i> Open module</button>' +
+          '<button type="button" class="btn-mini btn-open-module" data-course-id="' +
+          escAttr(c.id) +
+          '" title="Open and resume"><i class="fa-regular fa-clock"></i></button>' +
+          '</div>' +
           '</div>'
         );
       }).join('');
+      renderSnapshot();
+      renderRecommendations(lmsState.lastCourseId || '');
 
       var modal = document.getElementById('video-modal');
       var iframe = document.getElementById('video-modal-iframe');
       var modalTitle = document.getElementById('video-modal-title');
       var fileHint = document.getElementById('video-modal-file-hint');
+      var playlistTitle = document.getElementById('lms-playlist-title');
+      var playlistList = document.getElementById('lms-playlist-list');
+      var likeBtn = document.getElementById('lms-like-btn');
+      var saveBtn = document.getElementById('lms-bookmark-btn');
+      var progressPill = document.getElementById('lms-progress-pill');
+      var nextBox = document.getElementById('lms-next-box');
+      var nextText = document.getElementById('lms-next-text');
       var isFileProtocol = window.location.protocol === 'file:';
+      var ytLoaded = false;
+      var player = null;
+      var progressTimer = null;
+      var activeCourse = null;
+      var activeModuleIndex = 0;
+      var pendingSeek = 0;
+
+      function loadYouTubeApi() {
+        if (window.YT && window.YT.Player) return Promise.resolve();
+        return new Promise(function (resolve) {
+          if (ytLoaded) {
+            var t = setInterval(function () {
+              if (window.YT && window.YT.Player) {
+                clearInterval(t);
+                resolve();
+              }
+            }, 100);
+            return;
+          }
+          ytLoaded = true;
+          var tag = document.createElement('script');
+          tag.src = 'https://www.youtube.com/iframe_api';
+          tag.onerror = function () {
+            resolve();
+          };
+          window.onYouTubeIframeAPIReady = function () {
+            resolve();
+          };
+          document.head.appendChild(tag);
+          setTimeout(function () {
+            resolve();
+          }, 3500);
+        });
+      }
+
+      function setCourseButtonsState() {
+        if (!activeCourse) return;
+        var st = getCourseState(activeCourse.id);
+        likeBtn.classList.toggle('active', !!st.liked);
+        saveBtn.classList.toggle('active', !!st.saved);
+        likeBtn.innerHTML = (st.liked ? '<i class="fa-solid fa-thumbs-up"></i> Liked' : '<i class="fa-regular fa-thumbs-up"></i> Like');
+        saveBtn.innerHTML = (st.saved ? '<i class="fa-solid fa-bookmark"></i> Saved' : '<i class="fa-regular fa-bookmark"></i> Save');
+        progressPill.textContent = (st.progressPct || 0) + '% complete';
+      }
+
+      function refreshCourseCard(courseId) {
+        wrap.querySelectorAll('.course-card').forEach(function (card) {
+          var openBtn = card.querySelector('.btn-open-module[data-course-id]');
+          if (!openBtn || openBtn.getAttribute('data-course-id') !== courseId) return;
+          var st = getCourseState(courseId);
+          var bar = card.querySelector('.progress__bar');
+          var txt = card.querySelector('.text-muted');
+          if (bar) bar.style.width = (st.progressPct || 0) + '%';
+          if (txt) txt.textContent = (st.progressPct || 0) + '% complete';
+        });
+      }
+
+      function updateNextBox() {
+        if (!activeCourse || !nextBox || !nextText) return;
+        var next = activeCourse.modules[activeModuleIndex + 1];
+        if (!next) {
+          nextBox.hidden = true;
+          return;
+        }
+        nextText.textContent = next.name + ' (' + next.mins + ' min)';
+        nextBox.hidden = false;
+      }
+
+      function renderPlaylist() {
+        if (!activeCourse) return;
+        playlistTitle.textContent = activeCourse.title + ' Playlist';
+        playlistList.innerHTML = activeCourse.modules
+          .map(function (m, idx) {
+            return (
+              '<li class="lms-playlist__item">' +
+              '<button type="button" class="lms-playlist__btn' + (idx === activeModuleIndex ? ' active' : '') + '" data-module-index="' + idx + '">' +
+              '<span class="lms-playlist__name">' + m.name + '</span>' +
+              '<span class="lms-playlist__meta">Module ' + (idx + 1) + ' · ' + m.mins + ' min</span>' +
+              '</button>' +
+              '</li>'
+            );
+          })
+          .join('');
+        updateNextBox();
+      }
+
+      function stopProgressTimer() {
+        if (progressTimer) {
+          clearInterval(progressTimer);
+          progressTimer = null;
+        }
+      }
+
+      function syncProgressFromPlayer() {
+        if (!player || !activeCourse) return;
+        var st = getCourseState(activeCourse.id);
+        var duration = 0;
+        var current = 0;
+        try {
+          duration = Number(player.getDuration ? player.getDuration() : 0);
+          current = Number(player.getCurrentTime ? player.getCurrentTime() : 0);
+        } catch (_) { return; }
+        if (!duration || !current) return;
+        st.lastVideoId = activeCourse.modules[activeModuleIndex].id;
+        st.lastSeconds = Math.floor(current);
+        var perVideo = Math.min(100, Math.round((current / duration) * 100));
+        var aggregate = Math.round(((activeModuleIndex * 100) + perVideo) / activeCourse.modules.length);
+        st.progressPct = Math.max(st.progressPct || 0, aggregate);
+        lmsState.lastCourseId = activeCourse.id;
+        saveLmsState();
+        setCourseButtonsState();
+        refreshCourseCard(activeCourse.id);
+        renderSnapshot();
+        renderRecommendations(activeCourse.id);
+      }
+
+      function bootPlayer(startSeconds) {
+        if (!activeCourse) return;
+        var mod = activeCourse.modules[activeModuleIndex];
+        var src = ytEmbed(mod.id, startSeconds || 0);
+        pendingSeek = Number(startSeconds || 0);
+        iframe.src = src;
+        loadYouTubeApi().then(function () {
+          if (!(window.YT && window.YT.Player)) {
+            return;
+          }
+          if (player) {
+            player.loadVideoById({ videoId: mod.id, startSeconds: Math.floor(startSeconds || 0) });
+            return;
+          }
+          player = new window.YT.Player('video-modal-iframe', {
+            videoId: mod.id,
+            playerVars: { rel: 0, modestbranding: 1, list: PLAYLIST },
+            events: {
+              onReady: function () {
+                if (pendingSeek > 0) {
+                  try { player.seekTo(Math.floor(pendingSeek), true); } catch (_) {}
+                }
+              },
+              onStateChange: function (ev) {
+                if (ev.data === window.YT.PlayerState.PLAYING) {
+                  stopProgressTimer();
+                  progressTimer = setInterval(syncProgressFromPlayer, 1000);
+                }
+                if (ev.data === window.YT.PlayerState.PAUSED || ev.data === window.YT.PlayerState.ENDED) {
+                  syncProgressFromPlayer();
+                }
+                if (ev.data === window.YT.PlayerState.ENDED && activeCourse && activeModuleIndex < activeCourse.modules.length - 1) {
+                  activeModuleIndex += 1;
+                  renderPlaylist();
+                  bootPlayer(0);
+                }
+              }
+            }
+          });
+        });
+      }
 
       function closeVideoModal() {
         if (!modal || !iframe) return;
         modal.hidden = true;
         modal.setAttribute('aria-hidden', 'true');
+        stopProgressTimer();
+        syncProgressFromPlayer();
         iframe.src = '';
         document.body.style.overflow = '';
         if (fileHint) fileHint.hidden = true;
       }
 
-      function openVideoModal(embedUrl, title) {
+      function openVideoModal(courseId) {
         if (!modal || !iframe) return;
-        modalTitle.textContent = title || 'Module';
+        activeCourse = DEMO_COURSES.find(function (c) { return c.id === courseId; }) || null;
+        if (!activeCourse) return;
+        var st = getCourseState(activeCourse.id);
+        activeModuleIndex = 0;
+        if (st.lastVideoId) {
+          var idx = activeCourse.modules.findIndex(function (m) { return m.id === st.lastVideoId; });
+          if (idx >= 0) activeModuleIndex = idx;
+        }
+        modalTitle.textContent = activeCourse.title;
+        renderPlaylist();
+        setCourseButtonsState();
+        renderRecommendations(activeCourse.id);
         if (fileHint) fileHint.hidden = !isFileProtocol;
         if (isFileProtocol) {
           iframe.src = '';
         } else {
           if (fileHint) fileHint.hidden = true;
-          iframe.src = embedUrl;
+          bootPlayer(st.lastSeconds || 0);
         }
         modal.hidden = false;
         modal.setAttribute('aria-hidden', 'false');
@@ -192,10 +530,42 @@
       wrap.addEventListener('click', function (e) {
         var btn = e.target.closest('.btn-open-module');
         if (!btn) return;
-        var card = btn.closest('.course-card');
-        var title = card ? card.querySelector('h4').textContent : 'Module';
-        var embed = btn.getAttribute('data-embed');
-        if (embed) openVideoModal(embed, title);
+        var courseId = btn.getAttribute('data-course-id');
+        if (courseId) openVideoModal(courseId);
+      });
+
+      if (playlistList) {
+        playlistList.addEventListener('click', function (e) {
+          var b = e.target.closest('.lms-playlist__btn');
+          if (!b || !activeCourse) return;
+          var idx = Number(b.getAttribute('data-module-index'));
+          if (!Number.isFinite(idx) || idx < 0 || idx >= activeCourse.modules.length) return;
+          activeModuleIndex = idx;
+          var st = getCourseState(activeCourse.id);
+          st.lastVideoId = activeCourse.modules[idx].id;
+          st.lastSeconds = 0;
+          saveLmsState();
+          renderPlaylist();
+          if (!isFileProtocol) bootPlayer(0);
+        });
+      }
+
+      likeBtn.addEventListener('click', function () {
+        if (!activeCourse) return;
+        var st = getCourseState(activeCourse.id);
+        st.liked = !st.liked;
+        saveLmsState();
+        setCourseButtonsState();
+        renderSnapshot();
+      });
+
+      saveBtn.addEventListener('click', function () {
+        if (!activeCourse) return;
+        var st = getCourseState(activeCourse.id);
+        st.saved = !st.saved;
+        saveLmsState();
+        setCourseButtonsState();
+        renderSnapshot();
       });
 
       if (modal) {

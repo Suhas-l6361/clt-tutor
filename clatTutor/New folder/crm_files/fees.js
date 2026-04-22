@@ -59,17 +59,9 @@ const ensureSchema = async (connection) => {
       upiTransation_id VARCHAR(1000),
       paymentDetails VARCHAR(1000),
       amount_in_words VARCHAR(1000),
-      admission_fess BIGINT,
-      base_fees BIGINT,
-      installmentPremium BIGINT,
-      other_Charge BIGINT,
-      netPayable BIGINT,
+      tution_fess BIGINT,
       amount_in_words_total VARCHAR(1000),
       installment_plan JSON,
-      due_till_date BIGINT,
-      received BIGINT,
-      balance BIGINT,
-      due_total BIGINT,
       added_by VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -81,8 +73,7 @@ const SELECT_LIST = `
   id, receipt_id, receipt_date, student_id, name, email, phone, dob, batch, branch, address,
   payement_mode, payment_date, amount_paid, cheque_no, DraweeBank, bank_branch,
   transation_id, bank, cardNum, network, upiTransation_id, paymentDetails, amount_in_words,
-  admission_fess, base_fees, installmentPremium, other_Charge, netPayable, amount_in_words_total,
-  installment_plan, due_till_date, received, balance, due_total, added_by, created_at
+  tution_fess, amount_in_words_total, installment_plan, added_by, created_at
 `.replace(/\s+/g, ' ').trim();
 
 const toStr = (v) => {
@@ -219,20 +210,13 @@ const mapBodyToRow = (data) => {
   const paymentDetails = toStr(d.paymentDetails ?? d.otherPaymentDetail);
 
   const amount_in_words = toStr(d.amount_in_words ?? d.amountInWords);
-  const admission_fess = d.admission_fess !== undefined || d.admissionFee !== undefined
-    ? toBigIntOrNull(d.admission_fess ?? d.admissionFee)
-    : null;
-  const base_fees = d.base_fees !== undefined || d.baseFee !== undefined
-    ? toBigIntOrNull(d.base_fees ?? d.baseFee)
-    : null;
-  const installmentPremium = d.installmentPremium !== undefined
-    ? toBigIntOrNull(d.installmentPremium)
-    : null;
-  const other_Charge = d.other_Charge !== undefined || d.otherCharges !== undefined
-    ? toBigIntOrNull(d.other_Charge ?? d.otherCharges)
-    : null;
-  const netPayable = d.netPayable !== undefined
-    ? toBigIntOrNull(d.netPayable)
+  const tution_fess =
+    d.tution_fess !== undefined ||
+    d.tutionFee !== undefined ||
+    d.tuitionFee !== undefined ||
+    d.base_fees !== undefined ||
+    d.baseFee !== undefined
+      ? toBigIntOrNull(d.tution_fess ?? d.tutionFee ?? d.tuitionFee ?? d.base_fees ?? d.baseFee)
     : null;
   const amount_in_words_total = toStr(d.amount_in_words_total ?? d.netPayableWords);
 
@@ -265,17 +249,6 @@ const mapBodyToRow = (data) => {
     }
   }
 
-  const due_till_date = d.due_till_date !== undefined || d.dueTillDateAmount !== undefined
-    ? toBigIntOrNull(d.due_till_date ?? d.dueTillDateAmount)
-    : null;
-  const received = d.received !== undefined || d.receivedTotal !== undefined
-    ? toBigIntOrNull(d.received ?? d.receivedTotal)
-    : null;
-  const balance = d.balance !== undefined ? toBigIntOrNull(d.balance) : null;
-  const due_total = d.due_total !== undefined || d.dueTotal !== undefined
-    ? toBigIntOrNull(d.due_total ?? d.dueTotal)
-    : null;
-
   const added_by = toStr(d.added_by ?? d.addedBy);
 
   return {
@@ -301,17 +274,9 @@ const mapBodyToRow = (data) => {
     upiTransation_id,
     paymentDetails,
     amount_in_words,
-    admission_fess,
-    base_fees,
-    installmentPremium,
-    other_Charge,
-    netPayable,
+    tution_fess,
     amount_in_words_total,
     installment_plan,
-    due_till_date,
-    received,
-    balance,
-    due_total,
     added_by,
   };
 };
@@ -422,9 +387,7 @@ const createFee = async (body) => {
       'receipt_id', 'student_id', 'name', 'email', 'phone', 'dob', 'batch', 'branch', 'address',
       'payement_mode', 'payment_date', 'amount_paid', 'cheque_no', 'DraweeBank', 'bank_branch',
       'transation_id', 'bank', 'cardNum', 'network', 'upiTransation_id', 'paymentDetails',
-      'amount_in_words', 'admission_fess', 'base_fees', 'installmentPremium', 'other_Charge',
-      'netPayable', 'amount_in_words_total', 'installment_plan', 'due_till_date', 'received',
-      'balance', 'due_total', 'added_by',
+      'amount_in_words', 'tution_fess', 'amount_in_words_total', 'installment_plan', 'added_by',
     ];
     const vals = cols.map((c) => {
       if (c === 'installment_plan') return instJson;
@@ -522,19 +485,13 @@ const updateFee = async (body) => {
     if (hasKeyInBody(data, 'upiTransation_id', 'upiTransactionId')) push('upiTransation_id', mapped.upiTransation_id);
     if (hasKeyInBody(data, 'paymentDetails', 'otherPaymentDetail')) push('paymentDetails', mapped.paymentDetails);
     if (hasKeyInBody(data, 'amount_in_words', 'amountInWords')) push('amount_in_words', mapped.amount_in_words);
-    if (hasKeyInBody(data, 'admission_fess', 'admissionFee')) push('admission_fess', mapped.admission_fess);
-    if (hasKeyInBody(data, 'base_fees', 'baseFee')) push('base_fees', mapped.base_fees);
-    if (hasKeyInBody(data, 'installmentPremium')) push('installmentPremium', mapped.installmentPremium);
-    if (hasKeyInBody(data, 'other_Charge', 'otherCharges')) push('other_Charge', mapped.other_Charge);
-    if (hasKeyInBody(data, 'netPayable')) push('netPayable', mapped.netPayable);
+    if (hasKeyInBody(data, 'tution_fess', 'tutionFee', 'tuitionFee', 'base_fees', 'baseFee')) {
+      push('tution_fess', mapped.tution_fess);
+    }
     if (hasKeyInBody(data, 'amount_in_words_total', 'netPayableWords')) push('amount_in_words_total', mapped.amount_in_words_total);
     if (hasKeyInBody(data, 'installment_plan', 'installmentPlan')) {
       push('installment_plan', stringifyInstallmentPlan(mapped.installment_plan));
     }
-    if (hasKeyInBody(data, 'due_till_date', 'dueTillDateAmount')) push('due_till_date', mapped.due_till_date);
-    if (hasKeyInBody(data, 'received', 'receivedTotal')) push('received', mapped.received);
-    if (hasKeyInBody(data, 'balance')) push('balance', mapped.balance);
-    if (hasKeyInBody(data, 'due_total', 'dueTotal')) push('due_total', mapped.due_total);
     if (hasKeyInBody(data, 'added_by', 'addedBy')) push('added_by', mapped.added_by);
 
     if (!updateFields.length) {

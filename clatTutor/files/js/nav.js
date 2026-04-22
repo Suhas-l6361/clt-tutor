@@ -23,12 +23,9 @@ function initAppChrome(opts) {
     { href: 'courses.html', icon: 'fa-book', label: 'My courses' },
     { href: 'current-affairs.html', icon: 'fa-newspaper', label: 'Current Affairs' },
     { href: 'notifications.html', icon: 'fa-bell', label: 'Notifications' },
-    { href: 'dashboard.html#enrollment-form', icon: 'fa-file-signature', label: 'Enrollment Form' },
     { href: 'dashboard.html#note', icon: 'fa-note-sticky', label: 'Note' },
-    { href: 'dashboard.html#downloads', icon: 'fa-download', label: 'Downloads' },
     { href: 'dashboard.html#videos', icon: 'fa-video', label: 'Videos' },
     { href: 'onlinetest.html', icon: 'fa-pen', label: 'Test' },
-    { href: 'dashboard.html#reports', icon: 'fa-rectangle-list', label: 'Reports' },
   ];
 
   var crmLinks = [
@@ -39,7 +36,6 @@ function initAppChrome(opts) {
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
-    { href: 'communications.html', icon: 'fa-comments', label: 'Communications' },
   ];
 
   var links = opts.role === 'student' ? studentLinks : crmLinks;
@@ -53,7 +49,6 @@ function initAppChrome(opts) {
     'fees.html': '../image/fees.png',
     'enrollment.html': '../image/enrollment.png',
     'retrival.html': '../image/retrive data.png',
-    'communications.html': '../image/phone.png',
   };
 
   var navHtml = links
@@ -79,6 +74,8 @@ function initAppChrome(opts) {
       );
     })
     .join('');
+  var changePasswordCls =
+    'btn btn-ghost btn-block' + (opts.active === 'changePassword.html' ? ' active' : '');
 
   var shell = document.getElementById('app-root');
   if (!shell) return;
@@ -114,9 +111,8 @@ function initAppChrome(opts) {
     '</div>' +
     '<div class="user-meta"><strong>' +
     session.user.name +
-    '</strong><span>' +
-    (opts.role === 'student' ? 'Student account' : 'CRM / operations') +
-    '</span></div></div>' +
+    '</strong></div></div>' +
+    '<a href="changePassword.html" class="' + changePasswordCls + '" id="btn-change-password"><img src="../image/change-password.png" alt="" class="nav-link-img" style="width:16px;height:16px;object-fit:contain;margin-right:6px;vertical-align:-2px;" onerror="this.style.display=\'none\'" />Change Password</a>' +
     '<button type="button" class="btn btn-ghost btn-block" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>' +
     '</div></aside>' +
     '<div class="main-wrap">' +

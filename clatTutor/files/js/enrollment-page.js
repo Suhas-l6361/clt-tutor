@@ -58,6 +58,26 @@
     );
   }
 
+  function isRespondedChecked(r) {
+    return r && (r.isResponded === true || r.isResponded === 1 || r.isResponded === '1');
+  }
+
+  function respondedToggle(kind, r) {
+    var checked = isRespondedChecked(r) ? ' checked' : '';
+    return (
+      '<label class="enrollment-responded-toggle">' +
+      '<input type="checkbox" data-action="toggle-responded" data-kind="' +
+      escHtml(kind) +
+      '" data-id="' +
+      escHtml(String(r.id)) +
+      '"' +
+      checked +
+      ' />' +
+      '<span>Responded</span>' +
+      '</label>'
+    );
+  }
+
   function renderCallback(rows) {
     if (!rows.length) {
       return '<p class="enrollment-empty">No request callback submissions yet.</p>';
@@ -69,6 +89,7 @@
       '<th scope="col">Phone</th>' +
       '<th scope="col">Interested in</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
       .map(function (r) {
@@ -88,6 +109,9 @@
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('callback', r.id) +
+          '</td>' +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('callback', r) +
           '</td>' +
           '</tr>'
         );
@@ -113,6 +137,7 @@
       '<th scope="col">Course</th>' +
       '<th scope="col">Target year</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
       .map(function (r) {
@@ -132,6 +157,9 @@
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('enroll', r.id) +
+          '</td>' +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('enroll', r) +
           '</td>' +
           '</tr>'
         );
@@ -157,6 +185,7 @@
       '<th scope="col">Phone</th>' +
       '<th scope="col">Subject</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
       .map(function (r) {
@@ -176,6 +205,9 @@
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('contact', r.id) +
+          '</td>' +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('contact', r) +
           '</td>' +
           '</tr>'
         );
@@ -376,6 +408,67 @@
       var kind = btn.getAttribute('data-kind');
       var id = btn.getAttribute('data-id');
       if (kind && id) openModal(kind, id);
+    });
+
+    function updateRowRespondedInMemory(kind, id, checked) {
+      var rows = lastRowsByKind[kind] || [];
+      var target = rows.find(function (x) {
+        return String(x.id) === String(id);
+      });
+      if (target) target.isResponded = checked ? 1 : 0;
+    }
+
+    function setCheckboxDisabled(kind, id, disabled) {
+      var selector =
+        'input[data-action="toggle-responded"][data-kind="' +
+        kind +
+        '"][data-id="' +
+        String(id) +
+        '"]';
+      var box = listEl.querySelector(selector);
+      if (box) box.disabled = Boolean(disabled);
+    }
+
+    function updateResponded(kind, id, checked) {
+      var url = urls[kind];
+      if (!url) {
+        window.alert('API URL is not configured for this list.');
+        return Promise.reject(new Error('Missing API URL'));
+      }
+      setCheckboxDisabled(kind, id, true);
+      return fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ id: Number(id), isResponded: checked ? 1 : 0 }),
+      })
+        .then(function (res) {
+          return res.json().then(function (j) {
+            return { ok: res.ok, j: j };
+          });
+        })
+        .then(function (x) {
+          if (!x.ok) {
+            throw new Error((x.j && x.j.message) || 'Unable to update responded status');
+          }
+          updateRowRespondedInMemory(kind, id, checked);
+          return x;
+        })
+        .finally(function () {
+          setCheckboxDisabled(kind, id, false);
+        });
+    }
+
+    listEl.addEventListener('change', function (e) {
+      var cb = e.target.closest('input[data-action="toggle-responded"]');
+      if (!cb || !listEl.contains(cb)) return;
+      var kind = cb.getAttribute('data-kind');
+      var id = cb.getAttribute('data-id');
+      if (!kind || !id) return;
+      var next = Boolean(cb.checked);
+      updateResponded(kind, id, next).catch(function (err) {
+        cb.checked = !next;
+        setError(err && err.message ? err.message : 'Unable to update responded status.');
+      });
     });
 
     function load(kind) {
