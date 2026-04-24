@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Notes - Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/student-notes.css" />
+</head>
+<body class="app-body student-dashboard page-student-notes">
+  <div id="stock" style="display: none">
+    <div class="sn-wrap">
+      <section class="sn-toolbar" aria-label="Filter notes">
+        <div class="sn-field">
+          <label for="sn-search">Search by title</label>
+          <input id="sn-search" type="search" placeholder="Type note title" />
+        </div>
+        <button type="button" class="sn-toolbar__btn" id="sn-apply-filters">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </section>
+
+      <p id="sn-status" class="sn-status" aria-live="polite"></p>
+      <div id="sn-empty" class="sn-empty" hidden>
+        <p><strong>No notes found.</strong></p>
+        <p>Try clearing or changing the search text.</p>
+      </div>
+      <div id="sn-list" class="sn-list"></div>
+    </div>
+  </div>
+
+  <div id="sn-viewer" class="sn-viewer" hidden>
+    <div class="sn-viewer__backdrop" data-sn-viewer-close aria-hidden="true"></div>
+    <div class="sn-viewer__panel" role="dialog" aria-modal="true" aria-labelledby="sn-viewer-title">
+      <div class="sn-viewer__bar">
+        <strong id="sn-viewer-title">Preview</strong>
+        <button type="button" class="sn-viewer__iconbtn" data-sn-viewer-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <iframe class="sn-viewer__frame" id="sn-viewer-frame" title="File preview"></iframe>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      if (!requireRole('student')) return;
+      initAppChrome({ role: 'student', active: 'notes.html', title: 'Notes', contentEl: stock });
+      applyStudentChrome();
+
+      var NOTES_API = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+      var listEl = document.getElementById('sn-list');
+      var emptyEl = document.getElementById('sn-empty');
+      var statusEl = document.getElementById('sn-status');
+      var searchEl = document.getElementById('sn-search');
+
+      var allRows = [];
+      var filtered = [];
+
+      var viewer = document.getElementById('sn-viewer');
+      var viewerTitle = document.getElementById('sn-viewer-title');
+      var viewerFrame = document.getElementById('sn-viewer-frame');
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      }
+
+      function listKeysFromField(val) {
+        if (val == null || val === '') return [];
+        if (Array.isArray(val)) return val.map(String).filter(Boolean);
+        if (typeof val === 'string') {
+          var t = val.trim();
+          if (!t) return [];
+          try {
+            var p = JSON.parse(t);
+            if (Array.isArray(p)) return p.map(String).filter(Boolean);
+            return [t];
+          } catch (_) {
+            return [t];
+          }
+        }
+        return [];
+      }
+
+      function linksFromField(val) {
+        if (val == null || val === '') return [];
+        if (Array.isArray(val)) return val.map(String).map(function (x) { return x.trim(); }).filter(Boolean);
+        if (typeof val === 'string') {
+          var t = val.trim();
+          if (!t) return [];
+          try {
+            var p = JSON.parse(t);
+            if (Array.isArray(p)) return p.map(String).map(function (x) { return x.trim(); }).filter(Boolean);
+            return [t];
+          } catch (_) {
+            return t.split(/[\n,]+/).map(function (x) { return x.trim(); }).filter(Boolean);
+          }
+        }
+        return [];
+      }
+
+      function fileLabel(key) {
+        var s = String(key || '');
+        var seg = s.split('/').pop() || s;
+        return seg.length > 42 ? seg.slice(0, 39) + '...' : seg;
+      }
+
+      function extOf(key) {
+        var m = String(key || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m ? m[1] : '';
+      }
+
+      function titleFromRow(r) {
+        var t = r && (r.Title || r.title || r.details || '');
+        return String(t || '').trim() || 'Untitled note';
+      }
+
+      async function resolveDownloadUrl(key, inline) {
+        try {
+          var u = NOTES_API + '?action=get_download_url&key=' + encodeURIComponent(key) + (inline ? '&inline=1' : '');
+          var res = await fetch(u, { method: 'GET' });
+          var data = await res.json();
+          if (res.ok && data && (data.downloadUrl || data.url)) return data.downloadUrl || data.url;
+        } catch (_) {}
+        return '';
+      }
+
+      function openViewer(title, src) {
+        if (viewerTitle) viewerTitle.textContent = title || 'Preview';
+        if (viewerFrame) viewerFrame.src = src || '';
+        viewer.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeViewer() {
+        viewer.hidden = true;
+        document.body.style.overflow = '';
+        if (viewerFrame) viewerFrame.src = '';
+      }
+
+      viewer.querySelectorAll('[data-sn-viewer-close]').forEach(function (el) {
+        el.addEventListener('click', closeViewer);
+      });
+
+      function applyClientFilters() {
+        var q = (searchEl && searchEl.value ? searchEl.value : '').trim().toLowerCase();
+        filtered = allRows.filter(function (r) {
+          var title = titleFromRow(r).toLowerCase();
+          return !q || title.indexOf(q) !== -1;
+        });
+        render();
+      }
+
+      function render() {
+        if (!filtered.length) {
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = allRows.length ? 'No matches - adjust search.' : 'No notes published yet.';
+          return;
+        }
+        emptyEl.hidden = true;
+        statusEl.textContent = 'Showing ' + filtered.length + ' of ' + allRows.length + ' note(s).';
+
+        var cards = filtered.map(function (r) {
+          var title = esc(titleFromRow(r));
+          var keys = listKeysFromField(r.img_url);
+          var links = linksFromField(r.link);
+          var previewKey = keys.length ? keys[0] : '';
+          var linksHtml = links.length
+            ? '<div class="sn-links">' + links.map(function (x) { return '<span class="sn-chip">' + esc(x) + '</span>'; }).join('') + '</div>'
+            : '';
+          var previewHtml = previewKey
+            ? '<div class="sn-preview" data-sn-preview-key="' + esc(previewKey) + '" data-sn-preview-ext="' + esc(extOf(previewKey)) + '">' +
+              '<div class="sn-preview__loading">Loading file preview...</div></div>'
+            : '';
+          var filesHtml = keys.length
+            ? keys.map(function (key) {
+              return (
+                '<div class="sn-file">' +
+                '<span class="sn-file__name"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> ' + esc(fileLabel(key)) + '</span>' +
+                '<div class="sn-actions">' +
+                '<button type="button" class="sn-btn sn-btn--view" data-sn-view data-key="' + esc(key) + '" data-title="' + esc(title + ' - ' + fileLabel(key)) + '">' +
+                '<i class="fa-solid fa-eye" aria-hidden="true"></i> View</button>' +
+                '<a class="sn-btn sn-btn--dl" data-sn-dl data-key="' + esc(key) + '" href="#">' +
+                '<i class="fa-solid fa-download" aria-hidden="true"></i> Download</a>' +
+                '<a class="sn-btn sn-btn--open" data-sn-open data-key="' + esc(key) + '" href="#" target="_blank" rel="noopener noreferrer">' +
+                '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Open full</a>' +
+                '</div></div>'
+              );
+            }).join('')
+            : '<p class="sn-card__meta">No files attached for this note.</p>';
+
+          return '<article class="sn-card"><h3 class="sn-card__title">' + title + '</h3>' + linksHtml + previewHtml + filesHtml + '</article>';
+        }).join('');
+
+        listEl.innerHTML = '<section class="sn-grid">' + cards + '</section>';
+        listEl.querySelectorAll('[data-sn-preview-key]').forEach(function (wrap) {
+          var key = wrap.getAttribute('data-sn-preview-key') || '';
+          var ext = (wrap.getAttribute('data-sn-preview-ext') || '').toLowerCase();
+          resolveDownloadUrl(key, true).then(function (url) {
+            if (!url) {
+              wrap.innerHTML = '<div class="sn-preview__fallback">Preview unavailable</div>';
+              return;
+            }
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].indexOf(ext) !== -1) {
+              wrap.innerHTML = '<img class="sn-preview__img" src="' + esc(url) + '" alt="" />';
+              return;
+            }
+            if (ext === 'pdf') {
+              wrap.innerHTML = '<iframe class="sn-preview__frame" src="' + esc(url) + '#toolbar=0&navpanes=0&scrollbar=0" title="File preview"></iframe>';
+              return;
+            }
+            wrap.innerHTML = '<div class="sn-preview__fallback"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> ' + esc(fileLabel(key)) + '</div>';
+          });
+        });
+
+        listEl.querySelectorAll('[data-sn-view]').forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            var key = btn.getAttribute('data-key');
+            var t = btn.getAttribute('data-title') || 'Preview';
+            btn.disabled = true;
+            var url = await resolveDownloadUrl(key, true);
+            btn.disabled = false;
+            if (!url) return alert('Could not open preview. Try download.');
+            openViewer(t, url);
+          });
+        });
+        listEl.querySelectorAll('[data-sn-dl]').forEach(function (a) {
+          a.addEventListener('click', async function (e) {
+            e.preventDefault();
+            var key = a.getAttribute('data-key');
+            var url = await resolveDownloadUrl(key, false);
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          });
+        });
+        listEl.querySelectorAll('[data-sn-open]').forEach(function (a) {
+          a.addEventListener('click', async function (e) {
+            e.preventDefault();
+            var key = a.getAttribute('data-key');
+            var url = await resolveDownloadUrl(key, true);
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          });
+        });
+      }
+
+      async function load() {
+        statusEl.textContent = 'Loading...';
+        listEl.innerHTML = '';
+        emptyEl.hidden = true;
+        try {
+          var res = await fetch(NOTES_API, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to load');
+          allRows = Array.isArray(data) ? data : [];
+          allRows.sort(function (a, b) {
+            return new Date(b.created_by || 0).getTime() - new Date(a.created_by || 0).getTime();
+          });
+          applyClientFilters();
+        } catch (err) {
+          allRows = [];
+          filtered = [];
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = 'Error: ' + (err.message || 'Could not load');
+        }
+      }
+
+      document.getElementById('sn-apply-filters').addEventListener('click', applyClientFilters);
+      if (searchEl) {
+        searchEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            applyClientFilters();
+          }
+        });
+      }
+
+      load();
+    });
+  </script>
+</body>
+</html>

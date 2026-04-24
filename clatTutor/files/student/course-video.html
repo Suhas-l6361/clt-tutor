@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Course Video - Student</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/student-course-video.css" />
+</head>
+<body class="app-body student-dashboard page-student-course-video">
+  <div id="stock" style="display: none">
+    <div class="scv-wrap">
+      <div class="scv-top-actions">
+        <button type="button" class="scv-toolbar__btn scv-toolbar__btn--saved" id="scv-toggle-saved">
+          <i class="fa-regular fa-bookmark" aria-hidden="true"></i> Saved Videos
+        </button>
+      </div>
+
+      <section class="scv-toolbar" aria-label="Filter course videos">
+        <div class="scv-field">
+          <label for="scv-search">Search videos</label>
+          <input id="scv-search" type="search" placeholder="Type title or description" />
+        </div>
+        <button type="button" class="scv-toolbar__btn" id="scv-apply-filters">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </section>
+
+      <p id="scv-status" class="scv-status" aria-live="polite"></p>
+      <div id="scv-empty" class="scv-empty" hidden>
+        <p><strong>No course videos found.</strong></p>
+        <p>Try a different search text.</p>
+      </div>
+
+      <section id="scv-featured" class="scv-featured" hidden>
+        <div class="scv-featured__head">
+          <h3 id="scv-featured-title">Now Playing</h3>
+          <p id="scv-featured-desc"></p>
+        </div>
+        <div class="scv-featured__player-wrap">
+          <video id="scv-featured-player" class="scv-featured__player" controls playsinline></video>
+        </div>
+      </section>
+
+      <section id="scv-list" class="scv-grid"></section>
+    </div>
+  </div>
+
+  <div id="scv-modal" class="scv-modal" hidden>
+    <div class="scv-modal__backdrop" data-scv-close-modal aria-hidden="true"></div>
+    <div class="scv-modal__panel" role="dialog" aria-modal="true" aria-labelledby="scv-modal-title">
+      <div class="scv-modal__bar">
+        <strong id="scv-modal-title">Playing video</strong>
+        <button type="button" class="scv-modal__close" data-scv-close-modal aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <video id="scv-modal-player" class="scv-modal__player" controls playsinline></video>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      if (!requireRole('student')) return;
+      initAppChrome({ role: 'student', active: 'course-video.html', title: 'Course Video', contentEl: stock });
+      applyStudentChrome();
+
+      var COURSE_VIDEO_API = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_video';
+      var COURSE_VIEW_API = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_view';
+      var statusEl = document.getElementById('scv-status');
+      var emptyEl = document.getElementById('scv-empty');
+      var listEl = document.getElementById('scv-list');
+      var searchEl = document.getElementById('scv-search');
+      var featuredEl = document.getElementById('scv-featured');
+      var featuredTitleEl = document.getElementById('scv-featured-title');
+      var featuredDescEl = document.getElementById('scv-featured-desc');
+      var featuredPlayerEl = document.getElementById('scv-featured-player');
+      var toggleSavedBtn = document.getElementById('scv-toggle-saved');
+      var modalEl = document.getElementById('scv-modal');
+      var modalTitleEl = document.getElementById('scv-modal-title');
+      var modalPlayerEl = document.getElementById('scv-modal-player');
+
+      var allRows = [];
+      var filtered = [];
+      var currentPlayingId = null;
+      var savedMap = {};
+      var showSavedOnly = false;
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var currentUserKey = session && session.user ? (session.user.email || session.user.name || null) : null;
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      }
+
+      function trunc(s, n) {
+        var t = String(s || '');
+        return t.length <= n ? t : t.slice(0, n) + '...';
+      }
+
+      function extOf(key) {
+        var m = String(key || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m ? m[1] : '';
+      }
+
+      function isVideoExt(ext) {
+        return ext === 'mp4' || ext === 'webm' || ext === 'ogg' || ext === 'mov' || ext === 'm4v';
+      }
+
+      async function resolveDownloadUrl(key, inline) {
+        try {
+          if (!key) return '';
+          if (/^https?:\/\//i.test(String(key))) return String(key);
+          var u = COURSE_VIDEO_API + '?action=get_download_url&key=' + encodeURIComponent(key) + (inline ? '&inline=1' : '');
+          var res = await fetch(u, { method: 'GET' });
+          var data = await res.json();
+          if (res.ok && data && (data.downloadUrl || data.url)) return data.downloadUrl || data.url;
+        } catch (_) {}
+        return '';
+      }
+
+      function applyFilters() {
+        var q = (searchEl.value || '').trim().toLowerCase();
+        filtered = allRows.filter(function (r) {
+          var hay = (String(r.title || '') + ' ' + String(r.description || '')).toLowerCase();
+          var matchesText = !q || hay.indexOf(q) !== -1;
+          var matchesSaved = !showSavedOnly || isSavedVideo(r.id);
+          return matchesText && matchesSaved;
+        });
+        render();
+      }
+
+      function isSavedVideo(videoId) {
+        return String(savedMap[String(videoId)] || '0') === '1';
+      }
+
+      async function playVideo(row) {
+        if (!row) return;
+        var key = row.video_url || '';
+        var ext = extOf(key);
+        if (!isVideoExt(ext) && !/^https?:\/\//i.test(String(key || ''))) {
+          alert('This file is not a supported video format for inline play.');
+          return;
+        }
+        var url = await resolveDownloadUrl(key, true);
+        if (!url) {
+          alert('Could not load video. Please try again.');
+          return;
+        }
+        currentPlayingId = row.id;
+        if (modalTitleEl) modalTitleEl.textContent = row.title || 'Playing video';
+        if (modalPlayerEl) {
+          modalPlayerEl.src = url;
+          try { modalPlayerEl.play(); } catch (_) {}
+        }
+        if (modalEl) modalEl.hidden = false;
+        document.body.style.overflow = 'hidden';
+        render();
+      }
+
+      function closeVideoModal() {
+        if (modalEl) modalEl.hidden = true;
+        document.body.style.overflow = '';
+        if (modalPlayerEl) {
+          modalPlayerEl.pause();
+          modalPlayerEl.removeAttribute('src');
+          modalPlayerEl.load();
+        }
+      }
+
+      function render() {
+        if (!filtered.length) {
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          featuredEl.hidden = true;
+          if (showSavedOnly) {
+            statusEl.textContent = 'No saved videos found for this student.';
+          } else {
+            statusEl.textContent = allRows.length ? 'No matches found.' : 'No course videos published yet.';
+          }
+          return;
+        }
+        emptyEl.hidden = true;
+        statusEl.textContent = (showSavedOnly ? 'Saved view: ' : 'Showing ') + filtered.length + ' of ' + allRows.length + ' video(s).';
+        listEl.innerHTML = filtered.map(function (r) {
+          var active = String(currentPlayingId) === String(r.id) ? ' is-active' : '';
+          return (
+            '<article class="scv-card' + active + '">' +
+            '<div class="scv-card__thumb" data-thumb-key="' + esc(r.video_url || '') + '">' +
+            '<div class="scv-card__thumb-fallback"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>Video preview</span></div>' +
+            '</div>' +
+            '<h3 class="scv-card__title">' + esc(r.title || 'Untitled video') + '</h3>' +
+            '<p class="scv-card__desc">' + esc(trunc(r.description || 'No description provided.', 170)) + '</p>' +
+            '<div class="scv-card__actions">' +
+            '<button type="button" class="scv-btn scv-btn--play" data-play-id="' + esc(r.id) + '"><i class="fa-solid fa-play"></i> Play</button>' +
+            '<button type="button" class="scv-btn scv-btn--save' + (isSavedVideo(r.id) ? ' is-saved' : '') + '" data-save-id="' + esc(r.id) + '">' +
+            '<i class="fa-' + (isSavedVideo(r.id) ? 'solid' : 'regular') + ' fa-bookmark"></i> ' + (isSavedVideo(r.id) ? 'Saved' : 'Save') + '</button>' +
+            '<button type="button" class="scv-btn" data-open-id="' + esc(r.id) + '"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open in new tab</button>' +
+            '</div>' +
+            '</article>'
+          );
+        }).join('');
+
+        Array.prototype.slice.call(listEl.querySelectorAll('[data-thumb-key]')).forEach(function (thumbEl) {
+          var key = thumbEl.getAttribute('data-thumb-key') || '';
+          if (!key) return;
+          resolveDownloadUrl(key, true).then(function (url) {
+            if (!url) return;
+            thumbEl.innerHTML =
+              '<video class="scv-card__thumb-video" preload="metadata" muted playsinline>' +
+              '<source src="' + esc(url) + '" />' +
+              '</video>' +
+              '<span class="scv-card__thumb-play"><i class="fa-solid fa-play" aria-hidden="true"></i></span>';
+          });
+        });
+
+        Array.prototype.slice.call(listEl.querySelectorAll('[data-play-id]')).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-play-id');
+            var row = filtered.find(function (x) { return String(x.id) === String(id); });
+            if (row) playVideo(row);
+          });
+        });
+        Array.prototype.slice.call(listEl.querySelectorAll('[data-save-id]')).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            var id = btn.getAttribute('data-save-id');
+            var row = filtered.find(function (x) { return String(x.id) === String(id); });
+            if (!row) return;
+            var nextSaved = !isSavedVideo(row.id);
+            try {
+              var res = await fetch(COURSE_VIEW_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  video_id: Number(row.id),
+                  video_url: row.video_url,
+                  added_by: currentUserKey,
+                  isSaved: nextSaved ? 1 : 0,
+                }),
+              });
+              var data = await res.json();
+              if (!res.ok) throw new Error(data.message || 'Failed to save state');
+              savedMap[String(row.id)] = nextSaved ? 1 : 0;
+              render();
+            } catch (err) {
+              alert(err.message || 'Could not save this video right now.');
+            }
+          });
+        });
+        Array.prototype.slice.call(listEl.querySelectorAll('[data-open-id]')).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            var id = btn.getAttribute('data-open-id');
+            var row = filtered.find(function (x) { return String(x.id) === String(id); });
+            if (!row) return;
+            var url = await resolveDownloadUrl(row.video_url, true);
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          });
+        });
+      }
+
+      async function load() {
+        statusEl.textContent = 'Loading course videos...';
+        listEl.innerHTML = '';
+        emptyEl.hidden = true;
+        featuredEl.hidden = true;
+        try {
+          var res = await fetch(COURSE_VIDEO_API, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          allRows.sort(function (a, b) {
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+          });
+          savedMap = {};
+          if (currentUserKey) {
+            try {
+              var svRes = await fetch(COURSE_VIEW_API + '?added_by=' + encodeURIComponent(currentUserKey), { method: 'GET' });
+              var svData = await svRes.json();
+              if (svRes.ok && Array.isArray(svData)) {
+                svData.forEach(function (v) {
+                  savedMap[String(v.video_id)] = v.isSaved ? 1 : 0;
+                });
+              }
+            } catch (_) {}
+          }
+          filtered = allRows.slice();
+          render();
+        } catch (err) {
+          allRows = [];
+          filtered = [];
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = 'Error: ' + (err.message || 'Could not load');
+        }
+      }
+
+      document.getElementById('scv-apply-filters').addEventListener('click', applyFilters);
+      if (toggleSavedBtn) {
+        toggleSavedBtn.addEventListener('click', function () {
+          showSavedOnly = !showSavedOnly;
+          toggleSavedBtn.classList.toggle('is-active', showSavedOnly);
+          toggleSavedBtn.innerHTML = showSavedOnly
+            ? '<i class="fa-solid fa-bookmark" aria-hidden="true"></i> All Videos'
+            : '<i class="fa-regular fa-bookmark" aria-hidden="true"></i> Saved Videos';
+          applyFilters();
+        });
+      }
+      Array.prototype.slice.call(document.querySelectorAll('[data-scv-close-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeVideoModal);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (!modalEl || modalEl.hidden) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeVideoModal();
+        }
+      });
+      searchEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyFilters();
+        }
+      });
+
+      load();
+    });
+  </script>
+</body>
+</html>

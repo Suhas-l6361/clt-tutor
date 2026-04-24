@@ -68,8 +68,7 @@ const ensureNotesSchema = async (connection) => {
   await connection.execute(`
     CREATE TABLE IF NOT EXISTS ${NOTES_TABLE}(
       id INT PRIMARY KEY AUTO_INCREMENT,
-      date DATE,
-      details VARCHAR(100),
+      Title VARCHAR(100),
       img_url JSON,
       link JSON,
       added_by VARCHAR(100),
@@ -93,6 +92,33 @@ const ensureNotesSchema = async (connection) => {
   };
   await ensureColumn('img_url', 'img_url JSON');
   await ensureColumn('link', 'link JSON');
+  const [titleCol] = await connection.execute(
+    `
+      SELECT COUNT(*) AS cnt
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME = 'Title'
+    `,
+    [NOTES_TABLE],
+  );
+  if (Array.isArray(titleCol) && titleCol[0] && Number(titleCol[0].cnt) === 0) {
+    const [detailsCol] = await connection.execute(
+      `
+        SELECT COUNT(*) AS cnt
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME = 'details'
+      `,
+      [NOTES_TABLE],
+    );
+    if (Array.isArray(detailsCol) && detailsCol[0] && Number(detailsCol[0].cnt) > 0) {
+      await connection.execute(`ALTER TABLE ${NOTES_TABLE} CHANGE details Title VARCHAR(100)`);
+    } else {
+      await connection.execute(`ALTER TABLE ${NOTES_TABLE} ADD COLUMN Title VARCHAR(100)`);
+    }
+  }
   const [ct] = await connection.execute(
     `
       SELECT COUNT(*) AS cnt
@@ -176,24 +202,19 @@ const getNotes = async (queryStringParameters) => {
     await ensureNotesSchema(connection);
     const params = queryStringParameters || {};
     const id = params.id != null ? cleanParam(params.id) : null;
-    const date = params.date != null ? cleanParam(params.date) : null;
-    const details = params.details != null ? cleanParam(params.details) : null;
+    const title = params.Title != null ? cleanParam(params.Title) : (params.title != null ? cleanParam(params.title) : (params.details != null ? cleanParam(params.details) : null));
 
-    let query = `SELECT id, date, details, img_url, link, added_by, created_by FROM ${NOTES_TABLE} WHERE 1=1`;
+    let query = `SELECT id, Title, img_url, link, added_by, created_by FROM ${NOTES_TABLE} WHERE 1=1`;
     const queryParams = [];
     if (id) {
       query += ' AND id = ?';
       queryParams.push(parseInt(id, 10));
     }
-    if (date) {
-      query += ' AND date = ?';
-      queryParams.push(date);
+    if (title) {
+      query += ' AND Title LIKE ?';
+      queryParams.push(`%${title}%`);
     }
-    if (details) {
-      query += ' AND details LIKE ?';
-      queryParams.push(`%${details}%`);
-    }
-    query += ' ORDER BY date DESC, created_by DESC';
+    query += ' ORDER BY created_by DESC';
     const [rows] = await connection.execute(query, queryParams);
     return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(rows) };
   } catch (error) {
@@ -212,20 +233,19 @@ const createNote = async (body, event) => {
     const data = typeof body === 'string' ? JSON.parse(body) : body;
     if (!data || typeof data !== 'object') return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'Invalid request body' }) };
 
-    const date = data.date != null ? String(data.date).trim() : '';
-    const details = data.details != null ? String(data.details).trim() : '';
+    const title = data.Title != null ? String(data.Title).trim() : (data.title != null ? String(data.title).trim() : (data.details != null ? String(data.details).trim() : ''));
     const imgJson = normalizeImgUrlJson(data.img_url);
     const linkJson = normalizeLinkJson(data.link);
     const userFromToken = getUserFromToken(event);
     const addedBy = userFromToken ? (userFromToken.email || userFromToken.name || null) : (data.added_by != null ? String(data.added_by).trim() : null);
 
-    if (!date || !details) return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'date and details are required' }) };
+    if (!title) return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'Title is required' }) };
 
     connection = await pool.getConnection();
     await ensureNotesSchema(connection);
     const [result] = await connection.execute(
-      `INSERT INTO ${NOTES_TABLE} (date, details, img_url, link, added_by) VALUES (?, ?, ?, ?, ?)`,
-      [date, details, imgJson, linkJson, addedBy || null],
+      `INSERT INTO ${NOTES_TABLE} (Title, img_url, link, added_by) VALUES (?, ?, ?, ?)`,
+      [title, imgJson, linkJson, addedBy || null],
     );
     return { statusCode: 201, headers: corsHeaders, body: JSON.stringify({ message: 'Note created successfully', id: result.insertId }) };
   } catch (error) {
@@ -253,8 +273,11 @@ const updateNote = async (body, event) => {
 
     const updateFields = [];
     const updateParams = [];
-    if (data.date !== undefined) { updateFields.push('date = ?'); updateParams.push((data.date == null ? null : String(data.date).trim()) || null); }
-    if (data.details !== undefined) { updateFields.push('details = ?'); updateParams.push((data.details == null ? null : String(data.details).trim()) || null); }
+    if (data.Title !== undefined || data.title !== undefined || data.details !== undefined) {
+      const titleValue = data.Title !== undefined ? data.Title : (data.title !== undefined ? data.title : data.details);
+      updateFields.push('Title = ?');
+      updateParams.push((titleValue == null ? null : String(titleValue).trim()) || null);
+    }
     if (data.img_url !== undefined) {
       updateFields.push('img_url = ?');
       updateParams.push(normalizeImgUrlJson(data.img_url));

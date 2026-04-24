@@ -23,8 +23,8 @@ function initAppChrome(opts) {
     { href: 'courses.html', icon: 'fa-book', label: 'My courses' },
     { href: 'current-affairs.html', icon: 'fa-newspaper', label: 'Current Affairs' },
     { href: 'notifications.html', icon: 'fa-bell', label: 'Notifications' },
-    { href: 'dashboard.html#note', icon: 'fa-note-sticky', label: 'Note' },
-    { href: 'dashboard.html#videos', icon: 'fa-video', label: 'Videos' },
+    { href: 'notes.html', icon: 'fa-note-sticky', label: 'Note' },
+    { href: 'course-video.html', icon: 'fa-video', label: 'Course Video' },
     { href: 'onlinetest.html', icon: 'fa-pen', label: 'Test' },
   ];
 
@@ -34,8 +34,8 @@ function initAppChrome(opts) {
     { href: 'students.html', icon: 'fa-database', label: 'Add Data' },
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
-    { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
+    { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
   ];
 
   var links = opts.role === 'student' ? studentLinks : crmLinks;

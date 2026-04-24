@@ -13,15 +13,6 @@
 <body class="app-body student-dashboard page-student-ca">
   <div id="stock" style="display: none">
     <div class="ca-wrap">
-      <section class="ca-hero" aria-labelledby="ca-heading">
-        <div class="ca-hero__badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Daily updates</div>
-        <h2 id="ca-heading">Current Affairs</h2>
-        <p>
-          Materials your institute adds from CRM appear here, newest dates first. Use <strong>View</strong> to read inside this page,
-          <strong>Download</strong> to save a copy, or <strong>Open full</strong> to view in a new tab.
-        </p>
-      </section>
-
       <section class="ca-toolbar" aria-label="Filter current affairs by date">
         <div class="ca-field">
           <span class="ca-field__label">Date range</span>
@@ -237,23 +228,6 @@
         render();
       }
 
-      function groupByDate(rows) {
-        var map = {};
-        rows.forEach(function (r) {
-          var dk = asDateOnly(r.date) || 'undated';
-          if (!map[dk]) map[dk] = [];
-          map[dk].push(r);
-        });
-        var keys = Object.keys(map).sort(function (a, b) {
-          if (a === 'undated') return 1;
-          if (b === 'undated') return -1;
-          return b.localeCompare(a);
-        });
-        return keys.map(function (k) {
-          return { dateKey: k, items: map[k] };
-        });
-      }
-
       function esc(s) {
         return String(s == null ? '' : s)
           .replace(/&/g, '&amp;')
@@ -277,86 +251,62 @@
           allRows.length +
           ' record(s). Newest dates first.';
 
-        var groups = groupByDate(filtered);
-        listEl.innerHTML = groups
-          .map(function (g, gi) {
-            var head = formatDayHeading(g.dateKey === 'undated' ? '' : g.dateKey);
-            var dayId = 'ca-day-' + gi;
-            var cards = g.items
-              .map(function (r) {
-                var keys = listKeysFromField(r.img_url);
-                var title = r.name && String(r.name).trim() ? esc(r.name) : 'Current affairs';
-                var linksHtml = r.links && String(r.links).trim()
-                  ? '<div class="ca-links">' + esc(r.links).replace(/\n/g, '<br/>') + '</div>'
-                  : '';
-                var filesBlock = '';
-                if (keys.length) {
-                  filesBlock = keys
-                    .map(function (key, idx) {
-                      var lab = esc(fileLabel(key));
-                      var eid = 'ca-f-' + r.id + '-' + idx;
-                      return (
-                        '<div class="ca-file" data-ca-key="' +
-                        esc(key) +
-                        '">' +
-                        '<span class="ca-file__name"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> ' +
-                        lab +
-                        '</span>' +
-                        '<div class="ca-actions">' +
-                        '<button type="button" class="ca-btn ca-btn--view" data-ca-view data-key="' +
-                        esc(key) +
-                        '" data-title="' +
-                        esc(title + ' — ' + fileLabel(key)) +
-                        '">' +
-                        '<i class="fa-solid fa-eye" aria-hidden="true"></i> View</button>' +
-                        '<a class="ca-btn ca-btn--dl" data-ca-dl data-key="' +
-                        esc(key) +
-                        '" href="#" aria-label="Download">' +
-                        '<i class="fa-solid fa-download" aria-hidden="true"></i> Download</a>' +
-                        '<a class="ca-btn ca-btn--open" data-ca-open data-key="' +
-                        esc(key) +
-                        '" href="#" target="_blank" rel="noopener noreferrer">' +
-                        '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Open full</a>' +
-                        '</div></div>'
-                      );
-                    })
-                    .join('');
-                } else {
-                  filesBlock =
-                    '<p class="ca-card__meta" style="margin:0">No files attached for this entry.</p>';
-                }
-                return (
-                  '<article class="ca-card">' +
-                  '<h3 class="ca-card__title">' +
-                  title +
-                  '</h3>' +
-                  linksHtml +
-                  filesBlock +
-                  '</article>'
-                );
-              })
-              .join('');
+        var cards = filtered
+          .map(function (r) {
+            var keys = listKeysFromField(r.img_url);
+            var title = r.name && String(r.name).trim() ? esc(r.name) : 'Current affairs';
+            var dateText = formatDayHeading(asDateOnly(r.date));
+            var linksHtml = r.links && String(r.links).trim()
+              ? '<div class="ca-links">' + esc(r.links).replace(/\n/g, '<br/>') + '</div>'
+              : '';
+            var filesBlock = '';
+            if (keys.length) {
+              filesBlock = keys
+                .map(function (key) {
+                  var lab = esc(fileLabel(key));
+                  return (
+                    '<div class="ca-file" data-ca-key="' +
+                    esc(key) +
+                    '">' +
+                    '<span class="ca-file__name"><i class="fa-regular fa-file-lines" aria-hidden="true"></i> ' +
+                    lab +
+                    '</span>' +
+                    '<div class="ca-actions">' +
+                    '<button type="button" class="ca-btn ca-btn--view" data-ca-view data-key="' +
+                    esc(key) +
+                    '" data-title="' +
+                    esc(title + ' — ' + fileLabel(key)) +
+                    '">' +
+                    '<i class="fa-solid fa-eye" aria-hidden="true"></i> View</button>' +
+                    '<a class="ca-btn ca-btn--dl" data-ca-dl data-key="' +
+                    esc(key) +
+                    '" href="#" aria-label="Download">' +
+                    '<i class="fa-solid fa-download" aria-hidden="true"></i> Download</a>' +
+                    '<a class="ca-btn ca-btn--open" data-ca-open data-key="' +
+                    esc(key) +
+                    '" href="#" target="_blank" rel="noopener noreferrer">' +
+                    '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Open full</a>' +
+                    '</div></div>'
+                  );
+                })
+                .join('');
+            } else {
+              filesBlock =
+                '<p class="ca-card__meta" style="margin:0">No files attached for this entry.</p>';
+            }
             return (
-              '<section class="ca-day" aria-labelledby="' +
-              dayId +
-              '">' +
-              '<div class="ca-day__head">' +
-              '<time id="' +
-              dayId +
-              '">' +
-              esc(head) +
-              '</time>' +
-              '<span>' +
-              g.items.length +
-              ' ' +
-              (g.items.length === 1 ? 'item' : 'items') +
-              '</span>' +
-              '</div>' +
-              cards +
-              '</section>'
+              '<article class="ca-card">' +
+              '<p class="ca-card__date">' + esc(dateText) + '</p>' +
+              '<h3 class="ca-card__title">' +
+              title +
+              '</h3>' +
+              linksHtml +
+              filesBlock +
+              '</article>'
             );
           })
           .join('');
+        listEl.innerHTML = '<section class="ca-day"><div class="ca-day__grid">' + cards + '</div></section>';
 
         listEl.querySelectorAll('[data-ca-view]').forEach(function (btn) {
           btn.addEventListener('click', async function () {

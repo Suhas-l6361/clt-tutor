@@ -22,6 +22,7 @@
           <button class="retrival-chip" data-role="ca" type="button">CA</button>
           <button class="retrival-chip" data-role="classroom" type="button">Class Room Images</button>
           <button class="retrival-chip" data-role="notes" type="button">Notes</button>
+          <button class="retrival-chip" data-role="coursevideo" type="button">Course Video</button>
         </div>
       </section>
 
@@ -257,6 +258,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:0.5rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;min-height:240px;padding:0.6rem;">
           <img id="display-image-preview" alt="" style="max-width:100%;max-height:420px;border-radius:10px;object-fit:contain;display:none;" />
+          <video id="display-video-preview" controls playsinline style="max-width:100%;max-height:420px;border-radius:10px;display:none;background:#000;"></video>
           <iframe id="display-file-embed" title="File preview" style="display:none;width:100%;min-height:480px;border:none;border-radius:10px;background:#fff;"></iframe>
           <div id="display-file-pdf-bar" style="display:none;text-align:center;padding:0.15rem 0;">
             <a id="display-file-open-pdf" href="#" target="_blank" rel="noopener noreferrer" class="fancy-btn fancy-btn--submit" style="display:inline-block;text-decoration:none;font-size:0.85rem;padding:0.4rem 0.9rem;">Open PDF in new tab</a>
@@ -312,6 +314,35 @@
     </div>
   </div>
 
+  <div id="edit-course-video-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-edit-course-video-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="edit-course-video-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Edit Course Video</h2>
+          <button type="button" class="reg-close" data-close-edit-course-video-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reg-grid">
+          <label class="full"><input id="ecv-title" class="input" type="text" placeholder=" " required maxlength="100" /><span>Title</span></label>
+          <label class="full"><textarea id="ecv-description" class="input" rows="3" placeholder=" " style="min-height:88px;padding-top:14px;" maxlength="10000"></textarea><span>Description</span></label>
+          <div class="full">
+            <p id="ecv-current-video" class="retrival-warning" style="margin:0 0 0.5rem;font-size:0.78rem;color:rgba(255,255,255,0.75);"></p>
+            <div class="file-input-wrap">
+              <label for="ecv-file">Replace video (optional)</label>
+              <input id="ecv-file" type="file" accept="video/*" />
+            </div>
+            <div id="ecv-file-name" class="upload-file-name">Leave empty to keep current video</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="button" class="fancy-btn fancy-btn--reset" data-close-edit-course-video-modal><span></span><span></span>Cancel</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Update</button>
+        </div>
+        <p id="ecv-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
   <div id="delete-confirm-modal" class="crm-modal" hidden>
     <div class="crm-modal__backdrop" data-close-delete-confirm></div>
     <div class="crm-modal__dialog" style="width:min(430px,100%);">
@@ -348,6 +379,7 @@
       var CLASS_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/class';
       var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
       var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+      var COURSE_VIDEO_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_video';
       var tableTitleEl = document.getElementById('retrival-table-title');
       var theadEl = document.getElementById('retrival-thead');
       var searchLabelEl = document.getElementById('search-field-label');
@@ -376,6 +408,7 @@
       var imagePreviewEl = document.getElementById('display-image-preview');
       var imageStatusEl = document.getElementById('display-image-status');
       var fileEmbedEl = document.getElementById('display-file-embed');
+      var videoPreviewEl = document.getElementById('display-video-preview');
       var fileNonPreviewEl = document.getElementById('display-file-nonpreview');
       var fileNonPreviewMsgEl = document.getElementById('display-file-nonpreview-msg');
       var fileOpenLinkEl = document.getElementById('display-file-open');
@@ -401,6 +434,14 @@
       var ecaFilesInput = document.getElementById('eca-files');
       var currentEditCaId = null;
       var currentEditCaImgKeys = [];
+      var editCourseVideoModal = document.getElementById('edit-course-video-modal');
+      var editCourseVideoForm = document.getElementById('edit-course-video-form');
+      var ecvStatus = document.getElementById('ecv-status');
+      var ecvCurrentVideo = document.getElementById('ecv-current-video');
+      var ecvFileInput = document.getElementById('ecv-file');
+      var ecvFileName = document.getElementById('ecv-file-name');
+      var currentEditCourseVideoId = null;
+      var currentEditCourseVideoKey = '';
 
       var allRows = [];
       var currentMode = '';
@@ -424,7 +465,9 @@
       var CA_HEAD_HTML =
         '<tr><th>Date</th><th>Name</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
       var NOTES_HEAD_HTML =
-        '<tr><th>Date</th><th>Details</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+        '<tr><th>Title</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+      var COURSE_VIDEO_HEAD_HTML =
+        '<tr><th>Title</th><th>Description</th><th>Video</th><th>Added By</th><th>Actions</th></tr>';
 
       function asDateOnly(dateLike) {
         if (!dateLike) return '';
@@ -550,7 +593,7 @@
         if (!filtersSection) return;
         var full = role === 'student' || role === 'faculty' || role === 'achievers';
         var caOnly = role === 'ca';
-        var refreshOnly = role === 'classroom' || role === 'notes';
+        var refreshOnly = role === 'classroom' || role === 'notes' || role === 'coursevideo';
         if (full || caOnly) {
           filtersSection.hidden = false;
           filtersSection.classList.toggle('retrival-filters--ca-only', caOnly);
@@ -582,6 +625,7 @@
           classroom: 'Class Room Images',
           ca: 'Current Affairs',
           notes: 'Notes',
+          coursevideo: 'Course Video',
         };
         var heads = {
           student: STUDENT_HEAD_HTML,
@@ -590,6 +634,7 @@
           classroom: CLASS_HEAD_HTML,
           ca: CA_HEAD_HTML,
           notes: NOTES_HEAD_HTML,
+          coursevideo: COURSE_VIDEO_HEAD_HTML,
         };
         if (tableTitleEl) tableTitleEl.textContent = titles[role] || 'Records';
         if (theadEl) theadEl.innerHTML = heads[role] || STUDENT_HEAD_HTML;
@@ -627,6 +672,9 @@
         } else if (role === 'notes') {
           roleMessageEl.textContent = 'Notes records.';
           loadNotesData();
+        } else if (role === 'coursevideo') {
+          roleMessageEl.textContent = 'Course video records.';
+          loadCourseVideoData();
         } else {
           tbody.innerHTML =
             '<tr><td class="retrival-empty" colspan="12">Unknown category.</td></tr>';
@@ -667,11 +715,20 @@
       function isPdfExt(ext) {
         return ext === 'pdf';
       }
+      function isVideoExt(ext) {
+        return ext === 'mp4' || ext === 'webm' || ext === 'ogg' || ext === 'mov' || ext === 'm4v';
+      }
       function hideFilePreviewLayers() {
         if (imagePreviewEl) {
           imagePreviewEl.style.display = 'none';
           imagePreviewEl.removeAttribute('src');
           imagePreviewEl.onerror = null;
+        }
+        if (videoPreviewEl) {
+          videoPreviewEl.style.display = 'none';
+          videoPreviewEl.pause();
+          videoPreviewEl.removeAttribute('src');
+          videoPreviewEl.load();
         }
         if (fileEmbedEl) {
           fileEmbedEl.style.display = 'none';
@@ -862,7 +919,7 @@
 
       function renderNotesRows(rows) {
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="6">No notes found.</td></tr>';
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="5">No notes found.</td></tr>';
           countEl.textContent = '0 rows';
           return;
         }
@@ -882,8 +939,29 @@
             }
           }
           var id = safeHtml(r.id);
+          var noteTitle = r.Title != null ? r.Title : (r.title != null ? r.title : r.details);
           return (
-            '<tr><td>' + safeHtml(asDateOnly(r.date)) + '</td><td>' + safeHtml(truncStr(r.details, 36)) + '</td><td>' + safeHtml(truncStr(linkStr, 40)) + '</td><td>' + img + '</td><td>' + safeHtml(r.added_by) + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+            '<tr><td>' + safeHtml(truncStr(noteTitle, 36)) + '</td><td>' + safeHtml(truncStr(linkStr, 40)) + '</td><td>' + img + '</td><td>' + safeHtml(r.added_by) + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+          );
+        }).join('');
+        countEl.textContent = rows.length + ' rows';
+        bindRowActionEvents(rows);
+      }
+
+      function renderCourseVideoRows(rows) {
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="5">No course videos found.</td></tr>';
+          countEl.textContent = '0 rows';
+          return;
+        }
+        tbody.innerHTML = rows.map(function (r) {
+          var videoKey = r.video_url || '';
+          var videoBtn = videoKey
+            ? '<button class="retrival-icon-btn" type="button" data-show-image="' + safeHtml(videoKey) + '" data-image-api="coursevideo" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Open video</button>'
+            : '-';
+          var id = safeHtml(r.id);
+          return (
+            '<tr><td>' + safeHtml(truncStr(r.title || '-', 48)) + '</td><td>' + safeHtml(truncStr(r.description || '-', 72)) + '</td><td>' + videoBtn + '</td><td>' + safeHtml(r.added_by) + '</td><td><span class="retrival-row-actions"><button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-edit-id="' + id + '" title="Edit"><i class="fa-solid fa-pen"></i></button><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></span></td></tr>'
           );
         }).join('');
         countEl.textContent = rows.length + ' rows';
@@ -934,15 +1012,28 @@
         }
         if (currentMode === 'notes') {
           var filteredN = allRows.filter(function (r) {
-            var hay = String(r.details || '').toLowerCase();
+            var hay = String(r.Title || r.title || r.details || '').toLowerCase();
             var matchesText = !query || hay.indexOf(query) !== -1;
-            var d = asDateOnly(r.date);
+            var d = asDateOnly(r.created_by);
             var matchesFrom = !fromDate || (d && d >= fromDate);
             var matchesTo = !toDate || (d && d <= toDate);
             return matchesText && matchesFrom && matchesTo;
           });
           renderNotesRows(filteredN);
           metaEl.textContent = 'Filtered: ' + filteredN.length + ' / ' + allRows.length;
+          return;
+        }
+        if (currentMode === 'coursevideo') {
+          var filteredV = allRows.filter(function (r) {
+            var hay = (String(r.title || '') + ' ' + String(r.description || '')).toLowerCase();
+            var matchesText = !query || hay.indexOf(query) !== -1;
+            var created = asDateOnly(r.created_at);
+            var matchesFrom = !fromDate || (created && created >= fromDate);
+            var matchesTo = !toDate || (created && created <= toDate);
+            return matchesText && matchesFrom && matchesTo;
+          });
+          renderCourseVideoRows(filteredV);
+          metaEl.textContent = 'Filtered: ' + filteredV.length + ' / ' + allRows.length;
           return;
         }
 
@@ -1110,6 +1201,7 @@
           class: CLASS_API_URL,
           ca: CA_API_URL,
           notes: NOTES_API_URL,
+          coursevideo: COURSE_VIDEO_API_URL,
         };
         var apiBase = apiMap[imageApi] || API_URL;
         var finalUrl = await resolveImageUrl(raw, apiBase);
@@ -1134,6 +1226,15 @@
           if (fileOpenPdfEl) fileOpenPdfEl.href = finalUrl;
           if (filePdfBarEl) filePdfBarEl.style.display = 'block';
           if (filePdfHintEl) filePdfHintEl.style.display = 'block';
+          if (imageStatusEl) imageStatusEl.style.display = 'none';
+          return;
+        }
+
+        if (isVideoExt(ext)) {
+          if (videoPreviewEl) {
+            videoPreviewEl.src = finalUrl;
+            videoPreviewEl.style.display = 'block';
+          }
           if (imageStatusEl) imageStatusEl.style.display = 'none';
           return;
         }
@@ -1260,6 +1361,28 @@
         currentEditCaImgKeys = [];
       }
 
+      function openEditCourseVideoModal(row) {
+        currentEditCourseVideoId = row.id;
+        currentEditCourseVideoKey = row.video_url || '';
+        if (ecvStatus) ecvStatus.textContent = '';
+        document.getElementById('ecv-title').value = row.title || '';
+        document.getElementById('ecv-description').value = row.description || '';
+        if (ecvFileInput) ecvFileInput.value = '';
+        if (ecvFileName) ecvFileName.textContent = 'Leave empty to keep current video';
+        if (ecvCurrentVideo) {
+          ecvCurrentVideo.textContent = currentEditCourseVideoKey
+            ? 'Current video key: ' + currentEditCourseVideoKey
+            : 'No video on this record yet.';
+        }
+        if (editCourseVideoModal) editCourseVideoModal.hidden = false;
+      }
+
+      function closeEditCourseVideoModal() {
+        if (editCourseVideoModal) editCourseVideoModal.hidden = true;
+        currentEditCourseVideoId = null;
+        currentEditCourseVideoKey = '';
+      }
+
       function safeFileName(name) {
         return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '_');
       }
@@ -1314,6 +1437,28 @@
           keys.push(await uploadCaFileToBucket(list[i]));
         }
         return keys.filter(Boolean);
+      }
+
+      async function uploadCourseVideoFileToBucket(file) {
+        if (!file) return null;
+        var fileName = 'course-video-files/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(COURSE_VIDEO_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Upload failed');
+        return signedData.key || fileName;
       }
 
       async function deleteStudentById(id) {
@@ -1438,6 +1583,25 @@
         }
       }
 
+      async function deleteCourseVideoById(id) {
+        var yes = await askDeleteConfirmation('Delete this course video?');
+        if (!yes) return;
+        metaEl.textContent = 'Deleting...';
+        try {
+          var res = await fetch(COURSE_VIDEO_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: Number(id) }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Delete failed');
+          await loadCourseVideoData();
+          showSuccessPopup('Deleted', 'Course video removed.');
+        } catch (err) {
+          metaEl.textContent = err.message || 'Delete failed';
+        }
+      }
+
       function bindRowActionEvents(rows) {
         Array.prototype.slice.call(document.querySelectorAll('[data-show-image]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
@@ -1455,6 +1619,7 @@
             if (!row) return;
             if (currentMode === 'achievers') openEditAchieverModal(row);
             else if (currentMode === 'ca') openEditCaModal(row);
+            else if (currentMode === 'coursevideo') openEditCourseVideoModal(row);
             else openEditModal(row);
           });
         });
@@ -1466,6 +1631,7 @@
             else if (currentMode === 'classroom') deleteClassById(id);
             else if (currentMode === 'ca') deleteCaById(id);
             else if (currentMode === 'notes') deleteNotesById(id);
+            else if (currentMode === 'coursevideo') deleteCourseVideoById(id);
             else deleteStudentById(id);
           });
         });
@@ -1575,6 +1741,23 @@
         }
       }
 
+      async function loadCourseVideoData() {
+        if (currentMode !== 'coursevideo') return;
+        metaEl.textContent = 'Loading course videos...';
+        try {
+          var res = await fetch(COURSE_VIDEO_API_URL, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to fetch');
+          allRows = Array.isArray(data) ? data : [];
+          renderCourseVideoRows(allRows);
+          metaEl.textContent = 'Total course videos: ' + allRows.length;
+        } catch (err) {
+          allRows = [];
+          renderCourseVideoRows([]);
+          metaEl.textContent = err.message || 'Load failed';
+        }
+      }
+
       roleButtons.forEach(function (btn) {
         btn.addEventListener('click', function () {
           setRoleMode(btn.getAttribute('data-role'));
@@ -1592,6 +1775,7 @@
         else if (currentMode === 'classroom') renderClassRows(allRows);
         else if (currentMode === 'ca') renderCaRows(allRows);
         else if (currentMode === 'notes') renderNotesRows(allRows);
+        else if (currentMode === 'coursevideo') renderCourseVideoRows(allRows);
         metaEl.textContent = 'Filters cleared. Showing all records: ' + allRows.length;
       });
       function runRefreshForMode() {
@@ -1601,6 +1785,7 @@
         else if (currentMode === 'classroom') loadClassData();
         else if (currentMode === 'ca') loadCaData();
         else if (currentMode === 'notes') loadNotesData();
+        else if (currentMode === 'coursevideo') loadCourseVideoData();
       }
       refreshBtn.addEventListener('click', runRefreshForMode);
       var refreshStandaloneBtn = document.getElementById('btn-refresh-data-standalone');
@@ -1634,6 +1819,12 @@
         eafImageInput.addEventListener('change', function () {
           var f = eafImageInput.files && eafImageInput.files[0];
           eafImageNameEl.textContent = f ? f.name : 'Leave empty to keep current image';
+        });
+      }
+      if (ecvFileInput && ecvFileName) {
+        ecvFileInput.addEventListener('change', function () {
+          var f = ecvFileInput.files && ecvFileInput.files[0];
+          ecvFileName.textContent = f ? f.name : 'Leave empty to keep current video';
         });
       }
 
@@ -1728,6 +1919,47 @@
             showSuccessPopup('Updated', 'Current affairs record updated successfully.');
           } catch (err) {
             if (ecaStatus) ecaStatus.textContent = err.message || 'Update failed';
+          }
+        });
+      }
+
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-course-video-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeEditCourseVideoModal);
+      });
+
+      if (editCourseVideoForm) {
+        editCourseVideoForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          if (!currentEditCourseVideoId) return;
+          if (ecvStatus) ecvStatus.textContent = '';
+          try {
+            var file = ecvFileInput && ecvFileInput.files && ecvFileInput.files[0];
+            var nextVideoKey = currentEditCourseVideoKey;
+            if (file) {
+              nextVideoKey = await uploadCourseVideoFileToBucket(file);
+            }
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(COURSE_VIDEO_API_URL, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: Number(currentEditCourseVideoId),
+                title: document.getElementById('ecv-title').value.trim(),
+                description: document.getElementById('ecv-description').value.trim() || null,
+                video_url: nextVideoKey || null,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Update failed');
+            closeEditCourseVideoModal();
+            await loadCourseVideoData();
+            if (currentMode === 'coursevideo') applyFilters();
+            metaEl.textContent = 'Course video updated.';
+            showSuccessPopup('Updated', 'Course video updated successfully.');
+          } catch (err) {
+            if (ecvStatus) ecvStatus.textContent = err.message || 'Update failed';
           }
         });
       }

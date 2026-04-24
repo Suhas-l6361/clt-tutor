@@ -1,0 +1,345 @@
+.page-student-course-video {
+  --scv-ink: #18202e;
+  --scv-muted: #586174;
+  --scv-line: rgba(45, 72, 134, 0.18);
+  --scv-primary: #2f74ff;
+  --scv-soft: #eef4ff;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.page-student-course-video .scv-wrap {
+  width: 100%;
+  max-width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.page-student-course-video .scv-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.65rem;
+}
+
+.page-student-course-video .scv-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  border: 1px solid var(--scv-line);
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.9rem;
+}
+
+.page-student-course-video .scv-field label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: #3f4f67;
+  margin-bottom: 0.34rem;
+}
+
+.page-student-course-video .scv-field input {
+  width: 100%;
+  border: 1px solid rgba(47, 116, 255, 0.25);
+  border-radius: 10px;
+  padding: 0.58rem 0.68rem;
+  font: inherit;
+}
+
+.page-student-course-video .scv-toolbar__btn {
+  border: 1px solid #2f74ff;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3a82ff 0%, #2665f2 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  min-height: 42px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.page-student-course-video .scv-toolbar__btn--saved {
+  border-color: rgba(41, 58, 97, 0.3);
+  background: #fff;
+  color: #1d2940;
+}
+
+.page-student-course-video .scv-toolbar__btn--saved.is-active {
+  border-color: #f59e0b;
+  background: #fff7e6;
+  color: #7a4f00;
+}
+
+.page-student-course-video .scv-status {
+  margin: 0.75rem 0;
+  font-size: 0.8rem;
+  color: var(--scv-muted);
+}
+
+.page-student-course-video .scv-empty {
+  border: 2px dashed rgba(47, 116, 255, 0.25);
+  border-radius: 14px;
+  text-align: center;
+  color: var(--scv-muted);
+  padding: 2rem 1rem;
+}
+
+.page-student-course-video .scv-featured {
+  border: 1px solid var(--scv-line);
+  border-radius: 16px;
+  background: linear-gradient(140deg, #f5f9ff 0%, #ffffff 75%);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.page-student-course-video .scv-featured__head {
+  padding: 0.8rem 0.95rem 0.55rem;
+}
+
+.page-student-course-video .scv-featured__head h3 {
+  margin: 0;
+  color: var(--scv-ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.page-student-course-video .scv-featured__head p {
+  margin: 0.35rem 0 0;
+  color: var(--scv-muted);
+  font-size: 0.82rem;
+}
+
+.page-student-course-video .scv-featured__player-wrap {
+  padding: 0 0.95rem 0.95rem;
+}
+
+.page-student-course-video .scv-featured__player {
+  width: 100%;
+  max-height: 460px;
+  border-radius: 12px;
+  background: #05070f;
+  border: 1px solid rgba(47, 116, 255, 0.2);
+}
+
+.page-student-course-video .scv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.page-student-course-video .scv-card {
+  border: 1px solid var(--scv-line);
+  border-radius: 14px;
+  border-top: 4px solid #2f74ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  box-shadow: 0 8px 22px rgba(33, 66, 129, 0.08);
+  padding: 0.9rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.page-student-course-video .scv-card.is-active {
+  box-shadow: 0 12px 26px rgba(47, 116, 255, 0.2);
+  border-color: rgba(47, 116, 255, 0.4);
+}
+
+.page-student-course-video .scv-card__icon i {
+  color: #2f74ff;
+  font-size: 1.05rem;
+}
+
+.page-student-course-video .scv-card__thumb {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 130px;
+  border: 1px solid rgba(47, 116, 255, 0.2);
+  background: linear-gradient(155deg, #edf3ff 0%, #f8fbff 100%);
+}
+
+.page-student-course-video .scv-card__thumb-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #0b1220;
+}
+
+.page-student-course-video .scv-card__thumb-play {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 16, 29, 0.75);
+  color: #fff;
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+.page-student-course-video .scv-card__thumb-fallback {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+  justify-content: center;
+  color: #3e5d9f;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.page-student-course-video .scv-card__thumb-fallback i {
+  font-size: 1.15rem;
+}
+
+.page-student-course-video .scv-card__title {
+  margin: 0;
+  color: var(--scv-ink);
+  font-size: 0.99rem;
+  font-weight: 700;
+}
+
+.page-student-course-video .scv-card__desc {
+  margin: 0;
+  color: var(--scv-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  min-height: 54px;
+}
+
+.page-student-course-video .scv-card__meta {
+  margin-top: auto;
+  color: #46536a;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+.page-student-course-video .scv-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.page-student-course-video .scv-btn {
+  border: 1px solid rgba(41, 58, 97, 0.3);
+  background: #fff;
+  color: #1d2940;
+  border-radius: 9px;
+  padding: 0.4rem 0.66rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-student-course-video .scv-btn--play {
+  border-color: #2f74ff;
+  background: #2f74ff;
+  color: #fff;
+}
+
+.page-student-course-video .scv-btn--save {
+  border-color: rgba(24, 32, 46, 0.25);
+  background: #fff;
+}
+
+.page-student-course-video .scv-btn--save.is-saved {
+  border-color: #f59e0b;
+  background: #fff7e6;
+  color: #7a4f00;
+}
+
+.page-student-course-video .scv-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  display: grid;
+  place-items: center;
+  padding: 0.8rem;
+}
+
+.page-student-course-video .scv-modal[hidden] {
+  display: none !important;
+}
+
+.page-student-course-video .scv-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 24, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+.page-student-course-video .scv-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, 100%);
+  height: min(86vh, 760px);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: #0c111d;
+  box-shadow: 0 24px 68px rgba(0, 0, 0, 0.45);
+}
+
+.page-student-course-video .scv-modal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.65rem 0.8rem;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.page-student-course-video .scv-modal__close {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.page-student-course-video .scv-modal__close:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.page-student-course-video .scv-modal__player {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #02050d;
+  object-fit: contain !important;
+}
+
+@media (max-width: 1080px) {
+  .page-student-course-video .scv-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .page-student-course-video .scv-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .page-student-course-video .scv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-student-course-video .scv-btn {
+    width: 100%;
+  }
+}

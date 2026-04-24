@@ -10,9 +10,9 @@
     'notifications.html': '../image/notification.png',
     'changePassword.html': '../image/change-password.png',
     'dashboard.html#enrollment-form': '../image/enrollment form.png',
-    'dashboard.html#note': '../image/note.png',
+    'notes.html': '../image/note.png',
     'dashboard.html#downloads': '../image/download.png',
-    'dashboard.html#videos': '../image/video.png',
+    'course-video.html': '../image/video.png',
     'onlinetest.html': '../image/test.png',
     'dashboard.html#reports': '../image/report.png',
   };
@@ -183,15 +183,13 @@
   /** Sidebar items that are not built yet — show “under development” instead of navigating. */
   var PLACEHOLDER_HASHES = [
     '#enrollment-form',
-    '#note',
     '#downloads',
-    '#videos',
     '#test',
     '#reports',
   ];
 
   var PLACEHOLDER_HREF_RE =
-    /^dashboard\.html#(enrollment-form|note|downloads|videos|test|reports)$/;
+    /^dashboard\.html#(enrollment-form|downloads|test|reports)$/;
 
   var placeholderNavBound = false;
   var placeholderHashListenerBound = false;

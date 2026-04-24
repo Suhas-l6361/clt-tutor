@@ -1055,6 +1055,13 @@
             <span class="radio-label">ADD PREVIOUS YEAR PAPER</span>
           </span>
         </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-course-video">
+            <span class="radio-icon"><i class="fa-solid fa-circle-play"></i></span>
+            <span class="radio-label">ADD COURSE VIDEO</span>
+          </span>
+        </label>
       </div>
     </div>
   </div>
@@ -1419,8 +1426,7 @@
           <button type="button" class="reg-close" data-close-notes-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="reg-grid">
-          <label><input id="nf-date" class="input" type="date" required /><span>Date</span></label>
-          <label class="full"><input id="nf-details" class="input" type="text" placeholder=" " required maxlength="100" /><span>Details</span></label>
+          <label class="full"><input id="nf-title" class="input" type="text" placeholder=" " required maxlength="100" /><span>Title</span></label>
           <label class="full"><textarea id="nf-links" class="input" rows="2" placeholder=" " style="min-height:52px;padding-top:14px;"></textarea><span>Links (one per line)</span></label>
           <div class="full">
             <div class="file-input-wrap">
@@ -1435,6 +1441,34 @@
           <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
         </div>
         <p id="nf-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-course-video-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-course-video-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-course-video-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Course Video</h2>
+          <button type="button" class="reg-close" data-close-course-video-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reg-grid">
+          <label class="full"><input id="cv-title" class="input" type="text" placeholder=" " required maxlength="100" /><span>Title</span></label>
+          <label class="full"><textarea id="cv-description" class="input" rows="3" placeholder=" " style="min-height:88px;padding-top:14px;" maxlength="10000"></textarea><span>Description</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="cv-file">Upload video</label>
+              <input id="cv-file" type="file" accept="video/*" required />
+            </div>
+            <div id="cv-file-name" class="upload-file-name">No video selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="button" class="fancy-btn fancy-btn--reset" data-close-course-video-modal><span></span><span></span>Cancel</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="cv-status" class="reg-status"></p>
       </form>
     </div>
   </div>
@@ -1486,6 +1520,10 @@
         <div class="crm-notes-loader" aria-hidden="true"><div class="crm-nl-spin"></div></div>
         <p class="crm-loader-caption">Saving notes...</p>
       </div>
+      <div id="crm-loader-course-video" class="crm-loader-panel" hidden>
+        <div class="crm-notes-loader" aria-hidden="true"><div class="crm-nl-spin"></div></div>
+        <p class="crm-loader-caption">Saving course video...</p>
+      </div>
     </div>
   </div>
 
@@ -1527,6 +1565,7 @@
       var CLASS_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/class';
       var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
       var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+      var COURSE_VIDEO_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_video';
       var PREV_YEAR_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/previous_queation_paper';
 
       var facultyModal = document.getElementById('add-faculty-modal');
@@ -1534,6 +1573,7 @@
       var classModal = document.getElementById('add-class-modal');
       var caModal = document.getElementById('add-ca-modal');
       var notesModal = document.getElementById('add-notes-modal');
+      var courseVideoModal = document.getElementById('add-course-video-modal');
       var genericLoading = document.getElementById('crm-generic-loading');
       var genericSuccess = document.getElementById('crm-generic-success');
       var genericError = document.getElementById('crm-generic-error');
@@ -1567,7 +1607,7 @@
 
       function showCrmLoading(kind) {
         crmLoadingStartedAt = Date.now();
-        var panels = ['faculty', 'paper', 'class', 'ca', 'notes'];
+        var panels = ['faculty', 'paper', 'class', 'ca', 'notes', 'course-video'];
         panels.forEach(function (k) {
           var p = document.getElementById('crm-loader-' + k);
           if (p) p.hidden = k !== kind;
@@ -1652,6 +1692,10 @@
             openCrmModal(notesModal);
             return;
           }
+          if (target === 'students.html#add-course-video') {
+            openCrmModal(courseVideoModal);
+            return;
+          }
           if (target) window.location.href = target;
         });
       });
@@ -1689,6 +1733,9 @@
       Array.prototype.slice.call(document.querySelectorAll('[data-close-notes-modal]')).forEach(function (el) {
         el.addEventListener('click', function () { closeCrmModal(notesModal); });
       });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-course-video-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(courseVideoModal); });
+      });
       var ffImage = document.getElementById('ff-image');
       var ffImageName = document.getElementById('ff-image-name');
       if (ffImage && ffImageName) {
@@ -1719,6 +1766,14 @@
         nfFiles.addEventListener('change', function () {
           var n = nfFiles.files ? nfFiles.files.length : 0;
           nfFilesName.textContent = n ? n + ' file(s) selected' : 'No files selected';
+        });
+      }
+      var cvFile = document.getElementById('cv-file');
+      var cvFileName = document.getElementById('cv-file-name');
+      if (cvFile && cvFileName) {
+        cvFile.addEventListener('change', function () {
+          var f = cvFile.files && cvFile.files[0];
+          cvFileName.textContent = f ? f.name : 'No video selected';
         });
       }
       var pyqFile = document.getElementById('pyq-file');
@@ -2257,8 +2312,7 @@
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                date: document.getElementById('nf-date').value,
-                details: document.getElementById('nf-details').value.trim(),
+                Title: document.getElementById('nf-title').value.trim(),
                 img_url: keys.length ? keys : null,
                 link: linkArr.length ? linkArr : null,
                 added_by: addedBy,
@@ -2275,6 +2329,44 @@
             await hideCrmLoading();
             if (st) st.textContent = '';
             showGenericError(err.message || 'Failed to save notes.', 'Could not save notes');
+          }
+        });
+      }
+
+      var courseVideoForm = document.getElementById('add-course-video-form');
+      if (courseVideoForm) {
+        courseVideoForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('cv-status');
+          if (st) st.textContent = '';
+          showCrmLoading('course-video');
+          try {
+            var videoFile = document.getElementById('cv-file').files[0];
+            if (!videoFile) throw new Error('Please select a video file.');
+            var videoKey = await uploadFileToBucket(COURSE_VIDEO_API_URL, videoFile, 'course-video-files');
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(COURSE_VIDEO_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: document.getElementById('cv-title').value.trim(),
+                description: document.getElementById('cv-description').value.trim() || null,
+                video_url: videoKey,
+                added_by: addedBy,
+              }),
+            });
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Failed to save');
+            await hideCrmLoading();
+            closeCrmModal(courseVideoModal);
+            courseVideoForm.reset();
+            if (cvFileName) cvFileName.textContent = 'No video selected';
+            showGenericSuccess('Course video saved successfully', 'The record has been saved.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to save course video.', 'Could not save course video');
           }
         });
       }

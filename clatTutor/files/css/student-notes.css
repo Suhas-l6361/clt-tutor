@@ -1,0 +1,306 @@
+.page-student-notes {
+  --sn-ink: #1b1830;
+  --sn-muted: #5b5d6a;
+  --sn-line: rgba(88, 91, 115, 0.2);
+  --sn-brand: #6d5efc;
+  --sn-brand-soft: #edeaff;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.page-student-notes .sn-wrap {
+  width: 100%;
+  max-width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 0 0 2.25rem;
+}
+
+.page-student-notes .sn-hero {
+  border: 1px solid var(--sn-line);
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(140deg, #f5f4ff 0%, #ffffff 60%);
+  margin-bottom: 1rem;
+}
+
+.page-student-notes .sn-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.34rem 0.64rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #4c3ac7;
+  border: 1px solid rgba(109, 94, 252, 0.35);
+  background: var(--sn-brand-soft);
+}
+
+.page-student-notes .sn-hero h2 {
+  margin: 0.58rem 0 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 800;
+  color: var(--sn-ink);
+}
+
+.page-student-notes .sn-hero p {
+  margin: 0.45rem 0 0;
+  color: var(--sn-muted);
+  font-size: 0.9rem;
+}
+
+.page-student-notes .sn-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  border: 1px solid var(--sn-line);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: #fff;
+}
+
+.page-student-notes .sn-field label {
+  display: block;
+  margin-bottom: 0.32rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: #4b4f6b;
+}
+
+.page-student-notes .sn-field input {
+  width: 100%;
+  padding: 0.58rem 0.68rem;
+  border: 1px solid rgba(109, 94, 252, 0.25);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.page-student-notes .sn-toolbar__btn {
+  border: 1px solid #5d4dff;
+  background: linear-gradient(135deg, #7668ff 0%, #5d4dff 100%);
+  color: #fff;
+  border-radius: 11px;
+  min-height: 42px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.page-student-notes .sn-status {
+  margin: 0.75rem 0;
+  color: var(--sn-muted);
+  font-size: 0.8rem;
+}
+
+.page-student-notes .sn-empty {
+  text-align: center;
+  border: 2px dashed rgba(109, 94, 252, 0.3);
+  border-radius: 14px;
+  padding: 2rem 1rem;
+  color: var(--sn-muted);
+}
+
+.page-student-notes .sn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.page-student-notes .sn-card {
+  border: 1px solid var(--sn-line);
+  border-radius: 14px;
+  border-top: 4px solid #6d5efc;
+  padding: 0.95rem;
+  background: linear-gradient(180deg, #ffffff 0%, #faf9ff 100%);
+  box-shadow: 0 10px 24px rgba(28, 22, 72, 0.08);
+  min-height: 215px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.page-student-notes .sn-card__title {
+  margin: 0;
+  color: var(--sn-ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.page-student-notes .sn-card__meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--sn-muted);
+}
+
+.page-student-notes .sn-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.page-student-notes .sn-chip {
+  padding: 0.18rem 0.52rem;
+  border: 1px solid rgba(109, 94, 252, 0.25);
+  border-radius: 999px;
+  background: var(--sn-brand-soft);
+  color: #4f40cf;
+  font-size: 0.69rem;
+  font-weight: 600;
+}
+
+.page-student-notes .sn-file {
+  border-top: 1px solid rgba(88, 91, 115, 0.13);
+  padding-top: 0.58rem;
+}
+
+.page-student-notes .sn-preview {
+  position: relative;
+  border: 1px solid rgba(109, 94, 252, 0.18);
+  border-radius: 12px;
+  min-height: 120px;
+  height: 120px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #f2f0ff 0%, #faf9ff 100%);
+}
+
+.page-student-notes .sn-preview__loading,
+.page-student-notes .sn-preview__fallback {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: #565b73;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.6rem;
+}
+
+.page-student-notes .sn-preview__img,
+.page-student-notes .sn-preview__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  object-fit: cover;
+  background: #fff;
+}
+
+.page-student-notes .sn-file__name {
+  display: block;
+  color: #3c4258;
+  font-size: 0.79rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.page-student-notes .sn-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.page-student-notes .sn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 9px;
+  padding: 0.38rem 0.62rem;
+  font-size: 0.73rem;
+  font-weight: 700;
+  border: 1px solid rgba(88, 91, 115, 0.35);
+  color: #2f3640;
+  text-decoration: none;
+  background: #fff;
+}
+
+.page-student-notes .sn-btn--view {
+  border-color: #5d4dff;
+  background: #5d4dff;
+  color: #fff;
+}
+
+.page-student-notes .sn-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 0.8rem;
+}
+
+.page-student-notes .sn-viewer[hidden] {
+  display: none !important;
+}
+
+.page-student-notes .sn-viewer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 14, 28, 0.78);
+}
+
+.page-student-notes .sn-viewer__panel {
+  position: relative;
+  z-index: 1;
+  width: min(980px, 100%);
+  height: min(80vh, 720px);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: #101323;
+}
+
+.page-student-notes .sn-viewer__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0.82rem;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.page-student-notes .sn-viewer__iconbtn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+}
+
+.page-student-notes .sn-viewer__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #0a0d1d;
+}
+
+@media (max-width: 1100px) {
+  .page-student-notes .sn-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .page-student-notes .sn-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .page-student-notes .sn-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-student-notes .sn-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
