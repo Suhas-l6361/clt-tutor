@@ -271,6 +271,28 @@
         if (dateBox) dateBox.hidden = true;
       }
 
+      /** On narrow viewports the picker sits above the resource card — scroll to VIEW / DOWNLOAD / OPEN after picking a date. */
+      function scrollSelectedDayIntoViewForSmallScreens() {
+        if (!selectedDate) return;
+        try {
+          if (!window.matchMedia || !window.matchMedia("(max-width: 979px)").matches) return;
+        } catch (e) {
+          return;
+        }
+        var id = "gk-day-" + selectedDate.replace(/-/g, "");
+        var el = document.getElementById(id);
+        if (!el || el.hidden) return;
+        function doScroll() {
+          var header = document.querySelector(".site-header");
+          var offset = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+          var top = el.getBoundingClientRect().top + window.scrollY - offset - 12;
+          window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        }
+        requestAnimationFrame(function () {
+          requestAnimationFrame(doScroll);
+        });
+      }
+
       var selectedDate = null;
       var caByDate = {};
 
@@ -664,6 +686,7 @@
               if (yearEl.querySelector('option[value="' + y + '"]')) yearEl.value = y;
             }
             applyFilters();
+            scrollSelectedDayIntoViewForSmallScreens();
           });
           datesWrap.appendChild(btn);
         });

@@ -7,6 +7,10 @@
   <!-- Lets YouTube embeds receive a Referer; avoids Error 153 with strict/no-referrer defaults -->
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Institute Portal — Programs &amp; Admissions</title>
+  <!-- Early connections: cuts DNS+TLS round-trips for CSS/fonts (homepage perf; no behavior change). -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/app.css" />
@@ -16,8 +20,9 @@
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
-  <script src="js/site-protection.js" data-protection-mode="public"></script>
-  <script src="js/branch-home.js"></script>
+  <script src="js/site-protection.js" data-protection-mode="public" defer></script>
+  <script src="js/branch-home.js" defer></script>
+  <script src="js/hero-testimonials-carousel.js" defer></script>
 </head>
 <body class="page-public">
   <a class="announce-bar announce-bar--cta" href="#" id="pyq-download-trigger" aria-haspopup="dialog" aria-controls="pyq-modal">
@@ -160,7 +165,7 @@
   <header class="site-header" id="site-header">
     <div class="container inner">
       <div class="header-left">
-        <span class="logo"><img src="image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></span>
+        <span class="logo"><img src="image/gavel%20clat%20tutor.png" alt="" class="logo__mark" width="32" height="32" fetchpriority="high" decoding="async" /><span class="logo__word">CLAT<span class="logo__accent">utor</span></span></span>
         <span class="logo__tag">Shaping Minds Since 2007</span>
       </div>
       <button
@@ -228,34 +233,71 @@
     <div class="site-nav-backdrop" id="site-nav-backdrop" hidden aria-hidden="true"></div>
   </header>
 
-  <section class="hero">
+  <section class="hero hero--video-carousel">
     <div class="container">
-      <div class="hero__badge"><i class="fa-solid fa-graduation-cap"></i> Admissions open · 2026 batches</div>
-      <h1 class="hero__title">
-        <span class="hero-title__char" style="animation-delay: 0ms">C</span><span class="hero-title__char" style="animation-delay: 20ms">o</span><span class="hero-title__char" style="animation-delay: 40ms">a</span><span class="hero-title__char" style="animation-delay: 60ms">c</span><span class="hero-title__char" style="animation-delay: 80ms">h</span><span class="hero-title__char" style="animation-delay: 100ms">i</span><span class="hero-title__char" style="animation-delay: 120ms">n</span><span class="hero-title__char" style="animation-delay: 140ms">g</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 160ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 180ms">t</span><span class="hero-title__char" style="animation-delay: 200ms">h</span><span class="hero-title__char" style="animation-delay: 220ms">a</span><span class="hero-title__char" style="animation-delay: 240ms">t</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 260ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 280ms">s</span><span class="hero-title__char" style="animation-delay: 300ms">c</span><span class="hero-title__char" style="animation-delay: 320ms">a</span><span class="hero-title__char" style="animation-delay: 340ms">l</span><span class="hero-title__char" style="animation-delay: 360ms">e</span><span class="hero-title__char" style="animation-delay: 380ms">s</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 400ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 420ms">w</span><span class="hero-title__char" style="animation-delay: 440ms">i</span><span class="hero-title__char" style="animation-delay: 460ms">t</span><span class="hero-title__char" style="animation-delay: 480ms">h</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 500ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 520ms">y</span><span class="hero-title__char" style="animation-delay: 540ms">o</span><span class="hero-title__char" style="animation-delay: 560ms">u</span><span class="hero-title__char" style="animation-delay: 580ms">r</span><span class="hero-title__char hero-title__char--space" style="animation-delay: 600ms">&nbsp;</span><span class="hero-title__char" style="animation-delay: 620ms">a</span><span class="hero-title__char" style="animation-delay: 640ms">m</span><span class="hero-title__char" style="animation-delay: 660ms">b</span><span class="hero-title__char" style="animation-delay: 680ms">i</span><span class="hero-title__char" style="animation-delay: 700ms">t</span><span class="hero-title__char" style="animation-delay: 720ms">i</span><span class="hero-title__char" style="animation-delay: 740ms">o</span><span class="hero-title__char" style="animation-delay: 760ms">n</span>
-      </h1>
-      <hr class="hero__rule" />
-      <p class="lead">Structured courses, mentor support, and progress tracking—built for serious aspirants. One portal for learning, doubt resolution, and performance analytics.</p>
-      <div class="nav-actions hero__actions">
-        <a href="#enquiry" class="hero-btn-animated hero-btn-animated--primary">
-          <span class="text">Enquire now</span>
-          <span class="circle"></span>
-          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-        </a>
-        <a href="login.html" class="hero-btn-animated hero-btn-animated--ghost">
-          <span class="text">Student login</span>
-          <span class="circle"></span>
-          <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path
-              d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-            ></path>
-          </svg>
-        </a>
+      <div class="hero-video">
+        <div class="hero-video__head">
+          <h2 class="hero-video__title">Student Testimonials</h2>
+        </div>
+        <div class="hero-video__carousel hero-video__carousel--grid" data-hero-testimonials-carousel aria-label="Student testimonials">
+          <button type="button" class="hero-video__nav hero-video__nav--prev" data-hero-testimonials-prev aria-label="Previous testimonials">
+            <i class="fa-solid fa-angle-left" aria-hidden="true"></i>
+          </button>
+          <div class="hero-video__track hero-video__track--grid">
+            <article class="hero-video__slide hero-video__slide--card" data-hero-testimonial-slide>
+              <div class="hero-video__media">
+              <video class="hero-video__player" controls preload="metadata" playsinline>
+                <source src="videos/clat-nlsiu-student-testimonial-pawan-strategy-landscape.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              </div>
+            </article>
+            <article class="hero-video__slide hero-video__slide--card" data-hero-testimonial-slide>
+              <video class="hero-video__player" controls preload="metadata" playsinline>
+                <source src="videos/clatutor-clat-coaching-student-testimonial-leon-air349-landscape.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </article>
+            <article class="hero-video__slide hero-video__slide--card" data-hero-testimonial-slide>
+              <video class="hero-video__player" controls preload="metadata" playsinline>
+                <source src="videos/clatutor%20avantika%2016x9.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </article>
+            <article class="hero-video__slide hero-video__slide--card" data-hero-testimonial-slide>
+              <video class="hero-video__player" controls preload="metadata" playsinline>
+                <source src="videos/clatutor%20bhargav%2016x9.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </article>
+            <article class="hero-video__slide hero-video__slide--card" data-hero-testimonial-slide>
+              <video class="hero-video__player" controls preload="metadata" playsinline>
+                <source src="videos/clatutor%20subhan%2016x9.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </article>
+          </div>
+          <button type="button" class="hero-video__nav hero-video__nav--next" data-hero-testimonials-next aria-label="Next testimonials">
+            <i class="fa-solid fa-angle-right" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--faculty" id="faculty" aria-labelledby="faculty-heading">
+    <div class="container">
+      <div class="section__head section__head--tight">
+        <h2 id="faculty-heading">Faculty</h2>
+      </div>
+      <figure class="faculty-poster">
+        <img
+          src="image/faculty%20poster.png"
+          alt="Faculty poster"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
     </div>
   </section>
 
@@ -1059,7 +1101,7 @@
           '    </button>' +
           '  </div>' +
           '  <div class="enroll-modal__body">' +
-          '    <p class="enroll-modal__headline"><img src="image/gavel%20clat%20tutor.png" class="enroll-modal__law-icon enroll-modal__law-icon--headline" alt="Law" /> CLAT Dec 2026/2027 NEW Batch Begins 15th April</p>' +
+          '    <p class="enroll-modal__headline"><img src="image/gavel%20clat%20tutor.png" class="enroll-modal__law-icon enroll-modal__law-icon--headline" alt="Law" /> CLAT Dec 2026/2027 NEW Batch Begins 1st May - 8th May</p>' +
           '    <p class="enroll-modal__sub">The students who rise highest are the ones who start before everyone else.</p>' +
           '    <ul class="enroll-modal__list">' +
           '      <li>This is your moment to turn intention into action.</li>' +
@@ -1150,6 +1192,107 @@
         }
 
         render();
+      }
+
+      // Hero video carousel (unique testimonial videos)
+      var heroVideoCarousel = document.querySelector('[data-video-carousel]');
+      if (heroVideoCarousel) {
+        var slides = Array.prototype.slice.call(heroVideoCarousel.querySelectorAll('[data-video-slide]'));
+        var prevVideoBtn = heroVideoCarousel.querySelector('.hero-video__nav--prev');
+        var nextVideoBtn = heroVideoCarousel.querySelector('.hero-video__nav--next');
+        var dotsWrap = document.querySelector('.hero-video__dots');
+        var currentVideoIndex = 0;
+        var sharedMuted = false;
+        var sharedVolume = 1;
+
+        var pauseAllVideos = function () {
+          slides.forEach(function (slide) {
+            var player = slide.querySelector('video');
+            if (player) player.pause();
+          });
+        };
+
+        var renderVideoSlide = function (targetIndex) {
+          if (!slides.length) return;
+          currentVideoIndex = (targetIndex + slides.length) % slides.length;
+
+          slides.forEach(function (slide, index) {
+            var isActive = index === currentVideoIndex;
+            slide.classList.toggle('is-active', isActive);
+            slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+          });
+
+          if (dotsWrap) {
+            var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('button'));
+            dots.forEach(function (dot, index) {
+              dot.classList.toggle('is-active', index === currentVideoIndex);
+              dot.setAttribute('aria-current', index === currentVideoIndex ? 'true' : 'false');
+            });
+          }
+
+          pauseAllVideos();
+          var activePlayer = slides[currentVideoIndex].querySelector('video');
+          if (activePlayer) {
+            activePlayer.currentTime = 0;
+            activePlayer.muted = sharedMuted;
+            activePlayer.volume = sharedVolume;
+            activePlayer.play().catch(function () {
+              // Browser may block autoplay with sound; keep audio state and wait for user gesture.
+            });
+          }
+        };
+
+        slides.forEach(function (slide) {
+          var player = slide.querySelector('video');
+          if (!player) return;
+          player.addEventListener('volumechange', function () {
+            sharedMuted = player.muted;
+            sharedVolume = player.volume;
+          });
+        });
+
+        if (dotsWrap) {
+          slides.forEach(function (_, index) {
+            var dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'hero-video__dot';
+            dot.setAttribute('aria-label', 'Show testimonial video ' + (index + 1));
+            dot.addEventListener('click', function () {
+              renderVideoSlide(index);
+            });
+            dotsWrap.appendChild(dot);
+          });
+        }
+
+        if (prevVideoBtn) {
+          prevVideoBtn.addEventListener('click', function () {
+            renderVideoSlide(currentVideoIndex - 1);
+          });
+        }
+        if (nextVideoBtn) {
+          nextVideoBtn.addEventListener('click', function () {
+            renderVideoSlide(currentVideoIndex + 1);
+          });
+        }
+
+        renderVideoSlide(0);
+
+        // If autoplay-with-sound is blocked, first user gesture retries unmuted play.
+        var unlockAutoplayWithSound = function () {
+          var currentSlide = slides[currentVideoIndex];
+          if (!currentSlide) return;
+          var activePlayer = currentSlide.querySelector('video');
+          if (!activePlayer) return;
+          activePlayer.muted = sharedMuted;
+          activePlayer.volume = sharedVolume;
+          activePlayer.play().catch(function () {});
+          document.removeEventListener('click', unlockAutoplayWithSound);
+          document.removeEventListener('touchstart', unlockAutoplayWithSound);
+          document.removeEventListener('keydown', unlockAutoplayWithSound);
+        };
+        document.addEventListener('click', unlockAutoplayWithSound);
+        document.addEventListener('touchstart', unlockAutoplayWithSound, { passive: true });
+        document.addEventListener('keydown', unlockAutoplayWithSound);
       }
 
       /* Footer email icon: explicit mailto navigation (some embedded/preview browsers ignore default <a> mailto) */

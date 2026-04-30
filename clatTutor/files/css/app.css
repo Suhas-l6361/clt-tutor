@@ -1583,7 +1583,7 @@ textarea {
   gap: 1.25rem;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 768px) {
   .branches-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: stretch;

@@ -6,31 +6,144 @@
   font-family: 'Shrikhand', 'Poppins', sans-serif;
 }
 
-/* Desktop keeps original hero framing. Only index.html uses this .hero image override. */
+/* Homepage hero with testimonial video carousel */
 .hero {
-  padding: 0;
-  min-height: clamp(360px, 43vw, 640px);
-  text-align: center;
+  padding: clamp(1.25rem, 2.5vw, 2rem) 0;
+  min-height: auto;
+  text-align: left;
   background-color: var(--white);
-  background-image: url("../image/faculty poster.png");
-  background-position: center top;
-  background-size: contain;
-  background-repeat: no-repeat;
-  /* Keeps painting stable when OS/browser zoom (100% / 125% / 150%) changes CSS viewport size */
-  background-attachment: scroll;
+  background-image: none;
 }
 
-/* Keep only the two CTA buttons visible (hide other hero text). */
-.hero .hero__badge,
-.hero .hero__title,
-.hero .hero__rule,
-.hero p.lead {
+.section__head--tight {
+  margin-bottom: 0.65rem;
+  text-align: center;
+}
+
+/* Faculty poster (homepage) */
+body.page-public .section--faculty {
+  padding-top: 0.9rem;
+  padding-bottom: 1.05rem;
+}
+
+body.page-public .section--faculty .faculty-poster {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 16px 36px rgba(17, 24, 39, 0.12);
+}
+
+body.page-public .section--faculty .faculty-poster img {
+  display: block;
+  width: 100%;
+  height: clamp(260px, 42vw, 560px);
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.hero-video {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.hero-video__head {
+  margin-bottom: 0.85rem;
+  text-align: center;
+}
+
+.hero-video__title {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.4vw, 1.8rem);
+  font-weight: 700;
+  color: #111827;
+}
+
+.hero-video__carousel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Branch-style: 3 in a row on desktop, stacked on mobile */
+.hero-video__track--grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+@media (min-width: 860px) {
+  .hero-video__track--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .hero-video__track--grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.hero-video__slide--card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 16px 36px rgba(17, 24, 39, 0.14);
+}
+
+.hero-video__media {
+  position: relative;
+}
+
+.hero-video__player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #000;
+}
+
+.hero-video__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  object-position: center;
+  background: #000;
+}
+
+/* Old carousel controls/dots are kept for other pages if reused, but hidden on this grid variant */
+.hero-video__carousel--grid + .hero-video__dots {
   display: none !important;
 }
 
-/* Remove hero CTAs (Enquire now + Student login) */
-.hero .hero__actions {
-  display: none !important;
+.hero-video__nav {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hero-video__nav:hover,
+.hero-video__nav:focus-visible {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  outline: none;
+}
+
+.hero-video__nav[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ——— Homepage: mobile / tablet layout ——— */
@@ -330,16 +443,28 @@ body.page-public .site-nav-backdrop[hidden] {
 /* Hero: same cover + anchor as desktop so zoom level doesn’t change apparent image width */
 @media (max-width: 991px) {
   body.page-public .hero {
-    padding: 0;
-    min-height: clamp(220px, 52vmin, 420px);
-    background-position: center top;
-    background-size: cover;
+    padding: 1rem 0;
+    min-height: auto;
+  }
+
+  .hero-video__carousel {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .hero-video__nav {
+    display: none;
+  }
+
+  .hero-video__track--grid {
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   body.page-public .hero {
-    min-height: clamp(200px, 58vmin, 360px);
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
   }
 }
 
