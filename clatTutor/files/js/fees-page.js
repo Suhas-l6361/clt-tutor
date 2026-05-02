@@ -41,6 +41,24 @@
     return isFinite(n) ? n : 0;
   }
 
+  function sanitizeNumericInputValue(v) {
+    var s = String(v == null ? '' : v);
+    s = s.replace(/[^\d.]/g, '');
+    var firstDot = s.indexOf('.');
+    if (firstDot >= 0) {
+      s = s.slice(0, firstDot + 1) + s.slice(firstDot + 1).replace(/\./g, '');
+    }
+    return s;
+  }
+
+  function enforceNumericInput(el) {
+    if (!el) return;
+    el.addEventListener('input', function () {
+      var cleaned = sanitizeNumericInputValue(el.value);
+      if (el.value !== cleaned) el.value = cleaned;
+    });
+  }
+
   function inrToWords(num) {
     var n = Math.floor(Math.abs(Number(num)) || 0);
     if (n === 0) return 'Zero';
@@ -1388,6 +1406,8 @@
     function addRow() {
       var node = tpl.content.firstElementChild.cloneNode(true);
       tbody.appendChild(node);
+      var amtInput = node.querySelector('.fees-install-amt');
+      enforceNumericInput(amtInput);
       syncInstallmentRows(tbody);
     }
 
@@ -1409,6 +1429,11 @@
     addRow();
   }
 
+  function wireNumericOnlyAmounts() {
+    enforceNumericInput(document.getElementById('fees-amount-paid'));
+    enforceNumericInput(document.getElementById('fees-base'));
+  }
+
   function init() {
     var idEl = document.getElementById('fees-receipt-id');
     var dateEl = document.getElementById('fees-receipt-date');
@@ -1428,6 +1453,7 @@
 
     wireStudentPicker();
     wireInstallments();
+    wireNumericOnlyAmounts();
     wireTotals();
     wirePaymentWords();
     wirePaymentMode();

@@ -91,6 +91,9 @@
 
       var allRows = [];
       var filtered = [];
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var currentUserKey = session && session.user ? (session.user.email || session.user.name || null) : null;
+      var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
 
       var viewer = document.getElementById('ca-viewer');
       var viewerTitle = document.getElementById('ca-viewer-title');
@@ -130,6 +133,23 @@
         document.body.style.overflow = '';
         if (viewerFrame) viewerFrame.src = '';
         if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+
+      function getJourneyStorageKey() {
+        var k = currentUserKey || 'student';
+        return storagePrefix + 'student_journey_' + String(k).toLowerCase();
+      }
+
+      function trackGkAction() {
+        try {
+          var raw = localStorage.getItem(getJourneyStorageKey());
+          var journey = raw ? JSON.parse(raw) : {};
+          if (!journey || typeof journey !== 'object') journey = {};
+          journey.gkActions = Number(journey.gkActions || 0) + 1;
+          if (!journey.videos || typeof journey.videos !== 'object') journey.videos = {};
+          if (journey.notesActions == null) journey.notesActions = 0;
+          localStorage.setItem(getJourneyStorageKey(), JSON.stringify(journey));
+        } catch (_) {}
       }
 
       if (viewerToggle) {
@@ -319,6 +339,7 @@
               alert('Could not open preview. Try Download or Open full.');
               return;
             }
+            trackGkAction();
             var ext = extOf(key);
             if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].indexOf(ext) !== -1) {
               openViewer(t, url);
@@ -335,7 +356,10 @@
             e.preventDefault();
             var key = a.getAttribute('data-key');
             var url = await resolveDownloadUrl(key, false);
-            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+            if (url) {
+              trackGkAction();
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
           });
         });
 
@@ -344,7 +368,10 @@
             e.preventDefault();
             var key = a.getAttribute('data-key');
             var url = await resolveDownloadUrl(key, true);
-            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+            if (url) {
+              trackGkAction();
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
           });
         });
       }

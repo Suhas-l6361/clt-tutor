@@ -1420,6 +1420,113 @@
         });
       }
 
+      function getStudentInfoApiUrl() {
+        return (
+          (window.APP_CONFIG && window.APP_CONFIG.STUDENT_GENERAL_INFO_API) ||
+          'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info'
+        );
+      }
+
+      function splitBranchesLabel(v) {
+        if (v == null) return [];
+        if (Array.isArray(v)) return v.map(String);
+        if (typeof v === 'string') {
+          try {
+            var p = JSON.parse(v);
+            if (Array.isArray(p)) return p.map(String);
+          } catch (e) {}
+          if (v.trim()) return [v.trim()];
+        }
+        return [];
+      }
+
+      function normToken(v) {
+        return String(v == null ? '' : v)
+          .trim()
+          .toUpperCase();
+      }
+
+      function fetchStudentAccessProfile() {
+        var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        var user = session && session.user ? session.user : null;
+        if (!user) return Promise.resolve({ branch: '', batch: '' });
+
+        var studentId = user.student_id != null ? String(user.student_id).trim() : '';
+        var email = user.email ? String(user.email).trim() : '';
+        if (!studentId && !email) return Promise.resolve({ branch: '', batch: '' });
+
+        var query = studentId
+          ? 'student_id=' + encodeURIComponent(studentId)
+          : 'email=' + encodeURIComponent(email);
+        return fetch(getStudentInfoApiUrl() + '?' + query, { method: 'GET' })
+          .then(function (res) {
+            if (!res.ok) return [];
+            return res.json();
+          })
+          .then(function (rows) {
+            var row = Array.isArray(rows) && rows.length ? rows[0] : null;
+            return {
+              branch: row && row.branch != null ? String(row.branch) : '',
+              batch: row && row.batch != null ? String(row.batch) : '',
+            };
+          })
+          .catch(function () {
+            return { branch: '', batch: '' };
+          });
+      }
+
+      function shouldShowTestForStudent(row, studentProfile) {
+        var branchNorm = normToken(studentProfile && studentProfile.branch);
+        var batchNorm = normToken(studentProfile && studentProfile.batch);
+        var isOnlineStudent = branchNorm === 'ONLINE' || batchNorm === 'ONLINE';
+        if (!isOnlineStudent) return true;
+
+        var branches = splitBranchesLabel(row && row.selected_branch).map(normToken);
+        if (!branches.length) return true;
+        return branches.indexOf('ONLINE') >= 0 || branches.indexOf('ALL BRANCH') >= 0;
+      }
+
+      function parseScheduledDateTime(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) return null;
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?$/);
+        if (!m) {
+          var t = Date.parse(s);
+          return Number.isNaN(t) ? null : new Date(t);
+        }
+        var year = Number(m[1]);
+        var mon = Number(m[2]) - 1;
+        var day = Number(m[3]);
+        var hh = m[4] != null ? Number(m[4]) : 0;
+        var mm = m[5] != null ? Number(m[5]) : 0;
+        var ss = m[6] != null ? Number(m[6]) : 0;
+        return new Date(year, mon, day, hh, mm, ss);
+      }
+
+      function formatOpenDateTime(d) {
+        if (!d || Number.isNaN(d.getTime())) return '';
+        return d.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        });
+      }
+
+      function getOpenMeta(row) {
+        var raw = row && row.scheduled_at != null ? row.scheduled_at : row && row.scheduled != null ? row.scheduled : '';
+        var dt = parseScheduledDateTime(raw);
+        if (!dt) return { hasSchedule: false, isLocked: false, label: '' };
+        var now = new Date();
+        return {
+          hasSchedule: true,
+          isLocked: dt.getTime() > now.getTime(),
+          label: formatOpenDateTime(dt),
+        };
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.remove('exam-active');
         var stock = document.getElementById('stock');
@@ -2377,6 +2484,13 @@
         }
 
         function startTestFromRow(row) {
+          var openMeta = getOpenMeta(row);
+          if (openMeta.isLocked) {
+            hideLoader();
+            if (testListEl) testListEl.hidden = false;
+            showErr('This test will open on ' + openMeta.label + '.');
+            return;
+          }
           if (bootstrapErr) bootstrapErr.hidden = true;
           if (bootstrapStatus) {
             bootstrapStatus.hidden = false;
@@ -2421,6 +2535,7 @@
             var card = document.createElement('div');
             card.className = 'exam-test-card';
             var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
+            var openMeta = getOpenMeta(row);
             var left = document.createElement('div');
             var att = map[id] != null ? map[id] : map[String(id)];
             var scoreLine =
@@ -2433,7 +2548,7 @@
               '</h4>' +
               '<p class="meta">Test #' +
               escHtml(String(id)) +
-              (row.scheduled ? ' · Scheduled ' + escHtml(String(row.scheduled)) : '') +
+              (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
               escHtml(scoreLine) +
               '</p>';
             var btn = document.createElement('button');
@@ -2449,16 +2564,18 @@
               } else {
                 btn.className = 'btn btn-primary exam-test-btn--retry';
                 btn.innerHTML = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again';
-                btn.disabled = !hasPaper;
+                btn.disabled = !hasPaper || openMeta.isLocked;
                 if (!hasPaper) btn.title = 'No question paper uploaded';
+                else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
                 btn.addEventListener('click', function () {
                   startTestFromRow(row);
                 });
               }
             } else {
               btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
-              btn.disabled = !hasPaper;
+              btn.disabled = !hasPaper || openMeta.isLocked;
               if (!hasPaper) btn.title = 'No question paper uploaded';
+              else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
               btn.addEventListener('click', function () {
                 startTestFromRow(row);
               });
@@ -2470,14 +2587,18 @@
         }
 
         function loadList() {
-          Promise.all([fetchTestsFromApi(), fetchStudentAttempts()])
+          Promise.all([fetchTestsFromApi(), fetchStudentAttempts(), fetchStudentAccessProfile()])
             .then(function (pair) {
               var data = pair[0];
               var attempts = pair[1] || [];
+              var studentProfile = pair[2] || { branch: '', batch: '' };
               var rows = Array.isArray(data) ? data : [];
+              rows = rows.filter(function (row) {
+                return shouldShowTestForStudent(row, studentProfile);
+              });
               if (!rows.length) {
                 hideLoader();
-                showErr('No tests are available yet. Ask your institute to publish a test from CRM (Add Test).');
+                showErr('No Test are Available');
                 return;
               }
               var map = {};

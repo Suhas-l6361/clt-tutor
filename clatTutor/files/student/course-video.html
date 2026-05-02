@@ -95,10 +95,12 @@
       var allRows = [];
       var filtered = [];
       var currentPlayingId = null;
+      var currentPlayingKey = null;
       var savedMap = {};
       var showSavedOnly = false;
       var session = Auth.getSession ? Auth.getSession() : null;
       var currentUserKey = session && session.user ? (session.user.email || session.user.name || null) : null;
+      var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
 
       function esc(s) {
         return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -145,6 +147,50 @@
         return String(savedMap[String(videoId)] || '0') === '1';
       }
 
+      function getJourneyStorageKey() {
+        var k = currentUserKey || 'student';
+        return storagePrefix + 'student_journey_' + String(k).toLowerCase();
+      }
+
+      function readJourney() {
+        try {
+          var raw = localStorage.getItem(getJourneyStorageKey());
+          if (!raw) return { videos: {}, notesActions: 0, gkActions: 0 };
+          var parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== 'object') return { videos: {}, notesActions: 0, gkActions: 0 };
+          if (!parsed.videos || typeof parsed.videos !== 'object') parsed.videos = {};
+          return parsed;
+        } catch (_) {
+          return { videos: {}, notesActions: 0, gkActions: 0 };
+        }
+      }
+
+      function writeJourney(j) {
+        try {
+          localStorage.setItem(getJourneyStorageKey(), JSON.stringify(j));
+        } catch (_) {}
+      }
+
+      function trackVideoProgress(videoId, currentSeconds, durationSeconds, ended) {
+        if (!videoId) return;
+        var journey = readJourney();
+        var videos = journey.videos || {};
+        var key = String(videoId);
+        var row = videos[key] || { seconds: 0, completed: false, lastAt: '' };
+        var sec = Math.max(0, Math.floor(Number(currentSeconds || 0)));
+        row.seconds = Math.max(Number(row.seconds || 0), sec);
+        if (!row.completed) {
+          var dur = Number(durationSeconds || 0);
+          if (ended || (dur > 0 && sec >= Math.floor(dur * 0.9))) {
+            row.completed = true;
+          }
+        }
+        row.lastAt = new Date().toISOString();
+        videos[key] = row;
+        journey.videos = videos;
+        writeJourney(journey);
+      }
+
       async function playVideo(row) {
         if (!row) return;
         var key = row.video_url || '';
@@ -159,6 +205,7 @@
           return;
         }
         currentPlayingId = row.id;
+        currentPlayingKey = row.id;
         if (modalTitleEl) modalTitleEl.textContent = row.title || 'Playing video';
         if (modalPlayerEl) {
           modalPlayerEl.src = url;
@@ -173,10 +220,12 @@
         if (modalEl) modalEl.hidden = true;
         document.body.style.overflow = '';
         if (modalPlayerEl) {
+          trackVideoProgress(currentPlayingKey, modalPlayerEl.currentTime, modalPlayerEl.duration, false);
           modalPlayerEl.pause();
           modalPlayerEl.removeAttribute('src');
           modalPlayerEl.load();
         }
+        currentPlayingKey = null;
       }
 
       function render() {
@@ -326,6 +375,14 @@
           closeVideoModal();
         }
       });
+      if (modalPlayerEl) {
+        modalPlayerEl.addEventListener('timeupdate', function () {
+          trackVideoProgress(currentPlayingKey, modalPlayerEl.currentTime, modalPlayerEl.duration, false);
+        });
+        modalPlayerEl.addEventListener('ended', function () {
+          trackVideoProgress(currentPlayingKey, modalPlayerEl.currentTime, modalPlayerEl.duration, true);
+        });
+      }
       searchEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();

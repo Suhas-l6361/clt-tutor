@@ -69,6 +69,9 @@
 
       var allRows = [];
       var filtered = [];
+      var session = Auth.getSession ? Auth.getSession() : null;
+      var currentUserKey = session && session.user ? (session.user.email || session.user.name || null) : null;
+      var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
 
       var viewer = document.getElementById('sn-viewer');
       var viewerTitle = document.getElementById('sn-viewer-title');
@@ -149,6 +152,23 @@
         viewer.hidden = true;
         document.body.style.overflow = '';
         if (viewerFrame) viewerFrame.src = '';
+      }
+
+      function getJourneyStorageKey() {
+        var k = currentUserKey || 'student';
+        return storagePrefix + 'student_journey_' + String(k).toLowerCase();
+      }
+
+      function trackNotesAction() {
+        try {
+          var raw = localStorage.getItem(getJourneyStorageKey());
+          var journey = raw ? JSON.parse(raw) : {};
+          if (!journey || typeof journey !== 'object') journey = {};
+          journey.notesActions = Number(journey.notesActions || 0) + 1;
+          if (!journey.videos || typeof journey.videos !== 'object') journey.videos = {};
+          if (journey.gkActions == null) journey.gkActions = 0;
+          localStorage.setItem(getJourneyStorageKey(), JSON.stringify(journey));
+        } catch (_) {}
       }
 
       viewer.querySelectorAll('[data-sn-viewer-close]').forEach(function (el) {
@@ -235,6 +255,7 @@
             var url = await resolveDownloadUrl(key, true);
             btn.disabled = false;
             if (!url) return alert('Could not open preview. Try download.');
+            trackNotesAction();
             openViewer(t, url);
           });
         });
@@ -243,7 +264,10 @@
             e.preventDefault();
             var key = a.getAttribute('data-key');
             var url = await resolveDownloadUrl(key, false);
-            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+            if (url) {
+              trackNotesAction();
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
           });
         });
         listEl.querySelectorAll('[data-sn-open]').forEach(function (a) {
@@ -251,7 +275,10 @@
             e.preventDefault();
             var key = a.getAttribute('data-key');
             var url = await resolveDownloadUrl(key, true);
-            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+            if (url) {
+              trackNotesAction();
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
           });
         });
       }

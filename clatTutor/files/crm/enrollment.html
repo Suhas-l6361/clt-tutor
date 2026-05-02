@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CLATutor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../css/enrollment.css" />
@@ -38,6 +38,11 @@
       <section id="enrollment-results" class="enrollment-crm__panel" hidden aria-live="polite">
         <div class="enrollment-crm__panel-head">
           <h2 id="enrollment-results-heading" class="enrollment-crm__panel-title">—</h2>
+          <div class="enrollment-filter">
+            <input type="date" id="enrollment-from-date" class="enrollment-filter__input" aria-label="From date" />
+            <input type="date" id="enrollment-to-date" class="enrollment-filter__input" aria-label="To date" />
+            <button type="button" class="enrollment-btn" id="enrollment-apply-filter">Apply</button>
+          </div>
         </div>
         <p id="enrollment-loading" class="enrollment-loading" hidden>Loading…</p>
         <p id="enrollment-error" class="enrollment-error" hidden></p>

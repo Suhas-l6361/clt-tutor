@@ -67,6 +67,10 @@ body.page-public .section--faculty .faculty-poster img {
   gap: 0.75rem;
 }
 
+.hero-video__carousel--grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 /* Branch-style: 3 in a row on desktop, stacked on mobile */
 .hero-video__track--grid {
   display: grid;

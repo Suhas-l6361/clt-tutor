@@ -21,9 +21,10 @@
     if (raw == null || raw === '') return '—';
     var t = Date.parse(raw);
     if (!isNaN(t)) {
-      return new Date(t).toLocaleString(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
+      return new Date(t).toLocaleDateString(undefined, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
       });
     }
     return escHtml(String(raw));
@@ -32,6 +33,24 @@
   function val(v) {
     if (v == null || v === '') return '—';
     return escHtml(String(v));
+  }
+
+  function normalizeDateTs(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+
+  function inputDateToTs(v) {
+    if (!v) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if (!m) return null;
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+  }
+
+  function rowCreatedAtToTs(raw) {
+    if (raw == null || raw === '') return null;
+    var t = Date.parse(raw);
+    if (isNaN(t)) return null;
+    return normalizeDateTs(new Date(t));
   }
 
   function dlRow(k, v, block) {
@@ -88,6 +107,7 @@
       '<th scope="col">Email</th>' +
       '<th scope="col">Phone</th>' +
       '<th scope="col">Interested in</th>' +
+      '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
@@ -106,6 +126,9 @@
           '</td>' +
           '<td>' +
           val(r.interested_in) +
+          '</td>' +
+          '<td>' +
+          fmtTs(r.created_at) +
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('callback', r.id) +
@@ -136,6 +159,7 @@
       '<th scope="col">Student email</th>' +
       '<th scope="col">Course</th>' +
       '<th scope="col">Target year</th>' +
+      '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
@@ -154,6 +178,9 @@
           '</td>' +
           '<td>' +
           val(r.target_year) +
+          '</td>' +
+          '<td>' +
+          fmtTs(r.created_at) +
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('enroll', r.id) +
@@ -184,6 +211,7 @@
       '<th scope="col">Email</th>' +
       '<th scope="col">Phone</th>' +
       '<th scope="col">Subject</th>' +
+      '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
@@ -202,6 +230,9 @@
           '</td>' +
           '<td>' +
           val(r.subject) +
+          '</td>' +
+          '<td>' +
+          fmtTs(r.created_at) +
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('contact', r.id) +
@@ -369,6 +400,9 @@
     var loading = document.getElementById('enrollment-loading');
     var errEl = document.getElementById('enrollment-error');
     var btns = document.querySelectorAll('.enrollment-crm__toolbar [data-kind]');
+    var fromDateEl = document.getElementById('enrollment-from-date');
+    var toDateEl = document.getElementById('enrollment-to-date');
+    var applyFilterBtn = document.getElementById('enrollment-apply-filter');
     if (!panel || !listEl || !heading) return;
 
     var openModal = wireModal();
@@ -379,6 +413,7 @@
       enroll: 'Enrollment details',
       contact: 'Contact us',
     };
+    var currentKind = null;
 
     function setLoading(on) {
       if (loading) loading.hidden = !on;
@@ -399,6 +434,31 @@
       btns.forEach(function (b) {
         b.classList.toggle('is-active', b.getAttribute('data-kind') === kind);
       });
+    }
+
+    function getFilteredRows(kind) {
+      var rows = lastRowsByKind[kind] || [];
+      var fromTs = fromDateEl ? inputDateToTs(fromDateEl.value) : null;
+      var toTs = toDateEl ? inputDateToTs(toDateEl.value) : null;
+
+      if (fromTs != null && toTs != null && fromTs > toTs) {
+        throw new Error('From date cannot be after To date.');
+      }
+
+      return rows.filter(function (r) {
+        var createdTs = rowCreatedAtToTs(r.created_at);
+        if (createdTs == null) return false;
+        if (fromTs != null && createdTs < fromTs) return false;
+        if (toTs != null && createdTs > toTs) return false;
+        return true;
+      });
+    }
+
+    function renderKindRows(kind) {
+      var rows = getFilteredRows(kind);
+      if (kind === 'callback') listEl.innerHTML = renderCallback(rows);
+      else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
+      else listEl.innerHTML = renderContact(rows);
     }
 
     listEl.addEventListener('click', function (e) {
@@ -471,6 +531,18 @@
       });
     });
 
+    if (applyFilterBtn) {
+      applyFilterBtn.addEventListener('click', function () {
+        if (!currentKind) return;
+        setError('');
+        try {
+          renderKindRows(currentKind);
+        } catch (e) {
+          setError(e && e.message ? e.message : 'Invalid date range.');
+        }
+      });
+    }
+
     function load(kind) {
       var url = urls[kind];
       if (!url) {
@@ -484,6 +556,7 @@
       setError('');
       setLoading(true);
       setActive(kind);
+      currentKind = kind;
 
       fetch(url, { method: 'GET', headers: { Accept: 'application/json' } })
         .then(function (res) {
@@ -500,9 +573,11 @@
           }
           var rows = Array.isArray(x.j) ? x.j : [];
           lastRowsByKind[kind] = rows;
-          if (kind === 'callback') listEl.innerHTML = renderCallback(rows);
-          else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
-          else listEl.innerHTML = renderContact(rows);
+          try {
+            renderKindRows(kind);
+          } catch (e) {
+            setError(e && e.message ? e.message : 'Invalid date range.');
+          }
         })
         .catch(function (e) {
           setLoading(false);

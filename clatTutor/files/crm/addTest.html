@@ -1361,6 +1361,7 @@
             <div class="at-branch"><input type="checkbox" name="branch" value="MALLESHWARAM" id="br-mal" data-branch="loc" /><label for="br-mal">MALLESHWARAM</label></div>
             <div class="at-branch"><input type="checkbox" name="branch" value="JAYANAGARA" id="br-jay" data-branch="loc" /><label for="br-jay">JAYANAGARA</label></div>
             <div class="at-branch"><input type="checkbox" name="branch" value="YALAAHANKA" id="br-yal" data-branch="loc" /><label for="br-yal">YALAAHANKA</label></div>
+            <div class="at-branch"><input type="checkbox" name="branch" value="ONLINE" id="br-online" data-branch="loc" /><label for="br-online">ONLINE</label></div>
             <div class="at-branch"><input type="checkbox" name="branch" value="ALL BRANCH" id="br-all" /><label for="br-all">ALL BRANCH</label></div>
           </div>
           <div class="at-actions-bar">
@@ -1732,7 +1733,7 @@
         }
         lines.push('<strong>Branches</strong> ' + escapeHtml(branches.join(', ')));
         if (scheduledDate) {
-          lines.push('<strong>Go-live date</strong> ' + escapeHtml(String(scheduledDate)));
+          lines.push('<strong>Go-live date</strong> ' + escapeHtml(asLocalDateTime(String(scheduledDate))));
         } else {
           lines.push('<span style="opacity:0.92">No date set — saved as draft.</span>');
         }
@@ -3782,6 +3783,21 @@
         }
       });
 
+      /** Parse JSON (or plain-text error) from add_test API responses. */
+      function parseAddTestResponse(res) {
+        return res.text().then(function (text) {
+          var data = {};
+          if (text) {
+            try {
+              data = JSON.parse(text);
+            } catch (parseErr) {
+              data = { message: text.slice(0, 200) };
+            }
+          }
+          return { ok: res.ok, status: res.status, data: data };
+        });
+      }
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var title = (document.getElementById('at-title').value || '').trim();
@@ -3809,7 +3825,6 @@
         if (fpWhen && fpWhen.selectedDates && fpWhen.selectedDates.length) {
           scheduledFull = fpWhen.formatDate(fpWhen.selectedDates[0], 'Y-m-d H:i');
         }
-        var scheduledDateOnly = scheduledFull ? scheduledFull.slice(0, 10) : null;
 
         var fq = fileQ.files[0];
         var fa = fileA.files[0];
@@ -3822,40 +3837,66 @@
 
         Promise.all([readFileAsDataUrl(fq), readFileAsDataUrl(fa)])
           .then(function (pair) {
-            loaderCaption.textContent = 'Uploading to server…';
+            loaderCaption.textContent = 'Uploading question paper (1/2)…';
             var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
             var addedBy = sess && sess.user && sess.user.email ? String(sess.user.email).trim() : null;
+            var qB64 = extractBase64Payload(pair[0]);
+            var aB64 = extractBase64Payload(pair[1]);
 
-            var payload = {
+            var postPayload = {
               title: title,
-              scheduled: scheduledDateOnly,
+              scheduled: scheduledFull || null,
+              scheduled_at: scheduledFull || null,
               selected_branch: branches,
-              question_paper_base64: pair[0],
+              question_paper_base64: qB64,
               question_paper_file_name: fq.name,
               question_paper_content_type: guessContentType(fq.name, fq.type),
-              answer_key_base64: pair[1],
-              answer_key_file_name: fa.name,
-              answer_key_content_type: guessContentType(fa.name, fa.type),
             };
-            if (addedBy) payload.added_by = addedBy;
+            if (addedBy) postPayload.added_by = addedBy;
 
             return fetch(addTestApiUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            }).then(function (res) {
-              return res.text().then(function (text) {
-                var data = {};
-                if (text) {
-                  try {
-                    data = JSON.parse(text);
-                  } catch (parseErr) {
-                    data = { message: text.slice(0, 200) };
-                  }
+              body: JSON.stringify(postPayload),
+            })
+              .then(parseAddTestResponse)
+              .then(function (postResult) {
+                if (!postResult.ok) return postResult;
+                var tid =
+                  postResult.data && postResult.data.test_id != null ? postResult.data.test_id : null;
+                if (tid == null) {
+                  return {
+                    ok: false,
+                    status: postResult.status,
+                    data: { message: 'Server did not return test id' },
+                  };
                 }
-                return { ok: res.ok, status: res.status, data: data };
+                loaderCaption.textContent = 'Uploading answer key (2/2)…';
+                var putPayload = {
+                  test_id: tid,
+                  answer_key_base64: aB64,
+                  answer_key_file_name: fa.name,
+                  answer_key_content_type: guessContentType(fa.name, fa.type),
+                };
+                return fetch(addTestApiUrl, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(putPayload),
+                })
+                  .then(parseAddTestResponse)
+                  .then(function (putResult) {
+                    if (putResult.ok) return putResult;
+                    return fetch(addTestApiUrl, {
+                      method: 'DELETE',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ test_id: tid }),
+                    })
+                      .catch(function () {})
+                      .then(function () {
+                        return putResult;
+                      });
+                  });
               });
-            });
           })
           .then(function (result) {
             loaderOverlay.hidden = true;
@@ -3866,7 +3907,7 @@
               showSuccessModal({
                 testId: tid,
                 branches: branches,
-                scheduledDate: scheduledDateOnly,
+                scheduledDate: scheduledFull || null,
               });
               if (typeof Auth !== 'undefined' && Auth.trackActivity) {
                 Auth.trackActivity('add_test_submit', { test_id: tid || null });

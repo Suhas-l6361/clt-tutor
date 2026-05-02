@@ -82,16 +82,36 @@
 }
 
 .enrollment-crm__panel-head {
-  padding: 0.85rem 1.1rem;
+  padding: 0.55rem 1.1rem;
   background: linear-gradient(135deg, #fffceb 0%, #ffffff 55%);
   border-bottom: 1px solid #ead9a3;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .enrollment-crm__panel-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 700;
+  display: none;
+}
+
+.enrollment-filter {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.enrollment-filter__input {
+  min-width: 150px;
+  padding: 0.38rem 0.5rem;
+  border: 1px solid #d6dce5;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.8rem;
   color: #0f172a;
+  background: #fff;
 }
 
 .enrollment-loading,

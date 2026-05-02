@@ -393,29 +393,29 @@
         <article class="sd-stat">
           <div class="sd-stat__icon"><i class="fa-solid fa-book-open-reader"></i></div>
           <div>
-            <p class="sd-stat__value" id="stat-modules">3</p>
-            <p class="sd-stat__label">Active modules</p>
+            <p class="sd-stat__value" id="stat-tests-attended">0</p>
+            <p class="sd-stat__label">Tests attended</p>
           </div>
         </article>
         <article class="sd-stat">
           <div class="sd-stat__icon"><i class="fa-solid fa-clock"></i></div>
           <div>
-            <p class="sd-stat__value" id="stat-due">2</p>
-            <p class="sd-stat__label">Due this week</p>
+            <p class="sd-stat__value" id="stat-videos-completed">0</p>
+            <p class="sd-stat__label">Videos completed</p>
           </div>
         </article>
         <article class="sd-stat">
           <div class="sd-stat__icon"><i class="fa-solid fa-bell"></i></div>
           <div>
-            <p class="sd-stat__value" id="stat-unread">0</p>
-            <p class="sd-stat__label">Unread notices</p>
+            <p class="sd-stat__value" id="stat-watch-hours">0h</p>
+            <p class="sd-stat__label">Watch hours</p>
           </div>
         </article>
         <article class="sd-stat">
           <div class="sd-stat__icon"><i class="fa-solid fa-chart-line"></i></div>
           <div>
-            <p class="sd-stat__value">62%</p>
-            <p class="sd-stat__label">Overall progress</p>
+            <p class="sd-stat__value" id="stat-notes-gk">0</p>
+            <p class="sd-stat__label">Notes + GK actions</p>
           </div>
         </article>
       </section>
@@ -558,6 +558,9 @@
       var profileStorageKey = storagePrefix + 'student_profile';
       var STUDENT_GENERAL_INFO_API =
         'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+      var SUBMIT_ONLINE_TEST_API =
+        (window.APP_CONFIG && window.APP_CONFIG.SUBMIT_ONLINE_TEST_API) ||
+        '';
       var initials = studentName
         .split(/\s+/)
         .map(function (p) {
@@ -588,11 +591,85 @@
       if (typeof applyStudentTopbarProfileButton === 'function' && document.getElementById('open-profile-panel')) {
         applyStudentTopbarProfileButton();
       }
-      var notes = DataStore.notificationsForViewer('student').filter(function (n) {
-        return !n.read;
-      }).length;
-      var el = document.getElementById('stat-unread');
-      if (el) el.textContent = String(notes);
+      function getStudentAnalyticsKey() {
+        var u = session && session.user ? session.user : null;
+        var k = u ? (u.email || u.login || u.student_id || u.name || 'student') : 'student';
+        return storagePrefix + 'student_journey_' + String(k).toLowerCase();
+      }
+
+      function readStudentJourney() {
+        try {
+          var raw = localStorage.getItem(getStudentAnalyticsKey());
+          if (!raw) return null;
+          var parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function renderJourneyStats() {
+        var journey = readStudentJourney() || {};
+        var videos = journey.videos || {};
+        var notesActions = Number(journey.notesActions || 0);
+        var gkActions = Number(journey.gkActions || 0);
+
+        var completed = 0;
+        var watchedSeconds = 0;
+        Object.keys(videos).forEach(function (id) {
+          var row = videos[id] || {};
+          if (row.completed) completed++;
+          watchedSeconds += Number(row.seconds || 0);
+        });
+
+        var watchHours = watchedSeconds / 3600;
+        var watchHoursText = watchHours >= 10
+          ? watchHours.toFixed(1) + 'h'
+          : watchHours.toFixed(2) + 'h';
+
+        var completedEl = document.getElementById('stat-videos-completed');
+        var watchEl = document.getElementById('stat-watch-hours');
+        var ngEl = document.getElementById('stat-notes-gk');
+        if (completedEl) completedEl.textContent = String(completed);
+        if (watchEl) watchEl.textContent = watchHoursText;
+        if (ngEl) ngEl.textContent = String(notesActions + gkActions);
+      }
+
+      function fetchAndRenderTestAttendance() {
+        var target = document.getElementById('stat-tests-attended');
+        if (!target) return;
+        var u = session && session.user ? session.user : null;
+        if (!u || !SUBMIT_ONLINE_TEST_API) {
+          target.textContent = '0';
+          return;
+        }
+        var email = u.email || u.login || '';
+        if (!email) {
+          target.textContent = '0';
+          return;
+        }
+        var url =
+          SUBMIT_ONLINE_TEST_API +
+          (SUBMIT_ONLINE_TEST_API.indexOf('?') >= 0 ? '&' : '?') +
+          'action=student_attempts&email=' +
+          encodeURIComponent(String(email).trim());
+        fetch(url, { method: 'GET', credentials: 'omit' })
+          .then(function (res) {
+            if (!res.ok) return [];
+            return res.json().then(function (d) {
+              return Array.isArray(d && d.attempts) ? d.attempts : [];
+            });
+          })
+          .then(function (attempts) {
+            var attended = attempts.filter(function (a) {
+              return a && (a.completed || a.percentage != null || a.correctAnswer != null);
+            }).length;
+            target.textContent = String(attended);
+          })
+          .catch(function () {
+            target.textContent = '0';
+          });
+      }
       var dateEl = document.getElementById('today-date');
       if (dateEl) {
         dateEl.textContent = new Date().toLocaleDateString('en-IN', {
@@ -602,6 +679,8 @@
           year: 'numeric',
         });
       }
+      renderJourneyStats();
+      fetchAndRenderTestAttendance();
 
       var openProfileBtn = document.getElementById('open-profile-panel');
       var closeProfileBtn = document.getElementById('close-profile-panel');

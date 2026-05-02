@@ -1359,4 +1359,26 @@ body.fees-page.fees-history-detail-open {
     color: #64748b;
     margin-bottom: 4px;
   }
+
+  body.fees-page .fees-print__notice {
+    margin: 10px 16px 6px;
+    padding-top: 8px;
+    border-top: 1px solid #cbd5e1;
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__notice-title {
+    margin: 0 0 6px;
+    text-align: center;
+    font-size: 10pt;
+    color: #1f2937;
+  }
+
+  body.fees-page .fees-print__notice-text {
+    margin: 0;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    color: #374151;
+    text-align: left;
+  }
 }
