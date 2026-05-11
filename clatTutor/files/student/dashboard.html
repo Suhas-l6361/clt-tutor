@@ -371,6 +371,261 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* —— Test Evaluation (OMR) —— */
+    .sd-eval-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .sd-eval-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sd-eval-card h3 i {
+      color: var(--accent);
+    }
+    .sd-eval-card p {
+      margin: 0.5rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      max-width: 52rem;
+    }
+    .sd-eval-card__btn {
+      margin-top: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 1px solid #111827;
+      border-radius: 10px;
+      padding: 0.62rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: #111827;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .sd-eval-card__btn:hover {
+      background: #0b1220;
+    }
+    .sd-eval-card__btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .sd-omr-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .sd-omr-modal[hidden] {
+      display: none !important;
+    }
+    .sd-omr-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+    }
+    .sd-omr-modal__dialog {
+      position: relative;
+      width: min(1180px, 100%);
+      max-height: min(92vh, 900px);
+      background: #fafafa;
+      border-radius: 14px;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sd-omr-modal__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .sd-omr-modal__head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .sd-omr-modal__head p {
+      margin: 0.25rem 0 0;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+    .sd-omr-close {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sd-omr-close:hover {
+      background: #f3f4f6;
+    }
+    .sd-omr-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1rem;
+      padding: 0.65rem 1rem;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.84rem;
+    }
+    .sd-omr-toolbar label {
+      font-weight: 600;
+      color: #374151;
+    }
+    .sd-omr-toolbar select {
+      min-width: min(320px, 70vw);
+      padding: 0.45rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-family: inherit;
+      font-size: 0.84rem;
+      background: #fff;
+    }
+    .sd-omr-body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.85rem 1rem 1rem;
+    }
+    .sd-omr-status {
+      font-size: 0.84rem;
+      color: #6b7280;
+      margin-bottom: 0.65rem;
+    }
+    .sd-omr-status--err {
+      color: #b91c1c;
+    }
+    .sd-omr-sheet {
+      background: #fff;
+      border: 1px solid #111827;
+      border-radius: 4px;
+      padding: 0.75rem 0.85rem 1rem;
+      box-shadow: inset 0 0 0 1px #fff;
+    }
+    .sd-omr-sheet__hdr {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-bottom: 0.55rem;
+      margin-bottom: 0.65rem;
+      border-bottom: 2px solid #111827;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .sd-omr-cols {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem 1.25rem;
+    }
+    @media (max-width: 960px) {
+      .sd-omr-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 520px) {
+      .sd-omr-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+    .sd-omr-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.22rem;
+    }
+    .sd-omr-row {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 1.65rem;
+    }
+    .sd-omr-qno {
+      font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #111827;
+      text-align: right;
+      padding-right: 0.15rem;
+    }
+    .sd-omr-bubs {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+    }
+    .sd-omr-bub {
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 50%;
+      border: 1.25px solid #111827;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #111827;
+      background: #fff;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+    .sd-omr-bub--filled {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+    .sd-omr-foot {
+      padding: 0.65rem 1rem;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .sd-omr-foot .btn-close-sheet {
+      border: 1px solid #d1d5db;
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.45rem 0.9rem;
+      font-weight: 600;
+      font-size: 0.84rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .sd-omr-foot .btn-close-sheet:hover {
+      background: #f9fafb;
+    }
   </style>
 </head>
 <body class="app-body student-dashboard">
@@ -418,6 +673,18 @@
             <p class="sd-stat__label">Notes + GK actions</p>
           </div>
         </article>
+      </section>
+
+      <section class="sd-eval-card" aria-labelledby="sd-eval-heading">
+        <h3 id="sd-eval-heading"><i class="fa-solid fa-table-cells-large"></i> Test Evaluation</h3>
+        <p>
+          View <strong>physical OMR</strong> submissions only (answers you entered via <strong>Enter OMR</strong> on the
+          online test page). Each sheet shows A–D bubbles with your marks; blanks stay empty. Regular on-screen tests are
+          not listed here.
+        </p>
+        <button type="button" class="sd-eval-card__btn" id="sd-open-omr-modal" disabled>
+          <i class="fa-regular fa-window-restore" aria-hidden="true"></i> Open OMR answer sheet
+        </button>
       </section>
 
       <section class="sd-grid">
@@ -488,6 +755,44 @@
           </div>
         </div>
       </section>
+    </div>
+
+    <div class="sd-omr-modal" id="sd-omr-modal" hidden>
+      <div class="sd-omr-modal__backdrop" id="sd-omr-backdrop" tabindex="-1"></div>
+      <div
+        class="sd-omr-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sd-omr-title"
+        aria-describedby="sd-omr-desc"
+      >
+        <div class="sd-omr-modal__head">
+          <div>
+            <h2 id="sd-omr-title">OMR answer sheet</h2>
+            <p id="sd-omr-desc">Physical OMR entries only (latest OMR submission per test).</p>
+          </div>
+          <button type="button" class="sd-omr-close" id="sd-omr-close" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="sd-omr-toolbar">
+          <label for="sd-omr-select">Select OMR test</label>
+          <select id="sd-omr-select" aria-label="Select physical OMR test to view"></select>
+        </div>
+        <div class="sd-omr-body">
+          <div class="sd-omr-status" id="sd-omr-status"></div>
+          <div class="sd-omr-sheet" id="sd-omr-sheet" hidden>
+            <div class="sd-omr-sheet__hdr">
+              <span id="sd-omr-meta-left">Student</span>
+              <span id="sd-omr-meta-right">Physical OMR · recorded bubbles</span>
+            </div>
+            <div class="sd-omr-cols" id="sd-omr-cols"></div>
+          </div>
+        </div>
+        <div class="sd-omr-foot">
+          <button type="button" class="btn-close-sheet" id="sd-omr-close-foot">Close</button>
+        </div>
+      </div>
     </div>
 
     <div class="sd-profile-panel" id="profile-panel" hidden>
@@ -635,17 +940,33 @@
         if (ngEl) ngEl.textContent = String(notesActions + gkActions);
       }
 
+      var dashStudentAttempts = [];
+      var dashOmrAttempts = [];
+
+      function filterOmrOnlyAttempts(all) {
+        return (all || []).filter(function (a) {
+          return a && (a.isOmr === true || a.isOmr === 1 || Number(a.isOmr) === 1);
+        });
+      }
+
       function fetchAndRenderTestAttendance() {
         var target = document.getElementById('stat-tests-attended');
+        var openOmr = document.getElementById('sd-open-omr-modal');
         if (!target) return;
         var u = session && session.user ? session.user : null;
         if (!u || !SUBMIT_ONLINE_TEST_API) {
           target.textContent = '0';
+          dashStudentAttempts = [];
+          dashOmrAttempts = [];
+          if (openOmr) openOmr.disabled = true;
           return;
         }
         var email = u.email || u.login || '';
         if (!email) {
           target.textContent = '0';
+          dashStudentAttempts = [];
+          dashOmrAttempts = [];
+          if (openOmr) openOmr.disabled = true;
           return;
         }
         var url =
@@ -661,14 +982,213 @@
             });
           })
           .then(function (attempts) {
-            var attended = attempts.filter(function (a) {
+            dashStudentAttempts = Array.isArray(attempts) ? attempts : [];
+            dashOmrAttempts = filterOmrOnlyAttempts(dashStudentAttempts);
+            if (openOmr) openOmr.disabled = dashOmrAttempts.length === 0;
+            var attended = dashStudentAttempts.filter(function (a) {
               return a && (a.completed || a.percentage != null || a.correctAnswer != null);
             }).length;
             target.textContent = String(attended);
           })
           .catch(function () {
             target.textContent = '0';
+            dashStudentAttempts = [];
+            dashOmrAttempts = [];
+            if (openOmr) openOmr.disabled = true;
           });
+      }
+
+      function normAnswerLetter(v) {
+        if (v == null) return '';
+        var s = typeof v === 'string' ? v.trim().toUpperCase() : String((v.letter != null ? v.letter : '') || '').trim().toUpperCase();
+        return /^[A-D]$/.test(s) ? s : '';
+      }
+
+      function normalizeAnswersMap(raw) {
+        var out = {};
+        if (!raw || typeof raw !== 'object') return out;
+        Object.keys(raw).forEach(function (k) {
+          var letter = normAnswerLetter(raw[k]);
+          if (!letter) return;
+          var n = parseInt(String(k).replace(/\D/g, ''), 10);
+          if (!Number.isFinite(n) || n < 1) return;
+          out[String(n)] = letter;
+        });
+        return out;
+      }
+
+      function maxQuestionIndex(ans) {
+        var m = 0;
+        Object.keys(ans || {}).forEach(function (k) {
+          var n = parseInt(k, 10);
+          if (Number.isFinite(n) && n > m) m = n;
+        });
+        return m;
+      }
+
+      function resolveTotalQuestions(attempt, ansNorm) {
+        var t = attempt && attempt.total_questions_paper != null ? Number(attempt.total_questions_paper) : NaN;
+        if (Number.isFinite(t) && t >= 1) return Math.min(200, Math.floor(t));
+        var mx = maxQuestionIndex(ansNorm);
+        return mx >= 1 ? Math.min(200, mx) : 0;
+      }
+
+      function buildOmrColumnQuestionNumbers(totalQ, colIndex, perCol) {
+        var start = colIndex * perCol + 1;
+        var end = Math.min((colIndex + 1) * perCol, totalQ);
+        var rows = [];
+        for (var q = start; q <= end; q++) rows.push(q);
+        return rows;
+      }
+
+      function renderOmrSheet(attempt) {
+        var sheet = document.getElementById('sd-omr-sheet');
+        var colsEl = document.getElementById('sd-omr-cols');
+        var statusEl = document.getElementById('sd-omr-status');
+        var metaL = document.getElementById('sd-omr-meta-left');
+        var metaR = document.getElementById('sd-omr-meta-right');
+        if (!sheet || !colsEl) return;
+        var ansNorm = normalizeAnswersMap(attempt && attempt.answers);
+        var totalQ = resolveTotalQuestions(attempt, ansNorm);
+        if (totalQ < 1) {
+          sheet.hidden = true;
+          colsEl.innerHTML = '';
+          if (statusEl) {
+            statusEl.textContent =
+              'No question count or answers found for this OMR submission. If this is an old record, submit again from Online test → Enter OMR.';
+            statusEl.classList.add('sd-omr-status--err');
+          }
+          return;
+        }
+        if (statusEl) {
+          statusEl.classList.remove('sd-omr-status--err');
+          var pct = attempt && attempt.percentage != null ? attempt.percentage + '%' : '—';
+          statusEl.textContent =
+            'Questions 1–' + totalQ + ' · Score: ' + pct + (attempt && attempt.letter_grade ? ' · Grade: ' + attempt.letter_grade : '');
+        }
+        if (metaL) metaL.textContent = studentName + ' · Test #' + (attempt && attempt.test_id != null ? attempt.test_id : '—');
+        if (metaR) {
+          var title = attempt && attempt.title ? String(attempt.title) : 'OMR test';
+          metaR.textContent = title;
+        }
+        var perCol = 25;
+        var numCols = Math.max(1, Math.ceil(totalQ / perCol));
+        colsEl.innerHTML = '';
+        for (var c = 0; c < numCols; c++) {
+          var col = document.createElement('div');
+          col.className = 'sd-omr-col';
+          var nums = buildOmrColumnQuestionNumbers(totalQ, c, perCol);
+          for (var i = 0; i < nums.length; i++) {
+            var qn = nums[i];
+            var picked = ansNorm[String(qn)] || '';
+            var row = document.createElement('div');
+            row.className = 'sd-omr-row';
+            var qno = document.createElement('span');
+            qno.className = 'sd-omr-qno';
+            qno.textContent = String(qn).padStart(2, '0');
+            var bubs = document.createElement('div');
+            bubs.className = 'sd-omr-bubs';
+            ['A', 'B', 'C', 'D'].forEach(function (L) {
+              var bub = document.createElement('span');
+              bub.className = 'sd-omr-bub' + (picked === L ? ' sd-omr-bub--filled' : '');
+              bub.textContent = L;
+              bubs.appendChild(bub);
+            });
+            row.appendChild(qno);
+            row.appendChild(bubs);
+            col.appendChild(row);
+          }
+          colsEl.appendChild(col);
+        }
+        sheet.hidden = false;
+      }
+
+      function populateOmrSelect() {
+        var sel = document.getElementById('sd-omr-select');
+        if (!sel) return;
+        sel.innerHTML = '';
+        dashOmrAttempts.forEach(function (a, idx) {
+          if (!a) return;
+          var opt = document.createElement('option');
+          opt.value = String(idx);
+          var title = a.title ? String(a.title) : 'Test #' + String(a.test_id != null ? a.test_id : '');
+          var pct = a.percentage != null ? ' · ' + a.percentage + '%' : '';
+          opt.textContent = title + pct + ' (OMR)';
+          sel.appendChild(opt);
+        });
+      }
+
+      function fetchStudentAttemptsForDashboard() {
+        var u = session && session.user ? session.user : null;
+        if (!u || !SUBMIT_ONLINE_TEST_API) return Promise.resolve([]);
+        var email = u.email || u.login || '';
+        if (!String(email).trim()) return Promise.resolve([]);
+        var url =
+          SUBMIT_ONLINE_TEST_API +
+          (SUBMIT_ONLINE_TEST_API.indexOf('?') >= 0 ? '&' : '?') +
+          'action=student_attempts&email=' +
+          encodeURIComponent(String(email).trim());
+        return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (res) {
+          if (!res.ok) return [];
+          return res.json().then(function (d) {
+            return Array.isArray(d && d.attempts) ? d.attempts : [];
+          });
+        });
+      }
+
+      function openOmrModal() {
+        var modal = document.getElementById('sd-omr-modal');
+        var statusEl = document.getElementById('sd-omr-status');
+        var sheet = document.getElementById('sd-omr-sheet');
+        if (!modal) return;
+        if (statusEl) {
+          statusEl.classList.remove('sd-omr-status--err');
+          statusEl.textContent = 'Loading…';
+        }
+        if (sheet) sheet.hidden = true;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+
+        fetchStudentAttemptsForDashboard()
+          .then(function (attempts) {
+            dashStudentAttempts = Array.isArray(attempts) ? attempts : [];
+            dashOmrAttempts = filterOmrOnlyAttempts(dashStudentAttempts);
+            var openOmr = document.getElementById('sd-open-omr-modal');
+            if (openOmr) openOmr.disabled = dashOmrAttempts.length === 0;
+            var target = document.getElementById('stat-tests-attended');
+            if (target) {
+              var attended = dashStudentAttempts.filter(function (a) {
+                return a && (a.completed || a.percentage != null || a.correctAnswer != null);
+              }).length;
+              target.textContent = String(attended);
+            }
+            if (!dashOmrAttempts.length) {
+              if (statusEl) {
+                statusEl.classList.add('sd-omr-status--err');
+                statusEl.textContent =
+                  'No physical OMR submissions yet. Open Online test, choose a test, and use Enter OMR to record your sheet.';
+              }
+              return;
+            }
+            populateOmrSelect();
+            var sel = document.getElementById('sd-omr-select');
+            var idx = sel && sel.value ? parseInt(sel.value, 10) : 0;
+            if (Number.isNaN(idx)) idx = 0;
+            renderOmrSheet(dashOmrAttempts[idx]);
+            if (sel) setTimeout(function () { try { sel.focus(); } catch (_) {} }, 30);
+          })
+          .catch(function () {
+            if (statusEl) {
+              statusEl.classList.add('sd-omr-status--err');
+              statusEl.textContent = 'Could not load attempts. Check your connection or try again later.';
+            }
+          });
+      }
+
+      function closeOmrModal() {
+        var modal = document.getElementById('sd-omr-modal');
+        if (modal) modal.hidden = true;
+        document.body.style.overflow = '';
       }
       var dateEl = document.getElementById('today-date');
       if (dateEl) {
@@ -681,6 +1201,31 @@
       }
       renderJourneyStats();
       fetchAndRenderTestAttendance();
+
+      (function wireOmrEvaluation() {
+        var btnOpen = document.getElementById('sd-open-omr-modal');
+        var modal = document.getElementById('sd-omr-modal');
+        var backdrop = document.getElementById('sd-omr-backdrop');
+        var btnX = document.getElementById('sd-omr-close');
+        var btnFoot = document.getElementById('sd-omr-close-foot');
+        var sel = document.getElementById('sd-omr-select');
+        if (btnOpen) btnOpen.addEventListener('click', openOmrModal);
+        if (backdrop) backdrop.addEventListener('click', closeOmrModal);
+        if (btnX) btnX.addEventListener('click', closeOmrModal);
+        if (btnFoot) btnFoot.addEventListener('click', closeOmrModal);
+        if (sel) {
+          sel.addEventListener('change', function () {
+            var i = parseInt(sel.value, 10);
+            if (Number.isNaN(i) || i < 0 || i >= dashOmrAttempts.length) i = 0;
+            renderOmrSheet(dashOmrAttempts[i]);
+          });
+        }
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          if (!modal || modal.hidden) return;
+          closeOmrModal();
+        });
+      })();
 
       var openProfileBtn = document.getElementById('open-profile-panel');
       var closeProfileBtn = document.getElementById('close-profile-panel');

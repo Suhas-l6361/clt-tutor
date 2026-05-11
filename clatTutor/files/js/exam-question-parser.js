@@ -300,6 +300,20 @@
     return /^(LR|LE|AR|GK|RC|QA)$/i.test(normalizeMarkerOuter(line));
   }
 
+  function matchCustomSectionStartLine(line) {
+    var s = normalizeMarkerOuter(line);
+    var m = s.match(/^\(\(\s*(.+?)\s+Starts\s*\)\)$/i);
+    if (!m) return '';
+    return String(m[1] || '').trim();
+  }
+
+  function matchCustomSectionEndLine(line) {
+    var s = normalizeMarkerOuter(line);
+    var m = s.match(/^\(\(\s*(.+?)\s+Ends\s*\)\)$/i);
+    if (!m) return '';
+    return String(m[1] || '').trim();
+  }
+
   function parseQuestionsFromText(text) {
     var normalized = normalizeExamText(text);
     var lines = normalized.split('\n');
@@ -307,6 +321,7 @@
     var globPara = '';
     var passageCount = 0;
     var currentPassageIndex = 0;
+    var currentSectionName = '';
     var rawQuestions = [];
 
     var i = 0;
@@ -342,6 +357,20 @@
         continue;
       }
 
+      var sectionStartName = matchCustomSectionStartLine(lines[i]);
+      if (sectionStartName) {
+        currentSectionName = sectionStartName;
+        i++;
+        continue;
+      }
+
+      var sectionEndName = matchCustomSectionEndLine(lines[i]);
+      if (sectionEndName) {
+        currentSectionName = '';
+        i++;
+        continue;
+      }
+
       if (isSectionTagLine(lines[i])) {
         var tag = normalizeMarkerOuter(lines[i]);
         globInfo = globInfo ? globInfo + '\n\n' + tag : tag;
@@ -358,6 +387,9 @@
         i++;
         while (i < lines.length) {
           if (isInformationStartLine(lines[i]) || isParagraphStartLine(lines[i])) break;
+          if (isInformationEndLine(lines[i]) || isParagraphEndLine(lines[i])) break;
+          if (matchCustomSectionStartLine(lines[i]) || matchCustomSectionEndLine(lines[i])) break;
+          if (isSectionTagLine(lines[i])) break;
           if (matchQuestionHeaderLine(lines[i]) != null) break;
           i++;
         }
@@ -368,6 +400,7 @@
           contextInfo: snapInfo,
           contextParagraph: snapPara,
           passageIndex: snapPassageIndex,
+          sectionName: currentSectionName || '',
         });
         continue;
       }
@@ -385,6 +418,7 @@
       var markerCtx = !!(rqItem.contextInfo || rqItem.contextParagraph);
       questions.push({
         number: rqItem.num,
+        sectionName: rqItem.sectionName || '',
         stem: parsed.stem,
         images: parsed.images || [],
         options: parsed.options,
@@ -415,7 +449,7 @@
         questions: [],
         error: rawQuestions.length
           ? 'Found numbered questions but no A–D options. Check option lines (A/B/C/D or [A]…).'
-          : 'No questions found. Use lines like "1. …" and wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends).',
+          : 'No questions found. Use lines like "1. …", wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends), and sections with ((Section Name Starts))…((Section Name Ends)).',
       };
     }
     return { directions: [], questions: questions, error: null };

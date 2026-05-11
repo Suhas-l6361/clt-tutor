@@ -114,14 +114,39 @@
     }
     .exam-test-card {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.75rem 1rem;
       padding: 1rem 1.1rem;
       border-radius: 14px;
       border: 1px solid var(--line-light);
       background: #fff;
       box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    }
+    .exam-test-card > div:first-child {
+      flex: 1;
+      min-width: min(100%, 200px);
+    }
+    .exam-test-card__btns {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+    .exam-test-btn--omr {
+      background: #fff !important;
+      border: 2px solid #1e3a5f !important;
+      color: #1e3a5f !important;
+      font-weight: 600;
+    }
+    .exam-test-btn--omr:hover:not(:disabled) {
+      background: #f0f6ff !important;
+    }
+    .exam-test-btn--omr:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
     .exam-test-card h4 {
       margin: 0 0 0.25rem;
@@ -287,6 +312,22 @@
       letter-spacing: 0.04em;
       color: #946200;
       margin: 0;
+    }
+    .exam-section-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      width: fit-content;
+      max-width: 100%;
+      padding: 0.32rem 0.62rem;
+      border-radius: 999px;
+      border: 1px solid #d6e4ff;
+      background: #eef4ff;
+      color: #1e3a8a;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: -0.2rem 0 0;
     }
     .exam-stem {
       font-size: 1rem;
@@ -609,13 +650,19 @@
       padding: 1.25rem 1.35rem;
     }
     .exam-modal__dialog--results {
-      width: min(960px, 96vw);
-      max-height: min(92vh, 720px);
-      max-height: min(92dvh, 720px);
+      width: min(1440px, 98vw);
+      height: min(96vh, 920px);
+      height: min(96dvh, 920px);
+      max-height: min(96vh, 920px);
+      max-height: min(96dvh, 920px);
       overflow-y: auto;
-      padding: 1.5rem 1.65rem 1.35rem;
-      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 28%);
+      padding: 1.35rem 1.5rem 1.1rem;
+      background:
+        radial-gradient(1200px 460px at -10% -18%, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0) 58%),
+        radial-gradient(900px 360px at 110% -15%, rgba(14, 165, 233, 0.1), rgba(14, 165, 233, 0) 54%),
+        linear-gradient(180deg, #f7faff 0%, #ffffff 30%);
       border-radius: 20px;
+      border-color: #dbe8ff;
     }
     .exam-modal__dialog--results h2 {
       margin: 0 0 0.35rem;
@@ -646,10 +693,10 @@
       }
     }
     .exam-result-card {
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       border-radius: 16px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.07);
+      border: 1px solid #dbe7f6;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
       padding: 1.1rem 1rem;
       display: flex;
       flex-direction: column;
@@ -671,7 +718,7 @@
       width: 148px;
       height: 148px;
       border-radius: 50%;
-      background: conic-gradient(var(--ring) calc(var(--p) * 1%), #e2e8f0 0);
+      background: conic-gradient(var(--ring) calc(var(--p) * 1%), #dbe7f5 0);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -681,7 +728,7 @@
       width: 108px;
       height: 108px;
       border-radius: 50%;
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -698,7 +745,7 @@
     .exam-result-ring__value {
       font-size: 1.65rem;
       font-weight: 800;
-      color: #1d4ed8;
+      color: #1e3a8a;
       line-height: 1.1;
     }
     .exam-result-ring-meta {
@@ -741,9 +788,9 @@
       align-content: center;
     }
     .exam-result-metric {
-      background: #f8fafc;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #dbe7f6;
       padding: 0.65rem 0.5rem;
       display: flex;
       flex-direction: column;
@@ -786,12 +833,15 @@
       }
     }
     .exam-result-section-card {
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+      border: 1px solid #dbe7f6;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
       padding: 1rem 0.85rem;
       text-align: center;
+    }
+    .exam-result-section-card--subject {
+      border-top-width: 3px;
     }
     .exam-result-section-card .exam-result-ring {
       width: 100px;
@@ -818,6 +868,103 @@
       margin: 0;
       font-size: 0.8rem;
       color: #64748b;
+    }
+    .exam-result-section-meta {
+      margin: 0 0 0.48rem;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+    .exam-result-stat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .exam-result-stat-chip {
+      border: 1px solid #d7e5f6;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      border-radius: 999px;
+      padding: 0.2rem 0.48rem;
+      font-size: 0.7rem;
+      color: #334155;
+      font-weight: 700;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .exam-result-stat-chip--ans {
+      color: #065f46;
+      border-color: #9fe7d0;
+      background: linear-gradient(180deg, #f0fdf7 0%, #e5faf1 100%);
+    }
+    .exam-result-stat-chip--blank {
+      color: #92400e;
+      border-color: #f8d988;
+      background: linear-gradient(180deg, #fffdf1 0%, #fff8df 100%);
+    }
+    .exam-result-stat-chip--wrong {
+      color: #991b1b;
+      border-color: #f7c1c1;
+      background: linear-gradient(180deg, #fff3f3 0%, #ffe7e7 100%);
+    }
+    .exam-result-stat-chip--acc {
+      color: #1e40af;
+      border-color: #bed9fb;
+      background: linear-gradient(180deg, #f1f7ff 0%, #e7f1ff 100%);
+    }
+    .exam-result-subject-graph {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #dbe7f6;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 0.8rem;
+    }
+    .exam-result-subject-graph h4 {
+      margin: 0 0 0.55rem;
+      font-size: 0.88rem;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+    }
+    .exam-result-subject-graph-rows {
+      display: grid;
+      gap: 0.45rem;
+    }
+    .exam-result-subject-graph-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 220px) 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .exam-result-subject-graph-label {
+      font-size: 0.74rem;
+      color: #334155;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exam-result-subject-graph-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #dbe7f5;
+      overflow: hidden;
+    }
+    .exam-result-subject-graph-fill {
+      height: 100%;
+      border-radius: 999px;
+      min-width: 2px;
+    }
+    .exam-result-subject-graph-val {
+      font-size: 0.72rem;
+      color: #0f172a;
+      font-weight: 800;
+    }
+    @media (max-width: 780px) {
+      .exam-result-subject-graph-row {
+        grid-template-columns: 1fr;
+        gap: 0.28rem;
+      }
     }
     .exam-result-loading {
       display: flex;
@@ -1071,6 +1218,194 @@
         margin-left: 0;
       }
     }
+
+    /* Physical OMR entry (bootstrap list) */
+    .exam-modal--omr {
+      z-index: 14000;
+    }
+    .exam-modal--omr-confirm {
+      z-index: 14500;
+    }
+    .exam-modal--answer-over-omr {
+      z-index: 15000;
+    }
+    .modal-omr-confirm-hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    .exam-modal__dialog--omr {
+      width: min(1180px, 98vw);
+      max-width: 100%;
+      max-height: min(92vh, 920px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+    .exam-omr-head {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--line-light);
+      background: #fffdf6;
+    }
+    .exam-omr-head h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .exam-omr-head p {
+      margin: 0.35rem 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .exam-omr-body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.75rem 1rem 1rem;
+      background: var(--paper, #f8fafc);
+    }
+    .exam-omr-loading {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .exam-omr-loading[hidden] {
+      display: none !important;
+    }
+    .exam-omr-meta {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.65rem;
+    }
+    .exam-omr-sheet {
+      background: #fff;
+      border: 1.5px solid #111827;
+      border-radius: 4px;
+      padding: 0.65rem 0.75rem 0.85rem;
+    }
+    .exam-omr-sheet__hdr {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.35rem;
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.55rem;
+      border-bottom: 2px solid #111827;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .exam-omr-cols {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.55rem 1rem;
+    }
+    @media (max-width: 900px) {
+      .exam-omr-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 480px) {
+      .exam-omr-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-omr-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+    }
+    .exam-omr-section {
+      margin: 0.45rem 0 0.3rem;
+      padding: 0.26rem 0.48rem;
+      border-radius: 999px;
+      background: #eef4ff;
+      border: 1px solid #d6e4ff;
+      color: #1e3a8a;
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      width: fit-content;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exam-omr-row {
+      display: grid;
+      grid-template-columns: 1.85rem 1fr;
+      align-items: center;
+      gap: 0.3rem;
+      min-height: 1.55rem;
+    }
+    .exam-omr-qno {
+      font-family: ui-monospace, 'Segoe UI Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #111827;
+      text-align: right;
+    }
+    .exam-omr-bubs {
+      display: flex;
+      align-items: center;
+      gap: 0.22rem;
+    }
+    .exam-omr-bub {
+      width: 1.28rem;
+      height: 1.28rem;
+      border-radius: 50%;
+      border: 1.25px solid #111827;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, 'Segoe UI Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #111827;
+      background: #fff;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+    }
+    .exam-omr-bub:hover {
+      background: #f3f4f6;
+    }
+    .exam-omr-bub.is-filled {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+    .exam-omr-cols--readonly .exam-omr-bub {
+      pointer-events: none;
+      cursor: default;
+    }
+    .exam-omr-cols--readonly .exam-omr-bub:hover {
+      background: #fff;
+    }
+    .exam-omr-cols--readonly .exam-omr-bub.is-filled:hover {
+      background: #111827;
+      color: #fff;
+    }
+    .exam-omr-foot {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--line-light);
+      background: #fff;
+    }
   </style>
 </head>
 <body class="app-body student-dashboard page-exam">
@@ -1104,6 +1439,7 @@
           <div class="exam-panel__head">Question &amp; options</div>
           <div class="exam-q-card">
             <p class="exam-qno" id="exam-qno">Question 1</p>
+            <p class="exam-section-chip" id="exam-section-chip" hidden></p>
             <p class="exam-stem" id="exam-stem"></p>
             <p class="exam-options-title">Select one answer</p>
             <div class="exam-options" id="exam-options" role="radiogroup" aria-label="Options"></div>
@@ -1161,6 +1497,21 @@
         <div class="exam-modal__actions">
           <button type="button" class="btn btn-exam-secondary" data-close-modal>Cancel</button>
           <button type="button" class="btn btn-exam-primary" id="modal-confirm-ok">Yes, submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-modal exam-modal--omr-confirm" id="modal-omr-confirm" hidden>
+      <div class="exam-modal__backdrop" data-omr-confirm-close></div>
+      <div class="exam-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-omr-confirm-title">
+        <h2 id="modal-omr-confirm-title">Submit OMR?</h2>
+        <p>Submit these OMR responses to the institute?</p>
+        <p class="modal-omr-confirm-hint">
+          Unanswered questions are stored as blank. This submission is recorded as physical OMR (isOmr).
+        </p>
+        <div class="exam-modal__actions">
+          <button type="button" class="btn btn-exam-secondary" data-omr-confirm-close>Cancel</button>
+          <button type="button" class="btn btn-exam-primary" id="modal-omr-confirm-ok">Yes, submit</button>
         </div>
       </div>
     </div>
@@ -1236,7 +1587,7 @@
         </div>
       </div>
     </div>
-    <div class="exam-modal" id="modal-answer-review" hidden>
+    <div class="exam-modal exam-modal--answer-over-omr" id="modal-answer-review" hidden>
       <div class="exam-modal__backdrop" data-answer-close></div>
       <div class="exam-modal__dialog exam-modal__dialog--answer" role="dialog" aria-modal="true" aria-labelledby="modal-answer-title">
         <div>
@@ -1256,6 +1607,41 @@
         </div>
         <div class="exam-modal__actions">
           <button type="button" class="btn btn-exam-primary" data-answer-close>Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-modal exam-modal--omr" id="modal-omr-entry" hidden>
+      <div class="exam-modal__backdrop" data-omr-close tabindex="-1"></div>
+      <div class="exam-modal__dialog exam-modal__dialog--omr" role="dialog" aria-modal="true" aria-labelledby="modal-omr-title">
+        <div class="exam-omr-head">
+          <h2 id="modal-omr-title">Enter OMR (physical sheet)</h2>
+          <p id="omr-entry-head-desc">
+            Tap a bubble to mark your answer for each question, same as on a paper OMR. Leave questions blank if not attempted.
+            Submitting records this attempt as <strong>physical OMR</strong> in the system.
+          </p>
+        </div>
+        <div class="exam-omr-body">
+          <div id="omr-entry-loading" class="exam-omr-loading">Loading question paper…</div>
+          <div id="omr-entry-main" hidden>
+            <div class="exam-omr-meta" id="omr-entry-meta"></div>
+            <div class="exam-omr-sheet">
+              <div class="exam-omr-sheet__hdr">
+                <span id="omr-entry-hdr-left">OMR response</span>
+                <span id="omr-entry-hdr-right">A–D · single choice per question</span>
+              </div>
+              <div class="exam-omr-cols" id="omr-entry-cols"></div>
+            </div>
+          </div>
+        </div>
+        <div class="exam-omr-foot">
+          <button type="button" class="btn btn-exam-secondary" data-omr-close>Cancel</button>
+          <button type="button" class="btn btn-exam-secondary" id="omr-entry-view-answer" hidden>
+            <i class="fa-regular fa-eye" aria-hidden="true"></i> View answer
+          </button>
+          <button type="button" class="btn btn-exam-primary" id="omr-entry-submit">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit OMR
+          </button>
         </div>
       </div>
     </div>
@@ -1576,6 +1962,7 @@
         var stemEl = document.getElementById('exam-stem');
         var optsEl = document.getElementById('exam-options');
         var qnoEl = document.getElementById('exam-qno');
+        var sectionChipEl = document.getElementById('exam-section-chip');
         var paletteEl = document.getElementById('exam-palette');
         var marksLine = document.getElementById('exam-marks-line');
         var cntA = document.getElementById('cnt-answered');
@@ -1594,6 +1981,10 @@
 
         function qKey(q) {
           return String(q.number);
+        }
+
+        function normalizedSectionName(v) {
+          return String(v == null ? '' : v).trim();
         }
 
         function ensurePalettePageIncludesCurrent() {
@@ -1692,6 +2083,11 @@
           ensurePalettePageIncludesCurrent();
           renderRef(q);
           qnoEl.textContent = 'Question ' + q.number;
+          if (sectionChipEl) {
+            var sectionName = normalizedSectionName(q.sectionName);
+            sectionChipEl.hidden = !sectionName;
+            sectionChipEl.textContent = sectionName ? 'Section: ' + sectionName : '';
+          }
           stemEl.innerHTML = escHtml(q.stem || '').replace(/\n/g, '<br />') + renderInlineImageUrls(q.images || []);
           optsEl.innerHTML = '';
           var opts = q.options || [];
@@ -1845,6 +2241,27 @@
         var answerReviewLoading = document.getElementById('answer-review-loading');
         var answerReviewList = document.getElementById('answer-review-list');
         var answerReviewEmpty = document.getElementById('answer-review-empty');
+        var modalOmrEntry = document.getElementById('modal-omr-entry');
+        var omrEntryLoadingEl = document.getElementById('omr-entry-loading');
+        var omrEntryMainEl = document.getElementById('omr-entry-main');
+        var omrEntryColsEl = document.getElementById('omr-entry-cols');
+        var omrEntryMetaEl = document.getElementById('omr-entry-meta');
+        var omrEntryHdrLeft = document.getElementById('omr-entry-hdr-left');
+        var omrEntryHdrRight = document.getElementById('omr-entry-hdr-right');
+        var omrEntrySubmitBtn = document.getElementById('omr-entry-submit');
+        var modalOmrConfirm = document.getElementById('modal-omr-confirm');
+        var modalOmrConfirmOk = document.getElementById('modal-omr-confirm-ok');
+        var omrEntryViewAnswerBtn = document.getElementById('omr-entry-view-answer');
+        var omrEntryHeadDescEl = document.getElementById('omr-entry-head-desc');
+        var OMR_ENTRY_HEAD_EDIT_HTML =
+          'Tap a bubble to mark your answer for each question, same as on a paper OMR. Leave questions blank if not attempted. Submitting records this attempt as <strong>physical OMR</strong> in the system.';
+        var omrEntrySavedOmrSnapshot = null;
+        var omrEntryCanViewAnswer = false;
+        var answerReviewOpenedFromOmr = false;
+        var answerReviewOmrBackup = null;
+        var omrEntryRow = null;
+        var omrEntryQuestions = [];
+        var omrEntryAnswers = {};
 
         function showGradingLoading() {
           if (timerId) {
@@ -2105,7 +2522,66 @@
 
         function closeAnswerReviewModal() {
           if (modalAnswerReview) modalAnswerReview.hidden = true;
+          if (answerReviewOpenedFromOmr) {
+            answerReviewOpenedFromOmr = false;
+            if (answerReviewOmrBackup) {
+              paper = answerReviewOmrBackup.paper;
+              qs = answerReviewOmrBackup.qs.slice();
+              answers = Object.assign({}, answerReviewOmrBackup.answers);
+              answerReviewOmrBackup = null;
+            }
+            answerKeyMapCache = null;
+            answerKeyLoadPromise = null;
+            if (modalOmrEntry) modalOmrEntry.hidden = false;
+            return;
+          }
           if (modalDone) modalDone.hidden = false;
+        }
+
+        function normalizeOmrPrefillAnswers(obj) {
+          var out = {};
+          if (!obj || typeof obj !== 'object') return out;
+          Object.keys(obj).forEach(function (k) {
+            var v = obj[k];
+            if (v == null || String(v).trim() === '') return;
+            var nk = String(k).trim();
+            var num = parseInt(nk, 10);
+            if (Number.isFinite(num)) nk = String(num);
+            out[nk] = String(v).trim().toUpperCase();
+          });
+          return out;
+        }
+
+        function hasAnyOmrMarkedAnswer(obj) {
+          if (!obj || typeof obj !== 'object') return false;
+          return Object.keys(obj).some(function (k) {
+            var v = obj[k];
+            return v != null && String(v).trim() !== '';
+          });
+        }
+
+        function openAnswerReviewFromOmrSheet() {
+          if (!omrEntryRow || !omrEntryQuestions.length) return;
+          answerReviewOmrBackup = {
+            paper: paper,
+            qs: qs && qs.length ? qs.slice() : [],
+            answers: answers && typeof answers === 'object' ? Object.assign({}, answers) : {},
+          };
+          paper = buildPaperFromApiRow(omrEntryRow, { questions: omrEntryQuestions });
+          qs = omrEntryQuestions.slice().sort(function (a, b) {
+            return a.number - b.number;
+          });
+          answers = {};
+          Object.keys(omrEntryAnswers).forEach(function (k) {
+            var v = omrEntryAnswers[k];
+            if (v == null || String(v).trim() === '') return;
+            answers[String(k)] = String(v).trim().toUpperCase();
+          });
+          answerKeyMapCache = null;
+          answerKeyLoadPromise = null;
+          answerReviewFilter = 'all';
+          answerReviewOpenedFromOmr = true;
+          openAnswerReviewModal();
         }
 
         function fillResultsDashboard(submitResult) {
@@ -2199,42 +2675,161 @@
           }
 
           if (secRoot && qs.length) {
-            var parts = 3;
-            var html = '';
-            for (var p = 0; p < parts; p++) {
-              var start = Math.floor((qs.length * p) / parts);
-              var end = Math.floor((qs.length * (p + 1)) / parts);
-              var totPart = end - start;
-              var ansPart = 0;
-              for (var j = start; j < end; j++) {
-                if (answers[qKey(qs[j])]) ansPart++;
+            var hasNamedSections = qs.some(function (qq) {
+              return qq && qq.sectionName != null && String(qq.sectionName).trim() !== '';
+            });
+            var groups = [];
+            if (hasNamedSections) {
+              var byName = Object.create(null);
+              qs.forEach(function (qq) {
+                var name = qq && qq.sectionName != null && String(qq.sectionName).trim() ? String(qq.sectionName).trim() : 'Unsectioned';
+                if (!byName[name]) byName[name] = [];
+                byName[name].push(qq);
+              });
+              groups = Object.keys(byName).map(function (name) {
+                return { label: name, list: byName[name] };
+              });
+            } else {
+              var parts = 3;
+              for (var p = 0; p < parts; p++) {
+                var start = Math.floor((qs.length * p) / parts);
+                var end = Math.floor((qs.length * (p + 1)) / parts);
+                groups.push({ label: 'Part ' + (p + 1), list: qs.slice(start, end) });
               }
-              var attPct = totPart ? Math.round((ansPart / totPart) * 100) : 0;
-              var q0 = qs[start] && qs[start].number != null ? qs[start].number : start + 1;
-              var q1 = qs[end - 1] && qs[end - 1].number != null ? qs[end - 1].number : end;
-              html +=
-                '<div class="exam-result-section-card">' +
-                '<div class="exam-result-ring" style="--p:' +
-                attPct +
-                '"><div class="exam-result-ring__hole"><span class="exam-result-ring__label">Attempt</span>' +
-                '<span class="exam-result-ring__value">' +
-                attPct +
-                '%</span></div></div>' +
-                '<h4>Part ' +
-                (p + 1) +
-                '</h4>' +
-                '<p>Q' +
-                q0 +
-                '–Q' +
-                q1 +
-                ' · ' +
-                ansPart +
-                '/' +
-                totPart +
-                ' answered</p>' +
-                '</div>';
             }
-            secRoot.innerHTML = html;
+
+            function renderGroupCards(keyMap) {
+              var subjectPalette = [
+                '#2563eb',
+                '#0ea5e9',
+                '#14b8a6',
+                '#22c55e',
+                '#f59e0b',
+                '#f97316',
+                '#ef4444',
+                '#8b5cf6',
+              ];
+              var graphRowsHtml = '';
+              var html = '';
+              for (var gi = 0; gi < groups.length; gi++) {
+                var g = groups[gi];
+                var list = g.list || [];
+                if (!list.length) continue;
+                var color = subjectPalette[gi % subjectPalette.length];
+                var totalG = list.length;
+                var answeredG = 0;
+                var correctG = 0;
+                var wrongG = 0;
+                for (var ii = 0; ii < list.length; ii++) {
+                  var qq = list[ii];
+                  var k = qKey(qq);
+                  var picked = answers[k] ? String(answers[k]).trim().toUpperCase() : '';
+                  if (!picked) continue;
+                  answeredG++;
+                  if (keyMap && keyMap[k] && keyMap[k].letter) {
+                    var corr = String(keyMap[k].letter).trim().toUpperCase();
+                    if (corr && picked === corr) correctG++;
+                    else if (corr) wrongG++;
+                  }
+                }
+                var unansG = Math.max(0, totalG - answeredG);
+                var accPct =
+                  keyMap && answeredG > 0 ? Math.round((correctG / answeredG) * 1000) / 10 : 0;
+                var ringPct =
+                  keyMap && answeredG > 0
+                    ? accPct
+                    : totalG > 0
+                      ? Math.round((answeredG / totalG) * 1000) / 10
+                      : 0;
+                graphRowsHtml +=
+                  '<div class="exam-result-subject-graph-row">' +
+                  '<div class="exam-result-subject-graph-label">' +
+                  escHtml(g.label) +
+                  '</div>' +
+                  '<div class="exam-result-subject-graph-track">' +
+                  '<div class="exam-result-subject-graph-fill" style="width:' +
+                  ringPct +
+                  '%;background:' +
+                  color +
+                  ';"></div>' +
+                  '</div>' +
+                  '<div class="exam-result-subject-graph-val">' +
+                  ringPct +
+                  '%</div>' +
+                  '</div>';
+                var qStart = list[0] && list[0].number != null ? list[0].number : '—';
+                var qEnd = list[list.length - 1] && list[list.length - 1].number != null ? list[list.length - 1].number : '—';
+                html +=
+                  '<div class="exam-result-section-card exam-result-section-card--subject" style="border-top-color:' +
+                  color +
+                  ';">' +
+                  '<div class="exam-result-ring" style="--p:' +
+                  ringPct +
+                  ';--ring:' +
+                  color +
+                  '"><div class="exam-result-ring__hole"><span class="exam-result-ring__label">' +
+                  (keyMap ? 'Accuracy' : 'Answered') +
+                  '</span>' +
+                  '<span class="exam-result-ring__value">' +
+                  ringPct +
+                  '%</span></div></div>' +
+                  '<h4>' +
+                  escHtml(g.label) +
+                  '</h4>' +
+                  '<p class="exam-result-section-meta">Q' +
+                  qStart +
+                  '–Q' +
+                  qEnd +
+                  ' · Total ' +
+                  totalG +
+                  '</p>' +
+                  '<div class="exam-result-stat-chips">' +
+                  '<span class="exam-result-stat-chip exam-result-stat-chip--ans">Answered: ' +
+                  answeredG +
+                  '</span>' +
+                  '<span class="exam-result-stat-chip exam-result-stat-chip--blank">Left blank: ' +
+                  unansG +
+                  '</span>' +
+                  '<span class="exam-result-stat-chip exam-result-stat-chip--wrong">Wrong: ' +
+                  (keyMap ? wrongG : '—') +
+                  '</span>' +
+                  '<span class="exam-result-stat-chip exam-result-stat-chip--acc">Accuracy: ' +
+                  (keyMap ? accPct + '%' : '—') +
+                  '</span>' +
+                  '</div>' +
+                  '</div>';
+              }
+              secRoot.innerHTML =
+                '<div class="exam-result-subject-graph">' +
+                '<h4>Subject-wise performance graph</h4>' +
+                '<div class="exam-result-subject-graph-rows">' +
+                graphRowsHtml +
+                '</div>' +
+                '</div>' +
+                html;
+            }
+
+            renderGroupCards(answerKeyMapCache || null);
+
+            if (
+              paper &&
+              paper.test_id != null &&
+              paper.test_id !== '' &&
+              !answerKeyMapCache &&
+              !answerKeyLoadPromise
+            ) {
+              answerKeyLoadPromise = extractTextFromAnswerViaApi(paper.test_id)
+                .then(function (txt) {
+                  var parsedKey = parseAnswerKeyText(txt || '');
+                  if (!parsedKey || !Object.keys(parsedKey).length) return;
+                  answerKeyMapCache = parsedKey;
+                  renderGroupCards(answerKeyMapCache);
+                })
+                .catch(function () {})
+                .finally(function () {
+                  answerKeyLoadPromise = null;
+                });
+            }
           } else if (secRoot) secRoot.innerHTML = '';
         }
 
@@ -2356,6 +2951,12 @@
         if (modalDoneViewAnswer) {
           modalDoneViewAnswer.addEventListener('click', function () {
             openAnswerReviewModal();
+          });
+        }
+        if (omrEntryViewAnswerBtn) {
+          omrEntryViewAnswerBtn.addEventListener('click', function () {
+            if (!omrEntryCanViewAnswer) return;
+            openAnswerReviewFromOmrSheet();
           });
         }
         if (answerFilterGroup) {
@@ -2483,6 +3084,334 @@
           showExamUi(built);
         }
 
+        function closeOmrConfirmModal() {
+          if (modalOmrConfirm) modalOmrConfirm.hidden = true;
+        }
+
+        function openOmrConfirmModal() {
+          if (!modalOmrConfirm) return;
+          modalOmrConfirm.hidden = false;
+          if (modalOmrConfirmOk) {
+            try {
+              modalOmrConfirmOk.focus();
+            } catch (e) {}
+          }
+        }
+
+        function setOmrEntryHeadDescViewOnly(isView) {
+          if (!omrEntryHeadDescEl) return;
+          if (isView) {
+            omrEntryHeadDescEl.textContent =
+              'This sheet shows your submitted physical OMR. Your selections are read-only here and cannot be changed. Use View answer to compare with the institute answer key.';
+          } else {
+            omrEntryHeadDescEl.innerHTML = OMR_ENTRY_HEAD_EDIT_HTML;
+          }
+        }
+
+        function closeOmrEntryModal() {
+          closeOmrConfirmModal();
+          if (modalOmrEntry) modalOmrEntry.hidden = true;
+          document.body.style.overflow = '';
+          omrEntrySavedOmrSnapshot = null;
+          omrEntryCanViewAnswer = false;
+          setOmrEntryHeadDescViewOnly(false);
+          if (omrEntryColsEl) omrEntryColsEl.classList.remove('exam-omr-cols--readonly');
+          if (omrEntrySubmitBtn) omrEntrySubmitBtn.hidden = false;
+          if (omrEntryViewAnswerBtn) {
+            omrEntryViewAnswerBtn.hidden = true;
+            omrEntryViewAnswerBtn.disabled = true;
+            omrEntryViewAnswerBtn.style.display = 'none';
+          }
+          omrEntryAnswers = {};
+          omrEntryQuestions = [];
+          omrEntryRow = null;
+        }
+
+        function syncOmrBubClasses() {
+          if (!omrEntryColsEl) return;
+          var bubs = omrEntryColsEl.querySelectorAll('.exam-omr-bub');
+          for (var i = 0; i < bubs.length; i++) {
+            var b = bubs[i];
+            var qn = b.getAttribute('data-q');
+            var L = b.getAttribute('data-letter');
+            var picked = omrEntryAnswers[String(qn)] || '';
+            b.classList.toggle('is-filled', picked === L);
+          }
+        }
+
+        function renderOmrEntryGridFromQuestions(questionList) {
+          if (!omrEntryColsEl) return;
+          omrEntryColsEl.innerHTML = '';
+          var viewOnlyOmr = !!omrEntrySavedOmrSnapshot;
+          var list = questionList.slice();
+          var maxDesktopCols = 4;
+          var numCols = Math.max(1, Math.min(maxDesktopCols, Math.ceil(list.length / 25)));
+          var perCol = Math.max(1, Math.ceil(list.length / numCols));
+          var globalIdx = 0;
+          var lastSectionName = '';
+          for (var c = 0; c < numCols; c++) {
+            var col = document.createElement('div');
+            col.className = 'exam-omr-col';
+            var rowsThisCol = Math.min(perCol, list.length - c * perCol);
+            for (var r = 0; r < rowsThisCol; r++) {
+              var q = list[globalIdx++];
+              var qn = q && q.number != null ? Number(q.number) : globalIdx;
+              if (!Number.isFinite(qn)) qn = globalIdx;
+              var secName = normalizedSectionName(q && q.sectionName);
+              if (secName && secName !== lastSectionName) {
+                var secEl = document.createElement('div');
+                secEl.className = 'exam-omr-section';
+                secEl.textContent = secName;
+                col.appendChild(secEl);
+                lastSectionName = secName;
+              }
+              var rowEl = document.createElement('div');
+              rowEl.className = 'exam-omr-row';
+              var qno = document.createElement('span');
+              qno.className = 'exam-omr-qno';
+              qno.textContent = String(qn).padStart(2, '0');
+              var bubs = document.createElement('div');
+              bubs.className = 'exam-omr-bubs';
+              ['A', 'B', 'C', 'D'].forEach(function (L) {
+                var bub = document.createElement('button');
+                bub.type = 'button';
+                bub.className = 'exam-omr-bub';
+                bub.setAttribute('data-q', String(qn));
+                bub.setAttribute('data-letter', L);
+                bub.textContent = L;
+                bub.setAttribute(
+                  'aria-label',
+                  viewOnlyOmr ? 'Question ' + qn + ' option ' + L + ' (submitted, read-only)' : 'Question ' + qn + ' option ' + L
+                );
+                if (viewOnlyOmr) bub.disabled = true;
+                bubs.appendChild(bub);
+              });
+              rowEl.appendChild(qno);
+              rowEl.appendChild(bubs);
+              col.appendChild(rowEl);
+            }
+            omrEntryColsEl.appendChild(col);
+          }
+          omrEntryColsEl.classList.toggle('exam-omr-cols--readonly', !!omrEntrySavedOmrSnapshot);
+          syncOmrBubClasses();
+        }
+
+        function openOmrEntryModal(row, savedOmrSnapshot) {
+          if (demoParam) {
+            alert('OMR entry is not available in demo mode.');
+            return;
+          }
+          omrEntrySavedOmrSnapshot = savedOmrSnapshot || null;
+          omrEntryRow = row;
+          omrEntryAnswers = {};
+          omrEntryQuestions = [];
+          if (!modalOmrEntry) return;
+          var titleOmr = document.getElementById('modal-omr-title');
+          if (titleOmr) {
+            titleOmr.textContent = omrEntrySavedOmrSnapshot ? 'Show OMR entry' : 'Enter OMR (physical sheet)';
+          }
+          setOmrEntryHeadDescViewOnly(!!omrEntrySavedOmrSnapshot);
+          if (omrEntrySubmitBtn) omrEntrySubmitBtn.hidden = !!omrEntrySavedOmrSnapshot;
+          omrEntryCanViewAnswer = false;
+          if (omrEntryViewAnswerBtn) {
+            omrEntryViewAnswerBtn.hidden = true;
+            omrEntryViewAnswerBtn.disabled = true;
+            omrEntryViewAnswerBtn.style.display = 'none';
+          }
+          modalOmrEntry.hidden = false;
+          document.body.style.overflow = 'hidden';
+          if (omrEntryMainEl) omrEntryMainEl.hidden = true;
+          if (omrEntryLoadingEl) {
+            omrEntryLoadingEl.hidden = false;
+            omrEntryLoadingEl.textContent = 'Loading question paper…';
+          }
+          if (omrEntryColsEl) omrEntryColsEl.innerHTML = '';
+
+          var tid = row.test_id;
+          if (tid == null || tid === '') {
+            if (omrEntryLoadingEl) omrEntryLoadingEl.textContent = 'Missing test id.';
+            return;
+          }
+          extractTextFromPaperViaApi(tid)
+            .then(function (text) {
+              var parser = window.ExamQuestionParser;
+              if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+                throw new Error('Question parser failed to load.');
+              }
+              var parsed = parser.parseQuestionsFromText(text);
+              if (parsed.error) throw new Error(parsed.error);
+              var built = buildPaperFromApiRow(row, parsed);
+              omrEntryQuestions = (built.questions || []).slice().sort(function (a, b) {
+                return a.number - b.number;
+              });
+              if (!omrEntryQuestions.length) throw new Error('No questions could be parsed from this paper.');
+              if (omrEntryLoadingEl) omrEntryLoadingEl.hidden = true;
+              if (omrEntryMainEl) omrEntryMainEl.hidden = false;
+              var n = omrEntryQuestions.length;
+              if (omrEntryMetaEl) {
+                if (omrEntrySavedOmrSnapshot) {
+                  omrEntryMetaEl.textContent =
+                    n +
+                    ' question' +
+                    (n !== 1 ? 's' : '') +
+                    ' · Your submitted responses are shown below (read-only).';
+                } else {
+                  omrEntryMetaEl.textContent =
+                    n +
+                    ' question' +
+                    (n !== 1 ? 's' : '') +
+                    ' · Tap A–D to mark each row (leave blank if unanswered).';
+                }
+              }
+              var t = row.title || built.title || 'Online test';
+              if (omrEntryHdrLeft) omrEntryHdrLeft.textContent = 'Test #' + String(tid);
+              if (omrEntryHdrRight) omrEntryHdrRight.textContent = String(t).slice(0, 80);
+              renderOmrEntryGridFromQuestions(omrEntryQuestions);
+              if (omrEntrySavedOmrSnapshot && omrEntrySavedOmrSnapshot.answers) {
+                omrEntryAnswers = normalizeOmrPrefillAnswers(omrEntrySavedOmrSnapshot.answers);
+                syncOmrBubClasses();
+              }
+              if (omrEntryViewAnswerBtn) {
+                omrEntryCanViewAnswer = !!omrEntrySavedOmrSnapshot && hasAnyOmrMarkedAnswer(omrEntryAnswers);
+                omrEntryViewAnswerBtn.hidden = !omrEntryCanViewAnswer;
+                omrEntryViewAnswerBtn.disabled = !omrEntryCanViewAnswer;
+                omrEntryViewAnswerBtn.style.display = omrEntryCanViewAnswer ? '' : 'none';
+              }
+            })
+            .catch(function (err) {
+              if (omrEntryLoadingEl) {
+                omrEntryLoadingEl.hidden = false;
+                omrEntryLoadingEl.textContent = err && err.message ? err.message : 'Could not load question paper.';
+              }
+            });
+        }
+
+        if (omrEntryColsEl) {
+          omrEntryColsEl.addEventListener('click', function (e) {
+            if (omrEntrySavedOmrSnapshot) return;
+            var t = e.target && e.target.closest ? e.target.closest('.exam-omr-bub') : null;
+            if (!t) return;
+            var qn = t.getAttribute('data-q');
+            var L = t.getAttribute('data-letter');
+            if (!qn || !L) return;
+            var k = String(qn);
+            if (omrEntryAnswers[k] === L) delete omrEntryAnswers[k];
+            else omrEntryAnswers[k] = L;
+            syncOmrBubClasses();
+          });
+        }
+
+        Array.prototype.slice.call(document.querySelectorAll('[data-omr-close]')).forEach(function (el) {
+          el.addEventListener('click', closeOmrEntryModal);
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          if (modalAnswerReview && !modalAnswerReview.hidden) {
+            closeAnswerReviewModal();
+            return;
+          }
+          if (modalOmrConfirm && !modalOmrConfirm.hidden) {
+            closeOmrConfirmModal();
+            return;
+          }
+          if (!modalOmrEntry || modalOmrEntry.hidden) return;
+          closeOmrEntryModal();
+        });
+
+        Array.prototype.slice.call(document.querySelectorAll('[data-omr-confirm-close]')).forEach(function (el) {
+          el.addEventListener('click', closeOmrConfirmModal);
+        });
+
+        function proceedOmrSubmit() {
+          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+          if (!session || session.role !== 'student' || !session.user) {
+            closeOmrConfirmModal();
+            alert('Please sign in as a student to submit.');
+            return;
+          }
+          var apiSubmit = getSubmitOnlineTestApiUrl();
+          if (!apiSubmit) {
+            closeOmrConfirmModal();
+            alert('Submit API is not configured (SUBMIT_ONLINE_TEST_API in config.js).');
+            return;
+          }
+          var u = session.user;
+          var sid = u.student_id != null ? u.student_id : u.id;
+          var normalizedAnswers = {};
+          Object.keys(omrEntryAnswers).forEach(function (k) {
+            var v = omrEntryAnswers[k];
+            if (v == null || String(v).trim() === '') return;
+            normalizedAnswers[String(k)] = String(v).trim().toUpperCase();
+          });
+          var rowSnap = omrEntryRow;
+          var qsSnap = omrEntryQuestions.slice();
+          var payload = {
+            test_id: rowSnap.test_id,
+            answers: normalizedAnswers,
+            student_id: sid,
+            email: u.email || u.login || '',
+            total_questions: qsSnap.length,
+            isOmr: true,
+          };
+          var prevHtml = omrEntrySubmitBtn.innerHTML;
+          omrEntrySubmitBtn.disabled = true;
+          omrEntrySubmitBtn.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Submitting…';
+          closeOmrConfirmModal();
+          showGradingLoading();
+          closeOmrEntryModal();
+          fetch(apiSubmit, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+            .then(parseSubmitResponse)
+            .then(function (data) {
+              var built = buildPaperFromApiRow(rowSnap, { questions: qsSnap });
+              paper = built;
+              qs = qsSnap.slice();
+              answers = {};
+              Object.keys(normalizedAnswers).forEach(function (k) {
+                answers[k] = normalizedAnswers[k];
+              });
+              answerKeyMapCache = null;
+              answerKeyLoadPromise = null;
+              openDoneModal(false, data);
+            })
+            .catch(function (err) {
+              hideGradingLoading();
+              if (modalDone) modalDone.hidden = true;
+              alert(err && err.message ? err.message : 'Could not submit OMR.');
+            })
+            .finally(function () {
+              omrEntrySubmitBtn.disabled = false;
+              omrEntrySubmitBtn.innerHTML = prevHtml;
+            });
+        }
+
+        if (omrEntrySubmitBtn) {
+          omrEntrySubmitBtn.addEventListener('click', function () {
+            if (omrEntrySavedOmrSnapshot) return;
+            if (!omrEntryRow || omrEntryRow.test_id == null || omrEntryRow.test_id === '') return;
+            openOmrConfirmModal();
+          });
+        }
+
+        if (modalOmrConfirmOk) {
+          modalOmrConfirmOk.addEventListener('click', function () {
+            if (omrEntrySavedOmrSnapshot) {
+              closeOmrConfirmModal();
+              return;
+            }
+            if (!omrEntryRow || omrEntryRow.test_id == null || omrEntryRow.test_id === '') {
+              closeOmrConfirmModal();
+              return;
+            }
+            proceedOmrSubmit();
+          });
+        }
+
         function startTestFromRow(row) {
           var openMeta = getOpenMeta(row);
           if (openMeta.isLocked) {
@@ -2551,6 +3480,8 @@
               (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
               escHtml(scoreLine) +
               '</p>';
+            var btns = document.createElement('div');
+            btns.className = 'exam-test-card__btns';
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-primary';
@@ -2580,8 +3511,27 @@
                 startTestFromRow(row);
               });
             }
+            btns.appendChild(btn);
+            var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
+            var hasSavedOmr = !!omrSnap;
+            var showOmr = hasPaper && !openMeta.isLocked && (!att || !att.passed || hasSavedOmr);
+            if (showOmr) {
+              var btnOmr = document.createElement('button');
+              btnOmr.type = 'button';
+              btnOmr.className = 'btn btn-primary exam-test-btn--omr';
+              btnOmr.innerHTML = hasSavedOmr
+                ? '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Show OMR entry'
+                : '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Enter OMR';
+              btnOmr.title = hasSavedOmr
+                ? 'View your submitted physical OMR sheet (read-only) and compare with View answer.'
+                : 'Mark answers as on a physical OMR sheet and submit (physical entry)';
+              btnOmr.addEventListener('click', function () {
+                openOmrEntryModal(row, hasSavedOmr ? omrSnap : null);
+              });
+              btns.appendChild(btnOmr);
+            }
             card.appendChild(left);
-            card.appendChild(btn);
+            card.appendChild(btns);
             testListEl.appendChild(card);
           });
         }

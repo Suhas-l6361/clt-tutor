@@ -47,7 +47,7 @@
     var brandTag = document.querySelector('.sidebar .brand .brand-tag');
     if (brandMark) {
       brandMark.innerHTML =
-        '<img src="../image/gavel clat tutor.png" alt="CLATutor logo" onerror="this.src=\'../image/main.png\'" />';
+        '<img src="../image/Clat%20Logo.png" alt="CLATutor logo" onerror="this.src=\'../image/main.png\'" />';
     }
     if (brandLogo) {
       /* One .logo__word wrapper so .logo { display:inline-flex; gap } does not split CLAT | utor (see app.css .logo) */

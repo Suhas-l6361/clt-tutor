@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLATutor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/upload-omr.css" />
+</head>
+<body class="app-body crm-dashboard upload-omr-page">
+  <div id="stock" style="display:none;">
+    <div class="upload-omr-wrap">
+      <form id="upload-omr-form" class="upload-omr-doc" autocomplete="off" novalidate>
+        <section class="upload-omr-panel" aria-labelledby="upload-omr-student-title">
+          <div class="upload-omr-panel__head" id="upload-omr-student-title">
+            <i class="fa-solid fa-user-graduate"></i>
+            Student
+          </div>
+          <div class="upload-omr-panel__body">
+            <div class="upload-omr-grid upload-omr-grid--2">
+              <div class="upload-omr-field upload-omr-field--span2">
+                <label class="upload-omr-label" for="upload-omr-student-search">Select student</label>
+                <div class="upload-omr-combo" id="upload-omr-student-combo">
+                  <input
+                    type="text"
+                    id="upload-omr-student-search"
+                    class="upload-omr-input"
+                    autocomplete="off"
+                    spellcheck="false"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="upload-omr-student-listbox"
+                    placeholder="Search by name, ID, or phone..."
+                  />
+                  <input type="hidden" id="upload-omr-student-id" />
+                  <ul id="upload-omr-student-listbox" class="upload-omr-combo__list" role="listbox" hidden></ul>
+                </div>
+                <p id="upload-omr-student-status" class="upload-omr-status" aria-live="polite"></p>
+              </div>
+
+              <div id="upload-omr-student-detail" class="upload-omr-detail upload-omr-field--span2" hidden>
+                <div class="upload-omr-detail__title">Student details</div>
+                <dl class="upload-omr-kv">
+                  <div class="upload-omr-kv__row"><dt>Name</dt><dd id="upload-omr-disp-name">-</dd></div>
+                  <div class="upload-omr-kv__row"><dt>Student ID</dt><dd id="upload-omr-disp-student-id">-</dd></div>
+                  <div class="upload-omr-kv__row"><dt>Phone</dt><dd id="upload-omr-disp-phone">-</dd></div>
+                  <div class="upload-omr-kv__row"><dt>Batch</dt><dd id="upload-omr-disp-batch">-</dd></div>
+                  <div class="upload-omr-kv__row"><dt>Branch</dt><dd id="upload-omr-disp-branch">-</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="upload-omr-source-panel" class="upload-omr-panel" aria-labelledby="upload-omr-source-title" hidden>
+          <div class="upload-omr-panel__head" id="upload-omr-source-title">
+            <i class="fa-solid fa-file-image"></i>
+            OMR source
+          </div>
+          <div class="upload-omr-panel__body">
+            <div class="upload-omr-grid upload-omr-grid--2">
+              <div class="upload-omr-field upload-omr-field--span2">
+                <label class="upload-omr-label" for="upload-omr-test-search">Test name</label>
+                <div class="upload-omr-combo" id="upload-omr-test-combo">
+                  <input
+                    type="text"
+                    id="upload-omr-test-search"
+                    class="upload-omr-input"
+                    autocomplete="off"
+                    spellcheck="false"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="upload-omr-test-listbox"
+                    placeholder="Search test name..."
+                  />
+                  <input type="hidden" id="upload-omr-test-id" />
+                  <ul id="upload-omr-test-listbox" class="upload-omr-combo__list" role="listbox" hidden></ul>
+                </div>
+                <p id="upload-omr-test-status" class="upload-omr-status" aria-live="polite"></p>
+              </div>
+
+              <div class="upload-omr-field upload-omr-field--span2">
+                <div class="upload-omr-mode" role="radiogroup" aria-label="OMR source mode">
+                  <label class="upload-omr-mode__option upload-omr-mode__option--upload">
+                    <input type="radio" name="omrSourceMode" value="upload" checked />
+                    <span class="upload-omr-mode__content">
+                      <span class="upload-omr-mode__icon"><i class="fa-regular fa-image"></i></span>
+                      <span class="upload-omr-mode__text">
+                        <strong>Upload OMR image</strong>
+                        <small>Pick image from gallery or files</small>
+                      </span>
+                    </span>
+                  </label>
+                  <label class="upload-omr-mode__option upload-omr-mode__option--scan">
+                    <input type="radio" name="omrSourceMode" value="scan" />
+                    <span class="upload-omr-mode__content">
+                      <span class="upload-omr-mode__icon"><i class="fa-solid fa-camera"></i></span>
+                      <span class="upload-omr-mode__text">
+                        <strong>Scan OMR (camera)</strong>
+                        <small>Use phone camera or desktop webcam</small>
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div id="upload-omr-upload-block" class="upload-omr-field upload-omr-field--span2">
+                <label class="upload-omr-label" for="upload-omr-image-input">Choose OMR image</label>
+                <div class="upload-omr-filepick">
+                  <input id="upload-omr-image-input" class="upload-omr-filepick__input" type="file" accept="image/*" />
+                  <button type="button" id="upload-omr-filepick-btn" class="upload-omr-filepick__btn">
+                    <i class="fa-regular fa-folder-open"></i>
+                    Choose OMR file
+                  </button>
+                  <div id="upload-omr-filepick-name" class="upload-omr-filepick__name">No file selected</div>
+                </div>
+              </div>
+
+              <div id="upload-omr-scan-block" class="upload-omr-field upload-omr-field--span2" hidden>
+                <button type="button" id="upload-omr-open-camera" class="upload-omr-btn upload-omr-btn--ghost">
+                  <i class="fa-solid fa-camera"></i>
+                  Open camera
+                </button>
+                <p class="upload-omr-hint">
+                  Mobile opens back/front camera based on device support. Desktop opens webcam.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="upload-omr-result-panel" class="upload-omr-panel" aria-labelledby="upload-omr-result-title" hidden>
+          <div class="upload-omr-panel__head" id="upload-omr-result-title">
+            <i class="fa-solid fa-chart-simple"></i>
+            OMR result preview
+          </div>
+          <div class="upload-omr-panel__body">
+            <p id="upload-omr-result-status" class="upload-omr-status">Waiting for OMR image.</p>
+
+            <div id="upload-omr-unclear-box" class="upload-omr-unclear" hidden>
+              <div class="upload-omr-unclear__title">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Picture is not clear
+              </div>
+              <p id="upload-omr-unclear-message" class="upload-omr-unclear__msg">
+                Please retake and ensure full OMR sheet is visible with good light.
+              </p>
+              <div class="upload-omr-unclear__actions">
+                <button type="button" id="upload-omr-take-again" class="upload-omr-btn upload-omr-btn--primary">Take again</button>
+                <button type="button" id="upload-omr-cancel-image" class="upload-omr-btn upload-omr-btn--ghost">Cancel</button>
+              </div>
+            </div>
+
+            <div id="upload-omr-preview-wrap" class="upload-omr-preview-wrap" hidden>
+              <div class="upload-omr-preview-card">
+                <div class="upload-omr-preview-card__title">Captured image</div>
+                <img id="upload-omr-preview-image" class="upload-omr-preview-image" alt="OMR preview" />
+              </div>
+              <div class="upload-omr-preview-card">
+                <div class="upload-omr-preview-card__title">Detected responses</div>
+                <div id="upload-omr-summary" class="upload-omr-summary"></div>
+                <div id="upload-omr-analysis" class="upload-omr-analysis"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="upload-omr-actions">
+          <button type="button" id="upload-omr-submit" class="upload-omr-btn upload-omr-btn--primary" disabled>
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            Submit OMR
+          </button>
+          <button type="button" id="upload-omr-reset" class="upload-omr-btn upload-omr-btn--ghost">
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="upload-omr-camera-modal" class="upload-omr-modal" hidden>
+    <div class="upload-omr-modal__backdrop" data-upload-omr-camera-close tabindex="-1"></div>
+    <div class="upload-omr-modal__panel" role="dialog" aria-modal="true" aria-labelledby="upload-omr-camera-title">
+      <div class="upload-omr-modal__head">
+        <h2 id="upload-omr-camera-title">Scan OMR</h2>
+      </div>
+      <div class="upload-omr-modal__body">
+        <video id="upload-omr-camera-video" class="upload-omr-camera-video" autoplay playsinline muted></video>
+      </div>
+      <div class="upload-omr-modal__actions">
+        <button type="button" id="upload-omr-capture-btn" class="upload-omr-btn upload-omr-btn--primary">
+          <i class="fa-solid fa-camera"></i>
+          Capture
+        </button>
+        <button type="button" class="upload-omr-btn upload-omr-btn--ghost" data-upload-omr-camera-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="upload-omr-analysis-modal" class="upload-omr-modal" hidden>
+    <div class="upload-omr-modal__backdrop" data-upload-omr-analysis-close tabindex="-1"></div>
+    <div class="upload-omr-modal__panel upload-omr-modal__panel--compact" role="dialog" aria-modal="true" aria-labelledby="upload-omr-analysis-title">
+      <div class="upload-omr-modal__head">
+        <h2 id="upload-omr-analysis-title">OMR Scan Summary</h2>
+      </div>
+      <div class="upload-omr-modal__body">
+        <div id="upload-omr-analysis-modal-body" class="upload-omr-analysis-modal-body"></div>
+      </div>
+      <div class="upload-omr-modal__actions">
+        <button type="button" id="upload-omr-analysis-ok" class="upload-omr-btn upload-omr-btn--primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="upload-omr-work-canvas" hidden></canvas>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js?v=20260420"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script async src="https://docs.opencv.org/4.10.0/opencv.js"></script>
+  <script src="../js/upload-omr-page.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'uploadOmr.html', title: 'Upload OMR', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+    });
+  </script>
+</body>
+</html>

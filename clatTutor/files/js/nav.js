@@ -33,6 +33,7 @@ function initAppChrome(opts) {
     { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'students.html', icon: 'fa-database', label: 'Add Data' },
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
+    { href: 'uploadOmr.html', icon: 'fa-camera', label: 'Upload OMR' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
@@ -46,6 +47,7 @@ function initAppChrome(opts) {
     'leads.html': '../image/team.png',
     'students.html': '../image/resources.png',
     'addTest.html': '../image/test.png',
+    'uploadOmr.html': '../image/Orm sheet.png',
     'fees.html': '../image/fees.png',
     'enrollment.html': '../image/enrollment.png',
     'retrival.html': '../image/retrive data.png',
@@ -86,7 +88,7 @@ function initAppChrome(opts) {
     '<div class="brand">' +
     '<div class="brand__mark" aria-hidden="true">' +
     (isCrm
-      ? '<img src="../image/gavel clat tutor.png" alt="" class="brand__img" onerror="this.src=\'../image/main.png\'" />'
+      ? '<img src="../image/Clat%20Logo.png" alt="" class="brand__img" onerror="this.src=\'../image/main.png\'" />'
       : '<i class="fa-solid fa-building-columns"></i>') +
     '</div>' +
     '<div class="brand__text">' +

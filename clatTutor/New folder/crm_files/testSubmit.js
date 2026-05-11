@@ -253,6 +253,7 @@ const ensureSubmittedExtraColumns = async (connection) => {
   await ensureColumn('total_questions_paper', 'total_questions_paper INT NULL');
   await ensureColumn('total_questions_in_key', 'total_questions_in_key INT NULL');
   await ensureColumn('letter_grade', 'letter_grade VARCHAR(10) NULL');
+  await ensureColumn('isOmr', 'isOmr TINYINT(1) NOT NULL DEFAULT 0');
 };
 
 const ensureAddTestSchemaMinimal = async (connection) => {
@@ -422,6 +423,16 @@ const submitOnlineTest = async (body, event) => {
       submittedBy = String(studentRow.email || emailFromClient || '').slice(0, 50);
     }
 
+    const rawIsOmr = data.isOmr != null ? data.isOmr : data.is_omr;
+    const isOmr =
+      rawIsOmr === true ||
+      rawIsOmr === 1 ||
+      String(rawIsOmr || '')
+        .trim()
+        .toLowerCase() === 'true'
+        ? 1
+        : 0;
+
     let keyMap = {};
     if (answerKeyUrl && String(answerKeyUrl).trim()) {
       try {
@@ -448,8 +459,8 @@ const submitOnlineTest = async (body, event) => {
     const [insertResult] = await connection.execute(
       `INSERT INTO ${TABLE_SUBMITTED}
        (test_id, title, student_name, batch, branch, answers, submitted_by, attended_queations, correctAnswer, totalgrade,
-        percentage, unanswered_questions, total_questions_paper, total_questions_in_key, letter_grade)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        percentage, unanswered_questions, total_questions_paper, total_questions_in_key, letter_grade, isOmr)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         testId,
         title,
@@ -466,6 +477,7 @@ const submitOnlineTest = async (body, event) => {
         paperTotal,
         evalResult.totalQuestionsInKey > 0 ? evalResult.totalQuestionsInKey : null,
         evalResult.letterGrade || null,
+        isOmr,
       ],
     );
 
@@ -490,6 +502,7 @@ const submitOnlineTest = async (body, event) => {
         letter_grade: evalResult.letterGrade,
         totalgrade: evalResult.totalgrade,
         submitted_by: submittedBy,
+        isOmr: isOmr === 1,
       }),
     };
   } catch (error) {
@@ -521,7 +534,7 @@ const listStudentAttempts = async (event) => {
     await ensureSubmittedExtraColumns(connection);
 
     const [rows] = await connection.execute(
-      `SELECT test_id, percentage, letter_grade, totalgrade, created_at
+      `SELECT test_id, title, percentage, letter_grade, totalgrade, total_questions_paper, answers, created_at, isOmr
        FROM ${TABLE_SUBMITTED}
        WHERE LOWER(TRIM(submitted_by)) = LOWER(TRIM(?))
        ORDER BY created_at DESC`,
@@ -543,10 +556,28 @@ const listStudentAttempts = async (event) => {
         if (m) pct = parseFloat(m[1], 10);
       }
       const passed = Number.isFinite(pct) && pct >= 75;
+      let answersObj = r.answers;
+      if (typeof answersObj === 'string') {
+        try {
+          answersObj = JSON.parse(answersObj);
+        } catch {
+          answersObj = {};
+        }
+      }
+      if (!answersObj || typeof answersObj !== 'object') answersObj = {};
+      const tqp =
+        r.total_questions_paper != null && Number.isFinite(Number(r.total_questions_paper))
+          ? Number(r.total_questions_paper)
+          : null;
       return {
         test_id: Number(tidKey),
+        title: r.title || null,
         percentage: Number.isFinite(pct) ? Math.round(pct * 10) / 10 : null,
         letter_grade: r.letter_grade || null,
+        total_questions_paper: tqp,
+        answers: answersObj,
+        created_at: r.created_at || null,
+        isOmr: !!(r.isOmr === true || r.isOmr === 1 || Number(r.isOmr) === 1),
         passed,
         completed: true,
       };
