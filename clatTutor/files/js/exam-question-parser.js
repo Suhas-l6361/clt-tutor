@@ -1,6 +1,7 @@
 /**
  * Same question-paper parsing as crm/addTest.html — keeps student online tests aligned with CRM preview.
- * Depends on nothing; exposes window.ExamQuestionParser.parseQuestionsFromText
+ * Passage / (Information) blocks stop at the first line matching a question header (N. stem) so questions
+ * inside those markers are still parsed. Depends on nothing; exposes window.ExamQuestionParser.parseQuestionsFromText
  */
 (function (global) {
   'use strict';
@@ -9,7 +10,11 @@
     var t = String(raw || '')
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
-      .replace(/\u00a0/g, ' ');
+      .replace(/\u00a0/g, ' ')
+      .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
+      .replace(/[\uFF08\uFF09]/g, function (ch) {
+        return ch === '\uFF08' ? '(' : ')';
+      });
     t = t.replace(/(\d{1,3})\.([A-Za-z])/g, function (_, n, letter) {
       return n + '. ' + letter;
     });
@@ -21,7 +26,7 @@
       if (n >= 1 && n <= 199) return before + '\n' + num + '. (';
       return full;
     });
-    t = t.replace(/([^\n])(\s)(\d{1,3})\.\s/g, function (full, before, sp, num) {
+    t = t.replace(/([^\n])(\s+)(\d{1,3})\.\s/g, function (full, before, sp, num) {
       var n = parseInt(num, 10);
       if (n >= 1 && n <= 199) return before + '\n' + num + '. ';
       return full;
@@ -38,8 +43,8 @@
     if (/^\[[A-D]\]\s*\S/.test(s)) return true;
     if (/^\[[A-D]\]\s*$/.test(s)) return true;
     if (/^[A-D]\s{2,}\S/.test(s)) return true;
-    if (/^[A-D][\.:\)]\s*\S/.test(s)) return true;
-    if (/^[A-D][\.:\)]\s*$/.test(s)) return true;
+    if (/^[A-D][\.:\),]\s*\S/.test(s)) return true;
+    if (/^[A-D][\.:\),]\s*$/.test(s)) return true;
     if (/^[A-D]\s+\S/.test(s) && !/^A\s+and\s+R\b/i.test(s)) return true;
     return false;
   }
@@ -51,7 +56,7 @@
     if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
     m = t.match(/^([A-D])\s{2,}(\S[\s\S]*)$/);
     if (m) return { letter: m[1].toUpperCase(), rest: m[2].trim(), raw: t };
-    m = t.match(/^([A-D])\s*[\.:\)]\s*(.*)$/);
+    m = t.match(/^([A-D])\s*[\.:\),]\s*(.*)$/);
     if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
     if (/^[A-D]\s+\S/.test(t) && !/^A\s+and\s+R\b/i.test(t)) {
       m = t.match(/^([A-D])\s+(\S[\s\S]*)$/);
@@ -265,6 +270,7 @@
 
   function normalizeMarkerOuter(line) {
     return String(line || '')
+      .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
       .trim()
       .replace(/\s+/g, ' ');
   }
@@ -288,12 +294,31 @@
   }
 
   function matchQuestionHeaderLine(line) {
-    var m = String(line || '').match(/^\s*(\d{1,3})\.\s(\S)/);
-    if (!m) return null;
-    var n = parseInt(m[1], 10);
-    if (n < 1 || n > 199) return null;
-    if (/[a-z]/.test(m[2].charAt(0))) return null;
-    return n;
+    var s = String(line || '')
+      .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
+      .replace(/\uFF0E/g, '.');
+    var m = s.match(/^\s*(\d{1,3})\.\s+(\S)/);
+    if (m) {
+      var n1 = parseInt(m[1], 10);
+      if (n1 < 1 || n1 > 199) return null;
+      if (/[a-z]/.test(m[2].charAt(0))) return null;
+      return n1;
+    }
+    m = s.match(/^\s*(\d{1,3})\.(\S)/);
+    if (m) {
+      var n2 = parseInt(m[1], 10);
+      if (n2 < 1 || n2 > 199) return null;
+      if (/[a-z]/.test(m[2].charAt(0))) return null;
+      return n2;
+    }
+    /** Word list numbering often leaves only "3." on its own line; stem is on the next line. */
+    m = s.match(/^\s*(\d{1,3})\.\s*$/);
+    if (m) {
+      var n3 = parseInt(m[1], 10);
+      if (n3 < 1 || n3 > 199) return null;
+      return n3;
+    }
+    return null;
   }
 
   function isSectionTagLine(line) {
@@ -330,10 +355,11 @@
         i++;
         var ib = [];
         while (i < lines.length && !isInformationEndLine(lines[i])) {
+          if (matchQuestionHeaderLine(lines[i]) != null) break;
           ib.push(lines[i]);
           i++;
         }
-        if (i < lines.length) i++;
+        if (i < lines.length && isInformationEndLine(lines[i])) i++;
         globInfo = ib.join('\n').trim();
         continue;
       }
@@ -342,10 +368,11 @@
         i++;
         var pb = [];
         while (i < lines.length && !isParagraphEndLine(lines[i])) {
+          if (matchQuestionHeaderLine(lines[i]) != null) break;
           pb.push(lines[i]);
           i++;
         }
-        if (i < lines.length) i++;
+        if (i < lines.length && isParagraphEndLine(lines[i])) i++;
         globPara = pb.join('\n').trim();
         passageCount++;
         currentPassageIndex = passageCount;
@@ -390,7 +417,8 @@
           if (isInformationEndLine(lines[i]) || isParagraphEndLine(lines[i])) break;
           if (matchCustomSectionStartLine(lines[i]) || matchCustomSectionEndLine(lines[i])) break;
           if (isSectionTagLine(lines[i])) break;
-          if (matchQuestionHeaderLine(lines[i]) != null) break;
+          var nextQn = matchQuestionHeaderLine(lines[i]);
+          if (nextQn != null && nextQn > qn) break;
           i++;
         }
         var block = lines.slice(start, i).join('\n').trim();

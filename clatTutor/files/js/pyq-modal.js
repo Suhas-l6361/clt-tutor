@@ -64,7 +64,7 @@
       pyqResourceHub.setAttribute('hidden', '');
       pyqResourceHub.innerHTML =
         '<div class="pyq-resource-hub__toolbar">' +
-        '  <label for="pyq-resource-year">Year</label>' +
+        '  <span class="pyq-resource-hub__label">Year</span>' +
         '  <select id="pyq-resource-year" class="pyq-resource-hub__year">' +
         '    <option value="all">All years</option>' +
         '  </select>' +

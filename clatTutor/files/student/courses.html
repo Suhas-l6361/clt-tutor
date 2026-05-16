@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My courses — Student</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
@@ -55,12 +58,12 @@
   <div id="stock" style="display: none">
     <p class="text-muted" style="margin-top: 0; margin-bottom: 1.5rem">
       <i class="fa-solid fa-layer-group" style="color: var(--accent); margin-right: 0.35rem"></i>
-      All modules for your enrolled batch. Open a card to access videos, PDFs, and quizzes (API-ready).
+      All modules for your enrolled batch will appear here when assigned (API-ready).
     </p>
     <div class="lms-layout">
       <section class="lms-card">
         <h3 class="lms-title">My Learning Paths</h3>
-        <p class="lms-muted">YouTube-style module access with resume, progress, and smart next suggestions.</p>
+        <p class="lms-muted">Assigned modules and progress will appear here when your batch has active courses.</p>
         <div class="course-grid" id="course-list" style="margin-top:0.85rem;"></div>
       </section>
       <aside class="lms-card">
@@ -87,17 +90,9 @@
           </button>
         </div>
         <p id="video-modal-file-hint" class="video-modal__file-hint" hidden>
-          YouTube cannot play inside this page while it is opened as a <strong>file</strong> (double-clicked from the folder).
+          Embedded video may not load while this page is opened as a <strong>file</strong> (double-clicked from the folder).
           Run a small web server in your project folder (e.g. <code>python -m http.server 8080</code>) and open
           <code>http://localhost:8080/student/courses.html</code>, or deploy over <strong>HTTPS</strong>.
-          <a
-            class="video-modal__file-hint-link"
-            href="https://www.youtube.com/playlist?list=PLL7UAbmnJDJEgc4bCzJVNN2V6bhM4uCtc"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Open playlist on YouTube</a
-          >
-          instead.
         </p>
         <div class="lms-player-wrap">
           <div class="lms-player-main">
@@ -105,7 +100,7 @@
               <iframe
                 id="video-modal-iframe"
                 class="video-modal__iframe"
-                title="YouTube video player"
+                title="Course video"
                 width="560"
                 height="315"
                 src=""
@@ -146,68 +141,16 @@
   <script src="../js/nav.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script>
-    var PLAYLIST = 'PLL7UAbmnJDJEgc4bCzJVNN2V6bhM4uCtc';
     function ytEmbed(videoId, startSeconds) {
       var start = Number(startSeconds || 0);
       return (
         'https://www.youtube-nocookie.com/embed/' +
         videoId +
-        '?enablejsapi=1&list=' +
-        PLAYLIST +
-        '&rel=0&modestbranding=1' +
+        '?enablejsapi=1&rel=0&modestbranding=1' +
         (start > 0 ? '&start=' + Math.max(0, Math.floor(start)) : '')
       );
     }
-    var DEMO_COURSES = [
-      {
-        id: 'legal-reasoning',
-        title: 'CLAT — Legal reasoning',
-        meta: '12 videos · 4 quizzes',
-        tag: 'Core',
-        modules: [
-          { id: 'OvMWbfFAvHA', name: 'Introduction to Legal Reasoning', mins: 18 },
-          { id: 'zX8rN_GPEx4', name: 'Principles & Facts', mins: 22 },
-          { id: '3XkRCoFgI9Q', name: 'Statement Assumption Drills', mins: 16 },
-          { id: 'NiA26NIq4cg', name: 'Timed Section Practice', mins: 20 }
-        ]
-      },
-      {
-        id: 'english-comprehension',
-        title: 'English & comprehension',
-        meta: '8 videos · 2 quizzes',
-        tag: 'Core',
-        modules: [
-          { id: 'zX8rN_GPEx4', name: 'Reading Strategy', mins: 14 },
-          { id: 'OvMWbfFAvHA', name: 'Vocabulary in Context', mins: 17 },
-          { id: 'NiA26NIq4cg', name: 'Critical Passage Analysis', mins: 19 },
-          { id: '3XkRCoFgI9Q', name: 'Speed + Accuracy Drill', mins: 12 }
-        ]
-      },
-      {
-        id: 'logical-reasoning',
-        title: 'Logical reasoning drills',
-        meta: '6 practice sets',
-        tag: 'Practice',
-        modules: [
-          { id: '3XkRCoFgI9Q', name: 'Statements & Conclusions', mins: 15 },
-          { id: 'OvMWbfFAvHA', name: 'Seating Arrangement Basics', mins: 21 },
-          { id: 'zX8rN_GPEx4', name: 'Blood Relation Tricks', mins: 13 },
-          { id: 'NiA26NIq4cg', name: 'Mixed LR Mock', mins: 24 }
-        ]
-      },
-      {
-        id: 'gk-current-affairs',
-        title: 'GK & current affairs',
-        meta: 'Weekly digest + tests',
-        tag: 'Ongoing',
-        modules: [
-          { id: 'NiA26NIq4cg', name: 'Weekly CA Digest', mins: 15 },
-          { id: 'OvMWbfFAvHA', name: 'National Affairs Roundup', mins: 11 },
-          { id: 'zX8rN_GPEx4', name: 'International Affairs Roundup', mins: 12 },
-          { id: '3XkRCoFgI9Q', name: 'CA Practice Quiz Walkthrough', mins: 14 }
-        ]
-      }
-    ];
+    var DEMO_COURSES = [];
 
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
@@ -269,6 +212,10 @@
           '<div class="lms-stat-item"><span>Saved modules</span><strong>' + savedCount + '</strong></div>';
       }
       function renderRecommendations(activeCourseId) {
+        if (!DEMO_COURSES.length) {
+          recoWrap.innerHTML = '';
+          return;
+        }
         var list = DEMO_COURSES
           .filter(function (c) { return c.id !== activeCourseId; })
           .sort(function (a, b) {
@@ -283,38 +230,45 @@
           .join('');
       }
 
-      wrap.innerHTML = DEMO_COURSES.map(function (c) {
-        var st = getCourseState(c.id);
-        var pct = st.progressPct || 0;
-        return (
-          '<div class="card course-card">' +
-          '<h4>' +
-          c.title +
-          '</h4>' +
-          '<p class="meta">' +
-          c.meta +
-          ' · <span class="badge badge-new">' +
-          c.tag +
-          '</span></p>' +
-          '<div class="progress" aria-label="Progress ' +
-          pct +
-          '%"><div class="progress__bar" style="width:' +
-          pct +
-          '%"></div></div>' +
-          '<p class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0">' +
-          pct +
-          '% complete</p>' +
-          '<div class="cta-row">' +
-          '<button type="button" class="btn btn-primary btn-open-module" data-course-id="' +
-          escAttr(c.id) +
-          '"><i class="fa-solid fa-play"></i> Open module</button>' +
-          '<button type="button" class="btn-mini btn-open-module" data-course-id="' +
-          escAttr(c.id) +
-          '" title="Open and resume"><i class="fa-regular fa-clock"></i></button>' +
-          '</div>' +
-          '</div>'
-        );
-      }).join('');
+      if (!DEMO_COURSES.length) {
+        wrap.innerHTML =
+          '<p class="lms-muted" style="grid-column: 1 / -1; text-align: center; padding: 1.75rem 0.75rem; margin: 0;">' +
+          'No courses to show yet. When your batch is assigned modules, they will appear here.' +
+          '</p>';
+      } else {
+        wrap.innerHTML = DEMO_COURSES.map(function (c) {
+          var st = getCourseState(c.id);
+          var pct = st.progressPct || 0;
+          return (
+            '<div class="card course-card">' +
+            '<h4>' +
+            c.title +
+            '</h4>' +
+            '<p class="meta">' +
+            c.meta +
+            ' · <span class="badge badge-new">' +
+            c.tag +
+            '</span></p>' +
+            '<div class="progress" aria-label="Progress ' +
+            pct +
+            '%"><div class="progress__bar" style="width:' +
+            pct +
+            '%"></div></div>' +
+            '<p class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0">' +
+            pct +
+            '% complete</p>' +
+            '<div class="cta-row">' +
+            '<button type="button" class="btn btn-primary btn-open-module" data-course-id="' +
+            escAttr(c.id) +
+            '"><i class="fa-solid fa-play"></i> Open module</button>' +
+            '<button type="button" class="btn-mini btn-open-module" data-course-id="' +
+            escAttr(c.id) +
+            '" title="Open and resume"><i class="fa-regular fa-clock"></i></button>' +
+            '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
       renderSnapshot();
       renderRecommendations(lmsState.lastCourseId || '');
 
@@ -462,7 +416,7 @@
           }
           player = new window.YT.Player('video-modal-iframe', {
             videoId: mod.id,
-            playerVars: { rel: 0, modestbranding: 1, list: PLAYLIST },
+            playerVars: { rel: 0, modestbranding: 1 },
             events: {
               onReady: function () {
                 if (pendingSeek > 0) {
