@@ -116,3 +116,78 @@ body.branch-landing.branch-malleshwaram {
     padding-top: 1.1rem;
   }
 }
+
+/* Tooltip on Google’s map pin — invisible hit area only (no extra marker drawn) */
+.branch-landing .branch-card__embed--map .branch-map__marker {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+  line-height: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.branch-landing .branch-card__embed--map .branch-map__hit {
+  display: block;
+  width: 36px;
+  height: 48px;
+  background: transparent;
+}
+
+.branch-landing .branch-card__embed--map .branch-map__marker:focus-visible {
+  outline: none;
+}
+
+.branch-landing .branch-card__embed--map .branch-map__marker:focus-visible .branch-map__hit {
+  outline: 2px solid rgba(221, 178, 30, 0.85);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.branch-landing .branch-card__embed--map .branch-map__tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(18, 24, 32, 0.92);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease;
+}
+
+.branch-landing .branch-card__embed--map .branch-map__tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -6px;
+  border: 6px solid transparent;
+  border-top-color: rgba(18, 24, 32, 0.92);
+}
+
+.branch-landing .branch-card__embed--map .branch-map__marker:hover .branch-map__tooltip,
+.branch-landing .branch-card__embed--map .branch-map__marker:focus .branch-map__tooltip,
+.branch-landing .branch-card__embed--map .branch-map__marker:focus-visible .branch-map__tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}

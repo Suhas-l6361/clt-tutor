@@ -4,7 +4,7 @@
 (function (global) {
   'use strict';
 
-  var FAST_URL = '../js/upload-omr-fast.js?v=20260519a';
+  var FAST_URL = '../js/upload-omr-fast.js?v=20260601a';
   var loadPromise = null;
 
   function loadScriptOnce(url, id) {

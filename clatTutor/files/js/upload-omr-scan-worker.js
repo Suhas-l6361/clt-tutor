@@ -5,7 +5,7 @@
 importScripts('https://docs.opencv.org/4.10.0/opencv.js');
 
 function whenCvReady(maxWaitMs) {
-  maxWaitMs = maxWaitMs || 90000;
+  maxWaitMs = maxWaitMs || 20000;
   return new Promise(function (resolve, reject) {
     var started = Date.now();
     function tryResolve() {
@@ -415,14 +415,14 @@ function whenCvReady(maxWaitMs) {
     var top = scores[maxIdx];
     var next = second >= 0 ? scores[second] : 0;
     var gap = top - next;
-    var fillMin = 0.2;
+    var fillMin = 0.17;
 
     if (top < fillMin) return '';
-    if (gap < 0.09) {
+    if (gap < 0.08) {
       debug.doubleMarkedQuestions.push(qNo);
       return '';
     }
-    if (gap < 0.14) debug.lowConfidenceQuestions.push(qNo);
+    if (gap < 0.12) debug.lowConfidenceQuestions.push(qNo);
     return OMR_LETTERS[maxIdx];
   }
 
@@ -492,7 +492,7 @@ function whenCvReady(maxWaitMs) {
       var mappedRows = assignColumnQuestionNumbers(columns);
       var totalMapped = mappedRows.length;
 
-      if (totalMapped < 80) {
+      if (totalMapped < 72) {
         debug.unclear = true;
         debug.message =
           'Could not align enough answer rows (' + totalMapped + ' mapped). Use a flat, well-lit photo.';

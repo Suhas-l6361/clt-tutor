@@ -34,6 +34,30 @@
   border-bottom: 1px solid var(--legal-line);
 }
 
+.page-legal .legal-doc__part {
+  scroll-margin-top: 5.5rem;
+}
+
+.page-legal .legal-doc__part + .legal-doc__part {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--legal-line);
+}
+
+.page-legal .legal-doc__part-title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-weight: 700;
+  color: var(--legal-ink);
+}
+
+.page-legal .legal-doc__part-intro {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--legal-muted);
+}
+
 .page-legal .legal-doc__title {
   margin: 0;
   font-size: clamp(1.5rem, 3.5vw, 2rem);

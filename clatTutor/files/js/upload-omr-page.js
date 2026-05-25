@@ -37,7 +37,7 @@
   }
 
   var MAMMOTH_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js';
-  var SCAN_MODULE_URL = '../js/upload-omr-fast.js?v=20260520b';
+  var SCAN_MODULE_URL = '../js/upload-omr-fast.js?v=20260601a';
   var mammothScriptPromise = null;
   var scanModulePromise = null;
 
@@ -725,15 +725,9 @@
       if (!analysisModal || !analysisModalBody) return;
       if (analysisOkBtn) analysisOkBtn.hidden = true;
       var lead =
-        phase === 'opencv'
-          ? 'Accurate scan (first time may take a minute)...'
-          : phase === 'scan'
-            ? 'Analysing OMR sheet...'
-            : 'Processing...';
+        phase === 'scan' ? 'Analysing OMR sheet...' : 'Processing...';
       var detail =
-        phase === 'opencv'
-          ? 'Reading filled bubbles with the accurate engine. Please wait.'
-          : 'Counting marked and unanswered answers. Usually 3-10 seconds.';
+        'Reading each question row on the sheet. Usually 5–15 seconds.';
       analysisModalBody.innerHTML =
         '<p class="upload-omr-modal-lead"><strong>' +
         escHtml(lead) +

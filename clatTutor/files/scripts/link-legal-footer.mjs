@@ -3,15 +3,29 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const merged = 'terms-and-conditions-privacy-policy.html';
 
 const htmlFilesReplace = [
-  [/<a href="#">Privacy Policy<\/a>/g, '<a href="privacy-policy.html">Privacy Policy</a>'],
-  [/<a href="#">Terms and Conditions<\/a>/g, '<a href="terms-and-conditions.html">Terms and Conditions</a>'],
+  [
+    /<nav class="site-footer__legal" aria-label="Legal">[\s\S]*?<\/nav>/g,
+    `<nav class="site-footer__legal" aria-label="Legal">
+          <a href="${merged}">Terms and Conditions &mdash; Privacy Policy</a>
+        </nav>`,
+  ],
+  [/<a href="#">Privacy Policy<\/a>\s*<a href="#">Terms and Conditions<\/a>/g, `<a href="${merged}">Terms and Conditions &mdash; Privacy Policy</a>`],
 ];
 
 const rootFilesReplace = [
-  [/<a href="#">Privacy Policy<\/a>/g, '<a href="html_files/privacy-policy.html">Privacy Policy</a>'],
-  [/<a href="#">Terms and Conditions<\/a>/g, '<a href="html_files/terms-and-conditions.html">Terms and Conditions</a>'],
+  [
+    /<nav class="site-footer__legal" aria-label="Legal">[\s\S]*?<\/nav>/g,
+    `<nav class="site-footer__legal" aria-label="Legal">
+          <a href="html_files/${merged}">Terms and Conditions &mdash; Privacy Policy</a>
+        </nav>`,
+  ],
+  [
+    /<a href="#">Privacy Policy<\/a>\s*<a href="#">Terms and Conditions<\/a>/g,
+    `<a href="html_files/${merged}">Terms and Conditions &mdash; Privacy Policy</a>`,
+  ],
 ];
 
 function updateFile(fp, replacements) {

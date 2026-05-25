@@ -9,6 +9,7 @@
     callback: [],
     enroll: [],
     contact: [],
+    demo: [],
   };
 
   function escHtml(s) {
@@ -201,6 +202,58 @@
     );
   }
 
+  function renderDemo(rows) {
+    if (!rows.length) {
+      return '<p class="enrollment-empty">No demo class requests yet.</p>';
+    }
+    var thead =
+      '<thead><tr>' +
+      '<th scope="col">Name</th>' +
+      '<th scope="col">Email</th>' +
+      '<th scope="col">Phone</th>' +
+      '<th scope="col">Interested in</th>' +
+      '<th scope="col">Created At</th>' +
+      '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
+      '</tr></thead>';
+    var body = rows
+      .map(function (r) {
+        return (
+          '<tr>' +
+          '<td>' +
+          val(r.name) +
+          '</td>' +
+          '<td>' +
+          val(r.email) +
+          '</td>' +
+          '<td>' +
+          val(r.phone) +
+          '</td>' +
+          '<td>' +
+          val(r.interested_in) +
+          '</td>' +
+          '<td>' +
+          fmtTs(r.created_at) +
+          '</td>' +
+          '<td class="enrollment-table__td-actions">' +
+          viewFullBtn('demo', r.id) +
+          '</td>' +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('demo', r) +
+          '</td>' +
+          '</tr>'
+        );
+      })
+      .join('');
+    return (
+      '<div class="enrollment-table-wrap"><table class="enrollment-table">' +
+      thead +
+      '<tbody>' +
+      body +
+      '</tbody></table></div>'
+    );
+  }
+
   function renderContact(rows) {
     if (!rows.length) {
       return '<p class="enrollment-empty">No contact us messages yet.</p>';
@@ -307,6 +360,23 @@
     );
   }
 
+  function modalBodyDemo(r) {
+    return (
+      '<p class="enrollment-modal__meta">#' +
+      escHtml(String(r.id)) +
+      ' · ' +
+      fmtTs(r.created_at) +
+      '</p>' +
+      '<dl class="enrollment-dl enrollment-dl--modal">' +
+      dlRow('Name', val(r.name)) +
+      dlRow('Email', val(r.email)) +
+      dlRow('Phone', val(r.phone)) +
+      dlRow('Interested in', val(r.interested_in)) +
+      dlRow('Responded', respondedHtml(r)) +
+      '</dl>'
+    );
+  }
+
   function modalBodyContact(r) {
     return (
       '<p class="enrollment-modal__meta">#' +
@@ -342,6 +412,7 @@
       callback: c.REQUEST_CALLBACK_API || '',
       enroll: c.ENROLL_REQUEST_API || '',
       contact: c.CONTACT_US_API || '',
+      demo: c.DEMO_CLASS_API || '',
     };
   }
 
@@ -368,11 +439,13 @@
         callback: 'Request callback',
         enroll: 'Enrollment details',
         contact: 'Contact us',
+        demo: 'Demo class request',
       };
       titleEl.textContent = (titles[kind] || 'Details') + ' #' + String(r.id);
 
       if (kind === 'callback') bodyEl.innerHTML = modalBodyCallback(r);
       else if (kind === 'enroll') bodyEl.innerHTML = modalBodyEnroll(r);
+      else if (kind === 'demo') bodyEl.innerHTML = modalBodyDemo(r);
       else bodyEl.innerHTML = modalBodyContact(r);
 
       modal.hidden = false;
@@ -412,6 +485,7 @@
       callback: 'Request callback',
       enroll: 'Enrollment details',
       contact: 'Contact us',
+      demo: 'Demo class requests',
     };
     var currentKind = null;
 
@@ -458,6 +532,7 @@
       var rows = getFilteredRows(kind);
       if (kind === 'callback') listEl.innerHTML = renderCallback(rows);
       else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
+      else if (kind === 'demo') listEl.innerHTML = renderDemo(rows);
       else listEl.innerHTML = renderContact(rows);
     }
 

@@ -56,12 +56,18 @@
   color: #991b1b;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 991px) {
   .friendly-popup-stack {
-    top: auto;
+    top: calc(var(--demo-class-panel-top, 4.75rem) + 0.35rem);
     right: 0.75rem;
     left: 0.75rem;
-    bottom: 0.75rem;
+    bottom: auto;
     width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .friendly-popup-stack {
+    top: calc(var(--demo-class-panel-top, 3.5rem) + 0.25rem);
   }
 }
