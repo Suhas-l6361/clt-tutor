@@ -29,6 +29,9 @@ const APP_CONFIG = {
   /** Public site — PYQ resource list (GET JSON) */
   PREVIOUS_QUEATION_PAPER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/previous_queation_paper',
+  /** Public site — demo class request (POST JSON) */
+  DEMO_CLASS_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/demoClass',
   /** CRM — student list (GET array) — same stage as auth student_general_info */
   STUDENT_GENERAL_INFO_API:
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info',

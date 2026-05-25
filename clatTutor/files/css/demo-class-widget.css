@@ -1,0 +1,116 @@
+/* Demo class request widget — all public html_files pages */
+
+body.page-public .site-nav .demo-class-widget {
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+body.page-public .demo-class-widget__panel {
+  position: fixed;
+  top: var(--demo-class-panel-top, 4.75rem);
+  right: 1rem;
+  z-index: 110;
+  width: min(100vw - 2rem, 300px);
+  padding: 1rem 1.1rem 1.1rem;
+  background: #fff;
+  border: 1px solid rgba(18, 24, 32, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(18, 24, 32, 0.14);
+  max-height: calc(100vh - var(--demo-class-panel-top, 4.75rem) - 1rem);
+  overflow-y: auto;
+}
+
+body.page-public .demo-class-widget__title {
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--black, #121820);
+}
+
+body.page-public .demo-class-widget__alert:empty {
+  display: none;
+}
+
+body.page-public .demo-class-widget__alert .alert {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+body.page-public .demo-class-widget__alert .alert-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+body.page-public .demo-class-widget__field {
+  margin-bottom: 0.7rem;
+}
+
+body.page-public .demo-class-widget__field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted, #5a6570);
+}
+
+body.page-public .demo-class-widget__field input,
+body.page-public .demo-class-widget__field select {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(18, 24, 32, 0.12);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--black, #121820);
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+body.page-public .demo-class-widget__field input:focus,
+body.page-public .demo-class-widget__field select:focus {
+  outline: 2px solid rgba(221, 178, 30, 0.55);
+  outline-offset: 1px;
+  background: #fff;
+}
+
+body.page-public .demo-class-widget__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(145deg, #c9a010, var(--accent, #ddb21e));
+  box-shadow: 0 6px 18px rgba(221, 178, 30, 0.35);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+body.page-public .demo-class-widget__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+body.page-public .demo-class-widget__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  body.page-public .demo-class-widget__panel {
+    right: 0.75rem;
+    width: min(100vw - 1.5rem, 280px);
+  }
+}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * uploadOmr.html
  * CRM frontend-only flow: student select -> test select -> upload/scan OMR -> preview.
  */
@@ -36,89 +36,214 @@
     return day + '-' + mon + '-' + d.getFullYear();
   }
 
-  function waitForOpenCv(maxWaitMs) {
-    var started = Date.now();
-    return new Promise(function (resolve, reject) {
-      (function tick() {
-        if (window.cv && typeof window.cv.Mat === 'function') {
-          resolve(window.cv);
-          return;
-        }
-        if (Date.now() - started > maxWaitMs) {
-          reject(new Error('OMR engine failed to load. Refresh and try again.'));
-          return;
-        }
-        setTimeout(tick, 120);
-      })();
-    });
-  }
+  var MAMMOTH_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js';
+  var SCAN_MODULE_URL = '../js/upload-omr-fast.js?v=20260520b';
+  var mammothScriptPromise = null;
+  var scanModulePromise = null;
 
-  function nextFrame() {
-    return new Promise(function (resolve) {
-      if (typeof window.requestAnimationFrame === 'function') {
-        window.requestAnimationFrame(function () {
+  function loadScriptOnce(url, id) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.getElementById(id);
+      if (existing) {
+        if (existing.getAttribute('data-loaded') === '1') {
+          resolve();
+          return;
+        }
+        existing.addEventListener('load', function onLoad() {
+          existing.removeEventListener('load', onLoad);
           resolve();
         });
-      } else {
-        setTimeout(resolve, 16);
-      }
-    });
-  }
-
-  function buildProcessingImage(dataUrl, maxDim) {
-    return new Promise(function (resolve, reject) {
-      var img = new Image();
-      img.onload = function () {
-        var w = img.naturalWidth || img.width;
-        var h = img.naturalHeight || img.height;
-        if (!w || !h) {
-          reject(new Error('Invalid image size.'));
-          return;
-        }
-        var scale = 1;
-        var maxSide = Math.max(w, h);
-        if (maxSide > maxDim) scale = maxDim / maxSide;
-        var tw = Math.max(1, Math.round(w * scale));
-        var th = Math.max(1, Math.round(h * scale));
-        var c = document.createElement('canvas');
-        c.width = tw;
-        c.height = th;
-        var ctx = c.getContext('2d');
-        ctx.drawImage(img, 0, 0, tw, th);
-        var procImg = new Image();
-        procImg.onload = function () {
-          resolve(procImg);
-        };
-        procImg.onerror = function () {
-          reject(new Error('Could not prepare image for processing.'));
-        };
-        procImg.src = c.toDataURL('image/jpeg', 0.95);
-      };
-      img.onerror = function () {
-        reject(new Error('Invalid image file.'));
-      };
-      img.src = dataUrl;
-    });
-  }
-
-  function buildAnalysis(detected) {
-    var allQ = Object.keys(detected || {});
-    var attempted = 0;
-    var unanswered = 0;
-
-    allQ.forEach(function (q) {
-      var picked = detected[q] || '';
-      if (!picked) {
-        unanswered += 1;
+        existing.addEventListener('error', function onErr() {
+          existing.removeEventListener('error', onErr);
+          reject(new Error('Failed to load script.'));
+        });
         return;
       }
-      attempted += 1;
+
+      var script = document.createElement('script');
+      script.id = id;
+      script.src = url;
+      script.async = true;
+      script.onload = function () {
+        script.setAttribute('data-loaded', '1');
+        resolve();
+      };
+      script.onerror = function () {
+        reject(new Error('Failed to load script.'));
+      };
+      document.head.appendChild(script);
     });
+  }
+
+  function ensureMammothScript() {
+    if (typeof window.mammoth !== 'undefined') return Promise.resolve();
+    if (mammothScriptPromise) return mammothScriptPromise;
+    mammothScriptPromise = loadScriptOnce(MAMMOTH_SCRIPT_URL, 'upload-omr-mammoth-js').catch(function (err) {
+      mammothScriptPromise = null;
+      throw err;
+    });
+    return mammothScriptPromise;
+  }
+
+  function ensureScanModule() {
+    if (window.UploadOmrScan) return Promise.resolve(window.UploadOmrScan);
+    if (scanModulePromise) return scanModulePromise;
+    scanModulePromise = loadScriptOnce(SCAN_MODULE_URL, 'upload-omr-scan-js')
+      .then(function () {
+        if (!window.UploadOmrScan) {
+          throw new Error('OMR scan module failed to load.');
+        }
+        return window.UploadOmrScan;
+      })
+      .catch(function (err) {
+        scanModulePromise = null;
+        throw err;
+      });
+    return scanModulePromise;
+  }
+
+  function base64ToArrayBuffer(base64) {
+    var binary = atob(base64);
+    var len = binary.length;
+    var bytes = new Uint8Array(len);
+    var i;
+    for (i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function extractCorrectLetterFromText(raw) {
+    var t = String(raw == null ? '' : raw).trim();
+    if (!t) return '';
+    var block = t.split(/\bSolution\s*:/i)[0].split(/\bReason\s*:/i)[0];
+    var b = block.trim();
+    var m =
+      b.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
+      b.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+      b.match(/^\s*["']?\s*([A-D])\s*["']?\s*$/i) ||
+      b.match(/\b([A-D])\b/);
+    return m && m[1] ? String(m[1]).toUpperCase() : '';
+  }
+
+  function parseAnswerKeyText(text) {
+    var map = Object.create(null);
+    var lines = String(text == null ? '' : text)
+      .replace(/\r\n?/g, '\n')
+      .split('\n');
+    var i;
+    for (i = 0; i < lines.length; i++) {
+      var line = String(lines[i] || '').trim();
+      if (!line) continue;
+
+      var am = line.match(/^(\d+)\s*\.\s*Answer\s*:\s*(.*)$/i) || line.match(/^(\d+)Answer\s*:\s*(.*)$/i);
+      if (am) {
+        var qnA = parseInt(am[1], 10);
+        if (qnA >= 1 && qnA <= 199) {
+          var letterA = extractCorrectLetterFromText(am[2]);
+          if (letterA) map[String(qnA)] = { letter: letterA };
+        }
+        continue;
+      }
+
+      var sm = line.match(/^(\d{1,3})\s*[\.\)]\s*([A-Da-d])\b/) || line.match(/^(\d{1,3})\s+([A-Da-d])\b/);
+      if (sm) {
+        var qnS = parseInt(sm[1], 10);
+        if (qnS >= 1 && qnS <= 199) map[String(qnS)] = { letter: String(sm[2]).toUpperCase() };
+        continue;
+      }
+
+      var m = line.match(/^(\d{1,3})\s*[\.\)]\s*(.*)$/);
+      if (!m) continue;
+      var qn = parseInt(m[1], 10);
+      if (qn < 1 || qn > 199) continue;
+      var tail = String(m[2] || '').trim();
+      var letter = extractCorrectLetterFromText(tail);
+      if (!letter && i + 1 < lines.length) {
+        letter = extractCorrectLetterFromText(String(lines[i + 1] || ''));
+        if (letter) i += 1;
+      }
+      if (letter) map[String(qn)] = { letter: letter };
+    }
+    return map;
+  }
+
+  function fetchAnswerKeyText(testId) {
+    var api = getAddTestApiUrl();
+    if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured.'));
+    var url =
+      api +
+      (api.indexOf('?') >= 0 ? '&' : '?') +
+      'test_id=' +
+      encodeURIComponent(String(testId)) +
+      '&answer=1';
+    return ensureMammothScript().then(function () {
+      return fetch(url, { method: 'GET', credentials: 'omit' });
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        if (!r.ok) {
+          throw new Error((data && data.message) || 'Could not load answer key (HTTP ' + r.status + ')');
+        }
+        if (!data || !data.content_base64) {
+          throw new Error('This test has no answer key uploaded in Add Test.');
+        }
+        var name = String(data.file_name || '').toLowerCase();
+        var type = String(data.content_type || '').toLowerCase();
+        if (name.endsWith('.pdf') || type.indexOf('pdf') >= 0) {
+          throw new Error('Answer key must be a Word file (.doc/.docx).');
+        }
+        if (typeof mammoth === 'undefined') {
+          throw new Error('Answer key reader is still loading. Refresh and try again.');
+        }
+        var buf = base64ToArrayBuffer(data.content_base64);
+        return mammoth.extractRawText({ arrayBuffer: buf });
+      });
+    }).then(function (res) {
+      return (res && res.value) || '';
+    });
+  }
+
+  function buildAnalysis(detected, answerKeyMap) {
+    var total = CLAT_OMR_EXPECTED_QUESTIONS;
+    var attempted = 0;
+    var unanswered = 0;
+    var correct = 0;
+    var wrong = 0;
+    var noKey = 0;
+    var q;
+
+    for (q = 1; q <= total; q++) {
+      var picked = String((detected && detected[String(q)]) || '')
+        .trim()
+        .toUpperCase();
+      var keyRow = answerKeyMap && answerKeyMap[String(q)];
+      var keyLetter = keyRow && keyRow.letter ? String(keyRow.letter).toUpperCase() : '';
+
+      if (!picked) {
+        unanswered += 1;
+        continue;
+      }
+      attempted += 1;
+      if (!keyLetter) {
+        noKey += 1;
+        continue;
+      }
+      if (picked === keyLetter) correct += 1;
+      else wrong += 1;
+    }
+
+    var keyCount = answerKeyMap ? Object.keys(answerKeyMap).length : 0;
+    var scorable = Math.max(0, total - noKey);
+    var percentage = scorable > 0 ? Math.round((correct / scorable) * 1000) / 10 : null;
 
     return {
-      total: allQ.length,
+      total: total,
       attempted: attempted,
       unanswered: unanswered,
+      correct: correct,
+      wrong: wrong,
+      noKey: noKey,
+      percentage: percentage,
+      hasKey: keyCount > 0,
+      keyCount: keyCount,
     };
   }
 
@@ -127,210 +252,7 @@
     return checked ? checked.value : 'upload';
   }
 
-  function isLikelyBubbleContour(cv, contour) {
-    var area = cv.contourArea(contour);
-    if (!isFinite(area) || area < 55 || area > 1800) return false;
-
-    var peri = cv.arcLength(contour, true);
-    if (!isFinite(peri) || peri <= 0) return false;
-
-    var rect = cv.boundingRect(contour);
-    if (!rect || rect.width <= 0 || rect.height <= 0) return false;
-
-    var ratio = rect.width / rect.height;
-    if (ratio < 0.7 || ratio > 1.35) return false;
-
-    var extent = area / (rect.width * rect.height);
-    var circularity = (4 * Math.PI * area) / (peri * peri);
-
-    // OMR bubbles are ring/circle-like:
-    // - filled black reference squares generally have very high extent (~1.0) and low circularity
-    // - bubble rings stay more circular and lower extent.
-    if (extent > 0.82) return false;
-    if (circularity < 0.58) return false;
-
-    return true;
-  }
-
-  function runOmrDetection(cv, imgEl, canvas) {
-    var src = cv.imread(imgEl);
-    var gray = new cv.Mat();
-    var blur = new cv.Mat();
-    var bin = new cv.Mat();
-    var contours = new cv.MatVector();
-    var hierarchy = new cv.Mat();
-
-    var debug = {
-      unclear: false,
-      message: '',
-      doubleMarkedQuestions: [],
-      lowConfidenceQuestions: [],
-    };
-
-    try {
-      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-      cv.GaussianBlur(gray, blur, new cv.Size(5, 5), 0);
-      cv.adaptiveThreshold(
-        blur,
-        bin,
-        255,
-        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv.THRESH_BINARY_INV,
-        31,
-        8
-      );
-
-      cv.findContours(bin, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-
-      var candidates = [];
-      for (var i = 0; i < contours.size(); i++) {
-        var c = contours.get(i);
-        if (!isLikelyBubbleContour(cv, c)) {
-          c.delete();
-          continue;
-        }
-        var rect = cv.boundingRect(c);
-        candidates.push({
-          x: rect.x,
-          y: rect.y,
-          w: rect.width,
-          h: rect.height,
-        });
-        c.delete();
-      }
-
-      if (candidates.length < 110) {
-        debug.unclear = true;
-        debug.message = 'Picture is not clear. Could not identify enough OMR bubbles.';
-        return { responses: {}, totalQuestions: 0, debug: debug };
-      }
-
-      candidates.sort(function (a, b) {
-        if (Math.abs(a.y - b.y) < 10) return a.x - b.x;
-        return a.y - b.y;
-      });
-
-      var rows = [];
-      var yBand = 10;
-      candidates.forEach(function (b) {
-        var row = null;
-        for (var r = 0; r < rows.length; r++) {
-          if (Math.abs(rows[r].y - b.y) <= yBand) {
-            row = rows[r];
-            break;
-          }
-        }
-        if (!row) {
-          row = { y: b.y, bubbles: [] };
-          rows.push(row);
-        }
-        row.bubbles.push(b);
-      });
-
-      rows = rows
-        .map(function (r) {
-          r.bubbles.sort(function (a, b) {
-            return a.x - b.x;
-          });
-          return r;
-        })
-        .filter(function (r) {
-          return r.bubbles.length >= 4;
-        });
-
-      if (rows.length < 20) {
-        debug.unclear = true;
-        debug.message = 'Picture is not clear. Too few valid OMR rows were detected.';
-        return { responses: {}, totalQuestions: 0, debug: debug };
-      }
-
-      var responses = {};
-      var qNo = 1;
-      var letters = ['A', 'B', 'C', 'D'];
-
-      for (var ri = 0; ri < rows.length; ri++) {
-        var rowAll = rows[ri].bubbles;
-        if (rowAll.length < 4) continue;
-        // Some rows may still include stray detections. Use the tightest cluster of 4 by X-gap.
-        var rowB = rowAll.slice(0, 4);
-        if (rowAll.length > 4) {
-          var bestStart = 0;
-          var bestSpan = Number.POSITIVE_INFINITY;
-          for (var si = 0; si <= rowAll.length - 4; si++) {
-            var span = rowAll[si + 3].x - rowAll[si].x;
-            if (span < bestSpan) {
-              bestSpan = span;
-              bestStart = si;
-            }
-          }
-          rowB = rowAll.slice(bestStart, bestStart + 4);
-        }
-
-        var darkness = [];
-        for (var bi = 0; bi < 4; bi++) {
-          var rb = rowB[bi];
-          var pad = Math.max(1, Math.floor(Math.min(rb.w, rb.h) * 0.2));
-          var x = Math.max(0, rb.x + pad);
-          var y = Math.max(0, rb.y + pad);
-          var w = Math.max(1, Math.min(gray.cols - x, rb.w - 2 * pad));
-          var h = Math.max(1, Math.min(gray.rows - y, rb.h - 2 * pad));
-          var roi = gray.roi(new cv.Rect(x, y, w, h));
-          var mean = cv.mean(roi)[0];
-          roi.delete();
-          darkness.push(255 - mean);
-        }
-
-        var maxIdx = 0;
-        var second = -1;
-        for (var di = 0; di < darkness.length; di++) {
-          if (darkness[di] > darkness[maxIdx]) maxIdx = di;
-        }
-        for (var dj = 0; dj < darkness.length; dj++) {
-          if (dj === maxIdx) continue;
-          if (second < 0 || darkness[dj] > darkness[second]) second = dj;
-        }
-        var top = darkness[maxIdx];
-        var next = second >= 0 ? darkness[second] : 0;
-        var confidenceGap = top - next;
-        var filledThreshold = 38;
-
-        if (top < filledThreshold) {
-          responses[String(qNo)] = '';
-        } else if (confidenceGap < 8) {
-          responses[String(qNo)] = '';
-          debug.doubleMarkedQuestions.push(qNo);
-        } else {
-          responses[String(qNo)] = letters[maxIdx];
-          if (confidenceGap < 12) debug.lowConfidenceQuestions.push(qNo);
-        }
-        qNo += 1;
-      }
-
-      if (debug.doubleMarkedQuestions.length) {
-        debug.unclear = true;
-        debug.message =
-          'Picture is not clear or double bubble is present in question(s): ' +
-          debug.doubleMarkedQuestions.slice(0, 15).join(', ') +
-          '.';
-      } else if (debug.lowConfidenceQuestions.length > Math.max(4, Math.floor(qNo * 0.2))) {
-        debug.unclear = true;
-        debug.message = 'Picture is not clear. Many rows are low confidence.';
-      }
-
-      canvas.width = src.cols;
-      canvas.height = src.rows;
-      cv.imshow(canvas, bin);
-
-      return { responses: responses, totalQuestions: qNo - 1, debug: debug };
-    } finally {
-      src.delete();
-      gray.delete();
-      blur.delete();
-      bin.delete();
-      contours.delete();
-      hierarchy.delete();
-    }
-  }
+  var CLAT_OMR_EXPECTED_QUESTIONS = 120;
 
   function init() {
     var search = document.getElementById('upload-omr-student-search');
@@ -378,6 +300,8 @@
     };
 
     var students = [];
+    var studentsLoading = false;
+    var studentsLoaded = false;
     var selectedLabel = '';
     var filtered = [];
     var activeIndex = -1;
@@ -386,11 +310,14 @@
     var filteredTests = [];
     var activeTestIndex = -1;
     var stream = null;
-    var cvReady = null;
     var currentImageDataUrl = '';
     var detectedResponses = {};
     var detectionMeta = null;
     var isUnclear = false;
+    var lastScoredAnalysis = null;
+    var answerKeyCache = Object.create(null);
+    var answerKeyLoadPromise = null;
+    var answerKeyLoadForTestId = '';
 
     function setResultStatus(msg, isErr) {
       if (!resultStatus) return;
@@ -417,11 +344,53 @@
         !sid || !tid || !currentImageDataUrl || isUnclear || !Object.keys(detectedResponses).length;
     }
 
+    function clearAnswerKeyCache() {
+      answerKeyCache = Object.create(null);
+      answerKeyLoadPromise = null;
+      answerKeyLoadForTestId = '';
+    }
+
+    function loadAnswerKeyMap(testId) {
+      var tid = String(testId || '').trim();
+      if (!tid) return Promise.resolve(null);
+      if (answerKeyCache[tid]) return Promise.resolve(answerKeyCache[tid]);
+      if (answerKeyLoadPromise && answerKeyLoadForTestId === tid) return answerKeyLoadPromise;
+
+      answerKeyLoadForTestId = tid;
+      answerKeyLoadPromise = fetchAnswerKeyText(tid)
+        .then(function (txt) {
+          var map = parseAnswerKeyText(txt);
+          answerKeyCache[tid] = map;
+          return map;
+        })
+        .catch(function (err) {
+          answerKeyCache[tid] = null;
+          throw err;
+        })
+        .finally(function () {
+          answerKeyLoadPromise = null;
+        });
+      return answerKeyLoadPromise;
+    }
+
+    function scoreDetectedAnswers(testId, detected) {
+      return loadAnswerKeyMap(testId)
+        .then(function (map) {
+          return buildAnalysis(detected, map || null);
+        })
+        .catch(function (err) {
+          var base = buildAnalysis(detected, null);
+          base.keyError = err && err.message ? err.message : 'Could not load answer key.';
+          return base;
+        });
+    }
+
     function clearDetectionState() {
       currentImageDataUrl = '';
       detectedResponses = {};
       detectionMeta = null;
       isUnclear = false;
+      lastScoredAnalysis = null;
       if (filePickName) filePickName.textContent = 'No file selected';
       if (resultPanel) resultPanel.hidden = true;
       if (previewWrap) previewWrap.hidden = true;
@@ -465,7 +434,16 @@
       setStudentStatus('');
       if (sourcePanel) sourcePanel.hidden = false;
       loadTests();
+      prefetchOmrEngine();
       updateSubmitEnabled();
+    }
+
+    function prefetchOmrEngine() {
+      ensureScanModule()
+        .then(function (scan) {
+          if (scan.prefetchEngine) return scan.prefetchEngine();
+        })
+        .catch(function () {});
     }
 
     function filterList(q) {
@@ -546,6 +524,8 @@
     }
 
     function loadStudents() {
+      if (studentsLoading) return Promise.resolve();
+      studentsLoading = true;
       setStudentStatus('Loading students...');
       return fetch(getStudentApiUrl(), { method: 'GET' })
         .then(function (res) {
@@ -556,8 +536,9 @@
         })
         .then(function (rows) {
           students = Array.isArray(rows) ? rows : [];
+          studentsLoaded = true;
           if (students.length) {
-            setStudentStatus(students.length + ' students loaded.');
+            setStudentStatus(students.length + ' students — type to search and select.');
           } else {
             setStudentStatus('No students found.');
           }
@@ -565,6 +546,9 @@
         .catch(function (err) {
           students = [];
           setStudentStatus(err.message || 'Could not load students.', true);
+        })
+        .finally(function () {
+          studentsLoading = false;
         });
     }
 
@@ -572,6 +556,7 @@
       selectedTestLabel = '';
       if (testSearch) testSearch.value = '';
       if (testIdHidden) testIdHidden.value = '';
+      clearAnswerKeyCache();
       closeTestList();
       setTestStatus('');
       updateSubmitEnabled();
@@ -615,6 +600,10 @@
           testIdHidden.value = row.test_id != null ? String(row.test_id) : '';
           closeTestList();
           clearDetectionState();
+          clearAnswerKeyCache();
+          if (testIdHidden.value) {
+            loadAnswerKeyMap(testIdHidden.value).catch(function () {});
+          }
           updateSubmitEnabled();
         });
         testListbox.appendChild(li);
@@ -692,31 +681,153 @@
 
     function closeAnalysisModal() {
       if (analysisModal) analysisModal.hidden = true;
+      if (analysisOkBtn) analysisOkBtn.hidden = false;
+    }
+
+    function buildConfirmationSummary(detected) {
+      var marked = [];
+      var blank = [];
+      var q;
+      for (q = 1; q <= CLAT_OMR_EXPECTED_QUESTIONS; q++) {
+        var pick = String((detected && detected[String(q)]) || '').trim();
+        if (pick) marked.push({ q: q, ans: pick });
+        else blank.push(q);
+      }
+      return { marked: marked, blank: blank };
+    }
+
+    function formatConfirmationLists(summary, maxEach) {
+      maxEach = maxEach || 40;
+      var marked = summary.marked || [];
+      var blank = summary.blank || [];
+      var markedText = marked
+        .slice(0, maxEach)
+        .map(function (row) {
+          return 'Q' + row.q + ':' + row.ans;
+        })
+        .join(', ');
+      if (marked.length > maxEach) markedText += ' ... (+' + (marked.length - maxEach) + ' more)';
+      if (!markedText) markedText = 'None';
+
+      var blankText = blank
+        .slice(0, maxEach)
+        .map(function (n) {
+          return 'Q' + n;
+        })
+        .join(', ');
+      if (blank.length > maxEach) blankText += ' ... (+' + (blank.length - maxEach) + ' more)';
+      if (!blankText) blankText = 'None';
+
+      return { markedText: markedText, blankText: blankText };
+    }
+
+    function openProcessingModal(phase) {
+      if (!analysisModal || !analysisModalBody) return;
+      if (analysisOkBtn) analysisOkBtn.hidden = true;
+      var lead =
+        phase === 'opencv'
+          ? 'Accurate scan (first time may take a minute)...'
+          : phase === 'scan'
+            ? 'Analysing OMR sheet...'
+            : 'Processing...';
+      var detail =
+        phase === 'opencv'
+          ? 'Reading filled bubbles with the accurate engine. Please wait.'
+          : 'Counting marked and unanswered answers. Usually 3-10 seconds.';
+      analysisModalBody.innerHTML =
+        '<p class="upload-omr-modal-lead"><strong>' +
+        escHtml(lead) +
+        '</strong></p>' +
+        '<p class="upload-omr-modal-meta">' +
+        escHtml(detail) +
+        '</p>' +
+        '<p class="upload-omr-modal-meta"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Please wait</p>';
+      analysisModal.hidden = false;
+      analysisModal.removeAttribute('hidden');
+    }
+
+    function showAnalysisModal() {
+      if (!analysisModal) return;
+      analysisModal.hidden = false;
+      analysisModal.removeAttribute('hidden');
+    }
+
+    function buildConfirmChips(summary) {
+      var marked = summary.marked || [];
+      var blank = summary.blank || [];
+      var markedHtml = marked
+        .map(function (row) {
+          return (
+            '<span class="upload-omr-chip upload-omr-chip--marked">Q' +
+            escHtml(String(row.q)) +
+            ':' +
+            escHtml(row.ans) +
+            '</span>'
+          );
+        })
+        .join('');
+      var blankHtml = blank
+        .map(function (n) {
+          return '<span class="upload-omr-chip upload-omr-chip--blank">Q' + escHtml(String(n)) + '</span>';
+        })
+        .join('');
+      return {
+        markedHtml: markedHtml || '<span class="upload-omr-chip-empty">None</span>',
+        blankHtml: blankHtml || '<span class="upload-omr-chip-empty">None</span>',
+      };
     }
 
     function openAnalysisModal(analysis, opts) {
       if (!analysisModal || !analysisModalBody) return;
+      if (analysisOkBtn) analysisOkBtn.hidden = false;
       var o = opts || {};
       var ok = o.ok !== false;
       var reason = String(o.reason || '').trim();
-      var total = analysis && analysis.total != null ? analysis.total : 0;
+      var total = analysis && analysis.total != null ? analysis.total : CLAT_OMR_EXPECTED_QUESTIONS;
       var answered = analysis && analysis.attempted != null ? analysis.attempted : 0;
       var unanswered = analysis && analysis.unanswered != null ? analysis.unanswered : 0;
+      var detected = o.detected || detectedResponses || {};
+      var chips = buildConfirmChips(buildConfirmationSummary(detected));
+
+      if (!ok) {
+        analysisModalBody.innerHTML =
+          '<p class="upload-omr-modal-lead"><strong>OMR scan needs attention</strong></p>' +
+          (reason ? '<p class="upload-omr-modal-warn">' + escHtml(reason) + '</p>' : '');
+        showAnalysisModal();
+        if (analysisOkBtn) {
+          try {
+            analysisOkBtn.focus();
+          } catch (e) {}
+        }
+        return;
+      }
+
       analysisModalBody.innerHTML =
-        '<strong>' +
-        (ok ? 'Scan completed successfully.' : 'Scan needs attention.') +
-        '</strong><br />' +
-        'Total questions detected: <strong>' +
-        escHtml(String(total)) +
-        '</strong><br />' +
-        'Answered: <strong>' +
+        '<p class="upload-omr-modal-lead"><strong>Confirm OMR sheet</strong></p>' +
+        '<p class="upload-omr-modal-meta">Square marks on the sheet edge are ignored. Only filled circles count.</p>' +
+        '<div class="upload-omr-confirm-layout">' +
+        '<section class="upload-omr-confirm-panel upload-omr-confirm-panel--marked">' +
+        '<div class="upload-omr-confirm-panel__head">' +
+        '<span class="upload-omr-confirm-panel__count">' +
         escHtml(String(answered)) +
-        '</strong><br />' +
-        'Unanswered: <strong>' +
+        '</span><span class="upload-omr-confirm-panel__label">Marked</span></div>' +
+        '<div class="upload-omr-confirm-panel__chips" aria-label="Marked answers">' +
+        chips.markedHtml +
+        '</div>' +
+        '</section>' +
+        '<section class="upload-omr-confirm-panel upload-omr-confirm-panel--unmarked">' +
+        '<div class="upload-omr-confirm-panel__head">' +
+        '<span class="upload-omr-confirm-panel__count">' +
         escHtml(String(unanswered)) +
-        '</strong>' +
-        (reason ? '<br /><span style="color:#8a2f2f;">' + escHtml(reason) + '</span>' : '');
-      analysisModal.hidden = false;
+        '</span><span class="upload-omr-confirm-panel__label">Unmarked</span></div>' +
+        '<div class="upload-omr-confirm-panel__chips" aria-label="Unmarked questions">' +
+        chips.blankHtml +
+        '</div>' +
+        '</section></div>' +
+        '<p class="upload-omr-modal-meta upload-omr-modal-meta--total">Total questions: <strong>' +
+        escHtml(String(total)) +
+        '</strong></p>';
+      showAnalysisModal();
       if (analysisOkBtn) {
         try {
           analysisOkBtn.focus();
@@ -725,13 +836,10 @@
     }
 
     function openCameraModal() {
-      waitForOpenCv(10000)
-        .then(function (cv) {
-          cvReady = cv;
-          return navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: 'environment' } },
-            audio: false,
-          });
+      navigator.mediaDevices
+        .getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
         })
         .then(function (s) {
           stream = s;
@@ -743,77 +851,136 @@
         });
     }
 
-    function renderAnalysis() {
-      var analysis = buildAnalysis(detectedResponses);
-      var shown = Object.keys(detectedResponses)
-        .slice(0, 30)
-        .map(function (q) {
-          return q + ':' + (detectedResponses[q] || '-');
-        })
-        .join('  ');
+    function renderAnalysis(analysis) {
+      var scored = analysis || buildAnalysis(detectedResponses, null);
+      var chunks = [];
+      var q;
+      for (q = 1; q <= CLAT_OMR_EXPECTED_QUESTIONS; q++) {
+        var pick = detectedResponses[String(q)] || '-';
+        chunks.push(
+          '<span class="upload-omr-ans' +
+            (pick === '-' ? ' upload-omr-ans--blank' : '') +
+            '"><span class="upload-omr-ans__q">' +
+            q +
+            '</span>' +
+            escHtml(pick) +
+            '</span>'
+        );
+      }
+
+      var scoreLine =
+        '<br /><strong>Marked:</strong> ' +
+        escHtml(String(scored.attempted)) +
+        ' &nbsp;|&nbsp; <strong>Unmarked:</strong> ' +
+        escHtml(String(scored.unanswered));
 
       summaryEl.innerHTML =
-        '<strong>Total detected questions:</strong> ' +
-        escHtml(String(analysis.total)) +
-        '<br /><strong>Responses:</strong> ' +
-        escHtml(shown || '-');
+        '<strong>Questions on sheet:</strong> ' +
+        escHtml(String(scored.total)) +
+        scoreLine +
+        '<div class="upload-omr-answer-grid" aria-label="Detected answers">' +
+        chunks.join('') +
+        '</div>';
+
+      var warn = '';
+      if (detectionMeta && detectionMeta.doubleMarkedQuestions && detectionMeta.doubleMarkedQuestions.length) {
+        warn =
+          '<p class="upload-omr-warn">Multiple marks (left blank): Q' +
+          escHtml(detectionMeta.doubleMarkedQuestions.slice(0, 20).join(', Q')) +
+          '</p>';
+      }
+      if (detectionMeta && detectionMeta.lowConfidenceQuestions && detectionMeta.lowConfidenceQuestions.length) {
+        warn +=
+          '<p class="upload-omr-warn upload-omr-warn--muted">Low confidence: Q' +
+          escHtml(detectionMeta.lowConfidenceQuestions.slice(0, 20).join(', Q')) +
+          '</p>';
+      }
 
       analysisEl.innerHTML =
-        '<strong>Attempted:</strong> ' +
-        escHtml(String(analysis.attempted)) +
-        ' | <strong>Unanswered:</strong> ' +
-        escHtml(String(analysis.unanswered)) +
-        '<br /><strong>Correct/Wrong:</strong> will be computed after backend answer key integration.';
-      return analysis;
+        warn +
+        '<p class="upload-omr-hint">Review detected A-D marks above before submit.</p>';
+      return scored;
+    }
+
+    function finishOmrProcessing(out, dataUrl) {
+      detectionMeta = out.debug;
+      detectedResponses = out.responses || {};
+      currentImageDataUrl = dataUrl;
+      if (resultPanel) resultPanel.hidden = false;
+      if (previewImg) previewImg.src = dataUrl;
+      if (previewWrap) previewWrap.hidden = false;
+
+      isUnclear = !!(out.debug && out.debug.unclear);
+      var tid = testIdHidden ? String(testIdHidden.value || '').trim() : '';
+
+      setResultStatus(
+        isUnclear ? 'OMR detection failed quality checks.' : 'OMR scan complete.'
+      );
+
+      var quickAnalysis = buildAnalysis(detectedResponses, null);
+
+      if (isUnclear) {
+        if (unclearMsg) unclearMsg.textContent = out.debug.message || 'Picture is not clear.';
+        if (unclearBox) unclearBox.hidden = false;
+        if (summaryEl) summaryEl.innerHTML = '';
+        if (analysisEl) analysisEl.innerHTML = '';
+        openAnalysisModal(quickAnalysis, {
+          ok: false,
+          reason: out.debug && out.debug.message ? out.debug.message : 'Picture is not clear.',
+          detected: detectedResponses,
+        });
+        updateSubmitEnabled();
+        return Promise.resolve(quickAnalysis);
+      }
+
+      if (unclearBox) unclearBox.hidden = true;
+      setResultStatus(
+        'Marked: ' +
+          quickAnalysis.attempted +
+          ' | Unanswered: ' +
+          quickAnalysis.unanswered +
+          ' (of ' +
+          quickAnalysis.total +
+          ')'
+      );
+      renderAnalysis(quickAnalysis);
+      openAnalysisModal(quickAnalysis, { ok: true, detected: detectedResponses });
+      updateSubmitEnabled();
+
+      if (!tid) {
+        return Promise.resolve(quickAnalysis);
+      }
+
+      setResultStatus(
+        'Marked: ' +
+          quickAnalysis.attempted +
+          ' | Unanswered: ' +
+          quickAnalysis.unanswered +
+          ' — loading answer key...'
+      );
+
+      return scoreDetectedAnswers(tid, detectedResponses).then(function (analysis) {
+        lastScoredAnalysis = analysis;
+        updateSubmitEnabled();
+        return analysis;
+      });
     }
 
     function processImageDataUrl(dataUrl) {
-      // Keep UI responsive before heavy OpenCV work.
-      nextFrame()
-        .then(function () {
-          return nextFrame();
-        })
-        .then(function () {
-      waitForOpenCv(10000)
-        .then(function (cv) {
-          cvReady = cv;
-          // Downscale large mobile photos to avoid UI freeze.
-          return buildProcessingImage(dataUrl, 1600);
-        })
-        .then(function (img) {
-          var out = runOmrDetection(cvReady, img, workCanvas);
-          detectionMeta = out.debug;
-          detectedResponses = out.responses || {};
-          currentImageDataUrl = dataUrl;
-          if (resultPanel) resultPanel.hidden = false;
+      openProcessingModal('scan');
+      setResultStatus('Analysing OMR sheet...');
 
-          if (previewImg) previewImg.src = dataUrl;
-          if (previewWrap) previewWrap.hidden = false;
-
-          isUnclear = !!(out.debug && out.debug.unclear);
-          var analysis = buildAnalysis(detectedResponses);
-          if (isUnclear) {
-            if (unclearMsg) unclearMsg.textContent = out.debug.message || 'Picture is not clear.';
-            if (unclearBox) unclearBox.hidden = false;
-            setResultStatus('OMR detection failed quality checks.', true);
-            if (summaryEl) summaryEl.innerHTML = '';
-            if (analysisEl) analysisEl.innerHTML = '';
-            openAnalysisModal(analysis, {
-              ok: false,
-              reason: out.debug && out.debug.message ? out.debug.message : 'Picture is not clear.',
-            });
-          } else {
-            if (unclearBox) unclearBox.hidden = true;
-            setResultStatus('OMR detected successfully. Review analysis before submit.');
-            analysis = renderAnalysis();
-            openAnalysisModal(analysis, { ok: true });
-          }
-          updateSubmitEnabled();
+      return ensureScanModule()
+        .then(function (scan) {
+          return scan.processDataUrl(dataUrl, workCanvas, 0, 1400, function (phase) {
+            if (phase === 'opencv') {
+              openProcessingModal('opencv');
+              setResultStatus('Running accurate OMR scan…');
+            }
+          });
         })
-        .catch(function (err) {
-          clearDetectionState();
-          setResultStatus(err.message || 'Could not process image.', true);
-        });
+        .then(function (out) {
+          return finishOmrProcessing(out, dataUrl);
         });
     }
 
@@ -843,7 +1010,8 @@
     });
 
     search.addEventListener('focus', function () {
-      if (!students.length) {
+      if (studentsLoading) return;
+      if (!studentsLoaded || !students.length) {
         loadStudents().then(refreshAndOpenList);
       } else {
         refreshAndOpenList();
@@ -851,7 +1019,8 @@
     });
 
     search.addEventListener('click', function () {
-      if (!students.length) {
+      if (studentsLoading) return;
+      if (!studentsLoaded || !students.length) {
         loadStudents().then(refreshAndOpenList);
       } else {
         refreshAndOpenList();
@@ -925,6 +1094,10 @@
           testIdHidden.value = row.test_id != null ? String(row.test_id) : '';
           closeTestList();
           clearDetectionState();
+          clearAnswerKeyCache();
+          if (testIdHidden.value) {
+            loadAnswerKeyMap(testIdHidden.value).catch(function () {});
+          }
           updateSubmitEnabled();
         }
       } else if (e.key === 'Escape') {
@@ -944,11 +1117,21 @@
       var file = imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
       if (!file) return;
       if (filePickName) filePickName.textContent = file.name || 'Selected image';
-      setResultStatus('Processing OMR image...');
+      if (resultPanel) resultPanel.hidden = false;
+      if (previewWrap) previewWrap.hidden = true;
+      setResultStatus('Analysing OMR sheet...');
+      openProcessingModal('scan');
       readFileAsDataUrl(file)
         .then(processImageDataUrl)
         .catch(function (err) {
-          setResultStatus(err.message || 'Could not load image.', true);
+          if (analysisOkBtn) analysisOkBtn.hidden = false;
+          if (resultPanel) resultPanel.hidden = false;
+          openAnalysisModal(buildAnalysis(emptyResponses(CLAT_OMR_EXPECTED_QUESTIONS), null), {
+            ok: false,
+            reason: err.message || 'Could not process image.',
+            detected: {},
+          });
+          setResultStatus(err.message || 'Could not process image.', true);
         });
     });
 
@@ -974,8 +1157,18 @@
       ctx.drawImage(cameraVideo, 0, 0, c.width, c.height);
       var url = c.toDataURL('image/jpeg', 0.95);
       closeCameraModal();
-      setResultStatus('Processing scanned image...');
-      processImageDataUrl(url);
+      if (resultPanel) resultPanel.hidden = false;
+      setResultStatus('Analysing OMR sheet...');
+      openProcessingModal('scan');
+      processImageDataUrl(url).catch(function (err) {
+        if (analysisOkBtn) analysisOkBtn.hidden = false;
+        openAnalysisModal(buildAnalysis(emptyResponses(CLAT_OMR_EXPECTED_QUESTIONS), null), {
+          ok: false,
+          reason: err.message || 'Could not process image.',
+          detected: {},
+        });
+        setResultStatus(err.message || 'Could not process image.', true);
+      });
     });
 
     Array.prototype.slice.call(document.querySelectorAll('[data-upload-omr-camera-close]')).forEach(function (el) {
@@ -1009,6 +1202,7 @@
         mode: getModeValue(),
         detected_answers: detectedResponses,
         detection_meta: detectionMeta || {},
+        score_summary: lastScoredAnalysis || null,
         created_at: new Date().toISOString(),
       };
       try {
@@ -1042,12 +1236,16 @@
     if (resultPanel) resultPanel.hidden = true;
     clearDetectionState();
     switchModeUi();
-    loadStudents();
+    setStudentStatus('Click the student field to load the list.');
+
+    [analysisModal, cameraModal].forEach(function (el) {
+      if (el && el.parentNode !== document.body) {
+        document.body.appendChild(el);
+      }
+    });
+
+    prefetchOmrEngine();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  window.initUploadOmrPage = init;
 })();

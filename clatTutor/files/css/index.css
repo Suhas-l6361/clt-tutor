@@ -1,5 +1,10 @@
 /* Homepage-only overrides */
 
+/* In-page nav (Main → Research / Team) clears sticky header */
+body.page-public main .section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
 /* Shrikhand only for main CLATutor wordmark — not nav “Why CLATutor?” or footer column heading */
 .site-header .logo .logo__word,
 .site-footer__logo-word {

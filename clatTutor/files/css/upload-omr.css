@@ -375,10 +375,22 @@
   gap: 8px;
 }
 
+.upload-omr-modal[hidden] {
+  display: none !important;
+}
+
+.upload-omr-modal:not([hidden]) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
 .upload-omr-modal {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 12000;
 }
 
 .upload-omr-modal__backdrop {
@@ -397,7 +409,7 @@
 }
 
 .upload-omr-modal__panel--compact {
-  width: min(480px, calc(100% - 24px));
+  width: min(520px, calc(100% - 24px));
 }
 
 .upload-omr-modal__head {
@@ -437,6 +449,259 @@
   font-size: 14px;
   color: #1f2f4a;
   line-height: 1.5;
+}
+
+.upload-omr-modal-lead {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+.upload-omr-modal-meta {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #4a5d78;
+}
+
+.upload-omr-modal-warn {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #9a3412;
+}
+
+.upload-omr-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.upload-omr-modal-stat {
+  text-align: center;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid #dce3ef;
+  background: #fff;
+}
+
+.upload-omr-modal-stat__val {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.upload-omr-modal-stat__lbl {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7a90;
+}
+
+.upload-omr-modal-stat--ok .upload-omr-modal-stat__val {
+  color: #15803d;
+}
+
+.upload-omr-modal-stat--bad .upload-omr-modal-stat__val {
+  color: #b91c1c;
+}
+
+.upload-omr-modal-stat--muted .upload-omr-modal-stat__val {
+  color: #64748b;
+}
+
+.upload-omr-modal-stat--pct .upload-omr-modal-stat__val {
+  color: #1d4ed8;
+}
+
+.upload-omr-confirm-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+
+.upload-omr-confirm-panel {
+  border-radius: 12px;
+  border: 1px solid #dce3ef;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.upload-omr-confirm-panel--marked {
+  background: linear-gradient(180deg, #ecfdf3 0%, #fff 42%);
+  border-color: #86efac;
+}
+
+.upload-omr-confirm-panel--unmarked {
+  background: linear-gradient(180deg, #f8fafc 0%, #fff 42%);
+  border-color: #cbd5e1;
+}
+
+.upload-omr-confirm-panel__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 10px 10px;
+  gap: 2px;
+}
+
+.upload-omr-confirm-panel__count {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  color: #15803d;
+}
+
+.upload-omr-confirm-panel--unmarked .upload-omr-confirm-panel__count {
+  color: #64748b;
+}
+
+.upload-omr-confirm-panel__label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #475569;
+}
+
+.upload-omr-confirm-panel__chips {
+  flex: 1;
+  padding: 8px 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.upload-omr-chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.upload-omr-chip--marked {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.upload-omr-chip--blank {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.upload-omr-chip-empty {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.upload-omr-modal-meta--total {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.upload-omr-confirm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.upload-omr-confirm__col {
+  background: #fff;
+  border: 1px solid #dce3ef;
+  border-radius: 10px;
+  padding: 10px;
+  max-height: 140px;
+  overflow: auto;
+}
+
+.upload-omr-confirm__title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #33425e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.upload-omr-confirm__list {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #1f2f4a;
+  word-break: break-word;
+}
+
+@media (max-width: 520px) {
+  .upload-omr-confirm-layout,
+  .upload-omr-confirm {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .upload-omr-modal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.upload-omr-answer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px;
+  background: #f6f8fc;
+  border: 1px solid #e4eaf3;
+  border-radius: 10px;
+}
+
+.upload-omr-ans {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #dce3ef;
+  color: #1a3f8f;
+}
+
+.upload-omr-ans--blank {
+  color: #8a96a8;
+  font-weight: 500;
+}
+
+.upload-omr-ans__q {
+  font-size: 10px;
+  color: #6b7a90;
+  min-width: 1.4em;
+}
+
+.upload-omr-warn {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #9a3412;
+}
+
+.upload-omr-warn--muted {
+  color: #7c6b1a;
 }
 
 @media (max-width: 920px) {

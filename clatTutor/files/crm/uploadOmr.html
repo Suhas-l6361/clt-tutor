@@ -209,7 +209,7 @@
     <div class="upload-omr-modal__backdrop" data-upload-omr-analysis-close tabindex="-1"></div>
     <div class="upload-omr-modal__panel upload-omr-modal__panel--compact" role="dialog" aria-modal="true" aria-labelledby="upload-omr-analysis-title">
       <div class="upload-omr-modal__head">
-        <h2 id="upload-omr-analysis-title">OMR Scan Summary</h2>
+        <h2 id="upload-omr-analysis-title">OMR Scan Result</h2>
       </div>
       <div class="upload-omr-modal__body">
         <div id="upload-omr-analysis-modal-body" class="upload-omr-analysis-modal-body"></div>
@@ -231,13 +231,39 @@
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script async src="https://docs.opencv.org/4.10.0/opencv.js"></script>
-  <script src="../js/upload-omr-page.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
       initAppChrome({ role: 'crm', active: 'uploadOmr.html', title: 'Upload OMR', contentEl: stock });
       if (typeof applyCrmChrome === 'function') applyCrmChrome();
+
+      function bootUploadOmr() {
+        if (typeof window.initUploadOmrPage === 'function') {
+          window.setTimeout(function () {
+            window.initUploadOmrPage();
+          }, 0);
+          return;
+        }
+        window.setTimeout(bootUploadOmr, 40);
+      }
+
+      var fastScript = document.createElement('script');
+      fastScript.src = '../js/upload-omr-fast.js?v=20260520b';
+      fastScript.async = true;
+      document.head.appendChild(fastScript);
+
+      var omrScript = document.createElement('script');
+      omrScript.src = '../js/upload-omr-page.js?v=20260520b';
+      omrScript.async = true;
+      omrScript.onload = bootUploadOmr;
+      omrScript.onerror = function () {
+        var status = document.getElementById('upload-omr-student-status');
+        if (status) {
+          status.textContent = 'Could not load page script. Hard-refresh (Ctrl+Shift+R).';
+          status.classList.add('upload-omr-status--err');
+        }
+      };
+      document.body.appendChild(omrScript);
     });
   </script>
 </body>

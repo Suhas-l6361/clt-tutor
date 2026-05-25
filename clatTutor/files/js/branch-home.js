@@ -1,7 +1,8 @@
 /**
  * Remember which branch landing page the visitor used (Yelahanka / Malleshwaram / Jayanagar).
- * "Home" and logo links that normally go to index.html are rewritten to that branch until
- * the user opens the main homepage (index.html), which clears the preference.
+ * On a branch landing page only, "Home" and logo links to index.html point at that branch.
+ * On other pages (IPMAT, CLAT info, etc.) those links stay on index.html. Opening index.html
+ * clears the stored branch preference.
  */
 (function () {
   'use strict';
@@ -76,6 +77,9 @@
   }
 
   function rewriteLinks() {
+    var base = pathBasename();
+    if (BRANCH_FILES.indexOf(base) < 0) return;
+
     var branch = null;
     try {
       branch = localStorage.getItem(STORAGE_KEY);

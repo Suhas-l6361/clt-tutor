@@ -80,5 +80,16 @@
       }
       return postJson(u, payload);
     },
+    postDemoClass: function (payload) {
+      var u = C.DEMO_CLASS_API;
+      if (!u) {
+        return Promise.resolve({
+          ok: false,
+          status: 0,
+          data: { message: 'DEMO_CLASS_API not configured' },
+        });
+      }
+      return postJson(u, payload);
+    },
   };
 })();
