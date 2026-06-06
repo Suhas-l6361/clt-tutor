@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <link rel="stylesheet" href="../css/attendance.css" />
+</head>
+<body class="app-body crm-dashboard attendance-page">
+  <div id="stock" style="display: none">
+    <div class="attendance-crm">
+      <section class="attendance-crm__filters" aria-label="Attendance filters">
+        <div class="attendance-crm__filters-head">
+          <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
+        </div>
+        <div class="attendance-filter-grid">
+          <div class="attendance-field">
+            <label for="attendance-batch">Batch</label>
+            <select id="attendance-batch" required>
+              <option value="">Select batch</option>
+            </select>
+          </div>
+          <div class="attendance-field">
+            <label for="attendance-branch">Branch</label>
+            <select id="attendance-branch" required>
+              <option value="">Select branch</option>
+            </select>
+          </div>
+          <div class="attendance-field">
+            <label for="attendance-target-year">Target year</label>
+            <select id="attendance-target-year" required>
+              <option value="">Select target year</option>
+            </select>
+          </div>
+          <div class="attendance-field">
+            <label for="attendance-date">Attendance date</label>
+            <input id="attendance-date" type="date" required />
+          </div>
+        </div>
+        <div class="attendance-filter-actions">
+          <button type="button" class="attendance-btn attendance-btn--primary" id="attendance-load">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            Load students
+          </button>
+          <button type="button" class="attendance-btn" id="attendance-mark-all-present">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Mark all present
+          </button>
+          <button type="button" class="attendance-btn" id="attendance-mark-all-absent">
+            <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+            Mark all absent
+          </button>
+        </div>
+      </section>
+
+      <div class="attendance-stats" aria-live="polite">
+        <div class="attendance-stat">
+          <strong id="attendance-stat-total">0</strong>
+          <span>Students</span>
+        </div>
+        <div class="attendance-stat attendance-stat--present">
+          <strong id="attendance-stat-present">0</strong>
+          <span>Present</span>
+        </div>
+        <div class="attendance-stat attendance-stat--absent">
+          <strong id="attendance-stat-absent">0</strong>
+          <span>Absent</span>
+        </div>
+      </div>
+
+      <p id="attendance-loading" class="attendance-loading" hidden>
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Loading students…
+      </p>
+
+      <div id="attendance-empty" class="attendance-empty">
+        <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+        Select batch, branch, and target year, then click <strong>Load students</strong>.
+      </div>
+
+      <section id="attendance-panel" class="attendance-panel" hidden aria-label="Attendance roster">
+        <div class="attendance-panel__head">
+          <h2>Roster</h2>
+          <span class="attendance-panel__meta" id="attendance-roster-meta">0 students</span>
+        </div>
+        <div class="attendance-table-wrap">
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th class="col-id">Student ID</th>
+                <th class="col-name">Name</th>
+                <th class="col-status">Attendance</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="attendance-save-bar">
+        <p>Review present / absent for each student, then save attendance for this date.</p>
+        <button type="button" class="attendance-btn attendance-btn--primary" id="attendance-save" disabled>
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          Save attendance
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/nav.js?v=20260420"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/attendance-page.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'attendance.html', title: 'Attendance', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof initAttendancePage === 'function') initAttendancePage();
+    });
+  </script>
+</body>
+</html>

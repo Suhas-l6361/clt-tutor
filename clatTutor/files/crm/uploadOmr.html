@@ -122,6 +122,10 @@
                   </button>
                   <div id="upload-omr-filepick-name" class="upload-omr-filepick__name">No file selected</div>
                 </div>
+                <p class="upload-omr-hint">
+                  Use the official sheet from <a href="omr-sheet-template.html" target="_blank" rel="noopener">Print OMR template</a>.
+                  All four <strong>black corner squares</strong> must be visible. Flat photo, good light, 100% scale print.
+                </p>
               </div>
 
               <div id="upload-omr-scan-block" class="upload-omr-field upload-omr-field--span2" hidden>
@@ -248,12 +252,12 @@
       }
 
       var fastScript = document.createElement('script');
-      fastScript.src = '../js/upload-omr-fast.js?v=20260601a';
+      fastScript.src = '../js/upload-omr-fast.js?v=20260610c';
       fastScript.async = true;
       document.head.appendChild(fastScript);
 
       var omrScript = document.createElement('script');
-      omrScript.src = '../js/upload-omr-page.js?v=20260601a';
+      omrScript.src = '../js/upload-omr-page.js?v=20260610c';
       omrScript.async = true;
       omrScript.onload = bootUploadOmr;
       omrScript.onerror = function () {

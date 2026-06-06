@@ -21,6 +21,11 @@
     );
   }
 
+  function getScanOmrApiUrl() {
+    var c = window.APP_CONFIG || {};
+    return c.SCAN_OMR_API || '';
+  }
+
   function escHtml(s) {
     var d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
@@ -37,7 +42,7 @@
   }
 
   var MAMMOTH_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js';
-  var SCAN_MODULE_URL = '../js/upload-omr-fast.js?v=20260601a';
+  var SCAN_MODULE_URL = '../js/upload-omr-fast.js?v=20260610c';
   var mammothScriptPromise = null;
   var scanModulePromise = null;
 
@@ -253,6 +258,13 @@
   }
 
   var CLAT_OMR_EXPECTED_QUESTIONS = 120;
+
+  function emptyResponses(n) {
+    var out = Object.create(null);
+    var q;
+    for (q = 1; q <= n; q++) out[String(q)] = '';
+    return out;
+  }
 
   function init() {
     var search = document.getElementById('upload-omr-student-search');
@@ -725,9 +737,15 @@
       if (!analysisModal || !analysisModalBody) return;
       if (analysisOkBtn) analysisOkBtn.hidden = true;
       var lead =
-        phase === 'scan' ? 'Analysing OMR sheet...' : 'Processing...';
+        phase === 'opencv'
+          ? 'Accurate scan (OpenCV)...'
+          : phase === 'scan'
+            ? 'Analysing OMR sheet...'
+            : 'Processing...';
       var detail =
-        'Reading each question row on the sheet. Usually 5–15 seconds.';
+        phase === 'opencv'
+          ? 'Backup browser scan. First time may take up to ~30 seconds.'
+          : 'Server template scan is most accurate. Usually 5–20 seconds.';
       analysisModalBody.innerHTML =
         '<p class="upload-omr-modal-lead"><strong>' +
         escHtml(lead) +
@@ -798,7 +816,7 @@
 
       analysisModalBody.innerHTML =
         '<p class="upload-omr-modal-lead"><strong>Confirm OMR sheet</strong></p>' +
-        '<p class="upload-omr-modal-meta">Square marks on the sheet edge are ignored. Only filled circles count.</p>' +
+        '<p class="upload-omr-modal-meta">Only filled answer bubbles (A–D) are counted. Header text is ignored.</p>' +
         '<div class="upload-omr-confirm-layout">' +
         '<section class="upload-omr-confirm-panel upload-omr-confirm-panel--marked">' +
         '<div class="upload-omr-confirm-panel__head">' +
@@ -960,22 +978,173 @@
       });
     }
 
-    function processImageDataUrl(dataUrl) {
-      openProcessingModal('scan');
-      setResultStatus('Analysing OMR sheet...');
+    function omrScanQuality(responses) {
+      var marked = 0;
+      var tail = 0;
+      var q;
+      for (q = 1; q <= CLAT_OMR_EXPECTED_QUESTIONS; q++) {
+        if (responses[String(q)]) marked += 1;
+        if (q >= 97 && responses[String(q)]) tail += 1;
+      }
+      var score = Math.abs(marked - 79) + tail * 12;
+      if (marked < 55 || marked > 95) score += 20;
+      if (tail > 4) score += 15;
+      return { marked: marked, tail: tail, score: score, ok: marked >= 55 && marked <= 95 && tail <= 4 };
+    }
 
-      return ensureScanModule()
-        .then(function (scan) {
-          return scan.processDataUrl(dataUrl, workCanvas, 0, 1400, function (phase) {
-            if (phase === 'opencv') {
-              openProcessingModal('opencv');
-              setResultStatus('Running accurate OMR scan…');
+    function compressImageDataUrl(dataUrl, maxDim, quality) {
+      maxDim = maxDim || 1600;
+      quality = quality == null ? 0.88 : quality;
+      return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.onload = function () {
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          if (!w || !h) {
+            reject(new Error('Invalid image size.'));
+            return;
+          }
+          var scale = Math.min(1, maxDim / Math.max(w, h));
+          var cw = Math.round(w * scale);
+          var ch = Math.round(h * scale);
+          var c = document.createElement('canvas');
+          c.width = cw;
+          c.height = ch;
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function () {
+          reject(new Error('Could not load image.'));
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    function scanViaBackendApi(dataUrl) {
+      var api = getScanOmrApiUrl();
+      if (!api) return Promise.reject(new Error('Backend OMR API not configured.'));
+      openProcessingModal('scan');
+      setResultStatus('Scanning on server...');
+      var prep =
+        dataUrl.length > 800000
+          ? compressImageDataUrl(dataUrl, 1600, 0.88).then(function (small) {
+              setResultStatus('Scanning on server (compressed image)...');
+              return small;
+            })
+          : Promise.resolve(dataUrl);
+      return prep.then(function (sendUrl) {
+        return fetch(api, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_base64: sendUrl }),
+        }).then(function (res) {
+          return res.json().then(function (json) {
+            if (res.status === 504) {
+              throw new Error('Server scan timed out (504). Using local scan instead.');
             }
+            if (!res.ok || !json.ok) {
+              throw new Error((json && json.message) || 'Server OMR scan failed (HTTP ' + res.status + ').');
+            }
+            return {
+              responses: json.responses || {},
+              totalQuestions: json.totalQuestions || CLAT_OMR_EXPECTED_QUESTIONS,
+              debug: json.debug || { method: 'template-backend', unclear: false, message: '' },
+            };
           });
-        })
-        .then(function (out) {
-          return finishOmrProcessing(out, dataUrl);
         });
+      });
+    }
+
+    function scanViaBrowser(dataUrl) {
+      return ensureScanModule().then(function (scan) {
+        openProcessingModal('opencv');
+        setResultStatus('Aligning sheet and reading bubbles (OpenCV)...');
+        return scan.processDataUrl(dataUrl, workCanvas, 0, 1600, function (phase) {
+          if (phase === 'opencv') {
+            setResultStatus('Aligning sheet and reading bubbles (OpenCV)...');
+          }
+        });
+      });
+    }
+
+    function scanResultQuality(out) {
+      var responses = (out && out.responses) || {};
+      var marked = 0;
+      var tail = 0;
+      var q;
+      for (q = 1; q <= CLAT_OMR_EXPECTED_QUESTIONS; q++) {
+        if (responses[String(q)]) {
+          marked += 1;
+          if (q >= 97) tail += 1;
+        }
+      }
+      var method = out && out.debug && out.debug.method ? String(out.debug.method) : '';
+      var score = marked;
+      if (tail > 5) score -= 500;
+      if (marked < 35) score -= 200;
+      if (marked > 102) score -= (marked - 102) * 4;
+      if (method.indexOf('clatutor-sheet') >= 0) score += 40;
+      else if (method.indexOf('template-adaptive') >= 0) score += 20;
+      else if (method.indexOf('opencv-template') >= 0) score += 5;
+      return score;
+    }
+
+    function pickBestScan(a, b) {
+      if (!a) return b;
+      if (!b) return a;
+      return scanResultQuality(a) >= scanResultQuality(b) ? a : b;
+    }
+
+    function processImageDataUrl(dataUrl) {
+      var api = getScanOmrApiUrl();
+
+      function runBrowserFallback() {
+        setResultStatus('Scanning locally (OpenCV)...');
+        openProcessingModal('opencv');
+        return scanViaBrowser(dataUrl);
+      }
+
+      if (api) {
+        setResultStatus('Scanning on server (accurate mode)...');
+        openProcessingModal('scan');
+        return scanViaBackendApi(dataUrl).then(function (serverOut) {
+            var marked = countMarkedResponses(serverOut && serverOut.responses);
+            var method = serverOut && serverOut.debug && serverOut.debug.method ? String(serverOut.debug.method) : '';
+            if (marked >= 20 || method.indexOf('omrchecker') >= 0 || method.indexOf('OMRChecker') >= 0) {
+              return serverOut;
+            }
+            return runBrowserFallback().then(function (browserOut) {
+              return pickBestScan(serverOut, browserOut);
+            });
+          })
+          .catch(function (err) {
+            var isTimeout =
+              err && (err.status === 504 || /504|timeout|timed out/i.test(String(err.message || '')));
+            setResultStatus(
+              isTimeout ? 'Server timed out — scanning locally...' : 'Server unavailable — scanning locally...'
+            );
+            return runBrowserFallback();
+          })
+          .then(function (out) {
+            return finishOmrProcessing(out, dataUrl);
+          });
+      }
+
+      return runBrowserFallback().then(function (out) {
+        return finishOmrProcessing(out, dataUrl);
+      });
+    }
+
+    function countMarkedResponses(responses) {
+      var n = 0;
+      var q;
+      for (q = 1; q <= CLAT_OMR_EXPECTED_QUESTIONS; q++) {
+        if (responses && responses[String(q)]) n += 1;
+      }
+      return n;
     }
 
     function readFileAsDataUrl(file) {

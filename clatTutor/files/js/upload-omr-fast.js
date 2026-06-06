@@ -1,5 +1,5 @@
 /**
- * OMR scan — grid darkness reader (fast) + OpenCV worker fallback (accurate).
+ * CLATutor OMR — OpenCV bubble detection (primary) + grid fallback.
  */
 (function (global) {
   'use strict';
@@ -7,81 +7,39 @@
   var TOTAL = 120;
   var COLS = 4;
   var OPTIONS = ['A', 'B', 'C', 'D'];
-  var COL_Q_COUNT = [24, 35, 37, 24];
-  var COL_Q_START = [1, 25, 60, 97];
-  var WORKER_VER = '20260601a';
-  var WORKER_LOAD_MS = 18000;
-  var WORKER_DETECT_MS = 22000;
-  var WORKER_MAX_DIM = 1100;
-
-  function resolveWorkerUrl() {
-    try {
-      var base = document.baseURI || (typeof location !== 'undefined' ? location.href : '');
-      if (base) {
-        return new URL('../js/upload-omr-scan-worker.js?v=' + WORKER_VER, base).href;
-      }
-    } catch (e) {}
-    return '../js/upload-omr-scan-worker.js?v=' + WORKER_VER;
+  var COL_COUNTS = [24, 35, 37, 24];
+  var COL_START = [1, 25, 60, 97];
+  var VER = '20260610a';
+  var WORKER_VER = VER;
+  var WORKER_LOAD_MS = 22000;
+  var WORKER_DETECT_MS = 28000;
+  var TARGET_W = 1000;
+  var TARGET_H = 1414;
+  var NUM_COL_PX = 22;
+  function bubbleXFromTemplate(colW) {
+    var numW = NUM_COL_PX * (colW / 250);
+    var bw = (colW - numW) / 4;
+    var out = [];
+    var i;
+    for (i = 0; i < 4; i++) out.push((numW + (i + 0.5) * bw) / colW);
+    return out;
   }
-  var COL_OPT_FRAC = [
-    [0.31, 0.41, 0.51, 0.61],
-    [0.36, 0.46, 0.56, 0.66],
-    [0.36, 0.46, 0.56, 0.66],
-    [0.37, 0.47, 0.57, 0.67],
-  ];
-  var COL_Y_START_FRAC = [0.155, 0.088, 0.088, 0.082];
-  var ROW_Y_OFFSETS = [-0.4, -0.24, -0.12, 0, 0.12, 0.24, 0.4];
-  var SHADOW_ROW_Y_OFFSETS = [-0.48, -0.36, -0.24, -0.12, 0, 0.12, 0.24, 0.36, 0.48];
-  /** CLAT sheet has section gaps — one even column breaks rows (e.g. Q85–96, Q18–24 shadow). */
-  var COL_SECTIONS = [
-    [
-      { qStart: 1, count: 14, y0: 0.1, y1: 0.46 },
-      { qStart: 15, count: 6, y0: 0.44, y1: 0.535 },
-      { qStart: 21, count: 4, y0: 0.555, y1: 0.66 },
-    ],
-    [
-      { qStart: 25, count: 28, y0: 0.06, y1: 0.58 },
-      { qStart: 53, count: 7, y0: 0.55, y1: 0.72 },
-    ],
-    [
-      { qStart: 60, count: 25, y0: 0.06, y1: 0.48 },
-      { qStart: 85, count: 6, y0: 0.465, y1: 0.56 },
-      { qStart: 91, count: 6, y0: 0.57, y1: 0.665 },
-    ],
-    [
-      { qStart: 97, count: 12, y0: 0.06, y1: 0.36 },
-      { qStart: 109, count: 12, y0: 0.35, y1: 0.56 },
-    ],
-  ];
+  var BUBBLE_X_NOMINAL = bubbleXFromTemplate(250);
+  var NUM_SKIP_FRAC = 0.09;
+  var X_SEARCH_STEPS = 9;
+  var X_SEARCH_HALF = 0.1;
+  var BODY_BOTTOM_FRAC = 0.975;
+  var Y_SEARCH = [-0.28, -0.14, 0, 0.14, 0.28];
+  var BODY_TOP_CANDIDATES = [0.2, 0.24, 0.278, 0.3, 0.314, 0.328];
+  var DEFAULT_BODY_TOP_FRAC = 0.278;
+
   var workerPromise = null;
 
-  function withTimeout(promise, ms, message) {
-    return new Promise(function (resolve, reject) {
-      var settled = false;
-      var timer = setTimeout(function () {
-        if (settled) return;
-        settled = true;
-        reject(new Error(message || 'Timed out'));
-      }, ms);
-      promise.then(
-        function (val) {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timer);
-          resolve(val);
-        },
-        function (err) {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timer);
-          reject(err);
-        }
-      );
-    });
-  }
-
-  function shouldRefineWithOpenCv() {
-    return false;
+  function emptyResponses(n) {
+    var out = Object.create(null);
+    var q;
+    for (q = 1; q <= n; q++) out[String(q)] = '';
+    return out;
   }
 
   function rejectSheet(message) {
@@ -98,354 +56,13 @@
     };
   }
 
-  /** Real OMR sheets are mostly white/gray paper; wallpapers/photos fail here. */
-  function assessOmrLikelihood(rgba, w, h) {
-    var x0 = Math.floor(w * 0.06);
-    var x1 = Math.floor(w * 0.94);
-    var y0 = Math.floor(h * 0.08);
-    var y1 = Math.floor(h * 0.94);
-    var sumGray = 0;
-    var sumChroma = 0;
-    var lightPx = 0;
-    var count = 0;
-    var y;
-    var x;
-    for (y = y0; y < y1; y++) {
-      for (x = x0; x < x1; x++) {
-        var p = (y * w + x) * 4;
-        var r = rgba[p];
-        var g = rgba[p + 1];
-        var b = rgba[p + 2];
-        var gray = 0.299 * r + 0.587 * g + 0.114 * b;
-        sumGray += gray;
-        var mx = r > g ? (r > b ? r : b) : g > b ? g : b;
-        var mn = r < g ? (r < b ? r : b) : g < b ? g : b;
-        sumChroma += mx - mn;
-        if (gray > 190) lightPx += 1;
-        count += 1;
-      }
+  function countMarked(responses) {
+    var n = 0;
+    var q;
+    for (q = 1; q <= TOTAL; q++) {
+      if (responses[String(q)]) n += 1;
     }
-    if (!count) {
-      return { valid: false, message: 'Invalid image.' };
-    }
-    var meanGray = sumGray / count;
-    var meanChroma = sumChroma / count;
-    var lightRatio = lightPx / count;
-
-    if (meanChroma > 34) {
-      return {
-        valid: false,
-        message:
-          'This image is too colorful to be a CLAT OMR sheet. Upload a clear photo of the white OMR paper with black/blue pen marks only.',
-        meanGray: meanGray,
-        meanChroma: meanChroma,
-        lightRatio: lightRatio,
-      };
-    }
-    if (lightRatio < 0.2 && meanGray < 135) {
-      return {
-        valid: false,
-        message:
-          'This image does not look like an OMR answer sheet (not enough white paper). Upload a photo of the OMR sheet only.',
-        meanGray: meanGray,
-        meanChroma: meanChroma,
-        lightRatio: lightRatio,
-      };
-    }
-    if (lightRatio < 0.14) {
-      return {
-        valid: false,
-        message:
-          'This image does not look like an OMR answer sheet. Use a well-lit photo of the white OMR paper.',
-        meanGray: meanGray,
-        meanChroma: meanChroma,
-        lightRatio: lightRatio,
-      };
-    }
-
-    return {
-      valid: true,
-      message: '',
-      meanGray: meanGray,
-      meanChroma: meanChroma,
-      lightRatio: lightRatio,
-    };
-  }
-
-  /** Random images can fool adaptive thresholds; bubble rows need clear peak separation. */
-  function validateBubbleGrid(topsRaw, attempted) {
-    if (!topsRaw || !topsRaw.length) {
-      return { ok: false, message: 'Could not read an OMR grid from this image.' };
-    }
-    var sorted = topsRaw.slice().sort(function (a, b) {
-      return a - b;
-    });
-    var spread = percentile(sorted, 0.9) - percentile(sorted, 0.1);
-    var p75 = percentile(sorted, 0.75);
-    var p25 = percentile(sorted, 0.25);
-
-    if (attempted > 30 && spread < 20) {
-      return {
-        ok: false,
-        message:
-          'This image does not have a reliable OMR bubble pattern. Upload a flat photo of the CLAT OMR sheet only.',
-      };
-    }
-    if (attempted > 70 && p75 - p25 < 10) {
-      return {
-        ok: false,
-        message:
-          'Marks on this image are not consistent with an OMR sheet. Please upload the correct OMR paper photo.',
-      };
-    }
-    return { ok: true, message: '', spread: spread };
-  }
-
-  function finalizeScanOutput(out, likeness, topsRaw) {
-    if (!out || !out.responses) return out;
-    if (likeness && !likeness.valid) {
-      return rejectSheet(likeness.message);
-    }
-    var attempted = countAttempted(out.responses);
-    var gridCheck = validateBubbleGrid(topsRaw, attempted);
-    if (!gridCheck.ok) {
-      return rejectSheet(gridCheck.message);
-    }
-    if (out.debug) {
-      out.debug.rejected = false;
-      out.debug.sheetCheck = likeness;
-      out.debug.gridSpread = gridCheck.spread;
-    }
-    return out;
-  }
-
-  function loadImageToCanvas(dataUrl, maxDim) {
-    return new Promise(function (resolve, reject) {
-      var img = new Image();
-      img.onload = function () {
-        var w = img.naturalWidth || img.width;
-        var h = img.naturalHeight || img.height;
-        if (!w || !h) {
-          reject(new Error('Invalid image size.'));
-          return;
-        }
-        var scale = 1;
-        if (maxDim > 0 && Math.max(w, h) > maxDim) {
-          scale = maxDim / Math.max(w, h);
-        }
-        var tw = Math.max(1, Math.round(w * scale));
-        var th = Math.max(1, Math.round(h * scale));
-        var canvas = document.createElement('canvas');
-        canvas.width = tw;
-        canvas.height = th;
-        var ctx = canvas.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(img, 0, 0, tw, th);
-        resolve({ ctx: ctx, w: tw, h: th });
-      };
-      img.onerror = function () {
-        reject(new Error('Invalid image file.'));
-      };
-      img.src = dataUrl;
-    });
-  }
-
-  function toGray(rgba, w, h) {
-    var gray = new Float32Array(w * h);
-    var i;
-    for (i = 0; i < w * h; i++) {
-      var p = i * 4;
-      gray[i] = 0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2];
-    }
-    return gray;
-  }
-
-  function enhanceContrast(gray) {
-    var minG = 255;
-    var maxG = 0;
-    var i;
-    for (i = 0; i < gray.length; i++) {
-      if (gray[i] < minG) minG = gray[i];
-      if (gray[i] > maxG) maxG = gray[i];
-    }
-    var span = Math.max(1, maxG - minG);
-    var out = new Float32Array(gray.length);
-    for (i = 0; i < gray.length; i++) {
-      out[i] = ((gray[i] - minG) / span) * 255;
-    }
-    return out;
-  }
-
-  function findSheetBounds(gray, w, h) {
-    var minX = w;
-    var minY = h;
-    var maxX = 0;
-    var maxY = 0;
-    var x;
-    var y;
-    for (y = 0; y < h; y++) {
-      for (x = 0; x < w; x++) {
-        if (gray[y * w + x] < 218) {
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-        }
-      }
-    }
-    if (maxX <= minX) return { x: 0, y: 0, w: w, h: h };
-    var padX = Math.round(w * 0.012);
-    var padY = Math.round(h * 0.008);
-    return {
-      x: Math.max(0, minX - padX),
-      y: Math.max(0, minY - padY),
-      w: Math.min(w, maxX - minX + 1 + 2 * padX),
-      h: Math.min(h, maxY - minY + 1 + 2 * padY),
-    };
-  }
-
-  function sampleDarkness(gray, w, x0, y0, rw, rh) {
-    var sum = 0;
-    var count = 0;
-    var x;
-    var y;
-    x0 = Math.round(Math.max(0, x0));
-    y0 = Math.round(Math.max(0, y0));
-    var xe = Math.min(w, x0 + Math.round(rw));
-    var ye = Math.min(gray.length / w, y0 + Math.round(rh));
-    for (y = y0; y < ye; y++) {
-      for (x = x0; x < xe; x++) {
-        sum += 255 - gray[y * w + x];
-        count++;
-      }
-    }
-    var avg = count ? sum / count : 0;
-    return isFinite(avg) ? avg : 0;
-  }
-
-  function localPaperDarkness(gray, w, colLeft, colW, yMid, slotH) {
-    var patches = [
-      [colLeft + colW * 0.1, yMid - slotH * 0.55],
-      [colLeft + colW * 0.9, yMid - slotH * 0.55],
-      [colLeft + colW * 0.1, yMid + slotH * 0.55],
-      [colLeft + colW * 0.9, yMid + slotH * 0.55],
-    ];
-    var sum = 0;
-    var i;
-    for (i = 0; i < patches.length; i++) {
-      sum += sampleDarkness(gray, w, patches[i][0] - 4, patches[i][1] - 4, 8, 8);
-    }
-    return sum / patches.length;
-  }
-
-  function readOptionScores(gray, w, colLeft, colW, yMid, slotH, optFrac, useRelative) {
-    var fr = optFrac || COL_OPT_FRAC[0];
-    var rad = Math.max(5, Math.round(Math.min(colW * 0.1, slotH * 0.45)));
-    var box = rad * 2;
-    var paper = useRelative ? localPaperDarkness(gray, w, colLeft, colW, yMid, slotH) : 0;
-    var scores = [];
-    var i;
-    for (i = 0; i < 4; i++) {
-      var cx = Math.round(colLeft + colW * fr[i]);
-      var v = sampleDarkness(gray, w, cx - rad, yMid - rad, box, box);
-      if (useRelative) {
-        v = Math.max(0, v - paper * 0.38);
-      }
-      scores.push(v);
-    }
-    return scores;
-  }
-
-  function scoreRowAtY(gray, w, colLeft, colW, yMid, slotH, optFrac, useRelative) {
-    var sc = readOptionScores(gray, w, colLeft, colW, yMid, slotH, optFrac, useRelative);
-    var mx = 0;
-    var sec = -1;
-    var i;
-    for (i = 1; i < 4; i++) {
-      if (sc[i] > sc[mx]) mx = i;
-    }
-    for (i = 0; i < 4; i++) {
-      if (i === mx) continue;
-      if (sec < 0 || sc[i] > sc[sec]) sec = i;
-    }
-    return {
-      scores: sc,
-      top: sc[mx],
-      lead: sc[mx] - (sec >= 0 ? sc[sec] : 0),
-      mx: mx,
-    };
-  }
-
-  function readRowBestY(gray, w, colLeft, colW, yBase, slotH, optFrac, useRelative, qNo) {
-    var offsets = useRelative || (qNo >= 15 && qNo <= 24) ? SHADOW_ROW_Y_OFFSETS : ROW_Y_OFFSETS;
-    var relative = useRelative || (qNo >= 15 && qNo <= 24);
-    var best = null;
-    var oi;
-    for (oi = 0; oi < offsets.length; oi++) {
-      var yMid = yBase + offsets[oi] * slotH;
-      var s = scoreRowAtY(gray, w, colLeft, colW, yMid, slotH, optFrac, relative);
-      if (
-        !best ||
-        s.top > best.top + 2 ||
-        (Math.abs(s.top - best.top) <= 2 && s.lead > best.lead)
-      ) {
-        best = s;
-      }
-    }
-    return best;
-  }
-
-  function refineBoundsTopForGrid(gray, w, h, bounds) {
-    var colW = bounds.w / COLS;
-    var colLeft = bounds.x;
-    var optFrac = COL_OPT_FRAC[0];
-    var yScanStart = bounds.y + Math.round(bounds.h * 0.12);
-    var yScanEnd = bounds.y + Math.round(bounds.h * 0.36);
-    var peakY = yScanStart;
-    var peakSum = 0;
-    var y;
-    for (y = yScanStart; y < yScanEnd; y += 2) {
-      var sc = readOptionScores(gray, w, colLeft, colW, y, 14, optFrac);
-      var sum = sc[0] + sc[1] + sc[2] + sc[3];
-      if (sum > peakSum) {
-        peakSum = sum;
-        peakY = y;
-      }
-    }
-    var trim = Math.max(bounds.y, peakY - Math.round(bounds.h * 0.02));
-    return {
-      x: bounds.x,
-      y: trim,
-      w: bounds.w,
-      h: bounds.y + bounds.h - trim,
-    };
-  }
-
-  function calibrateColumnYStart(gray, w, bounds, colLeft, colW, expect, optFrac, qStart) {
-    var lo = 0.07;
-    var hi = 0.24;
-    var bestFrac = COL_Y_START_FRAC[0] || 0.1;
-    var bestScore = -1;
-    var step = 0.008;
-    var q0 = qStart || 1;
-    var f;
-    for (f = lo; f <= hi; f += step) {
-      var yStart = bounds.y + bounds.h * f;
-      var yEnd = bounds.y + bounds.h - bounds.h * 0.012;
-      var slotH = (yEnd - yStart) / expect;
-      var score = 0;
-      var ri;
-      var probe = Math.min(10, expect);
-      for (ri = 0; ri < probe; ri++) {
-        var yBase = yStart + (ri + 0.5) * slotH;
-        var row = readRowBestY(gray, w, colLeft, colW, yBase, slotH, optFrac, false, q0 + ri);
-        score += row.top + row.lead * 0.35;
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        bestFrac = f;
-      }
-    }
-    return bestFrac;
+    return n;
   }
 
   function percentile(sorted, p) {
@@ -454,511 +71,42 @@
     return sorted[idx];
   }
 
-  function pickLetterAdaptive(scores, minTop, minLead) {
-    var maxIdx = 0;
-    var second = -1;
-    var i;
-    for (i = 1; i < 4; i++) {
-      if (scores[i] > scores[maxIdx]) maxIdx = i;
-    }
-    var top = scores[maxIdx];
-    var rowPeak = top;
-    for (i = 0; i < 4; i++) {
-      if (scores[i] > rowPeak) rowPeak = scores[i];
-    }
-    for (i = 0; i < 4; i++) {
-      if (i === maxIdx) continue;
-      if (second < 0 || scores[i] > scores[second]) second = i;
-    }
-    var next = second >= 0 ? scores[second] : 0;
-    var effTop = Math.min(minTop, Math.max(10, rowPeak * 0.4));
-    var effLead = Math.min(minLead, Math.max(1.2, rowPeak * 0.12));
-    if (top < effTop) return '';
-    if (top - next < effLead) return '';
-    return OPTIONS[maxIdx];
-  }
-
-  function pickLetterStrict(row, minTop, minLead, floorTop, floorLead) {
-    if (!row) return '';
-    if (row.top < Math.max(minTop, floorTop)) return '';
-    if (row.lead < Math.max(minLead, floorLead)) return '';
-    return pickLetterAdaptive(row.scores, minTop, minLead);
-  }
-
-  function getRowLayout(q) {
-    var ci;
-    for (ci = 0; ci < COLS; ci++) {
-      var sections = COL_SECTIONS[ci];
-      if (!sections) continue;
-      var si;
-      for (si = 0; si < sections.length; si++) {
-        var sec = sections[si];
-        if (q >= sec.qStart && q < sec.qStart + sec.count) {
-          return { ci: ci, sec: sec, ri: q - sec.qStart };
+  function withTimeout(promise, ms, message) {
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        reject(new Error(message || 'Timed out'));
+      }, ms);
+      promise.then(
+        function (v) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve(v);
+        },
+        function (e) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          reject(e);
         }
-      }
-    }
-    return null;
-  }
-
-  function scanOneQuestion(gray, w, bounds, colW, q, softTop, softLead) {
-    var layout = getRowLayout(q);
-    if (!layout) return { letter: '', top: 0, lead: 0, ci: 0 };
-    var colLeft = bounds.x + layout.ci * colW;
-    var opt = COL_OPT_FRAC[layout.ci] || COL_OPT_FRAC[1];
-    var yStart = bounds.y + bounds.h * layout.sec.y0;
-    var yEnd = bounds.y + bounds.h * layout.sec.y1;
-    var slotH = (yEnd - yStart) / layout.sec.count;
-    var yNudge = layout.ci === 0 && q <= 3 ? -slotH * 0.14 : 0;
-    var yBase = yStart + (layout.ri + 0.5) * slotH + yNudge;
-    var row = readRowBestY(gray, w, colLeft, colW, yBase, slotH, opt, true, q);
-    var letter = pickLetterAdaptive(row.scores, softTop, softLead);
-    return { letter: letter, top: row.top, lead: row.lead, ci: layout.ci };
-  }
-
-  /** One final pass: recover missed rows, strip phantom tail marks only. */
-  function polishScanResults(gray, w, bounds, responses, rowMeta) {
-    var colW = bounds.w / COLS;
-    var q;
-    for (q = 1; q <= TOTAL; q++) {
-      if (responses[String(q)]) continue;
-      var r = scanOneQuestion(gray, w, bounds, colW, q, 8, 1.2);
-      rowMeta[String(q)] = { top: r.top, lead: r.lead, col: r.ci };
-      if (r.letter) responses[String(q)] = r.letter;
-    }
-
-    for (q = 1; q <= TOTAL; q++) {
-      if (responses[String(q)]) continue;
-      if (q > 24 && (q < 85 || q > 90)) continue;
-      var r2 = scanOneQuestion(gray, w, bounds, colW, q, 6, 0.85);
-      rowMeta[String(q)] = { top: r2.top, lead: r2.lead, col: r2.ci };
-      if (r2.letter) responses[String(q)] = r2.letter;
-    }
-
-    var refTops = [];
-    var refLeads = [];
-    for (q = 85; q <= 90; q++) {
-      if (!responses[String(q)]) continue;
-      var m85 = rowMeta[String(q)];
-      if (m85 && m85.top > 10) {
-        refTops.push(m85.top);
-        refLeads.push(m85.lead);
-      }
-    }
-    if (refTops.length < 2) {
-      for (q = 1; q <= 90; q++) {
-        if (!responses[String(q)]) continue;
-        var m = rowMeta[String(q)];
-        if (m && m.top > 10) {
-          refTops.push(m.top);
-          refLeads.push(m.lead);
-        }
-      }
-    }
-    var refTop = 28;
-    var refLead = 4;
-    if (refTops.length >= 2) {
-      refTops.sort(function (a, b) {
-        return a - b;
-      });
-      refLeads.sort(function (a, b) {
-        return a - b;
-      });
-      refTop = percentile(refTops, 0.45);
-      refLead = Math.max(3.5, percentile(refLeads, 0.45));
-    }
-
-    for (q = 91; q <= 120; q++) {
-      if (!responses[String(q)]) continue;
-      var mq = rowMeta[String(q)];
-      var needTop = q >= 97 ? refTop * 1.08 : refTop * 0.88;
-      var needLead = q >= 97 ? refLead * 0.95 : refLead * 0.72;
-      if (!mq || mq.top < needTop || mq.lead < needLead) {
-        responses[String(q)] = '';
-      }
-    }
-
-    var aCount = 0;
-    var weakA = 0;
-    for (q = 91; q <= 96; q++) {
-      if (responses[String(q)] !== 'A') continue;
-      aCount += 1;
-      var ma = rowMeta[String(q)];
-      if (ma && ma.top < refTop * 0.88) weakA += 1;
-    }
-    if (aCount >= 3 && weakA >= 2) {
-      for (q = 91; q <= 96; q++) {
-        responses[String(q)] = '';
-      }
-    }
-  }
-
-  function retrySectionEmptyRows(gray, w, bounds, colW, responses, rowMeta, ci, softTop, softLead, onlyQStart, onlyQEnd) {
-    var sections = COL_SECTIONS[ci];
-    if (!sections) return;
-    var colLeft = bounds.x + ci * colW;
-    var opt = COL_OPT_FRAC[ci] || COL_OPT_FRAC[1];
-    softTop = softTop == null ? 11 : softTop;
-    softLead = softLead == null ? 2 : softLead;
-    var si;
-    for (si = 0; si < sections.length; si++) {
-      var sec = sections[si];
-      var yStart = bounds.y + bounds.h * sec.y0;
-      var yEnd = bounds.y + bounds.h * sec.y1;
-      var slotH = (yEnd - yStart) / sec.count;
-      var ri;
-      for (ri = 0; ri < sec.count; ri++) {
-        var qNo = sec.qStart + ri;
-        if (qNo > TOTAL || responses[String(qNo)]) continue;
-        if (onlyQStart != null && qNo < onlyQStart) continue;
-        if (onlyQEnd != null && qNo > onlyQEnd) continue;
-        var rel = ci === 0 ? qNo <= 24 : qNo >= 85;
-        var yBase = yStart + (ri + 0.5) * slotH;
-        var row = readRowBestY(gray, w, colLeft, colW, yBase, slotH, opt, rel, qNo);
-        rowMeta[String(qNo)] = { top: row.top, lead: row.lead, col: ci };
-        var letter = pickLetterAdaptive(row.scores, softTop, softLead);
-        if (letter) responses[String(qNo)] = letter;
-      }
-    }
-  }
-
-  function retryEngEmptyRows(gray, w, bounds, colW, responses, rowMeta) {
-    retrySectionEmptyRows(gray, w, bounds, colW, responses, rowMeta, 0, 12, 2, 1, 24);
-  }
-
-  function iterateColumnRows(ci, bounds, colW, colYFrac, fn) {
-    var colLeft = bounds.x + ci * colW;
-    var sections = COL_SECTIONS[ci];
-    if (!sections) {
-      return;
-    }
-    var si;
-    for (si = 0; si < sections.length; si++) {
-      var sec = sections[si];
-      var yStart2 = bounds.y + bounds.h * sec.y0;
-      var yEnd2 = bounds.y + bounds.h * sec.y1;
-      var slotH2 = (yEnd2 - yStart2) / sec.count;
-      var ri2;
-      for (ri2 = 0; ri2 < sec.count; ri2++) {
-        var qNo2 = sec.qStart + ri2;
-        if (qNo2 > TOTAL) break;
-        var yNudge2 = ci === 0 && qNo2 <= 3 ? -slotH2 * 0.12 : 0;
-        var yBase2 = yStart2 + (ri2 + 0.5) * slotH2 + yNudge2;
-        fn(qNo2, colLeft, colW, yBase2, slotH2, ci);
-      }
-    }
-  }
-
-  /** Q91–96 and Q97–120 are blank on typical sheets; drop weaker tail noise vs Q85–90. */
-  function pruneTailBlocks(responses, rowMeta) {
-    var refTops = [];
-    var refLeads = [];
-    var q;
-    for (q = 85; q <= 90; q++) {
-      if (!responses[String(q)]) continue;
-      var m = rowMeta[String(q)];
-      if (m) {
-        refTops.push(m.top);
-        refLeads.push(m.lead);
-      }
-    }
-    var refTop = 42;
-    var refLead = 9;
-    if (refTops.length >= 2) {
-      refTops.sort(function (a, b) {
-        return a - b;
-      });
-      refLeads.sort(function (a, b) {
-        return a - b;
-      });
-      refTop = percentile(refTops, 0.5);
-      refLead = Math.max(7, percentile(refLeads, 0.5));
-    }
-
-    for (q = 91; q <= 96; q++) {
-      if (!responses[String(q)]) continue;
-      var mq = rowMeta[String(q)];
-      var drop = false;
-      if (!mq) drop = true;
-      else if (mq.top < refTop * 0.92 || mq.lead < refLead * 0.75) drop = true;
-      else if (responses[String(q)] === 'A' && mq.top < refTop * 1.02) drop = true;
-      if (drop) responses[String(q)] = '';
-    }
-
-    for (q = 97; q <= 120; q++) {
-      if (!responses[String(q)]) continue;
-      var mqt = rowMeta[String(q)];
-      if (!mqt || mqt.top < refTop * 1.08 || mqt.lead < refLead * 0.95) {
-        responses[String(q)] = '';
-      }
-    }
-
-    var phantomA = 0;
-    for (q = 91; q <= 96; q++) {
-      if (responses[String(q)] === 'A') phantomA += 1;
-    }
-    if (phantomA >= 4) {
-      for (q = 91; q <= 96; q++) {
-        responses[String(q)] = '';
-      }
-    }
-  }
-
-  function pruneMergedPhantomMarks(responses) {
-    var q;
-    var blockA = 0;
-    for (q = 91; q <= 96; q++) {
-      if (responses[String(q)] === 'A') blockA += 1;
-    }
-    if (blockA >= 4) {
-      for (q = 91; q <= 96; q++) {
-        responses[String(q)] = '';
-      }
-    }
-    for (q = 97; q <= 120; q++) {
-      responses[String(q)] = '';
-    }
-  }
-
-  /** Drop shadow/gutter noise — especially empty QT column (Q97–120). */
-  function pruneFalsePositives(responses, rowMeta) {
-    var markedTops = [];
-    var q;
-    for (q = 1; q <= TOTAL; q++) {
-      if (!responses[String(q)]) continue;
-      var m = rowMeta[String(q)];
-      if (m && m.top > 0) markedTops.push(m.top);
-    }
-    if (!markedTops.length) return;
-    markedTops.sort(function (a, b) {
-      return a - b;
-    });
-    var refTop = percentile(markedTops, 0.45);
-    var refLead = 8;
-
-    function auditColumn(colIndex, qStart, qCount) {
-      var hits = [];
-      var ri;
-      for (ri = 0; ri < qCount; ri++) {
-        var qn = qStart + ri;
-        var letter = responses[String(qn)];
-        if (!letter) continue;
-        hits.push({
-          q: qn,
-          letter: letter,
-          meta: rowMeta[String(qn)] || { top: 0, lead: 0 },
-        });
-      }
-      if (!hits.length) return;
-
-      var tops = hits.map(function (h) {
-        return h.meta.top;
-      });
-      tops.sort(function (a, b) {
-        return a - b;
-      });
-      var colMedian = percentile(tops, 0.5);
-      var weak = hits.filter(function (h) {
-        return h.meta.top < refTop * 0.82 || h.meta.lead < refLead;
-      }).length;
-
-      var letterCount = Object.create(null);
-      hits.forEach(function (h) {
-        letterCount[h.letter] = (letterCount[h.letter] || 0) + 1;
-      });
-      var domLetter = '';
-      var domN = 0;
-      var L;
-      for (L in letterCount) {
-        if (letterCount[L] > domN) {
-          domN = letterCount[L];
-          domLetter = L;
-        }
-      }
-      var sameLetterRatio = domN / hits.length;
-      var clearCol = false;
-
-      if (colIndex >= 2 && colMedian < refTop * 0.8) clearCol = true;
-      if (colIndex === 3 && hits.length >= 4 && colMedian < refTop * 0.92) clearCol = true;
-      if (colIndex >= 2 && weak >= Math.ceil(hits.length * 0.55)) clearCol = true;
-      if (
-        colIndex >= 2 &&
-        hits.length >= 8 &&
-        sameLetterRatio >= 0.72 &&
-        domLetter === 'A'
-      ) {
-        clearCol = true;
-      }
-      if (colIndex === 3 && hits.length >= 3 && colMedian < refTop * 0.95) {
-        clearCol = true;
-      }
-
-      if (clearCol) {
-        for (ri = 0; ri < qCount; ri++) {
-          responses[String(qStart + ri)] = '';
-        }
-      }
-    }
-
-    auditColumn(3, COL_Q_START[3], COL_Q_COUNT[3]);
-  }
-
-  function countAttempted(responses) {
-    var n = 0;
-    var q;
-    for (q = 1; q <= TOTAL; q++) {
-      if (responses[String(q)]) n++;
-    }
-    return n;
-  }
-
-  function mergeResponses(gridR, cvR) {
-    var out = Object.create(null);
-    var q;
-    for (q = 1; q <= TOTAL; q++) {
-      var k = String(q);
-      var g = String((gridR && gridR[k]) || '').trim().toUpperCase();
-      var c = String((cvR && cvR[k]) || '').trim().toUpperCase();
-      if (g && c && g !== c) out[k] = c;
-      else out[k] = g || c;
-    }
-    return out;
-  }
-
-  function pickScanResult(gridOut, cvOut) {
-    var gridR = (gridOut && gridOut.responses) || {};
-    var cvR = (cvOut && cvOut.responses) || {};
-    var n = countAttempted(gridR);
-    var cvN = countAttempted(cvR);
-
-    if (cvN >= 20 && n >= 15) {
-      var merged = mergeResponses(gridR, cvR);
-      var mergedN = countAttempted(merged);
-      if (mergedN <= 115 && mergedN >= Math.max(n, cvN)) {
-        if (!(n > 95 && mergedN > n + 5)) {
-          var dbg = Object.assign({}, cvOut && cvOut.debug ? cvOut.debug : {}, {
-            method: 'merged',
-            detectedRows: mergedN,
-            unclear: false,
-            message: '',
-          });
-          if (gridOut && gridOut.debug) {
-            dbg.imgW = gridOut.debug.imgW;
-            dbg.imgH = gridOut.debug.imgH;
-          }
-          pruneMergedPhantomMarks(merged);
-          if (gridOut.debug && gridOut.debug.rowMeta) {
-            pruneTailBlocks(merged, gridOut.debug.rowMeta);
-          }
-          return {
-            responses: merged,
-            totalQuestions: TOTAL,
-            debug: dbg,
-          };
-        }
-      }
-    }
-
-    if (n > 95 && cvN >= 50 && cvN < n) return cvOut;
-    if (cvN > n && cvN <= 115) return cvOut;
-    if (cvN >= n && cvN >= 25 && cvN <= 115) return cvOut;
-    if (n >= 25 && n <= 115) return gridOut;
-    if (cvN >= 8) return cvOut;
-    return gridOut;
-  }
-
-  function scanSheetGrid(gray, w, h, boundsIn) {
-    var bounds = boundsIn || findSheetBounds(gray, w, h);
-    bounds = refineBoundsTopForGrid(gray, w, h, bounds);
-    var colW = bounds.w / COLS;
-    var responses = Object.create(null);
-    var q;
-    for (q = 1; q <= TOTAL; q++) responses[String(q)] = '';
-
-    var debug = {
-      unclear: false,
-      message: '',
-      doubleMarkedQuestions: [],
-      lowConfidenceQuestions: [],
-      detectedRows: 0,
-      method: 'grid',
-    };
-
-    var allTops = [];
-    var allLeads = [];
-    var colYFrac = COL_Y_START_FRAC.slice();
-    var ci;
-    var ri;
-
-    for (ci = 0; ci < COLS; ci++) {
-      var colLeft = bounds.x + ci * colW;
-      var optFrac = COL_OPT_FRAC[ci] || COL_OPT_FRAC[1];
-      var expect = COL_Q_COUNT[ci];
-      colYFrac[ci] = calibrateColumnYStart(
-        gray,
-        w,
-        bounds,
-        colLeft,
-        colW,
-        expect,
-        optFrac,
-        COL_Q_START[ci]
       );
-    }
-
-    for (ci = 0; ci < COLS; ci++) {
-      var optP = COL_OPT_FRAC[ci] || COL_OPT_FRAC[1];
-      iterateColumnRows(ci, bounds, colW, colYFrac, function (qNoP, colLeftP, colWIn, yBaseP, slotHP) {
-        var rowP = readRowBestY(gray, w, colLeftP, colWIn, yBaseP, slotHP, optP, false, qNoP);
-        allTops.push(rowP.top);
-        allLeads.push(rowP.lead);
-      });
-    }
-
-    allTops.sort(function (a, b) {
-      return a - b;
     });
-    allLeads.sort(function (a, b) {
-      return a - b;
-    });
-    debug.topsRaw = allTops.slice();
+  }
 
-    var minTop = Math.max(16, percentile(allTops, 0.08));
-    var minLead = Math.max(2, percentile(allLeads, 0.08));
-    var rowMeta = Object.create(null);
-
-    for (ci = 0; ci < COLS; ci++) {
-      var opt3 = COL_OPT_FRAC[ci] || COL_OPT_FRAC[1];
-      iterateColumnRows(ci, bounds, colW, colYFrac, function (qNo3, colLeft3, colWIn, yBase3, slotH3, colIdx) {
-        var useRel =
-          qNo3 <= 24 ||
-          (qNo3 >= 18 && qNo3 <= 22) ||
-          qNo3 >= 53 ||
-          (qNo3 >= 85 && qNo3 <= 96);
-        var row3 = readRowBestY(gray, w, colLeft3, colWIn, yBase3, slotH3, opt3, useRel, qNo3);
-        rowMeta[String(qNo3)] = { top: row3.top, lead: row3.lead, col: colIdx };
-        var letter3 = pickLetterAdaptive(row3.scores, minTop, minLead);
-        if (letter3) responses[String(qNo3)] = letter3;
-      });
-    }
-
-    polishScanResults(gray, w, bounds, responses, rowMeta);
-
-    debug.detectedRows = countAttempted(responses);
-    debug.rowMeta = rowMeta;
-    if (debug.detectedRows < 25) {
-      debug.unclear = true;
-      debug.message =
-        'Could not read enough marks. Use a flat, well-lit photo of the full OMR sheet.';
-    }
-    return { responses: responses, totalQuestions: TOTAL, debug: debug };
+  function resolveWorkerUrl() {
+    try {
+      var base = document.baseURI || (typeof location !== 'undefined' ? location.href : '');
+      if (base) return new URL('../js/upload-omr-scan-worker.js?v=' + WORKER_VER, base).href;
+    } catch (e) {}
+    return '../js/upload-omr-scan-worker.js?v=' + WORKER_VER;
   }
 
   function ensureWorker() {
-    if (workerPromise) {
-      return withTimeout(workerPromise, WORKER_LOAD_MS, 'OMR engine load timed out');
-    }
-    var boot = new Promise(function (resolve, reject) {
+    if (workerPromise) return withTimeout(workerPromise, WORKER_LOAD_MS, 'OMR engine load timed out');
+    workerPromise = new Promise(function (resolve, reject) {
       var w = new Worker(resolveWorkerUrl());
       var onMsg = function (e) {
         var d = e.data || {};
@@ -969,130 +117,545 @@
           w.removeEventListener('message', onMsg);
           try {
             w.terminate();
-          } catch (termErr) {}
+          } catch (err) {}
           reject(new Error(d.message || 'Worker failed'));
         }
       };
       w.addEventListener('message', onMsg);
       w.onerror = function () {
-        try {
-          w.terminate();
-        } catch (termErr) {}
-        reject(new Error('Could not load OMR worker.'));
+        reject(new Error('OMR worker failed to load.'));
       };
       w.postMessage({ type: 'ping' });
     });
-    workerPromise = boot.catch(function (err) {
-      workerPromise = null;
-      throw err;
-    });
-    return withTimeout(workerPromise, WORKER_LOAD_MS, 'OMR engine load timed out').catch(
-      function (err) {
-        if (/timed out/i.test(err && err.message ? err.message : '')) {
-          workerPromise = null;
-        }
-        throw err;
-      }
-    );
+    return withTimeout(workerPromise, WORKER_LOAD_MS, 'OMR engine load timed out');
   }
 
-  function scanViaWorker(dataUrl, maxDim, onPhase) {
-    if (onPhase) onPhase('opencv');
-    var workerDim = Math.min(maxDim || WORKER_MAX_DIM, WORKER_MAX_DIM);
-    return loadImageToCanvas(dataUrl, workerDim).then(function (o) {
-      var imageData = o.ctx.getImageData(0, 0, o.w, o.h);
-      return ensureWorker().then(function (worker) {
-        var detectPromise = new Promise(function (resolve, reject) {
-          var onMsg = function (e) {
-            var d = e.data || {};
-            if (d.type === 'result') {
-              worker.removeEventListener('message', onMsg);
-              var out = d.result || {};
-              if (out.debug) out.debug.method = 'opencv';
-              resolve(out);
-            } else if (d.type === 'error') {
-              worker.removeEventListener('message', onMsg);
-              reject(new Error(d.message || 'OMR scan failed.'));
-            }
-          };
-          worker.addEventListener('message', onMsg);
-          worker.postMessage(
-            {
-              type: 'detect',
-              width: o.w,
-              height: o.h,
-              buffer: imageData.data.buffer,
-            },
-            [imageData.data.buffer]
-          );
-        });
-        return withTimeout(detectPromise, WORKER_DETECT_MS, 'OMR accurate scan timed out');
-      });
-    });
-  }
-
-  function warmOpenCvWorker() {
-    return ensureWorker().catch(function () {});
-  }
-
-  function refineWithOpenCv(dataUrl, maxDim, onPhase, gridOut, likeness, topsRaw) {
-    var n = countAttempted(gridOut.responses);
-    return scanViaWorker(dataUrl, maxDim, onPhase)
-      .then(function (cvOut) {
-        return finalizeScanOutput(pickScanResult(gridOut, cvOut), likeness, topsRaw);
-      })
-      .catch(function (err) {
-        if (n >= 8) {
-          gridOut.debug.unclear = false;
-          var msg = err && err.message ? String(err.message) : '';
-          if (/timed out/i.test(msg)) {
-            gridOut.debug.message =
-              'Accurate scan timed out; showing fast scan. Retry after a minute on Wi‑Fi, or use a flatter photo.';
-          } else {
-            gridOut.debug.message =
-              'Accurate scan unavailable; showing fast scan. Check internet and retry.';
+  function scanViaWorker(imageData) {
+    return ensureWorker().then(function (worker) {
+      return new Promise(function (resolve, reject) {
+        var onMsg = function (e) {
+          var d = e.data || {};
+          if (d.type === 'result') {
+            worker.removeEventListener('message', onMsg);
+            resolve(d.result);
+          } else if (d.type === 'error') {
+            worker.removeEventListener('message', onMsg);
+            reject(new Error(d.message || 'OMR detect failed'));
           }
-          return finalizeScanOutput(gridOut, likeness, topsRaw);
-        }
-        gridOut.debug.unclear = true;
-        gridOut.debug.message =
-          err && err.message
-            ? err.message
-            : 'Accurate scan unavailable. Try a flatter, brighter photo.';
-        return finalizeScanOutput(gridOut, likeness, topsRaw);
+        };
+        worker.addEventListener('message', onMsg);
+        worker.postMessage(
+          {
+            type: 'detect',
+            width: imageData.width,
+            height: imageData.height,
+            buffer: imageData.data.buffer,
+          },
+          [imageData.data.buffer]
+        );
       });
+    });
   }
 
-  function scanSheet(dataUrl, maxDim, onPhase) {
-    maxDim = maxDim || 1400;
-    return loadImageToCanvas(dataUrl, maxDim)
+  function cropBoundsFromGray(gray, w, h) {
+    var minX = w;
+    var minY = h;
+    var maxX = 0;
+    var maxY = 0;
+    var step = Math.max(1, Math.floor(Math.min(w, h) / 450));
+    var y;
+    var x;
+    for (y = 0; y < h; y += step) {
+      for (x = 0; x < w; x += step) {
+        if (gray[y * w + x] < 238) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX <= minX) return { x: 0, y: 0, w: w, h: h };
+    var padX = Math.round((maxX - minX) * 0.01);
+    var padY = Math.round((maxY - minY) * 0.01);
+    return {
+      x: Math.max(0, minX - padX),
+      y: Math.max(0, minY - padY),
+      w: Math.min(w, maxX - minX + 1 + 2 * padX),
+      h: Math.min(h, maxY - minY + 1 + 2 * padY),
+    };
+  }
+
+  function loadImage(dataUrl) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        if (!w || !h) {
+          reject(new Error('Invalid image size.'));
+          return;
+        }
+        var tmp = document.createElement('canvas');
+        tmp.width = w;
+        tmp.height = h;
+        var tctx = tmp.getContext('2d', { willReadFrequently: true });
+        tctx.drawImage(img, 0, 0, w, h);
+        var raw = tctx.getImageData(0, 0, w, h);
+        var gray = toGray(raw.data, w, h);
+        var b = cropBoundsFromGray(gray, w, h);
+        var canvas = document.createElement('canvas');
+        canvas.width = TARGET_W;
+        canvas.height = TARGET_H;
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+        ctx.drawImage(tmp, b.x, b.y, b.w, b.h, 0, 0, TARGET_W, TARGET_H);
+        resolve({ ctx: ctx, w: TARGET_W, h: TARGET_H });
+      };
+      img.onerror = function () {
+        reject(new Error('Could not load image.'));
+      };
+      img.src = dataUrl;
+    });
+  }
+
+  function toGray(rgba, w, h) {
+    var n = w * h;
+    var gray = new Uint8Array(n);
+    var i;
+    for (i = 0; i < n; i++) {
+      var p = i * 4;
+      gray[i] = Math.round(0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2]);
+    }
+    return gray;
+  }
+
+  function isPaperLike(rgba, w, h) {
+    var x0 = Math.floor(w * 0.05);
+    var x1 = Math.floor(w * 0.95);
+    var y0 = Math.floor(h * 0.06);
+    var y1 = Math.floor(h * 0.92);
+    var sumG = 0;
+    var sumC = 0;
+    var light = 0;
+    var n = 0;
+    var y;
+    var x;
+    for (y = y0; y < y1; y++) {
+      for (x = x0; x < x1; x++) {
+        var p = (y * w + x) * 4;
+        var r = rgba[p];
+        var g = rgba[p + 1];
+        var b = rgba[p + 2];
+        var gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        sumG += gray;
+        sumC += Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
+        if (gray > 175) light += 1;
+        n += 1;
+      }
+    }
+    if (!n) return { ok: false, message: 'Could not read image.' };
+    if (sumG / n < 120 || light / n < 0.45) {
+      return { ok: false, message: 'Upload a photo of the white OMR sheet only.' };
+    }
+    if (sumC / n > 42 && light / n < 0.65) {
+      return { ok: false, message: 'This does not look like an OMR answer sheet.' };
+    }
+    return { ok: true };
+  }
+
+  function findSheetBounds(gray, w, h) {
+    var thresh = 210;
+    var minX = w;
+    var minY = h;
+    var maxX = 0;
+    var maxY = 0;
+    var y;
+    var x;
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w; x++) {
+        if (gray[y * w + x] < thresh) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX <= minX) {
+      return { x: Math.floor(w * 0.04), y: Math.floor(h * 0.04), w: Math.floor(w * 0.92), h: Math.floor(h * 0.92) };
+    }
+    var pad = Math.max(4, Math.round((maxX - minX) * 0.01));
+    return {
+      x: Math.max(0, minX - pad),
+      y: Math.max(0, minY - pad),
+      w: Math.min(w, maxX - minX + 1 + 2 * pad),
+      h: Math.min(h, maxY - minY + 1 + 2 * pad),
+    };
+  }
+
+  function ink(gray, w, x0, y0, size) {
+    var sum = 0;
+    var n = 0;
+    var half = Math.max(2, Math.round(size / 2));
+    x0 = Math.round(x0);
+    y0 = Math.round(y0);
+    var y;
+    var x;
+    for (y = y0 - half; y <= y0 + half; y++) {
+      if (y < 0 || y >= gray.length / w) continue;
+      for (x = x0 - half; x <= x0 + half; x++) {
+        if (x < 0 || x >= w) continue;
+        sum += 255 - gray[y * w + x];
+        n += 1;
+      }
+    }
+    return n ? sum / n : 0;
+  }
+
+  function ringFill(gray, w, cx, cy, slotH, colW) {
+    var rad = Math.max(3, Math.min(colW * 0.08, slotH * 0.38));
+    var center = ink(gray, w, cx, cy, Math.max(2, rad * 0.48));
+    var ringSum = 0;
+    var angles = 8;
+    var i;
+    for (i = 0; i < angles; i++) {
+      var a = (i / angles) * Math.PI * 2;
+      ringSum += ink(gray, w, cx + Math.cos(a) * rad * 0.88, cy + Math.sin(a) * rad * 0.88, 2);
+    }
+    return Math.max(0, center - (ringSum / angles) * 0.48);
+  }
+
+  function detectColumnEdges(gray, w, h, bodyTopFrac) {
+    var y0 = Math.floor(h * bodyTopFrac);
+    var y1 = Math.floor(h * BODY_BOTTOM_FRAC);
+    var inkCol = new Float32Array(w);
+    var y;
+    var x;
+    for (y = y0; y < y1; y += 2) {
+      for (x = 1; x < w - 1; x++) {
+        if (gray[y * w + x] < 210) inkCol[x] += 1;
+      }
+    }
+    var targets = [0.25, 0.5, 0.75];
+    var win = Math.max(8, Math.round(w * 0.04));
+    var inner = [0];
+    var ti;
+    for (ti = 0; ti < targets.length; ti++) {
+      var target = targets[ti] * w;
+      var bestX = Math.round(target);
+      var bestV = -1;
+      for (x = Math.round(target - win); x <= Math.round(target + win); x++) {
+        if (x < 2 || x >= w - 2) continue;
+        if (inkCol[x] > bestV) {
+          bestV = inkCol[x];
+          bestX = x;
+        }
+      }
+      inner.push(bestX);
+    }
+    inner.push(w);
+    for (var i = 1; i < inner.length; i++) {
+      if (inner[i] <= inner[i - 1] + 8) inner[i] = Math.min(w, inner[i - 1] + Math.round(w / 4));
+    }
+    return inner;
+  }
+
+  function calibrateBubbleX(gray, w, colLeft, colRight, headerY, slotH) {
+    var colW = colRight - colLeft;
+    var x0 = colLeft + colW * NUM_SKIP_FRAC;
+    var x1 = colRight - colW * 0.02;
+    var n = 48;
+    var pts = [];
+    var i;
+    for (i = 0; i < n; i++) {
+      var x = x0 + (i / (n - 1)) * (x1 - x0);
+      pts.push({ x: x, v: ringFill(gray, w, x, headerY, slotH, colW) });
+    }
+    var smooth = [];
+    for (i = 0; i < n; i++) {
+      var a = pts[Math.max(0, i - 1)].v;
+      var b = pts[i].v;
+      var c = pts[Math.min(n - 1, i + 1)].v;
+      smooth.push({ x: pts[i].x, v: (a + b * 2 + c) / 4 });
+    }
+    var minSep = colW * 0.14;
+    var peaks = [];
+    for (i = 1; i < smooth.length - 1; i++) {
+      if (smooth[i].v > smooth[i - 1].v && smooth[i].v >= smooth[i + 1].v) peaks.push(smooth[i]);
+    }
+    peaks.sort(function (a, b) { return b.v - a.v; });
+    var chosen = [];
+    var pi;
+    for (pi = 0; pi < peaks.length; pi++) {
+      var p = peaks[pi];
+      var dup = false;
+      var ci;
+      for (ci = 0; ci < chosen.length; ci++) {
+        if (Math.abs(chosen[ci].x - p.x) < minSep) dup = true;
+      }
+      if (dup) continue;
+      chosen.push(p);
+      if (chosen.length === 4) break;
+    }
+    if (chosen.length < 4) return null;
+    chosen.sort(function (a, b) { return a.x - b.x; });
+    return chosen.map(function (p) { return (p.x - colLeft) / colW; });
+  }
+
+  function scoreRowAdaptive(gray, w, colLeft, colRight, yMid, slotH, bubbleX) {
+    var colW = colRight - colLeft;
+    var bx = bubbleX || bubbleXFromTemplate(colW);
+    var scores = [];
+    var si;
+    var i;
+    for (i = 0; i < 4; i++) {
+      var bestV = -1;
+      for (si = 0; si < X_SEARCH_STEPS; si++) {
+        var t = X_SEARCH_STEPS === 1 ? 0 : -X_SEARCH_HALF + (2 * X_SEARCH_HALF * si) / (X_SEARCH_STEPS - 1);
+        var fx = Math.max(NUM_SKIP_FRAC + 0.02, Math.min(0.97, bx[i] + t));
+        var v = ringFill(gray, w, colLeft + colW * fx, yMid, slotH, colW);
+        if (v > bestV) bestV = v;
+      }
+      scores.push(bestV);
+    }
+    var bLeft = colLeft + colW * NUM_SKIP_FRAC;
+    var bW = colW * (1 - NUM_SKIP_FRAC - 0.025);
+    var zW = bW / 4;
+    var zoneScores = [];
+    for (i = 0; i < 4; i++) {
+      var zBest = -1;
+      var zi;
+      for (zi = 0; zi < 7; zi++) {
+        var dz = -0.12 + 0.24 * (zi / 6);
+        var zv = ringFill(gray, w, bLeft + (i + 0.5 + dz) * zW, yMid, slotH, colW);
+        if (zv > zBest) zBest = zv;
+      }
+      zoneScores.push(zBest);
+    }
+    var mx = 0;
+    var zmx = 0;
+    for (i = 1; i < 4; i++) if (scores[i] > scores[mx]) mx = i;
+    for (i = 1; i < 4; i++) if (zoneScores[i] > zoneScores[zmx]) zmx = i;
+    var sorted = scores.slice().sort(function (a, b) { return b - a; });
+    var lead = sorted[0] - (sorted[1] || 0);
+    var zSorted = zoneScores.slice().sort(function (a, b) { return b - a; });
+    var zLead = zSorted[0] - (zSorted[1] || 0);
+    if (zLead > lead + 1.2 && zSorted[0] > sorted[0] - 1) {
+      mx = zmx;
+      scores[mx] = zoneScores[mx];
+      sorted = scores.slice().sort(function (a, b) { return b - a; });
+      lead = sorted[0] - (sorted[1] || 0);
+    }
+    return { scores: scores, top: scores[mx], lead: lead, mx: mx };
+  }
+
+  function bestRowAtY(gray, w, colLeft, colRight, yBase, slotH, bubbleX) {
+    var best = null;
+    var i;
+    for (i = 0; i < Y_SEARCH.length; i++) {
+      var row = scoreRowAdaptive(gray, w, colLeft, colRight, yBase + Y_SEARCH[i] * slotH, slotH, bubbleX);
+      if (!best || row.top > best.top + 0.35 || (Math.abs(row.top - best.top) < 0.45 && row.lead > best.lead)) {
+        best = row;
+      }
+    }
+    return best;
+  }
+
+  function pickLetter(row, minTop, minLead) {
+    if (!row) return '';
+    var scores = row.scores;
+    var mx = 0;
+    var sec = -1;
+    var i;
+    for (i = 1; i < 4; i++) if (scores[i] > scores[mx]) mx = i;
+    var top = scores[mx];
+    for (i = 0; i < 4; i++) {
+      if (i === mx) continue;
+      if (sec < 0 || scores[i] > scores[sec]) sec = i;
+    }
+    var next = sec >= 0 ? scores[sec] : 0;
+    if (top < minTop) return '';
+    if (top - next < minLead) return '';
+    return OPTIONS[mx];
+  }
+
+  function collectRowData(gray, w, h, bodyTopFrac, colEdges) {
+    var bodyTop = h * bodyTopFrac;
+    var bodyH = h * BODY_BOTTOM_FRAC - bodyTop;
+    var rowData = [];
+    var ci;
+    var ri;
+    for (ci = 0; ci < COLS; ci++) {
+      var colLeft = colEdges[ci];
+      var colRight = colEdges[ci + 1];
+      var colW = colRight - colLeft;
+      var count = COL_COUNTS[ci];
+      var slotH = bodyH / count;
+      var bubbleX = bubbleXFromTemplate(colW);
+      for (ri = 0; ri < count; ri++) {
+        var q = COL_START[ci] + ri;
+        var yBase = bodyTop + (ri + 0.5) * slotH;
+        if (ci === 0 && ri < 2) yBase -= slotH * 0.02;
+        rowData.push({
+          q: q,
+          row: bestRowAtY(gray, w, colLeft, colRight, yBase, slotH, bubbleX),
+        });
+      }
+    }
+    return rowData;
+  }
+
+  function gradeRowData(rowData) {
+    var allTops = rowData.map(function (r) { return r.row.top; }).sort(function (a, b) { return a - b; });
+    var tailTops = rowData
+      .filter(function (r) { return r.q >= 97; })
+      .map(function (r) { return r.row.top; })
+      .sort(function (a, b) { return a - b; });
+    var emptyCeil = tailTops.length ? percentile(tailTops, 0.78) : percentile(allTops, 0.28);
+    var fillMin = Math.max(4, emptyCeil + 2.9);
+    var gapMin = 2.5;
+    var responses = emptyResponses(TOTAL);
+    var marked = 0;
+    var tailMarked = 0;
+    var i;
+    var qn;
+    for (i = 0; i < rowData.length; i++) {
+      var entry = rowData[i];
+      var q = entry.q;
+      var row = entry.row;
+      var needTop = q >= 91 ? fillMin + 1.5 : fillMin;
+      var needLead = q >= 91 ? gapMin + 0.5 : gapMin;
+      if (row.top < needTop || row.lead < needLead) continue;
+      responses[String(q)] = OPTIONS[row.mx != null ? row.mx : 0];
+      marked += 1;
+      if (q >= 97) tailMarked += 1;
+    }
+    if (marked > 96) {
+      for (i = 0; i < rowData.length; i++) {
+        var e = rowData[i];
+        if (e.row.top < fillMin + 3.5 || e.row.lead < gapMin + 0.8) responses[String(e.q)] = '';
+      }
+      marked = 0;
+      tailMarked = 0;
+      for (qn = 1; qn <= TOTAL; qn++) {
+        if (responses[String(qn)]) {
+          marked += 1;
+          if (qn >= 97) tailMarked += 1;
+        }
+      }
+    }
+    return { responses: responses, marked: marked, tailMarked: tailMarked, fillMin: fillMin };
+  }
+
+  function detectBodyTopFrac(gray, w, h, colEdges) {
+    var best = { frac: 0.314, score: -1 };
+    var fi;
+    for (fi = 0; fi < BODY_TOP_CANDIDATES.length; fi++) {
+      var frac = BODY_TOP_CANDIDATES[fi];
+      var g = gradeRowData(collectRowData(gray, w, h, frac, colEdges));
+      if (g.tailMarked > 4 || g.marked < 12) continue;
+      var score = g.marked - g.tailMarked * 18;
+      if (score > best.score) best = { frac: frac, score: score };
+    }
+    return best.frac;
+  }
+
+  function scanGrid(gray, w, h) {
+    var colProbe = detectColumnEdges(gray, w, h, DEFAULT_BODY_TOP_FRAC);
+    var bodyTopFrac = detectBodyTopFrac(gray, w, h, colProbe);
+    var colEdges = detectColumnEdges(gray, w, h, bodyTopFrac);
+    var g = gradeRowData(collectRowData(gray, w, h, bodyTopFrac, colEdges));
+    var unclear = g.marked < 10 || (g.marked < 25 && g.tailMarked > 2);
+    return {
+      responses: g.responses,
+      totalQuestions: TOTAL,
+      debug: {
+        unclear: unclear,
+        rejected: false,
+        message: unclear ? 'Could not read enough marks. Use the official CLATutor sheet and a flat photo.' : '',
+        method: 'grid-v9',
+        detectedRows: g.marked,
+        bodyTopFrac: bodyTopFrac,
+      },
+    };
+  }
+
+  function normalizeCvResult(cvOut) {
+    if (!cvOut || !cvOut.responses) return null;
+    var responses = emptyResponses(TOTAL);
+    var q;
+    for (q = 1; q <= TOTAL; q++) {
+      var v = cvOut.responses[String(q)];
+      responses[String(q)] = v ? String(v).toUpperCase() : '';
+    }
+    var marked = countMarked(responses);
+    var dbg = cvOut.debug || {};
+    dbg.method = cvOut.debug.method || 'opencv';
+    dbg.detectedRows = marked;
+    if (!dbg.message) dbg.message = '';
+    if (marked < 5) {
+      dbg.unclear = true;
+      dbg.message = dbg.message || 'Could not read enough marks from the sheet.';
+    }
+    return { responses: responses, totalQuestions: TOTAL, debug: dbg };
+  }
+
+  function scanQuality(responses) {
+    var marked = countMarked(responses);
+    var tail = 0;
+    var q;
+    for (q = 97; q <= TOTAL; q++) {
+      if (responses[String(q)]) tail += 1;
+    }
+    var score = Math.abs(marked - 79) + tail * 15;
+    if (marked < 35 || marked > 100) score += 20;
+    if (tail > 4) score += 25;
+    return { marked: marked, tail: tail, score: score };
+  }
+
+  function pickBetter(cvOut, gridOut) {
+    if (!cvOut) return gridOut;
+    if (!gridOut) return cvOut;
+    var cvQ = scanQuality(cvOut.responses);
+    var gQ = scanQuality(gridOut.responses);
+    if (cvQ.score <= gQ.score + 3) return cvOut;
+    return gridOut;
+  }
+
+  function processDataUrl(dataUrl, _canvas, _wait, _maxDim, onPhase) {
+    return loadImage(dataUrl)
       .then(function (o) {
-        var imageData = o.ctx.getImageData(0, 0, o.w, o.h);
-        var likeness = assessOmrLikelihood(imageData.data, o.w, o.h);
-        if (!likeness.valid) {
-          return rejectSheet(likeness.message);
-        }
+        var imgData = o.ctx.getImageData(0, 0, o.w, o.h);
+        var paper = isPaperLike(imgData.data, o.w, o.h);
+        if (!paper.ok) return rejectSheet(paper.message);
 
-        var grayRaw = toGray(imageData.data, o.w, o.h);
-        var grayBounds = enhanceContrast(grayRaw);
-        var bounds = refineBoundsTopForGrid(
-          grayBounds,
-          o.w,
-          o.h,
-          findSheetBounds(grayBounds, o.w, o.h)
-        );
-        var gridOut = scanSheetGrid(grayRaw, o.w, o.h, bounds);
-        gridOut.debug.imgW = o.w;
-        gridOut.debug.imgH = o.h;
-        var topsRaw = gridOut.debug.topsRaw || [];
+        var gray = toGray(imgData.data, o.w, o.h);
+        var gridOut = scanGrid(gray, o.w, o.h);
 
-        var preCheck = validateBubbleGrid(topsRaw, countAttempted(gridOut.responses));
-        if (!preCheck.ok) {
-          return rejectSheet(preCheck.message);
-        }
-
-        gridOut.debug.message = '';
-        return finalizeScanOutput(gridOut, likeness, topsRaw);
+        if (typeof onPhase === 'function') onPhase('opencv');
+        return scanViaWorker(imgData)
+          .then(function (cvRaw) {
+            var cvOut = normalizeCvResult(cvRaw);
+            var chosen = pickBetter(cvOut, gridOut);
+            chosen.debug.imgW = o.w;
+            chosen.debug.imgH = o.h;
+            if (chosen.debug.method && chosen.debug.method.indexOf('opencv') === 0) {
+              chosen.debug.message = chosen.debug.message || '';
+              if (chosen.debug.method.indexOf('template') >= 0) chosen.debug.unclear = false;
+            }
+            return chosen;
+          })
+          .catch(function () {
+            gridOut.debug.imgW = o.w;
+            gridOut.debug.imgH = o.h;
+            gridOut.debug.message =
+              gridOut.debug.unclear
+                ? 'Accurate scan unavailable; try again on Wi‑Fi or use a flatter photo.'
+                : 'Using backup scan (OpenCV did not load).';
+            return gridOut;
+          });
       })
       .catch(function (err) {
         return {
@@ -1100,33 +663,27 @@
           totalQuestions: TOTAL,
           debug: {
             unclear: true,
-            message: err.message || 'OMR scan failed.',
+            message: (err && err.message) || 'OMR scan failed.',
             method: 'error',
           },
         };
       });
   }
 
-  function emptyResponses(count) {
-    var out = Object.create(null);
-    var q;
-    for (q = 1; q <= count; q++) out[String(q)] = '';
-    return out;
-  }
-
   var api = {
     EXPECTED_QUESTIONS: TOTAL,
+    VERSION: VER,
     isEngineReady: function () {
       return true;
     },
     prefetchEngine: function () {
-      return warmOpenCvWorker().then(function () {
+      return ensureWorker().then(function () {
+        return api;
+      }).catch(function () {
         return api;
       });
     },
-    processDataUrl: function (dataUrl, _workCanvas, _maxWaitMs, maxDim, onPhase) {
-      return scanSheet(dataUrl, maxDim || 1400, onPhase);
-    },
+    processDataUrl: processDataUrl,
     emptyResponses: emptyResponses,
   };
 

@@ -35,6 +35,9 @@ const APP_CONFIG = {
   /** CRM — student list (GET array) — same stage as auth student_general_info */
   STUDENT_GENERAL_INFO_API:
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info',
+  /** CRM — OMR scan (POST JSON { image_base64 }). Deploy: npm run deploy:omr in Backend/crm_files */
+  SCAN_OMR_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/scan_omr',
   DEMO_MODE: true,
 };
 

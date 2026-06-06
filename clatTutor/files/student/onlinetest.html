@@ -176,6 +176,22 @@
     .exam-test-btn--retry:hover {
       background: #fff7ed !important;
     }
+    .exam-test-btn--review {
+      background: #fff !important;
+      border: 2px solid #2563eb !important;
+      color: #1d4ed8 !important;
+      font-weight: 600;
+    }
+    .exam-test-btn--review:hover {
+      background: #eff6ff !important;
+    }
+    .exam-test-card--inactive {
+      opacity: 0.72;
+    }
+    .exam-test-card--inactive .meta-inactive {
+      color: #b45309;
+      font-weight: 500;
+    }
     .exam-bootstrap__status {
       text-align: center;
       padding: 2rem 1rem;
@@ -1025,6 +1041,18 @@
       justify-content: flex-end;
       margin-top: 0.25rem;
     }
+    .exam-leave-modal__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fef3c7;
+      color: #b45309;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
     .exam-modal__dialog--answer {
       width: min(1040px, 96vw);
       max-height: min(92vh, 760px);
@@ -1182,43 +1210,213 @@
       background: #f8fafc;
     }
 
+    /* Tablet / mobile: stack panels; question area gets most space; each block scrolls inside. */
     @media (max-width: 1100px) {
-      .exam-grid {
-        grid-template-columns: 1fr;
-        /* Reading capped; question column gets remaining space so .exam-q-card can scroll reliably. */
-        grid-template-rows: minmax(0, min(38vh, 300px)) minmax(200px, 1fr) auto;
-        grid-template-rows: minmax(0, min(38dvh, 300px)) minmax(200px, 1fr) auto;
+      body.page-exam.exam-active .page-content {
+        max-height: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
-      /* Long palettes no longer steal all height from the question row — one outer scroll here. */
-      .exam-panel.exam-panel--review {
-        max-height: min(50vh, 480px);
-        max-height: min(50dvh, 480px);
+
+      body.page-exam .topbar {
+        flex-wrap: wrap;
+        row-gap: 0.35rem;
+      }
+
+      body.page-exam .topbar h1 {
+        font-size: 0.95rem;
+        order: 2;
+        flex: 1 1 100%;
+        text-align: center;
+      }
+
+      .exam-timer {
+        font-size: 0.82rem;
+        padding: 0.35rem 0.55rem;
+        margin-left: auto;
+      }
+
+      .exam-meta {
+        font-size: 0.76rem;
+        padding: 0.5rem 0.75rem;
+        gap: 0.35rem 0.75rem;
+      }
+
+      .exam-grid {
+        display: flex;
+        flex-direction: column;
+        max-height: none;
         min-height: 0;
+        overflow: visible;
+        gap: 0.65rem;
+        padding: 0.65rem;
+      }
+
+      .exam-grid > .exam-panel {
+        min-height: 0;
+        flex-shrink: 0;
+      }
+
+      .exam-panel--reading {
+        flex: 0 0 auto;
+        max-height: none;
+      }
+
+      .exam-panel--reading .exam-ref__scroll {
+        min-height: 10rem;
+        max-height: min(34vh, 280px);
+        max-height: min(34dvh, 280px);
+      }
+
+      .exam-panel--question {
+        flex: 1 1 auto;
+        min-height: min(52vh, 520px);
+        min-height: min(52dvh, 520px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .exam-panel--question .exam-q-card {
+        flex: 1 1 auto;
+        min-height: 14rem;
+        max-height: none;
+      }
+
+      .exam-panel--question .exam-q-actions {
+        flex-shrink: 0;
+      }
+
+      .exam-panel--review {
+        flex: 0 0 auto;
+        max-height: none;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .exam-panel--review .exam-palette-scroll {
+        flex: 0 1 auto;
+        min-height: 0;
+        max-height: min(28vh, 220px);
+        max-height: min(28dvh, 220px);
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
-      .exam-panel.exam-panel--review .exam-palette-scroll {
-        flex: 0 1 auto;
-        min-height: 0;
-        max-height: none;
-        overflow: visible;
-      }
+
       .exam-palette {
         grid-template-columns: repeat(8, 1fr);
       }
+
+      .exam-legend {
+        flex-shrink: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem 0.65rem;
+        padding: 0.55rem 0.75rem 0.65rem;
+      }
+
+      .exam-counts {
+        flex-shrink: 0;
+      }
     }
+
+    @media (max-width: 720px) {
+      .exam-panel--reading .exam-ref__scroll {
+        min-height: 9rem;
+        max-height: min(30vh, 240px);
+        max-height: min(30dvh, 240px);
+      }
+
+      .exam-panel--question {
+        min-height: min(48vh, 460px);
+        min-height: min(48dvh, 460px);
+      }
+
+      .exam-panel--question .exam-q-card {
+        min-height: 12rem;
+      }
+
+      .exam-panel--review .exam-palette-scroll {
+        max-height: min(26vh, 200px);
+        max-height: min(26dvh, 200px);
+      }
+
+      .exam-palette {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+
     @media (max-width: 560px) {
+      body.page-exam .topbar h1 {
+        font-size: 0.88rem;
+      }
+
+      .exam-exit {
+        font-size: 0.82rem;
+        padding: 0.35rem 0.5rem;
+      }
+
+      .exam-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+      }
+
+      .exam-meta__sep {
+        display: none;
+      }
+
+      .exam-panel--reading .exam-ref__scroll {
+        min-height: 8rem;
+        max-height: min(28vh, 220px);
+        max-height: min(28dvh, 220px);
+        font-size: 0.88rem;
+      }
+
+      .exam-panel--question {
+        min-height: min(46vh, 420px);
+        min-height: min(46dvh, 420px);
+      }
+
+      .exam-stem {
+        font-size: 0.95rem;
+      }
+
+      .exam-opt {
+        padding: 0.7rem 0.85rem;
+        min-height: 2.85rem;
+      }
+
       .exam-palette {
         grid-template-columns: repeat(5, 1fr);
+        gap: 0.35rem;
       }
+
+      .exam-palette button {
+        min-height: 34px;
+        font-size: 0.8rem;
+      }
+
+      .exam-legend {
+        grid-template-columns: 1fr;
+      }
+
+      .exam-counts {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.3rem;
+      }
+
       .exam-q-actions {
         flex-direction: column;
         align-items: stretch;
       }
+
       .exam-q-actions .btn {
         flex: 1;
         margin-left: 0;
+        width: 100%;
+        justify-content: center;
       }
     }
 
@@ -1426,7 +1624,7 @@
       <div class="exam-meta" id="exam-meta">
         <span><strong>Question type</strong> Multiple choice</span>
         <span class="exam-meta__sep" aria-hidden="true">|</span>
-        <span id="exam-marks-line">Marks for correct answer: 1 | Negative marks: 0</span>
+        <span id="exam-marks-line">Marks for correct answer: 1 | Negative marks: 0.25</span>
       </div>
 
       <div class="exam-grid">
@@ -1438,7 +1636,7 @@
           </div>
         </aside>
 
-        <section class="exam-panel" aria-label="Question and answers">
+        <section class="exam-panel exam-panel--question" aria-label="Question and answers">
           <div class="exam-panel__head">Question &amp; options</div>
           <div class="exam-q-card">
             <p class="exam-qno" id="exam-qno">Question 1</p>
@@ -1500,6 +1698,23 @@
         <div class="exam-modal__actions">
           <button type="button" class="btn btn-exam-secondary" data-close-modal>Cancel</button>
           <button type="button" class="btn btn-exam-primary" id="modal-confirm-ok">Yes, submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-modal" id="modal-leave" hidden>
+      <div class="exam-modal__backdrop" data-leave-close></div>
+      <div class="exam-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-leave-title">
+        <div class="exam-leave-modal__icon" aria-hidden="true">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+        <h2 id="modal-leave-title">Leave the test?</h2>
+        <p id="modal-leave-body">
+          Your answers are only kept in this browser session until you submit. If you leave now, you can return only if this page is still open.
+        </p>
+        <div class="exam-modal__actions">
+          <button type="button" class="btn btn-exam-secondary" data-leave-close>Stay on test</button>
+          <button type="button" class="btn btn-exam-primary" id="modal-leave-ok">Yes, leave</button>
         </div>
       </div>
     </div>
@@ -1865,14 +2080,15 @@
       }
 
       function shouldShowTestForStudent(row, studentProfile) {
-        var branchNorm = normToken(studentProfile && studentProfile.branch);
-        var batchNorm = normToken(studentProfile && studentProfile.batch);
-        var isOnlineStudent = branchNorm === 'ONLINE' || batchNorm === 'ONLINE';
-        if (!isOnlineStudent) return true;
+        return true;
+      }
 
-        var branches = splitBranchesLabel(row && row.selected_branch).map(normToken);
-        if (!branches.length) return true;
-        return branches.indexOf('ONLINE') >= 0 || branches.indexOf('ALL BRANCH') >= 0;
+      /** Only this test can be started / OMR-submitted on the student portal. */
+      function isActivatedStudentTest(row) {
+        var title = String(row && row.title != null ? row.title : '')
+          .trim()
+          .toUpperCase();
+        return title === 'MCLAT-2601';
       }
 
       function parseScheduledDateTime(raw) {
@@ -1955,7 +2171,7 @@
         var visited = {};
         var review = {};
         var timerId = null;
-        var totalSec = 3600;
+        var totalSec = 7200;
         var answerKeyMapCache = null;
         var answerKeyLoadPromise = null;
         var answerReviewFilter = 'all';
@@ -2234,6 +2450,9 @@
         }
 
         var modalConfirm = document.getElementById('modal-confirm');
+        var modalLeave = document.getElementById('modal-leave');
+        var modalLeaveOk = document.getElementById('modal-leave-ok');
+        var leaveTargetHref = 'dashboard.html';
         var modalDone = document.getElementById('modal-done');
         var modalDoneSummary = document.getElementById('modal-done-summary');
         var modalDoneLoading = document.getElementById('modal-done-loading');
@@ -2261,6 +2480,7 @@
         var omrEntrySavedOmrSnapshot = null;
         var omrEntryCanViewAnswer = false;
         var answerReviewOpenedFromOmr = false;
+        var answerReviewOpenedFromList = false;
         var answerReviewOmrBackup = null;
         var omrEntryRow = null;
         var omrEntryQuestions = [];
@@ -2538,7 +2758,70 @@
             if (modalOmrEntry) modalOmrEntry.hidden = false;
             return;
           }
+          if (answerReviewOpenedFromList) {
+            answerReviewOpenedFromList = false;
+            answerKeyMapCache = null;
+            answerKeyLoadPromise = null;
+            paper = null;
+            qs = [];
+            answers = {};
+            return;
+          }
           if (modalDone) modalDone.hidden = false;
+        }
+
+        function openAttemptReviewFromList(row, att) {
+          if (!row || !att || !att.answers) {
+            alert('No saved answers found for this attempt.');
+            return;
+          }
+          if (!modalAnswerReview) return;
+          var tid = row.test_id;
+          if (tid == null || tid === '') {
+            alert('Missing test id.');
+            return;
+          }
+          answerReviewOpenedFromList = true;
+          answerReviewFilter = 'all';
+          answerKeyMapCache = null;
+          answerKeyLoadPromise = null;
+          modalAnswerReview.hidden = false;
+          if (modalDone) modalDone.hidden = true;
+          if (answerReviewLoading) {
+            answerReviewLoading.hidden = false;
+            answerReviewLoading.textContent = 'Loading your attempt…';
+          }
+          if (answerReviewList) {
+            answerReviewList.hidden = true;
+            answerReviewList.innerHTML = '';
+          }
+          if (answerReviewEmpty) answerReviewEmpty.hidden = true;
+
+          extractTextFromPaperViaApi(tid)
+            .then(function (text) {
+              var parser = window.ExamQuestionParser;
+              if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+                throw new Error('Question parser failed to load.');
+              }
+              var parsed = parser.parseQuestionsFromText(text);
+              if (parsed.error) throw new Error(parsed.error);
+              var built = buildPaperFromApiRow(row, parsed);
+              paper = built;
+              qs = (built.questions || []).slice().sort(function (a, b) {
+                return a.number - b.number;
+              });
+              answers = normalizeOmrPrefillAnswers(att.answers);
+              if (!qs.length) throw new Error('No questions could be parsed from this paper.');
+              openAnswerReviewModal();
+            })
+            .catch(function (err) {
+              answerReviewOpenedFromList = false;
+              if (answerReviewLoading) {
+                answerReviewLoading.hidden = false;
+                answerReviewLoading.textContent =
+                  err && err.message ? err.message : 'Could not load review.';
+              }
+            });
         }
 
         function normalizeOmrPrefillAnswers(obj) {
@@ -2606,7 +2889,7 @@
                 : null;
 
           var mc = paper && paper.marksCorrect != null ? Number(paper.marksCorrect) : 1;
-          var mn = paper && paper.marksNegative != null ? Number(paper.marksNegative) : 0;
+          var mn = paper && paper.marksNegative != null ? Number(paper.marksNegative) : 0.25;
           if (Number.isNaN(mc) || mc < 0) mc = 1;
           if (Number.isNaN(mn) || mn < 0) mn = 0;
 
@@ -2948,6 +3231,27 @@
           });
         });
 
+        function closeLeaveModal() {
+          if (modalLeave) modalLeave.hidden = true;
+        }
+
+        function openLeaveModal() {
+          if (!modalLeave) return;
+          modalLeave.hidden = false;
+          var stayBtn = modalLeave.querySelector('[data-leave-close]');
+          if (stayBtn && stayBtn.focus) stayBtn.focus();
+        }
+
+        Array.prototype.slice.call(document.querySelectorAll('[data-leave-close]')).forEach(function (el) {
+          el.addEventListener('click', closeLeaveModal);
+        });
+
+        if (modalLeaveOk) {
+          modalLeaveOk.addEventListener('click', function () {
+            window.location.href = leaveTargetHref;
+          });
+        }
+
         document.getElementById('modal-done-back').addEventListener('click', function () {
           window.location.href = 'dashboard.html';
         });
@@ -2984,9 +3288,9 @@
             exit.style.flexShrink = '0';
             exit.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Leave';
             exit.addEventListener('click', function (e) {
-              if (!confirm('Leave the test? Your answers are only kept in this browser session until you submit.')) {
-                e.preventDefault();
-              }
+              e.preventDefault();
+              leaveTargetHref = exit.getAttribute('href') || 'dashboard.html';
+              openLeaveModal();
             });
             topbar.insertBefore(exit, topbar.firstChild);
           }
@@ -3003,7 +3307,7 @@
 
         function startTimer() {
           var timerSpan = document.querySelector('#exam-timer span');
-          var durationMin = paper && paper.durationMinutes != null ? Number(paper.durationMinutes) : 60;
+          var durationMin = paper && paper.durationMinutes != null ? Number(paper.durationMinutes) : 120;
           if (params.get('minutes')) {
             var pm = Number(params.get('minutes'));
             if (!Number.isNaN(pm) && pm > 0) durationMin = pm;
@@ -3053,7 +3357,7 @@
           setupTopBarTitle(paper.title || 'Online test');
           if (marksLine) {
             var mc = paper.marksCorrect != null ? paper.marksCorrect : 1;
-            var mn = paper.marksNegative != null ? paper.marksNegative : 0;
+            var mn = paper.marksNegative != null ? paper.marksNegative : 0.25;
             marksLine.textContent = 'Marks for correct answer: ' + mc + ' | Negative marks: ' + mn;
           }
           startTimer();
@@ -3065,9 +3369,9 @@
           return {
             test_id: row.test_id,
             title: title,
-            durationMinutes: 60,
+            durationMinutes: 120,
             marksCorrect: 1,
-            marksNegative: 0,
+            marksNegative: 0.25,
             questions: parseResult.questions || [],
           };
         }
@@ -3204,6 +3508,10 @@
             alert('OMR entry is not available in demo mode.');
             return;
           }
+          if (!isActivatedStudentTest(row)) {
+            alert('This test is not available yet. Only mCLAT-2601 is open for students.');
+            return;
+          }
           omrEntrySavedOmrSnapshot = savedOmrSnapshot || null;
           omrEntryRow = row;
           omrEntryAnswers = {};
@@ -3310,6 +3618,14 @@
 
         document.addEventListener('keydown', function (e) {
           if (e.key !== 'Escape') return;
+          if (modalLeave && !modalLeave.hidden) {
+            closeLeaveModal();
+            return;
+          }
+          if (modalConfirm && !modalConfirm.hidden) {
+            modalConfirm.hidden = true;
+            return;
+          }
           if (modalAnswerReview && !modalAnswerReview.hidden) {
             closeAnswerReviewModal();
             return;
@@ -3416,6 +3732,12 @@
         }
 
         function startTestFromRow(row) {
+          if (!isActivatedStudentTest(row)) {
+            hideLoader();
+            if (testListEl) testListEl.hidden = false;
+            showErr('This test is not available yet. Only mCLAT-2601 is open for students.');
+            return;
+          }
           var openMeta = getOpenMeta(row);
           if (openMeta.isLocked) {
             hideLoader();
@@ -3465,7 +3787,8 @@
           rows.forEach(function (row) {
             var id = row.test_id;
             var card = document.createElement('div');
-            card.className = 'exam-test-card';
+            var isActivated = isActivatedStudentTest(row);
+            card.className = 'exam-test-card' + (isActivated ? '' : ' exam-test-card--inactive');
             var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
             var openMeta = getOpenMeta(row);
             var left = document.createElement('div');
@@ -3481,6 +3804,7 @@
               '<p class="meta">Test #' +
               escHtml(String(id)) +
               (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
+              (!isActivated ? ' · <span class="meta-inactive">Not available</span>' : '') +
               escHtml(scoreLine) +
               '</p>';
             var btns = document.createElement('div');
@@ -3498,8 +3822,9 @@
               } else {
                 btn.className = 'btn btn-primary exam-test-btn--retry';
                 btn.innerHTML = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again';
-                btn.disabled = !hasPaper || openMeta.isLocked;
-                if (!hasPaper) btn.title = 'No question paper uploaded';
+                btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
+                if (!isActivated) btn.title = 'This test is not available yet';
+                else if (!hasPaper) btn.title = 'No question paper uploaded';
                 else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
                 btn.addEventListener('click', function () {
                   startTestFromRow(row);
@@ -3507,17 +3832,37 @@
               }
             } else {
               btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
-              btn.disabled = !hasPaper || openMeta.isLocked;
-              if (!hasPaper) btn.title = 'No question paper uploaded';
+              btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
+              if (!isActivated) btn.title = 'This test is not available yet';
+              else if (!hasPaper) btn.title = 'No question paper uploaded';
               else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
               btn.addEventListener('click', function () {
                 startTestFromRow(row);
               });
             }
             btns.appendChild(btn);
+            var showReview =
+              isActivated &&
+              hasPaper &&
+              att &&
+              att.completed &&
+              att.answers &&
+              typeof att.answers === 'object';
+            if (showReview) {
+              var btnReview = document.createElement('button');
+              btnReview.type = 'button';
+              btnReview.className = 'btn btn-primary exam-test-btn--review';
+              btnReview.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i> Review';
+              btnReview.title = 'Review your submitted answers against the answer key';
+              btnReview.addEventListener('click', function () {
+                openAttemptReviewFromList(row, att);
+              });
+              btns.appendChild(btnReview);
+            }
             var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
             var hasSavedOmr = !!omrSnap;
-            var showOmr = hasPaper && !openMeta.isLocked && (!att || !att.passed || hasSavedOmr);
+            var showOmr =
+              isActivated && hasPaper && !openMeta.isLocked && (!att || !att.passed || hasSavedOmr);
             if (showOmr) {
               var btnOmr = document.createElement('button');
               btnOmr.type = 'button';
@@ -3587,9 +3932,9 @@
           var DEMO = {
             test_id: null,
             title: 'Demo — local',
-            durationMinutes: 60,
+            durationMinutes: 120,
             marksCorrect: 1,
-            marksNegative: 0,
+            marksNegative: 0.25,
             questions: [
               {
                 number: 1,

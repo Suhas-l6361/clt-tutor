@@ -23,6 +23,78 @@
   var STUDENT_GENERAL_INFO_API =
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
 
+  var PHOTO_CACHE_TTL_MS = 45 * 60 * 1000;
+  var PROFILE_CACHE_TTL_MS = 10 * 60 * 1000;
+
+  function getStoragePrefix() {
+    return (window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX) || 'edportal_';
+  }
+
+  function photoCacheStorageKey(imgUrl) {
+    return getStoragePrefix() + 'student_photo_display_v1:' + String(imgUrl || '').trim();
+  }
+
+  function getCachedPhotoDisplayUrl(imgUrl) {
+    var key = String(imgUrl || '').trim();
+    if (!key) return '';
+    if (isHttpUrl(key)) return key;
+    try {
+      var raw = sessionStorage.getItem(photoCacheStorageKey(key));
+      if (!raw) return '';
+      var entry = JSON.parse(raw);
+      if (!entry || entry.imgKey !== key || !entry.url) return '';
+      if (Date.now() - Number(entry.ts || 0) > PHOTO_CACHE_TTL_MS) return '';
+      return String(entry.url);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function setCachedPhotoDisplayUrl(imgUrl, displayUrl) {
+    var key = String(imgUrl || '').trim();
+    if (!key || !displayUrl) return;
+    try {
+      sessionStorage.setItem(
+        photoCacheStorageKey(key),
+        JSON.stringify({ imgKey: key, url: String(displayUrl), ts: Date.now() })
+      );
+    } catch (_) {}
+  }
+
+  function studentProfileCacheStorageKey(session) {
+    var user = session && session.user ? session.user : null;
+    var id =
+      user && user.student_id != null
+        ? String(user.student_id)
+        : user && (user.email || user.login)
+          ? String(user.email || user.login)
+          : 'unknown';
+    return getStoragePrefix() + 'student_profile_row_v1:' + id.toLowerCase();
+  }
+
+  function getCachedStudentProfile(session) {
+    try {
+      var raw = sessionStorage.getItem(studentProfileCacheStorageKey(session));
+      if (!raw) return null;
+      var entry = JSON.parse(raw);
+      if (!entry || !entry.profile) return null;
+      if (Date.now() - Number(entry.ts || 0) > PROFILE_CACHE_TTL_MS) return null;
+      return entry.profile;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setCachedStudentProfile(session, profile) {
+    if (!profile) return;
+    try {
+      sessionStorage.setItem(
+        studentProfileCacheStorageKey(session),
+        JSON.stringify({ profile: profile, ts: Date.now() })
+      );
+    } catch (_) {}
+  }
+
   function getInitials(name) {
     return (
       String(name || '')
@@ -86,6 +158,11 @@
         resolve(v);
         return;
       }
+      var cached = getCachedPhotoDisplayUrl(v);
+      if (cached) {
+        resolve(cached);
+        return;
+      }
       var u =
         STUDENT_GENERAL_INFO_API +
         '?action=get_download_url&key=' +
@@ -95,7 +172,9 @@
         .then(function (res) {
           return res.json().then(function (data) {
             if (res.ok && data && (data.downloadUrl || data.url)) {
-              resolve(data.downloadUrl || data.url);
+              var displayUrl = data.downloadUrl || data.url;
+              setCachedPhotoDisplayUrl(v, displayUrl);
+              resolve(displayUrl);
             } else {
               resolve('');
             }
@@ -104,6 +183,46 @@
         .catch(function () {
           resolve('');
         });
+    });
+  }
+
+  function mountAvatarImage(container, displayUrl, initials, imgClass) {
+    if (!container || !displayUrl) return;
+    container.innerHTML = '';
+    var img = document.createElement('img');
+    img.className = imgClass || 'student-user-avatar-img';
+    img.alt = '';
+    img.onerror = function () {
+      container.textContent = initials;
+    };
+    img.src = displayUrl;
+    container.appendChild(img);
+  }
+
+  function applyAvatarToElement(container, name, imgUrl, imgClass) {
+    if (!container) return;
+    var initials = getInitials(name);
+    var key = imgUrl != null ? String(imgUrl).trim() : '';
+    if (!key) {
+      container.textContent = initials;
+      return;
+    }
+
+    var cached = getCachedPhotoDisplayUrl(key);
+    if (cached) {
+      mountAvatarImage(container, cached, initials, imgClass);
+      resolveStudentPhotoDisplayUrl(key).then(function (freshUrl) {
+        if (freshUrl && freshUrl !== cached && container.parentNode) {
+          mountAvatarImage(container, freshUrl, initials, imgClass);
+        }
+      });
+      return;
+    }
+
+    container.textContent = initials;
+    resolveStudentPhotoDisplayUrl(key).then(function (displayUrl) {
+      if (!displayUrl || !container.parentNode) return;
+      mountAvatarImage(container, displayUrl, initials, imgClass);
     });
   }
 
@@ -116,26 +235,17 @@
 
     var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
     var user = session && session.user ? session.user : null;
-    var name = user && user.name ? user.name : '';
-    var imgUrl = user && user.img_url != null ? user.img_url : null;
-    var initials = getInitials(name);
+    var cachedProfile = getCachedStudentProfile(session);
+    var name =
+      (cachedProfile && cachedProfile.name) || (user && user.name) || '';
+    var imgUrl =
+      (cachedProfile && cachedProfile.img_url != null ? cachedProfile.img_url : null) ||
+      (user && user.img_url != null ? user.img_url : null);
 
-    userAvatar.textContent = initials;
+    applyAvatarToElement(userAvatar, name, imgUrl, 'student-user-avatar-img');
 
-    if (!imgUrl || !String(imgUrl).trim()) return;
-
-    resolveStudentPhotoDisplayUrl(imgUrl).then(function (displayUrl) {
-      if (!displayUrl || !userAvatar.parentNode) return;
-      userAvatar.innerHTML = '';
-      var img = document.createElement('img');
-      img.className = 'student-user-avatar-img';
-      img.alt = '';
-      img.onerror = function () {
-        userAvatar.textContent = initials;
-      };
-      img.src = displayUrl;
-      userAvatar.appendChild(img);
-    });
+    var sidebarNameEl = document.querySelector('.user-meta strong');
+    if (sidebarNameEl && name) sidebarNameEl.textContent = name;
   }
 
   /**
@@ -147,8 +257,12 @@
 
     var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
     var user = session && session.user ? session.user : null;
-    var name = user && user.name ? user.name : '';
-    var imgUrl = user && user.img_url != null ? user.img_url : null;
+    var cachedProfile = getCachedStudentProfile(session);
+    var name =
+      (cachedProfile && cachedProfile.name) || (user && user.name) || '';
+    var imgUrl =
+      (cachedProfile && cachedProfile.img_url != null ? cachedProfile.img_url : null) ||
+      (user && user.img_url != null ? user.img_url : null);
     var initials = getInitials(name);
 
     function setInitials() {
@@ -156,23 +270,27 @@
         '<span class="sd-profile-btn__initials" aria-hidden="true">' + initials + '</span>';
     }
 
-    if (!imgUrl || !String(imgUrl).trim()) {
+    var key = imgUrl != null ? String(imgUrl).trim() : '';
+    if (!key) {
       setInitials();
       return;
     }
 
+    var cached = getCachedPhotoDisplayUrl(key);
+    if (cached) {
+      mountAvatarImage(btn, cached, initials, 'sd-profile-btn__img');
+      resolveStudentPhotoDisplayUrl(key).then(function (freshUrl) {
+        if (freshUrl && freshUrl !== cached && btn.parentNode) {
+          mountAvatarImage(btn, freshUrl, initials, 'sd-profile-btn__img');
+        }
+      });
+      return;
+    }
+
     setInitials();
-    resolveStudentPhotoDisplayUrl(imgUrl).then(function (displayUrl) {
+    resolveStudentPhotoDisplayUrl(key).then(function (displayUrl) {
       if (!displayUrl || !btn.parentNode) return;
-      btn.innerHTML = '';
-      var img = document.createElement('img');
-      img.className = 'sd-profile-btn__img';
-      img.alt = '';
-      img.onerror = function () {
-        setInitials();
-      };
-      img.src = displayUrl;
-      btn.appendChild(img);
+      mountAvatarImage(btn, displayUrl, initials, 'sd-profile-btn__img');
     });
   }
 
@@ -292,6 +410,11 @@
   global.applyStudentChrome = applyStudentChrome;
   global.applyStudentUserAvatarImage = applyStudentUserAvatarImage;
   global.applyStudentTopbarProfileButton = applyStudentTopbarProfileButton;
+  global.applyStudentAvatarToElement = applyAvatarToElement;
+  global.resolveStudentPhotoDisplayUrl = resolveStudentPhotoDisplayUrl;
+  global.getCachedStudentProfile = getCachedStudentProfile;
+  global.setCachedStudentProfile = setCachedStudentProfile;
+  global.getCachedPhotoDisplayUrl = getCachedPhotoDisplayUrl;
   global.showStudentPlaceholderModal = showStudentPlaceholderModal;
   global.STUDENT_NAV_ICON_MAP = STUDENT_NAV_ICON_MAP;
 })(typeof window !== 'undefined' ? window : this);

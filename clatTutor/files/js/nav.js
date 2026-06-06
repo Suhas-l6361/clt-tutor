@@ -35,6 +35,7 @@ function initAppChrome(opts) {
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
     { href: 'uploadOmr.html', icon: 'fa-camera', label: 'Upload OMR' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
+    { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
   ];
@@ -49,6 +50,7 @@ function initAppChrome(opts) {
     'addTest.html': '../image/test.png',
     'uploadOmr.html': '../image/Orm sheet.png',
     'fees.html': '../image/fees.png',
+    'attendance.html': '../image/attendance.png',
     'enrollment.html': '../image/enrollment.png',
     'retrival.html': '../image/retrive data.png',
   };

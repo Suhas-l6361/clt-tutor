@@ -18,7 +18,7 @@
     '<div class="demo-class-widget__field"><label for="demo-class-email">Email</label>' +
     '<input id="demo-class-email" name="email" type="email" autocomplete="email" required placeholder="you@email.com" /></div>' +
     '<div class="demo-class-widget__field"><label for="demo-class-phone">Phone</label>' +
-    '<input id="demo-class-phone" name="phone" type="tel" autocomplete="tel" required placeholder="Phone number" /></div>' +
+    '<input id="demo-class-phone" name="phone" type="tel" autocomplete="tel" required placeholder="9876543210" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" title="Enter a 10-digit mobile number starting with 6, 7, 8, or 9." /></div>' +
     '<div class="demo-class-widget__field"><label for="demo-class-course">Interested in</label>' +
     '<select id="demo-class-course" name="course" required>' +
     '<option value="">Select a course</option>' +
@@ -57,21 +57,33 @@
 
     var mq = window.matchMedia('(max-width: 991px)');
 
+    function dismissWidget() {
+      widget.classList.add('demo-class-widget--dismissed');
+      widget.classList.remove('demo-class-widget--expanded');
+      document.body.classList.remove('demo-class-widget-mounted');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
     function setExpanded(open) {
+      if (widget.classList.contains('demo-class-widget--dismissed')) return;
       if (open) {
         widget.classList.add('demo-class-widget--expanded');
       } else {
         widget.classList.remove('demo-class-widget--expanded');
       }
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (mq.matches) {
+        if (open) {
+          document.body.classList.add('demo-class-widget-mounted');
+        } else {
+          document.body.classList.remove('demo-class-widget-mounted');
+        }
+      }
     }
 
     function applyMode() {
-      if (mq.matches) {
-        setExpanded(true);
-      } else {
-        setExpanded(true);
-      }
+      if (widget.classList.contains('demo-class-widget--dismissed')) return;
+      setExpanded(true);
     }
 
     toggle.addEventListener('click', function () {
@@ -81,8 +93,11 @@
 
     if (closeBtn) {
       closeBtn.addEventListener('click', function () {
-        if (!mq.matches) return;
-        setExpanded(false);
+        if (mq.matches) {
+          setExpanded(false);
+        } else {
+          dismissWidget();
+        }
       });
     }
 
@@ -91,12 +106,47 @@
     applyMode();
   }
 
+  var DEMO_PHONE_MSG =
+    'Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.';
+
+  function bindPhoneValidation() {
+    var phoneInput = document.getElementById('demo-class-phone');
+    if (!phoneInput || phoneInput.dataset.demoClassPhoneBound === '1') return;
+    phoneInput.dataset.demoClassPhoneBound = '1';
+
+    function syncValidity() {
+      var api = typeof window.PublicFormsApi !== 'undefined' ? window.PublicFormsApi : null;
+      var raw = phoneInput.value;
+      if (!raw.trim()) {
+        phoneInput.setCustomValidity('');
+        return false;
+      }
+      if (!api || !api.isValidIndianMobile10(raw)) {
+        phoneInput.setCustomValidity(DEMO_PHONE_MSG);
+        return false;
+      }
+      phoneInput.setCustomValidity('');
+      return true;
+    }
+
+    phoneInput.addEventListener('input', function () {
+      var digits = phoneInput.value.replace(/\D/g, '');
+      if (digits.length > 10) digits = digits.slice(0, 10);
+      if (digits !== phoneInput.value) phoneInput.value = digits;
+      syncValidity();
+    });
+    phoneInput.addEventListener('blur', syncValidity);
+  }
+
   function bindForm() {
     var form = document.getElementById('form-demo-class');
     if (!form || form.dataset.demoClassBound === '1') return;
     form.dataset.demoClassBound = '1';
 
+    bindPhoneValidation();
+
     var alertBox = document.getElementById('demo-class-alert');
+    var phoneInput = document.getElementById('demo-class-phone');
 
     function showAlert(message, type) {
       if (!alertBox) return;
@@ -140,12 +190,19 @@
         return;
       }
 
+      if (phoneInput) {
+        phoneInput.dispatchEvent(new Event('blur'));
+        if (!phoneInput.checkValidity()) {
+          phoneInput.reportValidity();
+          return;
+        }
+      }
+
       var fd = new FormData(form);
       var name = (fd.get('name') || '').toString().trim();
       var email = (fd.get('email') || '').toString().trim();
       var phoneRaw = (fd.get('phone') || '').toString().trim();
       var interestedIn = (fd.get('course') || '').toString().trim();
-      var phone = PublicFormsApi.phoneToNumber(phoneRaw);
 
       if (!name || !email || !phoneRaw || !interestedIn) {
         showAlert('Please fill in all fields.', 'error');
@@ -153,9 +210,20 @@
         return;
       }
 
+      if (!PublicFormsApi.isValidIndianMobile10(phoneRaw)) {
+        showAlert(DEMO_PHONE_MSG, 'error');
+        showPopup('error', DEMO_PHONE_MSG);
+        if (phoneInput) {
+          phoneInput.setCustomValidity(DEMO_PHONE_MSG);
+          phoneInput.reportValidity();
+        }
+        return;
+      }
+
+      var phone = PublicFormsApi.indianMobile10ToNumber(phoneRaw);
       if (!Number.isFinite(phone)) {
-        showAlert('Please enter a valid phone number.', 'error');
-        showPopup('error', 'Please enter a valid phone number.');
+        showAlert(DEMO_PHONE_MSG, 'error');
+        showPopup('error', DEMO_PHONE_MSG);
         return;
       }
 

@@ -469,9 +469,51 @@
       });
     }
 
+    var pyqPhoneInput = document.getElementById('pyq-phone');
+    var PYQ_PHONE_MSG =
+      'Enter +91 followed by 10 digits starting with 6, 7, 8, or 9 (e.g. +919876543210).';
+
+    function syncPyqPhoneValidity() {
+      if (!pyqPhoneInput) return true;
+      var apiRef = typeof window.PublicFormsApi !== 'undefined' ? window.PublicFormsApi : null;
+      var raw = pyqPhoneInput.value;
+      if (!raw.trim()) {
+        pyqPhoneInput.setCustomValidity('');
+        return false;
+      }
+      if (!apiRef || !apiRef.isValidIndianPhone(raw)) {
+        pyqPhoneInput.setCustomValidity(PYQ_PHONE_MSG);
+        return false;
+      }
+      pyqPhoneInput.setCustomValidity('');
+      return true;
+    }
+
+    if (pyqPhoneInput) {
+      pyqPhoneInput.addEventListener('input', function () {
+        var v = pyqPhoneInput.value;
+        var cleaned = v.replace(/[^\d+]/g, '');
+        if (cleaned.indexOf('+') > 0) {
+          cleaned = cleaned.replace(/\+/g, '');
+        }
+        if (cleaned.charAt(0) !== '+' && cleaned.length) {
+          if (cleaned.charAt(0) === '9' && cleaned.length <= 12) {
+            cleaned = '+' + cleaned;
+          } else if (/^[6-9]/.test(cleaned)) {
+            cleaned = '+91' + cleaned;
+          }
+        }
+        if (cleaned.length > 13) cleaned = cleaned.slice(0, 13);
+        if (cleaned !== v) pyqPhoneInput.value = cleaned;
+        syncPyqPhoneValidity();
+      });
+      pyqPhoneInput.addEventListener('blur', syncPyqPhoneValidity);
+    }
+
     if (pyqForm) {
       pyqForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        syncPyqPhoneValidity();
         if (!pyqForm.checkValidity()) {
           pyqForm.reportValidity();
           return;
@@ -488,11 +530,20 @@
           showPyqPopup('error', 'Unable to submit. Please refresh the page.');
           return;
         }
-        var phoneNum = api.phoneToNumber(phoneRaw);
-        if (!Number.isFinite(phoneNum)) {
-          showPyqPopup('error', 'Please enter a valid phone number.');
+        if (!api.isValidIndianPhone(phoneRaw)) {
+          showPyqPopup('error', PYQ_PHONE_MSG);
+          if (pyqPhoneInput) {
+            pyqPhoneInput.setCustomValidity(PYQ_PHONE_MSG);
+            pyqPhoneInput.reportValidity();
+          }
           return;
         }
+        var phoneNum = api.indianPhoneToNumber(phoneRaw);
+        if (!Number.isFinite(phoneNum)) {
+          showPyqPopup('error', PYQ_PHONE_MSG);
+          return;
+        }
+        phoneRaw = api.normalizeIndianPhone(phoneRaw);
         var submitBtn = pyqForm.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
         api

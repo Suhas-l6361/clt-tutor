@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CLATutor OMR Answer Sheet</title>
+  <style>
+    @page { size: A4 portrait; margin: 12mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      color: #000;
+      margin: 0;
+      padding: 12mm;
+      background: #fff;
+    }
+    h1 {
+      text-align: center;
+      font-size: 14pt;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+    .header-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 24px;
+      margin-bottom: 12px;
+      font-size: 10pt;
+    }
+    .header-fields label { display: block; }
+    .header-fields .line {
+      border-bottom: 1px solid #000;
+      height: 18px;
+      margin-top: 2px;
+    }
+    .cols {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid #000;
+    }
+    .col {
+      border-right: 1px solid #000;
+      padding: 4px 6px 8px;
+    }
+    .col:last-child { border-right: none; }
+    .col h2 {
+      text-align: center;
+      font-size: 8pt;
+      margin: 0 0 4px;
+      font-weight: 700;
+    }
+    .opt-head {
+      display: grid;
+      grid-template-columns: 22px repeat(4, 1fr);
+      gap: 2px;
+      font-size: 7pt;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 22px repeat(4, 1fr);
+      gap: 2px;
+      align-items: center;
+      min-height: 14px;
+      margin-bottom: 1px;
+    }
+    .row.q5 { border-bottom: 1px dashed #999; margin-bottom: 3px; padding-bottom: 2px; }
+    .row .num { font-size: 8pt; text-align: right; padding-right: 2px; }
+    .bubble {
+      width: 11px;
+      height: 11px;
+      border: 1px solid #000;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+    .footer {
+      text-align: center;
+      font-size: 8pt;
+      margin-top: 10px;
+    }
+    .reg-mark {
+      position: absolute;
+      width: 10mm;
+      height: 10mm;
+      background: #000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .reg-tl { top: 6mm; left: 6mm; }
+    .reg-tr { top: 6mm; right: 6mm; }
+    .reg-bl { bottom: 6mm; left: 6mm; }
+    .reg-br { bottom: 6mm; right: 6mm; }
+    .sheet-wrap { position: relative; }
+    @media print {
+      body { padding: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <p class="no-print" style="text-align:center;color:#444;max-width:520px;margin:0 auto 12px;">
+    Print this page at <strong>100% scale</strong> (A4, no &ldquo;fit to page&rdquo;). Keep all four <strong>black corner squares</strong> visible when scanning in Upload OMR.
+  </p>
+
+  <div class="sheet-wrap">
+  <span class="reg-mark reg-tl" aria-hidden="true"></span>
+  <span class="reg-mark reg-tr" aria-hidden="true"></span>
+  <span class="reg-mark reg-bl" aria-hidden="true"></span>
+  <span class="reg-mark reg-br" aria-hidden="true"></span>
+
+  <h1>CLATutor OMR Answer Sheet</h1>
+  <div class="header-fields">
+    <label>Student Name<div class="line"></div></label>
+    <label>Roll No<div class="line"></div></label>
+    <label>Date<div class="line"></div></label>
+    <label>Test Name<div class="line"></div></label>
+  </div>
+
+  <div class="cols" id="omr-cols"></div>
+  <p class="footer">Fill one bubble per question. Mark dark pencil only.</p>
+  </div>
+
+  <script>
+    (function () {
+      var blocks = [
+        { title: 'English', start: 1, count: 24 },
+        { title: 'GK + Legal', start: 25, count: 35 },
+        { title: 'Logical + QT', start: 60, count: 37 },
+        { title: 'Remaining', start: 97, count: 24 },
+      ];
+      var root = document.getElementById('omr-cols');
+      blocks.forEach(function (block) {
+        var col = document.createElement('div');
+        col.className = 'col';
+        col.innerHTML = '<h2>' + block.title + '</h2><div class="opt-head"><span></span><span>A</span><span>B</span><span>C</span><span>D</span></div>';
+        for (var i = 0; i < block.count; i++) {
+          var q = block.start + i;
+          var row = document.createElement('div');
+          row.className = 'row' + ((q % 5 === 0) ? ' q5' : '');
+          var num = (q < 10 ? '0' : '') + q;
+          row.innerHTML = '<span class="num">' + num + '.</span>' +
+            '<span class="bubble"></span><span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>';
+          col.appendChild(row);
+        }
+        root.appendChild(col);
+      });
+    })();
+  </script>
+</body>
+</html>

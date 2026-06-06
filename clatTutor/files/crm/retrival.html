@@ -193,7 +193,11 @@
             <span>Stream</span>
           </label>
           <label>
-            <input id="ef-batch" class="input" type="text" placeholder=" " />
+            <select id="ef-batch" class="select">
+              <option value="">Select batch</option>
+              <option value="CLAT Dec 2026">CLAT Dec 2026</option>
+              <option value="CLAT Dec 2027">CLAT Dec 2027</option>
+            </select>
             <span>Batch</span>
           </label>
           <label>
@@ -202,8 +206,13 @@
               <option value="MALLESHWARM">MALLESHWARM</option>
               <option value="JAYANAGAR">JAYANAGAR</option>
               <option value="YALAHANKA">YALAHANKA</option>
+              <option value="Online">Online</option>
             </select>
             <span>Branch</span>
+          </label>
+          <label>
+            <input id="ef-password" class="input" type="text" placeholder=" " autocomplete="off" />
+            <span>Password (leave blank to keep)</span>
           </label>
           <label>
             <input id="ef-source" class="input" type="text" placeholder=" " />
@@ -225,6 +234,17 @@
               <select id="ef-dob-year"><option value="">Year</option></select>
             </div>
           </div>
+          <div class="full">
+            <p id="ef-current-image" class="retrival-warning" style="margin:0 0 0.5rem;font-size:0.78rem;color:rgba(255,255,255,0.75);"></p>
+            <div id="ef-image-preview-wrap" style="display:none;margin-bottom:0.5rem;">
+              <img id="ef-image-preview" alt="Current student photo" style="max-width:120px;max-height:120px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.2);" />
+            </div>
+            <div class="file-input-wrap">
+              <label for="ef-image" id="ef-image-label">Upload student photo</label>
+              <input id="ef-image" type="file" accept="image/*" />
+            </div>
+            <div id="ef-image-name" class="upload-file-name" style="font-size:0.7rem;color:rgba(255,255,255,0.75);margin-top:0.25rem;">No new file selected</div>
+          </div>
         </div>
         <p id="edit-warning" class="retrival-warning"></p>
         <div class="reg-btns">
@@ -232,6 +252,17 @@
           <button type="submit" class="fancy-btn fancy-btn--submit">Update</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="edit-student-loading" class="crm-modal" hidden aria-live="polite" aria-busy="true" style="z-index: 750;">
+    <div class="crm-modal__backdrop"></div>
+    <div class="crm-modal__dialog" style="width:min(400px,100%);">
+      <div class="reg-form" style="align-items:center;text-align:center;padding:1.75rem 1.25rem;">
+        <i class="fa-solid fa-spinner fa-spin-pulse" style="font-size:2.4rem;color:#00bfff;" aria-hidden="true"></i>
+        <h3 style="margin:0.65rem 0 0.25rem;font-size:1.05rem;color:#fff;">Updating student...</h3>
+        <p style="margin:0;font-size:0.86rem;color:#9ca3af;">Please wait while we save your changes.</p>
+      </div>
     </div>
   </div>
 
@@ -403,6 +434,20 @@
       var editForm = document.getElementById('edit-student-form');
       var editWarningEl = document.getElementById('edit-warning');
       var deleteBtn = document.getElementById('delete-student-btn');
+      var editStudentLoading = document.getElementById('edit-student-loading');
+      var editSubmitBtn = editForm ? editForm.querySelector('button[type="submit"]') : null;
+
+      function showEditStudentLoading() {
+        if (editStudentLoading) editStudentLoading.hidden = false;
+        if (editSubmitBtn) editSubmitBtn.disabled = true;
+        if (deleteBtn) deleteBtn.disabled = true;
+      }
+
+      function hideEditStudentLoading() {
+        if (editStudentLoading) editStudentLoading.hidden = true;
+        if (editSubmitBtn) editSubmitBtn.disabled = false;
+        if (deleteBtn) deleteBtn.disabled = false;
+      }
       var successPopup = document.getElementById('student-action-success');
       var successTitleEl = document.getElementById('student-action-success-title');
       var successMessageEl = document.getElementById('student-action-success-message');
@@ -449,7 +494,14 @@
       var allRows = [];
       var currentMode = '';
       var currentEditId = null;
+      var currentEditStudentImgKey = '';
       var currentEditAchieverId = null;
+      var efImageInput = document.getElementById('ef-image');
+      var efImageNameEl = document.getElementById('ef-image-name');
+      var efImageLabelEl = document.getElementById('ef-image-label');
+      var efCurrentImageEl = document.getElementById('ef-current-image');
+      var efImagePreviewWrap = document.getElementById('ef-image-preview-wrap');
+      var efImagePreviewEl = document.getElementById('ef-image-preview');
 
       var STUDENT_HEAD_HTML =
         '<tr>' +
@@ -1141,20 +1193,86 @@
       }
       fillEcaDateOptions();
 
+      async function uploadStudentImage(file) {
+        if (!file) return null;
+        var fileName = 'student-images/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'application/octet-stream';
+        var signedRes = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        });
+        var signedData = await signedRes.json();
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to generate upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Image upload failed');
+        return signedData.key || fileName;
+      }
+
+      function setEditStudentImageUi() {
+        var hasImage = !!currentEditStudentImgKey;
+        if (efImageLabelEl) {
+          efImageLabelEl.textContent = hasImage ? 'Replace photo (optional)' : 'Upload student photo';
+        }
+        if (efImageNameEl) {
+          efImageNameEl.textContent = hasImage
+            ? 'Leave empty to keep current photo'
+            : 'No photo on record — choose a file to add one';
+        }
+        if (efCurrentImageEl) {
+          efCurrentImageEl.textContent = hasImage
+            ? 'Current photo is on file. You can view it below or upload a new one.'
+            : 'No photo on this student yet. Upload one below.';
+        }
+        if (efImagePreviewWrap && efImagePreviewEl) {
+          efImagePreviewWrap.style.display = 'none';
+          efImagePreviewEl.removeAttribute('src');
+        }
+        if (hasImage && efImagePreviewWrap && efImagePreviewEl) {
+          resolveImageUrl(currentEditStudentImgKey, API_URL).then(function (url) {
+            if (url) {
+              efImagePreviewEl.src = url;
+              efImagePreviewWrap.style.display = 'block';
+            }
+          });
+        }
+      }
+
       function openEditModal(row) {
         currentEditId = row.student_id || row.id;
+        currentEditStudentImgKey = firstStoredKey(row.img_url) || (row.img_url ? String(row.img_url) : '');
         editWarningEl.textContent = '';
         document.getElementById('ef-name').value = row.name || '';
         document.getElementById('ef-email').value = row.email || '';
-        document.getElementById('ef-phone').value = row.phone || '';
+        document.getElementById('ef-phone').value = row.phone != null ? String(row.phone) : '';
         document.getElementById('ef-org').value = row.previous_organisation || '';
         document.getElementById('ef-stream').value = row.stream || '';
-        document.getElementById('ef-batch').value = row.batch || '';
+        var efBatch = document.getElementById('ef-batch');
+        if (efBatch) {
+          var batchVal = row.batch || '';
+          if (batchVal && !Array.prototype.some.call(efBatch.options, function (o) { return o.value === batchVal; })) {
+            var customBatch = document.createElement('option');
+            customBatch.value = batchVal;
+            customBatch.textContent = batchVal;
+            efBatch.appendChild(customBatch);
+          }
+          efBatch.value = batchVal;
+        }
         var efBranch = document.getElementById('ef-branch');
         if (efBranch) efBranch.value = row.branch || '';
         document.getElementById('ef-source').value = row.source_of_info || '';
         document.getElementById('ef-address').value = row.address || '';
         document.getElementById('ef-target-year').value = row.targetYear || '';
+        var efPassword = document.getElementById('ef-password');
+        if (efPassword) efPassword.value = getPasswordValue(row) || '';
+        if (efImageInput) efImageInput.value = '';
+        setEditStudentImageUi();
         var dob = asDateOnly(row.dob);
         if (dob) {
           var parts = dob.split('-');
@@ -1306,6 +1424,8 @@
       function closeEditModal() {
         editModal.hidden = true;
         currentEditId = null;
+        currentEditStudentImgKey = '';
+        if (efImageInput) efImageInput.value = '';
       }
 
       function openEditAchieverModal(row) {
@@ -1824,6 +1944,20 @@
           eafImageNameEl.textContent = f ? f.name : 'Leave empty to keep current image';
         });
       }
+      if (efImageInput && efImageNameEl) {
+        efImageInput.addEventListener('change', function () {
+          var f = efImageInput.files && efImageInput.files[0];
+          if (f) {
+            efImageNameEl.textContent = f.name;
+            if (efImagePreviewWrap && efImagePreviewEl) {
+              efImagePreviewEl.src = URL.createObjectURL(f);
+              efImagePreviewWrap.style.display = 'block';
+            }
+          } else {
+            setEditStudentImageUi();
+          }
+        });
+      }
       if (ecvFileInput && ecvFileName) {
         ecvFileInput.addEventListener('change', function () {
           var f = ecvFileInput.files && ecvFileInput.files[0];
@@ -1974,7 +2108,9 @@
       editForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         if (!currentEditId) return;
+        if (editSubmitBtn && editSubmitBtn.disabled) return;
         editWarningEl.textContent = '';
+        showEditStudentLoading();
         var day = efDay.value;
         var month = efMonth.value;
         var year = efYear.value;
@@ -1993,7 +2129,20 @@
           address: document.getElementById('ef-address').value.trim() || null,
           targetYear: document.getElementById('ef-target-year').value.trim() || null
         };
+        var passwordInput = document.getElementById('ef-password');
+        var nextPassword = passwordInput ? passwordInput.value.trim() : '';
+        var originalRow = allRows.find(function (r) {
+          return String(r.student_id || r.id) === String(currentEditId);
+        });
+        var originalPassword = originalRow ? getPasswordValue(originalRow) : '';
+        if (nextPassword && nextPassword !== originalPassword) {
+          payload.password = nextPassword;
+        }
         try {
+          var newImageFile = efImageInput && efImageInput.files && efImageInput.files[0];
+          if (newImageFile) {
+            payload.img_url = await uploadStudentImage(newImageFile);
+          }
           var res = await fetch(API_URL, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -2007,6 +2156,8 @@
           showSuccessPopup('Student Updated', 'Student updated successfully.');
         } catch (err) {
           editWarningEl.textContent = err.message || 'Failed to update student';
+        } finally {
+          hideEditStudentLoading();
         }
       });
 

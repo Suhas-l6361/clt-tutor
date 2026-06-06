@@ -53,6 +53,13 @@
       padding: 0.42rem 0.75rem;
       white-space: nowrap;
     }
+    .sd-pill img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
     .sd-hero__actions {
       display: inline-flex;
       align-items: center;
@@ -107,6 +114,15 @@
       color: #946200;
       flex: 0 0 auto;
     }
+    .sd-stat__icon img,
+    .sd-card h3 .sd-heading-icon,
+    .sd-eval-card h3 .sd-heading-icon {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      display: block;
+      flex-shrink: 0;
+    }
     .sd-stat__value {
       margin: 0;
       font-size: 1.15rem;
@@ -142,6 +158,10 @@
     }
     .sd-card h3 i {
       color: var(--accent);
+    }
+    .sd-card h3 .sd-heading-icon {
+      width: 20px;
+      height: 20px;
     }
     .sd-list {
       list-style: none;
@@ -393,6 +413,10 @@
     .sd-eval-card h3 i {
       color: var(--accent);
     }
+    .sd-eval-card h3 .sd-heading-icon {
+      width: 20px;
+      height: 20px;
+    }
     .sd-eval-card p {
       margin: 0.5rem 0 0;
       color: var(--muted);
@@ -641,7 +665,7 @@
         </div>
         <div class="sd-hero__actions">
           <div class="sd-pill">
-            <i class="fa-regular fa-calendar"></i>
+            <img src="../image/calendar.png" alt="" width="18" height="18" loading="lazy" decoding="async" />
             <span id="today-date">Today</span>
           </div>
         </div>
@@ -649,28 +673,36 @@
 
       <section class="sd-stats">
         <article class="sd-stat">
-          <div class="sd-stat__icon"><i class="fa-solid fa-book-open-reader"></i></div>
+          <div class="sd-stat__icon">
+            <img src="../image/attendance.png" alt="" width="22" height="22" loading="lazy" decoding="async" />
+          </div>
           <div>
             <p class="sd-stat__value" id="stat-tests-attended">0</p>
             <p class="sd-stat__label">Tests attended</p>
           </div>
         </article>
         <article class="sd-stat">
-          <div class="sd-stat__icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="sd-stat__icon">
+            <img src="../image/video.png" alt="" width="22" height="22" loading="lazy" decoding="async" />
+          </div>
           <div>
             <p class="sd-stat__value" id="stat-videos-completed">0</p>
             <p class="sd-stat__label">Videos completed</p>
           </div>
         </article>
         <article class="sd-stat">
-          <div class="sd-stat__icon"><i class="fa-solid fa-bell"></i></div>
+          <div class="sd-stat__icon">
+            <img src="../image/notification.png" alt="" width="22" height="22" loading="lazy" decoding="async" />
+          </div>
           <div>
             <p class="sd-stat__value" id="stat-watch-hours">0h</p>
             <p class="sd-stat__label">Watch hours</p>
           </div>
         </article>
         <article class="sd-stat">
-          <div class="sd-stat__icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="sd-stat__icon">
+            <img src="../image/report.png" alt="" width="22" height="22" loading="lazy" decoding="async" />
+          </div>
           <div>
             <p class="sd-stat__value" id="stat-notes-gk">0</p>
             <p class="sd-stat__label">Notes + GK actions</p>
@@ -679,7 +711,10 @@
       </section>
 
       <section class="sd-eval-card" aria-labelledby="sd-eval-heading">
-        <h3 id="sd-eval-heading"><i class="fa-solid fa-table-cells-large"></i> Test Evaluation</h3>
+        <h3 id="sd-eval-heading">
+          <img class="sd-heading-icon" src="../image/test-evaluation.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
+          Test Evaluation
+        </h3>
         <p>
           View <strong>physical OMR</strong> submissions only (answers you entered via <strong>Enter OMR</strong> on the
           online test page). Each sheet shows A–D bubbles with your marks; blanks stay empty. Regular on-screen tests are
@@ -692,7 +727,10 @@
 
       <section class="sd-grid">
         <div class="sd-card">
-          <h3><i class="fa-solid fa-graduation-cap"></i> Continue Learning</h3>
+          <h3>
+            <img class="sd-heading-icon" src="../image/graduation-hat.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
+            Continue Learning
+          </h3>
           <ul class="sd-list">
             <li>
               <p class="sd-list__title">Legal reasoning — Unit 4</p>
@@ -717,7 +755,10 @@
         </div>
 
         <div class="sd-card">
-          <h3><i class="fa-solid fa-layer-group"></i> Student Workspace</h3>
+          <h3>
+            <img class="sd-heading-icon" src="../image/student-workspace.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
+            Student Workspace
+          </h3>
           <ul class="sd-list">
             <li>
               <p class="sd-list__title">Enrollment Form</p>
@@ -741,7 +782,10 @@
 
       <section class="sd-grid">
         <div class="sd-card">
-          <h3><i class="fa-solid fa-bullhorn"></i> Announcements</h3>
+          <h3>
+            <img class="sd-heading-icon" src="../image/announcement.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
+            Announcements
+          </h3>
           <ul class="sd-note-list">
             <li><strong>Mock test #4</strong> is live. Submit before Sunday to stay on leaderboard.</li>
             <li><strong>Doubt session:</strong> bring questions from Unit 4 and Quant mixed sets.</li>
@@ -749,7 +793,10 @@
           </ul>
         </div>
         <div class="sd-card">
-          <h3><i class="fa-solid fa-square-check"></i> Quick Actions</h3>
+          <h3>
+            <img class="sd-heading-icon" src="../image/quick-action.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
+            Quick Actions
+          </h3>
           <div class="sd-actions" style="margin-top:0.85rem">
             <a href="courses.html" class="sd-action"><i class="fa-solid fa-book-open"></i> Open Courses</a>
             <a href="notifications.html" class="sd-action"><i class="fa-solid fa-bell"></i> Notifications</a>
@@ -863,7 +910,6 @@
       var session = Auth.getSession ? Auth.getSession() : null;
       var studentName = session && session.user && session.user.name ? session.user.name : 'Demo Student';
       var storagePrefix = window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_';
-      var profileStorageKey = storagePrefix + 'student_profile';
       var STUDENT_GENERAL_INFO_API =
         'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
       var SUBMIT_ONLINE_TEST_API =
@@ -1259,10 +1305,6 @@
           .toUpperCase() || 'ST';
       };
 
-      var isHttpUrl = function (s) {
-        return /^https?:\/\//i.test(String(s || '').trim());
-      };
-
       var getProfileFallback = function () {
         var user = session && session.user ? session.user : {};
         return {
@@ -1287,55 +1329,19 @@
         return d.toISOString().slice(0, 10);
       };
 
-      var resolveProfileImageUrl = function (imgUrl) {
-        return new Promise(function (resolve) {
-          if (!imgUrl || !String(imgUrl).trim()) {
-            resolve('');
-            return;
-          }
-          var v = String(imgUrl).trim();
-          if (isHttpUrl(v)) {
-            resolve(v);
-            return;
-          }
-          var u =
-            STUDENT_GENERAL_INFO_API +
-            '?action=get_download_url&key=' +
-            encodeURIComponent(v) +
-            '&inline=1';
-          fetch(u, { method: 'GET' })
-            .then(function (res) {
-              return res.json().then(function (data) {
-                if (res.ok && data && (data.downloadUrl || data.url)) {
-                  resolve(data.downloadUrl || data.url);
-                } else {
-                  resolve('');
-                }
-              });
-            })
-            .catch(function () {
-              resolve('');
-            });
-        });
-      };
-
       var setProfileAvatar = function (profile) {
         if (!profileAvatar) return;
-        var initialsText = getInitials(profile && profile.name);
-        profileAvatar.textContent = initialsText;
         var imgKey = profile && profile.img_url ? String(profile.img_url).trim() : '';
-        if (!imgKey) return;
-        resolveProfileImageUrl(imgKey).then(function (url) {
-          if (!url || !profileAvatar.parentNode) return;
-          profileAvatar.innerHTML = '';
-          var img = document.createElement('img');
-          img.alt = '';
-          img.onerror = function () {
-            profileAvatar.textContent = initialsText;
-          };
-          img.src = url;
-          profileAvatar.appendChild(img);
-        });
+        if (typeof applyStudentAvatarToElement === 'function') {
+          applyStudentAvatarToElement(
+            profileAvatar,
+            profile && profile.name,
+            imgKey,
+            'student-user-avatar-img'
+          );
+          return;
+        }
+        profileAvatar.textContent = getInitials(profile && profile.name);
       };
 
       var fillProfileForm = function (profile) {
@@ -1363,7 +1369,7 @@
                 return getProfileFallback();
               }
               var row = rows[0] || {};
-              return {
+              var profile = {
                 student_id: row.student_id != null ? Number(row.student_id) : (sid ? Number(sid) : null),
                 img_url: row.img_url || user.img_url || null,
                 name: row.name || user.name || studentName,
@@ -1375,6 +1381,20 @@
                 city: row.address || '',
                 address: row.address || '',
               };
+              if (typeof setCachedStudentProfile === 'function') {
+                setCachedStudentProfile(session, profile);
+              }
+              try {
+                if (session && session.user && profile.img_url) {
+                  session.user.img_url = profile.img_url;
+                  session.user.name = profile.name;
+                  localStorage.setItem(
+                    (Auth.keys && Auth.keys.user) || storagePrefix + 'user',
+                    JSON.stringify(session.user)
+                  );
+                }
+              } catch (_) {}
+              return profile;
             });
           })
           .catch(function () {
@@ -1382,26 +1402,34 @@
           });
       };
 
-      var applyIdentityToUi = function (name) {
+      var applyIdentityToUi = function (name, profile) {
         var displayName = name || 'Demo Student';
-        var ii = getInitials(displayName);
         if (titleEl) titleEl.textContent = 'Welcome back, ' + displayName;
-        if (sidebarNameEl) sidebarNameEl.textContent = displayName;
-        if (sidebarAvatarEl) {
-          if (!sidebarAvatarEl.querySelector('img.student-user-avatar-img')) {
-            sidebarAvatarEl.textContent = ii;
-          }
+        if (typeof applyStudentUserAvatarImage === 'function') {
+          applyStudentUserAvatarImage();
+        } else {
+          if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+          if (sidebarAvatarEl) sidebarAvatarEl.textContent = getInitials(displayName);
         }
+        if (typeof applyStudentTopbarProfileButton === 'function' && document.getElementById('open-profile-panel')) {
+          applyStudentTopbarProfileButton();
+        }
+        if (profile) setProfileAvatar(profile);
       };
 
       var openPanel = function () {
         fillProfileForm(currentProfile || getProfileFallback());
         if (profileStatus) profileStatus.hidden = true;
         if (panel) panel.hidden = false;
-        fetchStudentProfile().then(function (profile) {
-          currentProfile = profile;
-          fillProfileForm(profile);
-        });
+        var hasFreshCache =
+          typeof getCachedStudentProfile === 'function' && !!getCachedStudentProfile(session);
+        if (!hasFreshCache) {
+          fetchStudentProfile().then(function (profile) {
+            currentProfile = profile;
+            fillProfileForm(profile);
+            applyIdentityToUi(profile.name, profile);
+          });
+        }
       };
 
       var closePanel = function () {
@@ -1466,11 +1494,10 @@
             }
 
             currentProfile = Object.assign({}, currentProfile || {}, updated, { student_id: sid, address: updated.city });
-            applyIdentityToUi(updated.name);
-            setProfileAvatar(currentProfile);
-            if (typeof applyStudentTopbarProfileButton === 'function') {
-              applyStudentTopbarProfileButton();
+            if (typeof setCachedStudentProfile === 'function') {
+              setCachedStudentProfile(session, currentProfile);
             }
+            applyIdentityToUi(updated.name, currentProfile);
 
             try {
               var currentSession = Auth.getSession ? Auth.getSession() : null;
@@ -1497,11 +1524,13 @@
         });
       }
 
-      currentProfile = getProfileFallback();
-      applyIdentityToUi(currentProfile.name);
+      currentProfile =
+        (typeof getCachedStudentProfile === 'function' && getCachedStudentProfile(session)) ||
+        getProfileFallback();
+      applyIdentityToUi(currentProfile.name, currentProfile);
       fetchStudentProfile().then(function (profile) {
         currentProfile = profile;
-        applyIdentityToUi(profile.name);
+        applyIdentityToUi(profile.name, profile);
       });
     });
   </script>

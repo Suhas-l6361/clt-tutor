@@ -28,6 +28,43 @@
     });
   }
 
+  var INDIAN_MOBILE_RE = /^\+91[6-9]\d{9}$/;
+
+  function normalizeIndianPhone(str) {
+    return String(str || '')
+      .trim()
+      .replace(/\s+/g, '');
+  }
+
+  function isValidIndianPhone(str) {
+    return INDIAN_MOBILE_RE.test(normalizeIndianPhone(str));
+  }
+
+  function indianPhoneToNumber(str) {
+    var normalized = normalizeIndianPhone(str);
+    if (!INDIAN_MOBILE_RE.test(normalized)) return NaN;
+    return Number(normalized.replace(/\D/g, ''));
+  }
+
+  var INDIAN_MOBILE_10_RE = /^[6-9]\d{9}$/;
+
+  function normalizeIndianMobile10(str) {
+    var d = String(str || '').replace(/\D/g, '');
+    if (d.length === 12 && d.indexOf('91') === 0) d = d.slice(2);
+    if (d.length === 11 && d.charAt(0) === '0') d = d.slice(1);
+    return d;
+  }
+
+  function isValidIndianMobile10(str) {
+    return INDIAN_MOBILE_10_RE.test(normalizeIndianMobile10(str));
+  }
+
+  function indianMobile10ToNumber(str) {
+    var d = normalizeIndianMobile10(str);
+    if (!INDIAN_MOBILE_10_RE.test(d)) return NaN;
+    return Number(d);
+  }
+
   function phoneToNumber(str) {
     var d = String(str || '').replace(/\D/g, '');
     if (!d) return NaN;
@@ -36,6 +73,12 @@
 
   window.PublicFormsApi = {
     phoneToNumber: phoneToNumber,
+    isValidIndianPhone: isValidIndianPhone,
+    indianPhoneToNumber: indianPhoneToNumber,
+    normalizeIndianPhone: normalizeIndianPhone,
+    isValidIndianMobile10: isValidIndianMobile10,
+    indianMobile10ToNumber: indianMobile10ToNumber,
+    normalizeIndianMobile10: normalizeIndianMobile10,
     postRequestCallback: function (payload) {
       var u = C.REQUEST_CALLBACK_API;
       if (!u) {
