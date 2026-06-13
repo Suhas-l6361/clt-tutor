@@ -2088,7 +2088,7 @@
         var title = String(row && row.title != null ? row.title : '')
           .trim()
           .toUpperCase();
-        return title === 'MCLAT-2601';
+        return title === 'MCLAT-2602';
       }
 
       function parseScheduledDateTime(raw) {
@@ -3509,7 +3509,7 @@
             return;
           }
           if (!isActivatedStudentTest(row)) {
-            alert('This test is not available yet. Only mCLAT-2601 is open for students.');
+            alert('This test is not available yet. Only mCLAT-2602 is open for students.');
             return;
           }
           omrEntrySavedOmrSnapshot = savedOmrSnapshot || null;
@@ -3735,7 +3735,7 @@
           if (!isActivatedStudentTest(row)) {
             hideLoader();
             if (testListEl) testListEl.hidden = false;
-            showErr('This test is not available yet. Only mCLAT-2601 is open for students.');
+            showErr('This test is not available yet. Only mCLAT-2602 is open for students.');
             return;
           }
           var openMeta = getOpenMeta(row);

@@ -12,122 +12,305 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/student-shell.css" />
   <style>
-    .lms-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1rem; }
-    .lms-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04); }
-    .lms-title { margin: 0 0 0.35rem; font-size: 1.05rem; }
-    .lms-muted { margin: 0; color: var(--muted); font-size: 0.87rem; }
-    .course-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
-    .course-card h4 { margin: 0 0 0.35rem; font-size: 1rem; }
-    .course-card .meta { margin: 0; color: var(--muted); font-size: 0.8rem; }
-    .course-card .cta-row { display: flex; gap: 0.45rem; margin-top: 0.8rem; }
-    .btn-mini { border: 1px solid #d6dbe4; border-radius: 9px; background: #fff; padding: 0.45rem 0.55rem; cursor: pointer; }
-    .lms-stat { display: grid; gap: 0.55rem; margin-top: 0.7rem; }
-    .lms-stat-item { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.85rem; }
-    .lms-pill { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid #d5dbe5; border-radius: 999px; padding: 0.28rem 0.55rem; font-size: 0.75rem; font-weight: 600; background: #fff; }
-    .lms-pill.active { border-color: #e6b800; background: #fff7d1; }
-    .lms-reco-list { list-style: none; margin: 0.7rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
-    .lms-reco-list li { border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.7rem; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+    .lms-page { display: flex; flex-direction: column; gap: 1.25rem; max-width: 1280px; margin: 0 auto; }
 
-    .video-modal__dialog { width: min(1200px, 96vw); max-height: 90vh; }
-    .lms-player-wrap { display: grid; grid-template-columns: 2fr 1fr; gap: 0.8rem; padding: 0.8rem; }
-    .lms-player-main { min-width: 0; }
-    .video-modal__frame-wrap { border-radius: 12px; overflow: hidden; border: 1px solid #dde3ec; }
-    .video-modal__iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; display: block; background: #000; }
-    .lms-player-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.65rem; }
-    .lms-player-actions button { border: 1px solid #d6dbe4; background: #fff; border-radius: 10px; padding: 0.45rem 0.62rem; font-weight: 600; cursor: pointer; }
-    .lms-player-actions button.active { background: #fff7d1; border-color: #e6b800; }
-    .lms-next-box { margin-top: 0.75rem; border: 1px solid #dbe2ec; border-radius: 12px; padding: 0.65rem 0.7rem; background: #f8fafc; }
-    .lms-next-box h4 { margin: 0 0 0.35rem; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; color: #344054; }
-    .lms-next-box p { margin: 0; font-size: 0.88rem; }
+    .lms-hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem 1.5rem;
+      align-items: center;
+      padding: 1.25rem 1.35rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+      color: #f8fafc;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+    }
+    .lms-hero__eyebrow {
+      margin: 0 0 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fbbf24;
+    }
+    .lms-hero__title { margin: 0 0 0.4rem; font-size: clamp(1.15rem, 2.5vw, 1.55rem); font-weight: 700; }
+    .lms-hero__sub { margin: 0; font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; max-width: 42rem; }
+    .lms-hero__stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(88px, 1fr));
+      gap: 0.65rem;
+    }
+    .lms-stat-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      text-align: center;
+    }
+    .lms-stat-card strong {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .lms-stat-card span { font-size: 0.72rem; color: #94a3b8; }
 
-    .lms-playlist { border: 1px solid #dde3ec; border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-height: 320px; }
-    .lms-playlist__head { padding: 0.7rem; background: #f8fafc; border-bottom: 1px solid #e3e8ef; }
-    .lms-playlist__head h3 { margin: 0; font-size: 0.92rem; }
-    .lms-playlist__list { margin: 0; padding: 0; list-style: none; overflow: auto; }
-    .lms-playlist__item { border-bottom: 1px solid #eef2f7; }
-    .lms-playlist__btn { width: 100%; text-align: left; border: 0; background: #fff; padding: 0.62rem 0.7rem; cursor: pointer; display: grid; gap: 0.2rem; }
-    .lms-playlist__btn:hover { background: #f8fafc; }
-    .lms-playlist__btn.active { background: #fff8de; }
-    .lms-playlist__name { font-size: 0.86rem; font-weight: 600; color: #0f172a; }
-    .lms-playlist__meta { font-size: 0.75rem; color: #64748b; }
-    @media (max-width: 1100px) { .lms-layout { grid-template-columns: 1fr; } .course-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 920px) { .lms-player-wrap { grid-template-columns: 1fr; } .course-grid { grid-template-columns: 1fr; } }
+    .lms-continue {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid #e6b800;
+      background: linear-gradient(90deg, #fffbeb 0%, #fff 100%);
+    }
+    .lms-continue[hidden] { display: none !important; }
+    .lms-continue__text { margin: 0; font-size: 0.9rem; color: #334155; }
+    .lms-continue__text strong { color: #0f172a; }
+
+    .lms-studio {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.95fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .lms-player-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    }
+    .lms-player-card__frame {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+    .lms-player-card__frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .lms-player-card__body { padding: 1rem 1.1rem 1.15rem; }
+    .lms-player-card__title { margin: 0 0 0.35rem; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+    .lms-player-card__meta {
+      margin: 0 0 0.85rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+    .lms-player-card__bar {
+      height: 6px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin-bottom: 0.85rem;
+    }
+    .lms-player-card__bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #e6b800, #f59e0b);
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+    .lms-player-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .lms-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid #d6dbe4;
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.48rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #334155;
+    }
+    .lms-action-btn:hover { background: #f8fafc; }
+    .lms-action-btn.is-done { border-color: #86efac; background: #f0fdf4; color: #166534; }
+    .lms-action-btn.is-active { border-color: #e6b800; background: #fffbeb; }
+
+    .lms-playlist-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      max-height: min(72vh, 640px);
+    }
+    .lms-playlist-panel__head {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #eef2f7;
+      background: #f8fafc;
+    }
+    .lms-playlist-panel__head h3 { margin: 0 0 0.2rem; font-size: 0.95rem; }
+    .lms-playlist-panel__head p { margin: 0; font-size: 0.78rem; color: var(--muted); }
+    .lms-playlist-scroll {
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .lms-playlist-item {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 0.65rem;
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fff;
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .lms-playlist-item:hover { background: #f8fafc; }
+    .lms-playlist-item.is-active { background: #fffbeb; border-left: 3px solid #e6b800; }
+    .lms-playlist-item.is-done .lms-playlist-item__badge { background: #dcfce7; color: #166534; }
+    .lms-playlist-item__thumb {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      background: #e2e8f0;
+    }
+    .lms-playlist-item__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lms-playlist-item__dur {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.78);
+      color: #fff;
+      padding: 0.12rem 0.3rem;
+      border-radius: 4px;
+    }
+    .lms-playlist-item__body { min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+    .lms-playlist-item__num { font-size: 0.68rem; font-weight: 700; color: #946200; text-transform: uppercase; }
+    .lms-playlist-item__name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .lms-playlist-item__prog {
+      height: 3px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .lms-playlist-item__prog-fill { height: 100%; background: #e6b800; width: 0%; }
+    .lms-playlist-item__badge {
+      align-self: flex-start;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .lms-file-hint {
+      margin: 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+    }
+    .lms-file-hint[hidden] { display: none !important; }
+
+    @media (max-width: 960px) {
+      .lms-hero { grid-template-columns: 1fr; }
+      .lms-hero__stats { grid-template-columns: repeat(3, 1fr); }
+      .lms-studio { grid-template-columns: 1fr; }
+      .lms-playlist-panel { max-height: 420px; }
+    }
+    @media (max-width: 520px) {
+      .lms-hero__stats { grid-template-columns: 1fr; }
+      .lms-playlist-item { grid-template-columns: 80px 1fr; }
+    }
   </style>
 </head>
 <body class="app-body student-dashboard">
   <div id="stock" style="display: none">
-    <p class="text-muted" style="margin-top: 0; margin-bottom: 1.5rem">
-      <i class="fa-solid fa-layer-group" style="color: var(--accent); margin-right: 0.35rem"></i>
-      All modules for your enrolled batch will appear here when assigned (API-ready).
-    </p>
-    <div class="lms-layout">
-      <section class="lms-card">
-        <h3 class="lms-title">My Learning Paths</h3>
-        <p class="lms-muted">Assigned modules and progress will appear here when your batch has active courses.</p>
-        <div class="course-grid" id="course-list" style="margin-top:0.85rem;"></div>
-      </section>
-      <aside class="lms-card">
-        <h3 class="lms-title">Learning Snapshot</h3>
-        <p class="lms-muted">Live tracked on this device for this student account.</p>
-        <div class="lms-stat" id="lms-stat"></div>
-        <h4 style="margin:1rem 0 0.45rem;font-size:0.92rem;">Recommended Next</h4>
-        <ul class="lms-reco-list" id="lms-reco"></ul>
-      </aside>
-    </div>
-
-    <div id="video-modal" class="video-modal" hidden aria-hidden="true">
-      <div class="video-modal__backdrop" data-video-modal-close tabindex="-1"></div>
-      <div
-        class="video-modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="video-modal-title"
-      >
-        <div class="video-modal__head">
-          <h2 id="video-modal-title" class="video-modal__title">Module</h2>
-          <button type="button" class="video-modal__close" data-video-modal-close aria-label="Close video">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
+    <div class="lms-page">
+      <section class="lms-hero">
+        <div>
+          <p class="lms-hero__eyebrow">CLATutor LMS</p>
+          <h2 class="lms-hero__title">CLAT Video Library</h2>
+          <p class="lms-hero__sub">
+            Watch lessons at your pace. Progress, watch time, and resume position are saved for your account on this device.
+          </p>
         </div>
-        <p id="video-modal-file-hint" class="video-modal__file-hint" hidden>
-          Embedded video may not load while this page is opened as a <strong>file</strong> (double-clicked from the folder).
-          Run a small web server in your project folder (e.g. <code>python -m http.server 8080</code>) and open
-          <code>http://localhost:8080/student/courses.html</code>, or deploy over <strong>HTTPS</strong>.
-        </p>
-        <div class="lms-player-wrap">
-          <div class="lms-player-main">
-            <div class="video-modal__frame-wrap">
-              <iframe
-                id="video-modal-iframe"
-                class="video-modal__iframe"
-                title="Course video"
-                width="560"
-                height="315"
-                src=""
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="no-referrer-when-downgrade"
-                allowfullscreen
-              ></iframe>
+        <div class="lms-hero__stats" id="lms-hero-stats"></div>
+      </section>
+
+      <section class="lms-continue" id="lms-continue" hidden>
+        <p class="lms-continue__text" id="lms-continue-text"></p>
+        <button type="button" class="btn btn-primary" id="lms-continue-btn">
+          <i class="fa-solid fa-play" aria-hidden="true"></i> Continue watching
+        </button>
+      </section>
+
+      <p id="lms-file-hint" class="lms-file-hint" hidden>
+        You opened this page as a <strong>file</strong>. YouTube playback needs a local server
+        (e.g. <code>http://127.0.0.1:5501/...</code>) or HTTPS.
+      </p>
+
+      <div class="lms-studio">
+        <section class="lms-player-card" aria-label="Video player">
+          <div class="lms-player-card__frame">
+            <iframe
+              id="lms-player-iframe"
+              title="Course video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="lms-player-card__body">
+            <h3 class="lms-player-card__title" id="lms-now-title">Select a lesson to start</h3>
+            <p class="lms-player-card__meta" id="lms-now-meta"></p>
+            <div class="lms-player-card__bar" aria-hidden="true">
+              <div class="lms-player-card__bar-fill" id="lms-now-bar"></div>
             </div>
             <div class="lms-player-actions">
-              <button type="button" id="lms-like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-              <button type="button" id="lms-bookmark-btn"><i class="fa-regular fa-bookmark"></i> Save</button>
-              <span class="lms-pill" id="lms-resume-pill"><i class="fa-regular fa-clock"></i> Resume enabled</span>
-              <span class="lms-pill" id="lms-progress-pill">0% complete</span>
-            </div>
-            <div class="lms-next-box" id="lms-next-box" hidden>
-              <h4>Next in Queue</h4>
-              <p id="lms-next-text">—</p>
+              <button type="button" class="lms-action-btn" id="lms-mark-done-btn" disabled>
+                <i class="fa-regular fa-circle-check" aria-hidden="true"></i> Mark complete
+              </button>
+              <button type="button" class="lms-action-btn" id="lms-restart-btn" disabled>
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Restart lesson
+              </button>
+              <span class="lms-action-btn is-active" id="lms-resume-badge" hidden>
+                <i class="fa-regular fa-clock" aria-hidden="true"></i> Resumed
+              </span>
             </div>
           </div>
-          <aside class="lms-playlist">
-            <div class="lms-playlist__head">
-              <h3 id="lms-playlist-title">Playlist</h3>
-            </div>
-            <ul class="lms-playlist__list" id="lms-playlist-list"></ul>
-          </aside>
-        </div>
+        </section>
+
+        <aside class="lms-playlist-panel" aria-label="Course playlist">
+          <div class="lms-playlist-panel__head">
+            <h3>Course playlist</h3>
+            <p id="lms-playlist-summary">13 lessons · CLAT prep</p>
+          </div>
+          <div class="lms-playlist-scroll" id="lms-playlist"></div>
+        </aside>
       </div>
     </div>
   </div>
@@ -141,397 +324,546 @@
   <script src="../js/nav.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script>
-    function ytEmbed(videoId, startSeconds) {
-      var start = Number(startSeconds || 0);
-      return (
-        'https://www.youtube-nocookie.com/embed/' +
-        videoId +
-        '?enablejsapi=1&rel=0&modestbranding=1' +
-        (start > 0 ? '&start=' + Math.max(0, Math.floor(start)) : '')
-      );
-    }
-    var DEMO_COURSES = [];
+    (function () {
+      var COURSE_ID = 'clat-youtube-library';
+      var COMPLETE_RATIO = 0.9;
 
-    document.addEventListener('DOMContentLoaded', function () {
-      var stock = document.getElementById('stock');
-      initAppChrome({
-        role: 'student',
-        active: 'courses.html',
-        title: 'My courses',
-        contentEl: stock,
-      });
-      applyStudentChrome();
-      var wrap = document.getElementById('course-list');
-      var statWrap = document.getElementById('lms-stat');
-      var recoWrap = document.getElementById('lms-reco');
-      if (!wrap || !statWrap || !recoWrap) return;
-      function escAttr(s) {
-        return String(s)
+      var LESSONS = [
+        { id: 'PrBln1_3ZcA', title: 'CLAT Prep — Lesson 1' },
+        { id: 'qS5LB_2JPGw', title: 'CLAT Prep — Lesson 2' },
+        { id: '9rsEsT3YceM', title: 'CLAT Prep — Lesson 3' },
+        { id: 'capohu3KbF4', title: 'CLAT Prep — Lesson 4' },
+        { id: 'vYv9HuoarH4', title: 'CLAT Prep — Lesson 5' },
+        { id: 'WybQpZALnuk', title: 'CLAT Prep — Lesson 6' },
+        { id: 'Sv7F59slRwk', title: 'CLAT Prep — Lesson 7' },
+        { id: 'WNdbdWHrx1w', title: 'CLAT Prep — Lesson 8' },
+        { id: '3C45k3M3a8g', title: 'CLAT Prep — Lesson 9' },
+        { id: 'g9PUAl_eris', title: 'CLAT Prep — Lesson 10' },
+        { id: '452yYjwaQs8', title: 'CLAT Prep — Lesson 11' },
+        { id: 'uFQSV0s-nOE', title: 'CLAT Prep — Lesson 12' },
+        { id: 'hrtGl8oxWcU', title: 'CLAT Prep — Lesson 13' },
+      ];
+
+      function ytThumb(id) {
+        return 'https://img.youtube.com/vi/' + id + '/mqdefault.jpg';
+      }
+
+      function formatDuration(sec) {
+        var s = Math.max(0, Math.floor(Number(sec) || 0));
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var r = s % 60;
+        if (h > 0) return h + 'h ' + m + 'm';
+        if (m > 0) return m + 'm ' + r + 's';
+        return r + 's';
+      }
+
+      function formatHours(totalSec) {
+        var s = Math.max(0, Math.floor(Number(totalSec) || 0));
+        if (s < 60) return s + ' sec';
+        var m = Math.floor(s / 60);
+        if (m < 60) return m + ' min';
+        var h = Math.floor(m / 60);
+        var rm = m % 60;
+        return rm > 0 ? h + 'h ' + rm + 'm' : h + 'h';
+      }
+
+      function escHtml(s) {
+        return String(s == null ? '' : s)
           .replace(/&/g, '&amp;')
-          .replace(/"/g, '&quot;')
-          .replace(/</g, '&lt;');
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
       }
 
-      var session = Auth.getSession ? Auth.getSession() : null;
-      var userId = session && session.user && (session.user.id || session.user.email)
-        ? String(session.user.id || session.user.email)
-        : 'student';
-      var storageKey = 'lms_course_state_' + userId;
-      var lmsState = { courses: {}, lastCourseId: null };
-      try {
-        var raw = localStorage.getItem(storageKey);
-        if (raw) lmsState = Object.assign(lmsState, JSON.parse(raw));
-      } catch (_) {}
-      function saveLmsState() {
-        localStorage.setItem(storageKey, JSON.stringify(lmsState));
-      }
-      function getCourseState(courseId) {
-        if (!lmsState.courses[courseId]) {
-          lmsState.courses[courseId] = {
-            liked: false,
-            saved: false,
-            progressPct: 0,
-            lastVideoId: null,
-            lastSeconds: 0
-          };
-        }
-        return lmsState.courses[courseId];
-      }
-      function avgProgress() {
-        var vals = DEMO_COURSES.map(function (c) { return getCourseState(c.id).progressPct || 0; });
-        if (!vals.length) return 0;
-        var sum = vals.reduce(function (a, b) { return a + b; }, 0);
-        return Math.round(sum / vals.length);
-      }
-      function renderSnapshot() {
-        var likedCount = DEMO_COURSES.filter(function (c) { return getCourseState(c.id).liked; }).length;
-        var savedCount = DEMO_COURSES.filter(function (c) { return getCourseState(c.id).saved; }).length;
-        statWrap.innerHTML =
-          '<div class="lms-stat-item"><span>Overall progress</span><strong>' + avgProgress() + '%</strong></div>' +
-          '<div class="lms-stat-item"><span>Courses liked</span><strong>' + likedCount + '</strong></div>' +
-          '<div class="lms-stat-item"><span>Saved modules</span><strong>' + savedCount + '</strong></div>';
-      }
-      function renderRecommendations(activeCourseId) {
-        if (!DEMO_COURSES.length) {
-          recoWrap.innerHTML = '';
-          return;
-        }
-        var list = DEMO_COURSES
-          .filter(function (c) { return c.id !== activeCourseId; })
-          .sort(function (a, b) {
-            return (getCourseState(a.id).progressPct || 0) - (getCourseState(b.id).progressPct || 0);
-          })
-          .slice(0, 3);
-        recoWrap.innerHTML = list
-          .map(function (c) {
-            var p = getCourseState(c.id).progressPct || 0;
-            return '<li><div><strong>' + c.title + '</strong><div class="lms-muted">' + c.meta + '</div></div><span class="lms-pill">' + p + '%</span></li>';
-          })
-          .join('');
-      }
-
-      if (!DEMO_COURSES.length) {
-        wrap.innerHTML =
-          '<p class="lms-muted" style="grid-column: 1 / -1; text-align: center; padding: 1.75rem 0.75rem; margin: 0;">' +
-          'No courses to show yet. When your batch is assigned modules, they will appear here.' +
-          '</p>';
-      } else {
-        wrap.innerHTML = DEMO_COURSES.map(function (c) {
-          var st = getCourseState(c.id);
-          var pct = st.progressPct || 0;
-          return (
-            '<div class="card course-card">' +
-            '<h4>' +
-            c.title +
-            '</h4>' +
-            '<p class="meta">' +
-            c.meta +
-            ' · <span class="badge badge-new">' +
-            c.tag +
-            '</span></p>' +
-            '<div class="progress" aria-label="Progress ' +
-            pct +
-            '%"><div class="progress__bar" style="width:' +
-            pct +
-            '%"></div></div>' +
-            '<p class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0">' +
-            pct +
-            '% complete</p>' +
-            '<div class="cta-row">' +
-            '<button type="button" class="btn btn-primary btn-open-module" data-course-id="' +
-            escAttr(c.id) +
-            '"><i class="fa-solid fa-play"></i> Open module</button>' +
-            '<button type="button" class="btn-mini btn-open-module" data-course-id="' +
-            escAttr(c.id) +
-            '" title="Open and resume"><i class="fa-regular fa-clock"></i></button>' +
-            '</div>' +
-            '</div>'
-          );
-        }).join('');
-      }
-      renderSnapshot();
-      renderRecommendations(lmsState.lastCourseId || '');
-
-      var modal = document.getElementById('video-modal');
-      var iframe = document.getElementById('video-modal-iframe');
-      var modalTitle = document.getElementById('video-modal-title');
-      var fileHint = document.getElementById('video-modal-file-hint');
-      var playlistTitle = document.getElementById('lms-playlist-title');
-      var playlistList = document.getElementById('lms-playlist-list');
-      var likeBtn = document.getElementById('lms-like-btn');
-      var saveBtn = document.getElementById('lms-bookmark-btn');
-      var progressPill = document.getElementById('lms-progress-pill');
-      var nextBox = document.getElementById('lms-next-box');
-      var nextText = document.getElementById('lms-next-text');
-      var isFileProtocol = window.location.protocol === 'file:';
-      var ytLoaded = false;
-      var player = null;
-      var progressTimer = null;
-      var activeCourse = null;
-      var activeModuleIndex = 0;
-      var pendingSeek = 0;
-
-      function loadYouTubeApi() {
-        if (window.YT && window.YT.Player) return Promise.resolve();
-        return new Promise(function (resolve) {
-          if (ytLoaded) {
-            var t = setInterval(function () {
-              if (window.YT && window.YT.Player) {
-                clearInterval(t);
-                resolve();
-              }
-            }, 100);
-            return;
-          }
-          ytLoaded = true;
-          var tag = document.createElement('script');
-          tag.src = 'https://www.youtube.com/iframe_api';
-          tag.onerror = function () {
-            resolve();
-          };
-          window.onYouTubeIframeAPIReady = function () {
-            resolve();
-          };
-          document.head.appendChild(tag);
-          setTimeout(function () {
-            resolve();
-          }, 3500);
+      document.addEventListener('DOMContentLoaded', function () {
+        var stock = document.getElementById('stock');
+        initAppChrome({
+          role: 'student',
+          active: 'courses.html',
+          title: 'My courses',
+          contentEl: stock,
         });
-      }
+        if (typeof applyStudentChrome === 'function') applyStudentChrome();
 
-      function setCourseButtonsState() {
-        if (!activeCourse) return;
-        var st = getCourseState(activeCourse.id);
-        likeBtn.classList.toggle('active', !!st.liked);
-        saveBtn.classList.toggle('active', !!st.saved);
-        likeBtn.innerHTML = (st.liked ? '<i class="fa-solid fa-thumbs-up"></i> Liked' : '<i class="fa-regular fa-thumbs-up"></i> Like');
-        saveBtn.innerHTML = (st.saved ? '<i class="fa-solid fa-bookmark"></i> Saved' : '<i class="fa-regular fa-bookmark"></i> Save');
-        progressPill.textContent = (st.progressPct || 0) + '% complete';
-      }
+        var heroStats = document.getElementById('lms-hero-stats');
+        var continueBox = document.getElementById('lms-continue');
+        var continueText = document.getElementById('lms-continue-text');
+        var continueBtn = document.getElementById('lms-continue-btn');
+        var fileHint = document.getElementById('lms-file-hint');
+        var iframe = document.getElementById('lms-player-iframe');
+        var nowTitle = document.getElementById('lms-now-title');
+        var nowMeta = document.getElementById('lms-now-meta');
+        var nowBar = document.getElementById('lms-now-bar');
+        var markDoneBtn = document.getElementById('lms-mark-done-btn');
+        var restartBtn = document.getElementById('lms-restart-btn');
+        var resumeBadge = document.getElementById('lms-resume-badge');
+        var playlistEl = document.getElementById('lms-playlist');
+        var playlistSummary = document.getElementById('lms-playlist-summary');
 
-      function refreshCourseCard(courseId) {
-        wrap.querySelectorAll('.course-card').forEach(function (card) {
-          var openBtn = card.querySelector('.btn-open-module[data-course-id]');
-          if (!openBtn || openBtn.getAttribute('data-course-id') !== courseId) return;
-          var st = getCourseState(courseId);
-          var bar = card.querySelector('.progress__bar');
-          var txt = card.querySelector('.text-muted');
-          if (bar) bar.style.width = (st.progressPct || 0) + '%';
-          if (txt) txt.textContent = (st.progressPct || 0) + '% complete';
-        });
-      }
+        var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        var userKey =
+          session && session.user
+            ? String(session.user.student_id || session.user.email || session.user.id || 'student')
+            : 'student';
+        var storageKey =
+          (window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX ? window.APP_CONFIG.STORAGE_PREFIX : 'edportal_') +
+          'lms_yt_' +
+          userKey;
 
-      function updateNextBox() {
-        if (!activeCourse || !nextBox || !nextText) return;
-        var next = activeCourse.modules[activeModuleIndex + 1];
-        if (!next) {
-          nextBox.hidden = true;
-          return;
-        }
-        nextText.textContent = next.name + ' (' + next.mins + ' min)';
-        nextBox.hidden = false;
-      }
-
-      function renderPlaylist() {
-        if (!activeCourse) return;
-        playlistTitle.textContent = activeCourse.title + ' Playlist';
-        playlistList.innerHTML = activeCourse.modules
-          .map(function (m, idx) {
-            return (
-              '<li class="lms-playlist__item">' +
-              '<button type="button" class="lms-playlist__btn' + (idx === activeModuleIndex ? ' active' : '') + '" data-module-index="' + idx + '">' +
-              '<span class="lms-playlist__name">' + m.name + '</span>' +
-              '<span class="lms-playlist__meta">Module ' + (idx + 1) + ' · ' + m.mins + ' min</span>' +
-              '</button>' +
-              '</li>'
-            );
-          })
-          .join('');
-        updateNextBox();
-      }
-
-      function stopProgressTimer() {
-        if (progressTimer) {
-          clearInterval(progressTimer);
-          progressTimer = null;
-        }
-      }
-
-      function syncProgressFromPlayer() {
-        if (!player || !activeCourse) return;
-        var st = getCourseState(activeCourse.id);
-        var duration = 0;
-        var current = 0;
+        var state = { courseId: COURSE_ID, lastVideoId: null, videos: {} };
         try {
-          duration = Number(player.getDuration ? player.getDuration() : 0);
-          current = Number(player.getCurrentTime ? player.getCurrentTime() : 0);
-        } catch (_) { return; }
-        if (!duration || !current) return;
-        st.lastVideoId = activeCourse.modules[activeModuleIndex].id;
-        st.lastSeconds = Math.floor(current);
-        var perVideo = Math.min(100, Math.round((current / duration) * 100));
-        var aggregate = Math.round(((activeModuleIndex * 100) + perVideo) / activeCourse.modules.length);
-        st.progressPct = Math.max(st.progressPct || 0, aggregate);
-        lmsState.lastCourseId = activeCourse.id;
-        saveLmsState();
-        setCourseButtonsState();
-        refreshCourseCard(activeCourse.id);
-        renderSnapshot();
-        renderRecommendations(activeCourse.id);
-      }
+          var raw = localStorage.getItem(storageKey);
+          if (raw) state = Object.assign(state, JSON.parse(raw));
+          if (!state.videos || typeof state.videos !== 'object') state.videos = {};
+        } catch (_) {}
 
-      function bootPlayer(startSeconds) {
-        if (!activeCourse) return;
-        var mod = activeCourse.modules[activeModuleIndex];
-        var src = ytEmbed(mod.id, startSeconds || 0);
-        pendingSeek = Number(startSeconds || 0);
-        iframe.src = src;
-        loadYouTubeApi().then(function () {
-          if (!(window.YT && window.YT.Player)) {
-            return;
+        var isFileProtocol = window.location.protocol === 'file:';
+        var activeIndex = 0;
+        var player = null;
+        var progressTimer = null;
+        var ytApiReady = false;
+        var pendingSeek = 0;
+        var lastTickAt = 0;
+
+        function saveState() {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(state));
+          } catch (_) {}
+        }
+
+        function lessonById(id) {
+          for (var i = 0; i < LESSONS.length; i++) {
+            if (LESSONS[i].id === id) return { lesson: LESSONS[i], index: i };
           }
-          if (player) {
-            player.loadVideoById({ videoId: mod.id, startSeconds: Math.floor(startSeconds || 0) });
-            return;
+          return null;
+        }
+
+        function getVideoState(videoId) {
+          if (!state.videos[videoId]) {
+            state.videos[videoId] = {
+              position: 0,
+              duration: 0,
+              watchSeconds: 0,
+              completed: false,
+              updatedAt: null,
+            };
           }
-          player = new window.YT.Player('video-modal-iframe', {
-            videoId: mod.id,
-            playerVars: { rel: 0, modestbranding: 1 },
-            events: {
-              onReady: function () {
-                if (pendingSeek > 0) {
-                  try { player.seekTo(Math.floor(pendingSeek), true); } catch (_) {}
-                }
-              },
-              onStateChange: function (ev) {
-                if (ev.data === window.YT.PlayerState.PLAYING) {
-                  stopProgressTimer();
-                  progressTimer = setInterval(syncProgressFromPlayer, 1000);
-                }
-                if (ev.data === window.YT.PlayerState.PAUSED || ev.data === window.YT.PlayerState.ENDED) {
-                  syncProgressFromPlayer();
-                }
-                if (ev.data === window.YT.PlayerState.ENDED && activeCourse && activeModuleIndex < activeCourse.modules.length - 1) {
-                  activeModuleIndex += 1;
-                  renderPlaylist();
-                  bootPlayer(0);
-                }
-              }
-            }
+          return state.videos[videoId];
+        }
+
+        function videoProgressPct(vs) {
+          if (vs.completed) return 100;
+          if (vs.duration > 0 && vs.position > 0) {
+            return Math.min(100, Math.round((vs.position / vs.duration) * 100));
+          }
+          return vs.position > 0 ? 5 : 0;
+        }
+
+        function completedCount() {
+          var n = 0;
+          LESSONS.forEach(function (l) {
+            if (getVideoState(l.id).completed) n++;
           });
-        });
-      }
-
-      function closeVideoModal() {
-        if (!modal || !iframe) return;
-        modal.hidden = true;
-        modal.setAttribute('aria-hidden', 'true');
-        stopProgressTimer();
-        syncProgressFromPlayer();
-        iframe.src = '';
-        document.body.style.overflow = '';
-        if (fileHint) fileHint.hidden = true;
-      }
-
-      function openVideoModal(courseId) {
-        if (!modal || !iframe) return;
-        activeCourse = DEMO_COURSES.find(function (c) { return c.id === courseId; }) || null;
-        if (!activeCourse) return;
-        var st = getCourseState(activeCourse.id);
-        activeModuleIndex = 0;
-        if (st.lastVideoId) {
-          var idx = activeCourse.modules.findIndex(function (m) { return m.id === st.lastVideoId; });
-          if (idx >= 0) activeModuleIndex = idx;
+          return n;
         }
-        modalTitle.textContent = activeCourse.title;
-        renderPlaylist();
-        setCourseButtonsState();
-        renderRecommendations(activeCourse.id);
-        if (fileHint) fileHint.hidden = !isFileProtocol;
-        if (isFileProtocol) {
-          iframe.src = '';
-        } else {
-          if (fileHint) fileHint.hidden = true;
-          bootPlayer(st.lastSeconds || 0);
+
+        function totalWatchSeconds() {
+          var sum = 0;
+          LESSONS.forEach(function (l) {
+            sum += getVideoState(l.id).watchSeconds || 0;
+          });
+          return sum;
         }
-        modal.hidden = false;
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-        var closeBtn = modal.querySelector('.video-modal__close');
-        if (closeBtn) closeBtn.focus();
-      }
 
-      wrap.addEventListener('click', function (e) {
-        var btn = e.target.closest('.btn-open-module');
-        if (!btn) return;
-        var courseId = btn.getAttribute('data-course-id');
-        if (courseId) openVideoModal(courseId);
-      });
+        function overallProgressPct() {
+          if (!LESSONS.length) return 0;
+          var sum = 0;
+          LESSONS.forEach(function (l) {
+            sum += videoProgressPct(getVideoState(l.id));
+          });
+          return Math.round(sum / LESSONS.length);
+        }
 
-      if (playlistList) {
-        playlistList.addEventListener('click', function (e) {
-          var b = e.target.closest('.lms-playlist__btn');
-          if (!b || !activeCourse) return;
-          var idx = Number(b.getAttribute('data-module-index'));
-          if (!Number.isFinite(idx) || idx < 0 || idx >= activeCourse.modules.length) return;
-          activeModuleIndex = idx;
-          var st = getCourseState(activeCourse.id);
-          st.lastVideoId = activeCourse.modules[idx].id;
-          st.lastSeconds = 0;
-          saveLmsState();
+        function renderHeroStats() {
+          if (!heroStats) return;
+          var done = completedCount();
+          var watch = totalWatchSeconds();
+          var overall = overallProgressPct();
+          heroStats.innerHTML =
+            '<div class="lms-stat-card"><strong>' +
+            done +
+            '/' +
+            LESSONS.length +
+            '</strong><span>Completed</span></div>' +
+            '<div class="lms-stat-card"><strong>' +
+            formatHours(watch) +
+            '</strong><span>Watch time</span></div>' +
+            '<div class="lms-stat-card"><strong>' +
+            overall +
+            '%</strong><span>Progress</span></div>';
+          if (playlistSummary) {
+            playlistSummary.textContent =
+              LESSONS.length + ' lessons · ' + done + ' completed · ' + formatHours(watch) + ' watched';
+          }
+        }
+
+        function renderContinue() {
+          if (!continueBox || !continueText) return;
+          if (!state.lastVideoId) {
+            continueBox.hidden = true;
+            return;
+          }
+          var found = lessonById(state.lastVideoId);
+          if (!found) {
+            continueBox.hidden = true;
+            return;
+          }
+          var vs = getVideoState(found.lesson.id);
+          if (vs.completed) {
+            continueBox.hidden = true;
+            return;
+          }
+          var pos = vs.position || 0;
+          continueText.innerHTML =
+            'Continue <strong>' +
+            escHtml(found.lesson.title) +
+            '</strong>' +
+            (pos > 5 ? ' from ' + formatDuration(pos) : '');
+          continueBox.hidden = false;
+        }
+
+        function renderPlaylist() {
+          if (!playlistEl) return;
+          playlistEl.innerHTML = LESSONS.map(function (lesson, idx) {
+            var vs = getVideoState(lesson.id);
+            var pct = videoProgressPct(vs);
+            var active = idx === activeIndex ? ' is-active' : '';
+            var done = vs.completed ? ' is-done' : '';
+            var badge = vs.completed ? 'Done' : pct > 0 ? pct + '% watched' : 'Not started';
+            return (
+              '<button type="button" class="lms-playlist-item' +
+              active +
+              done +
+              '" data-index="' +
+              idx +
+              '">' +
+              '<span class="lms-playlist-item__thumb">' +
+              '<img src="' +
+              ytThumb(lesson.id) +
+              '" alt="" loading="lazy" />' +
+              (vs.duration > 0 ? '<span class="lms-playlist-item__dur">' + formatDuration(vs.duration) + '</span>' : '') +
+              '</span>' +
+              '<span class="lms-playlist-item__body">' +
+              '<span class="lms-playlist-item__num">Lesson ' +
+              (idx + 1) +
+              '</span>' +
+              '<span class="lms-playlist-item__name">' +
+              escHtml(lesson.title) +
+              '</span>' +
+              '<span class="lms-playlist-item__prog"><span class="lms-playlist-item__prog-fill" style="width:' +
+              pct +
+              '%"></span></span>' +
+              '<span class="lms-playlist-item__badge">' +
+              badge +
+              '</span>' +
+              '</span>' +
+              '</button>'
+            );
+          }).join('');
+        }
+
+        function updateNowPlaying(resumed) {
+          var lesson = LESSONS[activeIndex];
+          if (!lesson) return;
+          var vs = getVideoState(lesson.id);
+          var pct = videoProgressPct(vs);
+          if (nowTitle) nowTitle.textContent = lesson.title;
+          if (nowMeta) {
+            nowMeta.innerHTML =
+              '<span>Lesson ' +
+              (activeIndex + 1) +
+              ' of ' +
+              LESSONS.length +
+              '</span>' +
+              '<span>' +
+              (vs.completed ? 'Completed' : pct + '% watched') +
+              '</span>' +
+              '<span>' +
+              formatHours(vs.watchSeconds || 0) +
+              ' on this lesson</span>';
+          }
+          if (nowBar) nowBar.style.width = pct + '%';
+          if (markDoneBtn) {
+            markDoneBtn.disabled = false;
+            markDoneBtn.classList.toggle('is-done', !!vs.completed);
+            markDoneBtn.innerHTML = vs.completed
+              ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Completed'
+              : '<i class="fa-regular fa-circle-check" aria-hidden="true"></i> Mark complete';
+          }
+          if (restartBtn) restartBtn.disabled = false;
+          if (resumeBadge) resumeBadge.hidden = !resumed;
+        }
+
+        function stopProgressTimer() {
+          if (progressTimer) {
+            clearInterval(progressTimer);
+            progressTimer = null;
+          }
+          lastTickAt = 0;
+        }
+
+        function syncFromPlayer() {
+          if (!player || !LESSONS[activeIndex]) return;
+          var lesson = LESSONS[activeIndex];
+          var vs = getVideoState(lesson.id);
+          var duration = 0;
+          var current = 0;
+          try {
+            duration = Number(player.getDuration ? player.getDuration() : 0) || 0;
+            current = Number(player.getCurrentTime ? player.getCurrentTime() : 0) || 0;
+          } catch (_) {
+            return;
+          }
+          if (duration > 0) vs.duration = Math.floor(duration);
+          if (current >= 0) {
+            vs.position = Math.floor(current);
+            if (duration > 0 && current / duration >= COMPLETE_RATIO) {
+              vs.completed = true;
+            }
+          }
+          vs.updatedAt = Date.now();
+          state.lastVideoId = lesson.id;
+          saveState();
+          updateNowPlaying(false);
           renderPlaylist();
-          if (!isFileProtocol) bootPlayer(0);
+          renderHeroStats();
+          renderContinue();
+        }
+
+        function tickWatchTime() {
+          if (!player || !LESSONS[activeIndex]) return;
+          var now = Date.now();
+          if (!lastTickAt) {
+            lastTickAt = now;
+            return;
+          }
+          var lesson = LESSONS[activeIndex];
+          var vs = getVideoState(lesson.id);
+          try {
+            var st = player.getPlayerState ? player.getPlayerState() : -1;
+            if (st === window.YT.PlayerState.PLAYING) {
+              vs.watchSeconds = (vs.watchSeconds || 0) + Math.max(1, Math.round((now - lastTickAt) / 1000));
+            }
+          } catch (_) {}
+          lastTickAt = now;
+        }
+
+        function loadYouTubeApi() {
+          if (window.YT && window.YT.Player) return Promise.resolve();
+          return new Promise(function (resolve) {
+            if (ytApiReady) {
+              var poll = setInterval(function () {
+                if (window.YT && window.YT.Player) {
+                  clearInterval(poll);
+                  resolve();
+                }
+              }, 80);
+              setTimeout(function () {
+                clearInterval(poll);
+                resolve();
+              }, 5000);
+              return;
+            }
+            ytApiReady = true;
+            window.onYouTubeIframeAPIReady = function () {
+              resolve();
+            };
+            var tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.onerror = function () {
+              resolve();
+            };
+            document.head.appendChild(tag);
+            setTimeout(resolve, 4000);
+          });
+        }
+
+        function bootPlayer(startSeconds, showResumed) {
+          if (isFileProtocol) {
+            if (fileHint) fileHint.hidden = false;
+            return;
+          }
+          if (fileHint) fileHint.hidden = true;
+
+          var lesson = LESSONS[activeIndex];
+          if (!lesson || !iframe) return;
+          pendingSeek = Math.max(0, Math.floor(Number(startSeconds) || 0));
+
+          loadYouTubeApi().then(function () {
+            if (!(window.YT && window.YT.Player)) {
+              iframe.src =
+                'https://www.youtube-nocookie.com/embed/' +
+                lesson.id +
+                '?enablejsapi=1&rel=0&modestbranding=1&start=' +
+                pendingSeek;
+              updateNowPlaying(showResumed && pendingSeek > 0);
+              return;
+            }
+
+            if (player && typeof player.loadVideoById === 'function') {
+              player.loadVideoById({ videoId: lesson.id, startSeconds: pendingSeek });
+              updateNowPlaying(showResumed && pendingSeek > 0);
+              return;
+            }
+
+            player = new window.YT.Player('lms-player-iframe', {
+              videoId: lesson.id,
+              playerVars: {
+                rel: 0,
+                modestbranding: 1,
+                start: pendingSeek,
+                enablejsapi: 1,
+              },
+              events: {
+                onReady: function () {
+                  if (pendingSeek > 0) {
+                    try {
+                      player.seekTo(pendingSeek, true);
+                    } catch (_) {}
+                  }
+                  updateNowPlaying(showResumed && pendingSeek > 0);
+                },
+                onStateChange: function (ev) {
+                  if (ev.data === window.YT.PlayerState.PLAYING) {
+                    stopProgressTimer();
+                    lastTickAt = Date.now();
+                    progressTimer = setInterval(function () {
+                      tickWatchTime();
+                      syncFromPlayer();
+                    }, 1000);
+                  }
+                  if (
+                    ev.data === window.YT.PlayerState.PAUSED ||
+                    ev.data === window.YT.PlayerState.ENDED ||
+                    ev.data === window.YT.PlayerState.BUFFERING
+                  ) {
+                    syncFromPlayer();
+                  }
+                  if (ev.data === window.YT.PlayerState.ENDED) {
+                    var vs = getVideoState(lesson.id);
+                    vs.completed = true;
+                    vs.position = vs.duration || vs.position;
+                    saveState();
+                    stopProgressTimer();
+                    if (activeIndex < LESSONS.length - 1) {
+                      setTimeout(function () {
+                        playLesson(activeIndex + 1, false);
+                      }, 800);
+                    }
+                  }
+                },
+              },
+            });
+          });
+        }
+
+        function playLesson(index, preferResume) {
+          if (index < 0 || index >= LESSONS.length) return;
+          activeIndex = index;
+          var lesson = LESSONS[index];
+          var vs = getVideoState(lesson.id);
+          var startAt = 0;
+          if (preferResume !== false && !vs.completed && (vs.position || 0) > 3) {
+            startAt = vs.position;
+          }
+          state.lastVideoId = lesson.id;
+          saveState();
+          stopProgressTimer();
+          syncFromPlayer();
+          renderPlaylist();
+          bootPlayer(startAt, startAt > 3);
+          updateNowPlaying(startAt > 3);
+          renderContinue();
+        }
+
+        function markCurrentComplete() {
+          var lesson = LESSONS[activeIndex];
+          if (!lesson) return;
+          var vs = getVideoState(lesson.id);
+          vs.completed = true;
+          if (vs.duration > 0) vs.position = vs.duration;
+          vs.updatedAt = Date.now();
+          saveState();
+          updateNowPlaying(false);
+          renderPlaylist();
+          renderHeroStats();
+          renderContinue();
+        }
+
+        function restartCurrent() {
+          var lesson = LESSONS[activeIndex];
+          if (!lesson) return;
+          var vs = getVideoState(lesson.id);
+          vs.position = 0;
+          vs.completed = false;
+          saveState();
+          bootPlayer(0, false);
+          updateNowPlaying(false);
+          renderPlaylist();
+          renderHeroStats();
+          renderContinue();
+        }
+
+        if (playlistEl) {
+          playlistEl.addEventListener('click', function (e) {
+            var btn = e.target.closest('.lms-playlist-item');
+            if (!btn) return;
+            var idx = Number(btn.getAttribute('data-index'));
+            if (!Number.isFinite(idx)) return;
+            playLesson(idx, true);
+          });
+        }
+
+        if (continueBtn) {
+          continueBtn.addEventListener('click', function () {
+            if (!state.lastVideoId) return;
+            var found = lessonById(state.lastVideoId);
+            if (!found) return;
+            playLesson(found.index, true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
+
+        if (markDoneBtn) markDoneBtn.addEventListener('click', markCurrentComplete);
+        if (restartBtn) restartBtn.addEventListener('click', restartCurrent);
+
+        window.addEventListener('beforeunload', function () {
+          stopProgressTimer();
+          syncFromPlayer();
         });
-      }
 
-      likeBtn.addEventListener('click', function () {
-        if (!activeCourse) return;
-        var st = getCourseState(activeCourse.id);
-        st.liked = !st.liked;
-        saveLmsState();
-        setCourseButtonsState();
-        renderSnapshot();
-      });
-
-      saveBtn.addEventListener('click', function () {
-        if (!activeCourse) return;
-        var st = getCourseState(activeCourse.id);
-        st.saved = !st.saved;
-        saveLmsState();
-        setCourseButtonsState();
-        renderSnapshot();
-      });
-
-      if (modal) {
-        modal.addEventListener('click', function (e) {
-          if (e.target.closest('[data-video-modal-close]')) closeVideoModal();
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) {
+            stopProgressTimer();
+            syncFromPlayer();
+          }
         });
-      }
 
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && modal && !modal.hidden) closeVideoModal();
+        renderHeroStats();
+        renderContinue();
+        renderPlaylist();
+
+        if (isFileProtocol && fileHint) fileHint.hidden = false;
+
+        var startIndex = 0;
+        if (state.lastVideoId) {
+          var last = lessonById(state.lastVideoId);
+          if (last) startIndex = last.index;
+        }
+        playLesson(startIndex, true);
       });
-    });
+    })();
   </script>
 </body>
 </html>
