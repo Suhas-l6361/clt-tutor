@@ -69,7 +69,7 @@ function clatHeader(activeExam) {
           <div class="site-nav__dropdown" role="menu" aria-label="Main menu">
             <a href="../index.html" role="menuitem"><img src="../image/home.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Home</a>
             <a href="../index.html#programs" role="menuitem"><img src="../image/resources.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Research</a>
-            <a href="../index.html#testimonials" role="menuitem"><img src="../image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
+            <a href="../index.html#faculty" role="menuitem"><img src="../image/team.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Team</a>
             <a href="../login.html" role="menuitem"><img src="../image/gallery.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Gallery</a>
             <a href="achievement.html" role="menuitem"><img src="../image/achivement.png" alt="" class="site-nav__link-icon" width="18" height="18" loading="lazy" /> Achievements</a>
           </div>
@@ -162,7 +162,7 @@ function footer(examPrefix) {
             <li><a href="courses.html">Courses</a></li>
             <li><a href="achievement.html">Achievements</a></li>
             <li><a href="#">Gallery</a></li>
-            <li><a href="../index.html#testimonials">Testimonials</a></li>
+            <li><a href="../index.html#faculty">Testimonials</a></li>
             <li><a href="#">Blogs</a></li>
           </ul>
         </div>

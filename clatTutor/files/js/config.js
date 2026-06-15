@@ -23,6 +23,9 @@ const APP_CONFIG = {
   /** CRM — fee receipts (GET/POST/PUT/DELETE JSON) — same API Gateway stage as CONTACT_US_API */
   FEES_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/fees',
+  /** CRM — attendance save + history (GET/POST JSON) */
+  ATTENDANCE_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/attendance',
   /** Public site — PYQ download modal (POST JSON) */
   DOWNLOAD_ANSWER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/downloadAnswer',

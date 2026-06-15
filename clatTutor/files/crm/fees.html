@@ -53,6 +53,11 @@
           </div>
         </header>
 
+        <div id="fees-edit-banner" class="fees-edit-banner" hidden>
+          <span id="fees-edit-banner-text">Editing an existing receipt</span>
+          <button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" id="fees-edit-cancel">Cancel edit</button>
+        </div>
+
         <div class="fees-doc__body">
           <div class="fees-doc__col fees-doc__col--main">
             <section class="fees-panel fees-panel--student" aria-labelledby="fees-h-student">
@@ -262,17 +267,21 @@
                         <th class="fees-th-num">#</th>
                         <th>Due date</th>
                         <th class="fees-td-num">Installment (INR)</th>
-                        <th class="fees-th-action" aria-label="Row actions"></th>
+                        <th class="fees-th-action">Remove</th>
                       </tr>
                     </thead>
                     <tbody id="fees-installment-tbody"></tbody>
                   </table>
                 </div>
+                <p id="fees-install-empty" class="fees-install-empty" hidden>
+                  No installments on this receipt. Click <strong>Add row</strong> to add one.
+                </p>
                 <div class="fees-install-toolbar">
                   <button type="button" class="fees-btn-add" id="fees-install-add" aria-label="Add installment row">
                     <i class="fa-solid fa-plus"></i>
                     <span>Add row</span>
                   </button>
+                  <span class="fees-install-hint">Use <i class="fa-solid fa-trash-can" aria-hidden="true"></i> on a row to remove it when editing.</span>
                 </div>
               </div>
             </section>
@@ -287,8 +296,8 @@
                   <input type="text" class="fees-input fees-input--mono fees-install-amt" name="installmentAmount[]" inputmode="decimal" />
                 </td>
                 <td class="fees-install-actions">
-                  <button type="button" class="fees-row-remove" hidden aria-label="Remove row">
-                    <i class="fa-solid fa-xmark"></i>
+                  <button type="button" class="fees-row-remove" aria-label="Remove installment">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                   </button>
                 </td>
               </tr>
@@ -341,75 +350,75 @@
       </div>
 
       <section id="fees-print-sheet" class="fees-print-sheet" aria-hidden="true">
-        <header class="fees-print__head">
-          <div class="fees-print__brand">
-            <img
-              class="fees-print__logo"
-              src="../image/Clat%20Logo.png"
-              alt="CLATutor"
-              width="40"
-              height="40"
-              onerror="this.onerror=null;this.src='../image/main.png'"
-            />
-            <div class="fees-print__brand-text">
-              <strong>CLATutor</strong>
+        <div id="fees-print-duplex" class="fees-print__duplex"></div>
+
+        <template id="fees-print-copy-tpl">
+          <article class="fees-print__copy">
+            <p class="fees-print__copy-label">Copy</p>
+            <header class="fees-print__head">
+              <div class="fees-print__brand">
+                <img
+                  class="fees-print__logo"
+                  src="../image/Clat%20Logo.png"
+                  alt="CLATutor"
+                  width="40"
+                  height="40"
+                  onerror="this.onerror=null;this.src='../image/main.png'"
+                />
+                <div class="fees-print__brand-text">
+                  <strong>CLATutor</strong>
+                </div>
+              </div>
+              <div class="fees-print__meta">
+                <div class="fees-print__meta-item">
+                  <span class="fees-print__meta-label">Receipt ID</span>
+                  <strong class="js-print-receipt-id">—</strong>
+                </div>
+                <div class="fees-print__meta-item">
+                  <span class="fees-print__meta-label">Date</span>
+                  <strong class="js-print-receipt-date">—</strong>
+                </div>
+              </div>
+            </header>
+            <div class="fees-print__main">
+              <div class="fees-print__card">
+                <div class="fees-print__title">Student</div>
+                <div class="fees-print__lines js-print-student-lines"></div>
+              </div>
+              <hr class="fees-print__hr" />
+              <div class="fees-print__card">
+                <div class="fees-print__title">Payment</div>
+                <div class="fees-print__lines js-print-payment-lines"></div>
+                <div class="fees-print__lines js-print-payment-extra"></div>
+              </div>
+              <hr class="fees-print__hr" />
+              <div class="fees-print__card">
+                <div class="fees-print__title">Fee structure (INR)</div>
+                <div class="fees-print__grid2 js-print-fee-grid"></div>
+                <div class="fees-print__total-row">
+                  <span>Net payable</span>
+                  <strong class="js-print-net-inr">—</strong>
+                </div>
+                <p class="fees-print__words js-print-net-words">—</p>
+              </div>
+              <div class="fees-print__card fees-print__card--compact js-print-install-wrap">
+                <div class="fees-print__title">Installment plan</div>
+                <table class="fees-print__table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Due date</th>
+                      <th class="fees-print__num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody class="js-print-install-tbody"></tbody>
+                </table>
+              </div>
             </div>
-          </div>
-          <div class="fees-print__meta">
-            <div class="fees-print__meta-item">
-              <span class="fees-print__meta-label">Receipt ID</span>
-              <strong id="print-receipt-id">—</strong>
-            </div>
-            <div class="fees-print__meta-item">
-              <span class="fees-print__meta-label">Date</span>
-              <strong id="print-receipt-date">—</strong>
-            </div>
-          </div>
-        </header>
+          </article>
+        </template>
 
-        <div class="fees-print__main">
-          <div class="fees-print__card">
-            <div class="fees-print__title">Student</div>
-            <div class="fees-print__lines" id="print-student-lines"></div>
-          </div>
-
-          <hr class="fees-print__hr" />
-
-          <div class="fees-print__card">
-            <div class="fees-print__title">Payment</div>
-            <div class="fees-print__lines" id="print-payment-lines"></div>
-            <div class="fees-print__lines" id="print-payment-extra"></div>
-          </div>
-
-          <hr class="fees-print__hr" />
-
-          <div class="fees-print__card">
-            <div class="fees-print__title">Fee structure (INR)</div>
-            <div class="fees-print__grid2" id="print-fee-grid"></div>
-            <div class="fees-print__total-row">
-              <span>Net payable</span>
-              <strong id="print-net-inr">—</strong>
-            </div>
-            <p class="fees-print__words" id="print-net-words">—</p>
-          </div>
-
-          <div class="fees-print__card fees-print__card--compact" id="print-install-wrap">
-            <div class="fees-print__title">Installment plan</div>
-            <table class="fees-print__table" id="print-install-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Due date</th>
-                  <th class="fees-print__num">Amount</th>
-                </tr>
-              </thead>
-              <tbody id="print-install-tbody"></tbody>
-            </table>
-          </div>
-
-        </div>
-
-        <div class="fees-print__sign">
+        <div class="fees-print__sign fees-print__sign--single">
           <div class="fees-print__sign-col">
             <span class="fees-print__sign-role">Parents</span>
             <span class="fees-print__sign-hint">Signature</span>
@@ -448,13 +457,36 @@
           <div class="fees-history-modal__body">
             <p id="fees-history-loading" class="fees-history-loading" hidden>Loading…</p>
             <p id="fees-history-error" class="fees-history-error" hidden></p>
-            <div class="fees-history-table-wrap">
+            <div class="fees-history-filters" id="fees-history-filters" hidden>
+              <div class="fees-history-filters__row">
+                <label class="fees-history-filters__field">
+                  <span class="fees-history-filters__label">From date</span>
+                  <input type="date" id="fees-history-from" class="fees-history-filters__input" />
+                </label>
+                <label class="fees-history-filters__field">
+                  <span class="fees-history-filters__label">To date</span>
+                  <input type="date" id="fees-history-to" class="fees-history-filters__input" />
+                </label>
+                <div class="fees-history-filters__actions">
+                  <button type="button" class="fees-btn fees-btn--primary fees-btn--xs" id="fees-history-apply">
+                    Apply
+                  </button>
+                  <button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" id="fees-history-reset">
+                    Reset
+                  </button>
+                </div>
+              </div>
+              <p id="fees-history-summary" class="fees-history-summary" hidden></p>
+            </div>
+            <div class="fees-history-table-wrap" id="fees-history-table-wrap">
               <table class="fees-history-table">
                 <thead>
                   <tr>
                     <th>Student ID</th>
                     <th>Name</th>
                     <th>Branch</th>
+                    <th>Payment date</th>
+                    <th class="fees-history-table__th-amount">Amount paid</th>
                     <th class="fees-history-table__th-actions">Actions</th>
                   </tr>
                 </thead>
@@ -487,6 +519,10 @@
           <div class="fees-history-detail-scroll" id="fees-history-detail-content"></div>
           <div class="fees-history-detail-footer">
             <button type="button" class="fees-btn fees-btn--ghost" id="fees-history-detail-close-2">Close</button>
+            <button type="button" class="fees-btn fees-btn--ghost" id="fees-history-detail-edit">
+              <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              <span>Edit</span>
+            </button>
             <button type="button" class="fees-btn fees-btn--primary" id="fees-history-detail-print">
               <i class="fa-solid fa-print" aria-hidden="true"></i>
               <span>Print</span>

@@ -168,6 +168,12 @@
       color: #fff !important;
       cursor: default;
     }
+    .exam-test-btn--attended {
+      background: #475569 !important;
+      border-color: #334155 !important;
+      color: #fff !important;
+      cursor: default;
+    }
     .exam-test-btn--retry {
       background: #fff !important;
       border: 2px solid #ea580c !important;
@@ -184,6 +190,17 @@
     }
     .exam-test-btn--review:hover {
       background: #eff6ff !important;
+    }
+    .exam-test-btn--analysis {
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+      border: none !important;
+      color: #fff !important;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.28);
+    }
+    .exam-test-btn--analysis:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
     }
     .exam-test-card--inactive {
       opacity: 0.72;
@@ -1025,6 +1042,321 @@
       max-width: 22rem;
       line-height: 1.5;
     }
+
+    /* —— Test analysis modal —— */
+    .exam-modal--analysis .exam-modal__backdrop {
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(4px);
+    }
+    .exam-modal__dialog--analysis {
+      width: min(1180px, 96vw);
+      max-height: min(92vh, 900px);
+      max-height: min(92dvh, 900px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      border-radius: 22px;
+      border: 1px solid #dbe8ff;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
+      background:
+        radial-gradient(900px 380px at -5% -10%, rgba(124, 58, 237, 0.14), transparent 55%),
+        radial-gradient(700px 320px at 105% 0%, rgba(37, 99, 235, 0.12), transparent 50%),
+        linear-gradient(180deg, #f8faff 0%, #ffffff 42%);
+      animation: examAnalysisIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes examAnalysisIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .exam-analysis-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.35rem 1.5rem 1rem;
+      border-bottom: 1px solid #e8eef7;
+    }
+    .exam-analysis-head__eyebrow {
+      margin: 0 0 0.25rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6366f1;
+    }
+    .exam-analysis-head__title {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .exam-analysis-head__meta {
+      margin: 0.35rem 0 0;
+      font-size: 0.86rem;
+      color: #64748b;
+    }
+    .exam-analysis-close {
+      border: 0;
+      background: #fff;
+      color: #64748b;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 1.35rem;
+      line-height: 1;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .exam-analysis-close:hover {
+      color: #0f172a;
+      transform: rotate(90deg);
+    }
+    .exam-analysis-scroll {
+      overflow-y: auto;
+      padding: 1.15rem 1.5rem 1.35rem;
+      flex: 1 1 auto;
+    }
+    .exam-analysis-loading {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: #64748b;
+    }
+    .exam-analysis-loading__spinner {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 0.85rem;
+      border-radius: 50%;
+      border: 4px solid #e2e8f0;
+      border-top-color: #6366f1;
+      animation: exam-grade-spin 0.85s linear infinite;
+    }
+    .exam-analysis-grid-top {
+      display: grid;
+      grid-template-columns: minmax(200px, 0.95fr) minmax(180px, 0.8fr) minmax(260px, 1.25fr);
+      gap: 1rem;
+      margin-bottom: 1.15rem;
+    }
+    @media (max-width: 900px) {
+      .exam-analysis-grid-top {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-analysis-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #dbe7f6;
+      border-radius: 18px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07);
+      padding: 1.1rem 1rem;
+      animation: examAnalysisCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .exam-analysis-card:nth-child(2) {
+      animation-delay: 0.08s;
+    }
+    .exam-analysis-card:nth-child(3) {
+      animation-delay: 0.16s;
+    }
+    @keyframes examAnalysisCardIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .exam-analysis-donut-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .exam-analysis-donut {
+      --correct-pct: 0;
+      --wrong-pct: 0;
+      --unans-pct: 100;
+      width: 168px;
+      height: 168px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #22c55e 0 calc(var(--correct-pct) * 1%),
+        #ef4444 calc(var(--correct-pct) * 1%) calc((var(--correct-pct) + var(--wrong-pct)) * 1%),
+        #cbd5e1 calc((var(--correct-pct) + var(--wrong-pct)) * 1%) 100%
+      );
+      display: grid;
+      place-items: center;
+      transition: background 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    }
+    .exam-analysis-donut__hole {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    .exam-analysis-donut__label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+    }
+    .exam-analysis-donut__value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .exam-analysis-legend {
+      display: grid;
+      gap: 0.45rem;
+      width: 100%;
+      max-width: 220px;
+    }
+    .exam-analysis-legend__row {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #334155;
+    }
+    .exam-analysis-legend__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .exam-analysis-legend__dot--c {
+      background: #22c55e;
+    }
+    .exam-analysis-legend__dot--w {
+      background: #ef4444;
+    }
+    .exam-analysis-legend__dot--u {
+      background: #cbd5e1;
+    }
+    .exam-analysis-score-ring {
+      --p: 0;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: conic-gradient(#4f46e5 calc(var(--p) * 1%), #e2e8f0 0);
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .exam-analysis-score-ring__hole {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+    .exam-analysis-score-ring__pct {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #312e81;
+    }
+    .exam-analysis-score-ring__sub {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .exam-analysis-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .exam-analysis-metric {
+      background: #fff;
+      border: 1px solid #e8eef7;
+      border-radius: 12px;
+      padding: 0.7rem 0.75rem;
+      display: grid;
+      gap: 0.15rem;
+    }
+    .exam-analysis-metric span {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .exam-analysis-metric strong {
+      font-size: 1.15rem;
+      color: #0f172a;
+      font-weight: 800;
+    }
+    .exam-analysis-bars {
+      margin-top: 0.15rem;
+    }
+    .exam-analysis-bars__title {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .exam-analysis-bar-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 42px;
+      gap: 0.65rem;
+      align-items: center;
+      margin-bottom: 0.55rem;
+      font-size: 0.82rem;
+      color: #334155;
+    }
+    .exam-analysis-bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #eef2f7;
+      overflow: hidden;
+    }
+    .exam-analysis-bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      width: 0;
+      transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .exam-analysis-bar-fill--c {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+    .exam-analysis-bar-fill--w {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+    }
+    .exam-analysis-bar-fill--u {
+      background: linear-gradient(90deg, #cbd5e1, #94a3b8);
+    }
+    .exam-analysis-bar-fill.is-animated {
+      width: var(--w, 0%);
+    }
+    .exam-analysis-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem 1.15rem;
+      border-top: 1px solid #e8eef7;
+    }
+    body.exam-analysis-modal-open {
+      overflow: hidden;
+    }
+
     .exam-modal__dialog h2 {
       margin: 0 0 0.5rem;
       font-size: 1.1rem;
@@ -1805,6 +2137,34 @@
         </div>
       </div>
     </div>
+
+    <div class="exam-modal exam-modal--analysis" id="modal-test-analysis" hidden>
+      <div class="exam-modal__backdrop" data-analysis-close tabindex="-1"></div>
+      <div
+        class="exam-modal__dialog exam-modal__dialog--analysis"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-analysis-title"
+      >
+        <header class="exam-analysis-head">
+          <div>
+            <p class="exam-analysis-head__eyebrow">Performance analysis</p>
+            <h2 class="exam-analysis-head__title" id="modal-analysis-title">Test analysis</h2>
+            <p class="exam-analysis-head__meta" id="modal-analysis-meta">—</p>
+          </div>
+          <button type="button" class="exam-analysis-close" id="modal-analysis-close" aria-label="Close">×</button>
+        </header>
+        <div id="modal-analysis-loading" class="exam-analysis-loading" hidden>
+          <div class="exam-analysis-loading__spinner" aria-hidden="true"></div>
+          <p>Building your analysis…</p>
+        </div>
+        <div class="exam-analysis-scroll" id="modal-analysis-body" hidden></div>
+        <div class="exam-analysis-footer">
+          <button type="button" class="btn btn-exam-primary" id="modal-analysis-done">Close</button>
+        </div>
+      </div>
+    </div>
+
     <div class="exam-modal exam-modal--answer-over-omr" id="modal-answer-review" hidden>
       <div class="exam-modal__backdrop" data-answer-close></div>
       <div class="exam-modal__dialog exam-modal__dialog--answer" role="dialog" aria-modal="true" aria-labelledby="modal-answer-title">
@@ -1878,6 +2238,10 @@
   <script src="../js/student-chrome.js"></script>
   <script>
     (function () {
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
       function escHtml(s) {
         return String(s == null ? '' : s)
           .replace(/&/g, '&amp;')
@@ -2085,10 +2449,7 @@
 
       /** Only this test can be started / OMR-submitted on the student portal. */
       function isActivatedStudentTest(row) {
-        var title = String(row && row.title != null ? row.title : '')
-          .trim()
-          .toUpperCase();
-        return title === 'MCLAT-2602';
+        return String(row && row.test_id != null ? row.test_id : '') === '4';
       }
 
       function parseScheduledDateTime(raw) {
@@ -2172,8 +2533,12 @@
         var review = {};
         var timerId = null;
         var totalSec = 7200;
+        var isSubmitting = false;
         var answerKeyMapCache = null;
         var answerKeyLoadPromise = null;
+        var parsedPaperByTestCache = Object.create(null);
+        var answerKeyByTestCache = Object.create(null);
+        var latestAttemptsByTestId = Object.create(null);
         var answerReviewFilter = 'all';
 
         var refEmpty = document.getElementById('exam-ref-empty');
@@ -2523,6 +2888,132 @@
           return n;
         }
 
+        function flushCurrentAnswer() {
+          if (!qs.length) return;
+          var q = currentQ();
+          if (!q) return;
+          var checked = optsEl.querySelector('input[name="qcurr"]:checked');
+          if (checked && checked.value) answers[qKey(q)] = checked.value;
+        }
+
+        function disableExamInteraction() {
+          if (btnSaveNext) btnSaveNext.disabled = true;
+          if (btnPrevQuestion) btnPrevQuestion.disabled = true;
+          if (btnClear) btnClear.disabled = true;
+          if (btnPaletteNext) btnPaletteNext.disabled = true;
+          var radios = optsEl.querySelectorAll('input[type="radio"]');
+          for (var i = 0; i < radios.length; i++) radios[i].disabled = true;
+          if (paletteEl) {
+            var palBtns = paletteEl.querySelectorAll('button');
+            for (var j = 0; j < palBtns.length; j++) palBtns[j].disabled = true;
+          }
+        }
+
+        function buildSubmitPayload() {
+          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+          if (!session || !session.user) return null;
+          var u = session.user;
+          var sid = u.student_id != null ? u.student_id : u.id;
+          var normalizedAnswers = {};
+          Object.keys(answers).forEach(function (k) {
+            var v = answers[k];
+            if (v == null || String(v).trim() === '') return;
+            normalizedAnswers[String(k)] = String(v).trim().toUpperCase();
+          });
+          return {
+            test_id: paper.test_id,
+            answers: normalizedAnswers,
+            student_id: sid,
+            email: u.email || u.login || '',
+            total_questions: qs.length,
+          };
+        }
+
+        function submitTestAttempt(options) {
+          options = options || {};
+          var timedOut = !!options.timedOut;
+          if (isSubmitting) return;
+          isSubmitting = true;
+
+          if (modalConfirm) modalConfirm.hidden = true;
+          flushCurrentAnswer();
+          disableExamInteraction();
+
+          var okBtn = options.fromConfirm ? document.getElementById('modal-confirm-ok') : null;
+          if (okBtn) {
+            okBtn.disabled = true;
+            okBtn.textContent = 'Submitting…';
+          }
+
+          function finishSubmitUi() {
+            isSubmitting = false;
+            if (okBtn) {
+              okBtn.disabled = false;
+              okBtn.textContent = 'Yes, submit';
+            }
+          }
+
+          if (demoParam || !paper || paper.test_id == null || paper.test_id === '') {
+            finishSubmitUi();
+            openDoneModal(timedOut, null);
+            return;
+          }
+
+          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+          if (!session || session.role !== 'student' || !session.user) {
+            finishSubmitUi();
+            if (timedOut) {
+              openDoneModal(true, null);
+              alert('Time is up. Sign in as a student to save attempts to the server.');
+            } else {
+              alert('Please sign in as a student to submit your test.');
+            }
+            return;
+          }
+
+          var apiSubmit = getSubmitOnlineTestApiUrl();
+          if (!apiSubmit) {
+            finishSubmitUi();
+            var apiMsg = 'Submit API is not configured (SUBMIT_ONLINE_TEST_API in config.js).';
+            if (timedOut) {
+              openDoneModal(true, null);
+              alert('Time is up. ' + apiMsg);
+            } else {
+              alert(apiMsg);
+            }
+            return;
+          }
+
+          var payload = buildSubmitPayload();
+          if (!payload) {
+            finishSubmitUi();
+            if (timedOut) openDoneModal(true, null);
+            else alert('Please sign in as a student to submit your test.');
+            return;
+          }
+
+          showGradingLoading();
+
+          fetch(apiSubmit, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+            .then(parseSubmitResponse)
+            .then(function (data) {
+              openDoneModal(timedOut, data);
+            })
+            .catch(function (err) {
+              hideGradingLoading();
+              if (modalDone) modalDone.hidden = true;
+              alert(
+                (timedOut ? 'Time is up. ' : '') +
+                  (err && err.message ? err.message : 'Could not submit test.')
+              );
+            })
+            .finally(finishSubmitUi);
+        }
+
         function extractTextFromAnswerViaApi(testId) {
           var api = getAddTestApiUrl();
           if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
@@ -2590,6 +3081,73 @@
             if (letter) out[qn] = { letter: letter };
           }
           return out;
+        }
+
+        /** Cached answer-key map per test — avoids re-downloading/parsing .docx on every Review/Analysis open. */
+        function getAnswerKeyMapCached(testId) {
+          var key = String(testId);
+          var entry = answerKeyByTestCache[key];
+          if (entry && entry.map) return Promise.resolve(entry.map);
+          if (!entry) entry = answerKeyByTestCache[key] = {};
+          if (!entry.promise) {
+            entry.promise = extractTextFromAnswerViaApi(testId)
+              .then(function (txt) {
+                entry.map = parseAnswerKeyText(txt || '') || {};
+                return entry.map;
+              })
+              .catch(function (err) {
+                delete answerKeyByTestCache[key];
+                throw err;
+              });
+          }
+          return entry.promise;
+        }
+
+        /** Cached parsed question paper per test — reused for Show Review. */
+        function getParsedPaperBundle(testId, row) {
+          var key = String(testId);
+          var entry = parsedPaperByTestCache[key];
+          if (entry && entry.bundle) return Promise.resolve(entry.bundle);
+          if (!entry) entry = parsedPaperByTestCache[key] = {};
+          if (!entry.promise) {
+            entry.promise = extractTextFromPaperViaApi(testId)
+              .then(function (text) {
+                var parser = window.ExamQuestionParser;
+                if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+                  throw new Error('Question parser failed to load.');
+                }
+                var parsed = parser.parseQuestionsFromText(text);
+                if (parsed.error) throw new Error(parsed.error);
+                var built = buildPaperFromApiRow(row, parsed);
+                var bundle = {
+                  built: built,
+                  qs: (built.questions || []).slice().sort(function (a, b) {
+                    return a.number - b.number;
+                  }),
+                };
+                entry.bundle = bundle;
+                return bundle;
+              })
+              .catch(function (err) {
+                delete parsedPaperByTestCache[key];
+                throw err;
+              });
+          }
+          return entry.promise;
+        }
+
+        /** Warm caches in background for completed tests so Review/Analysis open faster. */
+        function prefetchCompletedTestAssets(rows, attemptsMap) {
+          if (!rows || !rows.length) return;
+          rows.forEach(function (row) {
+            var tid = row.test_id;
+            if (tid == null || tid === '') return;
+            if (!row.question_paper_url || !String(row.question_paper_url).trim()) return;
+            var att = attemptsMap[tid] != null ? attemptsMap[tid] : attemptsMap[String(tid)];
+            if (!att || !att.completed || !att.answers) return;
+            getAnswerKeyMapCached(tid).catch(function () {});
+            getParsedPaperBundle(tid, row).catch(function () {});
+          });
         }
 
         function applyAnswerReviewFilter(mode) {
@@ -2715,9 +3273,8 @@
           }
 
           if (!answerKeyLoadPromise) {
-            answerKeyLoadPromise = extractTextFromAnswerViaApi(paper.test_id)
-              .then(function (txt) {
-                var parsed = parseAnswerKeyText(txt || '');
+            answerKeyLoadPromise = getAnswerKeyMapCached(paper.test_id)
+              .then(function (parsed) {
                 if (!parsed || !Object.keys(parsed).length) {
                   throw new Error('Answer key could not be parsed from this file.');
                 }
@@ -2783,8 +3340,6 @@
           }
           answerReviewOpenedFromList = true;
           answerReviewFilter = 'all';
-          answerKeyMapCache = null;
-          answerKeyLoadPromise = null;
           modalAnswerReview.hidden = false;
           if (modalDone) modalDone.hidden = true;
           if (answerReviewLoading) {
@@ -2797,21 +3352,37 @@
           }
           if (answerReviewEmpty) answerReviewEmpty.hidden = true;
 
-          extractTextFromPaperViaApi(tid)
-            .then(function (text) {
-              var parser = window.ExamQuestionParser;
-              if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
-                throw new Error('Question parser failed to load.');
-              }
-              var parsed = parser.parseQuestionsFromText(text);
-              if (parsed.error) throw new Error(parsed.error);
-              var built = buildPaperFromApiRow(row, parsed);
-              paper = built;
-              qs = (built.questions || []).slice().sort(function (a, b) {
-                return a.number - b.number;
-              });
-              answers = normalizeOmrPrefillAnswers(att.answers);
-              if (!qs.length) throw new Error('No questions could be parsed from this paper.');
+          var answersMap = normalizeOmrPrefillAnswers(att.answers);
+          var paperEntry = parsedPaperByTestCache[String(tid)];
+          var keyEntry = answerKeyByTestCache[String(tid)];
+
+          if (paperEntry && paperEntry.bundle && keyEntry && keyEntry.map) {
+            paper = paperEntry.bundle.built;
+            qs = paperEntry.bundle.qs;
+            answers = answersMap;
+            answerKeyMapCache = keyEntry.map;
+            answerKeyLoadPromise = null;
+            openAnswerReviewModal();
+            return;
+          }
+
+          Promise.all([
+            getParsedPaperBundle(tid, row),
+            keyEntry && keyEntry.map
+              ? Promise.resolve(keyEntry.map)
+              : getAnswerKeyMapCached(tid).catch(function () {
+                  return {};
+                }),
+          ])
+            .then(function (pair) {
+              var bundle = pair[0];
+              var keyMap = pair[1] || {};
+              if (!bundle.qs.length) throw new Error('No questions could be parsed from this paper.');
+              paper = bundle.built;
+              qs = bundle.qs;
+              answers = answersMap;
+              answerKeyMapCache = keyMap;
+              answerKeyLoadPromise = null;
               openAnswerReviewModal();
             })
             .catch(function (err) {
@@ -2836,6 +3407,297 @@
             out[nk] = String(v).trim().toUpperCase();
           });
           return out;
+        }
+
+        var modalTestAnalysis = document.getElementById('modal-test-analysis');
+        var modalAnalysisLoading = document.getElementById('modal-analysis-loading');
+        var modalAnalysisBody = document.getElementById('modal-analysis-body');
+        var modalAnalysisMeta = document.getElementById('modal-analysis-meta');
+        var modalAnalysisTitle = document.getElementById('modal-analysis-title');
+        var analysisEscHandler = null;
+
+        function closeAnalysisModal() {
+          if (!modalTestAnalysis || modalTestAnalysis.hidden) return;
+          modalTestAnalysis.hidden = true;
+          document.body.classList.remove('exam-analysis-modal-open');
+          if (analysisEscHandler) {
+            document.removeEventListener('keydown', analysisEscHandler);
+            analysisEscHandler = null;
+          }
+        }
+
+        function formatAnalysisDate(raw) {
+          if (!raw) return '—';
+          var d = new Date(raw);
+          if (isNaN(d.getTime())) return String(raw);
+          var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return (
+            pad2(d.getDate()) +
+            ' ' +
+            months[d.getMonth()] +
+            ' ' +
+            d.getFullYear() +
+            ', ' +
+            pad2(d.getHours()) +
+            ':' +
+            pad2(d.getMinutes())
+          );
+        }
+
+        function computeAttemptAnalysisStats(questions, answersMap, keyMap, att, row) {
+          var numbers = [];
+          if (questions && questions.length) {
+            questions.forEach(function (q) {
+              if (q && q.number != null) numbers.push(String(q.number));
+            });
+          }
+          var totalFromAtt =
+            att && att.total_questions_paper != null && Number.isFinite(Number(att.total_questions_paper))
+              ? Number(att.total_questions_paper)
+              : 0;
+          if (!numbers.length) {
+            var maxN = totalFromAtt;
+            if (keyMap) {
+              Object.keys(keyMap).forEach(function (k) {
+                var n = parseInt(k, 10);
+                if (Number.isFinite(n) && n > maxN) maxN = n;
+              });
+            }
+            Object.keys(answersMap || {}).forEach(function (k) {
+              var n2 = parseInt(k, 10);
+              if (Number.isFinite(n2) && n2 > maxN) maxN = n2;
+            });
+            for (var i = 1; i <= maxN; i++) numbers.push(String(i));
+          }
+          var total = numbers.length || totalFromAtt || 0;
+          var correct = 0;
+          var wrong = 0;
+          var unanswered = 0;
+          numbers.forEach(function (qn) {
+            var picked = answersMap[qn] ? String(answersMap[qn]).trim().toUpperCase() : '';
+            var keyLetter =
+              keyMap && keyMap[qn] && keyMap[qn].letter ? String(keyMap[qn].letter).trim().toUpperCase() : '';
+            if (!picked) unanswered += 1;
+            else if (keyLetter && picked === keyLetter) correct += 1;
+            else wrong += 1;
+          });
+          if (!total) total = correct + wrong + unanswered;
+          var answered = correct + wrong;
+          var pct =
+            att && att.percentage != null && Number.isFinite(Number(att.percentage))
+              ? Number(att.percentage)
+              : total > 0
+                ? Math.round((correct / total) * 1000) / 10
+                : null;
+          var accuracy = answered > 0 ? Math.round((correct / answered) * 1000) / 10 : 0;
+          var letter =
+            att && att.letter_grade != null && String(att.letter_grade).trim() !== ''
+              ? String(att.letter_grade).trim().toUpperCase()
+              : pct != null && pct >= 75
+                ? 'PASS'
+                : pct != null
+                  ? '—'
+                  : '—';
+          return {
+            title: (row && row.title) || (att && att.title) || 'Test',
+            testId: row && row.test_id != null ? row.test_id : att && att.test_id,
+            total: total,
+            correct: correct,
+            wrong: wrong,
+            unanswered: unanswered,
+            answered: answered,
+            percentage: pct,
+            accuracy: accuracy,
+            letter: letter,
+            passed: !!(att && att.passed),
+            submittedAt: att && att.created_at ? att.created_at : null,
+            durationMinutes: row && row.durationMinutes != null ? row.durationMinutes : 120,
+          };
+        }
+
+        function animateAnalysisBars(root) {
+          if (!root) return;
+          window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+              var fills = root.querySelectorAll('.exam-analysis-bar-fill');
+              for (var i = 0; i < fills.length; i++) fills[i].classList.add('is-animated');
+            });
+          });
+        }
+
+        function renderAttemptAnalysisPanel(stats) {
+          if (!modalAnalysisBody || !stats) return;
+          var total = stats.total || 1;
+          var correctPct = Math.round((stats.correct / total) * 1000) / 10;
+          var wrongPct = Math.round((stats.wrong / total) * 1000) / 10;
+          var unansPct = Math.max(0, Math.round((stats.unanswered / total) * 1000) / 10);
+          var scorePct = stats.percentage != null ? Math.max(0, Math.min(100, stats.percentage)) : 0;
+
+          if (modalAnalysisTitle) modalAnalysisTitle.textContent = stats.title || 'Test analysis';
+          if (modalAnalysisMeta) {
+            modalAnalysisMeta.textContent =
+              'Test #' +
+              (stats.testId != null ? stats.testId : '—') +
+              ' · Submitted ' +
+              formatAnalysisDate(stats.submittedAt) +
+              (stats.passed ? ' · Passed' : '') +
+              ' · Time taken: not recorded';
+          }
+
+          modalAnalysisBody.innerHTML =
+            '<div class="exam-analysis-grid-top">' +
+            '<div class="exam-analysis-card">' +
+            '<div class="exam-analysis-donut-wrap">' +
+            '<div class="exam-analysis-donut" id="analysis-donut" style="--correct-pct:' +
+            correctPct +
+            ';--wrong-pct:' +
+            wrongPct +
+            ';--unans-pct:' +
+            unansPct +
+            '">' +
+            '<div class="exam-analysis-donut__hole">' +
+            '<span class="exam-analysis-donut__label">Total Qs</span>' +
+            '<span class="exam-analysis-donut__value">' +
+            escHtml(String(total)) +
+            '</span></div></div>' +
+            '<div class="exam-analysis-legend">' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--c"></span><span>Correct</span><strong>' +
+            escHtml(String(stats.correct)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--w"></span><span>Wrong</span><strong>' +
+            escHtml(String(stats.wrong)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--u"></span><span>Not attended</span><strong>' +
+            escHtml(String(stats.unanswered)) +
+            '</strong></div></div></div></div>' +
+            '<div class="exam-analysis-card">' +
+            '<div class="exam-analysis-score-ring" id="analysis-score-ring" style="--p:' +
+            scorePct +
+            '">' +
+            '<div class="exam-analysis-score-ring__hole">' +
+            '<span class="exam-analysis-score-ring__pct">' +
+            (stats.percentage != null ? escHtml(String(stats.percentage)) + '%' : '—') +
+            '</span>' +
+            '<span class="exam-analysis-score-ring__sub">Overall score</span></div></div>' +
+            '<p style="margin:0.75rem 0 0;text-align:center;font-size:0.82rem;color:#64748b;">Grade: <strong>' +
+            escHtml(String(stats.letter || '—')) +
+            '</strong></p></div>' +
+            '<div class="exam-analysis-card">' +
+            '<div class="exam-analysis-metrics">' +
+            '<div class="exam-analysis-metric"><span>Accuracy</span><strong>' +
+            escHtml(String(stats.accuracy)) +
+            '%</strong></div>' +
+            '<div class="exam-analysis-metric"><span>Attempted</span><strong>' +
+            escHtml(String(stats.answered)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-metric"><span>Correct</span><strong>' +
+            escHtml(String(stats.correct)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-metric"><span>Wrong</span><strong>' +
+            escHtml(String(stats.wrong)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-metric"><span>Not attended</span><strong>' +
+            escHtml(String(stats.unanswered)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-metric"><span>Test duration</span><strong>' +
+            escHtml(String(stats.durationMinutes)) +
+            ' min</strong></div>' +
+            '</div></div></div>' +
+            '<div class="exam-analysis-card exam-analysis-bars">' +
+            '<h3 class="exam-analysis-bars__title">Question breakdown</h3>' +
+            '<div class="exam-analysis-bar-row"><span>Correct</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--c" style="--w:' +
+            correctPct +
+            '%"></div></div><strong>' +
+            escHtml(String(stats.correct)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-bar-row"><span>Wrong</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--w" style="--w:' +
+            wrongPct +
+            '%"></div></div><strong>' +
+            escHtml(String(stats.wrong)) +
+            '</strong></div>' +
+            '<div class="exam-analysis-bar-row"><span>Not attended</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--u" style="--w:' +
+            unansPct +
+            '%"></div></div><strong>' +
+            escHtml(String(stats.unanswered)) +
+            '</strong></div></div>';
+
+          animateAnalysisBars(modalAnalysisBody);
+        }
+
+        function openAttemptAnalysisFromList(row, att) {
+          if (!row || !att || !att.answers) {
+            alert('No saved answers found for this attempt.');
+            return;
+          }
+          if (!modalTestAnalysis) return;
+          var tid = row.test_id;
+          if (tid == null || tid === '') {
+            alert('Missing test id.');
+            return;
+          }
+
+          modalTestAnalysis.hidden = false;
+          document.body.classList.add('exam-analysis-modal-open');
+          if (modalAnalysisLoading) {
+            modalAnalysisLoading.hidden = false;
+            modalAnalysisLoading.innerHTML =
+              '<div class="exam-analysis-loading__spinner" aria-hidden="true"></div><p>Building your analysis…</p>';
+          }
+          if (modalAnalysisBody) {
+            modalAnalysisBody.hidden = true;
+            modalAnalysisBody.innerHTML = '';
+          }
+          if (modalAnalysisTitle) modalAnalysisTitle.textContent = row.title || 'Test analysis';
+          if (modalAnalysisMeta) modalAnalysisMeta.textContent = 'Loading attempt data…';
+
+          analysisEscHandler = function (e) {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeAnalysisModal();
+            }
+          };
+          document.addEventListener('keydown', analysisEscHandler);
+
+          var answersMap = normalizeOmrPrefillAnswers(att.answers);
+          var keyCached = answerKeyByTestCache[String(tid)];
+
+          var finishAnalysis = function (keyMap) {
+            var stats = computeAttemptAnalysisStats([], answersMap, keyMap || {}, att, row);
+            renderAttemptAnalysisPanel(stats);
+            if (modalAnalysisLoading) modalAnalysisLoading.hidden = true;
+            if (modalAnalysisBody) modalAnalysisBody.hidden = false;
+          };
+
+          if (keyCached && keyCached.map) {
+            window.requestAnimationFrame(function () {
+              finishAnalysis(keyCached.map);
+            });
+            return;
+          }
+
+          getAnswerKeyMapCached(tid)
+            .catch(function () {
+              return {};
+            })
+            .then(finishAnalysis)
+            .catch(function (err) {
+              if (modalAnalysisLoading) {
+                modalAnalysisLoading.hidden = false;
+                modalAnalysisLoading.innerHTML =
+                  '<p>' + escHtml(err && err.message ? err.message : 'Could not load analysis.') + '</p>';
+              }
+            });
+        }
+
+        function wireAnalysisModal() {
+          var closeBtn = document.getElementById('modal-analysis-close');
+          var doneBtn = document.getElementById('modal-analysis-done');
+          var backdrop = modalTestAnalysis
+            ? modalTestAnalysis.querySelector('[data-analysis-close]')
+            : null;
+          if (closeBtn) closeBtn.addEventListener('click', closeAnalysisModal);
+          if (doneBtn) doneBtn.addEventListener('click', closeAnalysisModal);
+          if (backdrop) backdrop.addEventListener('click', closeAnalysisModal);
         }
 
         function hasAnyOmrMarkedAnswer(obj) {
@@ -3104,9 +3966,8 @@
               !answerKeyMapCache &&
               !answerKeyLoadPromise
             ) {
-              answerKeyLoadPromise = extractTextFromAnswerViaApi(paper.test_id)
-                .then(function (txt) {
-                  var parsedKey = parseAnswerKeyText(txt || '');
+              answerKeyLoadPromise = getAnswerKeyMapCached(paper.test_id)
+                .then(function (parsedKey) {
                   if (!parsedKey || !Object.keys(parsedKey).length) return;
                   answerKeyMapCache = parsedKey;
                   renderGroupCards(answerKeyMapCache);
@@ -3135,11 +3996,23 @@
             if (modalDoneSummary) modalDoneSummary.hidden = true;
             if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = true;
 
+            var answered = countAnsweredInSession();
             if (body) {
               body.hidden = false;
-              if (timedOut) {
+              if (timedOut && hasStats) {
                 body.textContent =
-                  'Time is up. If you did not submit before the timer ended, use Submit on the last question next time.';
+                  'Time is up. Your answers were saved automatically (' +
+                  answered +
+                  ' of ' +
+                  (qs.length || '—') +
+                  ' attempted). Review your result below.';
+              } else if (timedOut) {
+                body.textContent =
+                  'Time is up. Your attempt was submitted with ' +
+                  answered +
+                  ' of ' +
+                  (qs.length || '—') +
+                  ' question(s) answered.';
               } else if (hasStats) {
                 body.textContent = 'Your attempt was saved. Review your performance below.';
               } else {
@@ -3150,7 +4023,7 @@
             var titleEl = document.getElementById('modal-done-title');
             if (titleEl) titleEl.textContent = timedOut ? 'Time up' : 'Test submitted';
 
-            if (!timedOut && hasStats && modalDoneSummary) {
+            if (hasStats && modalDoneSummary) {
               fillResultsDashboard(submitResult);
               modalDoneSummary.hidden = false;
               if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = false;
@@ -3159,70 +4032,7 @@
         }
 
         document.getElementById('modal-confirm-ok').addEventListener('click', function () {
-          if (modalConfirm) modalConfirm.hidden = true;
-
-          if (demoParam || !paper || paper.test_id == null || paper.test_id === '') {
-            openDoneModal(false, null);
-            return;
-          }
-
-          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
-          if (!session || session.role !== 'student' || !session.user) {
-            alert('Please sign in as a student to submit your test.');
-            return;
-          }
-
-          var apiSubmit = getSubmitOnlineTestApiUrl();
-          if (!apiSubmit) {
-            alert('Submit API is not configured (SUBMIT_ONLINE_TEST_API in config.js).');
-            return;
-          }
-
-          var u = session.user;
-          var sid = u.student_id != null ? u.student_id : u.id;
-          var normalizedAnswers = {};
-          Object.keys(answers).forEach(function (k) {
-            var v = answers[k];
-            if (v == null || String(v).trim() === '') return;
-            normalizedAnswers[String(k)] = String(v).trim().toUpperCase();
-          });
-
-          var payload = {
-            test_id: paper.test_id,
-            answers: normalizedAnswers,
-            student_id: sid,
-            email: u.email || u.login || '',
-            total_questions: qs.length,
-          };
-
-          var okBtn = document.getElementById('modal-confirm-ok');
-          if (okBtn) {
-            okBtn.disabled = true;
-            okBtn.textContent = 'Submitting…';
-          }
-
-          showGradingLoading();
-
-          fetch(apiSubmit, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          })
-            .then(parseSubmitResponse)
-            .then(function (data) {
-              openDoneModal(false, data);
-            })
-            .catch(function (err) {
-              hideGradingLoading();
-              if (modalDone) modalDone.hidden = true;
-              alert(err && err.message ? err.message : 'Could not submit test.');
-            })
-            .finally(function () {
-              if (okBtn) {
-                okBtn.disabled = false;
-                okBtn.textContent = 'Yes, submit';
-              }
-            });
+          submitTestAttempt({ timedOut: false, fromConfirm: true });
         });
 
         Array.prototype.slice.call(document.querySelectorAll('[data-close-modal]')).forEach(function (el) {
@@ -3324,7 +4134,12 @@
               if (totalSec <= 60) te.classList.add('exam-timer--crit');
             }
             if (totalSec <= 0) {
-              openDoneModal(true);
+              if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+              }
+              if (timerSpan) timerSpan.textContent = 'Time left: 0:00';
+              submitTestAttempt({ timedOut: true });
               return;
             }
             totalSec--;
@@ -3349,6 +4164,7 @@
           answers = {};
           visited = {};
           review = {};
+          isSubmitting = false;
           idx = 0;
           if (bootstrapEl) bootstrapEl.hidden = true;
           examRoot.hidden = false;
@@ -3509,7 +4325,7 @@
             return;
           }
           if (!isActivatedStudentTest(row)) {
-            alert('This test is not available yet. Only mCLAT-2602 is open for students.');
+            alert('This test is not available yet. Only Test #4 is open for students.');
             return;
           }
           omrEntrySavedOmrSnapshot = savedOmrSnapshot || null;
@@ -3735,7 +4551,20 @@
           if (!isActivatedStudentTest(row)) {
             hideLoader();
             if (testListEl) testListEl.hidden = false;
-            showErr('This test is not available yet. Only mCLAT-2602 is open for students.');
+            showErr('This test is not available yet. Only Test #4 is open for students.');
+            return;
+          }
+          var tid = row.test_id;
+          var prevAtt =
+            tid != null
+              ? latestAttemptsByTestId[tid] != null
+                ? latestAttemptsByTestId[tid]
+                : latestAttemptsByTestId[String(tid)]
+              : null;
+          if (prevAtt && prevAtt.completed) {
+            hideLoader();
+            if (testListEl) testListEl.hidden = false;
+            showErr('You have already completed this test. Each student can attempt a test only once.');
             return;
           }
           var openMeta = getOpenMeta(row);
@@ -3752,7 +4581,6 @@
           }
           if (testListEl) testListEl.hidden = true;
 
-          var tid = row.test_id;
           if (tid == null || tid === '') {
             showErr('Missing test id.');
             hideLoader();
@@ -3786,17 +4614,22 @@
           var map = attemptsByTestId || {};
           rows.forEach(function (row) {
             var id = row.test_id;
+            var att = map[id] != null ? map[id] : map[String(id)];
             var card = document.createElement('div');
             var isActivated = isActivatedStudentTest(row);
-            card.className = 'exam-test-card' + (isActivated ? '' : ' exam-test-card--inactive');
+            card.className =
+              'exam-test-card' + (isActivated || (att && att.completed) ? '' : ' exam-test-card--inactive');
             var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
             var openMeta = getOpenMeta(row);
             var left = document.createElement('div');
-            var att = map[id] != null ? map[id] : map[String(id)];
             var scoreLine =
               att && att.percentage != null
-                ? ' · Last score: ' + att.percentage + '%' + (att.passed ? ' (passed)' : '')
+                ? ' · Last score: ' +
+                  att.percentage +
+                  '%' +
+                  (att.passed ? ' (passed)' : att.completed ? ' (attended)' : '')
                 : '';
+            var showNotAvailable = !isActivated && !(att && att.completed);
             left.innerHTML =
               '<h4>' +
               escHtml(row.title || 'Untitled test') +
@@ -3804,7 +4637,7 @@
               '<p class="meta">Test #' +
               escHtml(String(id)) +
               (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
-              (!isActivated ? ' · <span class="meta-inactive">Not available</span>' : '') +
+              (showNotAvailable ? ' · <span class="meta-inactive">Not available</span>' : '') +
               escHtml(scoreLine) +
               '</p>';
             var btns = document.createElement('div');
@@ -3812,24 +4645,45 @@
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-primary';
+            var hasSavedAnswers =
+              att &&
+              att.answers &&
+              typeof att.answers === 'object' &&
+              Object.keys(att.answers).length > 0;
             if (att && att.completed) {
+              var statusBtn = document.createElement('button');
+              statusBtn.type = 'button';
+              statusBtn.disabled = true;
               if (att.passed) {
-                btn.className = 'btn btn-primary exam-test-btn--passed';
-                btn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Passed';
-                btn.disabled = true;
-                btn.title =
+                statusBtn.className = 'btn btn-primary exam-test-btn--passed';
+                statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Passed';
+                statusBtn.title =
                   'Completed — scored ' + (att.percentage != null ? att.percentage + '%' : '') + ' (≥75% pass)';
               } else {
-                btn.className = 'btn btn-primary exam-test-btn--retry';
-                btn.innerHTML = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again';
-                btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
-                if (!isActivated) btn.title = 'This test is not available yet';
-                else if (!hasPaper) btn.title = 'No question paper uploaded';
-                else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
-                btn.addEventListener('click', function () {
-                  startTestFromRow(row);
-                });
+                statusBtn.className = 'btn btn-primary exam-test-btn--attended';
+                statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Attended';
+                statusBtn.title =
+                  'Completed — scored ' +
+                  (att.percentage != null ? att.percentage + '%' : '') +
+                  ' (one attempt only)';
               }
+              btns.appendChild(statusBtn);
+
+              btn.className = 'btn btn-primary exam-test-btn--review';
+              btn.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i> Show Review';
+              btn.disabled = !hasPaper || !hasSavedAnswers;
+              btn.title =
+                hasSavedAnswers && att.percentage != null
+                  ? 'Review your answers — scored ' +
+                    att.percentage +
+                    '%' +
+                    (att.passed ? ' (passed)' : ' (attended)')
+                  : hasSavedAnswers
+                    ? 'Review your submitted answers against the answer key'
+                    : 'No saved answers to review for this attempt';
+              btn.addEventListener('click', function () {
+                openAttemptReviewFromList(row, att);
+              });
             } else {
               btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
               btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
@@ -3841,28 +4695,23 @@
               });
             }
             btns.appendChild(btn);
-            var showReview =
-              isActivated &&
-              hasPaper &&
-              att &&
-              att.completed &&
-              att.answers &&
-              typeof att.answers === 'object';
-            if (showReview) {
-              var btnReview = document.createElement('button');
-              btnReview.type = 'button';
-              btnReview.className = 'btn btn-primary exam-test-btn--review';
-              btnReview.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i> Review';
-              btnReview.title = 'Review your submitted answers against the answer key';
-              btnReview.addEventListener('click', function () {
-                openAttemptReviewFromList(row, att);
+            var showAnalysis = att && att.completed && hasSavedAnswers;
+            if (showAnalysis) {
+              var btnAnalysis = document.createElement('button');
+              btnAnalysis.type = 'button';
+              btnAnalysis.className = 'btn btn-primary exam-test-btn--analysis';
+              btnAnalysis.innerHTML = '<i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Analysis';
+              btnAnalysis.disabled = !hasPaper;
+              btnAnalysis.title = 'View detailed performance analysis with charts';
+              btnAnalysis.addEventListener('click', function () {
+                openAttemptAnalysisFromList(row, att);
               });
-              btns.appendChild(btnReview);
+              btns.appendChild(btnAnalysis);
             }
             var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
             var hasSavedOmr = !!omrSnap;
             var showOmr =
-              isActivated && hasPaper && !openMeta.isLocked && (!att || !att.passed || hasSavedOmr);
+              isActivated && hasPaper && !openMeta.isLocked && (!att || !att.completed);
             if (showOmr) {
               var btnOmr = document.createElement('button');
               btnOmr.type = 'button';
@@ -3903,7 +4752,9 @@
               attempts.forEach(function (a) {
                 if (a && a.test_id != null) map[a.test_id] = a;
               });
+              latestAttemptsByTestId = map;
               renderTestList(rows, map);
+              prefetchCompletedTestAssets(rows, map);
             })
             .catch(function (err) {
               hideLoader();
@@ -3916,8 +4767,15 @@
             bootstrapStatus.hidden = false;
             bootstrapStatus.textContent = 'Loading test…';
           }
-          fetchTestRow(id)
-            .then(function (row) {
+          Promise.all([fetchTestRow(id), fetchStudentAttempts()])
+            .then(function (pair) {
+              var row = pair[0];
+              var attempts = pair[1] || [];
+              var map = {};
+              attempts.forEach(function (a) {
+                if (a && a.test_id != null) map[a.test_id] = a;
+              });
+              latestAttemptsByTestId = map;
               startTestFromRow(row);
             })
             .catch(function (err) {
@@ -3961,6 +4819,7 @@
         } else {
           loadList();
         }
+        wireAnalysisModal();
       });
     })();
   </script>

@@ -20,6 +20,10 @@
       <section class="attendance-crm__filters" aria-label="Attendance filters">
         <div class="attendance-crm__filters-head">
           <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
+          <button type="button" class="attendance-btn attendance-btn--toolbar" id="attendance-btn-history" aria-label="Attendance history">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            <span>History</span>
+          </button>
         </div>
         <div class="attendance-filter-grid">
           <div class="attendance-field">
@@ -94,8 +98,7 @@
           <table class="attendance-table">
             <thead>
               <tr>
-                <th class="col-id">Student ID</th>
-                <th class="col-name">Name</th>
+                <th class="col-student">Student</th>
                 <th class="col-status">Attendance</th>
               </tr>
             </thead>
@@ -112,6 +115,85 @@
         </button>
       </div>
     </div>
+
+    <div id="attendance-history-modal" class="attendance-history-modal" hidden>
+      <div class="attendance-history-modal__backdrop" data-attendance-history-close tabindex="-1"></div>
+      <div
+        class="attendance-history-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-history-title"
+      >
+        <div class="attendance-history-modal__head">
+          <h2 id="attendance-history-title" class="attendance-history-modal__title">Attendance history</h2>
+          <button type="button" class="attendance-history-modal__x" id="attendance-history-close" aria-label="Close">×</button>
+        </div>
+        <div class="attendance-history-modal__body">
+          <div class="attendance-history-filters">
+            <label class="attendance-history-filters__field">
+              <span class="attendance-history-filters__label">From date</span>
+              <input type="date" id="attendance-history-from" class="attendance-history-filters__input" />
+            </label>
+            <label class="attendance-history-filters__field">
+              <span class="attendance-history-filters__label">To date</span>
+              <input type="date" id="attendance-history-to" class="attendance-history-filters__input" />
+            </label>
+            <div class="attendance-history-filters__actions">
+              <button type="button" class="attendance-btn attendance-btn--primary attendance-btn--xs" id="attendance-history-apply">Apply</button>
+              <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-history-reset">Reset</button>
+            </div>
+          </div>
+          <p id="attendance-history-loading" class="attendance-history-loading" hidden>Loading…</p>
+          <p id="attendance-history-error" class="attendance-history-error" hidden></p>
+          <div class="attendance-history-table-wrap">
+            <table class="attendance-history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Batch</th>
+                  <th>Branch</th>
+                  <th>Target year</th>
+                  <th>Present</th>
+                  <th>Absent</th>
+                  <th class="attendance-history-table__th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-history-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="attendance-history-detail-modal" class="attendance-history-modal attendance-history-modal--detail" hidden>
+      <div class="attendance-history-modal__backdrop" data-attendance-history-close tabindex="-1"></div>
+      <div
+        class="attendance-history-modal__panel attendance-history-modal__panel--detail"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-history-detail-title"
+      >
+        <div class="attendance-history-modal__head">
+          <h2 id="attendance-history-detail-title" class="attendance-history-modal__title">Session details</h2>
+          <button type="button" class="attendance-history-modal__x" id="attendance-history-detail-close" aria-label="Close">×</button>
+        </div>
+        <p id="attendance-history-detail-meta" class="attendance-history-detail-meta"></p>
+        <div class="attendance-history-detail-scroll">
+          <table class="attendance-history-detail-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-history-detail-tbody"></tbody>
+          </table>
+        </div>
+        <div class="attendance-history-detail-footer">
+          <button type="button" class="attendance-btn" id="attendance-history-detail-close-2">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="app-root" class="app-shell"></div>
@@ -124,6 +206,7 @@
   <script src="../js/friendly-popup.js"></script>
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
+  <script src="../js/student-chrome.js"></script>
   <script src="../js/attendance-page.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

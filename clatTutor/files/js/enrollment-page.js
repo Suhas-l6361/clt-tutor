@@ -98,6 +98,47 @@
     );
   }
 
+  function responseMessageCell(kind, r) {
+    var msg = getResponseMessageRaw(r);
+    return (
+      '<td class="enrollment-table__td-response">' +
+      '<div class="enrollment-table__response-row">' +
+      '<input type="text" class="enrollment-table__response-input" data-action="response-message" data-kind="' +
+      escHtml(kind) +
+      '" data-id="' +
+      escHtml(String(r.id)) +
+      '" maxlength="100" value="' +
+      escHtml(msg) +
+      '" placeholder="Response (max 100)" aria-label="Response message for request #' +
+      escHtml(String(r.id)) +
+      '" />' +
+      '<button type="button" class="enrollment-table__save-response" data-action="save-response-row" data-kind="' +
+      escHtml(kind) +
+      '" data-id="' +
+      escHtml(String(r.id)) +
+      '">Save</button>' +
+      '</div>' +
+      '<span class="enrollment-table__response-status" data-response-status-for="' +
+      escHtml(String(r.id)) +
+      '" hidden></span>' +
+      '</td>'
+    );
+  }
+
+  function tableResponseHeader() {
+    return '<th scope="col" class="enrollment-table__th-response">Response message</th>';
+  }
+
+  function getResponseMessageRaw(r) {
+    if (r.response_message != null && String(r.response_message).trim() !== '') {
+      return String(r.response_message);
+    }
+    if (r.respondedMessage != null && String(r.respondedMessage).trim() !== '') {
+      return String(r.respondedMessage);
+    }
+    return '';
+  }
+
   function renderCallback(rows) {
     if (!rows.length) {
       return '<p class="enrollment-empty">No request callback submissions yet.</p>';
@@ -110,6 +151,7 @@
       '<th scope="col">Interested in</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
@@ -134,6 +176,7 @@
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('callback', r.id) +
           '</td>' +
+          responseMessageCell('callback', r) +
           '<td class="enrollment-table__td-responded">' +
           respondedToggle('callback', r) +
           '</td>' +
@@ -162,6 +205,7 @@
       '<th scope="col">Target year</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
@@ -186,6 +230,7 @@
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('enroll', r.id) +
           '</td>' +
+          responseMessageCell('enroll', r) +
           '<td class="enrollment-table__td-responded">' +
           respondedToggle('enroll', r) +
           '</td>' +
@@ -214,6 +259,7 @@
       '<th scope="col">Interested in</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
@@ -238,6 +284,7 @@
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('demo', r.id) +
           '</td>' +
+          responseMessageCell('demo', r) +
           '<td class="enrollment-table__td-responded">' +
           respondedToggle('demo', r) +
           '</td>' +
@@ -266,6 +313,7 @@
       '<th scope="col">Subject</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
       '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
@@ -290,6 +338,7 @@
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('contact', r.id) +
           '</td>' +
+          responseMessageCell('contact', r) +
           '<td class="enrollment-table__td-responded">' +
           respondedToggle('contact', r) +
           '</td>' +
@@ -306,12 +355,35 @@
     );
   }
 
-  function respondedHtml(r) {
-    var responded =
-      r.isResponded === true || r.isResponded === 1 || r.isResponded === '1'
-        ? '<span class="enrollment-badge enrollment-badge--yes">Yes</span>'
-        : '<span class="enrollment-badge enrollment-badge--no">No</span>';
-    return responded;
+  function modalResponseForm(r) {
+    var checked = isRespondedChecked(r) ? ' checked' : '';
+    var msg = getResponseMessageRaw(r);
+    return (
+      '<section class="enrollment-response-form" data-enrollment-response-form>' +
+      '<h4 class="enrollment-response-form__title">Staff response</h4>' +
+      '<label class="enrollment-responded-toggle enrollment-response-form__check">' +
+      '<input type="checkbox" id="enrollment-modal-responded"' +
+      checked +
+      ' />' +
+      '<span>Mark as responded</span>' +
+      '</label>' +
+      '<label class="enrollment-response-form__label" for="enrollment-modal-response-msg">Response message</label>' +
+      '<input type="text" id="enrollment-modal-response-msg" class="enrollment-response-form__input" maxlength="100" placeholder="Optional note (max 100 characters)" value="' +
+      escHtml(msg) +
+      '" />' +
+      '<p class="enrollment-response-form__hint"><span id="enrollment-modal-char-count">' +
+      String(msg.length) +
+      '</span>/100 characters</p>' +
+      '<p id="enrollment-modal-save-status" class="enrollment-response-form__status" hidden></p>' +
+      '<button type="button" class="enrollment-btn enrollment-btn--accent enrollment-response-form__save" data-action="save-response">' +
+      '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save response' +
+      '</button>' +
+      '</section>'
+    );
+  }
+
+  function appendModalResponseForm(html, r) {
+    return html + modalResponseForm(r);
   }
 
   function modalBodyCallback(r) {
@@ -372,7 +444,6 @@
       dlRow('Email', val(r.email)) +
       dlRow('Phone', val(r.phone)) +
       dlRow('Interested in', val(r.interested_in)) +
-      dlRow('Responded', respondedHtml(r)) +
       '</dl>'
     );
   }
@@ -394,16 +465,17 @@
         r.message != null && String(r.message).trim() !== '' ? escHtml(r.message) : '—',
         true
       ) +
-      dlRow('Responded', respondedHtml(r)) +
-      dlRow(
-        'Response message',
-        r.respondedMessage != null && String(r.respondedMessage).trim() !== ''
-          ? escHtml(r.respondedMessage)
-          : '—',
-        true
-      ) +
       '</dl>'
     );
+  }
+
+  function buildModalHtml(kind, r) {
+    var details = '';
+    if (kind === 'callback') details = modalBodyCallback(r);
+    else if (kind === 'enroll') details = modalBodyEnroll(r);
+    else if (kind === 'demo') details = modalBodyDemo(r);
+    else details = modalBodyContact(r);
+    return appendModalResponseForm(details, r);
   }
 
   function getUrls() {
@@ -416,16 +488,43 @@
     };
   }
 
-  function wireModal() {
+  function wireModal(urls, hooks) {
     var modal = document.getElementById('enrollment-modal');
     var titleEl = document.getElementById('enrollment-modal-title');
     var bodyEl = document.getElementById('enrollment-modal-body');
-    if (!modal || !titleEl || !bodyEl) return function () {};
+    if (!modal || !titleEl || !bodyEl) return { openModal: function () {} };
+
+    var currentKind = null;
+    var currentId = null;
 
     function closeModal() {
       modal.hidden = true;
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      currentKind = null;
+      currentId = null;
+    }
+
+    function setModalSaveStatus(msg, isError) {
+      var statusEl = document.getElementById('enrollment-modal-save-status');
+      if (!statusEl) return;
+      if (!msg) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+        statusEl.classList.remove('is-error', 'is-success');
+        return;
+      }
+      statusEl.hidden = false;
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('is-error', !!isError);
+      statusEl.classList.toggle('is-success', !isError);
+    }
+
+    function updateCharCount() {
+      var msgEl = document.getElementById('enrollment-modal-response-msg');
+      var countEl = document.getElementById('enrollment-modal-char-count');
+      if (!msgEl || !countEl) return;
+      countEl.textContent = String(msgEl.value.length);
     }
 
     function openModal(kind, id) {
@@ -435,6 +534,9 @@
       });
       if (!r) return;
 
+      currentKind = kind;
+      currentId = id;
+
       var titles = {
         callback: 'Request callback',
         enroll: 'Enrollment details',
@@ -442,28 +544,82 @@
         demo: 'Demo class request',
       };
       titleEl.textContent = (titles[kind] || 'Details') + ' #' + String(r.id);
-
-      if (kind === 'callback') bodyEl.innerHTML = modalBodyCallback(r);
-      else if (kind === 'enroll') bodyEl.innerHTML = modalBodyEnroll(r);
-      else if (kind === 'demo') bodyEl.innerHTML = modalBodyDemo(r);
-      else bodyEl.innerHTML = modalBodyContact(r);
+      bodyEl.innerHTML = buildModalHtml(kind, r);
+      setModalSaveStatus('');
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+
+      var msgEl = document.getElementById('enrollment-modal-response-msg');
+      if (msgEl) msgEl.focus();
+    }
+
+    function saveModalResponse() {
+      if (!currentKind || currentId == null) return;
+      var url = urls[currentKind];
+      if (!url) {
+        window.alert('API URL is not configured for this list.');
+        return;
+      }
+
+      var respondedEl = document.getElementById('enrollment-modal-responded');
+      var msgEl = document.getElementById('enrollment-modal-response-msg');
+      var saveBtn = modal.querySelector('[data-action="save-response"]');
+      var responded = respondedEl ? Boolean(respondedEl.checked) : false;
+      var message = msgEl ? String(msgEl.value).trim().slice(0, 100) : '';
+
+      if (saveBtn) saveBtn.disabled = true;
+      setModalSaveStatus('Saving…');
+
+      return fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          id: Number(currentId),
+          isResponded: responded ? 1 : 0,
+          response_message: message,
+        }),
+      })
+        .then(function (res) {
+          return res.json().then(function (j) {
+            return { ok: res.ok, j: j };
+          });
+        })
+        .then(function (x) {
+          if (!x.ok) {
+            throw new Error((x.j && x.j.message) || 'Unable to save response');
+          }
+          if (hooks && typeof hooks.onSaved === 'function') {
+            hooks.onSaved(currentKind, currentId, responded, message);
+          }
+          setModalSaveStatus('Response saved.');
+        })
+        .catch(function (err) {
+          setModalSaveStatus(err && err.message ? err.message : 'Unable to save response.', true);
+        })
+        .finally(function () {
+          if (saveBtn) saveBtn.disabled = false;
+        });
     }
 
     modal.addEventListener('click', function (e) {
       if (e.target.closest('[data-enrollment-modal-close]')) closeModal();
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !modal.hidden) {
-        closeModal();
+      if (e.target.closest('[data-action="save-response"]')) {
+        e.preventDefault();
+        saveModalResponse();
       }
     });
 
-    return openModal;
+    modal.addEventListener('input', function (e) {
+      if (e.target && e.target.id === 'enrollment-modal-response-msg') updateCharCount();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hidden) closeModal();
+    });
+
+    return { openModal: openModal };
   }
 
   function wire() {
@@ -477,8 +633,6 @@
     var toDateEl = document.getElementById('enrollment-to-date');
     var applyFilterBtn = document.getElementById('enrollment-apply-filter');
     if (!panel || !listEl || !heading) return;
-
-    var openModal = wireModal();
 
     var urls = getUrls();
     var titles = {
@@ -536,15 +690,6 @@
       else listEl.innerHTML = renderContact(rows);
     }
 
-    listEl.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-action="view-full"]');
-      if (!btn || !listEl.contains(btn)) return;
-      e.preventDefault();
-      var kind = btn.getAttribute('data-kind');
-      var id = btn.getAttribute('data-id');
-      if (kind && id) openModal(kind, id);
-    });
-
     function updateRowRespondedInMemory(kind, id, checked) {
       var rows = lastRowsByKind[kind] || [];
       var target = rows.find(function (x) {
@@ -552,6 +697,135 @@
       });
       if (target) target.isResponded = checked ? 1 : 0;
     }
+
+    function updateRowResponseInMemory(kind, id, responded, message) {
+      var rows = lastRowsByKind[kind] || [];
+      var target = rows.find(function (x) {
+        return String(x.id) === String(id);
+      });
+      if (!target) return;
+      target.isResponded = responded ? 1 : 0;
+      target.response_message = message || null;
+      if (target.respondedMessage !== undefined) target.respondedMessage = message || null;
+    }
+
+    var openModal = wireModal(urls, {
+      onSaved: function (kind, id, responded, message) {
+        updateRowResponseInMemory(kind, id, responded, message);
+        if (currentKind === kind) {
+          try {
+            renderKindRows(kind);
+          } catch (e) {
+            setError(e && e.message ? e.message : 'Unable to refresh list.');
+          }
+        }
+      },
+    }).openModal;
+
+    function rowResponseSelector(kind, id, action) {
+      return (
+        '[data-action="' +
+        action +
+        '"][data-kind="' +
+        kind +
+        '"][data-id="' +
+        String(id) +
+        '"]'
+      );
+    }
+
+    function setRowResponseStatus(kind, id, msg, isError) {
+      var statusEl = listEl.querySelector('[data-response-status-for="' + String(id) + '"]');
+      if (!statusEl) return;
+      if (!msg) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+        statusEl.classList.remove('is-error', 'is-success');
+        return;
+      }
+      statusEl.hidden = false;
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('is-error', !!isError);
+      statusEl.classList.toggle('is-success', !isError);
+    }
+
+    function saveResponseToApi(kind, id, responded, message) {
+      var url = urls[kind];
+      if (!url) {
+        window.alert('API URL is not configured for this list.');
+        return Promise.reject(new Error('Missing API URL'));
+      }
+      return fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          id: Number(id),
+          isResponded: responded ? 1 : 0,
+          response_message: message,
+        }),
+      })
+        .then(function (res) {
+          return res.json().then(function (j) {
+            return { ok: res.ok, j: j };
+          });
+        })
+        .then(function (x) {
+          if (!x.ok) {
+            throw new Error((x.j && x.j.message) || 'Unable to save response');
+          }
+          updateRowResponseInMemory(kind, id, responded, message);
+          return x;
+        });
+    }
+
+    function saveRowResponse(kind, id) {
+      var cb = listEl.querySelector(rowResponseSelector(kind, id, 'toggle-responded'));
+      var field = listEl.querySelector(rowResponseSelector(kind, id, 'response-message'));
+      var saveBtn = listEl.querySelector(rowResponseSelector(kind, id, 'save-response-row'));
+      var responded = cb ? Boolean(cb.checked) : false;
+      var message = field ? String(field.value).trim().slice(0, 100) : '';
+
+      if (saveBtn) saveBtn.disabled = true;
+      if (field) field.disabled = true;
+      if (cb) cb.disabled = true;
+      setRowResponseStatus(kind, id, 'Saving…');
+
+      return saveResponseToApi(kind, id, responded, message)
+        .then(function () {
+          setRowResponseStatus(kind, id, 'Saved', false);
+        })
+        .catch(function (err) {
+          setRowResponseStatus(
+            kind,
+            id,
+            err && err.message ? err.message : 'Unable to save response',
+            true
+          );
+        })
+        .finally(function () {
+          if (saveBtn) saveBtn.disabled = false;
+          if (field) field.disabled = false;
+          if (cb) cb.disabled = false;
+        });
+    }
+
+    listEl.addEventListener('click', function (e) {
+      var saveBtn = e.target.closest('[data-action="save-response-row"]');
+      if (saveBtn && listEl.contains(saveBtn)) {
+        e.preventDefault();
+        var sk = saveBtn.getAttribute('data-kind');
+        var sid = saveBtn.getAttribute('data-id');
+        if (sk && sid) saveRowResponse(sk, sid);
+        return;
+      }
+
+      var btn = e.target.closest('[data-action="view-full"]');
+      if (!btn || !listEl.contains(btn)) return;
+      e.preventDefault();
+      var kind = btn.getAttribute('data-kind');
+      var id = btn.getAttribute('data-id');
+      if (kind && id) openModal(kind, id);
+    });
 
     function setCheckboxDisabled(kind, id, disabled) {
       var selector =

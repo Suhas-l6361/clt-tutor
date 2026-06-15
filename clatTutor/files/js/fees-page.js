@@ -315,33 +315,95 @@
     );
   }
 
-  function fillPrintSheet() {
-    var sheet = document.getElementById('fees-print-sheet');
-    if (!sheet) return;
+  function buildInstallRowsHtml(rows) {
+    var html = '';
+    var count = 0;
+    (rows || []).forEach(function (item) {
+      var dv = item.due != null ? item.due : '';
+      var av = item.amt != null ? item.amt : '';
+      if (!dv && !av) return;
+      count += 1;
+      html +=
+        '<tr><td>' +
+        escHtml(String(count)) +
+        '</td><td>' +
+        escHtml(fmtIsoDateInput(dv)) +
+        '</td><td class="fees-print__num">' +
+        escHtml(av || '—') +
+        '</td></tr>';
+    });
+    return { html: html, count: count };
+  }
 
+  function ensurePrintCopiesInDom() {
+    var duplex = document.getElementById('fees-print-duplex');
+    var tpl = document.getElementById('fees-print-copy-tpl');
+    if (!duplex || !tpl || duplex.querySelector('.fees-print__copy')) return;
+
+    var labels = ['Parent copy', 'Office copy'];
+    labels.forEach(function (label, idx) {
+      if (idx === 1) {
+        var tear = document.createElement('div');
+        tear.className = 'fees-print__tear';
+        tear.innerHTML = '<span>Cut along this line</span>';
+        duplex.appendChild(tear);
+      }
+      var node = tpl.content.firstElementChild.cloneNode(true);
+      var labelEl = node.querySelector('.fees-print__copy-label');
+      if (labelEl) labelEl.textContent = label;
+      duplex.appendChild(node);
+    });
+  }
+
+  function renderPrintCopies(payload) {
+    ensurePrintCopiesInDom();
+    document.querySelectorAll('#fees-print-sheet .fees-print__copy').forEach(function (copy) {
+      var rid = copy.querySelector('.js-print-receipt-id');
+      var rdate = copy.querySelector('.js-print-receipt-date');
+      if (rid) rid.textContent = payload.receiptId || '—';
+      if (rdate) rdate.textContent = payload.receiptDate || '—';
+
+      var stu = copy.querySelector('.js-print-student-lines');
+      if (stu) stu.innerHTML = payload.studentHtml || '';
+
+      var payLines = copy.querySelector('.js-print-payment-lines');
+      if (payLines) payLines.innerHTML = payload.paymentHtml || '';
+
+      var payX = copy.querySelector('.js-print-payment-extra');
+      if (payX) payX.innerHTML = payload.paymentExtraHtml || '';
+
+      var feeGrid = copy.querySelector('.js-print-fee-grid');
+      if (feeGrid) feeGrid.innerHTML = payload.feeGridHtml || '';
+
+      var pnet = copy.querySelector('.js-print-net-inr');
+      var pnw = copy.querySelector('.js-print-net-words');
+      if (pnet) pnet.textContent = payload.netInr || '—';
+      if (pnw) pnw.textContent = payload.netWords || '—';
+
+      var instWrap = copy.querySelector('.js-print-install-wrap');
+      var instBody = copy.querySelector('.js-print-install-tbody');
+      if (instBody) instBody.innerHTML = payload.installRowsHtml || '';
+      if (instWrap) instWrap.style.display = payload.showInstall ? '' : 'none';
+    });
+  }
+
+  function buildPrintPayloadFromForm() {
     var rid = document.getElementById('fees-receipt-id');
     var rdate = document.getElementById('fees-receipt-date');
-    var prid = document.getElementById('print-receipt-id');
-    var prd = document.getElementById('print-receipt-date');
-    if (prid) prid.textContent = rid ? rid.textContent.trim() : '—';
-    if (prd) prd.textContent = rdate ? rdate.textContent.trim() : '—';
 
-    var stu = document.getElementById('print-student-lines');
-    if (stu) {
-      stu.innerHTML = [
-        ['Name', txtById('fees-disp-name')],
-        ['Student ID', txtById('fees-disp-student-id')],
-        ['Phone', txtById('fees-disp-phone')],
-        ['DOB', txtById('fees-disp-dob')],
-        ['Batch', txtById('fees-disp-batch')],
-        ['Branch', txtById('fees-disp-branch')],
-        ['Address', txtById('fees-disp-address')],
-      ]
-        .map(function (row) {
-          return printLineHtml(row[0], row[1]);
-        })
-        .join('');
-    }
+    var studentHtml = [
+      ['Name', txtById('fees-disp-name')],
+      ['Student ID', txtById('fees-disp-student-id')],
+      ['Phone', txtById('fees-disp-phone')],
+      ['DOB', txtById('fees-disp-dob')],
+      ['Batch', txtById('fees-disp-batch')],
+      ['Branch', txtById('fees-disp-branch')],
+      ['Address', txtById('fees-disp-address')],
+    ]
+      .map(function (row) {
+        return printLineHtml(row[0], row[1]);
+      })
+      .join('');
 
     var payMode = valById('fees-pay-mode');
     var payModeLabel = selectLabel('fees-pay-mode');
@@ -349,14 +411,11 @@
     var amtPaid = valById('fees-amount-paid');
     var amtWords = valById('fees-amount-words');
 
-    var payLines = document.getElementById('print-payment-lines');
-    if (payLines) {
-      payLines.innerHTML =
-        printLineHtml('Payment mode', payModeLabel) +
-        printLineHtml('Payment date', payDate) +
-        printLineHtml('Amount paid', amtPaid ? '₹ ' + amtPaid : '—') +
-        printLineHtml('Amount in words', amtWords || '—');
-    }
+    var paymentHtml =
+      printLineHtml('Payment mode', payModeLabel) +
+      printLineHtml('Payment date', payDate) +
+      printLineHtml('Amount paid', amtPaid ? '₹ ' + amtPaid : '—') +
+      printLineHtml('Amount in words', amtWords || '—');
 
     var extraParts = [];
     if (payMode === 'cheque') {
@@ -381,57 +440,138 @@
       extraParts.push(printLineHtml('Details', valById('fees-other-detail')));
     }
 
-    var payX = document.getElementById('print-payment-extra');
-    if (payX) {
-      payX.innerHTML = extraParts.length ? extraParts.join('') : '';
-    }
-
-    var feeGrid = document.getElementById('print-fee-grid');
-    if (feeGrid) {
-      feeGrid.innerHTML = printLineHtml('Tuition fee', valById('fees-base'));
-    }
-
-    var pnet = document.getElementById('print-net-inr');
-    var pnw = document.getElementById('print-net-words');
-    if (pnet) {
-      var nv = valById('fees-base');
-      pnet.textContent = nv ? '₹ ' + nv : '—';
-    }
-    if (pnw) pnw.textContent = valById('fees-net-words') || '—';
-
-    var instBody = document.getElementById('print-install-tbody');
-    var instWrap = document.getElementById('print-install-wrap');
-    if (instBody) {
-      instBody.innerHTML = '';
-      var rows = document.querySelectorAll('#fees-installment-tbody tr.fees-install-row');
-      var count = 0;
-      rows.forEach(function (row) {
-        var dIn = row.querySelector('.fees-install-date');
-        var aIn = row.querySelector('.fees-install-amt');
-        var dv = dIn ? String(dIn.value || '').trim() : '';
-        var av = aIn ? String(aIn.value || '').trim() : '';
-        if (!dv && !av) return;
-        count += 1;
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>' +
-          escHtml(String(count)) +
-          '</td><td>' +
-          escHtml(fmtIsoDateInput(dv)) +
-          '</td><td class="fees-print__num">' +
-          escHtml(av || '—') +
-          '</td>';
-        instBody.appendChild(tr);
+    var nv = valById('fees-base');
+    var installRows = [];
+    document.querySelectorAll('#fees-installment-tbody tr.fees-install-row').forEach(function (row) {
+      var dIn = row.querySelector('.fees-install-date');
+      var aIn = row.querySelector('.fees-install-amt');
+      installRows.push({
+        due: dIn ? String(dIn.value || '').trim() : '',
+        amt: aIn ? String(aIn.value || '').trim() : '',
       });
-      if (instWrap) {
-        instWrap.style.display = count ? '' : 'none';
+    });
+    var installBuilt = buildInstallRowsHtml(installRows);
+
+    return {
+      receiptId: rid ? rid.textContent.trim() : '—',
+      receiptDate: rdate ? rdate.textContent.trim() : '—',
+      studentHtml: studentHtml,
+      paymentHtml: paymentHtml,
+      paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
+      feeGridHtml: printLineHtml('Tuition fee', valById('fees-base')),
+      netInr: nv ? '₹ ' + nv : '—',
+      netWords: valById('fees-net-words') || '—',
+      installRowsHtml: installBuilt.html,
+      showInstall: installBuilt.count > 0,
+    };
+  }
+
+  function buildPrintPayloadFromRecord(row) {
+    if (!row || typeof row !== 'object') return null;
+
+    var dobRaw = row.dob;
+    var dobDisp = '—';
+    if (dobRaw) {
+      var ds = String(dobRaw).slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) dobDisp = fmtIsoDateInput(ds);
+      else dobDisp = formatDobDisplay(dobRaw);
+    }
+
+    var studentHtml = [
+      ['Name', rstr(row.name)],
+      ['Student ID', rstr(row.student_id)],
+      ['Phone', rstr(row.phone)],
+      ['DOB', dobDisp],
+      ['Batch', rstr(row.batch)],
+      ['Branch', rstr(row.branch)],
+      ['Address', rstr(row.address)],
+    ]
+      .map(function (pair) {
+        return printLineHtml(pair[0], pair[1]);
+      })
+      .join('');
+
+    var payMode = String(row.payement_mode || '').toLowerCase();
+    var pdate = '—';
+    if (row.payment_date) {
+      var ps = String(row.payment_date).slice(0, 10);
+      pdate = /^\d{4}-\d{2}-\d{2}$/.test(ps) ? fmtIsoDateInput(ps) : rstr(row.payment_date);
+    }
+    var ap = row.amount_paid;
+    var amtStr = ap != null && rstr(ap) !== '' ? '₹ ' + rstr(ap) : '—';
+    var paymentHtml =
+      printLineHtml('Payment mode', payModeLabel(row.payement_mode)) +
+      printLineHtml('Payment date', pdate) +
+      printLineHtml('Amount paid', amtStr) +
+      printLineHtml('Amount in words', rstr(row.amount_in_words));
+
+    var extraParts = [];
+    if (payMode === 'cheque') {
+      extraParts.push(
+        printLineHtml('Cheque no.', rstr(row.cheque_no)),
+        printLineHtml('Drawee bank', rstr(row.DraweeBank)),
+        printLineHtml('Branch', rstr(row.bank_branch))
+      );
+    } else if (payMode === 'online') {
+      extraParts.push(
+        printLineHtml('Transaction ID / UTR', rstr(row.transation_id)),
+        printLineHtml('Bank', rstr(row.bank))
+      );
+    } else if (payMode === 'card') {
+      extraParts.push(
+        printLineHtml('Card (last 4)', rstr(row.cardNum)),
+        printLineHtml('Network', rstr(row.network))
+      );
+    } else if (payMode === 'upi') {
+      extraParts.push(printLineHtml('Transaction ID', rstr(row.upiTransation_id)));
+    } else if (payMode === 'other') {
+      extraParts.push(printLineHtml('Details', rstr(row.paymentDetails)));
+    }
+
+    var nv =
+      row.tution_fess != null && row.tution_fess !== ''
+        ? row.tution_fess
+        : row.base_fees != null && row.base_fees !== ''
+          ? row.base_fees
+          : row.netPayable;
+
+    var plan = row.installment_plan;
+    if (typeof plan === 'string') {
+      try {
+        plan = JSON.parse(plan);
+      } catch (e) {
+        plan = null;
       }
     }
-
-    var dueG = document.getElementById('print-due-grid');
-    if (dueG) {
-      dueG.innerHTML = '';
+    var installRows = [];
+    if (Array.isArray(plan)) {
+      plan.forEach(function (item) {
+        var dv = item && (item.due_date != null ? item.due_date : item.dueDate);
+        var av = item && item.amount;
+        installRows.push({
+          due: dv ? String(dv).slice(0, 10) : '',
+          amt: av != null ? String(av).trim() : '',
+        });
+      });
     }
+    var installBuilt = buildInstallRowsHtml(installRows);
+
+    return {
+      receiptId: rstr(row.receipt_id) || '—',
+      receiptDate: formatReceiptDateFromApi(row.receipt_date),
+      studentHtml: studentHtml,
+      paymentHtml: paymentHtml,
+      paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
+      feeGridHtml: printLineHtml('Tuition fee', rstr(nv)),
+      netInr: nv != null && rstr(nv) !== '' ? '₹ ' + rstr(nv) : '—',
+      netWords: rstr(row.amount_in_words_total) || '—',
+      installRowsHtml: installBuilt.html,
+      showInstall: installBuilt.count > 0,
+    };
+  }
+
+  function fillPrintSheet() {
+    renderPrintCopies(buildPrintPayloadFromForm());
   }
 
   function rstr(v) {
@@ -459,153 +599,280 @@
     return map[m] || rstr(mode) || '—';
   }
 
+  function historyRowDateIso(row) {
+    if (!row) return '';
+    var raw = row.payment_date || row.receipt_date || row.created_at;
+    if (!raw) return '';
+    var s = String(raw);
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    var d = new Date(raw);
+    if (!isNaN(d.getTime())) {
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
+    return '';
+  }
+
+  function parseRecordAmountPaid(v) {
+    if (v == null || v === '') return 0;
+    var n = parseFloat(String(v).replace(/,/g, '').trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function formatInrAmount(n) {
+    try {
+      return (
+        '₹ ' +
+        Number(n).toLocaleString('en-IN', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })
+      );
+    } catch (e) {
+      return '₹ ' + String(n);
+    }
+  }
+
   /** Fill print sheet from a GET /fees row (for History → Print) without touching the main form. */
   function fillPrintSheetFromRecord(row) {
-    if (!row || typeof row !== 'object') return;
-
-    var prid = document.getElementById('print-receipt-id');
-    var prd = document.getElementById('print-receipt-date');
-    if (prid) prid.textContent = rstr(row.receipt_id) || '—';
-    if (prd) prd.textContent = formatReceiptDateFromApi(row.receipt_date);
-
-    var stu = document.getElementById('print-student-lines');
-    if (stu) {
-      var dobRaw = row.dob;
-      var dobDisp = '—';
-      if (dobRaw) {
-        var ds = String(dobRaw).slice(0, 10);
-        if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) dobDisp = fmtIsoDateInput(ds);
-        else dobDisp = formatDobDisplay(dobRaw);
-      }
-      stu.innerHTML = [
-        ['Name', rstr(row.name)],
-        ['Student ID', rstr(row.student_id)],
-        ['Phone', rstr(row.phone)],
-        ['DOB', dobDisp],
-        ['Batch', rstr(row.batch)],
-        ['Branch', rstr(row.branch)],
-        ['Address', rstr(row.address)],
-      ]
-        .map(function (pair) {
-          return printLineHtml(pair[0], pair[1]);
-        })
-        .join('');
-    }
-
-    var payMode = String(row.payement_mode || '').toLowerCase();
-    var payLines = document.getElementById('print-payment-lines');
-    if (payLines) {
-      var pdate = '—';
-      if (row.payment_date) {
-        var ps = String(row.payment_date).slice(0, 10);
-        pdate = /^\d{4}-\d{2}-\d{2}$/.test(ps) ? fmtIsoDateInput(ps) : rstr(row.payment_date);
-      }
-      var ap = row.amount_paid;
-      var amtStr = ap != null && rstr(ap) !== '' ? '₹ ' + rstr(ap) : '—';
-      payLines.innerHTML =
-        printLineHtml('Payment mode', payModeLabel(row.payement_mode)) +
-        printLineHtml('Payment date', pdate) +
-        printLineHtml('Amount paid', amtStr) +
-        printLineHtml('Amount in words', rstr(row.amount_in_words));
-    }
-
-    var extraParts = [];
-    if (payMode === 'cheque') {
-      extraParts.push(
-        printLineHtml('Cheque no.', rstr(row.cheque_no)),
-        printLineHtml('Drawee bank', rstr(row.DraweeBank)),
-        printLineHtml('Branch', rstr(row.bank_branch))
-      );
-    } else if (payMode === 'online') {
-      extraParts.push(
-        printLineHtml('Transaction ID / UTR', rstr(row.transation_id)),
-        printLineHtml('Bank', rstr(row.bank))
-      );
-    } else if (payMode === 'card') {
-      extraParts.push(
-        printLineHtml('Card (last 4)', rstr(row.cardNum)),
-        printLineHtml('Network', rstr(row.network))
-      );
-    } else if (payMode === 'upi') {
-      extraParts.push(printLineHtml('Transaction ID', rstr(row.upiTransation_id)));
-    } else if (payMode === 'other') {
-      extraParts.push(printLineHtml('Details', rstr(row.paymentDetails)));
-    }
-    var payX = document.getElementById('print-payment-extra');
-    if (payX) payX.innerHTML = extraParts.length ? extraParts.join('') : '';
-
-    var feeGrid = document.getElementById('print-fee-grid');
-    if (feeGrid) {
-      feeGrid.innerHTML = printLineHtml(
-        'Tuition fee',
-        rstr(
-          row.tution_fess != null && row.tution_fess !== ''
-            ? row.tution_fess
-            : row.base_fees != null && row.base_fees !== ''
-              ? row.base_fees
-              : row.netPayable
-        )
-      );
-    }
-
-    var pnet = document.getElementById('print-net-inr');
-    var pnw = document.getElementById('print-net-words');
-    if (pnet) {
-      var nv =
-        row.tution_fess != null && row.tution_fess !== ''
-          ? row.tution_fess
-          : row.base_fees != null && row.base_fees !== ''
-            ? row.base_fees
-            : row.netPayable;
-      pnet.textContent = nv != null && rstr(nv) !== '' ? '₹ ' + rstr(nv) : '—';
-    }
-    if (pnw) pnw.textContent = rstr(row.amount_in_words_total) || '—';
-
-    var instBody = document.getElementById('print-install-tbody');
-    var instWrap = document.getElementById('print-install-wrap');
-    if (instBody) {
-      instBody.innerHTML = '';
-      var plan = row.installment_plan;
-      if (typeof plan === 'string') {
-        try {
-          plan = JSON.parse(plan);
-        } catch (e) {
-          plan = null;
-        }
-      }
-      var count = 0;
-      if (Array.isArray(plan)) {
-        plan.forEach(function (item) {
-          var dv = item && (item.due_date != null ? item.due_date : item.dueDate);
-          var av = item && item.amount;
-          var hasDue = dv != null && String(dv).trim() !== '';
-          var hasAmt = av != null && String(av).trim() !== '';
-          if (!hasDue && !hasAmt) return;
-          count += 1;
-          var tr = document.createElement('tr');
-          tr.innerHTML =
-            '<td>' +
-            escHtml(String(count)) +
-            '</td><td>' +
-            escHtml(fmtIsoDateInput(dv ? String(dv).slice(0, 10) : '')) +
-            '</td><td class="fees-print__num">' +
-            escHtml(rstr(av) || '—') +
-            '</td>';
-          instBody.appendChild(tr);
-        });
-      }
-      if (instWrap) instWrap.style.display = count ? '' : 'none';
-    }
-
-    var dueG = document.getElementById('print-due-grid');
-    if (dueG) {
-      dueG.innerHTML = '';
-    }
+    var payload = buildPrintPayloadFromRecord(row);
+    if (payload) renderPrintCopies(payload);
   }
 
   function printFeesReceiptFromRecord(row) {
     fillPrintSheetFromRecord(row);
     printFeesSheetDom();
+  }
+
+  var feesEditState = { id: null, email: null };
+
+  function setInputVal(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.value = val == null || val === '' ? '' : String(val);
+  }
+
+  function setDispText(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val == null || val === '' ? '—' : String(val);
+  }
+
+  function setDateInputVal(id, iso) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var v = iso ? String(iso).slice(0, 10) : '';
+    if (el._flatpickr) {
+      el._flatpickr.setDate(v || null, false);
+    } else {
+      el.value = v;
+    }
+  }
+
+  function parseInstallmentPlanList(plan) {
+    if (plan == null) return [];
+    if (typeof plan === 'string') {
+      try {
+        plan = JSON.parse(plan);
+      } catch (e) {
+        return [];
+      }
+    }
+    return Array.isArray(plan) ? plan : [];
+  }
+
+  function populateInstallmentsFromPlan(plan) {
+    var tbody = document.getElementById('fees-installment-tbody');
+    var tpl = document.getElementById('fees-install-row-tpl');
+    if (!tbody || !tpl) return;
+
+    tbody.querySelectorAll('.fees-install-row').forEach(function (row) {
+      var dateIn = row.querySelector('.fees-install-date');
+      destroyFp(dateIn);
+      row.remove();
+    });
+
+    var items = parseInstallmentPlanList(plan);
+
+    items.forEach(function (item) {
+      var node = tpl.content.firstElementChild.cloneNode(true);
+      tbody.appendChild(node);
+      var dateIn = node.querySelector('.fees-install-date');
+      var amtIn = node.querySelector('.fees-install-amt');
+      var due = item && (item.due_date != null ? item.due_date : item.dueDate);
+      var amt = item && item.amount;
+      if (dateIn) {
+        var dueStr = due ? String(due).slice(0, 10) : '';
+        if (dateIn._flatpickr) dateIn._flatpickr.setDate(dueStr || null, false);
+        else dateIn.value = dueStr;
+      }
+      if (amtIn) amtIn.value = amt != null && String(amt).trim() !== '' ? String(amt) : '';
+      enforceNumericInput(amtIn);
+    });
+
+    syncInstallmentRows(tbody);
+  }
+
+  function addInstallmentRow() {
+    var tpl = document.getElementById('fees-install-row-tpl');
+    var tbody = document.getElementById('fees-installment-tbody');
+    if (!tpl || !tbody) return;
+    var node = tpl.content.firstElementChild.cloneNode(true);
+    tbody.appendChild(node);
+    var amtInput = node.querySelector('.fees-install-amt');
+    enforceNumericInput(amtInput);
+    syncInstallmentRows(tbody);
+  }
+
+  function ensureDefaultInstallmentRow() {
+    var tbody = document.getElementById('fees-installment-tbody');
+    if (!tbody || tbody.querySelector('.fees-install-row')) return;
+    addInstallmentRow();
+  }
+
+  function populateFormFromRecord(row) {
+    if (!row || typeof row !== 'object') return;
+
+    setDispText('fees-receipt-id', row.receipt_id);
+    setDispText('fees-receipt-date', formatReceiptDateFromApi(row.receipt_date));
+
+    setInputVal('fees-student-search', row.name);
+    setInputVal('fees-student-id', row.student_id);
+    var studentDetail = document.getElementById('fees-student-detail');
+    if (studentDetail) studentDetail.hidden = false;
+    setDispText('fees-disp-name', row.name);
+    setDispText('fees-disp-student-id', row.student_id);
+    setDispText('fees-disp-phone', row.phone);
+    var dobDisp = '—';
+    if (row.dob) {
+      var ds = String(row.dob).slice(0, 10);
+      dobDisp = /^\d{4}-\d{2}-\d{2}$/.test(ds) ? fmtIsoDateInput(ds) : formatDobDisplay(row.dob);
+    }
+    setDispText('fees-disp-dob', dobDisp);
+    setDispText('fees-disp-batch', row.batch);
+    setDispText('fees-disp-branch', row.branch);
+    setDispText('fees-disp-address', row.address);
+
+    var payMode = String(row.payement_mode || '').toLowerCase();
+    setInputVal('fees-pay-mode', payMode);
+    var modeEl = document.getElementById('fees-pay-mode');
+    if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
+
+    setDateInputVal('fees-pay-date', row.payment_date);
+    setInputVal('fees-amount-paid', row.amount_paid);
+    setInputVal('fees-amount-words', row.amount_in_words);
+    var amtWords = document.getElementById('fees-amount-words');
+    if (amtWords) amtWords.dataset.touched = row.amount_in_words ? '1' : '';
+
+    setInputVal('fees-cheque-no', row.cheque_no);
+    setInputVal('fees-cheque-bank', row.DraweeBank);
+    setInputVal('fees-cheque-branch', row.bank_branch);
+    setInputVal('fees-online-txn', row.transation_id);
+    setInputVal('fees-online-bank', row.bank);
+    setInputVal('fees-card-last4', row.cardNum);
+    setInputVal('fees-card-network', row.network ? String(row.network).toLowerCase() : '');
+    setInputVal('fees-upi-txn', row.upiTransation_id);
+    setInputVal('fees-other-detail', row.paymentDetails);
+
+    var baseFee =
+      row.tution_fess != null && row.tution_fess !== ''
+        ? row.tution_fess
+        : row.base_fees != null && row.base_fees !== ''
+          ? row.base_fees
+          : row.netPayable;
+    setInputVal('fees-base', baseFee);
+    setInputVal('fees-net-words', row.amount_in_words_total);
+    var netWords = document.getElementById('fees-net-words');
+    if (netWords) netWords.dataset.touched = row.amount_in_words_total ? '1' : '';
+
+    populateInstallmentsFromPlan(row.installment_plan);
+    updateFeesActionsBar();
+  }
+
+  function setFeesEditUi(active, row) {
+    var banner = document.getElementById('fees-edit-banner');
+    var bannerText = document.getElementById('fees-edit-banner-text');
+    var btnSave = document.getElementById('fees-btn-save');
+    var note = document.getElementById('fees-actions-note');
+    if (banner) banner.hidden = !active;
+    if (bannerText && active && row) {
+      bannerText.textContent =
+        'Editing receipt ' + (row.receipt_id ? String(row.receipt_id) : '#' + row.id);
+    }
+    if (btnSave) {
+      if (active) {
+        btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Update</span>';
+        btnSave.setAttribute('aria-label', 'Update receipt');
+      } else {
+        btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Save</span>';
+        btnSave.setAttribute('aria-label', 'Save receipt');
+      }
+    }
+    if (note) {
+      note.textContent = active
+        ? 'Update the fields below, then click Update to save changes to this receipt.'
+        : 'Student, payment mode, and amount paid are set. Save your receipt — you can print right after a successful save.';
+    }
+  }
+
+  function clearFeesEditMode() {
+    feesEditState.id = null;
+    feesEditState.email = null;
+    setFeesEditUi(false);
+  }
+
+  function resetFeesFormForNewReceipt() {
+    clearFeesEditMode();
+    var idEl = document.getElementById('fees-receipt-id');
+    var dateEl = document.getElementById('fees-receipt-date');
+    if (idEl) idEl.textContent = nextReceiptId();
+    if (dateEl) dateEl.textContent = formatReceiptDate(new Date());
+
+    setInputVal('fees-student-search', '');
+    setInputVal('fees-student-id', '');
+    var studentDetail = document.getElementById('fees-student-detail');
+    if (studentDetail) studentDetail.hidden = true;
+    ['fees-disp-name', 'fees-disp-student-id', 'fees-disp-phone', 'fees-disp-dob', 'fees-disp-batch', 'fees-disp-branch', 'fees-disp-address'].forEach(
+      function (id) {
+        setDispText(id, '—');
+      }
+    );
+
+    setInputVal('fees-pay-mode', '');
+    var modeEl = document.getElementById('fees-pay-mode');
+    if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
+    setDateInputVal('fees-pay-date', '');
+    setInputVal('fees-amount-paid', '');
+    setInputVal('fees-amount-words', '');
+    setInputVal('fees-base', '');
+    setInputVal('fees-net-words', '');
+    var amtWords = document.getElementById('fees-amount-words');
+    var netWords = document.getElementById('fees-net-words');
+    if (amtWords) delete amtWords.dataset.touched;
+    if (netWords) delete netWords.dataset.touched;
+
+    populateInstallmentsFromPlan([]);
+    ensureDefaultInstallmentRow();
+    updateFeesActionsBar();
+  }
+
+  function startFeesEditFromRecord(row) {
+    if (!row || row.id == null) return;
+    var listModal = document.getElementById('fees-history-modal');
+    var detailModal = document.getElementById('fees-history-detail-modal');
+    if (listModal) listModal.hidden = true;
+    if (detailModal) detailModal.hidden = true;
+    document.body.classList.remove('fees-history-modal-open');
+    document.body.classList.remove('fees-history-detail-open');
+
+    feesEditState.id = row.id;
+    feesEditState.email = row.email != null ? row.email : null;
+    populateFormFromRecord(row);
+    setFeesEditUi(true, row);
+
+    var form = document.getElementById('fees-receipt-form');
+    if (form && form.scrollIntoView) {
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function wireFeesHistory() {
@@ -615,17 +882,26 @@
     var tbody = document.getElementById('fees-history-tbody');
     var loading = document.getElementById('fees-history-loading');
     var errEl = document.getElementById('fees-history-error');
+    var filtersEl = document.getElementById('fees-history-filters');
+    var fromEl = document.getElementById('fees-history-from');
+    var toEl = document.getElementById('fees-history-to');
+    var applyBtn = document.getElementById('fees-history-apply');
+    var resetBtn = document.getElementById('fees-history-reset');
+    var summaryEl = document.getElementById('fees-history-summary');
+    var tableWrap = document.getElementById('fees-history-table-wrap');
     var closeBtn = document.getElementById('fees-history-close');
     var backdrop = modal ? modal.querySelector('[data-fees-history-close]') : null;
     var detailClose = document.getElementById('fees-history-detail-close');
     var detailClose2 = document.getElementById('fees-history-detail-close-2');
     var detailBackdrop = detailModal ? detailModal.querySelector('[data-fees-history-close]') : null;
     var detailPrint = document.getElementById('fees-history-detail-print');
+    var detailEdit = document.getElementById('fees-history-detail-edit');
     var detailContent = document.getElementById('fees-history-detail-content');
 
     if (!btn || !modal || !tbody) return;
 
     var rowsById = {};
+    var allHistoryRows = [];
     var detailRow = null;
     var histEsc = null;
     var detEsc = null;
@@ -769,6 +1045,152 @@
       document.addEventListener('keydown', histEsc);
     }
 
+    function filterHistoryRows(rows, fromStr, toStr) {
+      var hasFrom = !!(fromStr && String(fromStr).trim());
+      var hasTo = !!(toStr && String(toStr).trim());
+      if (!hasFrom && !hasTo) return rows.slice();
+      return rows.filter(function (r) {
+        var dk = historyRowDateIso(r);
+        if (!dk) return false;
+        if (hasFrom && dk < fromStr) return false;
+        if (hasTo && dk > toStr) return false;
+        return true;
+      });
+    }
+
+    function sumHistoryAmountPaid(rows) {
+      var total = 0;
+      rows.forEach(function (r) {
+        total += parseRecordAmountPaid(r.amount_paid);
+      });
+      return total;
+    }
+
+    function formatHistoryDateLabel(iso) {
+      if (!iso) return '';
+      var parts = String(iso).split('-');
+      if (parts.length !== 3) return iso;
+      var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (isNaN(d.getTime())) return iso;
+      return formatReceiptDate(d);
+    }
+
+    function hideHistorySummary() {
+      if (!summaryEl) return;
+      summaryEl.className = 'fees-history-summary';
+      summaryEl.hidden = true;
+      summaryEl.textContent = '';
+    }
+
+    function updateHistorySummary(rows, fromStr, toStr) {
+      if (!summaryEl) return;
+      var hasFrom = !!(fromStr && String(fromStr).trim());
+      var hasTo = !!(toStr && String(toStr).trim());
+      if (!hasFrom || !hasTo) {
+        hideHistorySummary();
+        return;
+      }
+      var count = rows.length;
+      var total = sumHistoryAmountPaid(rows);
+      summaryEl.className = 'fees-history-summary';
+      summaryEl.innerHTML =
+        escHtml(formatHistoryDateLabel(fromStr)) +
+        ' to ' +
+        escHtml(formatHistoryDateLabel(toStr)) +
+        ' (inclusive) · <strong>' +
+        count +
+        '</strong> receipt' +
+        (count === 1 ? '' : 's') +
+        ' · Total collected: <strong>' +
+        escHtml(formatInrAmount(total)) +
+        '</strong>';
+      summaryEl.hidden = false;
+    }
+
+    function renderHistoryTable(rows, fromStr, toStr) {
+      tbody.innerHTML = '';
+      updateHistorySummary(rows, fromStr, toStr);
+      if (tableWrap) tableWrap.hidden = false;
+
+      if (!rows.length) {
+        var emptyTr = document.createElement('tr');
+        emptyTr.className = 'fees-history-table__empty';
+        var hasRange = !!(fromStr && String(fromStr).trim()) || !!(toStr && String(toStr).trim());
+        emptyTr.innerHTML =
+          '<td colspan="6">' +
+          escHtml(
+            hasRange
+              ? 'No receipts found for the selected date range.'
+              : 'No receipts found.'
+          ) +
+          '</td>';
+        tbody.appendChild(emptyTr);
+        return;
+      }
+
+      rows.forEach(function (r) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' +
+          escHtml(rstr(r.student_id)) +
+          '</td><td>' +
+          escHtml(rstr(r.name)) +
+          '</td><td>' +
+          escHtml(rstr(r.branch)) +
+          '</td><td>' +
+          escHtml(formatReceiptDateFromApi(r.payment_date || r.receipt_date)) +
+          '</td><td class="fees-history-table__amount">' +
+          escHtml(formatInrAmount(parseRecordAmountPaid(r.amount_paid))) +
+          '</td><td class="fees-history-table__actions">' +
+          '<button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" data-action="show" data-id="' +
+          escAttr(String(r.id)) +
+          '">Show</button> ' +
+          '<button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" data-action="edit" data-id="' +
+          escAttr(String(r.id)) +
+          '">Edit</button> ' +
+          '<button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" data-action="print" data-id="' +
+          escAttr(String(r.id)) +
+          '">Print</button>' +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyHistoryFilter() {
+      var fromStr = fromEl ? String(fromEl.value || '').trim() : '';
+      var toStr = toEl ? String(toEl.value || '').trim() : '';
+      if (!fromStr || !toStr) {
+        if (errEl) {
+          errEl.hidden = false;
+          errEl.textContent = 'Please select both From date and To date.';
+        }
+        return;
+      }
+      if (fromStr > toStr) {
+        if (errEl) {
+          errEl.hidden = false;
+          errEl.textContent = 'From date cannot be after To date.';
+        }
+        return;
+      }
+      if (errEl) {
+        errEl.hidden = true;
+        errEl.textContent = '';
+      }
+      var filtered = filterHistoryRows(allHistoryRows, fromStr, toStr);
+      renderHistoryTable(filtered, fromStr, toStr);
+    }
+
+    function resetHistoryFilter() {
+      if (fromEl) fromEl.value = '';
+      if (toEl) toEl.value = '';
+      if (errEl) {
+        errEl.hidden = true;
+        errEl.textContent = '';
+      }
+      renderHistoryTable(allHistoryRows, '', '');
+    }
+
     btn.addEventListener('click', function () {
       var api = getFeesApiUrl();
       if (!api) {
@@ -780,6 +1202,11 @@
         errEl.hidden = true;
         errEl.textContent = '';
       }
+      if (summaryEl) hideHistorySummary();
+      if (tableWrap) tableWrap.hidden = false;
+      if (filtersEl) filtersEl.hidden = true;
+      if (fromEl) fromEl.value = '';
+      if (toEl) toEl.value = '';
       if (loading) loading.hidden = false;
       openList();
 
@@ -795,30 +1222,13 @@
             throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
           }
           var list = Array.isArray(x.j) ? x.j : [];
+          allHistoryRows = list.slice();
           rowsById = {};
           list.forEach(function (r) {
             if (r && r.id != null) rowsById[r.id] = r;
           });
-          tbody.innerHTML = '';
-          list.forEach(function (r) {
-            var tr = document.createElement('tr');
-            tr.innerHTML =
-              '<td>' +
-              escHtml(rstr(r.student_id)) +
-              '</td><td>' +
-              escHtml(rstr(r.name)) +
-              '</td><td>' +
-              escHtml(rstr(r.branch)) +
-              '</td><td class="fees-history-table__actions">' +
-              '<button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" data-action="show" data-id="' +
-              escAttr(String(r.id)) +
-              '">Show</button> ' +
-              '<button type="button" class="fees-btn fees-btn--ghost fees-btn--xs" data-action="print" data-id="' +
-              escAttr(String(r.id)) +
-              '">Print</button>' +
-              '</td>';
-            tbody.appendChild(tr);
-          });
+          if (filtersEl) filtersEl.hidden = false;
+          renderHistoryTable(allHistoryRows, '', '');
         })
         .catch(function (err) {
           if (loading) loading.hidden = true;
@@ -838,6 +1248,10 @@
       if (!row) return;
       if (action === 'show') {
         openDetail(row);
+      } else if (action === 'edit') {
+        closeDetailModal();
+        closeHistoryModal();
+        startFeesEditFromRecord(row);
       } else if (action === 'print') {
         printFeesReceiptFromRecord(row);
       }
@@ -845,12 +1259,35 @@
 
     if (closeBtn) closeBtn.addEventListener('click', closeHistoryModal);
     if (backdrop) backdrop.addEventListener('click', closeHistoryModal);
+    if (applyBtn) applyBtn.addEventListener('click', applyHistoryFilter);
+    if (resetBtn) resetBtn.addEventListener('click', resetHistoryFilter);
+    if (fromEl) {
+      fromEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyHistoryFilter();
+        }
+      });
+    }
+    if (toEl) {
+      toEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyHistoryFilter();
+        }
+      });
+    }
     if (detailClose) detailClose.addEventListener('click', closeDetailModal);
     if (detailClose2) detailClose2.addEventListener('click', closeDetailModal);
     if (detailBackdrop) detailBackdrop.addEventListener('click', closeDetailModal);
     if (detailPrint) {
       detailPrint.addEventListener('click', function () {
         if (detailRow) printFeesReceiptFromRecord(detailRow);
+      });
+    }
+    if (detailEdit) {
+      detailEdit.addEventListener('click', function () {
+        if (detailRow) startFeesEditFromRecord(detailRow);
       });
     }
   }
@@ -943,24 +1380,31 @@
     function runSave() {
       if (!isFeesFormComplete()) return;
       var prefix = (window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX) || 'edportal_';
+      var isUpdate = feesEditState.id != null;
       var payload = {
         savedAt: new Date().toISOString(),
         data: collectSnapshot(),
       };
       var api = getFeesApiUrl();
-      var html = btnSave.innerHTML;
+      var savedLabel = isUpdate ? 'Updated' : 'Saved';
 
       function applySavedUi() {
         btnSave.disabled = true;
         btnSave.innerHTML =
-          '<i class="fa-solid fa-check" aria-hidden="true"></i><span>Saved</span>';
+          '<i class="fa-solid fa-check" aria-hidden="true"></i><span>' + savedLabel + '</span>';
         window.setTimeout(function () {
-          btnSave.innerHTML = html;
+          setFeesEditUi(
+            feesEditState.id != null,
+            feesEditState.id != null
+              ? { id: feesEditState.id, receipt_id: textSnap('fees-receipt-id') }
+              : null
+          );
           btnSave.disabled = false;
         }, 2200);
       }
 
       function onSaveSucceeded() {
+        if (isUpdate) clearFeesEditMode();
         applySavedUi();
         schedulePrintOfferModal();
       }
@@ -977,6 +1421,37 @@
 
       if (api) {
         btnSave.disabled = true;
+
+        if (isUpdate) {
+          var updateBody = collectSnapshot();
+          updateBody.id = feesEditState.id;
+          if (feesEditState.email) updateBody.email = feesEditState.email;
+          fetch(api, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateBody),
+          })
+            .then(function (res) {
+              return res.json().then(function (j) {
+                return { res: res, j: j };
+              });
+            })
+            .then(function (x) {
+              if (!x.res.ok) {
+                throw new Error((x.j && x.j.message) || (x.j && x.j.error) || 'HTTP ' + x.res.status);
+              }
+              payload.savedAt = new Date().toISOString();
+              payload.data = collectSnapshot();
+              if (!persistLocal()) return;
+              onSaveSucceeded();
+            })
+            .catch(function (err) {
+              window.alert('Update failed: ' + (err.message || String(err)));
+              btnSave.disabled = false;
+            });
+          return;
+        }
+
         fetch(api, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1022,6 +1497,15 @@
     }
 
     btnSave.addEventListener('click', runSave);
+
+    var btnEditCancel = document.getElementById('fees-edit-cancel');
+    if (btnEditCancel) {
+      btnEditCancel.addEventListener('click', function () {
+        if (feesEditState.id == null) return;
+        if (!window.confirm('Discard changes and start a new receipt?')) return;
+        resetFeesFormForNewReceipt();
+      });
+    }
 
     if (printOfferDismiss) {
       printOfferDismiss.addEventListener('click', closePrintOfferModal);
@@ -1383,8 +1867,12 @@
   }
 
   function syncInstallmentRows(tbody) {
+    if (!tbody) tbody = document.getElementById('fees-installment-tbody');
+    if (!tbody) return;
     var rows = tbody.querySelectorAll('.fees-install-row');
-    var multi = rows.length > 1;
+    var emptyHint = document.getElementById('fees-install-empty');
+    if (emptyHint) emptyHint.hidden = rows.length > 0;
+
     rows.forEach(function (row, i) {
       var num = row.querySelector('.fees-install-num');
       if (num) num.textContent = String(i + 1);
@@ -1393,40 +1881,39 @@
         bindDateInput(dateIn);
       }
       var rm = row.querySelector('.fees-row-remove');
-      if (rm) rm.hidden = !multi;
+      if (rm) {
+        rm.hidden = false;
+        var label =
+          rows.length > 1
+            ? 'Remove installment ' + (i + 1)
+            : 'Remove this installment';
+        rm.setAttribute('aria-label', label);
+        rm.title = label;
+      }
     });
   }
 
   function wireInstallments() {
-    var tpl = document.getElementById('fees-install-row-tpl');
     var tbody = document.getElementById('fees-installment-tbody');
     var btnAdd = document.getElementById('fees-install-add');
-    if (!tpl || !tbody || !btnAdd) return;
-
-    function addRow() {
-      var node = tpl.content.firstElementChild.cloneNode(true);
-      tbody.appendChild(node);
-      var amtInput = node.querySelector('.fees-install-amt');
-      enforceNumericInput(amtInput);
-      syncInstallmentRows(tbody);
-    }
+    if (!tbody || !btnAdd) return;
 
     btnAdd.addEventListener('click', function () {
-      addRow();
+      addInstallmentRow();
     });
 
     tbody.addEventListener('click', function (e) {
       var btn = e.target.closest('.fees-row-remove');
       if (!btn || btn.hidden) return;
       var row = btn.closest('.fees-install-row');
-      if (!row || tbody.querySelectorAll('.fees-install-row').length <= 1) return;
+      if (!row) return;
       var dateIn = row.querySelector('.fees-install-date');
       destroyFp(dateIn);
       row.remove();
       syncInstallmentRows(tbody);
     });
 
-    addRow();
+    ensureDefaultInstallmentRow();
   }
 
   function wireNumericOnlyAmounts() {
@@ -1459,6 +1946,8 @@
     wirePaymentMode();
     wireFeesActions();
     wireFeesHistory();
+
+    ensurePrintCopiesInDom();
 
     var origPrint = window.print;
     window.print = function () {
