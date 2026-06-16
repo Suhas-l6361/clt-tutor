@@ -68,7 +68,8 @@ const ensureNotesSchema = async (connection) => {
   await connection.execute(`
     CREATE TABLE IF NOT EXISTS ${NOTES_TABLE}(
       id INT PRIMARY KEY AUTO_INCREMENT,
-      Title VARCHAR(100),
+      date DATE,
+      details VARCHAR(100),
       img_url JSON,
       link JSON,
       added_by VARCHAR(100),

@@ -282,7 +282,9 @@ const getGeneralInfo = async (queryStringParameters) => {
     const name = params.name != null ? cleanParam(params.name) : null;
     const email = params.email != null ? cleanParam(params.email) : null;
     const phone = params.phone != null ? cleanParam(params.phone) : null;
-    const targetYear = params.targetYear != null ? cleanParam(params.targetYear) : null;
+    const targetYear = params.targetYear != null ? cleanParam(params.targetYear) : (params.target_year != null ? cleanParam(params.target_year) : null);
+    const batch = params.batch != null ? cleanParam(params.batch) : null;
+    const branch = params.branch != null ? cleanParam(params.branch) : null;
 
     let query = `SELECT student_id, img_url, name, email, password, phone, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, created_at FROM ${STUDENT_TABLE} WHERE 1=1`;
     const queryParams = [];
@@ -302,6 +304,14 @@ const getGeneralInfo = async (queryStringParameters) => {
     if (phone) {
       query += ' AND phone = ?';
       queryParams.push(Number(phone));
+    }
+    if (batch) {
+      query += ' AND batch = ?';
+      queryParams.push(batch);
+    }
+    if (branch) {
+      query += ' AND branch = ?';
+      queryParams.push(branch);
     }
     if (targetYear) {
       query += ' AND targetYear = ?';

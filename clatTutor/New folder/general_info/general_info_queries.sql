@@ -8,13 +8,16 @@ password varchar(50), created_at timestamp default current_timestamp);
 select*from admin;
 
 insert into admin (name, email, branch, password) values(
-'admin head', 'clatutor.malleshwaram@gmail.com','Malleshwarm','Clatutor123!');
+'admin head', 'biplavmehta@gmail.com','yelahanka','Clatutor123!');
+
+
 
 
 insert into admin (name, email, branch, password) values(
 'admin head', 'clatutor.jayanagara@gmail.com','Malleshwarm','Clatutor123!');
 
-drop table admin;
+insert into admin (name, email, branch, password) values(
+'admin head', 'sandya.clatutor@gmail.com','Malleshwarm','Clatutor123!');
 
 create table student_general_info(student_id bigint primary key auto_increment,img_url varchar(1000),
 name varchar(40), email varchar(50), phone bigint unique, dob date, previous_organisation varchar(50),
@@ -25,7 +28,7 @@ created_at timestamp default current_timestamp)AUTO_INCREMENT = 2026001;
 
 select *from student_general_info;
 
-drop table student_general_info;
+
 
 
 create table student_achievement(id int primary key auto_increment, name varchar(100),
@@ -35,7 +38,7 @@ added_by varchar(100), created_at timestamp default current_timestamp);
 
 select*from student_achievement;
 
-drop table student_achievement;
+
 
 
 
@@ -47,7 +50,7 @@ created_At timestamp default current_timestamp)AUTO_INCREMENT = 20211;
 
 select *from faculty;
 
-drop table faculty;
+
 
 use clatutor;
 
@@ -57,7 +60,7 @@ location varchar(50), added_by varchar(100), created_at timestamp default curren
 
 select *from class;
 
-drop table class;
+
 
 
 
@@ -67,13 +70,14 @@ created_at timestamp default current_timestamp);
 
 select *from currentAffairs;
 
-drop table currentAffairs;
 
 
-create table notes(id int primary key auto_increment, date date, 
-details varchar(100), img_url json, link json, added_by varchar(100),
+create table notes(id int primary key auto_increment, 
+Title varchar(100), img_url json, link json, added_by varchar(100),
 created_by timestamp default current_timestamp);
 
 select *from notes;
 
-drop table notes;
+
+
+

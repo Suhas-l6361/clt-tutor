@@ -1,0 +1,82 @@
+service: extra-quries
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  memorySize: 1024
+  timeout: 30
+  versionFunctions: false
+  deploymentBucket:
+    maxPreviousDeploymentArtifacts: 1
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET, ''}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: "*"
+
+functions:
+  demoClass:
+    handler: demoClass.handler
+    events:
+      - http:
+          path: demoClass
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: false
+
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Requested-With'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    GatewayResponseDefault5XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Requested-With'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!**/.git/**'
+    - '!**/.serverless/**'
+    - '!**/.vscode/**'
+    - '!**/.env'
+    - '!**/.env.*'
+    - '!**/README.md'
+    - '!**/*.md'
+    - '!**/package-lock.json'
+    - '!**/yarn.lock'
+    - '!**/.DS_Store'
+    - '!**/test/**'
+    - '!**/tests/**'
+    - '!**/__tests__/**'
+    - '!**/.gitignore'
+    - '!**/.npmignore'

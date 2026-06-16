@@ -12,6 +12,7 @@ select *From addtest;
 
 
 
+
 create table submitted_online_test(id bigint primary key auto_increment, test_id bigint,
 title varchar(1000), student_name varchar(100), batch varchar(100), branch varchar(50),
 answers json, submitted_by varchar(50), attended_queations bigint,
@@ -19,6 +20,9 @@ correctAnswer bigint, totalgrade varchar(30), created_at timestamp default curre
 
 select *from submitted_online_test;
 
+alter table submitted_online_test add column studentEmail bool default false;
+
+	
 
 create table request_callback(id int primary key auto_increment, fullname varchar(50),
 email varchar(100), phone bigint, interested_in varchar(100),
@@ -26,6 +30,8 @@ message varchar(2000), created_at timestamp default current_timestamp);
 
 select *from request_callback;
 
+ALTER TABLE request_callback
+ADD COLUMN response_message varchar(100);
 
 create table enroll_request(id int primary key auto_increment, target_year varchar(50),
 course varchar(50), student_name varchar(50), parentName varchar(50),
@@ -35,6 +41,10 @@ school_college varchar(100), stream varchar(50), source_of_info varchar(50),
 created_at timestamp default current_timestamp);
 
 select *From enroll_request;
+
+ALTER TABLE enroll_request
+ADD COLUMN response_message varchar(100);
+
 
 
 create table downloadAnswer(id int primary key auto_increment, name varchar(100),
@@ -51,6 +61,9 @@ respondedMessage varchar(1000),created_at timestamp default current_timestamp);
 
 select *from contactUs;
 
+ALTER TABLE contactUs
+ADD COLUMN response_message varchar(100);
+
 
 create table fees(id int primary key auto_increment, receipt_id varchar(100) unique,
 receipt_date timestamp default current_timestamp,student_id varchar(50),
@@ -60,12 +73,11 @@ amount_paid bigint, cheque_no bigint, DraweeBank varchar(100), bank_branch varch
 transation_id varchar(1000), bank varchar(100), cardNum int, network varchar(50),
 upiTransation_id varchar(1000), paymentDetails varchar(1000),
 amount_in_words varchar(1000), 
-admission_fess bigint, base_fees bigint, installmentPremium bigint, other_Charge bigint,
-netPayable bigint, amount_in_words_total varchar(1000), installment_plan json,
-due_till_date bigint, received bigint, balance bigint, due_total bigint, 
+tution_fess bigint, amount_in_words_total varchar(1000), installment_plan json,
 added_by varchar(100), created_at timestamp default current_timestamp);
 
-select *from fees; 
+select *from fees;
+
 
 use clatutor;
 
@@ -75,3 +87,44 @@ queation_paper_url varchar(1000), added_by varchar(100),
 created_at timestamp default current_timestamp);
 
 select*from previous_Queation_paper;
+
+
+
+create table courseVideo(id int primary key auto_increment, title varchar(100),
+video_url varchar(1000), added_by varchar(100),
+created_at timestamp default current_timestamp);
+
+select *from courseVideo;
+
+
+
+
+create table courseView(video_id int primary key auto_increment, video_url varchar(1000),
+added_by varchar(100), isSaved bool default false, created_at timestamp default current_timestamp);
+
+select *from courseView;
+
+
+
+CREATE TABLE IF NOT EXISTS attendance (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  batch VARCHAR(50),
+  branch VARCHAR(50),
+  target_year VARCHAR(50),
+  attendance_date DATE NOT NULL,
+  student_id VARCHAR(50) NOT NULL,
+  name VARCHAR(100),
+  status VARCHAR(20) NOT NULL DEFAULT 'absent',
+  added_by VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_attendance_session_student (
+    attendance_date, 
+    batch, 
+    branch, 
+    target_year, 
+    student_id
+  )
+);
+
+
+select *From attendance;
