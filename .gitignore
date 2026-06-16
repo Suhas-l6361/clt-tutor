@@ -1,0 +1,21 @@
+# Serverless / Lambda build output
+**/.serverless/
+**/.build/
+
+# Python bytecode
+**/__pycache__/
+*.pyc
+
+# Nested git repo (vendor clone — do not track as submodule by accident)
+clatTutor/New folder/crm_files/vendor/OMRChecker/
+
+# OMR / deploy scripts output
+clatTutor/New folder/crm_files/omr-checker/
+clatTutor/New folder/crm_files/lib/
+clatTutor/New folder/crm_files/scripts/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
