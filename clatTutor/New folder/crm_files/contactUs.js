@@ -15,23 +15,6 @@ const cleanParam = (param) => {
   return String(param).replace(/^['"]+|['"]+$/g, '').trim();
 };
 
-const toBoolOrNull = (value) => {
-  if (value === undefined || value === null || value === '') return null;
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value === 1;
-  const v = String(value).trim().toLowerCase();
-  if (v === 'true' || v === '1' || v === 'yes') return true;
-  if (v === 'false' || v === '0' || v === 'no') return false;
-  return null;
-};
-
-const trimResponseMessage = (value) => {
-  if (value === undefined || value === null) return null;
-  const s = String(value).trim();
-  if (!s) return null;
-  return s.slice(0, 100);
-};
-
 const ensureSchema = async (connection) => {
   await connection.execute(`
     CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
@@ -46,24 +29,6 @@ const ensureSchema = async (connection) => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  const ensureColumn = async (columnName, ddl) => {
-    const [rows] = await connection.execute(
-      `
-        SELECT COUNT(*) AS cnt
-        FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = DATABASE()
-          AND TABLE_NAME = ?
-          AND COLUMN_NAME = ?
-      `,
-      [TABLE_NAME, columnName],
-    );
-    if (Array.isArray(rows) && rows[0] && Number(rows[0].cnt) === 0) {
-      await connection.execute(`ALTER TABLE ${TABLE_NAME} ADD COLUMN ${ddl}`);
-    }
-  };
-  await ensureColumn('isResponded', 'isResponded BOOL DEFAULT FALSE');
-  await ensureColumn('respondedMessage', 'respondedMessage VARCHAR(1000)');
-  await ensureColumn('response_message', 'response_message VARCHAR(100)');
 };
 
 const getContactUsRequests = async (queryStringParameters) => {
@@ -77,7 +42,7 @@ const getContactUsRequests = async (queryStringParameters) => {
     const email = params.email != null ? cleanParam(params.email) : null;
     const phone = params.phone != null ? cleanParam(params.phone) : null;
 
-    let query = `SELECT id, name, email, phone, subject, message, isResponded, COALESCE(response_message, respondedMessage) AS response_message, created_at FROM ${TABLE_NAME} WHERE 1=1`;
+    let query = `SELECT id, name, email, phone, subject, message, isResponded, respondedMessage, created_at FROM ${TABLE_NAME} WHERE 1=1`;
     const queryParams = [];
 
     if (id) {
@@ -137,8 +102,8 @@ const createContactUsRequest = async (body) => {
     await ensureSchema(connection);
 
     const [result] = await connection.execute(
-      `INSERT INTO ${TABLE_NAME} (name, email, phone, subject, message, isResponded, respondedMessage, response_message) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, phone, subject, message, false, null, null],
+      `INSERT INTO ${TABLE_NAME} (name, email, phone, subject, message, isResponded, respondedMessage) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, phone, subject, message, null, null],
     );
 
     return {
@@ -188,12 +153,8 @@ const updateContactUsRequest = async (body) => {
     }
     if (data.subject !== undefined) { updateFields.push('subject = ?'); updateParams.push((data.subject == null ? null : String(data.subject).trim()) || null); }
     if (data.message !== undefined) { updateFields.push('message = ?'); updateParams.push((data.message == null ? null : String(data.message).trim()) || null); }
-    if (data.isResponded !== undefined) { updateFields.push('isResponded = ?'); updateParams.push(toBoolOrNull(data.isResponded)); }
-    if (data.response_message !== undefined || data.respondedMessage !== undefined) {
-      const rm = data.response_message !== undefined ? data.response_message : data.respondedMessage;
-      updateFields.push('response_message = ?');
-      updateParams.push(trimResponseMessage(rm));
-    }
+    if (data.isResponded !== undefined) { updateFields.push('isResponded = ?'); updateParams.push(data.isResponded == null ? null : Boolean(data.isResponded)); }
+    if (data.respondedMessage !== undefined) { updateFields.push('respondedMessage = ?'); updateParams.push((data.respondedMessage == null ? null : String(data.respondedMessage).trim()) || null); }
 
     if (!updateFields.length) {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'No fields to update' }) };

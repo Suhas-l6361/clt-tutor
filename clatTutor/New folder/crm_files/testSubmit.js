@@ -226,7 +226,6 @@ const ensureSubmittedSchema = async (connection) => {
       attended_queations BIGINT,
       correctAnswer BIGINT,
       totalgrade VARCHAR(30),
-      isOmr TINYINT(1) NOT NULL DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -518,139 +517,6 @@ const submitOnlineTest = async (body, event) => {
   }
 };
 
-const listTestAttempts = async (event) => {
-  const qs = event.queryStringParameters || {};
-  if ((qs.action || '').trim() !== 'test_attempts') {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'Invalid action' }) };
-  }
-
-  const testId = qs.test_id != null ? parseInt(String(qs.test_id), 10) : NaN;
-  if (!Number.isFinite(testId)) {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'test_id is required' }) };
-  }
-
-  const emailFilter = (qs.email || '').trim().toLowerCase();
-
-  let connection;
-  try {
-    connection = await pool.getConnection();
-    await ensureSubmittedSchema(connection);
-    await ensureSubmittedExtraColumns(connection);
-
-    const [rows] = await connection.execute(
-      `SELECT id, test_id, title, student_name, batch, branch, answers, submitted_by,
-              attended_queations, correctAnswer, percentage, letter_grade, totalgrade,
-              unanswered_questions, total_questions_paper, total_questions_in_key, created_at, isOmr
-       FROM ${TABLE_SUBMITTED}
-       WHERE test_id = ?
-       ORDER BY created_at DESC`,
-      [testId],
-    );
-
-    const parseAnswersCell = (cell) => {
-      let answersObj = cell;
-      if (typeof answersObj === 'string') {
-        try {
-          answersObj = JSON.parse(answersObj);
-        } catch {
-          answersObj = {};
-        }
-      }
-      if (!answersObj || typeof answersObj !== 'object') answersObj = {};
-      return answersObj;
-    };
-
-    const pctFromRow = (row) => {
-      let pct = row.percentage != null ? Number(row.percentage) : NaN;
-      if (Number.isNaN(pct) && row.totalgrade) {
-        const m = String(row.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
-        if (m) pct = parseFloat(m[1], 10);
-      }
-      return pct;
-    };
-
-    const latestByStudent = {};
-    for (const r of rows) {
-      const key = String(r.submitted_by || r.student_name || r.id || '').trim().toLowerCase();
-      if (!key) continue;
-      if (emailFilter && key !== emailFilter) continue;
-      if (!latestByStudent[key]) latestByStudent[key] = r;
-    }
-
-    const attempts = Object.values(latestByStudent).map((r) => {
-      const pct = pctFromRow(r);
-      const attended = r.attended_queations != null ? Number(r.attended_queations) : 0;
-      const correct = r.correctAnswer != null ? Number(r.correctAnswer) : 0;
-      const unanswered =
-        r.unanswered_questions != null && Number.isFinite(Number(r.unanswered_questions))
-          ? Number(r.unanswered_questions)
-          : null;
-      const totalPaper =
-        r.total_questions_paper != null && Number.isFinite(Number(r.total_questions_paper))
-          ? Number(r.total_questions_paper)
-          : null;
-      const wrong = Math.max(0, attended - correct);
-      const passed = Number.isFinite(pct) && pct >= 75;
-
-      return {
-        id: r.id,
-        test_id: Number(r.test_id),
-        title: r.title || null,
-        student_name: r.student_name || null,
-        batch: r.batch || null,
-        branch: r.branch || null,
-        submitted_by: r.submitted_by || null,
-        email: r.submitted_by || null,
-        attended,
-        correct,
-        wrong,
-        unanswered,
-        total_questions_paper: totalPaper,
-        total_questions_in_key:
-          r.total_questions_in_key != null && Number.isFinite(Number(r.total_questions_in_key))
-            ? Number(r.total_questions_in_key)
-            : null,
-        percentage: Number.isFinite(pct) ? Math.round(pct * 10) / 10 : null,
-        letter_grade: r.letter_grade || null,
-        totalgrade: r.totalgrade || null,
-        passed,
-        completed: true,
-        created_at: r.created_at || null,
-        isOmr: !!(r.isOmr === true || r.isOmr === 1 || Number(r.isOmr) === 1),
-        answers: parseAnswersCell(r.answers),
-      };
-    });
-
-    attempts.sort((a, b) => {
-      const ta = a.created_at ? Date.parse(a.created_at) : 0;
-      const tb = b.created_at ? Date.parse(b.created_at) : 0;
-      return tb - ta;
-    });
-
-    const title = attempts[0] && attempts[0].title ? attempts[0].title : null;
-
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        test_id: testId,
-        title,
-        attendee_count: attempts.length,
-        attempts,
-      }),
-    };
-  } catch (error) {
-    console.error('listTestAttempts:', error);
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ message: 'Internal Server Error', error: error.message }),
-    };
-  } finally {
-    if (connection) try { connection.release(); } catch (_) {}
-  }
-};
-
 const listStudentAttempts = async (event) => {
   const qs = event.queryStringParameters || {};
   if ((qs.action || '').trim() !== 'student_attempts') {
@@ -675,10 +541,22 @@ const listStudentAttempts = async (event) => {
       [email],
     );
 
-    const rowIsOmr = (row) => !!(row.isOmr === true || row.isOmr === 1 || Number(row.isOmr) === 1);
+    const latestByTest = {};
+    for (const r of rows) {
+      const tid = r.test_id;
+      if (tid == null) continue;
+      if (!latestByTest[tid]) latestByTest[tid] = r;
+    }
 
-    const parseAnswersCell = (cell) => {
-      let answersObj = cell;
+    const attempts = Object.keys(latestByTest).map((tidKey) => {
+      const r = latestByTest[tidKey];
+      let pct = r.percentage != null ? Number(r.percentage) : NaN;
+      if (Number.isNaN(pct) && r.totalgrade) {
+        const m = String(r.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
+        if (m) pct = parseFloat(m[1], 10);
+      }
+      const passed = Number.isFinite(pct) && pct >= 75;
+      let answersObj = r.answers;
       if (typeof answersObj === 'string') {
         try {
           answersObj = JSON.parse(answersObj);
@@ -687,57 +565,10 @@ const listStudentAttempts = async (event) => {
         }
       }
       if (!answersObj || typeof answersObj !== 'object') answersObj = {};
-      return answersObj;
-    };
-
-    const pctFromRow = (row) => {
-      let pct = row.percentage != null ? Number(row.percentage) : NaN;
-      if (Number.isNaN(pct) && row.totalgrade) {
-        const m = String(row.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
-        if (m) pct = parseFloat(m[1], 10);
-      }
-      return pct;
-    };
-
-    const latestByTest = {};
-    const latestOmrByTest = {};
-    for (const r of rows) {
-      const tid = r.test_id;
-      if (tid == null) continue;
-      if (!latestByTest[tid]) latestByTest[tid] = r;
-      if (rowIsOmr(r) && !latestOmrByTest[tid]) latestOmrByTest[tid] = r;
-    }
-
-    const attempts = Object.keys(latestByTest).map((tidKey) => {
-      const r = latestByTest[tidKey];
-      const pct = pctFromRow(r);
-      const passed = Number.isFinite(pct) && pct >= 75;
-      const answersObj = parseAnswersCell(r.answers);
       const tqp =
         r.total_questions_paper != null && Number.isFinite(Number(r.total_questions_paper))
           ? Number(r.total_questions_paper)
           : null;
-
-      const omrRow = latestOmrByTest[tidKey];
-      let omrAttempt = null;
-      if (omrRow) {
-        const omrPct = pctFromRow(omrRow);
-        const omrAnswers = parseAnswersCell(omrRow.answers);
-        const omrTqp =
-          omrRow.total_questions_paper != null && Number.isFinite(Number(omrRow.total_questions_paper))
-            ? Number(omrRow.total_questions_paper)
-            : null;
-        omrAttempt = {
-          test_id: Number(tidKey),
-          answers: omrAnswers,
-          percentage: Number.isFinite(omrPct) ? Math.round(omrPct * 10) / 10 : null,
-          letter_grade: omrRow.letter_grade || null,
-          total_questions_paper: omrTqp,
-          created_at: omrRow.created_at || null,
-          isOmr: true,
-        };
-      }
-
       return {
         test_id: Number(tidKey),
         title: r.title || null,
@@ -746,10 +577,9 @@ const listStudentAttempts = async (event) => {
         total_questions_paper: tqp,
         answers: answersObj,
         created_at: r.created_at || null,
-        isOmr: rowIsOmr(r),
+        isOmr: !!(r.isOmr === true || r.isOmr === 1 || Number(r.isOmr) === 1),
         passed,
         completed: true,
-        omrAttempt,
       };
     });
 
@@ -779,10 +609,6 @@ export const handler = async (event) => {
 
   if (httpMethod === 'GET') {
     try {
-      const qs = event.queryStringParameters || {};
-      if ((qs.action || '').trim() === 'test_attempts') {
-        return await listTestAttempts(event);
-      }
       return await listStudentAttempts(event);
     } catch (error) {
       console.error('handler GET:', error);
