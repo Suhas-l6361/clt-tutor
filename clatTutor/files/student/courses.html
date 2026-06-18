@@ -95,6 +95,7 @@
       width: 100%;
       height: 100%;
       border: 0;
+      background: #000;
     }
     .lms-player-card__body { padding: 1rem 1.1rem 1.15rem; }
     .lms-player-card__title { margin: 0 0 0.35rem; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
@@ -279,7 +280,7 @@
             <iframe
               id="lms-player-iframe"
               title="Course video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen
             ></iframe>
@@ -319,6 +320,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js"></script>
@@ -425,6 +427,35 @@
         var ytApiReady = false;
         var pendingSeek = 0;
         var lastTickAt = 0;
+
+        function getPageOrigin() {
+          try {
+            var origin = window.location.origin;
+            if (origin && origin !== 'null') return origin;
+          } catch (_) {}
+          return '';
+        }
+
+        function buildEmbedUrl(videoId, startSeconds) {
+          var params = ['rel=0', 'modestbranding=1', 'playsinline=1', 'enablejsapi=1'];
+          var start = Math.max(0, Math.floor(Number(startSeconds) || 0));
+          if (start > 0) params.push('start=' + start);
+          var origin = getPageOrigin();
+          if (origin && window.location.protocol !== 'file:') {
+            params.push('origin=' + encodeURIComponent(origin));
+          }
+          return (
+            'https://www.youtube-nocookie.com/embed/' +
+            encodeURIComponent(String(videoId || '').trim()) +
+            '?' +
+            params.join('&')
+          );
+        }
+
+        function applyDirectEmbed(videoId, startSeconds) {
+          if (!iframe || !videoId) return;
+          iframe.src = buildEmbedUrl(videoId, startSeconds);
+        }
 
         function saveState() {
           try {
@@ -662,31 +693,85 @@
         function loadYouTubeApi() {
           if (window.YT && window.YT.Player) return Promise.resolve();
           return new Promise(function (resolve) {
+            var settled = false;
+            function finish() {
+              if (settled) return;
+              settled = true;
+              resolve();
+            }
             if (ytApiReady) {
               var poll = setInterval(function () {
                 if (window.YT && window.YT.Player) {
                   clearInterval(poll);
-                  resolve();
+                  finish();
                 }
               }, 80);
               setTimeout(function () {
                 clearInterval(poll);
-                resolve();
-              }, 5000);
+                finish();
+              }, 8000);
               return;
             }
             ytApiReady = true;
+            var prevReady = window.onYouTubeIframeAPIReady;
             window.onYouTubeIframeAPIReady = function () {
-              resolve();
+              if (typeof prevReady === 'function') {
+                try {
+                  prevReady();
+                } catch (_) {}
+              }
+              finish();
             };
             var tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
-            tag.onerror = function () {
-              resolve();
-            };
+            tag.onerror = finish;
             document.head.appendChild(tag);
-            setTimeout(resolve, 4000);
+            setTimeout(finish, 8000);
           });
+        }
+
+        function attachPlayerEvents(lesson) {
+          return {
+            onReady: function () {
+              if (pendingSeek > 0) {
+                try {
+                  player.seekTo(pendingSeek, true);
+                } catch (_) {}
+              }
+            },
+            onError: function () {
+              applyDirectEmbed(lesson.id, pendingSeek);
+            },
+            onStateChange: function (ev) {
+              if (ev.data === window.YT.PlayerState.PLAYING) {
+                stopProgressTimer();
+                lastTickAt = Date.now();
+                progressTimer = setInterval(function () {
+                  tickWatchTime();
+                  syncFromPlayer();
+                }, 1000);
+              }
+              if (
+                ev.data === window.YT.PlayerState.PAUSED ||
+                ev.data === window.YT.PlayerState.ENDED ||
+                ev.data === window.YT.PlayerState.BUFFERING
+              ) {
+                syncFromPlayer();
+              }
+              if (ev.data === window.YT.PlayerState.ENDED) {
+                var vs = getVideoState(lesson.id);
+                vs.completed = true;
+                vs.position = vs.duration || vs.position;
+                saveState();
+                stopProgressTimer();
+                if (activeIndex < LESSONS.length - 1) {
+                  setTimeout(function () {
+                    playLesson(activeIndex + 1, false);
+                  }, 800);
+                }
+              }
+            },
+          };
         }
 
         function bootPlayer(startSeconds, showResumed) {
@@ -700,71 +785,34 @@
           if (!lesson || !iframe) return;
           pendingSeek = Math.max(0, Math.floor(Number(startSeconds) || 0));
 
-          loadYouTubeApi().then(function () {
-            if (!(window.YT && window.YT.Player)) {
-              iframe.src =
-                'https://www.youtube-nocookie.com/embed/' +
-                lesson.id +
-                '?enablejsapi=1&rel=0&modestbranding=1&start=' +
-                pendingSeek;
-              updateNowPlaying(showResumed && pendingSeek > 0);
-              return;
-            }
-
-            if (player && typeof player.loadVideoById === 'function') {
+          if (player && typeof player.loadVideoById === 'function') {
+            try {
               player.loadVideoById({ videoId: lesson.id, startSeconds: pendingSeek });
               updateNowPlaying(showResumed && pendingSeek > 0);
               return;
-            }
+            } catch (_) {}
+          }
 
-            player = new window.YT.Player('lms-player-iframe', {
-              videoId: lesson.id,
-              playerVars: {
-                rel: 0,
-                modestbranding: 1,
-                start: pendingSeek,
-                enablejsapi: 1,
-              },
-              events: {
-                onReady: function () {
-                  if (pendingSeek > 0) {
-                    try {
-                      player.seekTo(pendingSeek, true);
-                    } catch (_) {}
-                  }
-                  updateNowPlaying(showResumed && pendingSeek > 0);
-                },
-                onStateChange: function (ev) {
-                  if (ev.data === window.YT.PlayerState.PLAYING) {
-                    stopProgressTimer();
-                    lastTickAt = Date.now();
-                    progressTimer = setInterval(function () {
-                      tickWatchTime();
-                      syncFromPlayer();
-                    }, 1000);
-                  }
-                  if (
-                    ev.data === window.YT.PlayerState.PAUSED ||
-                    ev.data === window.YT.PlayerState.ENDED ||
-                    ev.data === window.YT.PlayerState.BUFFERING
-                  ) {
-                    syncFromPlayer();
-                  }
-                  if (ev.data === window.YT.PlayerState.ENDED) {
-                    var vs = getVideoState(lesson.id);
-                    vs.completed = true;
-                    vs.position = vs.duration || vs.position;
-                    saveState();
-                    stopProgressTimer();
-                    if (activeIndex < LESSONS.length - 1) {
-                      setTimeout(function () {
-                        playLesson(activeIndex + 1, false);
-                      }, 800);
-                    }
-                  }
-                },
-              },
-            });
+          applyDirectEmbed(lesson.id, pendingSeek);
+          updateNowPlaying(showResumed && pendingSeek > 0);
+
+          loadYouTubeApi().then(function () {
+            if (!(window.YT && window.YT.Player)) return;
+
+            try {
+              if (player && typeof player.destroy === 'function') {
+                try {
+                  player.destroy();
+                } catch (_) {}
+                player = null;
+              }
+
+              player = new window.YT.Player(iframe, {
+                events: attachPlayerEvents(lesson),
+              });
+            } catch (_) {
+              applyDirectEmbed(lesson.id, pendingSeek);
+            }
           });
         }
 

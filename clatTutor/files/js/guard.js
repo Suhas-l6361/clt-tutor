@@ -9,6 +9,14 @@ function requireRole(allowedRole) {
     window.location.replace(base);
     return false;
   }
+  if (allowedRole === 'student' && window.StudentAccess) {
+    const page = (window.location.pathname || '').split('/').pop() || '';
+    const roles = window.StudentAccess.rolesFromSession(s);
+    if (!window.StudentAccess.canAccessPage(roles, page)) {
+      window.location.replace('dashboard.html');
+      return false;
+    }
+  }
   try {
     if (window.Auth && typeof window.Auth.trackActivity === 'function') {
       window.Auth.trackActivity('page_view');

@@ -301,6 +301,50 @@
       flex-direction: column;
       min-width: 0;
     }
+    .reg-role-section {
+      margin-top: 0.15rem;
+      padding: 0.85rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+    }
+    .reg-role-title {
+      margin: 0 0 0.25rem;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #111827;
+    }
+    .reg-role-hint {
+      margin: 0 0 0.65rem;
+      font-size: 0.74rem;
+      color: #6b7280;
+      line-height: 1.45;
+    }
+    .reg-role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem 0.75rem;
+    }
+    @media (max-width: 560px) {
+      .reg-role-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .student-role-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: #374151;
+      line-height: 1.35;
+      cursor: pointer;
+      user-select: none;
+    }
+    .student-role-check input {
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+      accent-color: #2563eb;
+    }
     .file-input-wrap {
       display: flex;
       align-items: center;
@@ -1096,6 +1140,10 @@
             <span>Phone Number</span>
           </label>
           <label>
+            <input id="sf-parents-number" class="input" type="tel" placeholder=" " />
+            <span>Parent Number (optional)</span>
+          </label>
+          <label>
             <input id="sf-org" class="input" type="text" placeholder=" " />
             <span>School/College</span>
           </label>
@@ -1147,6 +1195,11 @@
               <input id="sf-image" type="file" accept="image/*" />
             </div>
             <div id="sf-image-name" class="upload-file-name">No file selected</div>
+          </div>
+          <div class="full reg-role-section">
+            <p class="reg-role-title">Student portal access</p>
+            <p class="reg-role-hint">Dashboard and Change Password are always available. Select which features this student can use.</p>
+            <div id="sf-roles" class="reg-role-grid" aria-label="Student feature access"></div>
           </div>
         </div>
 
@@ -1538,6 +1591,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js?v=20260420"></script>
@@ -1558,6 +1612,17 @@
       var apiMetaEl = document.getElementById('students-api-meta');
       var imageInput = document.getElementById('sf-image');
       var imageNameEl = document.getElementById('sf-image-name');
+      var rolesContainer = document.getElementById('sf-roles');
+      if (rolesContainer && typeof StudentAccess !== 'undefined') {
+        StudentAccess.renderRoleCheckboxes(rolesContainer, null, { defaultAll: true });
+      }
+      if (form) {
+        form.addEventListener('reset', function () {
+          if (rolesContainer && typeof StudentAccess !== 'undefined') {
+            StudentAccess.renderRoleCheckboxes(rolesContainer, null, { defaultAll: true });
+          }
+        });
+      }
       var daySelect = document.getElementById('sf-dob-day');
       var monthSelect = document.getElementById('sf-dob-month');
       var yearSelect = document.getElementById('sf-dob-year');
@@ -1960,6 +2025,7 @@
           var name = document.getElementById('sf-name').value.trim();
           var email = document.getElementById('sf-email').value.trim();
           var phone = document.getElementById('sf-phone').value.trim();
+          var parentsNumber = document.getElementById('sf-parents-number').value.trim();
           var previousOrg = document.getElementById('sf-org').value.trim();
           var stream = document.getElementById('sf-stream').value.trim();
           var batch = document.getElementById('sf-batch').value.trim();
@@ -1980,6 +2046,10 @@
           var imgKey = await uploadImageIfAny(file);
           var session = Auth.getSession ? Auth.getSession() : null;
           var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+          var roles =
+            rolesContainer && typeof StudentAccess !== 'undefined'
+              ? StudentAccess.collectRolesFromContainer(rolesContainer)
+              : null;
 
           var createRes = await fetch(API_URL, {
             method: 'POST',
@@ -1988,6 +2058,7 @@
               name: name,
               email: email,
               phone: Number(phone),
+              parents_number: parentsNumber || null,
               dob: dob,
               previous_organisation: previousOrg || null,
               batch: batch || null,
@@ -1998,6 +2069,7 @@
               targetYear: targetYear || null,
               img_url: imgKey || null,
               added_by: addedBy,
+              roles: roles,
             }),
           });
           var createData = await createRes.json();
@@ -2017,6 +2089,9 @@
           daySelect.value = '';
           monthSelect.value = '';
           yearSelect.value = '';
+          if (rolesContainer && typeof StudentAccess !== 'undefined') {
+            StudentAccess.renderRoleCheckboxes(rolesContainer, null, { defaultAll: true });
+          }
           await fetchStudents();
           successPopup.hidden = false;
         } catch (err) {

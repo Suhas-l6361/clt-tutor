@@ -18,7 +18,7 @@ function initAppChrome(opts) {
     .slice(0, 2)
     .toUpperCase();
 
-  var studentLinks = [
+  var studentLinksAll = [
     { href: 'dashboard.html', icon: 'fa-house', label: 'Dashboard' },
     { href: 'courses.html', icon: 'fa-book', label: 'My courses' },
     { href: 'current-affairs.html', icon: 'fa-newspaper', label: 'Current Affairs' },
@@ -27,6 +27,15 @@ function initAppChrome(opts) {
     { href: 'course-video.html', icon: 'fa-video', label: 'Course Video' },
     { href: 'onlinetest.html', icon: 'fa-pen', label: 'Test' },
   ];
+
+  var studentRoles =
+    opts.role === 'student' && typeof StudentAccess !== 'undefined'
+      ? StudentAccess.rolesFromSession(session)
+      : null;
+  var studentLinks =
+    opts.role === 'student' && typeof StudentAccess !== 'undefined'
+      ? StudentAccess.filterNavLinks(studentLinksAll, studentRoles)
+      : studentLinksAll;
 
   var crmLinks = [
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Overview' },

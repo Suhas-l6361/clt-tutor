@@ -99,6 +99,9 @@
     .exam-bootstrap__inner {
       width: min(640px, 100%);
     }
+    .exam-bootstrap__inner--wide {
+      width: min(980px, 100%);
+    }
     .exam-bootstrap__lead {
       margin: 0 0 1rem;
       font-size: 1.05rem;
@@ -223,6 +226,207 @@
       border: 1px solid #fecaca;
       color: #991b1b;
       font-size: 0.88rem;
+    }
+
+    /* Test type picker (mock / sectional) */
+    .exam-picker__hero {
+      text-align: center;
+      margin: 0 0 1.35rem;
+    }
+    .exam-picker__hero h2 {
+      margin: 0 0 0.3rem;
+      font-size: clamp(1.2rem, 2.8vw, 1.65rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #111827;
+    }
+    .exam-picker__hero p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .exam-picker__hero p + p {
+      margin-top: 0.2rem;
+      font-size: 0.82rem;
+    }
+    .exam-picker__section {
+      position: relative;
+      border-radius: 16px;
+      padding: 2rem 1rem 1.1rem;
+      margin-bottom: 1.1rem;
+      border: 1px solid var(--line-light);
+      background: #fff;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+    }
+    .exam-picker__section--mock {
+      background: linear-gradient(180deg, #f3f8ff 0%, #fff 100%);
+    }
+    .exam-picker__section--sectional {
+      background: linear-gradient(180deg, #f0faf7 0%, #fff 100%);
+    }
+    .exam-picker__ribbon {
+      position: absolute;
+      top: -0.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.35rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .exam-picker__section--mock .exam-picker__ribbon {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+    .exam-picker__section--sectional .exam-picker__ribbon {
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+    }
+    .exam-picker__grid {
+      display: grid;
+      gap: 0.85rem;
+    }
+    .exam-picker__grid--mock {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .exam-picker__grid--mock {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .exam-picker__grid--sectional {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .exam-picker__grid--sectional {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 560px) {
+      .exam-picker__grid--mock,
+      .exam-picker__grid--sectional {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-pick-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+      padding: 1rem 0.75rem 0.85rem;
+      border: none;
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
+      border-bottom: 4px solid transparent;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+      font-family: inherit;
+    }
+    .exam-pick-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+    }
+    .exam-pick-card__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    .exam-pick-card__icon--blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .exam-pick-card__icon--green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .exam-pick-card__icon--teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .exam-pick-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .exam-pick-card__icon--purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
+    .exam-pick-card__icon--rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .exam-pick-card__icon--amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .exam-pick-card--clat { border-bottom-color: #2563eb; }
+    .exam-pick-card--ailet { border-bottom-color: #16a34a; }
+    .exam-pick-card--christ { border-bottom-color: #9333ea; }
+    .exam-pick-card--sat { border-bottom-color: #d97706; }
+    .exam-pick-card--english { border-bottom-color: #0d9488; }
+    .exam-pick-card--logical { border-bottom-color: #4f46e5; }
+    .exam-pick-card--legal { border-bottom-color: #9333ea; }
+    .exam-pick-card--math { border-bottom-color: #e11d48; }
+    .exam-pick-card--gk { border-bottom-color: #d97706; }
+    .exam-pick-card__title {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #111827;
+    }
+    .exam-pick-card__desc {
+      margin: 0;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .exam-pick-card__count {
+      margin-top: 0.15rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+    }
+    .exam-test-detail-dialog {
+      width: min(720px, 96vw);
+      max-height: min(88vh, 720px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+    .exam-test-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--line-light);
+      background: linear-gradient(180deg, #fffdf6 0%, #fff 100%);
+    }
+    .exam-test-detail-head h2 {
+      margin: 0 0 0.2rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #111827;
+    }
+    .exam-test-detail-head p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .exam-test-detail-close {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .exam-test-detail-body {
+      overflow: auto;
+      padding: 1rem 1.1rem 1.15rem;
+      background: var(--paper);
+    }
+    .exam-test-detail-empty {
+      margin: 0;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .exam-root {
@@ -1043,27 +1247,24 @@
       line-height: 1.5;
     }
 
-    /* —— Test analysis modal —— */
+    /* —— Test analysis modal (dashboard-style) —— */
     .exam-modal--analysis .exam-modal__backdrop {
-      background: rgba(15, 23, 42, 0.55);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(5px);
     }
     .exam-modal__dialog--analysis {
-      width: min(1180px, 96vw);
-      max-height: min(92vh, 900px);
-      max-height: min(92dvh, 900px);
+      width: min(1240px, 97vw);
+      max-height: min(94vh, 920px);
+      max-height: min(94dvh, 920px);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       padding: 0;
-      border-radius: 22px;
-      border: 1px solid #dbe8ff;
-      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
-      background:
-        radial-gradient(900px 380px at -5% -10%, rgba(124, 58, 237, 0.14), transparent 55%),
-        radial-gradient(700px 320px at 105% 0%, rgba(37, 99, 235, 0.12), transparent 50%),
-        linear-gradient(180deg, #f8faff 0%, #ffffff 42%);
-      animation: examAnalysisIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+      background: #f1f5f9;
+      animation: examAnalysisIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
     }
     @keyframes examAnalysisIn {
       from {
@@ -1075,60 +1276,150 @@
         transform: translateY(0) scale(1);
       }
     }
+    @keyframes examAnalysisCardIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
     .exam-analysis-head {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
-      padding: 1.35rem 1.5rem 1rem;
-      border-bottom: 1px solid #e8eef7;
-    }
-    .exam-analysis-head__eyebrow {
-      margin: 0 0 0.25rem;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #6366f1;
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
     }
     .exam-analysis-head__title {
       margin: 0;
-      font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
       font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.02em;
     }
     .exam-analysis-head__meta {
-      margin: 0.35rem 0 0;
-      font-size: 0.86rem;
+      margin: 0.3rem 0 0;
+      font-size: 0.84rem;
       color: #64748b;
+    }
+    .exam-analysis-head__sub {
+      margin: 0.25rem 0 0;
+      font-size: 0.76rem;
+      color: #94a3b8;
+    }
+    .exam-analysis-head__actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .exam-analysis-download {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+      border-radius: 10px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .exam-analysis-download:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
     }
     .exam-analysis-close {
       border: 0;
-      background: #fff;
+      background: #f1f5f9;
       color: #64748b;
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 999px;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       line-height: 1;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-      transition: transform 0.2s ease, color 0.2s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
     .exam-analysis-close:hover {
       color: #0f172a;
-      transform: rotate(90deg);
+      background: #e2e8f0;
     }
     .exam-analysis-scroll {
       overflow-y: auto;
-      padding: 1.15rem 1.5rem 1.35rem;
       flex: 1 1 auto;
+      background: #f1f5f9;
+    }
+    .exam-analysis-shell {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      min-height: 100%;
+    }
+    @media (max-width: 720px) {
+      .exam-analysis-shell {
+        grid-template-columns: 1fr;
+      }
+      .exam-analysis-sidebar {
+        flex-direction: row !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.5rem !important;
+        overflow-x: auto;
+      }
+      .exam-analysis-nav span {
+        display: none;
+      }
+    }
+    .exam-analysis-sidebar {
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 0.85rem 0.45rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .exam-analysis-nav {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      border-radius: 10px;
+      padding: 0.55rem 0.35rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      cursor: default;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.28rem;
+      line-height: 1.2;
+    }
+    .exam-analysis-nav i {
+      font-size: 1rem;
+    }
+    .exam-analysis-nav.is-active {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .exam-analysis-nav.is-muted {
+      opacity: 0.45;
+    }
+    .exam-analysis-content {
+      padding: 1rem 1.1rem 1.25rem;
+      display: grid;
+      gap: 1rem;
     }
     .exam-analysis-loading {
       padding: 3rem 1.5rem;
       text-align: center;
       color: #64748b;
+      background: #f1f5f9;
     }
     .exam-analysis-loading__spinner {
       width: 42px;
@@ -1136,100 +1427,70 @@
       margin: 0 auto 0.85rem;
       border-radius: 50%;
       border: 4px solid #e2e8f0;
-      border-top-color: #6366f1;
+      border-top-color: #2563eb;
       animation: exam-grade-spin 0.85s linear infinite;
     }
-    .exam-analysis-grid-top {
+    .exam-analysis-panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+      padding: 1rem 1.1rem 1.15rem;
+      animation: examAnalysisCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .exam-analysis-panel__title {
+      margin: 0 0 0.85rem;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .exam-analysis-overall {
       display: grid;
-      grid-template-columns: minmax(200px, 0.95fr) minmax(180px, 0.8fr) minmax(260px, 1.25fr);
-      gap: 1rem;
-      margin-bottom: 1.15rem;
-    }
-    @media (max-width: 900px) {
-      .exam-analysis-grid-top {
-        grid-template-columns: 1fr;
-      }
-    }
-    .exam-analysis-card {
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-      border: 1px solid #dbe7f6;
-      border-radius: 18px;
-      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07);
-      padding: 1.1rem 1rem;
-      animation: examAnalysisCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-    .exam-analysis-card:nth-child(2) {
-      animation-delay: 0.08s;
-    }
-    .exam-analysis-card:nth-child(3) {
-      animation-delay: 0.16s;
-    }
-    @keyframes examAnalysisCardIn {
-      from {
-        opacity: 0;
-        transform: translateY(16px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .exam-analysis-donut-wrap {
-      display: flex;
-      flex-direction: column;
+      grid-template-columns: minmax(160px, 200px) minmax(140px, 1fr) minmax(220px, 1.4fr);
+      gap: 1.25rem;
       align-items: center;
-      gap: 0.85rem;
     }
-    .exam-analysis-donut {
+    @media (max-width: 960px) {
+      .exam-analysis-overall {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+      .exam-analysis-stat-grid {
+        width: 100%;
+      }
+    }
+    .exam-analysis-pie {
       --correct-pct: 0;
       --wrong-pct: 0;
       --unans-pct: 100;
-      width: 168px;
-      height: 168px;
+      width: 190px;
+      height: 190px;
       border-radius: 50%;
       background: conic-gradient(
         #22c55e 0 calc(var(--correct-pct) * 1%),
         #ef4444 calc(var(--correct-pct) * 1%) calc((var(--correct-pct) + var(--wrong-pct)) * 1%),
-        #cbd5e1 calc((var(--correct-pct) + var(--wrong-pct)) * 1%) 100%
+        #fbbf24 calc((var(--correct-pct) + var(--wrong-pct)) * 1%) 100%
       );
-      display: grid;
-      place-items: center;
-      transition: background 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      transition: background 1s cubic-bezier(0.22, 1, 0.36, 1);
+      flex-shrink: 0;
     }
-    .exam-analysis-donut__hole {
+    .exam-analysis-pie--sm {
       width: 108px;
       height: 108px;
-      border-radius: 50%;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    }
-    .exam-analysis-donut__label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #64748b;
-    }
-    .exam-analysis-donut__value {
-      font-size: 1.45rem;
-      font-weight: 800;
-      color: #0f172a;
+      box-shadow: none;
     }
     .exam-analysis-legend {
       display: grid;
-      gap: 0.45rem;
+      gap: 0.55rem;
       width: 100%;
-      max-width: 220px;
+      max-width: 240px;
     }
     .exam-analysis-legend__row {
       display: grid;
       grid-template-columns: 12px 1fr auto;
-      gap: 0.5rem;
+      gap: 0.55rem;
       align-items: center;
       font-size: 0.82rem;
       color: #334155;
@@ -1238,6 +1499,7 @@
       width: 12px;
       height: 12px;
       border-radius: 3px;
+      flex-shrink: 0;
     }
     .exam-analysis-legend__dot--c {
       background: #22c55e;
@@ -1246,117 +1508,234 @@
       background: #ef4444;
     }
     .exam-analysis-legend__dot--u {
-      background: #cbd5e1;
+      background: #fbbf24;
     }
-    .exam-analysis-score-ring {
-      --p: 0;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: conic-gradient(#4f46e5 calc(var(--p) * 1%), #e2e8f0 0);
-      display: grid;
-      place-items: center;
-      margin: 0 auto;
-      transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .exam-analysis-score-ring__hole {
-      width: 104px;
-      height: 104px;
-      border-radius: 50%;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-    }
-    .exam-analysis-score-ring__pct {
-      font-size: 1.55rem;
-      font-weight: 800;
-      color: #312e81;
-    }
-    .exam-analysis-score-ring__sub {
-      font-size: 0.72rem;
+    .exam-analysis-legend__pct {
+      font-size: 0.74rem;
       color: #64748b;
-      font-weight: 600;
+      margin-left: 0.15rem;
     }
-    .exam-analysis-metrics {
+    .exam-analysis-stat-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.65rem;
     }
-    .exam-analysis-metric {
-      background: #fff;
-      border: 1px solid #e8eef7;
+    @media (max-width: 480px) {
+      .exam-analysis-stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-analysis-stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 0.7rem 0.75rem;
-      display: grid;
-      gap: 0.15rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
     }
-    .exam-analysis-metric span {
+    .exam-analysis-stat-card__icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+    }
+    .exam-analysis-stat-card__icon--c {
+      color: #16a34a;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .exam-analysis-stat-card__icon--a {
+      color: #2563eb;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .exam-analysis-stat-card__icon--w {
+      color: #dc2626;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .exam-analysis-stat-card__icon--u {
+      color: #d97706;
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+    .exam-analysis-stat-card__icon--s {
+      color: #7c3aed;
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
+    .exam-analysis-stat-card__icon--t {
+      color: #475569;
+      background: #fff;
+      border-color: #e2e8f0;
+    }
+    .exam-analysis-stat-card span {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 0.1rem;
+    }
+    .exam-analysis-stat-card strong {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+    .exam-analysis-stat-card small {
+      display: block;
+      margin-top: 0.08rem;
       font-size: 0.72rem;
       color: #64748b;
       font-weight: 600;
     }
-    .exam-analysis-metric strong {
-      font-size: 1.15rem;
-      color: #0f172a;
-      font-weight: 800;
-    }
-    .exam-analysis-bars {
-      margin-top: 0.15rem;
-    }
-    .exam-analysis-bars__title {
-      margin: 0 0 0.75rem;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .exam-analysis-bar-row {
+    .exam-analysis-sections__grid {
       display: grid;
-      grid-template-columns: 110px 1fr 42px;
-      gap: 0.65rem;
-      align-items: center;
-      margin-bottom: 0.55rem;
-      font-size: 0.82rem;
-      color: #334155;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.75rem;
     }
-    .exam-analysis-bar-track {
-      height: 12px;
-      border-radius: 999px;
-      background: #eef2f7;
+    @media (max-width: 1100px) {
+      .exam-analysis-sections__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 720px) {
+      .exam-analysis-sections__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 480px) {
+      .exam-analysis-sections__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .exam-analysis-sec-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      animation: examAnalysisCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .exam-analysis-bar-fill {
-      height: 100%;
-      border-radius: inherit;
-      width: 0;
-      transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    .exam-analysis-sec-card__top {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 0.75rem 0.55rem;
     }
-    .exam-analysis-bar-fill--c {
-      background: linear-gradient(90deg, #22c55e, #16a34a);
+    .exam-analysis-sec-card__icon {
+      width: 1.85rem;
+      height: 1.85rem;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 0.82rem;
+      color: #fff;
+      flex-shrink: 0;
     }
-    .exam-analysis-bar-fill--w {
-      background: linear-gradient(90deg, #f87171, #ef4444);
+    .exam-analysis-sec-card__title {
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #0f172a;
     }
-    .exam-analysis-bar-fill--u {
-      background: linear-gradient(90deg, #cbd5e1, #94a3b8);
+    .exam-analysis-sec-card__body {
+      padding: 0 0.75rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      flex: 1 1 auto;
     }
-    .exam-analysis-bar-fill.is-animated {
-      width: var(--w, 0%);
+    .exam-analysis-sec-legend {
+      width: 100%;
+      display: grid;
+      gap: 0.28rem;
+    }
+    .exam-analysis-sec-legend__row {
+      display: grid;
+      grid-template-columns: 9px 1fr auto;
+      gap: 0.35rem;
+      align-items: center;
+      font-size: 0.7rem;
+      color: #475569;
+    }
+    .exam-analysis-sec-legend__dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+    }
+    .exam-analysis-sec-legend__dot--c {
+      background: #22c55e;
+    }
+    .exam-analysis-sec-legend__dot--w {
+      background: #ef4444;
+    }
+    .exam-analysis-sec-legend__dot--u {
+      background: #fbbf24;
+    }
+    .exam-analysis-sec-card__footer {
+      margin-top: auto;
+      padding: 0.5rem 0.65rem;
+      text-align: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-top: 1px solid #e2e8f0;
+    }
+    .exam-analysis-tip {
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      font-size: 0.84rem;
+      color: #1d4ed8;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      line-height: 1.45;
+    }
+    .exam-analysis-tip i {
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+      color: #2563eb;
     }
     .exam-analysis-footer {
       display: flex;
       justify-content: flex-end;
       gap: 0.5rem;
-      padding: 0.85rem 1.5rem 1.15rem;
-      border-top: 1px solid #e8eef7;
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
     }
     body.exam-analysis-modal-open {
       overflow: hidden;
     }
-
+    @media print {
+      .exam-modal--analysis .exam-modal__backdrop,
+      .exam-analysis-head__actions,
+      .exam-analysis-footer,
+      .exam-analysis-sidebar {
+        display: none !important;
+      }
+      .exam-modal__dialog--analysis {
+        max-height: none;
+        width: 100%;
+        box-shadow: none;
+      }
+      .exam-analysis-shell {
+        grid-template-columns: 1fr;
+      }
+    }
     .exam-modal__dialog h2 {
       margin: 0 0 0.5rem;
       font-size: 1.1rem;
@@ -1532,6 +1911,33 @@
       font-size: 0.7rem;
       margin-left: 0.4rem;
       opacity: 0.9;
+    }
+    .exam-answer-reason {
+      margin-top: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+    }
+    .exam-answer-reason__label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #1d4ed8;
+      margin-bottom: 0.35rem;
+    }
+    .exam-answer-reason__body {
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: #1e293b;
+    }
+    .exam-answer-reason__missing {
+      margin: 0.65rem 0 0;
+      font-size: 0.78rem;
+      color: #64748b;
+      font-style: italic;
     }
     .exam-answer-empty {
       border: 1px dashed #cbd5e1;
@@ -1944,11 +2350,34 @@
 <body class="app-body student-dashboard page-exam">
   <div id="stock" style="display: none">
     <div id="exam-bootstrap" class="exam-bootstrap">
-      <div class="exam-bootstrap__inner">
-        <p class="exam-bootstrap__lead" id="exam-bootstrap-title">Tests</p>
+      <div class="exam-bootstrap__inner exam-bootstrap__inner--wide">
+        <header class="exam-picker__hero">
+          <h2>Practice. Analyze. Succeed.</h2>
+          <p>Sharpen Your Skills. Ace the Exam.</p>
+        </header>
         <div id="exam-bootstrap-status" class="exam-bootstrap__status">Loading tests…</div>
+        <div id="exam-test-picker" hidden></div>
         <div id="exam-test-list" class="exam-test-list" hidden></div>
         <div id="exam-bootstrap-err" class="exam-bootstrap__err" hidden></div>
+      </div>
+    </div>
+
+    <div class="exam-modal" id="exam-test-detail-modal" hidden role="dialog" aria-modal="true" aria-labelledby="exam-test-detail-title">
+      <div class="exam-modal__backdrop" id="exam-test-detail-backdrop"></div>
+      <div class="exam-modal__dialog exam-test-detail-dialog">
+        <div class="exam-test-detail-head">
+          <div>
+            <h2 id="exam-test-detail-title">Tests</h2>
+            <p id="exam-test-detail-sub">Select a test below.</p>
+          </div>
+          <button type="button" class="exam-test-detail-close" id="exam-test-detail-close" aria-label="Close">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="exam-test-detail-body">
+          <div id="exam-test-detail-list" class="exam-test-list"></div>
+          <p id="exam-test-detail-empty" class="exam-test-detail-empty" hidden>No tests available in this category yet.</p>
+        </div>
       </div>
     </div>
 
@@ -2147,12 +2576,19 @@
         aria-labelledby="modal-analysis-title"
       >
         <header class="exam-analysis-head">
-          <div>
-            <p class="exam-analysis-head__eyebrow">Performance analysis</p>
-            <h2 class="exam-analysis-head__title" id="modal-analysis-title">Test analysis</h2>
-            <p class="exam-analysis-head__meta" id="modal-analysis-meta">—</p>
+          <div class="exam-analysis-head__main">
+            <h2 class="exam-analysis-head__title" id="modal-analysis-title">Test Analysis</h2>
+            <p class="exam-analysis-head__meta" id="modal-analysis-meta">
+              Your performance overview and section-wise analysis.
+            </p>
+            <p class="exam-analysis-head__sub" id="modal-analysis-sub"></p>
           </div>
-          <button type="button" class="exam-analysis-close" id="modal-analysis-close" aria-label="Close">×</button>
+          <div class="exam-analysis-head__actions">
+            <button type="button" class="exam-analysis-download" id="modal-analysis-download">
+              <i class="fa-solid fa-download" aria-hidden="true"></i> Download Report
+            </button>
+            <button type="button" class="exam-analysis-close" id="modal-analysis-close" aria-label="Close">×</button>
+          </div>
         </header>
         <div id="modal-analysis-loading" class="exam-analysis-loading" hidden>
           <div class="exam-analysis-loading__spinner" aria-hidden="true"></div>
@@ -2170,7 +2606,7 @@
       <div class="exam-modal__dialog exam-modal__dialog--answer" role="dialog" aria-modal="true" aria-labelledby="modal-answer-title">
         <div>
           <h2 id="modal-answer-title">Answer analysis</h2>
-          <p class="exam-answer-lead">Correct answer is marked for each question. Your selected choice is also highlighted.</p>
+          <p class="exam-answer-lead">Correct answer is marked for each question. Your choice is highlighted. Reason or solution from the answer key is shown below each question when available.</p>
         </div>
         <div class="exam-answer-filters" id="answer-filter-group">
           <button type="button" class="exam-answer-filter is-active" data-af="all">All</button>
@@ -2230,8 +2666,11 @@
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../js/exam-question-parser.js"></script>
+  <script src="../js/exam-answer-key-parser.js"></script>
+  <script src="../js/test-subject-flags.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js"></script>
@@ -2249,6 +2688,140 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
       }
+
+      function normPickerKey(v) {
+        return String(v || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, ' ');
+      }
+
+      function classifyTestRow(row) {
+        if (!row) return { kind: 'mock', category: 'CLAT' };
+        if (typeof TestSubjectFlags !== 'undefined') {
+          var fromFlags = TestSubjectFlags.classifyRowByFlags(row);
+          if (fromFlags) return fromFlags;
+        }
+        var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
+        var cat = row.test_category != null ? String(row.test_category).trim() : '';
+        if (kind === 'mock' && cat) return { kind: 'mock', category: cat };
+        if (kind === 'sectional' && cat) return { kind: 'sectional', category: cat };
+        var title = String(row.title || '').toLowerCase();
+        if (/ip\s*mat/.test(title)) return { kind: 'mock', category: 'IP MAT' };
+        if (/\bailet\b/.test(title)) return { kind: 'mock', category: 'AILET' };
+        if (/\bchrist\b/.test(title)) return { kind: 'mock', category: 'CHRIST' };
+        if (/\bsat\b/.test(title)) return { kind: 'mock', category: 'SAT' };
+        if (/\bclat\b/.test(title) && !/\bsectional\b/.test(title)) return { kind: 'mock', category: 'CLAT' };
+        if (/\benglish\b/.test(title) || /\brc\b/.test(title)) return { kind: 'sectional', category: 'English' };
+        if (/\blogic(al)?\b/.test(title) || /\blr\b/.test(title)) return { kind: 'sectional', category: 'Logical' };
+        if (/\blegal\b/.test(title) || /\ble\b/.test(title)) return { kind: 'sectional', category: 'Legal' };
+        if (/\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title)) {
+          return { kind: 'sectional', category: 'Math' };
+        }
+        if (/\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title)) {
+          return { kind: 'sectional', category: 'GK' };
+        }
+        return { kind: 'mock', category: 'CLAT' };
+      }
+
+      function rowMatchesPicker(row, filter) {
+        if (!filter || !filter.kind || !filter.category) return false;
+        var c = classifyTestRow(row);
+        return (
+          c.kind === filter.kind && normPickerKey(c.category) === normPickerKey(filter.category)
+        );
+      }
+
+      var EXAM_PICKER_GROUPS = [
+        {
+          kind: 'mock',
+          ribbon: 'MOCK TEST',
+          sectionClass: 'exam-picker__section--mock',
+          gridClass: 'exam-picker__grid--mock',
+          items: [
+            {
+              category: 'CLAT',
+              title: 'CLAT',
+              cardClass: 'exam-pick-card--clat',
+              iconClass: 'exam-pick-card__icon--blue',
+              fa: 'fa-clipboard-list',
+              desc: 'Full-length CLAT mock tests with detailed analysis.',
+            },
+            {
+              category: 'AILET',
+              title: 'AILET',
+              cardClass: 'exam-pick-card--ailet',
+              iconClass: 'exam-pick-card__icon--green',
+              fa: 'fa-scale-balanced',
+              desc: 'Full-length AILET mock tests with detailed analysis.',
+            },
+            {
+              category: 'CHRIST',
+              title: 'CHRIST',
+              cardClass: 'exam-pick-card--christ',
+              iconClass: 'exam-pick-card__icon--purple',
+              fa: 'fa-church',
+              desc: 'CHRIST University mock tests with detailed analysis.',
+            },
+            {
+              category: 'SAT',
+              title: 'SAT',
+              cardClass: 'exam-pick-card--sat',
+              iconClass: 'exam-pick-card__icon--amber',
+              fa: 'fa-file-pen',
+              desc: 'SAT mock tests to evaluate your performance.',
+            },
+          ],
+        },
+        {
+          kind: 'sectional',
+          ribbon: 'SECTIONAL TEST',
+          sectionClass: 'exam-picker__section--sectional',
+          gridClass: 'exam-picker__grid--sectional',
+          items: [
+            {
+              category: 'English',
+              title: 'ENGLISH',
+              cardClass: 'exam-pick-card--english',
+              iconClass: 'exam-pick-card__icon--teal',
+              fa: 'fa-book-open',
+              desc: 'Focus on vocabulary, grammar, comprehension and more.',
+            },
+            {
+              category: 'Logical',
+              title: 'LOGIC',
+              cardClass: 'exam-pick-card--logical',
+              iconClass: 'exam-pick-card__icon--indigo',
+              fa: 'fa-brain',
+              desc: 'Strengthen logical reasoning with topic-wise practice.',
+            },
+            {
+              category: 'Legal',
+              title: 'LEGAL',
+              cardClass: 'exam-pick-card--legal',
+              iconClass: 'exam-pick-card__icon--purple',
+              fa: 'fa-gavel',
+              desc: 'Practice legal aptitude with concept-based questions.',
+            },
+            {
+              category: 'Math',
+              title: 'MATH',
+              cardClass: 'exam-pick-card--math',
+              iconClass: 'exam-pick-card__icon--rose',
+              fa: 'fa-calculator',
+              desc: 'Improve numerical ability with structured practice.',
+            },
+            {
+              category: 'GK',
+              title: 'GK',
+              cardClass: 'exam-pick-card--gk',
+              iconClass: 'exam-pick-card__icon--amber',
+              fa: 'fa-globe',
+              desc: 'Stay updated with current affairs and general knowledge.',
+            },
+          ],
+        },
+      ];
 
       function getAddTestApiUrl() {
         return (window.APP_CONFIG && window.APP_CONFIG.ADD_TEST_API) || '';
@@ -2444,12 +3017,19 @@
       }
 
       function shouldShowTestForStudent(row, studentProfile) {
+        if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed(row)) {
+          return false;
+        }
         return true;
       }
 
-      /** Only this test can be started / OMR-submitted on the student portal. */
+      /** No tests open for new attempts until listed here (e.g. { 4: true } for Test #4). */
+      var STUDENT_ACTIVATED_TEST_IDS = {};
+
       function isActivatedStudentTest(row) {
-        return String(row && row.test_id != null ? row.test_id : '') === '4';
+        if (!row || row.test_id == null || row.test_id === '') return false;
+        var id = row.test_id;
+        return STUDENT_ACTIVATED_TEST_IDS[id] === true || STUDENT_ACTIVATED_TEST_IDS[String(id)] === true;
       }
 
       function parseScheduledDateTime(raw) {
@@ -2508,7 +3088,63 @@
         var bootstrapStatus = document.getElementById('exam-bootstrap-status');
         var bootstrapErr = document.getElementById('exam-bootstrap-err');
         var testListEl = document.getElementById('exam-test-list');
+        var testPickerEl = document.getElementById('exam-test-picker');
+        var testDetailModal = document.getElementById('exam-test-detail-modal');
+        var testDetailBackdrop = document.getElementById('exam-test-detail-backdrop');
+        var testDetailClose = document.getElementById('exam-test-detail-close');
+        var testDetailTitle = document.getElementById('exam-test-detail-title');
+        var testDetailSub = document.getElementById('exam-test-detail-sub');
+        var testDetailList = document.getElementById('exam-test-detail-list');
+        var testDetailEmpty = document.getElementById('exam-test-detail-empty');
         var examRoot = document.getElementById('exam-root');
+        var allTestRows = [];
+
+        function showBootstrapPicker() {
+          if (bootstrapEl) bootstrapEl.hidden = false;
+          if (testPickerEl) testPickerEl.hidden = false;
+          if (testListEl) testListEl.hidden = true;
+          closeTestDetailModal();
+        }
+
+        function closeTestDetailModal() {
+          if (testDetailModal) testDetailModal.hidden = true;
+        }
+
+        function pickerCategoryLabel(category) {
+          if (category === 'Logical') return 'LOGIC';
+          return category;
+        }
+
+        function openTestDetailModal(filter) {
+          if (!testDetailModal || !testDetailList) return;
+          var rows = allTestRows.filter(function (row) {
+            return rowMatchesPicker(row, filter);
+          });
+          var catLabel = pickerCategoryLabel(filter.category);
+          var label =
+            filter.kind === 'mock'
+              ? catLabel + ' Mock Tests'
+              : catLabel + ' Sectional Tests';
+          if (testDetailTitle) testDetailTitle.textContent = label;
+          if (testDetailSub) {
+            testDetailSub.textContent =
+              rows.length +
+              ' test' +
+              (rows.length === 1 ? '' : 's') +
+              ' available · Start online or enter OMR.';
+          }
+          testDetailList.innerHTML = '';
+          if (!rows.length) {
+            if (testDetailEmpty) testDetailEmpty.hidden = false;
+          } else {
+            if (testDetailEmpty) testDetailEmpty.hidden = true;
+            renderTestCardsInto(testDetailList, rows, latestAttemptsByTestId);
+          }
+          testDetailModal.hidden = false;
+        }
+
+        if (testDetailClose) testDetailClose.addEventListener('click', closeTestDetailModal);
+        if (testDetailBackdrop) testDetailBackdrop.addEventListener('click', closeTestDetailModal);
 
         function showErr(msg) {
           if (bootstrapErr) {
@@ -3047,40 +3683,28 @@
           });
         }
 
-        function extractCorrectLetterFromText(raw) {
-          var t = String(raw == null ? '' : raw).trim();
-          if (!t) return '';
-          var block = t.split(/\bSolution\s*:/i)[0].split(/\bReason\s*:/i)[0];
-          var b = block.trim();
-          var m =
-            b.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
-            b.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
-            b.match(/^\s*["']?\s*([A-D])\s*["']?\s*$/i) ||
-            b.match(/\b([A-D])\b/);
-          return m && m[1] ? String(m[1]).toUpperCase() : '';
+        function parseAnswerKeyText(text) {
+          var parser = window.ExamAnswerKeyParser;
+          if (parser && typeof parser.parseAnswerKeyText === 'function') {
+            return parser.parseAnswerKeyText(text);
+          }
+          return {};
         }
 
-        function parseAnswerKeyText(text) {
-          var lines = String(text == null ? '' : text)
-            .replace(/\r\n?/g, '\n')
-            .split('\n');
-          var out = {};
-          for (var i = 0; i < lines.length; i++) {
-            var line = String(lines[i] || '').trim();
-            if (!line) continue;
-            var m = line.match(/^(\d{1,3})\s*[\.\)]\s*(.*)$/);
-            if (!m) continue;
-            var qn = String(parseInt(m[1], 10));
-            if (!qn) continue;
-            var tail = String(m[2] || '').trim();
-            var letter = extractCorrectLetterFromText(tail);
-            if (!letter && i + 1 < lines.length) {
-              letter = extractCorrectLetterFromText(String(lines[i + 1] || ''));
-              if (letter) i++;
-            }
-            if (letter) out[qn] = { letter: letter };
+        function getAnswerSolutionFromEntry(entry) {
+          var parser = window.ExamAnswerKeyParser;
+          if (parser && typeof parser.getAnswerSolution === 'function') {
+            return parser.getAnswerSolution(entry);
           }
-          return out;
+          return entry && entry.solution ? String(entry.solution).trim() : '';
+        }
+
+        function getAnswerSolutionImagesFromEntry(entry) {
+          var parser = window.ExamAnswerKeyParser;
+          if (parser && typeof parser.getAnswerSolutionImages === 'function') {
+            return parser.getAnswerSolutionImages(entry);
+          }
+          return entry && Array.isArray(entry.solutionImages) ? entry.solutionImages : [];
         }
 
         /** Cached answer-key map per test — avoids re-downloading/parsing .docx on every Review/Analysis open. */
@@ -3116,7 +3740,11 @@
                 if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
                   throw new Error('Question parser failed to load.');
                 }
-                var parsed = parser.parseQuestionsFromText(text);
+                var parseOpts =
+                  typeof parser.parseOptsFromTestRow === 'function'
+                    ? parser.parseOptsFromTestRow(row)
+                    : undefined;
+                var parsed = parser.parseQuestionsFromText(text, parseOpts);
                 if (parsed.error) throw new Error(parsed.error);
                 var built = buildPaperFromApiRow(row, parsed);
                 var bundle = {
@@ -3226,6 +3854,22 @@
                 '</div>';
             }
 
+            var reason = getAnswerSolutionFromEntry(keyRow);
+            var reasonImages = getAnswerSolutionImagesFromEntry(keyRow);
+            var reasonHtml = '';
+            if (reason || (reasonImages && reasonImages.length)) {
+              reasonHtml =
+                '<div class="exam-answer-reason" role="region" aria-label="Reason or solution">' +
+                '<span class="exam-answer-reason__label">Reason / Solution</span>' +
+                '<div class="exam-answer-reason__body">' +
+                escHtml(reason).replace(/\n/g, '<br />') +
+                renderInlineImageUrls(reasonImages) +
+                '</div></div>';
+            } else if (correct) {
+              reasonHtml =
+                '<p class="exam-answer-reason__missing">No explanation found in the answer key for this question.</p>';
+            }
+
             row.innerHTML =
               '<div class="exam-answer-item__head"><div class="exam-answer-item__q">Question ' +
               escHtml(String(q.number)) +
@@ -3234,10 +3878,12 @@
               '</span></div>' +
               '<div class="exam-answer-stem">' +
               escHtml(q.stem || '').replace(/\n/g, '<br />') +
+              renderInlineImageUrls(q.images || []) +
               '</div>' +
               '<div class="exam-answer-options">' +
               optionsHtml +
-              '</div>';
+              '</div>' +
+              reasonHtml;
             answerReviewList.appendChild(row);
           }
           applyAnswerReviewFilter(answerReviewFilter || 'all');
@@ -3444,6 +4090,132 @@
           );
         }
 
+        var ANALYSIS_SECTION_ORDER = ['English', 'Logical', 'Legal', 'GK', 'Math', 'Other'];
+        var ANALYSIS_SECTION_ICONS = {
+          English: 'fa-book',
+          Logical: 'fa-brain',
+          Legal: 'fa-scale-balanced',
+          GK: 'fa-globe',
+          Math: 'fa-calculator',
+          Other: 'fa-layer-group',
+        };
+        var ANALYSIS_SECTION_COLORS = {
+          English: '#22c55e',
+          Logical: '#3b82f6',
+          Legal: '#8b5cf6',
+          GK: '#f59e0b',
+          Math: '#ec4899',
+          Other: '#64748b',
+        };
+        var CLAT_MOCK_SECTION_RANGES = [
+          { label: 'English', max: 28 },
+          { label: 'GK', max: 50 },
+          { label: 'Legal', max: 70 },
+          { label: 'Logical', max: 90 },
+          { label: 'Math', max: 9999 },
+        ];
+
+        function normalizeAnalysisSectionLabel(raw) {
+          var s = String(raw == null ? '' : raw).trim();
+          if (!s) return '';
+          var low = s.toLowerCase();
+          if (/english|language|^rc$/i.test(low)) return 'English';
+          if (/logical|reasoning|^lr$/i.test(low) && !/legal/i.test(low)) return 'Logical';
+          if (/legal|^le$/i.test(low)) return 'Legal';
+          if (/gk|general knowledge|current affairs/i.test(low)) return 'GK';
+          if (/math|quant|quantitative|^qa$/i.test(low)) return 'Math';
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function inferQuestionSectionLabel(q, row) {
+          var fromName = normalizeAnalysisSectionLabel(q && q.sectionName);
+          if (fromName) return fromName;
+          var ctx = String((q && q.contextInfo) || '').trim().toUpperCase();
+          if (/^RC$/.test(ctx)) return 'English';
+          if (/^GK$/.test(ctx)) return 'GK';
+          if (/^LE$/.test(ctx)) return 'Legal';
+          if (/^LR$/.test(ctx)) return 'Logical';
+          if (/^(QA|QT|MATH)$/.test(ctx)) return 'Math';
+          var classified = classifyTestRow(row);
+          if (classified.kind === 'sectional' && classified.category) {
+            return normalizeAnalysisSectionLabel(classified.category);
+          }
+          if (classified.kind === 'mock' && classified.category === 'CLAT' && q && q.number != null) {
+            var n = Number(q.number);
+            if (Number.isFinite(n)) {
+              for (var ri = 0; ri < CLAT_MOCK_SECTION_RANGES.length; ri++) {
+                if (n <= CLAT_MOCK_SECTION_RANGES[ri].max) return CLAT_MOCK_SECTION_RANGES[ri].label;
+              }
+            }
+          }
+          return '';
+        }
+
+        function buildAnalysisSectionGroups(questions, row) {
+          if (!questions || !questions.length) return [];
+          var byName = Object.create(null);
+          questions.forEach(function (q) {
+            var sec = inferQuestionSectionLabel(q, row) || 'Other';
+            if (!byName[sec]) byName[sec] = [];
+            byName[sec].push(q);
+          });
+          var keys = Object.keys(byName);
+          keys.sort(function (a, b) {
+            var ia = ANALYSIS_SECTION_ORDER.indexOf(a);
+            var ib = ANALYSIS_SECTION_ORDER.indexOf(b);
+            if (ia < 0) ia = 99;
+            if (ib < 0) ib = 99;
+            if (ia !== ib) return ia - ib;
+            return a.localeCompare(b);
+          });
+          return keys.map(function (name) {
+            var list = byName[name].slice().sort(function (a, b) {
+              return (a.number || 0) - (b.number || 0);
+            });
+            return { label: name, list: list };
+          });
+        }
+
+        function computeSectionGroupStats(group, answersMap, keyMap) {
+          var list = (group && group.list) || [];
+          var total = list.length;
+          var correct = 0;
+          var wrong = 0;
+          var unanswered = 0;
+          for (var i = 0; i < list.length; i++) {
+            var q = list[i];
+            var qn = qKey(q);
+            var picked = answersMap[qn] ? String(answersMap[qn]).trim().toUpperCase() : '';
+            var keyLetter =
+              keyMap && keyMap[qn] && keyMap[qn].letter
+                ? String(keyMap[qn].letter).trim().toUpperCase()
+                : '';
+            if (!picked) unanswered += 1;
+            else if (keyLetter && picked === keyLetter) correct += 1;
+            else wrong += 1;
+          }
+          var answered = correct + wrong;
+          var accuracy = answered > 0 ? Math.round((correct / answered) * 1000) / 10 : 0;
+          var scorePct = total > 0 ? Math.round((correct / total) * 1000) / 10 : 0;
+          var qStart = list[0] && list[0].number != null ? list[0].number : '—';
+          var qEnd =
+            list[list.length - 1] && list[list.length - 1].number != null
+              ? list[list.length - 1].number
+              : '—';
+          return {
+            label: group.label,
+            total: total,
+            correct: correct,
+            wrong: wrong,
+            unanswered: unanswered,
+            answered: answered,
+            accuracy: accuracy,
+            scorePct: scorePct,
+            qStart: qStart,
+            qEnd: qEnd,
+          };
+        }
+
         function computeAttemptAnalysisStats(questions, answersMap, keyMap, att, row) {
           var numbers = [];
           if (questions && questions.length) {
@@ -3498,6 +4270,17 @@
                 : pct != null
                   ? '—'
                   : '—';
+          var sectionGroups = buildAnalysisSectionGroups(questions, row);
+          if ((!questions || !questions.length) && numbers.length) {
+            var pseudoQs = numbers.map(function (qn) {
+              return { number: parseInt(qn, 10) };
+            });
+            sectionGroups = buildAnalysisSectionGroups(pseudoQs, row);
+          }
+          var sections = sectionGroups.map(function (g) {
+            return computeSectionGroupStats(g, answersMap, keyMap);
+          });
+          var classified = classifyTestRow(row);
           return {
             title: (row && row.title) || (att && att.title) || 'Test',
             testId: row && row.test_id != null ? row.test_id : att && att.test_id,
@@ -3512,116 +4295,210 @@
             passed: !!(att && att.passed),
             submittedAt: att && att.created_at ? att.created_at : null,
             durationMinutes: row && row.durationMinutes != null ? row.durationMinutes : 120,
+            sections: sections,
+            testKind: classified.kind,
+            testCategory: classified.category,
           };
         }
 
-        function animateAnalysisBars(root) {
-          if (!root) return;
-          window.requestAnimationFrame(function () {
-            window.requestAnimationFrame(function () {
-              var fills = root.querySelectorAll('.exam-analysis-bar-fill');
-              for (var i = 0; i < fills.length; i++) fills[i].classList.add('is-animated');
-            });
-          });
+        function analysisPiePercents(correct, wrong, unanswered, total) {
+          var t = total || 1;
+          return {
+            correctPct: Math.round((correct / t) * 1000) / 10,
+            wrongPct: Math.round((wrong / t) * 1000) / 10,
+            unansPct: Math.max(0, Math.round((unanswered / t) * 1000) / 10),
+          };
+        }
+
+        function displayAnalysisSectionTitle(label) {
+          if (label === 'Logical') return 'LOGIC';
+          return String(label || 'Section').toUpperCase();
+        }
+
+        function renderAnalysisLegendHtml(correct, wrong, unanswered, total) {
+          var p = analysisPiePercents(correct, wrong, unanswered, total);
+          return (
+            '<div class="exam-analysis-legend">' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--c"></span><span>Correct</span><strong>' +
+            escHtml(String(correct)) +
+            '<span class="exam-analysis-legend__pct">(' +
+            p.correctPct +
+            '%)</span></strong></div>' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--w"></span><span>Wrong</span><strong>' +
+            escHtml(String(wrong)) +
+            '<span class="exam-analysis-legend__pct">(' +
+            p.wrongPct +
+            '%)</span></strong></div>' +
+            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--u"></span><span>Unattempted</span><strong>' +
+            escHtml(String(unanswered)) +
+            '<span class="exam-analysis-legend__pct">(' +
+            p.unansPct +
+            '%)</span></strong></div></div>'
+          );
+        }
+
+        function renderAnalysisStatCard(label, value, sub, iconClass, icon) {
+          return (
+            '<div class="exam-analysis-stat-card">' +
+            '<div class="exam-analysis-stat-card__icon exam-analysis-stat-card__icon--' +
+            iconClass +
+            '"><i class="fa-solid ' +
+            icon +
+            '" aria-hidden="true"></i></div>' +
+            '<div><span>' +
+            escHtml(label) +
+            '</span><strong>' +
+            escHtml(String(value)) +
+            '</strong>' +
+            (sub ? '<small>' + escHtml(String(sub)) + '</small>' : '') +
+            '</div></div>'
+          );
+        }
+
+        function renderAnalysisSectionCardsHtml(sections) {
+          if (!sections || !sections.length) return '';
+          var cards = '';
+          for (var si = 0; si < sections.length; si++) {
+            var sec = sections[si];
+            var stotal = sec.total || 1;
+            var p = analysisPiePercents(sec.correct, sec.wrong, sec.unanswered, stotal);
+            var label = sec.label || 'Section';
+            var color = ANALYSIS_SECTION_COLORS[label] || ANALYSIS_SECTION_COLORS.Other;
+            var icon = ANALYSIS_SECTION_ICONS[label] || ANALYSIS_SECTION_ICONS.Other;
+            var footerBg = color + '18';
+            cards +=
+              '<article class="exam-analysis-sec-card" style="animation-delay:' +
+              (0.05 + si * 0.06) +
+              's">' +
+              '<div class="exam-analysis-sec-card__top">' +
+              '<div class="exam-analysis-sec-card__icon" style="background:' +
+              escHtml(color) +
+              ';"><i class="fa-solid ' +
+              escHtml(icon) +
+              '" aria-hidden="true"></i></div>' +
+              '<h4 class="exam-analysis-sec-card__title">' +
+              escHtml(displayAnalysisSectionTitle(label)) +
+              '</h4></div>' +
+              '<div class="exam-analysis-sec-card__body">' +
+              '<div class="exam-analysis-pie exam-analysis-pie--sm" style="--correct-pct:' +
+              p.correctPct +
+              ';--wrong-pct:' +
+              p.wrongPct +
+              ';--unans-pct:' +
+              p.unansPct +
+              '"></div>' +
+              '<div class="exam-analysis-sec-legend">' +
+              '<div class="exam-analysis-sec-legend__row"><span class="exam-analysis-sec-legend__dot exam-analysis-sec-legend__dot--c"></span><span>Correct</span><strong>' +
+              escHtml(String(sec.correct)) +
+              '</strong></div>' +
+              '<div class="exam-analysis-sec-legend__row"><span class="exam-analysis-sec-legend__dot exam-analysis-sec-legend__dot--w"></span><span>Wrong</span><strong>' +
+              escHtml(String(sec.wrong)) +
+              '</strong></div>' +
+              '<div class="exam-analysis-sec-legend__row"><span class="exam-analysis-sec-legend__dot exam-analysis-sec-legend__dot--u"></span><span>Unattempted</span><strong>' +
+              escHtml(String(sec.unanswered)) +
+              '</strong></div></div></div>' +
+              '<div class="exam-analysis-sec-card__footer" style="background:' +
+              escHtml(footerBg) +
+              ';color:' +
+              escHtml(color) +
+              ';">Score ' +
+              escHtml(String(sec.correct)) +
+              ' / ' +
+              escHtml(String(sec.total)) +
+              ' (' +
+              escHtml(String(sec.scorePct)) +
+              '%)</div></article>';
+          }
+          return (
+            '<section class="exam-analysis-panel exam-analysis-sections">' +
+            '<h3 class="exam-analysis-panel__title">Section-wise Analysis</h3>' +
+            '<div class="exam-analysis-sections__grid">' +
+            cards +
+            '</div></section>'
+          );
         }
 
         function renderAttemptAnalysisPanel(stats) {
           if (!modalAnalysisBody || !stats) return;
           var total = stats.total || 1;
-          var correctPct = Math.round((stats.correct / total) * 1000) / 10;
-          var wrongPct = Math.round((stats.wrong / total) * 1000) / 10;
-          var unansPct = Math.max(0, Math.round((stats.unanswered / total) * 1000) / 10);
-          var scorePct = stats.percentage != null ? Math.max(0, Math.min(100, stats.percentage)) : 0;
+          var p = analysisPiePercents(stats.correct, stats.wrong, stats.unanswered, total);
+          var attemptedPct = total > 0 ? Math.round((stats.answered / total) * 1000) / 10 : 0;
+          var sectionsHtml =
+            stats.sections && stats.sections.length
+              ? renderAnalysisSectionCardsHtml(stats.sections)
+              : '';
+          var weakest =
+            stats.sections && stats.sections.length
+              ? stats.sections.slice().sort(function (a, b) {
+                  return (a.scorePct || 0) - (b.scorePct || 0);
+                })[0]
+              : null;
+          var tipText = weakest
+            ? 'Keep practicing! Your weakest area is ' +
+              weakest.label +
+              ' (' +
+              weakest.scorePct +
+              '%). Focus there to improve your overall score.'
+            : 'Keep practicing! Focus on your weak areas to improve your overall score.';
+          var analysisTitle =
+            stats.testKind === 'sectional'
+              ? (stats.testCategory || 'Sectional') + ' Sectional Test Analysis'
+              : (stats.testCategory || 'CLAT') + ' Mock Test Analysis';
 
-          if (modalAnalysisTitle) modalAnalysisTitle.textContent = stats.title || 'Test analysis';
+          if (modalAnalysisTitle) modalAnalysisTitle.textContent = analysisTitle;
+          var modalAnalysisSub = document.getElementById('modal-analysis-sub');
           if (modalAnalysisMeta) {
-            modalAnalysisMeta.textContent =
+            modalAnalysisMeta.textContent = 'Your performance overview and section-wise analysis.';
+          }
+          if (modalAnalysisSub) {
+            modalAnalysisSub.textContent =
+              (stats.title ? stats.title + ' · ' : '') +
               'Test #' +
               (stats.testId != null ? stats.testId : '—') +
               ' · Submitted ' +
               formatAnalysisDate(stats.submittedAt) +
               (stats.passed ? ' · Passed' : '') +
-              ' · Time taken: not recorded';
+              (stats.letter && stats.letter !== '—' ? ' · Grade ' + stats.letter : '');
           }
 
           modalAnalysisBody.innerHTML =
-            '<div class="exam-analysis-grid-top">' +
-            '<div class="exam-analysis-card">' +
-            '<div class="exam-analysis-donut-wrap">' +
-            '<div class="exam-analysis-donut" id="analysis-donut" style="--correct-pct:' +
-            correctPct +
+            '<div class="exam-analysis-shell">' +
+            '<nav class="exam-analysis-sidebar" aria-label="Analysis navigation">' +
+            '<button type="button" class="exam-analysis-nav is-active"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Overview</span></button>' +
+            '<button type="button" class="exam-analysis-nav is-muted" disabled><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Performance</span></button>' +
+            '<button type="button" class="exam-analysis-nav is-muted" disabled><i class="fa-solid fa-list-check" aria-hidden="true"></i><span>Questions</span></button>' +
+            '<button type="button" class="exam-analysis-nav is-muted" disabled><i class="fa-solid fa-bolt" aria-hidden="true"></i><span>Strengths</span></button>' +
+            '</nav>' +
+            '<div class="exam-analysis-content">' +
+            '<section class="exam-analysis-panel" id="analysis-overall">' +
+            '<h3 class="exam-analysis-panel__title">Overall Performance</h3>' +
+            '<div class="exam-analysis-overall">' +
+            '<div class="exam-analysis-pie" style="--correct-pct:' +
+            p.correctPct +
             ';--wrong-pct:' +
-            wrongPct +
+            p.wrongPct +
             ';--unans-pct:' +
-            unansPct +
-            '">' +
-            '<div class="exam-analysis-donut__hole">' +
-            '<span class="exam-analysis-donut__label">Total Qs</span>' +
-            '<span class="exam-analysis-donut__value">' +
-            escHtml(String(total)) +
-            '</span></div></div>' +
-            '<div class="exam-analysis-legend">' +
-            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--c"></span><span>Correct</span><strong>' +
-            escHtml(String(stats.correct)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--w"></span><span>Wrong</span><strong>' +
-            escHtml(String(stats.wrong)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-legend__row"><span class="exam-analysis-legend__dot exam-analysis-legend__dot--u"></span><span>Not attended</span><strong>' +
-            escHtml(String(stats.unanswered)) +
-            '</strong></div></div></div></div>' +
-            '<div class="exam-analysis-card">' +
-            '<div class="exam-analysis-score-ring" id="analysis-score-ring" style="--p:' +
-            scorePct +
-            '">' +
-            '<div class="exam-analysis-score-ring__hole">' +
-            '<span class="exam-analysis-score-ring__pct">' +
-            (stats.percentage != null ? escHtml(String(stats.percentage)) + '%' : '—') +
-            '</span>' +
-            '<span class="exam-analysis-score-ring__sub">Overall score</span></div></div>' +
-            '<p style="margin:0.75rem 0 0;text-align:center;font-size:0.82rem;color:#64748b;">Grade: <strong>' +
-            escHtml(String(stats.letter || '—')) +
-            '</strong></p></div>' +
-            '<div class="exam-analysis-card">' +
-            '<div class="exam-analysis-metrics">' +
-            '<div class="exam-analysis-metric"><span>Accuracy</span><strong>' +
-            escHtml(String(stats.accuracy)) +
-            '%</strong></div>' +
-            '<div class="exam-analysis-metric"><span>Attempted</span><strong>' +
-            escHtml(String(stats.answered)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-metric"><span>Correct</span><strong>' +
-            escHtml(String(stats.correct)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-metric"><span>Wrong</span><strong>' +
-            escHtml(String(stats.wrong)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-metric"><span>Not attended</span><strong>' +
-            escHtml(String(stats.unanswered)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-metric"><span>Test duration</span><strong>' +
-            escHtml(String(stats.durationMinutes)) +
-            ' min</strong></div>' +
-            '</div></div></div>' +
-            '<div class="exam-analysis-card exam-analysis-bars">' +
-            '<h3 class="exam-analysis-bars__title">Question breakdown</h3>' +
-            '<div class="exam-analysis-bar-row"><span>Correct</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--c" style="--w:' +
-            correctPct +
-            '%"></div></div><strong>' +
-            escHtml(String(stats.correct)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-bar-row"><span>Wrong</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--w" style="--w:' +
-            wrongPct +
-            '%"></div></div><strong>' +
-            escHtml(String(stats.wrong)) +
-            '</strong></div>' +
-            '<div class="exam-analysis-bar-row"><span>Not attended</span><div class="exam-analysis-bar-track"><div class="exam-analysis-bar-fill exam-analysis-bar-fill--u" style="--w:' +
-            unansPct +
-            '%"></div></div><strong>' +
-            escHtml(String(stats.unanswered)) +
-            '</strong></div></div>';
-
-          animateAnalysisBars(modalAnalysisBody);
+            p.unansPct +
+            '"></div>' +
+            renderAnalysisLegendHtml(stats.correct, stats.wrong, stats.unanswered, total) +
+            '<div class="exam-analysis-stat-grid">' +
+            renderAnalysisStatCard('Total Marks', total, '', 't', 'fa-clipboard-list') +
+            renderAnalysisStatCard('Correct', stats.correct, p.correctPct + '%', 'c', 'fa-circle-check') +
+            renderAnalysisStatCard('Attempted', stats.answered, attemptedPct + '%', 'a', 'fa-pen') +
+            renderAnalysisStatCard('Wrong', stats.wrong, p.wrongPct + '%', 'w', 'fa-circle-xmark') +
+            renderAnalysisStatCard('Unattempted', stats.unanswered, p.unansPct + '%', 'u', 'fa-clock') +
+            renderAnalysisStatCard(
+              'Score Obtained',
+              stats.percentage != null ? stats.percentage + '%' : '—',
+              stats.correct + ' / ' + total + (stats.percentage != null ? ' (' + stats.percentage + '%)' : ''),
+              's',
+              'fa-trophy'
+            ) +
+            '</div></div></section>' +
+            sectionsHtml +
+            '<div class="exam-analysis-tip"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i><span>' +
+            escHtml(tipText) +
+            '</span></div></div></div>';
         }
 
         function openAttemptAnalysisFromList(row, att) {
@@ -3660,17 +4537,32 @@
 
           var answersMap = normalizeOmrPrefillAnswers(att.answers);
           var keyCached = answerKeyByTestCache[String(tid)];
+          var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
 
-          var finishAnalysis = function (keyMap) {
-            var stats = computeAttemptAnalysisStats([], answersMap, keyMap || {}, att, row);
+          var finishAnalysis = function (keyMap, questions) {
+            var stats = computeAttemptAnalysisStats(questions || [], answersMap, keyMap || {}, att, row);
             renderAttemptAnalysisPanel(stats);
             if (modalAnalysisLoading) modalAnalysisLoading.hidden = true;
             if (modalAnalysisBody) modalAnalysisBody.hidden = false;
           };
 
+          var loadPaperThenFinish = function (keyMap) {
+            if (!hasPaper) {
+              finishAnalysis(keyMap, []);
+              return;
+            }
+            getParsedPaperBundle(tid, row)
+              .then(function (bundle) {
+                finishAnalysis(keyMap, bundle && bundle.qs ? bundle.qs : []);
+              })
+              .catch(function () {
+                finishAnalysis(keyMap, []);
+              });
+          };
+
           if (keyCached && keyCached.map) {
             window.requestAnimationFrame(function () {
-              finishAnalysis(keyCached.map);
+              loadPaperThenFinish(keyCached.map);
             });
             return;
           }
@@ -3679,7 +4571,7 @@
             .catch(function () {
               return {};
             })
-            .then(finishAnalysis)
+            .then(loadPaperThenFinish)
             .catch(function (err) {
               if (modalAnalysisLoading) {
                 modalAnalysisLoading.hidden = false;
@@ -3692,11 +4584,17 @@
         function wireAnalysisModal() {
           var closeBtn = document.getElementById('modal-analysis-close');
           var doneBtn = document.getElementById('modal-analysis-done');
+          var downloadBtn = document.getElementById('modal-analysis-download');
           var backdrop = modalTestAnalysis
             ? modalTestAnalysis.querySelector('[data-analysis-close]')
             : null;
           if (closeBtn) closeBtn.addEventListener('click', closeAnalysisModal);
           if (doneBtn) doneBtn.addEventListener('click', closeAnalysisModal);
+          if (downloadBtn) {
+            downloadBtn.addEventListener('click', function () {
+              window.print();
+            });
+          }
           if (backdrop) backdrop.addEventListener('click', closeAnalysisModal);
         }
 
@@ -4198,7 +5096,11 @@
             showErr('Question parser failed to load.');
             return;
           }
-          var parsed = parser.parseQuestionsFromText(text);
+          var parseOpts =
+            typeof parser.parseOptsFromTestRow === 'function'
+              ? parser.parseOptsFromTestRow(row)
+              : undefined;
+          var parsed = parser.parseQuestionsFromText(text, parseOpts);
           if (parsed.error) {
             showErr(parsed.error);
             return;
@@ -4325,7 +5227,7 @@
             return;
           }
           if (!isActivatedStudentTest(row)) {
-            alert('This test is not available yet. Only Test #4 is open for students.');
+            alert('This test is not available yet.');
             return;
           }
           omrEntrySavedOmrSnapshot = savedOmrSnapshot || null;
@@ -4365,7 +5267,11 @@
               if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
                 throw new Error('Question parser failed to load.');
               }
-              var parsed = parser.parseQuestionsFromText(text);
+              var parseOpts =
+            typeof parser.parseOptsFromTestRow === 'function'
+              ? parser.parseOptsFromTestRow(row)
+              : undefined;
+          var parsed = parser.parseQuestionsFromText(text, parseOpts);
               if (parsed.error) throw new Error(parsed.error);
               var built = buildPaperFromApiRow(row, parsed);
               omrEntryQuestions = (built.questions || []).slice().sort(function (a, b) {
@@ -4550,8 +5456,8 @@
         function startTestFromRow(row) {
           if (!isActivatedStudentTest(row)) {
             hideLoader();
-            if (testListEl) testListEl.hidden = false;
-            showErr('This test is not available yet. Only Test #4 is open for students.');
+            showBootstrapPicker();
+            showErr('This test is not available yet.');
             return;
           }
           var tid = row.test_id;
@@ -4563,14 +5469,14 @@
               : null;
           if (prevAtt && prevAtt.completed) {
             hideLoader();
-            if (testListEl) testListEl.hidden = false;
+            showBootstrapPicker();
             showErr('You have already completed this test. Each student can attempt a test only once.');
             return;
           }
           var openMeta = getOpenMeta(row);
           if (openMeta.isLocked) {
             hideLoader();
-            if (testListEl) testListEl.hidden = false;
+            showBootstrapPicker();
             showErr('This test will open on ' + openMeta.label + '.');
             return;
           }
@@ -4579,18 +5485,20 @@
             bootstrapStatus.hidden = false;
             bootstrapStatus.textContent = 'Loading question paper…';
           }
+          if (testPickerEl) testPickerEl.hidden = true;
           if (testListEl) testListEl.hidden = true;
+          closeTestDetailModal();
 
           if (tid == null || tid === '') {
             showErr('Missing test id.');
             hideLoader();
-            if (testListEl) testListEl.hidden = false;
+            showBootstrapPicker();
             return;
           }
           if (!row.question_paper_url || !String(row.question_paper_url).trim()) {
             showErr('This test has no question paper uploaded.');
             hideLoader();
-            if (testListEl) testListEl.hidden = false;
+            showBootstrapPicker();
             return;
           }
 
@@ -4601,136 +5509,200 @@
             })
             .catch(function (err) {
               hideLoader();
-              if (testListEl) testListEl.hidden = false;
+              showBootstrapPicker();
               showErr(err && err.message ? err.message : 'Could not open question paper.');
             });
         }
 
-        function renderTestList(rows, attemptsByTestId) {
-          hideLoader();
-          if (!testListEl) return;
-          testListEl.hidden = false;
-          testListEl.innerHTML = '';
-          var map = attemptsByTestId || {};
-          rows.forEach(function (row) {
-            var id = row.test_id;
-            var att = map[id] != null ? map[id] : map[String(id)];
-            var card = document.createElement('div');
-            var isActivated = isActivatedStudentTest(row);
-            card.className =
-              'exam-test-card' + (isActivated || (att && att.completed) ? '' : ' exam-test-card--inactive');
-            var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
-            var openMeta = getOpenMeta(row);
-            var left = document.createElement('div');
-            var scoreLine =
-              att && att.percentage != null
-                ? ' · Last score: ' +
+        function buildTestCardElement(row, map) {
+          var id = row.test_id;
+          var att = map[id] != null ? map[id] : map[String(id)];
+          var card = document.createElement('div');
+          var isActivated = isActivatedStudentTest(row);
+          card.className =
+            'exam-test-card' + (isActivated || (att && att.completed) ? '' : ' exam-test-card--inactive');
+          var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
+          var openMeta = getOpenMeta(row);
+          var left = document.createElement('div');
+          var classified = classifyTestRow(row);
+          var typeBadge =
+            '<span class="meta"> · ' +
+            escHtml(classified.kind === 'mock' ? classified.category + ' Mock' : classified.category + ' Sectional') +
+            '</span>';
+          var scoreLine =
+            att && att.percentage != null
+              ? ' · Last score: ' +
+                att.percentage +
+                '%' +
+                (att.passed ? ' (passed)' : att.completed ? ' (attended)' : '')
+              : '';
+          var showNotAvailable = !isActivated && !(att && att.completed);
+          left.innerHTML =
+            '<h4>' +
+            escHtml(row.title || 'Untitled test') +
+            '</h4>' +
+            '<p class="meta">Test #' +
+            escHtml(String(id)) +
+            typeBadge +
+            (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
+            (showNotAvailable ? ' · <span class="meta-inactive">Not available</span>' : '') +
+            escHtml(scoreLine) +
+            '</p>';
+          var btns = document.createElement('div');
+          btns.className = 'exam-test-card__btns';
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-primary';
+          var hasSavedAnswers =
+            att &&
+            att.answers &&
+            typeof att.answers === 'object' &&
+            Object.keys(att.answers).length > 0;
+          if (att && att.completed) {
+            var statusBtn = document.createElement('button');
+            statusBtn.type = 'button';
+            statusBtn.disabled = true;
+            if (att.passed) {
+              statusBtn.className = 'btn btn-primary exam-test-btn--passed';
+              statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Passed';
+              statusBtn.title =
+                'Completed — scored ' + (att.percentage != null ? att.percentage + '%' : '') + ' (≥75% pass)';
+            } else {
+              statusBtn.className = 'btn btn-primary exam-test-btn--attended';
+              statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Attended';
+              statusBtn.title =
+                'Completed — scored ' +
+                (att.percentage != null ? att.percentage + '%' : '') +
+                ' (one attempt only)';
+            }
+            btns.appendChild(statusBtn);
+
+            btn.className = 'btn btn-primary exam-test-btn--review';
+            btn.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i> Show Review';
+            btn.disabled = !hasPaper || !hasSavedAnswers;
+            btn.title =
+              hasSavedAnswers && att.percentage != null
+                ? 'Review your answers — scored ' +
                   att.percentage +
                   '%' +
-                  (att.passed ? ' (passed)' : att.completed ? ' (attended)' : '')
-                : '';
-            var showNotAvailable = !isActivated && !(att && att.completed);
-            left.innerHTML =
-              '<h4>' +
-              escHtml(row.title || 'Untitled test') +
-              '</h4>' +
-              '<p class="meta">Test #' +
-              escHtml(String(id)) +
-              (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
-              (showNotAvailable ? ' · <span class="meta-inactive">Not available</span>' : '') +
-              escHtml(scoreLine) +
-              '</p>';
-            var btns = document.createElement('div');
-            btns.className = 'exam-test-card__btns';
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn btn-primary';
-            var hasSavedAnswers =
-              att &&
-              att.answers &&
-              typeof att.answers === 'object' &&
-              Object.keys(att.answers).length > 0;
-            if (att && att.completed) {
-              var statusBtn = document.createElement('button');
-              statusBtn.type = 'button';
-              statusBtn.disabled = true;
-              if (att.passed) {
-                statusBtn.className = 'btn btn-primary exam-test-btn--passed';
-                statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Passed';
-                statusBtn.title =
-                  'Completed — scored ' + (att.percentage != null ? att.percentage + '%' : '') + ' (≥75% pass)';
-              } else {
-                statusBtn.className = 'btn btn-primary exam-test-btn--attended';
-                statusBtn.innerHTML = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Attended';
-                statusBtn.title =
-                  'Completed — scored ' +
-                  (att.percentage != null ? att.percentage + '%' : '') +
-                  ' (one attempt only)';
-              }
-              btns.appendChild(statusBtn);
+                  (att.passed ? ' (passed)' : ' (attended)')
+                : hasSavedAnswers
+                  ? 'Review your submitted answers against the answer key'
+                  : 'No saved answers to review for this attempt';
+            btn.addEventListener('click', function () {
+              openAttemptReviewFromList(row, att);
+            });
+          } else {
+            btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
+            btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
+            if (!isActivated) btn.title = 'This test is not available yet';
+            else if (!hasPaper) btn.title = 'No question paper uploaded';
+            else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
+            btn.addEventListener('click', function () {
+              closeTestDetailModal();
+              startTestFromRow(row);
+            });
+          }
+          btns.appendChild(btn);
+          var showAnalysis = att && att.completed && hasSavedAnswers;
+          if (showAnalysis) {
+            var btnAnalysis = document.createElement('button');
+            btnAnalysis.type = 'button';
+            btnAnalysis.className = 'btn btn-primary exam-test-btn--analysis';
+            btnAnalysis.innerHTML = '<i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Analysis';
+            btnAnalysis.disabled = !hasPaper;
+            btnAnalysis.title = 'View detailed performance analysis with charts';
+            btnAnalysis.addEventListener('click', function () {
+              openAttemptAnalysisFromList(row, att);
+            });
+            btns.appendChild(btnAnalysis);
+          }
+          var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
+          var hasSavedOmr = !!omrSnap;
+          var showOmr =
+            isActivated && hasPaper && !openMeta.isLocked && (!att || !att.completed);
+          if (showOmr) {
+            var btnOmr = document.createElement('button');
+            btnOmr.type = 'button';
+            btnOmr.className = 'btn btn-primary exam-test-btn--omr';
+            btnOmr.innerHTML = hasSavedOmr
+              ? '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Show OMR entry'
+              : '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Enter OMR';
+            btnOmr.title = hasSavedOmr
+              ? 'View your submitted physical OMR sheet (read-only) and compare with View answer.'
+              : 'Mark answers as on a physical OMR sheet and submit (physical entry)';
+            btnOmr.addEventListener('click', function () {
+              closeTestDetailModal();
+              openOmrEntryModal(row, hasSavedOmr ? omrSnap : null);
+            });
+            btns.appendChild(btnOmr);
+          }
+          card.appendChild(left);
+          card.appendChild(btns);
+          return card;
+        }
 
-              btn.className = 'btn btn-primary exam-test-btn--review';
-              btn.innerHTML = '<i class="fa-regular fa-eye" aria-hidden="true"></i> Show Review';
-              btn.disabled = !hasPaper || !hasSavedAnswers;
-              btn.title =
-                hasSavedAnswers && att.percentage != null
-                  ? 'Review your answers — scored ' +
-                    att.percentage +
-                    '%' +
-                    (att.passed ? ' (passed)' : ' (attended)')
-                  : hasSavedAnswers
-                    ? 'Review your submitted answers against the answer key'
-                    : 'No saved answers to review for this attempt';
-              btn.addEventListener('click', function () {
-                openAttemptReviewFromList(row, att);
-              });
-            } else {
-              btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
-              btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
-              if (!isActivated) btn.title = 'This test is not available yet';
-              else if (!hasPaper) btn.title = 'No question paper uploaded';
-              else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
-              btn.addEventListener('click', function () {
-                startTestFromRow(row);
-              });
-            }
-            btns.appendChild(btn);
-            var showAnalysis = att && att.completed && hasSavedAnswers;
-            if (showAnalysis) {
-              var btnAnalysis = document.createElement('button');
-              btnAnalysis.type = 'button';
-              btnAnalysis.className = 'btn btn-primary exam-test-btn--analysis';
-              btnAnalysis.innerHTML = '<i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Analysis';
-              btnAnalysis.disabled = !hasPaper;
-              btnAnalysis.title = 'View detailed performance analysis with charts';
-              btnAnalysis.addEventListener('click', function () {
-                openAttemptAnalysisFromList(row, att);
-              });
-              btns.appendChild(btnAnalysis);
-            }
-            var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
-            var hasSavedOmr = !!omrSnap;
-            var showOmr =
-              isActivated && hasPaper && !openMeta.isLocked && (!att || !att.completed);
-            if (showOmr) {
-              var btnOmr = document.createElement('button');
-              btnOmr.type = 'button';
-              btnOmr.className = 'btn btn-primary exam-test-btn--omr';
-              btnOmr.innerHTML = hasSavedOmr
-                ? '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Show OMR entry'
-                : '<i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Enter OMR';
-              btnOmr.title = hasSavedOmr
-                ? 'View your submitted physical OMR sheet (read-only) and compare with View answer.'
-                : 'Mark answers as on a physical OMR sheet and submit (physical entry)';
-              btnOmr.addEventListener('click', function () {
-                openOmrEntryModal(row, hasSavedOmr ? omrSnap : null);
-              });
-              btns.appendChild(btnOmr);
-            }
-            card.appendChild(left);
-            card.appendChild(btns);
-            testListEl.appendChild(card);
+        function renderTestCardsInto(container, rows, attemptsByTestId) {
+          if (!container) return;
+          container.innerHTML = '';
+          var map = attemptsByTestId || {};
+          rows.forEach(function (row) {
+            container.appendChild(buildTestCardElement(row, map));
           });
+        }
+
+        function renderTestPicker(rows, attemptsByTestId) {
+          hideLoader();
+          if (!testPickerEl) return;
+          testPickerEl.hidden = false;
+          testPickerEl.innerHTML = '';
+          if (testListEl) testListEl.hidden = true;
+
+          EXAM_PICKER_GROUPS.forEach(function (group) {
+            var section = document.createElement('section');
+            section.className = 'exam-picker__section ' + group.sectionClass;
+            section.innerHTML = '<div class="exam-picker__ribbon">' + escHtml(group.ribbon) + '</div>';
+            var grid = document.createElement('div');
+            grid.className = 'exam-picker__grid ' + group.gridClass;
+
+            group.items.forEach(function (item) {
+              var filter = { kind: group.kind, category: item.category };
+              var count = rows.filter(function (row) {
+                return rowMatchesPicker(row, filter);
+              }).length;
+              var btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'exam-pick-card ' + item.cardClass;
+              btn.innerHTML =
+                '<span class="exam-pick-card__icon ' +
+                item.iconClass +
+                '" aria-hidden="true"><i class="fa-solid ' +
+                item.fa +
+                '"></i></span>' +
+                '<span class="exam-pick-card__title">' +
+                escHtml(item.title || item.category.toUpperCase()) +
+                '</span>' +
+                '<span class="exam-pick-card__desc">' +
+                escHtml(item.desc) +
+                '</span>' +
+                '<span class="exam-pick-card__count">' +
+                count +
+                ' test' +
+                (count === 1 ? '' : 's') +
+                '</span>';
+              btn.addEventListener('click', function () {
+                openTestDetailModal(filter);
+              });
+              grid.appendChild(btn);
+            });
+
+            section.appendChild(grid);
+            testPickerEl.appendChild(section);
+          });
+        }
+
+        function renderTestList(rows, attemptsByTestId) {
+          renderTestPicker(rows, attemptsByTestId);
         }
 
         function loadList() {
@@ -4743,6 +5715,7 @@
               rows = rows.filter(function (row) {
                 return shouldShowTestForStudent(row, studentProfile);
               });
+              allTestRows = rows.slice();
               if (!rows.length) {
                 hideLoader();
                 showErr('No Test are Available');

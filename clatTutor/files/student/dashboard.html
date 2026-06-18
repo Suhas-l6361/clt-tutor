@@ -900,6 +900,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js"></script>
@@ -1369,6 +1370,12 @@
                 return getProfileFallback();
               }
               var row = rows[0] || {};
+              var profileRoles =
+                typeof StudentAccess !== 'undefined'
+                  ? StudentAccess.normalizeRoles(row.roles)
+                  : row.roles != null
+                    ? row.roles
+                    : null;
               var profile = {
                 student_id: row.student_id != null ? Number(row.student_id) : (sid ? Number(sid) : null),
                 img_url: row.img_url || user.img_url || null,
@@ -1380,18 +1387,24 @@
                 batch: row.batch || '',
                 city: row.address || '',
                 address: row.address || '',
+                roles: profileRoles,
               };
               if (typeof setCachedStudentProfile === 'function') {
                 setCachedStudentProfile(session, profile);
               }
               try {
-                if (session && session.user && profile.img_url) {
-                  session.user.img_url = profile.img_url;
-                  session.user.name = profile.name;
-                  localStorage.setItem(
-                    (Auth.keys && Auth.keys.user) || storagePrefix + 'user',
-                    JSON.stringify(session.user)
-                  );
+                if (session && session.user) {
+                  if (profile.img_url) session.user.img_url = profile.img_url;
+                  if (profile.name) session.user.name = profile.name;
+                  if (typeof StudentAccess !== 'undefined') {
+                    StudentAccess.persistRolesToSession(profileRoles);
+                  } else {
+                    session.user.roles = profileRoles;
+                    localStorage.setItem(
+                      (Auth.keys && Auth.keys.user) || storagePrefix + 'user',
+                      JSON.stringify(session.user)
+                    );
+                  }
                 }
               } catch (_) {}
               return profile;

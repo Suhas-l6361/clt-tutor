@@ -187,6 +187,78 @@
 
 .retrival-table-wrap {
   overflow: auto;
+  max-height: min(68vh, 760px);
+  -webkit-overflow-scrolling: touch;
+}
+
+.retrival-hscroll-toolbar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.45rem;
+  padding: 0.5rem 0.75rem 0.35rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.retrival-hscroll-toolbar[hidden] {
+  display: none !important;
+}
+
+.retrival-hscroll-btn {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.retrival-hscroll-btn:hover:not(:disabled) {
+  background: #fef9c3;
+  border-color: #eab308;
+  color: #a16207;
+}
+
+.retrival-hscroll-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.retrival-hscroll-top {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 14px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #e2e8f0;
+}
+
+.retrival-hscroll-top::-webkit-scrollbar {
+  height: 10px;
+}
+
+.retrival-hscroll-top::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+.retrival-hscroll-top::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
+.retrival-hscroll-top-inner {
+  height: 1px;
 }
 
 .retrival-table {
@@ -502,4 +574,55 @@
 }
 .reg-form .input.input--stacked {
   padding: 10px 10px;
+}
+
+.reg-role-section {
+  margin-top: 0.15rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.reg-role-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.reg-role-hint {
+  margin: 0 0 0.65rem;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.45;
+}
+
+.reg-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .reg-role-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.student-role-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.35;
+  cursor: pointer;
+  user-select: none;
+}
+
+.student-role-check input {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: #00bfff;
 }

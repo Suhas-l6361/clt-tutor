@@ -78,7 +78,18 @@
           <h3 id="retrival-table-title">Student Records</h3>
           <span id="retrival-count" class="retrival-count">0 rows</span>
         </div>
-        <div class="retrival-table-wrap">
+        <div class="retrival-hscroll-toolbar" id="retrival-hscroll-toolbar" hidden>
+          <button type="button" class="retrival-hscroll-btn" id="retrival-scroll-left" aria-label="Scroll table left" title="Scroll left">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <div class="retrival-hscroll-top" id="retrival-hscroll-top" tabindex="0" aria-label="Scroll table horizontally">
+            <div class="retrival-hscroll-top-inner" id="retrival-hscroll-top-inner"></div>
+          </div>
+          <button type="button" class="retrival-hscroll-btn" id="retrival-scroll-right" aria-label="Scroll table right" title="Scroll right">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="retrival-table-wrap" id="retrival-table-wrap">
           <table class="retrival-table">
             <thead id="retrival-thead">
               <tr>
@@ -86,6 +97,7 @@
                 <th>Email</th>
                 <th>Password</th>
                 <th>Phone</th>
+                <th>Parent Phone</th>
                 <th>DOB</th>
                 <th>Source</th>
                 <th>Batch</th>
@@ -98,7 +110,7 @@
             </thead>
             <tbody id="retrival-table-body">
               <tr>
-                <td class="retrival-empty" colspan="11">Select "Student" to load data.</td>
+                <td class="retrival-empty" colspan="13">Select "Student" to load data.</td>
               </tr>
             </tbody>
           </table>
@@ -185,6 +197,10 @@
             <span>Phone Number</span>
           </label>
           <label>
+            <input id="ef-parents-number" class="input" type="tel" placeholder=" " />
+            <span>Parent Number (optional)</span>
+          </label>
+          <label>
             <input id="ef-org" class="input" type="text" placeholder=" " />
             <span>School/College</span>
           </label>
@@ -244,6 +260,11 @@
               <input id="ef-image" type="file" accept="image/*" />
             </div>
             <div id="ef-image-name" class="upload-file-name" style="font-size:0.7rem;color:rgba(255,255,255,0.75);margin-top:0.25rem;">No new file selected</div>
+          </div>
+          <div class="full reg-role-section">
+            <p class="reg-role-title">Student portal access</p>
+            <p class="reg-role-hint">Dashboard and Change Password are always available. Select which features this student can use.</p>
+            <div id="ef-roles" class="reg-role-grid" aria-label="Student feature access"></div>
           </div>
         </div>
         <p id="edit-warning" class="retrival-warning"></p>
@@ -397,6 +418,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js?v=20260420"></script>
@@ -429,6 +451,14 @@
       var metaEl = document.getElementById('retrival-meta');
       var countEl = document.getElementById('retrival-count');
       var tbody = document.getElementById('retrival-table-body');
+      var tableWrap = document.getElementById('retrival-table-wrap');
+      var hscrollToolbar = document.getElementById('retrival-hscroll-toolbar');
+      var hscrollTop = document.getElementById('retrival-hscroll-top');
+      var hscrollTopInner = document.getElementById('retrival-hscroll-top-inner');
+      var scrollLeftBtn = document.getElementById('retrival-scroll-left');
+      var scrollRightBtn = document.getElementById('retrival-scroll-right');
+      var retrivalTable = tableWrap ? tableWrap.querySelector('.retrival-table') : null;
+      var hscrollSyncing = false;
       var roleButtons = Array.prototype.slice.call(document.querySelectorAll('.retrival-chip'));
       var editModal = document.getElementById('edit-student-modal');
       var editForm = document.getElementById('edit-student-form');
@@ -502,10 +532,11 @@
       var efCurrentImageEl = document.getElementById('ef-current-image');
       var efImagePreviewWrap = document.getElementById('ef-image-preview-wrap');
       var efImagePreviewEl = document.getElementById('ef-image-preview');
+      var efRolesContainer = document.getElementById('ef-roles');
 
       var STUDENT_HEAD_HTML =
         '<tr>' +
-        '<th>Name</th><th>Email</th><th>Password</th><th>Phone</th><th>DOB</th><th>Source</th>' +
+        '<th>Name</th><th>Email</th><th>Password</th><th>Phone</th><th>Parent Phone</th><th>DOB</th><th>Source</th>' +
         '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th>' +
         '</tr>';
       var ACHIEVER_HEAD_HTML =
@@ -703,7 +734,7 @@
         }
         if (!role) {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="12">Select a category above to load data.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="13">Select a category above to load data.</td></tr>';
           countEl.textContent = '0 rows';
           roleMessageEl.textContent = 'Select a button above to view data.';
           metaEl.textContent = 'Choose a category to load records.';
@@ -732,7 +763,7 @@
           loadCourseVideoData();
         } else {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="12">Unknown category.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="13">Unknown category.</td></tr>';
           countEl.textContent = '0 rows';
           metaEl.textContent = 'Unknown action.';
         }
@@ -796,7 +827,7 @@
 
       function renderRows(rows) {
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="12">No student records found.</td></tr>';
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="13">No student records found.</td></tr>';
           countEl.textContent = '0 rows';
           return;
         }
@@ -815,6 +846,7 @@
             '<td>' + safeHtml(r.email) + '</td>' +
             '<td>' + safeHtml(passwordValue) + '</td>' +
             '<td>' + safeHtml(r.phone) + '</td>' +
+            '<td>' + safeHtml(r.parents_number) + '</td>' +
             '<td>' + safeHtml(r.dob ? asDateOnly(r.dob) : '') + '</td>' +
             '<td>' + safeHtml(r.source_of_info) + '</td>' +
             '<td>' + safeHtml(r.batch) + '</td>' +
@@ -1251,6 +1283,15 @@
         document.getElementById('ef-name').value = row.name || '';
         document.getElementById('ef-email').value = row.email || '';
         document.getElementById('ef-phone').value = row.phone != null ? String(row.phone) : '';
+        var efParents = document.getElementById('ef-parents-number');
+        if (efParents) {
+          efParents.value =
+            row.parents_number != null
+              ? String(row.parents_number)
+              : row.parentsNumber != null
+                ? String(row.parentsNumber)
+                : '';
+        }
         document.getElementById('ef-org').value = row.previous_organisation || '';
         document.getElementById('ef-stream').value = row.stream || '';
         var efBatch = document.getElementById('ef-batch');
@@ -1283,6 +1324,16 @@
           efYear.value = '';
           efMonth.value = '';
           efDay.value = '';
+        }
+        if (efRolesContainer && typeof StudentAccess !== 'undefined') {
+          var hasStoredRoles =
+            row.roles != null &&
+            (typeof row.roles === 'object'
+              ? Object.keys(StudentAccess.normalizeRoles(row.roles) || {}).length > 0
+              : String(row.roles).trim().length > 0);
+          StudentAccess.renderRoleCheckboxes(efRolesContainer, row.roles, {
+            defaultAll: !hasStoredRoles,
+          });
         }
         editModal.hidden = false;
       }
@@ -2120,6 +2171,10 @@
           name: document.getElementById('ef-name').value.trim(),
           email: document.getElementById('ef-email').value.trim(),
           phone: Number(document.getElementById('ef-phone').value.trim()),
+          parents_number:
+            (document.getElementById('ef-parents-number') &&
+              document.getElementById('ef-parents-number').value.trim()) ||
+            null,
           dob: dob,
           previous_organisation: document.getElementById('ef-org').value.trim() || null,
           stream: document.getElementById('ef-stream').value.trim() || null,
@@ -2129,6 +2184,9 @@
           address: document.getElementById('ef-address').value.trim() || null,
           targetYear: document.getElementById('ef-target-year').value.trim() || null
         };
+        if (efRolesContainer && typeof StudentAccess !== 'undefined') {
+          payload.roles = StudentAccess.collectRolesFromContainer(efRolesContainer);
+        }
         var passwordInput = document.getElementById('ef-password');
         var nextPassword = passwordInput ? passwordInput.value.trim() : '';
         var originalRow = allRows.find(function (r) {
@@ -2173,6 +2231,69 @@
       });
       Array.prototype.slice.call(document.querySelectorAll('[data-close-image-modal]')).forEach(function (el) {
         el.addEventListener('click', closeImageModal);
+      });
+
+      function updateRetrivalHScrollButtons() {
+        if (!tableWrap || !scrollLeftBtn || !scrollRightBtn) return;
+        var maxScroll = Math.max(0, tableWrap.scrollWidth - tableWrap.clientWidth);
+        scrollLeftBtn.disabled = tableWrap.scrollLeft <= 1;
+        scrollRightBtn.disabled = tableWrap.scrollLeft >= maxScroll - 1;
+      }
+
+      function syncRetrivalHScrollFromMain() {
+        if (!hscrollTop || !tableWrap || hscrollSyncing) return;
+        hscrollSyncing = true; 
+        hscrollTop.scrollLeft = tableWrap.scrollLeft;
+        hscrollSyncing = false;
+        updateRetrivalHScrollButtons();
+      }
+
+      function syncRetrivalHScrollFromTop() {
+        if (!hscrollTop || !tableWrap || hscrollSyncing) return;
+        hscrollSyncing = true;
+        tableWrap.scrollLeft = hscrollTop.scrollLeft;
+        hscrollSyncing = false;
+        updateRetrivalHScrollButtons();
+      }
+
+      function updateRetrivalTableHScroll() {
+        if (!tableWrap || !hscrollTopInner || !retrivalTable || !hscrollToolbar) return;
+        hscrollTopInner.style.width = retrivalTable.scrollWidth + 'px';
+        var hasOverflow = retrivalTable.scrollWidth > tableWrap.clientWidth + 1;
+        hscrollToolbar.hidden = !hasOverflow;
+        syncRetrivalHScrollFromMain();
+      }
+
+      if (tableWrap && hscrollTop) {
+        tableWrap.addEventListener('scroll', syncRetrivalHScrollFromMain, { passive: true });
+        hscrollTop.addEventListener('scroll', syncRetrivalHScrollFromTop, { passive: true });
+      }
+      if (scrollLeftBtn) {
+        scrollLeftBtn.addEventListener('click', function () {
+          if (!tableWrap) return;
+          tableWrap.scrollBy({ left: -Math.max(180, tableWrap.clientWidth * 0.35), behavior: 'smooth' });
+        });
+      }
+      if (scrollRightBtn) {
+        scrollRightBtn.addEventListener('click', function () {
+          if (!tableWrap) return;
+          tableWrap.scrollBy({ left: Math.max(180, tableWrap.clientWidth * 0.35), behavior: 'smooth' });
+        });
+      }
+      if (tbody) {
+        var hscrollObserver = new MutationObserver(function () {
+          window.requestAnimationFrame(updateRetrivalTableHScroll);
+        });
+        hscrollObserver.observe(tbody, { childList: true, subtree: true });
+      }
+      if (theadEl) {
+        var theadObserver = new MutationObserver(function () {
+          window.requestAnimationFrame(updateRetrivalTableHScroll);
+        });
+        theadObserver.observe(theadEl, { childList: true, subtree: true });
+      }
+      window.addEventListener('resize', function () {
+        window.requestAnimationFrame(updateRetrivalTableHScroll);
       });
 
       setRoleMode('');

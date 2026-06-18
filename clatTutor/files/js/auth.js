@@ -74,6 +74,7 @@
             phone: s.phone != null ? s.phone : null,
             img_url: s.img_url || null,
             targetYear: s.targetYear || null,
+            roles: s.roles != null ? s.roles : null,
           };
           localStorage.setItem(KEYS.user, JSON.stringify(userObj));
           localStorage.setItem(KEYS.role, role);

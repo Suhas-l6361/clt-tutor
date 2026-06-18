@@ -1279,17 +1279,488 @@
       color: var(--at-muted);
       font-style: italic;
     }
+
+    /* —— Test type picker (Mock / Sectional) —— */
+    .at-picker__hero {
+      text-align: center;
+      margin: 0 0 1.75rem;
+    }
+    .at-picker__hero h1 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.35rem, 3vw, 1.85rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--at-ink);
+      text-transform: uppercase;
+    }
+    .at-picker__hero p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--at-muted);
+    }
+    .at-picker__section {
+      position: relative;
+      border-radius: 18px;
+      padding: 2.1rem 1.15rem 1.25rem;
+      margin-bottom: 1.35rem;
+      border: 1px solid var(--at-line);
+      box-shadow: 0 6px 22px rgba(146, 98, 0, 0.06);
+    }
+    .at-picker__section--mock {
+      background: linear-gradient(180deg, #f3f8ff 0%, #fff 100%);
+    }
+    .at-picker__section--sectional {
+      background: linear-gradient(180deg, #f0faf7 0%, #fff 100%);
+    }
+    .at-picker__ribbon {
+      position: absolute;
+      top: -0.65rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.38rem 1.35rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #fff;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+    .at-picker__section--mock .at-picker__ribbon {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+    .at-picker__section--sectional .at-picker__ribbon {
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+    }
+    .at-picker__grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 0.35rem;
+    }
+    .at-picker__grid--mock {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 900px) {
+      .at-picker__grid--mock {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .at-type-card-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .at-type-card-wrap.is-selected .at-type-card {
+      box-shadow: 0 0 0 2px var(--at-gold-deep), 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+    .at-type-card__history {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+      padding: 0.48rem 0.75rem;
+      border: 1px solid var(--at-line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--at-muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .at-type-card__history:hover {
+      color: var(--at-ink);
+      border-color: var(--at-gold-deep);
+      background: #fffbeb;
+    }
+    .at-type-card__history:focus-visible {
+      outline: 2px solid var(--at-pick);
+      outline-offset: 2px;
+    }
+    .at-upload-modal__head-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+    .at-upload-modal__history {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+    .at-picker__grid--sectional {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    @media (max-width: 960px) {
+      .at-picker__grid--sectional {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 620px) {
+      .at-picker__grid--mock,
+      .at-picker__grid--sectional {
+        grid-template-columns: 1fr;
+      }
+    }
+    .at-type-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.65rem;
+      padding: 1.15rem 0.85rem 1rem;
+      border: none;
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+      border-bottom: 4px solid transparent;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      font-family: inherit;
+    }
+    .at-type-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+    .at-type-card:focus-visible {
+      outline: 2px solid var(--at-pick);
+      outline-offset: 2px;
+    }
+    .at-type-card__icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #fff;
+    }
+    .at-type-card__icon--blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .at-type-card__icon--green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .at-type-card__icon--teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .at-type-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .at-type-card__icon--purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
+    .at-type-card__icon--rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .at-type-card__icon--amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .at-type-card--clat { border-bottom-color: #2563eb; }
+    .at-type-card--ailet { border-bottom-color: #16a34a; }
+    .at-type-card--christ { border-bottom-color: #9333ea; }
+    .at-type-card--sat { border-bottom-color: #d97706; }
+    .at-type-card--english { border-bottom-color: #0d9488; }
+    .at-type-card--logical { border-bottom-color: #4f46e5; }
+    .at-type-card--legal { border-bottom-color: #9333ea; }
+    .at-type-card--math { border-bottom-color: #e11d48; }
+    .at-type-card--gk { border-bottom-color: #d97706; }
+    .at-type-card__title {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--at-ink);
+    }
+    .at-type-card__desc {
+      margin: 0;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      color: var(--at-muted);
+    }
+
+    /* —— Upload popup —— */
+    .at-upload-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 450;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .at-upload-modal[hidden] {
+      display: none;
+    }
+    .at-upload-modal__backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+    }
+    .at-upload-modal__dialog {
+      position: relative;
+      z-index: 1;
+      width: min(920px, 100%);
+      margin: 0.5rem auto 2rem;
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid var(--at-line);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+      overflow: hidden;
+    }
+    .at-upload-modal__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.15rem 1.25rem;
+      background: linear-gradient(135deg, #fffbeb 0%, #fff 55%);
+      border-bottom: 1px solid var(--at-line);
+    }
+    .at-upload-modal__head h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--at-ink);
+    }
+    .at-upload-modal__head p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--at-muted);
+      line-height: 1.45;
+      max-width: 36rem;
+    }
+    .at-upload-modal__close {
+      flex-shrink: 0;
+      width: 2.25rem;
+      height: 2.25rem;
+      border: 1px solid var(--at-line);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      color: var(--at-muted);
+      font-size: 1.1rem;
+    }
+    .at-upload-modal__close:hover {
+      color: var(--at-ink);
+      border-color: var(--at-gold-deep);
+    }
+    .at-upload-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.15rem 1.25rem 1.35rem;
+    }
+    .at-upload-form .at-card {
+      margin: 0;
+    }
+    .at-upload-form .at-card--upload {
+      grid-row: auto;
+    }
+    .at-upload-form .at-actions-bar {
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
     <div class="at-page">
-      <div class="at-page__top">
-        <button type="button" class="at-btn at-btn--ghost at-history-btn" id="at-btn-history">
-          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
-        </button>
+      <div id="at-picker" class="at-picker">
+        <header class="at-picker__hero">
+          <h1>Practice. Analyze. Succeed.</h1>
+          <p>Sharpen Your Skills. Ace the Exam.</p>
+        </header>
+
+        <section class="at-picker__section at-picker__section--mock" aria-labelledby="at-mock-heading">
+          <div class="at-picker__ribbon" id="at-mock-heading">MOCK TEST</div>
+          <div class="at-picker__grid at-picker__grid--mock">
+            <div class="at-type-card-wrap" data-kind="mock" data-category="CLAT">
+            <button
+              type="button"
+              class="at-type-card at-type-card--clat"
+              data-kind="mock"
+              data-category="CLAT"
+              data-sub="Full-length CLAT mock — upload question paper and answer key."
+              data-placeholder="e.g. CLAT Full Mock — Set 12"
+            >
+              <span class="at-type-card__icon at-type-card__icon--blue" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></span>
+              <span class="at-type-card__title">CLAT</span>
+              <span class="at-type-card__desc">Full-length CLAT mock tests with detailed analysis.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="mock" data-category="CLAT">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="mock" data-category="AILET">
+            <button
+              type="button"
+              class="at-type-card at-type-card--ailet"
+              data-kind="mock"
+              data-category="AILET"
+              data-sub="Full-length AILET mock — upload question paper and answer key."
+              data-placeholder="e.g. AILET Full Mock — Set 3"
+            >
+              <span class="at-type-card__icon at-type-card__icon--green" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
+              <span class="at-type-card__title">AILET</span>
+              <span class="at-type-card__desc">Full-length AILET mock tests with detailed analysis.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="mock" data-category="AILET">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="mock" data-category="CHRIST">
+            <button
+              type="button"
+              class="at-type-card at-type-card--christ"
+              data-kind="mock"
+              data-category="CHRIST"
+              data-sub="CHRIST University mock — upload question paper and answer key."
+              data-placeholder="e.g. CHRIST University Mock — Set 2"
+            >
+              <span class="at-type-card__icon at-type-card__icon--purple" aria-hidden="true"><i class="fa-solid fa-church"></i></span>
+              <span class="at-type-card__title">CHRIST</span>
+              <span class="at-type-card__desc">CHRIST University mock tests with detailed analysis.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="mock" data-category="CHRIST">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="mock" data-category="SAT">
+            <button
+              type="button"
+              class="at-type-card at-type-card--sat"
+              data-kind="mock"
+              data-category="SAT"
+              data-sub="SAT mock — upload question paper and answer key."
+              data-placeholder="e.g. SAT Practice Mock — Set 1"
+            >
+              <span class="at-type-card__icon at-type-card__icon--amber" aria-hidden="true"><i class="fa-solid fa-file-pen"></i></span>
+              <span class="at-type-card__title">SAT</span>
+              <span class="at-type-card__desc">SAT mock tests to evaluate your performance.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="mock" data-category="SAT">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="at-picker__section at-picker__section--sectional" aria-labelledby="at-sectional-heading">
+          <div class="at-picker__ribbon" id="at-sectional-heading">SECTIONAL TEST</div>
+          <div class="at-picker__grid at-picker__grid--sectional">
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="English">
+            <button
+              type="button"
+              class="at-type-card at-type-card--english"
+              data-kind="sectional"
+              data-category="English"
+              data-section-tag="RC"
+              data-sub="Use (English Information starts)…(English Information ends), (English Paragraph starts)…(English Paragraph ends), or ((English Starts))…((English Ends))."
+              data-placeholder="e.g. English RC — Weekly drill 5"
+            >
+              <span class="at-type-card__icon at-type-card__icon--teal" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+              <span class="at-type-card__title">ENGLISH</span>
+              <span class="at-type-card__desc">Focus on vocabulary, grammar, comprehension and more.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="English">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="Logical">
+            <button
+              type="button"
+              class="at-type-card at-type-card--logical"
+              data-kind="sectional"
+              data-category="Logical"
+              data-section-tag="LR"
+              data-sub="Use (Logical Information starts)…(Logical Information ends), (Logical Paragraph starts)…(Logical Paragraph ends), or ((Logical Starts))…((Logical Ends)). LR tag also works."
+              data-placeholder="e.g. Logical Reasoning — Drill 8"
+            >
+              <span class="at-type-card__icon at-type-card__icon--indigo" aria-hidden="true"><i class="fa-solid fa-brain"></i></span>
+              <span class="at-type-card__title">LOGIC</span>
+              <span class="at-type-card__desc">Strengthen logical reasoning with topic-wise practice.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Logical">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="Legal">
+            <button
+              type="button"
+              class="at-type-card at-type-card--legal"
+              data-kind="sectional"
+              data-category="Legal"
+              data-section-tag="LE"
+              data-sub="Use (Legal Information starts)…(Legal Information ends), (Legal Paragraph starts)…(Legal Paragraph ends), or ((Legal Starts))…((Legal Ends)). LE tag also works."
+              data-placeholder="e.g. Legal Aptitude — Concept set 3"
+            >
+              <span class="at-type-card__icon at-type-card__icon--purple" aria-hidden="true"><i class="fa-solid fa-gavel"></i></span>
+              <span class="at-type-card__title">LEGAL</span>
+              <span class="at-type-card__desc">Practice legal aptitude with concept-based questions.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Legal">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="Math">
+            <button
+              type="button"
+              class="at-type-card at-type-card--math"
+              data-kind="sectional"
+              data-category="Math"
+              data-section-tag="QA"
+              data-sub="Use (Math Information starts)…(Math Information ends), (Math Paragraph starts)…(Math Paragraph ends), or ((Math Starts))…((Math Ends)). QA tag also works."
+              data-placeholder="e.g. Quantitative Ability — Set 6"
+            >
+              <span class="at-type-card__icon at-type-card__icon--rose" aria-hidden="true"><i class="fa-solid fa-calculator"></i></span>
+              <span class="at-type-card__title">MATH</span>
+              <span class="at-type-card__desc">Improve numerical ability with structured practice.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Math">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="GK">
+            <button
+              type="button"
+              class="at-type-card at-type-card--gk"
+              data-kind="sectional"
+              data-category="GK"
+              data-section-tag="GK"
+              data-sub="Use (GK Information starts)…(GK Information ends), (GK Paragraph starts)…(GK Paragraph ends), or ((GK Starts))…((GK Ends))."
+              data-placeholder="e.g. GK &amp; Current Affairs — Week 4"
+            >
+              <span class="at-type-card__icon at-type-card__icon--amber" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+              <span class="at-type-card__title">GK</span>
+              <span class="at-type-card__desc">Stay updated with current affairs and general knowledge.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="GK">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
+          </div>
+        </section>
       </div>
-      <form id="at-form" class="at-bento" novalidate>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <div id="at-upload-modal" class="at-upload-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-upload-modal-title">
+    <div class="at-upload-modal__backdrop" id="at-upload-modal-backdrop" tabindex="-1"></div>
+    <div class="at-upload-modal__dialog">
+      <div class="at-upload-modal__head">
+        <div>
+          <h3 id="at-upload-modal-title">Add test</h3>
+          <p id="at-upload-modal-sub">Upload question paper, answer key, schedule, and branches.</p>
+        </div>
+        <div class="at-upload-modal__head-actions">
+          <button type="button" class="at-btn at-btn--ghost at-upload-modal__history" id="at-upload-modal-history">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+          </button>
+          <button type="button" class="at-upload-modal__close" id="at-upload-modal-close" aria-label="Close">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <form id="at-form" class="at-upload-form" novalidate>
+        <input type="hidden" id="at-test-kind" name="testKind" value="" />
+        <input type="hidden" id="at-test-category" name="testCategory" value="" />
+        <input type="hidden" id="at-section-tag" name="sectionTag" value="" />
         <div class="at-card at-card--upload">
           <h2><i class="fa-solid fa-file-arrow-up"></i> Test materials</h2>
           <p class="at-sub">Accepted: PDF, Microsoft Word (.doc, .docx). One file each for question paper and answer key.</p>
@@ -1375,7 +1846,6 @@
       </form>
     </div>
   </div>
-  <div id="app-root" class="app-shell"></div>
 
   <div id="at-loader-overlay" class="at-loader-overlay" hidden>
     <div class="at-submit-popup" role="dialog" aria-modal="true" aria-labelledby="at-loader-title" aria-busy="true">
@@ -1544,6 +2014,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
+  <script src="../js/exam-question-parser.js"></script>
+  <script src="../js/test-subject-flags.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -1593,11 +2065,24 @@
       var brMal = document.getElementById('br-mal');
       var brJay = document.getElementById('br-jay');
       var brYal = document.getElementById('br-yal');
+      var brOnline = document.getElementById('br-online');
       var brAll = document.getElementById('br-all');
       var locBoxes = [brMal, brJay, brYal];
       var syncing = false;
-      var btnHistory = document.getElementById('at-btn-history');
+      var uploadModal = document.getElementById('at-upload-modal');
+      var uploadModalTitle = document.getElementById('at-upload-modal-title');
+      var uploadModalSub = document.getElementById('at-upload-modal-sub');
+      var uploadModalClose = document.getElementById('at-upload-modal-close');
+      var uploadModalBackdrop = document.getElementById('at-upload-modal-backdrop');
+      var uploadModalHistory = document.getElementById('at-upload-modal-history');
+      var testKindInput = document.getElementById('at-test-kind');
+      var testCategoryInput = document.getElementById('at-test-category');
+      var sectionTagInput = document.getElementById('at-section-tag');
+      var titleInput = document.getElementById('at-title');
+      var uploadModalOpen = false;
+      var activeHistoryFilter = null;
       var historyModal = document.getElementById('at-history-modal');
+      var historyTitle = document.getElementById('at-history-title');
       var historyClose = document.getElementById('at-history-close');
       var historyBackdrop = document.getElementById('at-history-backdrop');
       var historyList = document.getElementById('at-history-list');
@@ -1752,6 +2237,198 @@
 
       if (successOkBtn) successOkBtn.addEventListener('click', hideSuccessModal);
       if (errorOkBtn) errorOkBtn.addEventListener('click', hideErrorModal);
+
+      function resetUploadForm() {
+        form.reset();
+        fileQ.value = '';
+        fileA.value = '';
+        setFileList(fileQ, metaQ, null);
+        setFileList(fileA, metaA, null);
+        if (fpWhen) fpWhen.clear();
+        else whenInput.value = '';
+        schedulePanel.classList.remove('at-open');
+        scheduleToggle.setAttribute('aria-expanded', 'false');
+        syncing = true;
+        locBoxes.forEach(function (el) {
+          if (el) el.checked = false;
+        });
+        if (brOnline) brOnline.checked = false;
+        if (brAll) brAll.checked = false;
+        syncing = false;
+        if (testKindInput) testKindInput.value = '';
+        if (testCategoryInput) testCategoryInput.value = '';
+        if (sectionTagInput) sectionTagInput.value = '';
+        if (titleInput) titleInput.placeholder = 'e.g. Legal reasoning — Weekly drill 12';
+      }
+
+      function closeUploadModal() {
+        if (!uploadModal) return;
+        uploadModal.hidden = true;
+        uploadModalOpen = false;
+        if (!loaderOverlay.hidden || (successModal && !successModal.hidden) || (errorModalEl && !errorModalEl.hidden)) {
+          return;
+        }
+        if ((toast && toast.hidden) || !toast.classList.contains('at-toast--show')) {
+          document.body.style.overflow = '';
+        }
+        resetUploadForm();
+      }
+
+      function historyFilterLabel(filter) {
+        if (!filter || !filter.kind || !filter.category) return 'My test history';
+        return filter.kind === 'mock'
+          ? filter.category + ' Mock — History'
+          : filter.category + ' Sectional — History';
+      }
+
+      function historyFilterSubtext(filter) {
+        if (!filter || !filter.kind || !filter.category) {
+          return 'Recently uploaded tests by your account.';
+        }
+        return (
+          'Showing only ' +
+          (filter.kind === 'mock' ? filter.category + ' mock' : filter.category + ' sectional') +
+          ' tests uploaded by your account.'
+        );
+      }
+
+      function normHistoryKey(v) {
+        return String(v || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, ' ');
+      }
+
+      function rowMatchesHistoryFilter(row, filter) {
+        if (!filter || !filter.kind || !filter.category) return true;
+        var rowKind = normHistoryKey(row && row.test_kind);
+        var rowCat = normHistoryKey(row && row.test_category);
+        var wantKind = normHistoryKey(filter.kind);
+        var wantCat = normHistoryKey(filter.category);
+        if (rowKind && rowCat) {
+          return rowKind === wantKind && rowCat === wantCat;
+        }
+        if (
+          wantKind === 'sectional' &&
+          typeof TestSubjectFlags !== 'undefined' &&
+          TestSubjectFlags.rowMatchesSectionFlag(row, filter.category)
+        ) {
+          return true;
+        }
+        var title = String((row && row.title) || '').toLowerCase();
+        if (filter.kind === 'mock') {
+          if (wantCat === 'clat') {
+            return /\bclat\b/.test(title) && !/\bsectional\b/.test(title);
+          }
+          if (wantCat === 'ip mat') {
+            return /ip\s*mat/.test(title);
+          }
+        }
+        if (filter.kind === 'sectional') {
+          if (wantCat === 'english') return /\benglish\b/.test(title) || /\brc\b/.test(title);
+          if (wantCat === 'logical') return /\blogical\b/.test(title) || /\blr\b/.test(title);
+          if (wantCat === 'legal') return /\blegal\b/.test(title) || /\ble\b/.test(title);
+          if (wantCat === 'math') return /\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title);
+          if (wantCat === 'gk') return /\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title);
+        }
+        return false;
+      }
+
+      function markSelectedTestCard(filter) {
+        document.querySelectorAll('.at-type-card-wrap').forEach(function (wrap) {
+          var kind = wrap.getAttribute('data-kind');
+          var cat = wrap.getAttribute('data-category');
+          var on =
+            filter &&
+            filter.kind === kind &&
+            normHistoryKey(filter.category) === normHistoryKey(cat);
+          wrap.classList.toggle('is-selected', !!on);
+        });
+      }
+
+      function setActiveHistoryFilter(filter) {
+        activeHistoryFilter = filter
+          ? {
+              kind: filter.kind || '',
+              category: filter.category || '',
+              sectionTag: filter.sectionTag || '',
+            }
+          : null;
+        markSelectedTestCard(activeHistoryFilter);
+      }
+
+      function openUploadModal(kind, category, subtitle, placeholder, sectionTag) {
+        if (!uploadModal) return;
+        resetUploadForm();
+        setActiveHistoryFilter({ kind: kind, category: category, sectionTag: sectionTag || '' });
+        if (testKindInput) testKindInput.value = kind || '';
+        if (testCategoryInput) testCategoryInput.value = category || '';
+        if (sectionTagInput) sectionTagInput.value = sectionTag || '';
+        if (uploadModalTitle) {
+          uploadModalTitle.textContent =
+            kind === 'mock' ? String(category) + ' Mock Test' : String(category) + ' Sectional Test';
+        }
+        if (uploadModalSub) uploadModalSub.textContent = subtitle || '';
+        if (titleInput && placeholder) titleInput.placeholder = placeholder;
+        uploadModal.hidden = false;
+        uploadModalOpen = true;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(function () {
+          if (titleInput) titleInput.focus();
+        });
+      }
+
+      document.querySelectorAll('.at-type-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+          openUploadModal(
+            card.getAttribute('data-kind'),
+            card.getAttribute('data-category'),
+            card.getAttribute('data-sub') || '',
+            card.getAttribute('data-placeholder') || '',
+            card.getAttribute('data-section-tag') || ''
+          );
+        });
+      });
+
+      document.querySelectorAll('.at-type-card__history').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var filter = {
+            kind: btn.getAttribute('data-kind'),
+            category: btn.getAttribute('data-category'),
+          };
+          setActiveHistoryFilter(filter);
+          openHistoryModal(filter);
+        });
+      });
+
+      if (uploadModalHistory) {
+        uploadModalHistory.addEventListener('click', function () {
+          var filter = {
+            kind: testKindInput ? testKindInput.value : '',
+            category: testCategoryInput ? testCategoryInput.value : '',
+            sectionTag: sectionTagInput ? sectionTagInput.value : '',
+          };
+          if (!filter.kind || !filter.category) {
+            showToast('History', 'Select a test type first.');
+            return;
+          }
+          setActiveHistoryFilter(filter);
+          openHistoryModal(filter);
+        });
+      }
+
+      if (uploadModalClose) uploadModalClose.addEventListener('click', closeUploadModal);
+      if (uploadModalBackdrop) uploadModalBackdrop.addEventListener('click', closeUploadModal);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && uploadModalOpen && uploadModal && !uploadModal.hidden) {
+          var previewModal = document.getElementById('at-preview-modal');
+          if (previewModal && !previewModal.hidden) return;
+          if (historyModal && !historyModal.hidden) return;
+          if (docViewerModal && !docViewerModal.hidden) return;
+          closeUploadModal();
+        }
+      });
 
       function normalizeExamText(raw) {
         var t = String(raw || '')
@@ -3233,6 +3910,15 @@
         renderPreviewSlide();
       }
 
+      function currentParseOpts() {
+        var kind = testKindInput && testKindInput.value ? String(testKindInput.value).trim().toLowerCase() : '';
+        if (kind !== 'sectional') return undefined;
+        var category =
+          testCategoryInput && testCategoryInput.value ? String(testCategoryInput.value).trim() : '';
+        if (!category) return undefined;
+        return { kind: 'sectional', category: category };
+      }
+
       function runQuizPreview() {
         if (!fileQ.files || !fileQ.files[0] || !isDocx(fileQ.files[0].name)) {
           showToast('Preview needs .docx', 'Upload a .docx question paper to parse and preview.');
@@ -3251,7 +3937,11 @@
             return;
           }
           var qDocHtml = res.html || '';
-          var parsed = parseQuestionsFromText(res.text);
+          var parseFn =
+            window.ExamQuestionParser && typeof window.ExamQuestionParser.parseQuestionsFromText === 'function'
+              ? window.ExamQuestionParser.parseQuestionsFromText.bind(window.ExamQuestionParser)
+              : parseQuestionsFromText;
+          var parsed = parseFn(res.text, currentParseOpts());
           if (parsed.error || !parsed.questions.length) {
             loaderOverlay.hidden = true;
             document.body.style.overflow = '';
@@ -3678,6 +4368,18 @@
 
       function closeHistoryModal() {
         if (historyModal) historyModal.hidden = true;
+        if (uploadModalOpen && uploadModal && !uploadModal.hidden) {
+          document.body.style.overflow = 'hidden';
+          return;
+        }
+        if (
+          (loaderOverlay && !loaderOverlay.hidden) ||
+          (successModal && !successModal.hidden) ||
+          (errorModalEl && !errorModalEl.hidden) ||
+          (toast && !toast.hidden && toast.classList.contains('at-toast--show'))
+        ) {
+          return;
+        }
         document.body.style.overflow = '';
       }
 
@@ -3698,11 +4400,17 @@
         });
       }
 
-      function renderHistoryRows(rows) {
+      function renderHistoryRows(rows, filter) {
         if (!historyList) return;
         historyList.innerHTML = '';
         if (!rows.length) {
-          historyList.innerHTML = '<div class="at-history-empty">No tests uploaded by your account yet.</div>';
+          var emptyMsg =
+            filter && filter.category
+              ? 'No ' +
+                (filter.kind === 'mock' ? filter.category + ' mock' : filter.category + ' sectional') +
+                ' tests uploaded by your account yet.'
+              : 'No tests uploaded by your account yet.';
+          historyList.innerHTML = '<div class="at-history-empty">' + escapeHtml(emptyMsg) + '</div>';
           if (historyCount) historyCount.textContent = '0 tests';
           return;
         }
@@ -3712,6 +4420,17 @@
           var sched = row.scheduled ? asLocalDateTime(row.scheduled) : '';
           var qUrl = row.question_paper_url ? String(row.question_paper_url).trim() : '';
           var aUrl = row.answer_key_url ? String(row.answer_key_url).trim() : '';
+          var typeBadge = '';
+          if (row.test_kind && row.test_category) {
+            typeBadge =
+              '<span class="at-history-badge">' +
+              escapeHtml(
+                row.test_kind === 'mock'
+                  ? row.test_category + ' Mock'
+                  : row.test_category + ' Sectional'
+              ) +
+              '</span>';
+          }
           var card = document.createElement('article');
           card.className = 'at-history-card';
           card.innerHTML =
@@ -3723,6 +4442,7 @@
             (createdAt ? ' · Added ' + escapeHtml(createdAt) : '') +
             '</p></div>' +
             '<div class="at-history-badges">' +
+            typeBadge +
             (sched ? '<span class="at-history-badge">Scheduled ' + escapeHtml(sched) + '</span>' : '<span class="at-history-badge">Draft</span>') +
             (branches.length ? '<span class="at-history-badge">' + escapeHtml(branches.join(', ')) + '</span>' : '') +
             '</div></div>' +
@@ -3764,10 +4484,9 @@
                 .then(function () {
                   showToast('Deleted', 'Test deleted from database and storage.');
                   card.remove();
-                  if (historyList && !historyList.children.length) {
-                    historyList.innerHTML = '<div class="at-history-empty">No tests uploaded by your account yet.</div>';
-                  }
-                  if (historyCount) {
+                  if (historyList && !historyList.querySelectorAll('.at-history-card').length) {
+                    renderHistoryRows([], activeHistoryFilter);
+                  } else if (historyCount) {
                     var total = historyList ? historyList.querySelectorAll('.at-history-card').length : 0;
                     historyCount.textContent = total + ' test' + (total === 1 ? '' : 's');
                   }
@@ -3784,8 +4503,14 @@
         if (historyCount) historyCount.textContent = rows.length + ' test' + (rows.length === 1 ? '' : 's');
       }
 
-      function openHistoryModal() {
+      function openHistoryModal(filter) {
         if (!historyModal) return;
+        var useFilter = filter || activeHistoryFilter;
+        if (!useFilter || !useFilter.kind || !useFilter.category) {
+          showToast('History', 'Select a test type and click History on that card.');
+          return;
+        }
+        setActiveHistoryFilter(useFilter);
         var aliases = currentUserAliases();
         if (!aliases.length) {
           showToast('History', 'Please sign in again to load your upload history.');
@@ -3793,8 +4518,9 @@
         }
         historyModal.hidden = false;
         document.body.style.overflow = 'hidden';
+        if (historyTitle) historyTitle.textContent = historyFilterLabel(useFilter);
         if (historyList) historyList.innerHTML = '<div class="at-history-empty">Loading your uploaded tests…</div>';
-        if (historySub) historySub.textContent = 'Recently uploaded tests by your account.';
+        if (historySub) historySub.textContent = historyFilterSubtext(useFilter);
 
         fetch(addTestApiUrl, { method: 'GET' })
           .then(function (res) {
@@ -3808,13 +4534,15 @@
               var who = String((r && r.added_by) || '').trim().toLowerCase();
               return who && aliases.indexOf(who) !== -1;
             });
+            mine = mine.filter(function (r) {
+              return rowMatchesHistoryFilter(r, useFilter);
+            });
             mine.sort(function (a, b) {
               var da = new Date(a && a.created_at ? a.created_at : 0).getTime();
               var db = new Date(b && b.created_at ? b.created_at : 0).getTime();
               return db - da;
             });
-            if (historySub) historySub.textContent = 'Showing tests uploaded by your current login.';
-            renderHistoryRows(mine);
+            renderHistoryRows(mine, useFilter);
           })
           .catch(function (err) {
             if (historyList) {
@@ -3827,7 +4555,6 @@
           });
       }
 
-      if (btnHistory) btnHistory.addEventListener('click', openHistoryModal);
       if (historyClose) historyClose.addEventListener('click', closeHistoryModal);
       if (historyBackdrop) historyBackdrop.addEventListener('click', closeHistoryModal);
       if (docViewerClose) docViewerClose.addEventListener('click', closeDocViewer);
@@ -3913,6 +4640,20 @@
               question_paper_file_name: fq.name,
               question_paper_content_type: guessContentType(fq.name, fq.type),
             };
+            if (testKindInput && testKindInput.value) postPayload.test_kind = testKindInput.value;
+            if (testCategoryInput && testCategoryInput.value) postPayload.test_category = testCategoryInput.value;
+            if (typeof TestSubjectFlags !== 'undefined') {
+              var subjectFlags = TestSubjectFlags.buildSubjectFlags(
+                testKindInput ? testKindInput.value : '',
+                testCategoryInput ? testCategoryInput.value : ''
+              );
+              postPayload.isClose = subjectFlags.isClose;
+              postPayload.isEnglish = subjectFlags.isEnglish;
+              postPayload.isLogic = subjectFlags.isLogic;
+              postPayload.isLegal = subjectFlags.isLegal;
+              postPayload.isMath = subjectFlags.isMath;
+              postPayload.isGK = subjectFlags.isGK;
+            }
             if (addedBy) postPayload.added_by = addedBy;
 
             return fetch(addTestApiUrl, {
@@ -3965,6 +4706,7 @@
             if (submitBtn) submitBtn.disabled = false;
             if (result.ok) {
               var tid = result.data && result.data.test_id != null ? result.data.test_id : '';
+              closeUploadModal();
               showSuccessModal({
                 testId: tid,
                 branches: branches,

@@ -275,22 +275,129 @@
       .replace(/\s+/g, ' ');
   }
 
+  function sectionalCategoryAliases(category) {
+    var c = String(category || '').trim();
+    if (!c) return [];
+    var key = c.toLowerCase();
+    var aliases = [c];
+    if (key === 'english') aliases.push('RC', 'Reading Comprehension');
+    if (key === 'logical') aliases.push('LR', 'Logical Reasoning');
+    if (key === 'legal') aliases.push('LE', 'Legal Aptitude', 'Legal Reasoning');
+    if (key === 'math') aliases.push('QA', 'Quantitative', 'Quantitative Ability', 'Mathematics');
+    if (key === 'gk') aliases.push('General Knowledge', 'Current Affairs');
+    var out = [];
+    aliases.forEach(function (a) {
+      var v = String(a || '').trim();
+      if (v && out.indexOf(v) === -1) out.push(v);
+    });
+    return out;
+  }
+
+  function buildSectionalMarkerPatterns(category) {
+    var aliases = sectionalCategoryAliases(category);
+    if (!aliases.length) return null;
+    var parts = aliases.map(function (a) {
+      return String(a).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    });
+    var namePat = '(?:' + parts.join('|') + ')';
+    return {
+      informationStart: new RegExp('^\\(' + namePat + '\\s+Information starts\\)$', 'i'),
+      informationEnd: new RegExp('^\\(' + namePat + '\\s+Information ends\\)$', 'i'),
+      infromationStart: new RegExp('^\\(' + namePat + '\\s+Infromation starts\\)$', 'i'),
+      infromationEnd: new RegExp('^\\(' + namePat + '\\s+Infromation ends\\)$', 'i'),
+      paragraphStart: new RegExp('^\\(' + namePat + '\\s+Paragraph starts\\)$', 'i'),
+      paragraphEnd: new RegExp('^\\(' + namePat + '\\s+Paragraph ends\\)$', 'i'),
+      sectionStart: new RegExp('^\\(\\(\\s*(' + namePat + ')\\s+Starts\\s*\\)\\)$', 'i'),
+      sectionEnd: new RegExp('^\\(\\(\\s*(' + namePat + ')\\s+Ends\\s*\\)\\)$', 'i'),
+      sectionEndLoose: new RegExp('^\\((' + namePat + ')\\s+Ends\\)\\)$', 'i'),
+    };
+  }
+
+  function createMarkerMatchers(sectionalPatterns) {
+    function isInformationStart(line) {
+      var s = normalizeMarkerOuter(line);
+      if (/^\(Information starts\)$/i.test(s) || /^\(Infromation starts\)$/i.test(s)) return true;
+      if (sectionalPatterns) {
+        return (
+          sectionalPatterns.informationStart.test(s) || sectionalPatterns.infromationStart.test(s)
+        );
+      }
+      return false;
+    }
+
+    function isInformationEnd(line) {
+      var s = normalizeMarkerOuter(line);
+      if (/^\(Information ends\)$/i.test(s) || /^\(Infromation ends\)$/i.test(s)) return true;
+      if (sectionalPatterns) {
+        return sectionalPatterns.informationEnd.test(s) || sectionalPatterns.infromationEnd.test(s);
+      }
+      return false;
+    }
+
+    function isParagraphStart(line) {
+      var s = normalizeMarkerOuter(line);
+      if (/^\(Paragraph starts\)$/i.test(s)) return true;
+      if (sectionalPatterns && sectionalPatterns.paragraphStart.test(s)) return true;
+      return false;
+    }
+
+    function isParagraphEnd(line) {
+      var s = normalizeMarkerOuter(line);
+      if (/^\(Paragraph ends\)$/i.test(s)) return true;
+      if (sectionalPatterns && sectionalPatterns.paragraphEnd.test(s)) return true;
+      return false;
+    }
+
+    function matchCustomSectionStartLine(line) {
+      var s = normalizeMarkerOuter(line);
+      if (sectionalPatterns) {
+        var sm = s.match(sectionalPatterns.sectionStart);
+        if (sm) return String(sm[1] || '').trim();
+      }
+      var m = s.match(/^\(\(\s*(.+?)\s+Starts\s*\)\)$/i);
+      if (!m) return '';
+      return String(m[1] || '').trim();
+    }
+
+    function matchCustomSectionEndLine(line) {
+      var s = normalizeMarkerOuter(line);
+      if (sectionalPatterns) {
+        var em = s.match(sectionalPatterns.sectionEnd);
+        if (em) return String(em[1] || '').trim();
+        if (sectionalPatterns.sectionEndLoose.test(s)) {
+          var lm = s.match(sectionalPatterns.sectionEndLoose);
+          if (lm) return String(lm[1] || '').trim();
+        }
+      }
+      var m = s.match(/^\(\(\s*(.+?)\s+Ends\s*\)\)$/i);
+      if (!m) return '';
+      return String(m[1] || '').trim();
+    }
+
+    return {
+      isInformationStart: isInformationStart,
+      isInformationEnd: isInformationEnd,
+      isParagraphStart: isParagraphStart,
+      isParagraphEnd: isParagraphEnd,
+      matchCustomSectionStartLine: matchCustomSectionStartLine,
+      matchCustomSectionEndLine: matchCustomSectionEndLine,
+    };
+  }
+
   function isInformationStartLine(line) {
-    var s = normalizeMarkerOuter(line);
-    return /^\(Information starts\)$/i.test(s) || /^\(Infromation starts\)$/i.test(s);
+    return createMarkerMatchers(null).isInformationStart(line);
   }
 
   function isInformationEndLine(line) {
-    var s = normalizeMarkerOuter(line);
-    return /^\(Information ends\)$/i.test(s) || /^\(Infromation ends\)$/i.test(s);
+    return createMarkerMatchers(null).isInformationEnd(line);
   }
 
   function isParagraphStartLine(line) {
-    return /^\(Paragraph starts\)$/i.test(normalizeMarkerOuter(line));
+    return createMarkerMatchers(null).isParagraphStart(line);
   }
 
   function isParagraphEndLine(line) {
-    return /^\(Paragraph ends\)$/i.test(normalizeMarkerOuter(line));
+    return createMarkerMatchers(null).isParagraphEnd(line);
   }
 
   function matchQuestionHeaderLine(line) {
@@ -321,25 +428,33 @@
     return null;
   }
 
-  function isSectionTagLine(line) {
-    return /^(LR|LE|AR|GK|RC|QA)$/i.test(normalizeMarkerOuter(line));
+  function isSectionTagLine(line, sectionalCategory) {
+    var tag = normalizeMarkerOuter(line);
+    if (/^(LR|LE|AR|GK|RC|QA)$/i.test(tag)) return true;
+    if (sectionalCategory) {
+      var aliases = sectionalCategoryAliases(sectionalCategory);
+      for (var i = 0; i < aliases.length; i++) {
+        if (tag.toLowerCase() === String(aliases[i]).toLowerCase()) return true;
+      }
+    }
+    return false;
   }
 
-  function matchCustomSectionStartLine(line) {
-    var s = normalizeMarkerOuter(line);
-    var m = s.match(/^\(\(\s*(.+?)\s+Starts\s*\)\)$/i);
-    if (!m) return '';
-    return String(m[1] || '').trim();
-  }
+  function parseQuestionsFromText(text, opts) {
+    opts = opts && typeof opts === 'object' ? opts : {};
+    var sectionalCategory =
+      opts.kind === 'sectional' && opts.category ? String(opts.category).trim() : '';
+    var sectionalPatterns = sectionalCategory
+      ? buildSectionalMarkerPatterns(sectionalCategory)
+      : null;
+    var markers = createMarkerMatchers(sectionalPatterns);
+    var isInformationStart = markers.isInformationStart;
+    var isInformationEnd = markers.isInformationEnd;
+    var isParagraphStart = markers.isParagraphStart;
+    var isParagraphEnd = markers.isParagraphEnd;
+    var matchCustomSectionStartLine = markers.matchCustomSectionStartLine;
+    var matchCustomSectionEndLine = markers.matchCustomSectionEndLine;
 
-  function matchCustomSectionEndLine(line) {
-    var s = normalizeMarkerOuter(line);
-    var m = s.match(/^\(\(\s*(.+?)\s+Ends\s*\)\)$/i);
-    if (!m) return '';
-    return String(m[1] || '').trim();
-  }
-
-  function parseQuestionsFromText(text) {
     var normalized = normalizeExamText(text);
     var lines = normalized.split('\n');
     var globInfo = '';
@@ -351,35 +466,35 @@
 
     var i = 0;
     while (i < lines.length) {
-      if (isInformationStartLine(lines[i])) {
+      if (isInformationStart(lines[i])) {
         i++;
         var ib = [];
-        while (i < lines.length && !isInformationEndLine(lines[i])) {
+        while (i < lines.length && !isInformationEnd(lines[i])) {
           if (matchQuestionHeaderLine(lines[i]) != null) break;
           ib.push(lines[i]);
           i++;
         }
-        if (i < lines.length && isInformationEndLine(lines[i])) i++;
+        if (i < lines.length && isInformationEnd(lines[i])) i++;
         globInfo = ib.join('\n').trim();
         continue;
       }
 
-      if (isParagraphStartLine(lines[i])) {
+      if (isParagraphStart(lines[i])) {
         i++;
         var pb = [];
-        while (i < lines.length && !isParagraphEndLine(lines[i])) {
+        while (i < lines.length && !isParagraphEnd(lines[i])) {
           if (matchQuestionHeaderLine(lines[i]) != null) break;
           pb.push(lines[i]);
           i++;
         }
-        if (i < lines.length && isParagraphEndLine(lines[i])) i++;
+        if (i < lines.length && isParagraphEnd(lines[i])) i++;
         globPara = pb.join('\n').trim();
         passageCount++;
         currentPassageIndex = passageCount;
         continue;
       }
 
-      if (isInformationEndLine(lines[i]) || isParagraphEndLine(lines[i])) {
+      if (isInformationEnd(lines[i]) || isParagraphEnd(lines[i])) {
         i++;
         continue;
       }
@@ -398,7 +513,7 @@
         continue;
       }
 
-      if (isSectionTagLine(lines[i])) {
+      if (isSectionTagLine(lines[i], sectionalCategory)) {
         var tag = normalizeMarkerOuter(lines[i]);
         globInfo = globInfo ? globInfo + '\n\n' + tag : tag;
         i++;
@@ -413,10 +528,10 @@
         var start = i;
         i++;
         while (i < lines.length) {
-          if (isInformationStartLine(lines[i]) || isParagraphStartLine(lines[i])) break;
-          if (isInformationEndLine(lines[i]) || isParagraphEndLine(lines[i])) break;
+          if (isInformationStart(lines[i]) || isParagraphStart(lines[i])) break;
+          if (isInformationEnd(lines[i]) || isParagraphEnd(lines[i])) break;
           if (matchCustomSectionStartLine(lines[i]) || matchCustomSectionEndLine(lines[i])) break;
-          if (isSectionTagLine(lines[i])) break;
+          if (isSectionTagLine(lines[i], sectionalCategory)) break;
           var nextQn = matchQuestionHeaderLine(lines[i]);
           if (nextQn != null && nextQn > qn) break;
           i++;
@@ -472,18 +587,47 @@
     if (questions.length) delete questions[questions.length - 1].bleedForward;
 
     if (!questions.length) {
+      var sectionalHint = sectionalCategory
+        ? ' For ' +
+          sectionalCategory +
+          ' sectional also use (' +
+          sectionalCategory +
+          ' Information starts)…(' +
+          sectionalCategory +
+          ' Information ends), (' +
+          sectionalCategory +
+          ' Paragraph starts)…(' +
+          sectionalCategory +
+          ' Paragraph ends), or ((' +
+          sectionalCategory +
+          ' Starts))…((' +
+          sectionalCategory +
+          ' Ends)).'
+        : '';
       return {
         directions: [],
         questions: [],
         error: rawQuestions.length
           ? 'Found numbered questions but no A–D options. Check option lines (A/B/C/D or [A]…).'
-          : 'No questions found. Use lines like "1. …", wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends), and sections with ((Section Name Starts))…((Section Name Ends)).',
+          : 'No questions found. Use lines like "1. …", wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends), and sections with ((Section Name Starts))…((Section Name Ends)).' +
+            sectionalHint,
       };
     }
     return { directions: [], questions: questions, error: null };
   }
 
+  function parseOptsFromTestRow(row) {
+    if (!row || typeof row !== 'object') return undefined;
+    var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
+    if (kind !== 'sectional') return undefined;
+    var category = row.test_category != null ? String(row.test_category).trim() : '';
+    if (!category) return undefined;
+    return { kind: 'sectional', category: category };
+  }
+
   global.ExamQuestionParser = {
     parseQuestionsFromText: parseQuestionsFromText,
+    sectionalCategoryAliases: sectionalCategoryAliases,
+    parseOptsFromTestRow: parseOptsFromTestRow,
   };
 })(typeof window !== 'undefined' ? window : this);

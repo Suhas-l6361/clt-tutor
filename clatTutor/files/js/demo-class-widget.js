@@ -252,6 +252,14 @@
             if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
             return;
           }
+          if (res.status === 409) {
+            var dupMsg =
+              (res.data && res.data.message) ||
+              'You have already submitted a demo class request. Please wait for our callback.';
+            showAlert(dupMsg, 'error');
+            showPopup('error', dupMsg);
+            return;
+          }
           var msg =
             (res.data && (res.data.message || res.data.error)) ||
             'Could not submit your request. Please try again.';
