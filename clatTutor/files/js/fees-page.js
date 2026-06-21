@@ -644,6 +644,7 @@
   }
 
   var feesEditState = { id: null, email: null };
+  var feesLastSavedPrintPayload = null;
 
   function setInputVal(id, val) {
     var el = document.getElementById(id);
@@ -820,6 +821,28 @@
     setFeesEditUi(false);
   }
 
+  function clearAllPaymentDetailFields() {
+    [
+      'fees-cheque-no',
+      'fees-cheque-bank',
+      'fees-cheque-branch',
+      'fees-online-txn',
+      'fees-online-bank',
+      'fees-card-last4',
+      'fees-upi-txn',
+      'fees-other-detail',
+    ].forEach(function (id) {
+      setInputVal(id, '');
+    });
+    setInputVal('fees-card-network', '');
+    var dyn = document.getElementById('fees-pay-dynamic');
+    if (dyn) dyn.hidden = true;
+    dyn &&
+      dyn.querySelectorAll('.fees-pay-block').forEach(function (block) {
+        block.hidden = true;
+      });
+  }
+
   function resetFeesFormForNewReceipt() {
     clearFeesEditMode();
     var idEl = document.getElementById('fees-receipt-id');
@@ -831,6 +854,15 @@
     setInputVal('fees-student-id', '');
     var studentDetail = document.getElementById('fees-student-detail');
     if (studentDetail) studentDetail.hidden = true;
+    var studentStatus = document.getElementById('fees-student-status');
+    if (studentStatus) {
+      studentStatus.textContent = '';
+      studentStatus.classList.remove('fees-student-status--err');
+    }
+    var studentListbox = document.getElementById('fees-student-listbox');
+    var studentSearch = document.getElementById('fees-student-search');
+    if (studentListbox) studentListbox.hidden = true;
+    if (studentSearch) studentSearch.setAttribute('aria-expanded', 'false');
     ['fees-disp-name', 'fees-disp-student-id', 'fees-disp-phone', 'fees-disp-dob', 'fees-disp-batch', 'fees-disp-branch', 'fees-disp-address'].forEach(
       function (id) {
         setDispText(id, '—');
@@ -840,6 +872,7 @@
     setInputVal('fees-pay-mode', '');
     var modeEl = document.getElementById('fees-pay-mode');
     if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
+    clearAllPaymentDetailFields();
     setDateInputVal('fees-pay-date', '');
     setInputVal('fees-amount-paid', '');
     setInputVal('fees-amount-words', '');
@@ -1107,17 +1140,70 @@
       summaryEl.hidden = false;
     }
 
+    function renderInstallmentCell(receipt) {
+      var FI = window.FeesInstallments;
+      if (!FI || !FI.getNextInstallmentInfo) {
+        return '<span class="fees-history-install-muted">—</span>';
+      }
+      var info = FI.getNextInstallmentInfo(receipt);
+      if (!info) {
+        if (FI.hasInstallmentPlan && FI.hasInstallmentPlan(receipt)) {
+          return '<span class="fees-history-install-muted">No upcoming due</span>';
+        }
+        return '<span class="fees-history-install-muted">No plan</span>';
+      }
+      var badgeClass = 'fees-history-install-badge';
+      if (info.isDueSoon || info.isDueThisMonth) badgeClass += ' fees-history-install-badge--soon';
+      var daysHint = '';
+      if (info.daysUntil === 0) daysHint = ' · Due today';
+      else if (info.daysUntil === 1) daysHint = ' · Due tomorrow';
+      else if (info.daysUntil > 1 && info.daysUntil <= 30) daysHint = ' · In ' + info.daysUntil + ' days';
+      var amt = info.amount ? ' · ₹ ' + info.amount : '';
+      return (
+        '<div class="fees-history-install-cell">' +
+        '<span class="' +
+        badgeClass +
+        '">' +
+        escHtml(info.label) +
+        '</span>' +
+        '<span class="fees-history-install-date">' +
+        escHtml(FI.formatDisplayDate(info.dueDate)) +
+        escHtml(amt) +
+        escHtml(daysHint) +
+        '</span></div>'
+      );
+    }
+
+    function rowInstallmentClass(receipt) {
+      var FI = window.FeesInstallments;
+      if (!FI || !FI.getNextInstallmentInfo) return '';
+      var info = FI.getNextInstallmentInfo(receipt);
+      if (!info) return '';
+      if (info.isDueSoon || info.isDueThisMonth) return ' fees-history-table__row--install-soon';
+      return '';
+    }
+
+    function prepareHistoryRowsForDisplay(rows) {
+      var FI = window.FeesInstallments;
+      if (FI && FI.sortReceiptsByNextInstallment) {
+        return FI.sortReceiptsByNextInstallment(rows);
+      }
+      return (rows || []).slice();
+    }
+
     function renderHistoryTable(rows, fromStr, toStr) {
       tbody.innerHTML = '';
       updateHistorySummary(rows, fromStr, toStr);
       if (tableWrap) tableWrap.hidden = false;
 
-      if (!rows.length) {
+      var displayRows = prepareHistoryRowsForDisplay(rows);
+
+      if (!displayRows.length) {
         var emptyTr = document.createElement('tr');
         emptyTr.className = 'fees-history-table__empty';
         var hasRange = !!(fromStr && String(fromStr).trim()) || !!(toStr && String(toStr).trim());
         emptyTr.innerHTML =
-          '<td colspan="6">' +
+          '<td colspan="7">' +
           escHtml(
             hasRange
               ? 'No receipts found for the selected date range.'
@@ -1128,8 +1214,9 @@
         return;
       }
 
-      rows.forEach(function (r) {
+      displayRows.forEach(function (r) {
         var tr = document.createElement('tr');
+        tr.className = 'fees-history-table__row' + rowInstallmentClass(r);
         tr.innerHTML =
           '<td>' +
           escHtml(rstr(r.student_id)) +
@@ -1139,6 +1226,8 @@
           escHtml(rstr(r.branch)) +
           '</td><td>' +
           escHtml(formatReceiptDateFromApi(r.payment_date || r.receipt_date)) +
+          '</td><td class="fees-history-table__install">' +
+          renderInstallmentCell(r) +
           '</td><td class="fees-history-table__amount">' +
           escHtml(formatInrAmount(parseRecordAmountPaid(r.amount_paid))) +
           '</td><td class="fees-history-table__actions">' +
@@ -1404,7 +1493,12 @@
       }
 
       function onSaveSucceeded() {
-        if (isUpdate) clearFeesEditMode();
+        feesLastSavedPrintPayload = buildPrintPayloadFromForm();
+        if (isUpdate) {
+          clearFeesEditMode();
+        } else {
+          resetFeesFormForNewReceipt();
+        }
         applySavedUi();
         schedulePrintOfferModal();
       }
@@ -1492,6 +1586,11 @@
     }
 
     function runPrint() {
+      if (feesLastSavedPrintPayload) {
+        renderPrintCopies(feesLastSavedPrintPayload);
+        printFeesSheetDom();
+        return;
+      }
       if (!isFeesFormComplete()) return;
       printFeesReceipt();
     }

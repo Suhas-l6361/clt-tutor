@@ -40,6 +40,42 @@
           <i class="fa-solid fa-comments"></i>
           <div><p class="num" id="k-comms">0</p><p class="lbl">Comms logged</p></div>
         </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-calendar-check"></i>
+          <div><p class="num" id="k-installments">—</p><p class="lbl">Installments this month</p></div>
+        </article>
+      </section>
+
+      <section class="crm-installments" id="crm-installments-section">
+        <div class="crm-card crm-card--wide">
+          <h3>
+            <i class="fa-solid fa-money-bill-wave"></i>
+            Fee installments due this month
+            <span class="crm-install-badge" id="crm-install-count">0</span>
+          </h3>
+          <p class="crm-install-sub" id="crm-install-month-label"></p>
+          <p class="crm-install-loading" id="crm-install-loading">Loading installment schedule…</p>
+          <p class="crm-install-error" id="crm-install-error" hidden></p>
+          <div class="crm-install-table-wrap" id="crm-install-table-wrap" hidden>
+            <table class="crm-install-table">
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Branch</th>
+                  <th>Phone</th>
+                  <th>Installment</th>
+                  <th>Due date</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="crm-install-tbody"></tbody>
+            </table>
+          </div>
+          <div class="crm-install-actions">
+            <a href="fees.html" class="crm-action"><i class="fa-solid fa-receipt"></i> Open Fees</a>
+          </div>
+        </div>
       </section>
 
       <section class="crm-grid">
@@ -80,6 +116,8 @@
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
+  <script src="../js/fees-installments.js"></script>
+  <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

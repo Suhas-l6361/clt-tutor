@@ -151,7 +151,7 @@ body.app-body.crm-dashboard {
 }
 .crm-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.75rem;
 }
 .crm-kpi {
@@ -379,8 +379,98 @@ body.app-body.crm-dashboard {
   font-weight: 600;
   color: #0b7a38;
 }
+
+/* CRM dashboard — fee installments due this month */
+.crm-installments {
+  margin-top: 1.25rem;
+}
+.crm-card--wide {
+  grid-column: 1 / -1;
+}
+.crm-install-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  margin-left: 0.35rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  vertical-align: middle;
+}
+.crm-install-sub {
+  margin: -0.35rem 0 0.85rem;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+.crm-install-loading,
+.crm-install-error {
+  font-size: 0.85rem;
+  color: #6b7280;
+  padding: 0.5rem 0;
+}
+.crm-install-error {
+  color: #b91c1c;
+}
+.crm-install-table-wrap {
+  overflow: auto;
+  border: 1px solid #efe4c8;
+  border-radius: 12px;
+}
+.crm-install-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.crm-install-table th,
+.crm-install-table td {
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid #f3ead4;
+}
+.crm-install-table thead th {
+  background: #fffdf5;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+.crm-install-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.crm-install-row--soon td {
+  background: rgba(254, 243, 199, 0.45);
+}
+.crm-install-row--overdue td {
+  background: rgba(254, 226, 226, 0.35);
+}
+.crm-install-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+}
+.crm-install-amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.crm-install-empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 1rem !important;
+}
+.crm-install-actions {
+  margin-top: 0.85rem;
+}
+
 @media (max-width: 1100px) {
-  .crm-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crm-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .crm-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {

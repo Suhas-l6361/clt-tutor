@@ -212,6 +212,11 @@
       color: #b45309;
       font-weight: 500;
     }
+    .exam-test-card--inactive .meta-closed,
+    .meta-closed {
+      color: #dc2626;
+      font-weight: 600;
+    }
     .exam-bootstrap__status {
       text-align: center;
       padding: 2rem 1rem;
@@ -2697,35 +2702,18 @@
       }
 
       function classifyTestRow(row) {
+        if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.classifyTestRow) {
+          return TestSubjectFlags.classifyTestRow(row);
+        }
         if (!row) return { kind: 'mock', category: 'CLAT' };
-        if (typeof TestSubjectFlags !== 'undefined') {
-          var fromFlags = TestSubjectFlags.classifyRowByFlags(row);
-          if (fromFlags) return fromFlags;
-        }
-        var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
-        var cat = row.test_category != null ? String(row.test_category).trim() : '';
-        if (kind === 'mock' && cat) return { kind: 'mock', category: cat };
-        if (kind === 'sectional' && cat) return { kind: 'sectional', category: cat };
-        var title = String(row.title || '').toLowerCase();
-        if (/ip\s*mat/.test(title)) return { kind: 'mock', category: 'IP MAT' };
-        if (/\bailet\b/.test(title)) return { kind: 'mock', category: 'AILET' };
-        if (/\bchrist\b/.test(title)) return { kind: 'mock', category: 'CHRIST' };
-        if (/\bsat\b/.test(title)) return { kind: 'mock', category: 'SAT' };
-        if (/\bclat\b/.test(title) && !/\bsectional\b/.test(title)) return { kind: 'mock', category: 'CLAT' };
-        if (/\benglish\b/.test(title) || /\brc\b/.test(title)) return { kind: 'sectional', category: 'English' };
-        if (/\blogic(al)?\b/.test(title) || /\blr\b/.test(title)) return { kind: 'sectional', category: 'Logical' };
-        if (/\blegal\b/.test(title) || /\ble\b/.test(title)) return { kind: 'sectional', category: 'Legal' };
-        if (/\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title)) {
-          return { kind: 'sectional', category: 'Math' };
-        }
-        if (/\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title)) {
-          return { kind: 'sectional', category: 'GK' };
-        }
         return { kind: 'mock', category: 'CLAT' };
       }
 
       function rowMatchesPicker(row, filter) {
         if (!filter || !filter.kind || !filter.category) return false;
+        if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.rowMatchesTestFilter) {
+          return TestSubjectFlags.rowMatchesTestFilter(row, filter);
+        }
         var c = classifyTestRow(row);
         return (
           c.kind === filter.kind && normPickerKey(c.category) === normPickerKey(filter.category)
@@ -2903,10 +2891,37 @@
       }
 
       /**
-       * Loads the .docx via the add_test API (Lambda reads S3 server-side). Direct S3 fetch fails in the browser
-       * because the bucket has no CORS for localhost / web origins.
+       * Loads question paper via add_test API (presigned S3 URL — large files no longer 502).
        * GET ADD_TEST_API?test_id=N&paper=1
        */
+      function arrayBufferFromTestFilePayload(data, label) {
+        if (!data) return Promise.reject(new Error('Empty response from server'));
+        var name = String(data.file_name || '').toLowerCase();
+        var type = String(data.content_type || '').toLowerCase();
+        if (name.endsWith('.pdf') || type.indexOf('pdf') >= 0) {
+          return Promise.reject(
+            new Error(
+              (label || 'File') +
+                ' must be Word (.docx) for online parsing. PDF papers are not supported in the student test player yet.'
+            )
+          );
+        }
+        if (data.download_url) {
+          return fetch(data.download_url, { method: 'GET', credentials: 'omit' }).then(function (fileRes) {
+            if (!fileRes.ok) {
+              throw new Error('Could not download ' + (label || 'file') + ' from storage (HTTP ' + fileRes.status + ')');
+            }
+            return fileRes.arrayBuffer();
+          });
+        }
+        if (data.content_base64) {
+          return Promise.resolve(base64ToArrayBuffer(data.content_base64));
+        }
+        return Promise.reject(
+          new Error('Server did not return file data. Deploy the latest add_test backend (GET with paper=1).')
+        );
+      }
+
       function extractTextFromPaperViaApi(testId) {
         var api = getAddTestApiUrl();
         if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
@@ -2916,29 +2931,35 @@
           'test_id=' +
           encodeURIComponent(String(testId)) +
           '&paper=1';
-        return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (r) {
-          return r.json().then(
-            function (data) {
-              if (!r.ok) {
-                throw new Error((data && data.message) || 'Could not load question paper (HTTP ' + r.status + ')');
+        return fetch(url, { method: 'GET', credentials: 'omit' })
+          .then(function (r) {
+            return r.json().then(
+              function (data) {
+                if (!r.ok) {
+                  throw new Error(
+                    (data && data.message) || 'Could not load question paper (HTTP ' + r.status + ')'
+                  );
+                }
+                return arrayBufferFromTestFilePayload(data, 'Question paper');
+              },
+              function () {
+                if (r.status === 502) {
+                  throw new Error(
+                    'Could not load question paper (server timeout). Ask admin to redeploy add_test Lambda.'
+                  );
+                }
+                if (!r.ok) throw new Error('Could not load question paper (HTTP ' + r.status + ')');
+                throw new Error('Invalid response from server');
               }
-              if (!data || !data.content_base64) {
-                throw new Error(
-                  'Server did not return file data. Deploy the latest add_test backend (GET with paper=1 proxy).'
-                );
-              }
-              var buf = base64ToArrayBuffer(data.content_base64);
-              if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
-              return mammoth.extractRawText({ arrayBuffer: buf });
-            },
-            function () {
-              if (!r.ok) throw new Error('Could not load question paper (HTTP ' + r.status + ')');
-              throw new Error('Invalid response from server');
-            }
-          );
-        }).then(function (res) {
-          return (res && res.value) || '';
-        });
+            );
+          })
+          .then(function (buf) {
+            if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
+            return mammoth.extractRawText({ arrayBuffer: buf });
+          })
+          .then(function (res) {
+            return (res && res.value) || '';
+          });
       }
 
       function fetchTestsFromApi() {
@@ -3017,8 +3038,21 @@
       }
 
       function shouldShowTestForStudent(row, studentProfile) {
+        return true;
+      }
+
+      function hasStudentActivationWhitelist() {
+        return Object.keys(STUDENT_ACTIVATED_TEST_IDS).some(function (k) {
+          return STUDENT_ACTIVATED_TEST_IDS[k] === true;
+        });
+      }
+
+      function canStudentStartTest(row) {
         if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed(row)) {
           return false;
+        }
+        if (hasStudentActivationWhitelist()) {
+          return isActivatedStudentTest(row);
         }
         return true;
       }
@@ -3659,28 +3693,22 @@
             'test_id=' +
             encodeURIComponent(String(testId)) +
             '&answer=1';
-          return fetch(url, { method: 'GET', credentials: 'omit' }).then(function (r) {
-            return r.json().then(function (data) {
-              if (!r.ok) {
-                throw new Error((data && data.message) || 'Could not load answer key (HTTP ' + r.status + ')');
-              }
-              if (!data || !data.content_base64) {
-                throw new Error(
-                  'Server did not return answer key data. Deploy latest add_test backend with GET answer=1 support.'
-                );
-              }
-              var name = String(data.file_name || '').toLowerCase();
-              var type = String(data.content_type || '').toLowerCase();
-              if (name.endsWith('.pdf') || type.indexOf('pdf') >= 0) {
-                throw new Error('Answer analysis currently supports Word answer keys only (.doc/.docx).');
-              }
-              var buf = base64ToArrayBuffer(data.content_base64);
+          return fetch(url, { method: 'GET', credentials: 'omit' })
+            .then(function (r) {
+              return r.json().then(function (data) {
+                if (!r.ok) {
+                  throw new Error((data && data.message) || 'Could not load answer key (HTTP ' + r.status + ')');
+                }
+                return arrayBufferFromTestFilePayload(data, 'Answer key');
+              });
+            })
+            .then(function (buf) {
               if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
               return mammoth.extractRawText({ arrayBuffer: buf });
+            })
+            .then(function (res) {
+              return (res && res.value) || '';
             });
-          }).then(function (res) {
-            return (res && res.value) || '';
-          });
         }
 
         function parseAnswerKeyText(text) {
@@ -5226,7 +5254,11 @@
             alert('OMR entry is not available in demo mode.');
             return;
           }
-          if (!isActivatedStudentTest(row)) {
+          if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed(row)) {
+            alert('This test is closed.');
+            return;
+          }
+          if (!canStudentStartTest(row)) {
             alert('This test is not available yet.');
             return;
           }
@@ -5454,7 +5486,13 @@
         }
 
         function startTestFromRow(row) {
-          if (!isActivatedStudentTest(row)) {
+          if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed(row)) {
+            hideLoader();
+            showBootstrapPicker();
+            showErr('This test is closed.');
+            return;
+          }
+          if (!canStudentStartTest(row)) {
             hideLoader();
             showBootstrapPicker();
             showErr('This test is not available yet.');
@@ -5517,10 +5555,15 @@
         function buildTestCardElement(row, map) {
           var id = row.test_id;
           var att = map[id] != null ? map[id] : map[String(id)];
+          var isClosed =
+            typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed
+              ? TestSubjectFlags.isTestClosed(row)
+              : false;
+          var canStart = canStudentStartTest(row);
           var card = document.createElement('div');
-          var isActivated = isActivatedStudentTest(row);
           card.className =
-            'exam-test-card' + (isActivated || (att && att.completed) ? '' : ' exam-test-card--inactive');
+            'exam-test-card' +
+            (canStart || (att && att.completed) ? '' : ' exam-test-card--inactive');
           var hasPaper = !!(row.question_paper_url && String(row.question_paper_url).trim());
           var openMeta = getOpenMeta(row);
           var left = document.createElement('div');
@@ -5536,7 +5579,14 @@
                 '%' +
                 (att.passed ? ' (passed)' : att.completed ? ' (attended)' : '')
               : '';
-          var showNotAvailable = !isActivated && !(att && att.completed);
+          var statusHtml = '';
+          if (!(att && att.completed)) {
+            if (isClosed) {
+              statusHtml = ' · <span class="meta-closed">Closed</span>';
+            } else if (!canStart) {
+              statusHtml = ' · <span class="meta-inactive">Not available</span>';
+            }
+          }
           left.innerHTML =
             '<h4>' +
             escHtml(row.title || 'Untitled test') +
@@ -5545,7 +5595,7 @@
             escHtml(String(id)) +
             typeBadge +
             (openMeta.hasSchedule ? ' · Opens on ' + escHtml(openMeta.label) : '') +
-            (showNotAvailable ? ' · <span class="meta-inactive">Not available</span>' : '') +
+            statusHtml +
             escHtml(scoreLine) +
             '</p>';
           var btns = document.createElement('div');
@@ -5594,8 +5644,9 @@
             });
           } else {
             btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i> Start test';
-            btn.disabled = !isActivated || !hasPaper || openMeta.isLocked;
-            if (!isActivated) btn.title = 'This test is not available yet';
+            btn.disabled = !canStart || !hasPaper || openMeta.isLocked;
+            if (isClosed) btn.title = 'This test is closed';
+            else if (!canStart) btn.title = 'This test is not available yet';
             else if (!hasPaper) btn.title = 'No question paper uploaded';
             else if (openMeta.isLocked) btn.title = 'Opens on ' + openMeta.label;
             btn.addEventListener('click', function () {
@@ -5620,7 +5671,7 @@
           var omrSnap = att && att.omrAttempt ? att.omrAttempt : null;
           var hasSavedOmr = !!omrSnap;
           var showOmr =
-            isActivated && hasPaper && !openMeta.isLocked && (!att || !att.completed);
+            canStart && hasPaper && !openMeta.isLocked && (!att || !att.completed);
           if (showOmr) {
             var btnOmr = document.createElement('button');
             btnOmr.type = 'button';

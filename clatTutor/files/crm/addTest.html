@@ -670,6 +670,61 @@
     #at-error-modal {
       z-index: 10008;
     }
+    #at-confirm-modal {
+      z-index: 10009;
+    }
+    .at-confirm-modal__inner {
+      padding: 1.6rem 1.35rem 1.1rem;
+      text-align: center;
+    }
+    .at-confirm-modal__icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .at-confirm-modal__icon--warn {
+      background: linear-gradient(145deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #fcd34d;
+      color: #b45309;
+    }
+    .at-confirm-modal__icon--open {
+      background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+      border: 1px solid #86efac;
+      color: #166534;
+    }
+    .at-confirm-modal__icon--danger {
+      background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+    }
+    .at-confirm-modal__inner h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--at-ink);
+    }
+    .at-confirm-modal__text {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--at-muted);
+      line-height: 1.55;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .at-confirm-modal__foot {
+      padding: 0.85rem 1.25rem 1.2rem;
+      border-top: 1px solid #f0e6cc;
+      display: flex;
+      justify-content: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, #fffef8 0%, #fffefb 100%);
+    }
     .at-error-modal__inner {
       padding: 1.6rem 1.35rem 1.1rem;
       text-align: center;
@@ -1555,6 +1610,64 @@
     .at-upload-form .at-actions-bar {
       margin-top: 0.25rem;
     }
+    .at-visibility-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .at-visibility-panel__text {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+    .at-visibility-panel__text strong {
+      display: block;
+      font-size: 0.88rem;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .at-visibility-panel__text span {
+      display: block;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.62);
+      line-height: 1.45;
+    }
+    .at-visibility-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+      user-select: none;
+    }
+    .at-visibility-toggle input {
+      accent-color: #22c55e;
+      width: 1rem;
+      height: 1rem;
+      margin: 0;
+    }
+    .at-visibility-toggle__label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .at-history-badge--closed {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+    .at-history-badge--open {
+      background: rgba(34, 197, 94, 0.14);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, 0.28);
+    }
   </style>
 </head>
 <body class="app-body crm-dashboard">
@@ -1825,6 +1938,21 @@
           <p class="at-hint" style="margin: 0">Tip: leave schedule empty to keep as draft.</p>
         </div>
 
+        <div class="at-card">
+          <h2><i class="fa-solid fa-lock-open"></i> Student access</h2>
+          <p class="at-sub">New tests are <strong>closed</strong> by default. Open only when students should see and attempt this test.</p>
+          <div class="at-visibility-panel">
+            <div class="at-visibility-panel__text">
+              <strong id="at-visibility-status">Status: Closed</strong>
+              <span>Closed tests still appear in the student portal with a “Closed” label. Open tests can be started when scheduled.</span>
+            </div>
+            <label class="at-visibility-toggle" for="at-test-open">
+              <input type="checkbox" id="at-test-open" name="testOpen" value="1" />
+              <span class="at-visibility-toggle__label">Open for students</span>
+            </label>
+          </div>
+        </div>
+
         <div class="at-card at-card--wide">
           <h2><i class="fa-solid fa-paper-plane"></i> Select branch</h2>
           <p class="at-sub">Choose branches to notify. All three locations auto-select when you pick ALL BRANCH, and ALL BRANCH selects when all three are chosen.</p>
@@ -1895,6 +2023,23 @@
       </div>
       <div class="at-error-modal__foot">
         <button type="button" class="at-btn at-btn--gold" id="at-error-ok" style="min-width: 8rem">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="at-confirm-modal" class="at-preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-confirm-title">
+    <div class="at-preview-modal__backdrop" id="at-confirm-backdrop"></div>
+    <div class="at-preview-modal__dialog" style="width: min(440px, 100%); max-height: min(85vh, 520px)">
+      <div class="at-confirm-modal__inner">
+        <div class="at-confirm-modal__icon at-confirm-modal__icon--warn" id="at-confirm-icon-wrap" aria-hidden="true">
+          <i class="fa-solid fa-lock" id="at-confirm-icon" aria-hidden="true"></i>
+        </div>
+        <h3 id="at-confirm-title">Confirm</h3>
+        <p id="at-confirm-msg" class="at-confirm-modal__text"></p>
+      </div>
+      <div class="at-confirm-modal__foot">
+        <button type="button" class="at-btn at-btn--ghost" id="at-confirm-cancel" style="min-width: 7rem">Cancel</button>
+        <button type="button" class="at-btn at-btn--gold" id="at-confirm-ok" style="min-width: 7rem">OK</button>
       </div>
     </div>
   </div>
@@ -2059,6 +2204,16 @@
       var errorMsgEl = document.getElementById('at-error-msg');
       var errorTitleEl = document.getElementById('at-error-title');
       var errorOkBtn = document.getElementById('at-error-ok');
+      var confirmModalEl = document.getElementById('at-confirm-modal');
+      var confirmTitleEl = document.getElementById('at-confirm-title');
+      var confirmMsgEl = document.getElementById('at-confirm-msg');
+      var confirmIconWrap = document.getElementById('at-confirm-icon-wrap');
+      var confirmIcon = document.getElementById('at-confirm-icon');
+      var confirmOkBtn = document.getElementById('at-confirm-ok');
+      var confirmCancelBtn = document.getElementById('at-confirm-cancel');
+      var confirmBackdrop = document.getElementById('at-confirm-backdrop');
+      var confirmResolve = null;
+      var confirmPrevOverflow = '';
       var toastTimer;
       var fpWhen = null;
 
@@ -2079,6 +2234,8 @@
       var testCategoryInput = document.getElementById('at-test-category');
       var sectionTagInput = document.getElementById('at-section-tag');
       var titleInput = document.getElementById('at-title');
+      var testOpenInput = document.getElementById('at-test-open');
+      var visibilityStatusEl = document.getElementById('at-visibility-status');
       var uploadModalOpen = false;
       var activeHistoryFilter = null;
       var historyModal = document.getElementById('at-history-modal');
@@ -2124,6 +2281,72 @@
         if (errorModalEl) errorModalEl.hidden = true;
         document.body.style.overflow = '';
       }
+
+      function finishConfirmModal(confirmed) {
+        if (confirmModalEl) confirmModalEl.hidden = true;
+        document.body.style.overflow = confirmPrevOverflow || '';
+        var resolve = confirmResolve;
+        confirmResolve = null;
+        if (resolve) resolve(!!confirmed);
+      }
+
+      function showConfirmModal(opts) {
+        opts = opts || {};
+        return new Promise(function (resolve) {
+          confirmResolve = resolve;
+          confirmPrevOverflow = document.body.style.overflow;
+          if (confirmTitleEl) confirmTitleEl.textContent = opts.title || 'Are you sure?';
+          if (confirmMsgEl) confirmMsgEl.textContent = opts.message || '';
+          if (confirmOkBtn) confirmOkBtn.textContent = opts.confirmLabel || 'OK';
+          if (confirmCancelBtn) confirmCancelBtn.textContent = opts.cancelLabel || 'Cancel';
+          if (confirmIconWrap && confirmIcon) {
+            confirmIconWrap.classList.remove(
+              'at-confirm-modal__icon--warn',
+              'at-confirm-modal__icon--open',
+              'at-confirm-modal__icon--danger'
+            );
+            var variant = opts.variant || 'warn';
+            confirmIconWrap.classList.add('at-confirm-modal__icon--' + variant);
+            confirmIcon.className =
+              'fa-solid ' +
+              (opts.iconClass ||
+                (variant === 'open' ? 'fa-lock-open' : variant === 'danger' ? 'fa-trash' : 'fa-lock'));
+          }
+          if (confirmOkBtn) {
+            confirmOkBtn.classList.remove('at-btn--danger', 'at-btn--gold');
+            if (opts.confirmDanger) confirmOkBtn.classList.add('at-btn--danger');
+            else confirmOkBtn.classList.add('at-btn--gold');
+          }
+          if (confirmModalEl) {
+            confirmModalEl.hidden = false;
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(function () {
+              if (confirmOkBtn) confirmOkBtn.focus();
+            });
+          } else {
+            resolve(false);
+          }
+        });
+      }
+
+      function bindConfirmModal() {
+        if (confirmOkBtn) {
+          confirmOkBtn.addEventListener('click', function () {
+            finishConfirmModal(true);
+          });
+        }
+        if (confirmCancelBtn) {
+          confirmCancelBtn.addEventListener('click', function () {
+            finishConfirmModal(false);
+          });
+        }
+        if (confirmBackdrop) {
+          confirmBackdrop.addEventListener('click', function () {
+            finishConfirmModal(false);
+          });
+        }
+      }
+      bindConfirmModal();
 
       function showErrorModal(title, msg) {
         clearTimeout(toastTimer);
@@ -2259,6 +2482,20 @@
         if (testCategoryInput) testCategoryInput.value = '';
         if (sectionTagInput) sectionTagInput.value = '';
         if (titleInput) titleInput.placeholder = 'e.g. Legal reasoning — Weekly drill 12';
+        syncTestOpenUi(false);
+      }
+
+      function syncTestOpenUi(open) {
+        if (testOpenInput) testOpenInput.checked = !!open;
+        if (visibilityStatusEl) {
+          visibilityStatusEl.textContent = open ? 'Status: Open' : 'Status: Closed';
+        }
+      }
+
+      if (testOpenInput) {
+        testOpenInput.addEventListener('change', function () {
+          syncTestOpenUi(testOpenInput.checked);
+        });
       }
 
       function closeUploadModal() {
@@ -2301,6 +2538,9 @@
 
       function rowMatchesHistoryFilter(row, filter) {
         if (!filter || !filter.kind || !filter.category) return true;
+        if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.rowMatchesTestFilter) {
+          return TestSubjectFlags.rowMatchesTestFilter(row, filter);
+        }
         var rowKind = normHistoryKey(row && row.test_kind);
         var rowCat = normHistoryKey(row && row.test_category);
         var wantKind = normHistoryKey(filter.kind);
@@ -4208,6 +4448,86 @@
         (window.APP_CONFIG && window.APP_CONFIG.ADD_TEST_API) ||
         'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/add_test';
 
+      function deleteTestById(tid) {
+        return fetch(addTestApiUrl, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test_id: tid }),
+        }).catch(function () {});
+      }
+
+      function attachFileUrlToTest(tid, role, objectUrl) {
+        var payload = { test_id: tid };
+        if (role === 'question_paper') payload.question_paper_url = objectUrl;
+        else payload.answer_key_url = objectUrl;
+        return fetch(addTestApiUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }).then(parseAddTestResponse);
+      }
+
+      function presignAndUploadToS3(file, role) {
+        var ctype = guessContentType(file.name, file.type);
+        return fetch(addTestApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'presign_upload',
+            file_role: role,
+            file_name: file.name,
+            content_type: ctype,
+          }),
+        })
+          .then(parseAddTestResponse)
+          .then(function (presignResult) {
+            if (!presignResult.ok) {
+              var errMsg =
+                (presignResult.data && (presignResult.data.message || presignResult.data.error)) ||
+                'Could not prepare file upload';
+              throw new Error(errMsg);
+            }
+            var uploadUrl =
+              presignResult.data && presignResult.data.upload_url
+                ? presignResult.data.upload_url
+                : '';
+            var objectUrl =
+              presignResult.data && presignResult.data.object_url
+                ? presignResult.data.object_url
+                : '';
+            if (!uploadUrl || !objectUrl) {
+              throw new Error('Server did not return upload URL');
+            }
+            return fetch(uploadUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': ctype },
+              body: file,
+            }).then(function (s3Res) {
+              if (!s3Res.ok) {
+                throw new Error('Direct upload failed (' + s3Res.status + ')');
+              }
+              return objectUrl;
+            });
+          });
+      }
+
+      /** Upload file directly to S3 (bypasses API Gateway size limits). */
+      function uploadTestFile(tid, file, role) {
+        return presignAndUploadToS3(file, role).then(function (objectUrl) {
+          return attachFileUrlToTest(tid, role, objectUrl);
+        });
+      }
+
+      function friendlyAddTestError(result) {
+        var msg =
+          (result.data && (result.data.message || result.data.error)) ||
+          'Request failed (' + result.status + ')';
+        if (result.status === 413 || /request too long/i.test(String(msg))) {
+          return 'Upload failed because the request was too large. Please refresh the page and try again.';
+        }
+        return String(msg);
+      }
+
       function currentUserAliases() {
         var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
         var user = sess && sess.user ? sess.user : null;
@@ -4400,6 +4720,24 @@
         });
       }
 
+      function setHistoryTestCloseState(row, closed) {
+        var id = row && row.test_id != null ? parseInt(String(row.test_id), 10) : NaN;
+        if (!Number.isFinite(id)) return Promise.reject(new Error('Invalid test id'));
+        return fetch(addTestApiUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test_id: id, isClose: closed ? true : false }),
+        }).then(function (res) {
+          return res.json().catch(function () {
+            return {};
+          }).then(function (data) {
+            if (!res.ok) throw new Error((data && data.message) || 'Could not update test status');
+            row.isClose = closed;
+            return data || {};
+          });
+        });
+      }
+
       function renderHistoryRows(rows, filter) {
         if (!historyList) return;
         historyList.innerHTML = '';
@@ -4420,6 +4758,10 @@
           var sched = row.scheduled ? asLocalDateTime(row.scheduled) : '';
           var qUrl = row.question_paper_url ? String(row.question_paper_url).trim() : '';
           var aUrl = row.answer_key_url ? String(row.answer_key_url).trim() : '';
+          var isClosed =
+            typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed
+              ? TestSubjectFlags.isTestClosed(row)
+              : false;
           var typeBadge = '';
           if (row.test_kind && row.test_category) {
             typeBadge =
@@ -4430,7 +4772,25 @@
                   : row.test_category + ' Sectional'
               ) +
               '</span>';
+          } else if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.classifyTestRow) {
+            var classified = TestSubjectFlags.classifyTestRow(row);
+            if (classified && classified.kind && classified.category) {
+              typeBadge =
+                '<span class="at-history-badge">' +
+                escapeHtml(
+                  classified.kind === 'mock'
+                    ? classified.category + ' Mock'
+                    : classified.category + ' Sectional'
+                ) +
+                '</span>';
+            }
           }
+          var accessBadge =
+            '<span class="at-history-badge ' +
+            (isClosed ? 'at-history-badge--closed' : 'at-history-badge--open') +
+            '">' +
+            escapeHtml(isClosed ? 'Closed' : 'Open') +
+            '</span>';
           var card = document.createElement('article');
           card.className = 'at-history-card';
           card.innerHTML =
@@ -4443,10 +4803,17 @@
             '</p></div>' +
             '<div class="at-history-badges">' +
             typeBadge +
+            accessBadge +
             (sched ? '<span class="at-history-badge">Scheduled ' + escapeHtml(sched) + '</span>' : '<span class="at-history-badge">Draft</span>') +
             (branches.length ? '<span class="at-history-badge">' + escapeHtml(branches.join(', ')) + '</span>' : '') +
             '</div></div>' +
             '<div class="at-history-actions">' +
+            '<button type="button" class="at-btn at-btn--ghost" data-h-action="toggle">' +
+            '<i class="fa-solid ' +
+            (isClosed ? 'fa-lock-open' : 'fa-lock') +
+            '" aria-hidden="true"></i> ' +
+            escapeHtml(isClosed ? 'Open test' : 'Close test') +
+            '</button>' +
             '<button type="button" class="at-btn at-btn--ghost" data-h-action="q"' +
             (qUrl ? '' : ' disabled') +
             '><i class="fa-regular fa-file-lines" aria-hidden="true"></i> View question</button>' +
@@ -4456,9 +4823,36 @@
             '<button type="button" class="at-btn at-btn--danger" data-h-action="d">' +
             '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete</button>' +
             '</div>';
+          var toggleBtn = card.querySelector('[data-h-action="toggle"]');
           var qBtn = card.querySelector('[data-h-action="q"]');
           var aBtn = card.querySelector('[data-h-action="a"]');
           var dBtn = card.querySelector('[data-h-action="d"]');
+          if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+              var nextClosed = !isClosed;
+              showConfirmModal({
+                title: nextClosed ? 'Close test?' : 'Open test?',
+                message: nextClosed
+                  ? 'Students will see this test as Closed and will not be able to start it.'
+                  : 'Students will be able to start this test when it is scheduled.',
+                confirmLabel: nextClosed ? 'Close test' : 'Open test',
+                cancelLabel: 'Cancel',
+                variant: nextClosed ? 'warn' : 'open',
+              }).then(function (ok) {
+                if (!ok) return;
+                toggleBtn.disabled = true;
+                setHistoryTestCloseState(row, nextClosed)
+                  .then(function () {
+                    showToast(nextClosed ? 'Test closed' : 'Test opened', 'Student access updated.');
+                    renderHistoryRows(rows, filter);
+                  })
+                  .catch(function (err) {
+                    toggleBtn.disabled = false;
+                    showToast('Update failed', (err && err.message) || 'Could not update test status.');
+                  });
+              });
+            });
+          }
           if (qBtn && qUrl) {
             qBtn.addEventListener('click', function () {
               openDocViewer('Question paper', row, qUrl);
@@ -4471,31 +4865,37 @@
           }
           if (dBtn) {
             dBtn.addEventListener('click', function () {
-              var ok = window.confirm(
-                'Delete this test permanently?\n\nThis removes the DB record and both files from S3.\nTest #' +
-                  String(row.test_id || '') +
-                  ' - ' +
-                  String(row.title || 'Untitled test')
-              );
-              if (!ok) return;
-              dBtn.disabled = true;
-              dBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Deleting...';
-              deleteHistoryTest(row)
-                .then(function () {
-                  showToast('Deleted', 'Test deleted from database and storage.');
-                  card.remove();
-                  if (historyList && !historyList.querySelectorAll('.at-history-card').length) {
-                    renderHistoryRows([], activeHistoryFilter);
-                  } else if (historyCount) {
-                    var total = historyList ? historyList.querySelectorAll('.at-history-card').length : 0;
-                    historyCount.textContent = total + ' test' + (total === 1 ? '' : 's');
-                  }
-                })
-                .catch(function (err) {
-                  dBtn.disabled = false;
-                  dBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete';
-                  showToast('Delete failed', (err && err.message) || 'Could not delete this test right now.');
-                });
+              var testLabel =
+                'Test #' + String(row.test_id || '') + ' — ' + String(row.title || 'Untitled test');
+              showConfirmModal({
+                title: 'Delete test?',
+                message:
+                  'This permanently removes the database record and both files from storage.\n\n' + testLabel,
+                confirmLabel: 'Delete',
+                cancelLabel: 'Cancel',
+                variant: 'danger',
+                confirmDanger: true,
+              }).then(function (ok) {
+                if (!ok) return;
+                dBtn.disabled = true;
+                dBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Deleting...';
+                deleteHistoryTest(row)
+                  .then(function () {
+                    showToast('Deleted', 'Test deleted from database and storage.');
+                    card.remove();
+                    if (historyList && !historyList.querySelectorAll('.at-history-card').length) {
+                      renderHistoryRows([], activeHistoryFilter);
+                    } else if (historyCount) {
+                      var total = historyList ? historyList.querySelectorAll('.at-history-card').length : 0;
+                      historyCount.textContent = total + ' test' + (total === 1 ? '' : 's');
+                    }
+                  })
+                  .catch(function (err) {
+                    dBtn.disabled = false;
+                    dBtn.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete';
+                    showToast('Delete failed', (err && err.message) || 'Could not delete this test right now.');
+                  });
+              });
             });
           }
           historyList.appendChild(card);
@@ -4623,82 +5023,68 @@
         loaderOverlay.hidden = false;
         document.body.style.overflow = 'hidden';
 
-        Promise.all([readFileAsDataUrl(fq), readFileAsDataUrl(fa)])
-          .then(function (pair) {
-            loaderCaption.textContent = 'Uploading question paper (1/2)…';
-            var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
-            var addedBy = sess && sess.user && sess.user.email ? String(sess.user.email).trim() : null;
-            var qB64 = extractBase64Payload(pair[0]);
-            var aB64 = extractBase64Payload(pair[1]);
+        loaderCaption.textContent = 'Creating test record…';
+        var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        var addedBy = sess && sess.user && sess.user.email ? String(sess.user.email).trim() : null;
 
-            var postPayload = {
-              title: title,
-              scheduled: scheduledFull || null,
-              scheduled_at: scheduledFull || null,
-              selected_branch: branches,
-              question_paper_base64: qB64,
-              question_paper_file_name: fq.name,
-              question_paper_content_type: guessContentType(fq.name, fq.type),
-            };
-            if (testKindInput && testKindInput.value) postPayload.test_kind = testKindInput.value;
-            if (testCategoryInput && testCategoryInput.value) postPayload.test_category = testCategoryInput.value;
-            if (typeof TestSubjectFlags !== 'undefined') {
-              var subjectFlags = TestSubjectFlags.buildSubjectFlags(
-                testKindInput ? testKindInput.value : '',
-                testCategoryInput ? testCategoryInput.value : ''
-              );
-              postPayload.isClose = subjectFlags.isClose;
-              postPayload.isEnglish = subjectFlags.isEnglish;
-              postPayload.isLogic = subjectFlags.isLogic;
-              postPayload.isLegal = subjectFlags.isLegal;
-              postPayload.isMath = subjectFlags.isMath;
-              postPayload.isGK = subjectFlags.isGK;
+        var postPayload = {
+          title: title,
+          scheduled: scheduledFull || null,
+          scheduled_at: scheduledFull || null,
+          selected_branch: branches,
+        };
+        if (testKindInput && testKindInput.value) postPayload.test_kind = testKindInput.value;
+        if (testCategoryInput && testCategoryInput.value) postPayload.test_category = testCategoryInput.value;
+        if (typeof TestSubjectFlags !== 'undefined') {
+          var subjectFlags = TestSubjectFlags.buildSubjectFlags(
+            testKindInput ? testKindInput.value : '',
+            testCategoryInput ? testCategoryInput.value : ''
+          );
+          postPayload.isEnglish = subjectFlags.isEnglish;
+          postPayload.isLogic = subjectFlags.isLogic;
+          postPayload.isLegal = subjectFlags.isLegal;
+          postPayload.isMath = subjectFlags.isMath;
+          postPayload.isGK = subjectFlags.isGK;
+          postPayload.isClose = !(testOpenInput && testOpenInput.checked);
+        } else {
+          postPayload.isClose = !(testOpenInput && testOpenInput.checked);
+        }
+        if (addedBy) postPayload.added_by = addedBy;
+
+        fetch(addTestApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postPayload),
+        })
+          .then(parseAddTestResponse)
+          .then(function (postResult) {
+            if (!postResult.ok) return postResult;
+            var tid =
+              postResult.data && postResult.data.test_id != null ? postResult.data.test_id : null;
+            if (tid == null) {
+              return {
+                ok: false,
+                status: postResult.status,
+                data: { message: 'Server did not return test id' },
+              };
             }
-            if (addedBy) postPayload.added_by = addedBy;
-
-            return fetch(addTestApiUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(postPayload),
-            })
-              .then(parseAddTestResponse)
-              .then(function (postResult) {
-                if (!postResult.ok) return postResult;
-                var tid =
-                  postResult.data && postResult.data.test_id != null ? postResult.data.test_id : null;
-                if (tid == null) {
-                  return {
-                    ok: false,
-                    status: postResult.status,
-                    data: { message: 'Server did not return test id' },
-                  };
-                }
-                loaderCaption.textContent = 'Uploading answer key (2/2)…';
-                var putPayload = {
-                  test_id: tid,
-                  answer_key_base64: aB64,
-                  answer_key_file_name: fa.name,
-                  answer_key_content_type: guessContentType(fa.name, fa.type),
-                };
-                return fetch(addTestApiUrl, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(putPayload),
-                })
-                  .then(parseAddTestResponse)
-                  .then(function (putResult) {
-                    if (putResult.ok) return putResult;
-                    return fetch(addTestApiUrl, {
-                      method: 'DELETE',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ test_id: tid }),
-                    })
-                      .catch(function () {})
-                      .then(function () {
-                        return putResult;
-                      });
+            loaderCaption.textContent = 'Uploading question paper (1/2)…';
+            return uploadTestFile(tid, fq, 'question_paper').then(function (qResult) {
+              if (!qResult.ok) {
+                return deleteTestById(tid).then(function () {
+                  return qResult;
+                });
+              }
+              loaderCaption.textContent = 'Uploading answer key (2/2)…';
+              return uploadTestFile(tid, fa, 'answer_key').then(function (aResult) {
+                if (!aResult.ok) {
+                  return deleteTestById(tid).then(function () {
+                    return aResult;
                   });
+                }
+                return { ok: true, status: 200, data: { test_id: tid } };
               });
+            });
           })
           .then(function (result) {
             loaderOverlay.hidden = true;
@@ -4716,10 +5102,7 @@
                 Auth.trackActivity('add_test_submit', { test_id: tid || null });
               }
             } else {
-              var msg =
-                (result.data && (result.data.message || result.data.error)) ||
-                'Request failed (' + result.status + ')';
-              showToast('Could not save', String(msg));
+              showToast('Could not save', friendlyAddTestError(result));
             }
           })
           .catch(function (err) {
@@ -4727,7 +5110,12 @@
             document.body.style.overflow = '';
             if (submitBtn) submitBtn.disabled = false;
             console.error('[Add Test]', err);
-            showToast('Upload failed', (err && err.message) || 'Network error. Try again.');
+            var errMsg = (err && err.message) || 'Network error. Try again.';
+            if (/failed to fetch|cors|network/i.test(errMsg)) {
+              errMsg =
+                'File upload to storage failed. Refresh the page and try again. If it keeps failing, check your internet connection.';
+            }
+            showToast('Upload failed', errMsg);
           });
       });
     });

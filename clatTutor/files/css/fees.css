@@ -1097,6 +1097,61 @@ body.fees-page.fees-print-offer-open {
   white-space: nowrap;
 }
 
+.fees-receipt-scope .fees-history-table__th-install {
+  min-width: 9.5rem;
+}
+
+.fees-receipt-scope .fees-history-table__install {
+  min-width: 9.5rem;
+  vertical-align: middle;
+}
+
+.fees-receipt-scope .fees-history-install-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.fees-receipt-scope .fees-history-install-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  width: fit-content;
+}
+
+.fees-receipt-scope .fees-history-install-badge--soon {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.fees-receipt-scope .fees-history-install-badge--overdue {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.fees-receipt-scope .fees-history-install-date {
+  font-size: 0.72rem;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
+.fees-receipt-scope .fees-history-install-muted {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.fees-receipt-scope .fees-history-table__row--install-soon td {
+  background: linear-gradient(90deg, rgba(254, 243, 199, 0.45) 0%, transparent 72%);
+}
+
+.fees-receipt-scope .fees-history-table__row--install-overdue td {
+  background: linear-gradient(90deg, rgba(254, 226, 226, 0.55) 0%, transparent 72%);
+}
+
 .fees-receipt-scope .fees-history-detail-scroll {
   padding: 0.75rem 1rem 0.5rem;
   overflow: auto;

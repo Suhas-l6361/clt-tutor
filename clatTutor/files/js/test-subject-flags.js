@@ -32,7 +32,6 @@
 
   function emptySubjectFlags() {
     return {
-      isClose: false,
       isEnglish: false,
       isLogic: false,
       isLegal: false,
@@ -41,7 +40,17 @@
     };
   }
 
-  /** Build API payload flags from mock/sectional picker selection. */
+  /** isClose=1/true → closed; isClose=0/false → open for students. */
+  function isTestClosed(row) {
+    if (!row || row.isClose == null || row.isClose === '') return false;
+    return isTruthyFlag(row.isClose);
+  }
+
+  function isTestOpen(row) {
+    return !isTestClosed(row);
+  }
+
+  /** Build sectional subject flags only (isClose is set separately on the form). */
   function buildSubjectFlags(kind, category) {
     var flags = emptySubjectFlags();
     if (normKey(kind) !== 'sectional') return flags;
@@ -68,8 +77,67 @@
     return isTruthyFlag(row[flagKey]);
   }
 
-  function isTestClosed(row) {
-    return !!(row && isTruthyFlag(row.isClose));
+  function hasTypedTestMeta(row) {
+    if (!row) return false;
+    if (row.test_kind != null && String(row.test_kind).trim()) return true;
+    if (row.test_category != null && String(row.test_category).trim()) return true;
+    if (classifyRowByFlags(row)) return true;
+    return false;
+  }
+
+  /** Rows uploaded before mock/sectional picker metadata existed. */
+  function isLegacyUntypedTest(row) {
+    return !!row && !hasTypedTestMeta(row);
+  }
+
+  /** Infer mock/sectional from title when DB has no kind/category/flags. */
+  function classifyFromTitle(row) {
+    var title = String((row && row.title) || '').toLowerCase();
+    if (!title) return null;
+    if (/ip\s*mat/.test(title)) return { kind: 'mock', category: 'IP MAT' };
+    if (/\bailet\b/.test(title)) return { kind: 'mock', category: 'AILET' };
+    if (/\bchrist\b/.test(title)) return { kind: 'mock', category: 'CHRIST' };
+    if (/\bsat\b/.test(title)) return { kind: 'mock', category: 'SAT' };
+    if (/\bclat\b/.test(title) && !/\bsectional\b/.test(title)) return { kind: 'mock', category: 'CLAT' };
+    if (/\benglish\b/.test(title) || /\brc\b/.test(title)) return { kind: 'sectional', category: 'English' };
+    if (/\blogic(al)?\b/.test(title) || /\blr\b/.test(title)) return { kind: 'sectional', category: 'Logical' };
+    if (/\blegal\b/.test(title) || /\ble\b/.test(title)) return { kind: 'sectional', category: 'Legal' };
+    if (/\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title)) {
+      return { kind: 'sectional', category: 'Math' };
+    }
+    if (/\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title)) {
+      return { kind: 'sectional', category: 'GK' };
+    }
+    return null;
+  }
+
+  /**
+   * Classify test for mock/sectional pickers and CRM history.
+   * Legacy untyped uploads: read title first (AILET, CHRIST, SAT, sectionals, CLAT);
+   * only plain untitled/generic legacy rows default to CLAT mock.
+   */
+  function classifyTestRow(row) {
+    if (!row) return { kind: 'mock', category: 'CLAT' };
+    var fromFlags = classifyRowByFlags(row);
+    if (fromFlags) return fromFlags;
+    var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
+    var cat = row.test_category != null ? String(row.test_category).trim() : '';
+    if (kind === 'mock' && cat) return { kind: 'mock', category: cat };
+    if (kind === 'sectional' && cat) return { kind: 'sectional', category: cat };
+    var fromTitle = classifyFromTitle(row);
+    if (fromTitle) return fromTitle;
+    if (isLegacyUntypedTest(row)) {
+      return { kind: 'mock', category: 'CLAT' };
+    }
+    return { kind: 'mock', category: 'CLAT' };
+  }
+
+  function rowMatchesTestFilter(row, filter) {
+    if (!filter || !filter.kind || !filter.category) return true;
+    var classified = classifyTestRow(row);
+    return (
+      classified.kind === filter.kind && normKey(classified.category) === normKey(filter.category)
+    );
   }
 
   global.TestSubjectFlags = {
@@ -82,5 +150,10 @@
     classifyRowByFlags: classifyRowByFlags,
     rowMatchesSectionFlag: rowMatchesSectionFlag,
     isTestClosed: isTestClosed,
+    isTestOpen: isTestOpen,
+    hasTypedTestMeta: hasTypedTestMeta,
+    isLegacyUntypedTest: isLegacyUntypedTest,
+    classifyTestRow: classifyTestRow,
+    rowMatchesTestFilter: rowMatchesTestFilter,
   };
 })(typeof window !== 'undefined' ? window : this);
