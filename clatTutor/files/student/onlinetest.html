@@ -383,6 +383,52 @@
       padding: 0.2rem 0.55rem;
       border-radius: 999px;
     }
+    .exam-pick-card--has-open {
+      border: 2px solid #22c55e;
+      border-bottom-width: 4px;
+      border-bottom-color: #16a34a;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 58%);
+      box-shadow: 0 6px 18px rgba(22, 163, 74, 0.16);
+    }
+    .exam-pick-card--has-open:hover {
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.24);
+    }
+    .exam-pick-card--has-open .exam-pick-card__count {
+      color: #15803d;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+    }
+    .exam-pick-card--has-open .exam-pick-card__open-badge {
+      display: inline-flex;
+    }
+    .exam-pick-card__open-badge {
+      display: none;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.1rem;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #15803d;
+    }
+    .exam-pick-card__open-badge i {
+      font-size: 0.5rem;
+    }
+    .exam-pick-card--all-closed {
+      opacity: 0.82;
+    }
+    .exam-pick-card--all-closed .exam-pick-card__count {
+      color: #64748b;
+      background: #f1f5f9;
+    }
+    .exam-pick-card--empty {
+      opacity: 0.58;
+    }
+    .exam-pick-card--empty .exam-pick-card__count {
+      color: #94a3b8;
+      background: #f8fafc;
+    }
     .exam-test-detail-dialog {
       width: min(720px, 96vw);
       max-height: min(88vh, 720px);
@@ -467,7 +513,8 @@
     .exam-grid {
       flex: 1;
       display: grid;
-      grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.15fr) minmax(220px, 300px);
+      /* Reading-heavy CLAT layout: wider passage, slightly narrower Q&A, compact review rail */
+      grid-template-columns: minmax(300px, 2fr) minmax(280px, 1fr) minmax(180px, 228px);
       grid-template-rows: minmax(0, 1fr);
       align-items: stretch;
       gap: 0.75rem;
@@ -476,6 +523,52 @@
       max-height: calc(100dvh - 7.5rem - env(safe-area-inset-bottom, 0px));
       padding: 0.75rem;
       border-top: 1px solid var(--line-light);
+    }
+
+    @media (min-width: 1101px) {
+      .exam-panel--reading .exam-ref__scroll {
+        font-size: 0.95rem;
+        line-height: 1.75;
+        padding: 1rem 1.2rem 1.2rem;
+      }
+
+      .exam-panel--review .exam-side__head {
+        font-size: 0.72rem;
+        padding: 0.55rem 0.65rem;
+      }
+
+      .exam-panel--review .exam-palette-scroll {
+        padding: 0.55rem 0.6rem;
+      }
+
+      .exam-panel--review .exam-palette {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.35rem;
+      }
+
+      .exam-panel--review .exam-palette button {
+        min-height: 34px;
+        font-size: 0.78rem;
+      }
+
+      .exam-panel--review .exam-legend {
+        font-size: 0.68rem;
+        padding: 0.5rem 0.6rem 0.65rem;
+        gap: 0.3rem;
+      }
+
+      .exam-panel--review .exam-counts {
+        padding: 0 0.6rem 0.65rem;
+        gap: 0.28rem;
+      }
+
+      .exam-panel--review .exam-counts .n {
+        font-size: 1rem;
+      }
+
+      .exam-panel--review .exam-counts .lbl {
+        font-size: 0.62rem;
+      }
     }
 
     .exam-panel {
@@ -2668,6 +2761,7 @@
 
   <div id="app-root" class="app-shell"></div>
 
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../js/exam-question-parser.js"></script>
@@ -2890,11 +2984,53 @@
         return bytes.buffer;
       }
 
+      function fetchWithTimeout(url, options, timeoutMs) {
+        timeoutMs = timeoutMs == null ? 45000 : timeoutMs;
+        var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var timer = null;
+        var opts = options ? Object.assign({}, options) : {};
+        if (controller) {
+          opts.signal = controller.signal;
+          timer = setTimeout(function () {
+            try {
+              controller.abort();
+            } catch (_) {}
+          }, timeoutMs);
+        }
+        return fetch(url, opts).then(
+          function (res) {
+            if (timer) clearTimeout(timer);
+            return res;
+          },
+          function (err) {
+            if (timer) clearTimeout(timer);
+            if (err && err.name === 'AbortError') {
+              throw new Error('Request timed out. Check your connection and try again.');
+            }
+            throw err;
+          }
+        );
+      }
+
+      function yieldToBrowser() {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, 0);
+        });
+      }
+
+      function runMammothExtract(buf) {
+        return yieldToBrowser().then(function () {
+          if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
+          return mammoth.extractRawText({ arrayBuffer: buf });
+        });
+      }
+
       /**
        * Loads question paper via add_test API (presigned S3 URL — large files no longer 502).
        * GET ADD_TEST_API?test_id=N&paper=1
        */
-      function arrayBufferFromTestFilePayload(data, label) {
+      function arrayBufferFromTestFilePayload(data, label, onStage) {
+        onStage = typeof onStage === 'function' ? onStage : function () {};
         if (!data) return Promise.reject(new Error('Empty response from server'));
         var name = String(data.file_name || '').toLowerCase();
         var type = String(data.content_type || '').toLowerCase();
@@ -2907,12 +3043,17 @@
           );
         }
         if (data.download_url) {
-          return fetch(data.download_url, { method: 'GET', credentials: 'omit' }).then(function (fileRes) {
-            if (!fileRes.ok) {
-              throw new Error('Could not download ' + (label || 'file') + ' from storage (HTTP ' + fileRes.status + ')');
+          onStage('Downloading question paper…');
+          return fetchWithTimeout(data.download_url, { method: 'GET', credentials: 'omit' }, 90000).then(
+            function (fileRes) {
+              if (!fileRes.ok) {
+                throw new Error(
+                  'Could not download ' + (label || 'file') + ' from storage (HTTP ' + fileRes.status + ')'
+                );
+              }
+              return fileRes.arrayBuffer();
             }
-            return fileRes.arrayBuffer();
-          });
+          );
         }
         if (data.content_base64) {
           return Promise.resolve(base64ToArrayBuffer(data.content_base64));
@@ -2922,7 +3063,8 @@
         );
       }
 
-      function extractTextFromPaperViaApi(testId) {
+      function extractTextFromPaperViaApi(testId, onStage) {
+        onStage = typeof onStage === 'function' ? onStage : function () {};
         var api = getAddTestApiUrl();
         if (!api) return Promise.reject(new Error('ADD_TEST_API is not configured in config.js'));
         var url =
@@ -2931,7 +3073,8 @@
           'test_id=' +
           encodeURIComponent(String(testId)) +
           '&paper=1';
-        return fetch(url, { method: 'GET', credentials: 'omit' })
+        onStage('Connecting to server…');
+        return fetchWithTimeout(url, { method: 'GET', credentials: 'omit' }, 45000)
           .then(function (r) {
             return r.json().then(
               function (data) {
@@ -2940,7 +3083,7 @@
                     (data && data.message) || 'Could not load question paper (HTTP ' + r.status + ')'
                   );
                 }
-                return arrayBufferFromTestFilePayload(data, 'Question paper');
+                return arrayBufferFromTestFilePayload(data, 'Question paper', onStage);
               },
               function () {
                 if (r.status === 502) {
@@ -2954,8 +3097,8 @@
             );
           })
           .then(function (buf) {
-            if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load.');
-            return mammoth.extractRawText({ arrayBuffer: buf });
+            onStage('Reading document…');
+            return runMammothExtract(buf);
           })
           .then(function (res) {
             return (res && res.value) || '';
@@ -3054,6 +3197,15 @@
         if (hasStudentActivationWhitelist()) {
           return isActivatedStudentTest(row);
         }
+        return true;
+      }
+
+      /** Open = not closed, not schedule-locked, and student may start. */
+      function isOpenTestForStudent(row) {
+        if (!row || !canStudentStartTest(row)) return false;
+        var openMeta = getOpenMeta(row);
+        if (openMeta.isLocked) return false;
+        if (!row.question_paper_url || !String(row.question_paper_url).trim()) return false;
         return true;
       }
 
@@ -3175,6 +3327,7 @@
             renderTestCardsInto(testDetailList, rows, latestAttemptsByTestId);
           }
           testDetailModal.hidden = false;
+          prefetchTestsForRows(rows);
         }
 
         if (testDetailClose) testDetailClose.addEventListener('click', closeTestDetailModal);
@@ -3189,6 +3342,27 @@
 
         function hideLoader() {
           if (bootstrapStatus) bootstrapStatus.hidden = true;
+        }
+
+        function setBootstrapLoading(msg) {
+          if (bootstrapErr) bootstrapErr.hidden = true;
+          if (bootstrapStatus) {
+            bootstrapStatus.hidden = false;
+            bootstrapStatus.textContent = msg;
+          }
+        }
+
+        function prefetchTestPaper(row) {
+          if (!row || row.test_id == null || row.test_id === '') return;
+          if (!row.question_paper_url || !String(row.question_paper_url).trim()) return;
+          if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed(row)) return;
+          if (!canStudentStartTest(row)) return;
+          getParsedPaperBundle(row.test_id, row).catch(function () {});
+        }
+
+        function prefetchTestsForRows(rows) {
+          if (!rows || !rows.length) return;
+          rows.slice(0, 8).forEach(prefetchTestPaper);
         }
 
         var params = new URLSearchParams(window.location.search);
@@ -3755,34 +3929,39 @@
           return entry.promise;
         }
 
-        /** Cached parsed question paper per test — reused for Show Review. */
-        function getParsedPaperBundle(testId, row) {
+        /** Cached parsed question paper per test — reused for Show Review and Start test. */
+        function getParsedPaperBundle(testId, row, opts) {
+          opts = opts || {};
+          var onStage = typeof opts.onStage === 'function' ? opts.onStage : function () {};
           var key = String(testId);
           var entry = parsedPaperByTestCache[key];
           if (entry && entry.bundle) return Promise.resolve(entry.bundle);
           if (!entry) entry = parsedPaperByTestCache[key] = {};
           if (!entry.promise) {
-            entry.promise = extractTextFromPaperViaApi(testId)
+            entry.promise = extractTextFromPaperViaApi(testId, onStage)
               .then(function (text) {
-                var parser = window.ExamQuestionParser;
-                if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
-                  throw new Error('Question parser failed to load.');
-                }
-                var parseOpts =
-                  typeof parser.parseOptsFromTestRow === 'function'
-                    ? parser.parseOptsFromTestRow(row)
-                    : undefined;
-                var parsed = parser.parseQuestionsFromText(text, parseOpts);
-                if (parsed.error) throw new Error(parsed.error);
-                var built = buildPaperFromApiRow(row, parsed);
-                var bundle = {
-                  built: built,
-                  qs: (built.questions || []).slice().sort(function (a, b) {
-                    return a.number - b.number;
-                  }),
-                };
-                entry.bundle = bundle;
-                return bundle;
+                onStage('Preparing questions…');
+                return yieldToBrowser().then(function () {
+                  var parser = window.ExamQuestionParser;
+                  if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+                    throw new Error('Question parser failed to load.');
+                  }
+                  var parseOpts =
+                    typeof parser.parseOptsFromTestRow === 'function'
+                      ? parser.parseOptsFromTestRow(row)
+                      : undefined;
+                  var parsed = parser.parseQuestionsFromText(text, parseOpts);
+                  if (parsed.error) throw new Error(parsed.error);
+                  var built = buildPaperFromApiRow(row, parsed);
+                  var bundle = {
+                    built: built,
+                    qs: (built.questions || []).slice().sort(function (a, b) {
+                      return a.number - b.number;
+                    }),
+                  };
+                  entry.bundle = bundle;
+                  return bundle;
+                });
               })
               .catch(function (err) {
                 delete parsedPaperByTestCache[key];
@@ -5519,10 +5698,7 @@
             return;
           }
           if (bootstrapErr) bootstrapErr.hidden = true;
-          if (bootstrapStatus) {
-            bootstrapStatus.hidden = false;
-            bootstrapStatus.textContent = 'Loading question paper…';
-          }
+          setBootstrapLoading('Loading question paper…');
           if (testPickerEl) testPickerEl.hidden = true;
           if (testListEl) testListEl.hidden = true;
           closeTestDetailModal();
@@ -5540,10 +5716,18 @@
             return;
           }
 
-          extractTextFromPaperViaApi(tid)
-            .then(function (text) {
+          var cacheHit =
+            parsedPaperByTestCache[String(tid)] && parsedPaperByTestCache[String(tid)].bundle;
+          if (cacheHit) setBootstrapLoading('Opening test…');
+
+          getParsedPaperBundle(tid, row, {
+            onStage: function (msg) {
+              setBootstrapLoading(msg);
+            },
+          })
+            .then(function (bundle) {
               hideLoader();
-              runParsedPaper(row, text);
+              showExamUi(bundle.built);
             })
             .catch(function (err) {
               hideLoader();
@@ -5653,6 +5837,12 @@
               closeTestDetailModal();
               startTestFromRow(row);
             });
+            btn.addEventListener('mouseenter', function () {
+              prefetchTestPaper(row);
+            });
+            btn.addEventListener('focus', function () {
+              prefetchTestPaper(row);
+            });
           }
           btns.appendChild(btn);
           var showAnalysis = att && att.completed && hasSavedAnswers;
@@ -5718,12 +5908,32 @@
 
             group.items.forEach(function (item) {
               var filter = { kind: group.kind, category: item.category };
-              var count = rows.filter(function (row) {
+              var matching = rows.filter(function (row) {
                 return rowMatchesPicker(row, filter);
+              });
+              var totalCount = matching.length;
+              var openCount = matching.filter(function (row) {
+                return isOpenTestForStudent(row);
               }).length;
               var btn = document.createElement('button');
               btn.type = 'button';
-              btn.className = 'exam-pick-card ' + item.cardClass;
+              var cardCls = 'exam-pick-card ' + item.cardClass;
+              if (openCount > 0) cardCls += ' exam-pick-card--has-open';
+              else if (totalCount > 0) cardCls += ' exam-pick-card--all-closed';
+              else cardCls += ' exam-pick-card--empty';
+              btn.className = cardCls;
+              var countLabel;
+              if (openCount > 0) {
+                countLabel =
+                  openCount +
+                  ' open test' +
+                  (openCount === 1 ? '' : 's') +
+                  (totalCount > openCount ? ' · ' + totalCount + ' total' : '');
+              } else if (totalCount > 0) {
+                countLabel = totalCount + ' test' + (totalCount === 1 ? '' : 's') + ' · all closed';
+              } else {
+                countLabel = '0 tests';
+              }
               btn.innerHTML =
                 '<span class="exam-pick-card__icon ' +
                 item.iconClass +
@@ -5736,10 +5946,11 @@
                 '<span class="exam-pick-card__desc">' +
                 escHtml(item.desc) +
                 '</span>' +
+                (openCount > 0
+                  ? '<span class="exam-pick-card__open-badge"><i class="fa-solid fa-circle" aria-hidden="true"></i> Open</span>'
+                  : '') +
                 '<span class="exam-pick-card__count">' +
-                count +
-                ' test' +
-                (count === 1 ? '' : 's') +
+                escHtml(countLabel) +
                 '</span>';
               btn.addEventListener('click', function () {
                 openTestDetailModal(filter);

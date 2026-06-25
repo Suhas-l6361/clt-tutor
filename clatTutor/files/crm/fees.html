@@ -356,90 +356,106 @@
           <article class="fees-print__copy">
             <p class="fees-print__copy-label">Copy</p>
             <header class="fees-print__head">
-              <div class="fees-print__brand">
-                <img
-                  class="fees-print__logo"
-                  src="../image/Clat%20Logo.png"
-                  alt="CLATutor"
-                  width="40"
-                  height="40"
-                  onerror="this.onerror=null;this.src='../image/main.png'"
-                />
-                <div class="fees-print__brand-text">
-                  <strong>CLATutor</strong>
+              <div class="fees-print__head-row">
+                <div class="fees-print__brand">
+                  <img
+                    class="fees-print__logo"
+                    src="../image/Clat%20Logo.png"
+                    alt="CLATutor"
+                    width="40"
+                    height="40"
+                    onerror="this.onerror=null;this.src='../image/main.png'"
+                  />
+                  <div class="fees-print__brand-text">
+                    <strong class="fees-print__brand-name">CLATutor</strong>
+                    <span class="fees-print__brand-sub">Official Fee Receipt</span>
+                  </div>
                 </div>
-              </div>
-              <div class="fees-print__meta">
-                <div class="fees-print__meta-item">
-                  <span class="fees-print__meta-label">Receipt ID</span>
-                  <strong class="js-print-receipt-id">—</strong>
+                <div class="fees-print__org">
+                  <p class="fees-print__org-addr js-print-org-address">—</p>
+                  <p class="fees-print__org-contact">Ph: 8150884422 · hello@clatutor.com</p>
                 </div>
-                <div class="fees-print__meta-item">
-                  <span class="fees-print__meta-label">Date</span>
-                  <strong class="js-print-receipt-date">—</strong>
+                <div class="fees-print__meta">
+                  <div class="fees-print__meta-item fees-print__meta-item--title">
+                    <span class="fees-print__meta-label">Document</span>
+                    <strong>Fee Receipt</strong>
+                  </div>
+                  <div class="fees-print__meta-item">
+                    <span class="fees-print__meta-label">Receipt ID</span>
+                    <strong class="js-print-receipt-id">—</strong>
+                  </div>
+                  <div class="fees-print__meta-item">
+                    <span class="fees-print__meta-label">Date</span>
+                    <strong class="js-print-receipt-date">—</strong>
+                  </div>
                 </div>
               </div>
             </header>
             <div class="fees-print__main">
-              <div class="fees-print__card">
-                <div class="fees-print__title">Student</div>
-                <div class="fees-print__lines js-print-student-lines"></div>
-              </div>
-              <hr class="fees-print__hr" />
-              <div class="fees-print__card">
-                <div class="fees-print__title">Payment</div>
-                <div class="fees-print__lines js-print-payment-lines"></div>
-                <div class="fees-print__lines js-print-payment-extra"></div>
-              </div>
-              <hr class="fees-print__hr" />
-              <div class="fees-print__card">
-                <div class="fees-print__title">Fee structure (INR)</div>
-                <div class="fees-print__grid2 js-print-fee-grid"></div>
-                <div class="fees-print__total-row">
-                  <span>Net payable</span>
-                  <strong class="js-print-net-inr">—</strong>
+              <div class="fees-print__grid-2col">
+                <div class="fees-print__stack">
+                  <div class="fees-print__card">
+                    <div class="fees-print__title">Student</div>
+                    <div class="fees-print__lines js-print-student-lines"></div>
+                  </div>
+                  <div class="fees-print__card">
+                    <div class="fees-print__title">Payment</div>
+                    <div class="fees-print__lines js-print-payment-lines"></div>
+                    <div class="fees-print__lines js-print-payment-extra"></div>
+                  </div>
                 </div>
-                <p class="fees-print__words js-print-net-words">—</p>
-              </div>
-              <div class="fees-print__card fees-print__card--compact js-print-install-wrap">
-                <div class="fees-print__title">Installment plan</div>
-                <table class="fees-print__table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Due date</th>
-                      <th class="fees-print__num">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody class="js-print-install-tbody"></tbody>
-                </table>
+                <div class="fees-print__stack">
+                  <div class="fees-print__card">
+                    <div class="fees-print__title">Fee structure (INR)</div>
+                    <div class="fees-print__grid2 js-print-fee-grid"></div>
+                    <div class="fees-print__total-row">
+                      <span>Net payable</span>
+                      <strong class="js-print-net-inr">—</strong>
+                    </div>
+                    <p class="fees-print__words js-print-net-words">—</p>
+                  </div>
+                  <div class="fees-print__card fees-print__card--compact js-print-install-wrap">
+                    <div class="fees-print__title">Installment plan</div>
+                    <table class="fees-print__table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Due date</th>
+                          <th class="fees-print__num">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody class="js-print-install-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
+            <footer class="fees-print__copy-foot">
+              <div class="fees-print__signs">
+                <div class="fees-print__sign-row fees-print__sign-row--parent">
+                  <div class="fees-print__sign-col">
+                    <span class="fees-print__sign-role">Parents</span>
+                    <span class="fees-print__sign-hint">Signature</span>
+                    <div class="fees-print__sign-line"></div>
+                  </div>
+                </div>
+                <div class="fees-print__sign-row fees-print__sign-row--office">
+                  <div class="fees-print__sign-col">
+                    <span class="fees-print__sign-role">Institution Head</span>
+                    <span class="fees-print__sign-hint">Signature &amp; seal</span>
+                    <div class="fees-print__sign-line"></div>
+                    <p class="fees-print__legal-name js-print-legal-name">MindTree Education</p>
+                    <p class="fees-print__gstin js-print-gstin">GSTIN: 29 ABCFM 3112 C1ZT</p>
+                  </div>
+                </div>
+              </div>
+              <p class="fees-print__notice-compact">
+                <strong>Fee is non-refundable.</strong>
+                Declaration: I do not object if MindTree Education / CLATutor uses my name or photograph in promotional material.
+              </p>
+            </footer>
           </article>
         </template>
-
-        <div class="fees-print__sign fees-print__sign--single">
-          <div class="fees-print__sign-col">
-            <span class="fees-print__sign-role">Parents</span>
-            <span class="fees-print__sign-hint">Signature</span>
-            <div class="fees-print__sign-line"></div>
-          </div>
-          <div class="fees-print__sign-col">
-            <span class="fees-print__sign-role">Institution Head</span>
-            <span class="fees-print__sign-hint">Signature &amp; seal</span>
-            <div class="fees-print__sign-line"></div>
-          </div>
-        </div>
-
-        <section class="fees-print__notice" aria-label="Declaration notice">
-          <p class="fees-print__notice-title"><strong>**Fee is Non Refundable</strong></p>
-          <p class="fees-print__notice-text">
-            <strong>Declaration :</strong> I hereby declare that I do not have any objection, whatsoever in case MindTree
-            Education uses my name and photograph in any of its promotional communications such as newspaper ad,
-            Leaflets, TV commercials, radio jingles etc. and nor will I make any claims of whatsoever in nature.
-            (Please Read the Second Page of this Enrolment Form)
-          </p>
-        </section>
       </section>
 
       <div id="fees-history-modal" class="fees-history-modal" hidden>

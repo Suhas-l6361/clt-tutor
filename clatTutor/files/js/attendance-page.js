@@ -12,6 +12,9 @@
     (window.APP_CONFIG && window.APP_CONFIG.ATTENDANCE_API) ||
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/attendance';
 
+  /** Keep in sync with batch options in crm/students.html */
+  var KNOWN_BATCH_OPTIONS = ['CLAT Dec 2026', 'CLAT Dec 2027', 'IPMAT'];
+
   var allRows = [];
   var roster = [];
   var statusByStudentId = {};
@@ -414,9 +417,11 @@
     fillSelect(
       elBatch,
       uniqueSorted(
-        allRows.map(function (s) {
-          return s.batch;
-        })
+        KNOWN_BATCH_OPTIONS.concat(
+          allRows.map(function (s) {
+            return s.batch;
+          })
+        )
       ),
       'Select batch'
     );

@@ -106,6 +106,16 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0;
+  gap: 0.1rem;
+}
+
+.fees-receipt-scope .fees-doc__legal-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  line-height: 1.2;
 }
 
 .fees-receipt-scope .fees-doc__logo-text {
@@ -1256,23 +1266,35 @@ body.fees-page.fees-history-detail-open {
   display: none !important;
 }
 
-/* —— Print: full A4, white paper, signatures at bottom —— */
+/* —— Print: single A4 — parent + office copy, each fills half the page —— */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 5mm;
   }
 
-  html {
-    height: 100%;
-  }
-
+  html,
   body.fees-page {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
     background: #fff !important;
     margin: 0 !important;
-    min-height: 100%;
+    padding: 0 !important;
+  }
+
+  body.fees-page .fees-receipt-scope {
+    display: flex !important;
+    flex-direction: column;
+    width: 100% !important;
+    height: 287mm !important;
+    max-height: 287mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
   }
 
   body.fees-page .sidebar,
@@ -1281,21 +1303,15 @@ body.fees-page.fees-history-detail-open {
     display: none !important;
   }
 
-  body.fees-page .main-wrap {
+  body.fees-page .main-wrap,
+  body.fees-page .page-content,
+  body.fees-page #page-inner,
+  body.fees-page .crm-wrap {
     margin: 0 !important;
     padding: 0 !important;
     min-height: 0 !important;
-    background: #fff !important;
-  }
-
-  body.fees-page .page-content {
-    padding: 0 !important;
-    min-height: 0 !important;
-    background: #fff !important;
-  }
-
-  body.fees-page #page-inner {
-    min-height: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
     background: #fff !important;
   }
 
@@ -1303,48 +1319,104 @@ body.fees-page.fees-history-detail-open {
     display: none !important;
   }
 
-  body.fees-page .crm-wrap {
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
-  /* Keep content natural so signature follows installment table */
   body.fees-page .fees-print-sheet {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column;
+    flex: 1 1 auto;
     box-sizing: border-box;
     width: 100%;
-    min-height: 0;
-    padding: 0;
+    height: 100% !important;
+    max-height: 287mm !important;
     margin: 0;
+    padding: 0;
     font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
-    font-size: 8.5pt;
-    line-height: 1.32;
+    font-size: 8pt;
+    line-height: 1.35;
     color: #0f172a;
     background: #fff !important;
-    border: 1px solid #cbd5e1;
-    border-radius: 2px;
-    overflow: visible;
+    border: none;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    overflow: hidden;
   }
 
   body.fees-page .fees-print__duplex {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
     gap: 0;
+    page-break-inside: avoid;
   }
 
   body.fees-page .fees-print__copy {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
     page-break-inside: avoid;
-    padding-bottom: 2px;
+    page-break-after: avoid;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body.fees-page .fees-print__copy-foot {
+    flex-shrink: 0;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 12px 4px;
+    border-top: 1px solid #0f172a;
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__signs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 12px;
+    width: 100%;
+    padding-top: 4px;
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__sign-row {
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__sign-row--parent {
+    justify-self: start;
+  }
+
+  body.fees-page .fees-print__sign-row--office {
+    justify-self: end;
+  }
+
+  body.fees-page .fees-print__sign-col {
+    display: grid;
+    row-gap: 2px;
+    min-width: 160px;
+    max-width: 240px;
+  }
+
+  body.fees-page .fees-print__sign-row--parent .fees-print__sign-col {
+    text-align: left;
+    justify-items: start;
+  }
+
+  body.fees-page .fees-print__sign-row--office .fees-print__sign-col {
+    text-align: right;
+    justify-items: end;
   }
 
   body.fees-page .fees-print__copy-label {
+    flex-shrink: 0;
     margin: 0;
-    padding: 6px 16px 2px;
+    padding: 1px 10px 0;
     text-align: right;
-    font-size: 7pt;
+    font-size: 6.5pt;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -1352,7 +1424,8 @@ body.fees-page.fees-history-detail-open {
   }
 
   body.fees-page .fees-print__tear {
-    margin: 6px 16px;
+    flex: 0 0 auto;
+    margin: 0 10px;
     border-top: 1px dashed #64748b;
     text-align: center;
     line-height: 0;
@@ -1362,10 +1435,10 @@ body.fees-page.fees-history-detail-open {
   body.fees-page .fees-print__tear span {
     display: inline-block;
     position: relative;
-    top: -7px;
-    padding: 0 10px;
+    top: -6px;
+    padding: 0 8px;
     background: #fff;
-    font-size: 6.5pt;
+    font-size: 5.5pt;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -1373,124 +1446,212 @@ body.fees-page.fees-history-detail-open {
   }
 
   body.fees-page .fees-print__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.35rem 0.75rem;
-    padding: 8px 16px 6px;
-    border-bottom: 1.5px solid #0f172a;
-    background: #fff !important;
     flex-shrink: 0;
+    padding: 0;
+    border-bottom: 2px solid #0f172a;
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 72%) !important;
+    page-break-inside: avoid;
+  }
+
+  body.fees-page .fees-print__head-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr) auto;
+    gap: 8px 12px;
+    align-items: center;
+    padding: 6px 12px 7px;
   }
 
   body.fees-page .fees-print__main {
-    display: block;
-    padding: 0 16px 4px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
+    padding: 6px 12px 4px;
+  }
+
+  body.fees-page .fees-print__grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+  }
+
+  body.fees-page .fees-print__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
   }
 
   body.fees-page .fees-print__brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  body.fees-page .fees-print__logo {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-    border-radius: 4px;
+    gap: 6px;
+    min-width: 0;
   }
 
   body.fees-page .fees-print__brand-text {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
+    min-width: 0;
   }
 
   body.fees-page .fees-print__brand-text strong {
     font-family: 'Shrikhand', cursive;
-    font-size: 16pt;
+    font-size: 12pt;
     font-weight: 400;
     letter-spacing: 0;
     color: #0f172a;
+    line-height: 1.1;
   }
 
-  body.fees-page .fees-print__brand-text span {
-    font-size: 8pt;
+  body.fees-page .fees-print__brand-name {
+    font-family: 'Shrikhand', cursive;
+    font-size: 12pt;
+    font-weight: 400;
+  }
+
+  body.fees-page .fees-print__brand-sub {
+    font-size: 6.5pt;
     font-weight: 600;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: #475569;
+    color: #b45309;
+    line-height: 1.2;
+  }
+
+  body.fees-page .fees-print__org {
+    min-width: 0;
+    border-left: 1px solid #cbd5e1;
+    padding-left: 8px;
+  }
+
+  body.fees-page .fees-print__org-addr {
+    margin: 0;
+    font-size: 7pt;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #334155;
+  }
+
+  body.fees-page .fees-print__org-contact {
+    margin: 3px 0 0;
+    font-size: 6.5pt;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.2;
+  }
+
+  body.fees-page .fees-print__logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: 3px;
+    flex-shrink: 0;
   }
 
   body.fees-page .fees-print__meta {
     display: flex;
-    gap: 10px;
+    gap: 4px;
     flex-wrap: wrap;
     justify-content: flex-end;
+    align-self: stretch;
+    align-items: stretch;
   }
 
   body.fees-page .fees-print__meta-item {
     border: 1px solid #94a3b8;
-    border-radius: 4px;
-    padding: 6px 12px;
+    border-radius: 3px;
+    padding: 3px 7px;
     background: #fff !important;
-    min-width: 7.5rem;
+    min-width: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  body.fees-page .fees-print__meta-item--title {
+    border-color: #0f172a;
+    background: #0f172a !important;
+    min-width: 4.5rem;
+  }
+
+  body.fees-page .fees-print__meta-item--title .fees-print__meta-label {
+    color: #cbd5e1;
+  }
+
+  body.fees-page .fees-print__meta-item--title strong {
+    color: #fff !important;
+    font-size: 6.5pt;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   body.fees-page .fees-print__meta-label {
     display: block;
-    font-size: 7pt;
+    font-size: 6pt;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: #475569;
     margin-bottom: 2px;
   }
 
   body.fees-page .fees-print__meta-item strong {
-    font-size: 10.5pt;
+    font-size: 8pt;
     font-variant-numeric: tabular-nums;
     color: #0f172a;
   }
 
   body.fees-page .fees-print__card {
-    padding: 5px 0 4px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    background: #fff !important;
     page-break-inside: avoid;
+    min-height: 0;
   }
 
   body.fees-page .fees-print__card--compact {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    flex: 1 1 auto;
+    padding: 6px 8px;
   }
 
   body.fees-page .fees-print__title {
     font-size: 7pt;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: #0f172a;
-    margin: 0 0 4px;
-    padding-bottom: 3px;
+    margin: 0 0 5px;
+    padding-bottom: 4px;
     border-bottom: 1px solid #cbd5e1;
   }
 
   body.fees-page .fees-print__hr {
-    height: 0;
-    margin: 2px 0;
-    border: none;
-    border-top: 1px solid #e2e8f0;
-    background: none;
+    display: none;
+  }
+
+  body.fees-page .fees-print__lines {
+    flex: 1 1 auto;
   }
 
   body.fees-page .fees-print__line {
     display: grid;
-    grid-template-columns: minmax(96px, 30%) 1fr;
+    grid-template-columns: minmax(80px, 36%) 1fr;
     gap: 3px 8px;
-    font-size: 8pt;
-    margin-bottom: 2px;
+    font-size: 7.5pt;
+    margin-bottom: 3px;
+    line-height: 1.35;
   }
 
   body.fees-page .fees-print__k {
@@ -1513,21 +1674,22 @@ body.fees-page.fees-history-detail-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 5px;
-    padding: 5px 10px;
+    margin-top: 6px;
+    padding: 5px 8px;
     background: #f8fafc !important;
     border: 1px solid #cbd5e1;
-    border-radius: 3px;
+    border-radius: 2px;
     font-weight: 700;
-    font-size: 9.5pt;
+    font-size: 8.5pt;
     color: #0f172a;
   }
 
   body.fees-page .fees-print__words {
-    margin: 3px 0 0;
-    font-size: 7.5pt;
+    margin: 4px 0 0;
+    font-size: 7pt;
     font-style: italic;
     color: #475569;
+    line-height: 1.25;
   }
 
   body.fees-page .fees-print__table {
@@ -1540,15 +1702,15 @@ body.fees-page.fees-history-detail-open {
   body.fees-page .fees-print__table th,
   body.fees-page .fees-print__table td {
     border: 1px solid #cbd5e1;
-    padding: 3px 6px;
+    padding: 4px 6px;
     text-align: left;
   }
 
   body.fees-page .fees-print__table th {
     background: #f1f5f9 !important;
-    font-size: 7pt;
+    font-size: 6.5pt;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: #334155;
   }
 
@@ -1557,72 +1719,69 @@ body.fees-page.fees-history-detail-open {
     font-variant-numeric: tabular-nums;
   }
 
-  body.fees-page .fees-print__sign {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    padding: 12px 16px 6px;
-    margin-top: 8px;
-    border-top: 1.5px solid #0f172a;
-    page-break-inside: avoid;
-    background: #fff !important;
-    flex-shrink: 0;
-  }
-
-  body.fees-page .fees-print__sign--single {
-    margin-top: 10px;
-  }
-
-  body.fees-page .fees-print__sign-col {
-    text-align: center;
-    display: grid;
-    justify-items: center;
-    row-gap: 4px;
-  }
-
   body.fees-page .fees-print__sign-role {
     display: block;
     font-size: 7.5pt;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 6px;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
     color: #0f172a;
   }
 
   body.fees-page .fees-print__sign-line {
     height: 1px;
     background: #0f172a;
-    margin: 0 auto;
-    max-width: 200px;
+    margin: 0;
     width: 100%;
+    max-width: 220px;
+  }
+
+  body.fees-page .fees-print__sign-row--office .fees-print__sign-line {
+    margin-left: auto;
   }
 
   body.fees-page .fees-print__sign-hint {
     font-size: 7pt;
     color: #64748b;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
   }
 
-  body.fees-page .fees-print__notice {
-    margin: 6px 16px 4px;
-    padding-top: 6px;
-    border-top: 1px solid #cbd5e1;
-    page-break-inside: avoid;
-  }
-
-  body.fees-page .fees-print__notice-title {
-    margin: 0 0 4px;
-    text-align: center;
-    font-size: 9pt;
-    color: #1f2937;
-  }
-
-  body.fees-page .fees-print__notice-text {
-    margin: 0;
+  body.fees-page .fees-print__legal-name {
+    margin: 5px 0 2px;
+    padding-bottom: 1px;
     font-size: 7.5pt;
-    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #0f172a;
+    line-height: 1.25;
+    border-bottom: 1px solid #0f172a;
+    display: inline-block;
+  }
+
+  body.fees-page .fees-print__gstin {
+    margin: 3px 0 0;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+
+  body.fees-page .fees-print__notice-compact {
+    margin: 2px 0 0;
+    padding: 0;
+    font-size: 6.5pt;
+    line-height: 1.35;
     color: #374151;
     text-align: left;
+    width: 100%;
+  }
+
+  body.fees-page .fees-print__sign--single,
+  body.fees-page .fees-print__notice,
+  body.fees-page .fees-print__sign--parent,
+  body.fees-page .fees-print__sign--office {
+    display: none !important;
   }
 }

@@ -2118,8 +2118,8 @@
     <div class="at-preview-modal__dialog at-history-modal__dialog">
       <div class="at-preview-modal__head at-history-toolbar">
         <div>
-          <h3 id="at-history-title">My test history</h3>
-          <p id="at-history-sub" class="at-history-toolbar__sub">Recently uploaded tests by your account.</p>
+          <h3 id="at-history-title">Test history</h3>
+          <p id="at-history-sub" class="at-history-toolbar__sub">All tests uploaded by CRM staff. Any CRM user can open or close a test.</p>
         </div>
         <button type="button" class="at-preview-modal__close" id="at-history-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -2128,7 +2128,7 @@
       </div>
       <div class="at-preview-modal__foot">
         <span id="at-history-count" class="at-preview-hint" style="margin: 0"></span>
-      </div>
+      </div>  
     </div>
   </div>
 
@@ -2512,7 +2512,7 @@
       }
 
       function historyFilterLabel(filter) {
-        if (!filter || !filter.kind || !filter.category) return 'My test history';
+        if (!filter || !filter.kind || !filter.category) return 'Test history';
         return filter.kind === 'mock'
           ? filter.category + ' Mock — History'
           : filter.category + ' Sectional — History';
@@ -2520,12 +2520,12 @@
 
       function historyFilterSubtext(filter) {
         if (!filter || !filter.kind || !filter.category) {
-          return 'Recently uploaded tests by your account.';
+          return 'All tests uploaded by CRM staff. Any CRM user can open or close a test.';
         }
         return (
-          'Showing only ' +
+          'Showing all ' +
           (filter.kind === 'mock' ? filter.category + ' mock' : filter.category + ' sectional') +
-          ' tests uploaded by your account.'
+          ' tests. Any CRM user can open or close a test.'
         );
       }
 
@@ -4528,24 +4528,6 @@
         return String(msg);
       }
 
-      function currentUserAliases() {
-        var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
-        var user = sess && sess.user ? sess.user : null;
-        var vals = [];
-        function add(v) {
-          var s = String(v == null ? '' : v).trim().toLowerCase();
-          if (!s) return;
-          if (vals.indexOf(s) === -1) vals.push(s);
-        }
-        if (user) {
-          add(user.email);
-          add(user.login);
-          add(user.name);
-          add(user.id);
-        }
-        return vals;
-      }
-
       function splitBranchesLabel(v) {
         if (v == null) return [];
         if (Array.isArray(v)) return v.map(String);
@@ -4746,8 +4728,8 @@
             filter && filter.category
               ? 'No ' +
                 (filter.kind === 'mock' ? filter.category + ' mock' : filter.category + ' sectional') +
-                ' tests uploaded by your account yet.'
-              : 'No tests uploaded by your account yet.';
+                ' tests uploaded yet.'
+              : 'No tests uploaded yet.';
           historyList.innerHTML = '<div class="at-history-empty">' + escapeHtml(emptyMsg) + '</div>';
           if (historyCount) historyCount.textContent = '0 tests';
           return;
@@ -4800,6 +4782,7 @@
             '</h4><p class="at-history-card__meta">Test #' +
             escapeHtml(String(row.test_id || '')) +
             (createdAt ? ' · Added ' + escapeHtml(createdAt) : '') +
+            (row.added_by ? ' · By ' + escapeHtml(String(row.added_by)) : '') +
             '</p></div>' +
             '<div class="at-history-badges">' +
             typeBadge +
@@ -4911,15 +4894,15 @@
           return;
         }
         setActiveHistoryFilter(useFilter);
-        var aliases = currentUserAliases();
-        if (!aliases.length) {
-          showToast('History', 'Please sign in again to load your upload history.');
+        var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        if (!sess || sess.role !== 'crm') {
+          showToast('History', 'Please sign in to CRM to load test history.');
           return;
         }
         historyModal.hidden = false;
         document.body.style.overflow = 'hidden';
         if (historyTitle) historyTitle.textContent = historyFilterLabel(useFilter);
-        if (historyList) historyList.innerHTML = '<div class="at-history-empty">Loading your uploaded tests…</div>';
+        if (historyList) historyList.innerHTML = '<div class="at-history-empty">Loading tests…</div>';
         if (historySub) historySub.textContent = historyFilterSubtext(useFilter);
 
         fetch(addTestApiUrl, { method: 'GET' })
@@ -4930,19 +4913,15 @@
             });
           })
           .then(function (rows) {
-            var mine = rows.filter(function (r) {
-              var who = String((r && r.added_by) || '').trim().toLowerCase();
-              return who && aliases.indexOf(who) !== -1;
-            });
-            mine = mine.filter(function (r) {
+            var filtered = rows.filter(function (r) {
               return rowMatchesHistoryFilter(r, useFilter);
             });
-            mine.sort(function (a, b) {
+            filtered.sort(function (a, b) {
               var da = new Date(a && a.created_at ? a.created_at : 0).getTime();
               var db = new Date(b && b.created_at ? b.created_at : 0).getTime();
               return db - da;
             });
-            renderHistoryRows(mine, useFilter);
+            renderHistoryRows(filtered, useFilter);
           })
           .catch(function (err) {
             if (historyList) {

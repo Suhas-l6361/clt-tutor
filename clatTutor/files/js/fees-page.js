@@ -315,6 +315,34 @@
     );
   }
 
+  var FEES_ORG_NAME = 'MindTree Education';
+  var FEES_GSTIN = '29 ABCFM 3112 C1ZT';
+  var FEES_BRANCH_ADDRESSES = {
+    MALLESHWARM:
+      'CLATutor, 1st Floor #92, 15th Cross Margosa Road, Malleshwaram, Bangalore-560003',
+    JAYANAGAR:
+      'CLATutor, Opp. Cosmopolitan Club, No. 295, 4th Floor, Sri Krishna Complex, 22nd Cross, 10th Main Rd, Jayanagar, Bengaluru-560011',
+    YALAHANKA:
+      'CLATutor, Next to Seshadripuram Public School, Mother Dairy Road, Yelahanka New Town, Bengaluru-560064',
+  };
+
+  function normalizeBranchKey(branch) {
+    var s = String(branch || '')
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z]/g, '');
+    if (!s) return 'MALLESHWARM';
+    if (s.indexOf('MALLE') >= 0) return 'MALLESHWARM';
+    if (s.indexOf('JAYA') >= 0) return 'JAYANAGAR';
+    if (s.indexOf('YALA') >= 0 || s.indexOf('YELAH') >= 0) return 'YALAHANKA';
+    return s;
+  }
+
+  function getBranchOfficeAddress(branch) {
+    var key = normalizeBranchKey(branch);
+    return FEES_BRANCH_ADDRESSES[key] || FEES_BRANCH_ADDRESSES.MALLESHWARM;
+  }
+
   function buildInstallRowsHtml(rows) {
     var html = '';
     var count = 0;
@@ -338,7 +366,10 @@
   function ensurePrintCopiesInDom() {
     var duplex = document.getElementById('fees-print-duplex');
     var tpl = document.getElementById('fees-print-copy-tpl');
-    if (!duplex || !tpl || duplex.querySelector('.fees-print__copy')) return;
+    if (!duplex || !tpl) return;
+    var existing = duplex.querySelector('.fees-print__copy');
+    if (existing && existing.querySelector('.fees-print__copy-foot') && existing.querySelector('.js-print-org-address') && existing.querySelector('.fees-print__signs')) return;
+    duplex.innerHTML = '';
 
     var labels = ['Parent copy', 'Office copy'];
     labels.forEach(function (label, idx) {
@@ -351,6 +382,7 @@
       var node = tpl.content.firstElementChild.cloneNode(true);
       var labelEl = node.querySelector('.fees-print__copy-label');
       if (labelEl) labelEl.textContent = label;
+      node.classList.add(idx === 0 ? 'fees-print__copy--parent' : 'fees-print__copy--office');
       duplex.appendChild(node);
     });
   }
@@ -362,6 +394,15 @@
       var rdate = copy.querySelector('.js-print-receipt-date');
       if (rid) rid.textContent = payload.receiptId || '—';
       if (rdate) rdate.textContent = payload.receiptDate || '—';
+
+      var orgAddr = copy.querySelector('.js-print-org-address');
+      if (orgAddr) orgAddr.textContent = payload.branchAddress || getBranchOfficeAddress('');
+
+      var legalName = copy.querySelector('.js-print-legal-name');
+      if (legalName) legalName.textContent = FEES_ORG_NAME;
+
+      var gstin = copy.querySelector('.js-print-gstin');
+      if (gstin) gstin.textContent = 'GSTIN: ' + FEES_GSTIN;
 
       var stu = copy.querySelector('.js-print-student-lines');
       if (stu) stu.innerHTML = payload.studentHtml || '';
@@ -451,10 +492,12 @@
       });
     });
     var installBuilt = buildInstallRowsHtml(installRows);
+    var branchRaw = txtById('fees-disp-branch');
 
     return {
       receiptId: rid ? rid.textContent.trim() : '—',
       receiptDate: rdate ? rdate.textContent.trim() : '—',
+      branchAddress: getBranchOfficeAddress(branchRaw),
       studentHtml: studentHtml,
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
@@ -559,6 +602,7 @@
     return {
       receiptId: rstr(row.receipt_id) || '—',
       receiptDate: formatReceiptDateFromApi(row.receipt_date),
+      branchAddress: getBranchOfficeAddress(row.branch),
       studentHtml: studentHtml,
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
