@@ -52,12 +52,71 @@
     }
 
     var api = getFeesApiUrl();
-    if (!api) {
+    if (!api && !(window.CrmDashboardMetrics && window.CrmDashboardMetrics.getFeesRows)) {
       if (loadingEl) loadingEl.hidden = true;
       if (errEl) {
         errEl.hidden = false;
         errEl.textContent = 'Fees API is not configured. Installment summary unavailable.';
       }
+      return;
+    }
+
+    function renderFromRows(rows) {
+      if (loadingEl) loadingEl.hidden = true;
+      var dueList = FI.getInstallmentsDueThisMonth(rows);
+      var studentCount = FI.countUniqueStudentsDueThisMonth(rows);
+
+      if (countEl) countEl.textContent = String(studentCount);
+      if (kpiEl) kpiEl.textContent = String(studentCount);
+
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!dueList.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="7" class="crm-install-empty">No upcoming installments due this month.</td></tr>';
+        if (wrapEl) wrapEl.hidden = false;
+        return;
+      }
+
+      dueList.forEach(function (item) {
+        var r = item.receipt || {};
+        var inst = item.installment || {};
+        var tr = document.createElement('tr');
+        if (item.daysUntil != null && item.daysUntil <= 7) tr.className = 'crm-install-row--soon';
+
+        tr.innerHTML =
+          '<td>' +
+          escHtml(r.student_id != null ? r.student_id : '—') +
+          '</td><td>' +
+          escHtml(r.name || '—') +
+          '</td><td>' +
+          escHtml(r.branch || '—') +
+          '</td><td>' +
+          escHtml(r.phone != null ? r.phone : '—') +
+          '</td><td><span class="crm-install-pill">' +
+          escHtml(item.label) +
+          '</span></td><td>' +
+          escHtml(inst.dueDate ? FI.formatDisplayDate(inst.dueDate) : '—') +
+          '</td><td class="crm-install-amount">' +
+          escHtml(inst.amount ? formatInrAmount(inst.amount) : '—') +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+
+      if (wrapEl) wrapEl.hidden = false;
+    }
+
+    function onFeesError(err) {
+      if (loadingEl) loadingEl.hidden = true;
+      if (errEl) {
+        errEl.hidden = false;
+        errEl.textContent = err.message || String(err);
+      }
+    }
+
+    if (window.CrmDashboardMetrics && typeof window.CrmDashboardMetrics.ready === 'object' && window.CrmDashboardMetrics.ready.then) {
+      window.CrmDashboardMetrics.ready.then(renderFromRows).catch(onFeesError);
       return;
     }
 
@@ -68,61 +127,13 @@
         });
       })
       .then(function (x) {
-        if (loadingEl) loadingEl.hidden = true;
         if (!x.res.ok) {
           throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
         }
         var rows = Array.isArray(x.j) ? x.j : [];
-        var dueList = FI.getInstallmentsDueThisMonth(rows);
-        var studentCount = FI.countUniqueStudentsDueThisMonth(rows);
-
-        if (countEl) countEl.textContent = String(studentCount);
-        if (kpiEl) kpiEl.textContent = String(studentCount);
-
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        if (!dueList.length) {
-          tbody.innerHTML =
-            '<tr><td colspan="7" class="crm-install-empty">No upcoming installments due this month.</td></tr>';
-          if (wrapEl) wrapEl.hidden = false;
-          return;
-        }
-
-        dueList.forEach(function (item) {
-          var r = item.receipt || {};
-          var inst = item.installment || {};
-          var tr = document.createElement('tr');
-          if (item.daysUntil != null && item.daysUntil <= 7) tr.className = 'crm-install-row--soon';
-
-          tr.innerHTML =
-            '<td>' +
-            escHtml(r.student_id != null ? r.student_id : '—') +
-            '</td><td>' +
-            escHtml(r.name || '—') +
-            '</td><td>' +
-            escHtml(r.branch || '—') +
-            '</td><td>' +
-            escHtml(r.phone != null ? r.phone : '—') +
-            '</td><td><span class="crm-install-pill">' +
-            escHtml(item.label) +
-            '</span></td><td>' +
-            escHtml(FI.formatDisplayDate(due)) +
-            '</td><td class="crm-install-amount">' +
-            escHtml(inst.amount ? formatInrAmount(inst.amount) : '—') +
-            '</td>';
-          tbody.appendChild(tr);
-        });
-
-        if (wrapEl) wrapEl.hidden = false;
+        renderFromRows(rows);
       })
-      .catch(function (err) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (errEl) {
-          errEl.hidden = false;
-          errEl.textContent = err.message || String(err);
-        }
-      });
+      .catch(onFeesError);
   }
 
   if (document.readyState === 'loading') {

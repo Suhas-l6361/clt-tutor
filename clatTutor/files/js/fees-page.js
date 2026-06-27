@@ -368,7 +368,7 @@
     var tpl = document.getElementById('fees-print-copy-tpl');
     if (!duplex || !tpl) return;
     var existing = duplex.querySelector('.fees-print__copy');
-    if (existing && existing.querySelector('.fees-print__copy-foot') && existing.querySelector('.js-print-org-address') && existing.querySelector('.fees-print__signs')) return;
+    if (existing && existing.querySelector('.fees-print__copy-foot') && existing.querySelector('.js-print-org-address') && existing.querySelector('.fees-print__signs') && existing.querySelector('.fees-print__doc-title')) return;
     duplex.innerHTML = '';
 
     var labels = ['Parent copy', 'Office copy'];

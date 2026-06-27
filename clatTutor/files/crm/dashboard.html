@@ -14,35 +14,152 @@
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
-    <div class="crm-wrap">
+    <div class="crm-wrap" id="crm-analytics-root">
       <section class="crm-hero">
         <div>
           <h2 id="crm-hero-title">Welcome, CRM Staff</h2>
-          <p>Track pipeline health, follow up hot leads, and monitor admission conversion at one place.</p>
+          <p>Institute overview — students, tests, attendance, fees, installments, and course activity at a glance.</p>
         </div>
         <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
       </section>
 
-      <section class="crm-kpis">
-        <article class="crm-kpi">
-          <i class="fa-solid fa-users"></i>
-          <div><p class="num" id="k-leads">0</p><p class="lbl">Total leads</p></div>
-        </article>
-        <article class="crm-kpi">
-          <i class="fa-solid fa-user-plus"></i>
-          <div><p class="num" id="k-new">0</p><p class="lbl">New leads</p></div>
-        </article>
+      <section class="crm-marquee-section" id="crm-marquee-section" hidden aria-label="Latest test scores">
+        <div class="crm-marquee-section__head">
+          <span class="crm-marquee-section__title"><i class="fa-solid fa-trophy"></i> Latest test scores</span>
+          <span class="crm-marquee-section__hint">Hover to pause</span>
+        </div>
+        <div class="crm-marquee" id="crm-marquee">
+          <div class="crm-marquee__track" id="crm-marquee-track"></div>
+        </div>
+      </section>
+
+      <p class="crm-analytics-loading" id="crm-analytics-loading">Loading institute insights…</p>
+      <p class="crm-tests-loading" id="crm-tests-loading" hidden>Updating test attempts…</p>
+      <p class="crm-analytics-error" id="crm-analytics-error" hidden></p>
+
+      <section class="crm-kpis" id="crm-analytics-kpis">
         <article class="crm-kpi">
           <i class="fa-solid fa-graduation-cap"></i>
-          <div><p class="num" id="k-students">0</p><p class="lbl">Students</p></div>
+          <div><p class="num" id="k-students">—</p><p class="lbl">Active students</p></div>
         </article>
         <article class="crm-kpi">
-          <i class="fa-solid fa-comments"></i>
-          <div><p class="num" id="k-comms">0</p><p class="lbl">Comms logged</p></div>
+          <i class="fa-solid fa-file-circle-check"></i>
+          <div><p class="num" id="k-tests-total">—</p><p class="lbl">Tests live</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <div><p class="num" id="k-test-attempts">—</p><p class="lbl">Test attempts</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <div><p class="num" id="k-attendance-pct">—</p><p class="lbl">Attendance (30 days)</p></div>
+        </article>
+        <article class="crm-kpi">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+          <div><p class="num" id="k-fees-month">—</p><p class="lbl">Fees this month</p></div>
         </article>
         <article class="crm-kpi">
           <i class="fa-solid fa-calendar-check"></i>
-          <div><p class="num" id="k-installments">—</p><p class="lbl">Installments this month</p></div>
+          <div><p class="num" id="k-installments">—</p><p class="lbl">Installments due</p></div>
+        </article>
+      </section>
+
+      <section class="crm-insights" id="crm-insights" hidden></section>
+
+      <section class="crm-analytics-grid" id="crm-analytics-grid" hidden>
+        <div class="crm-card crm-card--metrics crm-card--span-2">
+          <div class="crm-card-head">
+            <h3><i class="fa-solid fa-users"></i> Student distribution</h3>
+            <span class="crm-card-kicker" id="crm-students-kicker">—</span>
+          </div>
+          <div class="crm-chart-grid crm-chart-grid--2">
+            <div class="crm-chart-panel">
+              <h4>Branch-wise</h4>
+              <div class="crm-chart-wrap"><canvas id="chart-students-branch" aria-label="Students by branch"></canvas></div>
+              <div class="crm-chart-legend" id="legend-students-branch"></div>
+            </div>
+            <div class="crm-chart-panel">
+              <h4>Batch-wise</h4>
+              <div class="crm-chart-wrap"><canvas id="chart-students-batch" aria-label="Students by batch"></canvas></div>
+              <div class="crm-chart-legend" id="legend-students-batch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="crm-card crm-card--metrics crm-card--span-2">
+          <div class="crm-card-head">
+            <h3><i class="fa-solid fa-chart-column"></i> Tests &amp; participation</h3>
+            <span class="crm-card-kicker" id="crm-tests-kicker">—</span>
+          </div>
+          <p class="crm-section-desc">Summary of your test library and who attempted the latest tests.</p>
+          <div class="crm-mini-stats" id="crm-tests-summary-stats"></div>
+          <div class="crm-dash-split">
+            <div class="crm-dash-split__main">
+              <h4 class="crm-dash-block-title" id="crm-tests-table-title">All tests</h4>
+              <div id="crm-tests-table-body" class="crm-metrics-body"></div>
+            </div>
+            <div class="crm-dash-split__side">
+              <h4 class="crm-dash-block-title">Who attempted — by branch</h4>
+              <div id="crm-tests-branch-breakdown" class="crm-metrics-body"></div>
+            </div>
+          </div>
+          <div class="crm-dash-section">
+            <h4 class="crm-dash-section__title"><i class="fa-solid fa-user-check"></i> Recent test attempts</h4>
+            <div id="crm-metrics-attendees-body" class="crm-metrics-body"></div>
+          </div>
+          <div class="crm-actions">
+            <a href="testAnalysis.html" class="crm-action crm-action--primary"><i class="fa-solid fa-chart-line"></i> Full test analysis</a>
+            <a href="addTest.html" class="crm-action"><i class="fa-solid fa-circle-plus"></i> Add test</a>
+          </div>
+        </div>
+
+        <div class="crm-card crm-card--metrics">
+          <div class="crm-card-head">
+            <h3><i class="fa-solid fa-clipboard-check"></i> Attendance</h3>
+            <span class="crm-card-kicker" id="crm-attendance-kicker">30 days</span>
+          </div>
+          <div class="crm-chart-grid crm-chart-grid--stack">
+            <div class="crm-chart-panel">
+              <h4>Present vs absent</h4>
+              <div class="crm-chart-wrap crm-chart-wrap--sm"><canvas id="chart-attendance-status" aria-label="Attendance status"></canvas></div>
+            </div>
+            <div class="crm-chart-panel">
+              <h4>Branch-wise rate</h4>
+              <div class="crm-chart-wrap"><canvas id="chart-attendance-branch" aria-label="Attendance by branch"></canvas></div>
+            </div>
+          </div>
+          <div class="crm-actions">
+            <a href="attendance.html" class="crm-action crm-action--primary"><i class="fa-solid fa-clipboard-list"></i> Mark attendance</a>
+          </div>
+        </div>
+
+        <div class="crm-card crm-card--metrics">
+          <div class="crm-card-head">
+            <h3><i class="fa-solid fa-money-bill-wave"></i> Fees this month</h3>
+            <span class="crm-card-kicker" id="crm-fees-kicker">—</span>
+          </div>
+          <p class="crm-section-desc">Collections and pending installments for the current month.</p>
+          <div id="crm-fees-hero" class="crm-fees-hero"></div>
+          <div class="crm-mini-stats crm-mini-stats--fees" id="crm-fees-stats"></div>
+          <div id="crm-metrics-fees-body" class="crm-metrics-body"></div>
+          <div class="crm-actions">
+            <a href="fees.html" class="crm-action crm-action--primary"><i class="fa-solid fa-receipt"></i> Open Fees</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="crm-kpis crm-kpis--secondary">
+        <article class="crm-kpi crm-kpi--compact">
+          <i class="fa-solid fa-users"></i>
+          <div><p class="num" id="k-leads">0</p><p class="lbl">Pipeline leads</p></div>
+        </article>
+        <article class="crm-kpi crm-kpi--compact">
+          <i class="fa-solid fa-user-plus"></i>
+          <div><p class="num" id="k-new">0</p><p class="lbl">New leads</p></div>
+        </article>
+        <article class="crm-kpi crm-kpi--compact">
+          <i class="fa-solid fa-comments"></i>
+          <div><p class="num" id="k-comms">0</p><p class="lbl">Comms logged</p></div>
         </article>
       </section>
 
@@ -92,16 +209,16 @@
           </div>
         </div>
         <div class="crm-card">
-          <h3><i class="fa-solid fa-bolt"></i> Team Focus Today</h3>
+          <h3><i class="fa-solid fa-bolt"></i> Quick links</h3>
           <ul class="crm-list" id="crm-focus-list">
-            <li><strong>Call fresh enquiries</strong><span>Start with latest website leads</span></li>
-            <li><strong>Schedule counselling</strong><span>Move warm leads to next stage</span></li>
-            <li><strong>Review pending follow-ups</strong><span>Clear overdue callbacks</span></li>
+            <li><strong>Review fee installments</strong><span>Students with dues this month</span></li>
+            <li><strong>Check test results</strong><span>Latest attempts and scores</span></li>
+            <li><strong>Mark attendance</strong><span>Batch-wise present / absent</span></li>
           </ul>
           <div class="crm-actions">
-            <a href="students.html" class="crm-action"><i class="fa-solid fa-id-card"></i> Student Records</a>
-            <a href="testAnalysis.html" class="crm-action"><i class="fa-solid fa-chart-pie"></i> Test Results</a>
-            <a href="dashboard.html" class="crm-action"><i class="fa-solid fa-rotate"></i> Refresh View</a>
+            <a href="enrollment.html" class="crm-action"><i class="fa-solid fa-inbox"></i> Enquiries</a>
+            <a href="students.html" class="crm-action"><i class="fa-solid fa-id-card"></i> Student records</a>
+            <a href="dashboard.html" class="crm-action"><i class="fa-solid fa-rotate"></i> Refresh view</a>
           </div>
         </div>
       </section>
@@ -117,6 +234,10 @@
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/fees-installments.js"></script>
+  <script src="../js/test-subject-flags.js"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="../js/crm-dashboard-metrics.js"></script>
   <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -142,26 +263,9 @@
       var heroTitle = document.getElementById('crm-hero-title');
       if (heroTitle) heroTitle.textContent = 'Welcome, ' + crmName;
 
-      var leads = DataStore.leads();
-      var students = DataStore.students();
-      var commsI = DataStore.comms().length;
-      document.getElementById('k-leads').textContent = String(leads.length);
-      document.getElementById('k-new').textContent = String(
-        leads.filter(function (l) {
-          return l.stage === 'new';
-        }).length
-      );
-      document.getElementById('k-students').textContent = String(students.length);
-      document.getElementById('k-comms').textContent = String(commsI);
-      document.getElementById('k-stage-new').textContent = String(
-        leads.filter(function (l) { return l.stage === 'new'; }).length
-      ) + ' New leads';
-      document.getElementById('k-stage-contacted').textContent = String(
-        leads.filter(function (l) { return l.stage === 'contacted'; }).length
-      ) + ' Contacted';
-      document.getElementById('k-stage-enrolled').textContent = String(
-        leads.filter(function (l) { return l.stage === 'enrolled'; }).length
-      ) + ' Enrolled';
+      document.getElementById('k-stage-new').textContent = '0 New leads';
+      document.getElementById('k-stage-contacted').textContent = '0 Contacted';
+      document.getElementById('k-stage-enrolled').textContent = '0 Enrolled';
 
       var d = document.getElementById('crm-date');
       if (d) {

@@ -1558,11 +1558,23 @@ body.fees-page.fees-history-detail-open {
 
   body.fees-page .fees-print__meta {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     flex-wrap: wrap;
     justify-content: flex-end;
-    align-self: stretch;
-    align-items: stretch;
+    align-items: center;
+  }
+
+  body.fees-page .fees-print__doc-title {
+    margin: 0;
+    padding: 0 4px 0 0;
+    border: none;
+    background: transparent !important;
+    font-size: 8.5pt;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #0f172a;
+    line-height: 1.2;
   }
 
   body.fees-page .fees-print__meta-item {
@@ -1574,23 +1586,6 @@ body.fees-page.fees-history-detail-open {
     display: flex;
     flex-direction: column;
     justify-content: center;
-  }
-
-  body.fees-page .fees-print__meta-item--title {
-    border-color: #0f172a;
-    background: #0f172a !important;
-    min-width: 4.5rem;
-  }
-
-  body.fees-page .fees-print__meta-item--title .fees-print__meta-label {
-    color: #cbd5e1;
-  }
-
-  body.fees-page .fees-print__meta-item--title strong {
-    color: #fff !important;
-    font-size: 6.5pt;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
 
   body.fees-page .fees-print__meta-label {

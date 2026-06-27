@@ -31,10 +31,15 @@
     } catch (e) {
       path = '';
     }
+    var lower = path.toLowerCase();
     var marker = '/files/';
-    var idx = path.toLowerCase().indexOf(marker);
+    var idx = lower.indexOf(marker);
     if (idx >= 0) {
       return path.slice(0, idx + marker.length) + 'image/Clat%20Logo.png';
+    }
+    // Deployed URLs often omit /files/ (e.g. /student/dashboard.html) — match HTML ../image/ paths.
+    if (/\/student\//.test(lower) || /\/crm\//.test(lower) || /\/html_files\//.test(lower)) {
+      return '../image/Clat%20Logo.png';
     }
     return 'image/Clat%20Logo.png';
   }
