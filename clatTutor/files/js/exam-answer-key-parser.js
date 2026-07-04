@@ -72,6 +72,11 @@
       block.match(/Correct\s+Option\s+is\s*:\s*["']?\s*([A-D])\s*["']?/i) ||
       block.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
       block.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+      block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\s*[\)"']?/i) ||
+      block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\b/i) ||
+      block.match(/Ans\s*[:\-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
+      block.match(/Ans\s*:\s*([A-D])\b/i) ||
+      block.match(/Answer\s*:\s*([A-D])\b/i) ||
       block.match(/["']([A-D])["']/) ||
       block.match(/^\s*["']?([A-D])["']?\s*$/i);
     return lm ? lm[1].toUpperCase() : null;
@@ -108,7 +113,12 @@
     var i = 0;
 
     function isSectionHeader(t) {
-      return /^(LR|LE|AR|GK|RC|QA)$/i.test(t);
+      return (
+        /^(LR|LE|AR|GK|RC|QA)$/i.test(t) ||
+        /^\([^)]+\)\s*$/i.test(t) ||
+        /^\[[^\]]+\]\s*$/i.test(t) ||
+        /^(English|General Knowledge|Legal Reasoning|Logical Reasoning|Quantitative techniques)\b/i.test(t)
+      );
     }
 
     while (i < lines.length) {

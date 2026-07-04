@@ -11,6 +11,8 @@
   var ATTEMPT_CACHE_TTL_MS = 5 * 60 * 1000;
   var ATTEMPT_CACHE_PREFIX = 'crm_dash_att_v1:';
   var ATTEMPT_FETCH_CONCURRENCY = 6;
+  var dashboardStudents = [];
+  var studentGroupModalWired = false;
 
   var CHART_COLORS = [
     '#FFCC00',
@@ -24,6 +26,114 @@
     '#14B8A6',
     '#EF4444',
   ];
+
+  var DASHBOARD_MAIN_BRANCHES = ['Malleshwaram', 'Jayanagara', 'Yelahanka', 'Online'];
+
+  function buildMainBranchEntries(byBranch) {
+    return DASHBOARD_MAIN_BRANCHES.map(function (label) {
+      return { label: label, value: (byBranch && byBranch[label]) || 0 };
+    });
+  }
+
+  var BATCH_DATE_RANGES = {
+    'CLAT Dec 2026': 'Jun 2025 – Dec 2026',
+    'CLAT Dec 2027': 'Jun 2026 – Dec 2027',
+    'May 2027': 'Jan 2027 – May 2027',
+    IPMAT: 'Year-round',
+  };
+
+  function batchDateRange(label) {
+    return BATCH_DATE_RANGES[label] || '';
+  }
+
+  function buildBatchBranchAnalysis(students) {
+    var matrix = Object.create(null);
+    (students || []).forEach(function (s) {
+      if (isExcludedDashboardStudent(s.name)) return;
+      var bt = batchLabel(s.batch || s.target_year || s.targetYear);
+      var br = branchLabel(s.branch);
+      if (!matrix[bt]) matrix[bt] = Object.create(null);
+      matrix[bt][br] = (matrix[bt][br] || 0) + 1;
+    });
+
+    var batches = Object.keys(matrix)
+      .map(function (bt) {
+        var branches = matrix[bt];
+        var branchSummary = DASHBOARD_MAIN_BRANCHES.map(function (br) {
+          return { label: br, value: branches[br] || 0 };
+        });
+        var total = 0;
+        Object.keys(branches).forEach(function (br) {
+          total += branches[br];
+        });
+        var branchLine = branchSummary
+          .filter(function (b) {
+            return b.value > 0;
+          })
+          .map(function (b) {
+            return b.label + ' ' + b.value;
+          })
+          .join(' · ');
+        var mainSum = branchSummary.reduce(function (sum, x) {
+          return sum + x.value;
+        }, 0);
+        var otherCount = Math.max(0, total - mainSum);
+        if (otherCount > 0) {
+          branchLine = branchLine
+            ? branchLine + ' · Other ' + otherCount
+            : 'Other ' + otherCount;
+        }
+        return {
+          label: bt,
+          value: total,
+          range: batchDateRange(bt),
+          branchSummary: branchSummary,
+          branchLine: branchLine,
+        };
+      })
+      .sort(function (a, b) {
+        return b.value - a.value;
+      })
+      .slice(0, 8);
+
+    var labels = batches.map(function (b) {
+      return b.label;
+    });
+    var datasets = DASHBOARD_MAIN_BRANCHES.map(function (br, i) {
+      return {
+        label: br,
+        data: batches.map(function (b) {
+          var found = b.branchSummary.find(function (x) {
+            return x.label === br;
+          });
+          return found ? found.value : 0;
+        }),
+        backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+        borderRadius: 4,
+        maxBarThickness: 22,
+      };
+    });
+
+    var otherData = batches.map(function (b) {
+      var mainSum = b.branchSummary.reduce(function (sum, x) {
+        return sum + x.value;
+      }, 0);
+      return Math.max(0, b.value - mainSum);
+    });
+    if (otherData.some(function (n) {
+      return n > 0;
+    })) {
+      datasets.push({
+        label: 'Other',
+        data: otherData,
+        backgroundColor: '#9ca3af',
+        borderRadius: 4,
+        maxBarThickness: 22,
+      });
+    }
+
+    return { batches: batches, labels: labels, datasets: datasets };
+  }
 
   function cfg() {
     return window.APP_CONFIG || {};
@@ -101,8 +211,33 @@
   }
 
   function batchLabel(raw) {
-    var s = String(raw || '').trim();
-    return s || 'Unassigned';
+    var trimmed = String(raw || '').trim();
+    if (!trimmed) return 'Unassigned';
+
+    var lower = trimmed.toLowerCase().replace(/\s+/g, ' ');
+    var alnum = lower.replace(/[^a-z0-9]/g, '');
+
+    if (alnum.indexOf('ipmat') >= 0) return 'IPMAT';
+
+    if (
+      /clat\s*dec\s*20?26/.test(lower) ||
+      /^dec\s*26$/.test(lower) ||
+      /^dec\s*2026$/.test(lower) ||
+      lower === '2026'
+    ) {
+      return 'CLAT Dec 2026';
+    }
+
+    if (
+      /clat\s*dec\s*20?27/.test(lower) ||
+      /^dec\s*27$/.test(lower) ||
+      /^dec\s*2027$/.test(lower) ||
+      lower === '2027'
+    ) {
+      return 'CLAT Dec 2027';
+    }
+
+    return trimmed;
   }
 
   function mapToSortedEntries(map) {
@@ -128,6 +263,7 @@
     var byBranch = Object.create(null);
     var byBatch = Object.create(null);
     students.forEach(function (s) {
+      if (isExcludedDashboardStudent(s.name)) return;
       var br = branchLabel(s.branch);
       var bt = batchLabel(s.batch || s.target_year || s.targetYear);
       byBranch[br] = (byBranch[br] || 0) + 1;
@@ -318,10 +454,13 @@
     return { family: 'Poppins, sans-serif', size: 11 };
   }
 
-  function renderDoughnut(id, labels, data, colors) {
+  function renderDoughnut(id, labels, data, colors, chartOpts) {
     if (typeof Chart === 'undefined') return;
     var ctx = document.getElementById(id);
     if (!ctx) return;
+    chartOpts = chartOpts || {};
+    var onSegmentClick =
+      typeof chartOpts.onSegmentClick === 'function' ? chartOpts.onSegmentClick : null;
     if (chartInstances[id]) chartInstances[id].destroy();
     chartInstances[id] = new Chart(ctx, {
       type: 'doughnut',
@@ -340,6 +479,21 @@
         responsive: true,
         maintainAspectRatio: false,
         cutout: '62%',
+        interaction: {
+          mode: 'nearest',
+          intersect: true,
+        },
+        onClick: function (_evt, elements) {
+          if (!onSegmentClick || !elements || !elements.length) return;
+          var idx = elements[0].index;
+          if (labels[idx] != null) onSegmentClick(labels[idx], idx);
+        },
+        onHover: function (evt, elements) {
+          if (evt && evt.native && evt.native.target) {
+            evt.native.target.style.cursor =
+              onSegmentClick && elements && elements.length ? 'pointer' : 'default';
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -348,16 +502,97 @@
             bodyFont: chartFont(),
             padding: 10,
             cornerRadius: 8,
+            callbacks: onSegmentClick
+              ? {
+                  afterBody: function () {
+                    return 'Click to view students';
+                  },
+                }
+              : undefined,
           },
         },
       },
     });
   }
 
-  function renderBar(id, labels, data, horizontal) {
+  function renderStackedBar(id, labels, datasets, horizontal, chartOpts) {
     if (typeof Chart === 'undefined') return;
     var ctx = document.getElementById(id);
     if (!ctx) return;
+    chartOpts = chartOpts || {};
+    var onStackClick =
+      typeof chartOpts.onStackClick === 'function' ? chartOpts.onStackClick : null;
+    if (chartInstances[id]) chartInstances[id].destroy();
+    chartInstances[id] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: datasets,
+      },
+      options: {
+        indexAxis: horizontal ? 'y' : 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'nearest',
+          intersect: true,
+        },
+        onClick: function (_evt, elements) {
+          if (!onStackClick || !elements || !elements.length) return;
+          var el = elements[0];
+          var batchIdx = el.index;
+          var branchIdx = el.datasetIndex;
+          var batch = labels[batchIdx];
+          var branch = datasets[branchIdx] && datasets[branchIdx].label;
+          if (batch != null && branch) onStackClick(batch, branch, batchIdx, branchIdx);
+        },
+        onHover: function (evt, elements) {
+          if (evt && evt.native && evt.native.target) {
+            evt.native.target.style.cursor =
+              onStackClick && elements && elements.length ? 'pointer' : 'default';
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#111827',
+            titleFont: chartFont(),
+            bodyFont: chartFont(),
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: onStackClick
+              ? {
+                  afterBody: function () {
+                    return 'Click to view students';
+                  },
+                }
+              : undefined,
+          },
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: !horizontal, color: '#f3f4f6' },
+            ticks: { font: chartFont(), color: '#6b7280' },
+          },
+          y: {
+            stacked: true,
+            grid: { display: horizontal, color: '#f3f4f6' },
+            ticks: { font: chartFont(), color: '#6b7280' },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  function renderBar(id, labels, data, horizontal, chartOpts) {
+    if (typeof Chart === 'undefined') return;
+    var ctx = document.getElementById(id);
+    if (!ctx) return;
+    chartOpts = chartOpts || {};
+    var onSegmentClick =
+      typeof chartOpts.onSegmentClick === 'function' ? chartOpts.onSegmentClick : null;
     if (chartInstances[id]) chartInstances[id].destroy();
     chartInstances[id] = new Chart(ctx, {
       type: 'bar',
@@ -378,6 +613,21 @@
         indexAxis: horizontal ? 'y' : 'x',
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'nearest',
+          intersect: true,
+        },
+        onClick: function (_evt, elements) {
+          if (!onSegmentClick || !elements || !elements.length) return;
+          var idx = elements[0].index;
+          if (labels[idx] != null) onSegmentClick(labels[idx], idx);
+        },
+        onHover: function (evt, elements) {
+          if (evt && evt.native && evt.native.target) {
+            evt.native.target.style.cursor =
+              onSegmentClick && elements && elements.length ? 'pointer' : 'default';
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -386,6 +636,13 @@
             bodyFont: chartFont(),
             padding: 10,
             cornerRadius: 8,
+            callbacks: onSegmentClick
+              ? {
+                  afterBody: function () {
+                    return 'Click to view students';
+                  },
+                }
+              : undefined,
           },
         },
         scales: {
@@ -403,9 +660,12 @@
     });
   }
 
-  function renderLegend(elId, entries, colors) {
+  function renderLegend(elId, entries, colors, legendOpts) {
     var el = document.getElementById(elId);
     if (!el) return;
+    legendOpts = legendOpts || {};
+    var onItemClick =
+      typeof legendOpts.onItemClick === 'function' ? legendOpts.onItemClick : null;
     if (!entries.length) {
       el.innerHTML = '<p class="crm-metrics-empty">No data</p>';
       return;
@@ -414,7 +674,13 @@
       .map(function (e, i) {
         var color = (colors && colors[i]) || CHART_COLORS[i % CHART_COLORS.length];
         return (
-          '<div class="crm-chart-legend__item">' +
+          '<div class="crm-chart-legend__item' +
+          (onItemClick ? ' crm-chart-legend__item--clickable' : '') +
+          '"' +
+          (onItemClick
+            ? ' role="button" tabindex="0" data-legend-label="' + esc(e.label) + '"'
+            : '') +
+          '>' +
           '<span class="crm-chart-legend__dot" style="background:' +
           esc(color) +
           '"></span>' +
@@ -427,6 +693,191 @@
         );
       })
       .join('');
+    if (onItemClick) wireChartLegendClicks(elId, onItemClick);
+  }
+
+  function renderBranchColorKey(elId) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    el.innerHTML = DASHBOARD_MAIN_BRANCHES.map(function (br, i) {
+      var color = CHART_COLORS[i % CHART_COLORS.length];
+      return (
+        '<span class="crm-chart-branch-key__item">' +
+        '<span class="crm-chart-branch-key__dot" style="background:' +
+        esc(color) +
+        '"></span>' +
+        esc(br) +
+        '</span>'
+      );
+    }).join('');
+  }
+
+  function renderBatchLegend(elId, entries, legendOpts) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    legendOpts = legendOpts || {};
+    var onItemClick =
+      typeof legendOpts.onItemClick === 'function' ? legendOpts.onItemClick : null;
+    if (!entries.length) {
+      el.innerHTML = '<p class="crm-metrics-empty">No data</p>';
+      return;
+    }
+    el.innerHTML = entries
+      .map(function (e, i) {
+        var color = CHART_COLORS[i % CHART_COLORS.length];
+        return (
+          '<div class="crm-chart-legend__item crm-chart-legend__item--batch' +
+          (onItemClick ? ' crm-chart-legend__item--clickable' : '') +
+          '"' +
+          (onItemClick
+            ? ' role="button" tabindex="0" data-legend-label="' + esc(e.label) + '"'
+            : '') +
+          '>' +
+          '<span class="crm-chart-legend__dot" style="background:' +
+          esc(color) +
+          '"></span>' +
+          '<div class="crm-chart-legend__batch-body">' +
+          '<span class="crm-chart-legend__label">' +
+          esc(e.label) +
+          '</span>' +
+          (e.range
+            ? '<span class="crm-chart-legend__range">' + esc(e.range) + '</span>'
+            : '') +
+          (e.branchLine
+            ? '<span class="crm-chart-legend__branches">' + esc(e.branchLine) + '</span>'
+            : '') +
+          '</div>' +
+          '<strong class="crm-chart-legend__val">' +
+          esc(String(e.value)) +
+          '</strong></div>'
+        );
+      })
+      .join('');
+    if (onItemClick) wireChartLegendClicks(elId, onItemClick);
+  }
+
+  function wireChartLegendClicks(elId, onItemClick) {
+    var el = document.getElementById(elId);
+    if (!el || el._crmLegendClickWired) return;
+    el._crmLegendClickWired = true;
+    el.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-legend-label]');
+      if (!item || !el.contains(item)) return;
+      onItemClick(item.getAttribute('data-legend-label'));
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var item = e.target.closest('[data-legend-label]');
+      if (!item || !el.contains(item)) return;
+      e.preventDefault();
+      onItemClick(item.getAttribute('data-legend-label'));
+    });
+  }
+
+  function studentsForBranch(label) {
+    return dashboardStudents
+      .filter(function (s) {
+        if (isExcludedDashboardStudent(s.name)) return false;
+        return branchLabel(s.branch) === label;
+      })
+      .sort(function (a, b) {
+        return String(a.name || '').localeCompare(String(b.name || ''));
+      });
+  }
+
+  function studentsForBatch(label) {
+    return dashboardStudents
+      .filter(function (s) {
+        if (isExcludedDashboardStudent(s.name)) return false;
+        return batchLabel(s.batch || s.target_year || s.targetYear) === label;
+      })
+      .sort(function (a, b) {
+        return String(a.name || '').localeCompare(String(b.name || ''));
+      });
+  }
+
+  function studentsForBatchAndBranch(batchName, branchName) {
+    return dashboardStudents
+      .filter(function (s) {
+        if (isExcludedDashboardStudent(s.name)) return false;
+        return (
+          batchLabel(s.batch || s.target_year || s.targetYear) === batchName &&
+          branchLabel(s.branch) === branchName
+        );
+      })
+      .sort(function (a, b) {
+        return String(a.name || '').localeCompare(String(b.name || ''));
+      });
+  }
+
+  function renderStudentGroupModalRow(s) {
+    var name = String(s.name || 'Student').trim() || 'Student';
+    var email = String(s.email || '').trim() || '—';
+    var batch = batchLabel(s.batch || s.target_year || s.targetYear);
+    var branch = branchLabel(s.branch);
+    var imgKey = studentImgKey(s);
+    return (
+      '<article class="crm-student-group-modal__row">' +
+      '<div class="crm-student-cell__avatar" data-crm-avatar data-crm-name="' +
+      esc(name) +
+      '" data-crm-img="' +
+      esc(imgKey) +
+      '"></div>' +
+      '<div class="crm-student-group-modal__meta">' +
+      '<p class="crm-student-group-modal__name">' +
+      esc(name) +
+      '</p>' +
+      '<p class="crm-student-group-modal__email">' +
+      esc(email) +
+      '</p>' +
+      '<p class="crm-student-group-modal__tags">' +
+      '<span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' +
+      esc(batch) +
+      '</span>' +
+      '<span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' +
+      esc(branch) +
+      '</span>' +
+      '</p></div></article>'
+    );
+  }
+
+  function ensureStudentGroupModal() {
+    if (studentGroupModalWired) return;
+    var modal = document.getElementById('crm-student-group-modal');
+    if (!modal) return;
+    studentGroupModalWired = true;
+    function closeModal() {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+    modal.addEventListener('click', function (e) {
+      if (e.target.closest('[data-crm-student-modal-close]')) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hidden) closeModal();
+    });
+  }
+
+  function openStudentGroupModal(title, students) {
+    ensureStudentGroupModal();
+    var modal = document.getElementById('crm-student-group-modal');
+    var titleEl = document.getElementById('crm-student-group-modal-title');
+    var countEl = document.getElementById('crm-student-group-modal-count');
+    var bodyEl = document.getElementById('crm-student-group-modal-body');
+    if (!modal || !bodyEl) return;
+    if (titleEl) titleEl.textContent = title;
+    if (countEl) {
+      countEl.textContent =
+        students.length + ' student' + (students.length === 1 ? '' : 's');
+    }
+    bodyEl.innerHTML = students.length
+      ? students.map(renderStudentGroupModalRow).join('')
+      : '<p class="crm-metrics-empty">No students in this group.</p>';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    applyDashboardAttendeeAvatars();
+    var closeBtn = modal.querySelector('.crm-student-group-modal__close');
+    if (closeBtn && closeBtn.focus) closeBtn.focus();
   }
 
   function pctFromAttemptRow(row) {
@@ -1084,43 +1535,26 @@
     }
   }
 
+  var DASHBOARD_INSIGHT_BRANCHES = DASHBOARD_MAIN_BRANCHES;
+
   function renderInsights(data) {
     var el = document.getElementById('crm-insights');
     if (!el) return;
     var ss = data.studentStats;
-    var att = data.attendance;
-    var tests = data.tests;
-    var insights = [
-      {
+    var branchEntries = buildMainBranchEntries(ss.byBranch);
+    var enrolled = branchEntries.reduce(function (sum, e) {
+      return sum + e.value;
+    }, 0);
+    var insights = branchEntries.map(function (entry) {
+      var count = entry.value;
+      var pct = enrolled ? Math.round((count / enrolled) * 100) : 0;
+      return {
         icon: 'fa-location-dot',
-        title: 'Top branch',
-        value: ss.topBranch ? ss.topBranch.label + ' · ' + ss.topBranch.value + ' students' : 'No branch data',
-        sub: ss.total + ' active students enrolled',
-      },
-      {
-        icon: 'fa-layer-group',
-        title: 'Largest batch',
-        value: ss.topBatch ? ss.topBatch.label + ' · ' + ss.topBatch.value + ' students' : 'No batch data',
-        sub: 'Batch-wise headcount',
-      },
-      {
-        icon: 'fa-pen-to-square',
-        title: 'Test participation',
-        value:
-          tests.totalAttempts +
-          ' attempts · ' +
-          tests.uniqueTakers +
-          ' student' +
-          (tests.uniqueTakers === 1 ? '' : 's'),
-        sub: 'Across all ' + tests.testCount + ' tests · Avg ' + formatPct(tests.avgScore),
-      },
-      {
-        icon: 'fa-clipboard-check',
-        title: 'Attendance rate',
-        value: formatPct(att.pct) + ' present',
-        sub: att.sessionCount + ' sessions · ' + att.present + ' present / ' + att.absent + ' absent',
-      },
-    ];
+        title: entry.label,
+        value: count + ' student' + (count === 1 ? '' : 's'),
+        sub: count ? pct + '% of main branches' : 'No students assigned',
+      };
+    });
     el.innerHTML = insights
       .map(function (item) {
         return (
@@ -1146,40 +1580,63 @@
 
   function renderAnalyticsCards(data) {
     destroyCharts();
+    dashboardStudents = data.students || [];
     var ss = data.studentStats;
     var tests = data.tests;
     var att = data.attendance;
     var fees = data.fees;
 
+    var branchLegendClick = function (label) {
+      openStudentGroupModal('Branch — ' + label, studentsForBranch(label));
+    };
+    var batchLegendClick = function (label) {
+      openStudentGroupModal('Batch — ' + label, studentsForBatch(label));
+    };
+    var batchBranchClick = function (batchName, branchName) {
+      openStudentGroupModal(
+        batchName + ' · ' + branchName,
+        studentsForBatchAndBranch(batchName, branchName)
+      );
+    };
+
     setText('crm-students-kicker', ss.total + ' students');
     setText('crm-attendance-kicker', formatPct(att.pct) + ' · 30 days');
 
-    if (ss.branchEntries.length) {
-      renderDoughnut(
+    var branchEntries = buildMainBranchEntries(ss.byBranch);
+    if (dashboardStudents.length) {
+      renderBar(
         'chart-students-branch',
-        ss.branchEntries.map(function (e) {
+        branchEntries.map(function (e) {
           return e.label;
         }),
-        ss.branchEntries.map(function (e) {
+        branchEntries.map(function (e) {
           return e.value;
-        })
+        }),
+        true,
+        { onSegmentClick: branchLegendClick }
       );
-      renderLegend('legend-students-branch', ss.branchEntries);
+      renderLegend('legend-students-branch', branchEntries, null, {
+        onItemClick: branchLegendClick,
+      });
     }
 
     if (ss.batchEntries.length) {
-      var batchTop = ss.batchEntries.slice(0, 8);
-      renderBar(
+      var batchAnalysis = buildBatchBranchAnalysis(dashboardStudents);
+      renderBranchColorKey('crm-batch-branch-key');
+      renderStackedBar(
         'chart-students-batch',
-        batchTop.map(function (e) {
-          return e.label;
-        }),
-        batchTop.map(function (e) {
-          return e.value;
-        }),
-        true
+        batchAnalysis.labels,
+        batchAnalysis.datasets,
+        true,
+        {
+          onStackClick: function (batchName, branchName) {
+            batchBranchClick(batchName, branchName);
+          },
+        }
       );
-      renderLegend('legend-students-batch', batchTop);
+      renderBatchLegend('legend-students-batch', batchAnalysis.batches, {
+        onItemClick: batchLegendClick,
+      });
     }
 
     renderTestsSection(tests);

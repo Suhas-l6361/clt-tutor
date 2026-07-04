@@ -1668,6 +1668,43 @@
       color: #86efac;
       border-color: rgba(34, 197, 94, 0.28);
     }
+    .at-history-badge--viewed {
+      background: rgba(148, 163, 184, 0.14);
+      color: #cbd5e1;
+      border-color: rgba(148, 163, 184, 0.28);
+    }
+    .at-history-badge--last-opened {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.35);
+      font-weight: 600;
+    }
+    .at-history-card--last-opened {
+      border-color: rgba(245, 158, 11, 0.55);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.12);
+    }
+    .at-history-card--opened {
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+    .at-history-card--open {
+      border-color: rgba(34, 197, 94, 0.22);
+    }
+    .at-history-card--closed {
+      border-color: rgba(239, 68, 68, 0.18);
+    }
+    .at-history-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 0.9rem;
+      margin: 0.35rem 0 0;
+      font-size: 0.74rem;
+      color: #94a3b8;
+    }
+    .at-history-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
   </style>
 </head>
 <body class="app-body crm-dashboard">
@@ -2159,7 +2196,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js"></script>
+  <script src="../js/exam-question-parser.js?v=202607044"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
@@ -3227,6 +3264,11 @@
           block.match(/Correct\s+Option\s+is\s*:\s*["']?\s*([A-D])\s*["']?/i) ||
           block.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
           block.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+          block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\s*[\)"']?/i) ||
+          block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\b/i) ||
+          block.match(/Ans\s*[:\-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
+          block.match(/Ans\s*:\s*([A-D])\b/i) ||
+          block.match(/Answer\s*:\s*([A-D])\b/i) ||
           block.match(/["']([A-D])["']/) ||
           block.match(/^\s*["']?([A-D])["']?\s*$/i);
         return lm ? lm[1].toUpperCase() : null;
@@ -3281,7 +3323,12 @@
         var i = 0;
 
         function isSectionHeader(t) {
-          return /^(LR|LE|AR|GK|RC|QA)$/i.test(t);
+          return (
+            /^(LR|LE|AR|GK|RC|QA)$/i.test(t) ||
+            /^\([^)]+\)\s*$/i.test(t) ||
+            /^\[[^\]]+\]\s*$/i.test(t) ||
+            /^(English|General Knowledge|Legal Reasoning|Logical Reasoning|Quantitative techniques)\b/i.test(t)
+          );
         }
 
         while (i < lines.length) {
@@ -4202,6 +4249,35 @@
             };
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
+            if (parsed.missingNumbers && parsed.missingNumbers.length) {
+              var miss = parsed.missingNumbers.slice(0, 12).join(', ');
+              if (parsed.missingNumbers.length > 12) {
+                miss += '… (+' + (parsed.missingNumbers.length - 12) + ' more)';
+              }
+              showToast(
+                'Some questions missing',
+                'Expected 120 but got ' +
+                  parsed.questions.length +
+                  '. Missing Q' +
+                  miss +
+                  '. Word may have glued options on one line — re-save or fix those questions.'
+              );
+            } else if (parsed.dropped && parsed.dropped.length) {
+              var dropNums = parsed.dropped
+                .map(function (d) {
+                  return d.number;
+                })
+                .filter(function (n) {
+                  return n >= 1 && n <= 120;
+                })
+                .join(', ');
+              if (dropNums) {
+                showToast(
+                  'Some questions skipped',
+                  'Could not read options for Q' + dropNums + '.'
+                );
+              }
+            }
             openPreviewModal();
           }
 
@@ -4431,6 +4507,27 @@
         return 'application/octet-stream';
       }
 
+      function validateAnswerKeyDocxFile(file) {
+        if (!file) return Promise.resolve();
+        var lower = (file.name || '').toLowerCase();
+        if (!lower.endsWith('.docx')) {
+          return Promise.reject(
+            new Error('Answer key must be a Word .docx file. Open your document in Word and use Save As → Word Document (.docx).')
+          );
+        }
+        var head = file.slice(0, 4);
+        return head.arrayBuffer().then(function (ab) {
+          var u = new Uint8Array(ab);
+          if (u[0] === 0x50 && u[1] === 0x4b && u[2] === 0x03 && u[3] === 0x04) return true;
+          if (u[0] === 0xd0 && u[1] === 0xcf && u[2] === 0x11 && u[3] === 0xe0) {
+            throw new Error(
+              'This is an old Word .doc file. Open it in Word, choose Save As → Word Document (.docx), then upload again.'
+            );
+          }
+          throw new Error('File is not a valid Word .docx document. Re-save as .docx and try again.');
+        });
+      }
+
       function readFileAsDataUrl(file) {
         return new Promise(function (resolve, reject) {
           var r = new FileReader();
@@ -4469,15 +4566,19 @@
 
       function presignAndUploadToS3(file, role) {
         var ctype = guessContentType(file.name, file.type);
-        return fetch(addTestApiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'presign_upload',
-            file_role: role,
-            file_name: file.name,
-            content_type: ctype,
-          }),
+        var prep =
+          role === 'answer_key' ? validateAnswerKeyDocxFile(file) : Promise.resolve();
+        return prep.then(function () {
+          return fetch(addTestApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'presign_upload',
+              file_role: role,
+              file_name: file.name,
+              content_type: ctype,
+            }),
+          });
         })
           .then(parseAddTestResponse)
           .then(function (presignResult) {
@@ -4723,7 +4824,15 @@
       function renderHistoryRows(rows, filter) {
         if (!historyList) return;
         historyList.innerHTML = '';
-        if (!rows.length) {
+        var lastOpenId =
+          typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.findLastOpenedTestId
+            ? TestSubjectFlags.findLastOpenedTestId(rows)
+            : '';
+        var displayRows =
+          typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.sortTestsByAccessStatus
+            ? TestSubjectFlags.sortTestsByAccessStatus(rows, lastOpenId)
+            : rows.slice();
+        if (!displayRows.length) {
           var emptyMsg =
             filter && filter.category
               ? 'No ' +
@@ -4734,12 +4843,21 @@
           if (historyCount) historyCount.textContent = '0 tests';
           return;
         }
-        rows.forEach(function (row) {
+        displayRows.forEach(function (row) {
           var branches = splitBranchesLabel(row.selected_branch);
           var createdAt = asLocalDateTime(row.created_at);
           var sched = row.scheduled ? asLocalDateTime(row.scheduled) : '';
           var qUrl = row.question_paper_url ? String(row.question_paper_url).trim() : '';
           var aUrl = row.answer_key_url ? String(row.answer_key_url).trim() : '';
+          var testIdStr = String(row.test_id || '');
+          var accessMark =
+            typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.getTestAccessMark
+              ? TestSubjectFlags.getTestAccessMark(row, lastOpenId)
+              : '';
+          var lastOpenedBadge =
+            accessMark === 'last'
+              ? '<span class="at-history-badge at-history-badge--last-opened"><i class="fa-solid fa-star" aria-hidden="true"></i> Last opened</span>'
+              : '';
           var isClosed =
             typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed
               ? TestSubjectFlags.isTestClosed(row)
@@ -4775,6 +4893,9 @@
             '</span>';
           var card = document.createElement('article');
           card.className = 'at-history-card';
+          if (accessMark === 'last') card.classList.add('at-history-card--last-opened');
+          else if (accessMark === 'closed') card.classList.add('at-history-card--closed');
+          else if (accessMark === 'open') card.classList.add('at-history-card--open');
           card.innerHTML =
             '<div class="at-history-card__head">' +
             '<div><h4 class="at-history-card__title">' +
@@ -4785,6 +4906,7 @@
             (row.added_by ? ' · By ' + escapeHtml(String(row.added_by)) : '') +
             '</p></div>' +
             '<div class="at-history-badges">' +
+            lastOpenedBadge +
             typeBadge +
             accessBadge +
             (sched ? '<span class="at-history-badge">Scheduled ' + escapeHtml(sched) + '</span>' : '<span class="at-history-badge">Draft</span>') +

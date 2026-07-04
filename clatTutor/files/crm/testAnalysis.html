@@ -28,11 +28,28 @@
           <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
         </div>
         <div class="ta-filter-grid">
-          <div class="ta-field">
-            <label for="ta-test-select">Select test</label>
-            <select id="ta-test-select" aria-label="Select test">
-              <option value="">Loading tests…</option>
-            </select>
+          <div class="ta-field ta-field--select">
+            <label id="ta-test-select-label-text" for="ta-test-select-trigger">Select test</label>
+            <div class="ta-test-picker" id="ta-test-picker">
+              <button
+                type="button"
+                class="ta-test-picker__trigger"
+                id="ta-test-select-trigger"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-labelledby="ta-test-select-label-text ta-test-select-current"
+                disabled
+              >
+                <span class="ta-test-picker__current" id="ta-test-select-current">Loading tests…</span>
+                <i class="fa-solid fa-chevron-down ta-test-picker__chevron" aria-hidden="true"></i>
+              </button>
+              <div class="ta-test-picker__menu" id="ta-test-select-menu" role="listbox" aria-labelledby="ta-test-select-label-text" hidden></div>
+            </div>
+            <p class="ta-test-select-legend" id="ta-test-select-legend">
+              <span class="ta-test-select-legend__item ta-test-select-legend__item--last"><i class="fa-solid fa-star" aria-hidden="true"></i> Last opened for students</span>
+              <span class="ta-test-select-legend__item ta-test-select-legend__item--open"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Open</span>
+              <span class="ta-test-select-legend__item ta-test-select-legend__item--closed"><i class="fa-solid fa-lock" aria-hidden="true"></i> Closed</span>
+            </p>
           </div>
           <div class="ta-field ta-field--action">
             <span class="ta-field__spacer" aria-hidden="true">&nbsp;</span>
@@ -125,7 +142,8 @@
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/student-chrome.js"></script>
-  <script src="../js/test-analysis-page.js"></script>
+  <script src="../js/test-subject-flags.js"></script>
+  <script src="../js/test-analysis-page.js?v=20260704e"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

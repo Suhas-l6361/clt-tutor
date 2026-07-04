@@ -140,6 +140,56 @@
     );
   }
 
+  function testRowId(row) {
+    return String(row && row.test_id != null ? row.test_id : row && row.id != null ? row.id : '');
+  }
+
+  function rowCreatedTs(row) {
+    var ts = Date.parse((row && (row.created_at || row.scheduled)) || '');
+    return Number.isFinite(ts) ? ts : 0;
+  }
+
+  /** Newest test that is currently Open for students. */
+  function findLastOpenedTestId(testList) {
+    var bestId = '';
+    var bestTs = -1;
+    var bestNum = -1;
+    (testList || []).forEach(function (row) {
+      if (isTestClosed(row)) return;
+      var id = testRowId(row);
+      var ts = rowCreatedTs(row);
+      var num = parseInt(id, 10);
+      if (ts > bestTs || (ts === bestTs && Number.isFinite(num) && num > bestNum)) {
+        bestTs = ts;
+        bestNum = Number.isFinite(num) ? num : bestNum;
+        bestId = id;
+      }
+    });
+    return bestId;
+  }
+
+  function sortTestsByAccessStatus(testList, lastOpenId) {
+    return (testList || []).slice().sort(function (a, b) {
+      var idA = testRowId(a);
+      var idB = testRowId(b);
+      if (lastOpenId && idA === lastOpenId) return -1;
+      if (lastOpenId && idB === lastOpenId) return 1;
+      var closedA = isTestClosed(a);
+      var closedB = isTestClosed(b);
+      if (closedA !== closedB) return closedA ? 1 : -1;
+      var tsDiff = rowCreatedTs(b) - rowCreatedTs(a);
+      if (tsDiff) return tsDiff;
+      return parseInt(idB, 10) - parseInt(idA, 10);
+    });
+  }
+
+  function getTestAccessMark(row, lastOpenId) {
+    var id = testRowId(row);
+    if (lastOpenId && id === lastOpenId) return 'last';
+    if (isTestClosed(row)) return 'closed';
+    return 'open';
+  }
+
   global.TestSubjectFlags = {
     SECTION_CATEGORY_TO_FLAG: SECTION_CATEGORY_TO_FLAG,
     FLAG_TO_CATEGORY: FLAG_TO_CATEGORY,
@@ -155,5 +205,9 @@
     isLegacyUntypedTest: isLegacyUntypedTest,
     classifyTestRow: classifyTestRow,
     rowMatchesTestFilter: rowMatchesTestFilter,
+    testRowId: testRowId,
+    findLastOpenedTestId: findLastOpenedTestId,
+    sortTestsByAccessStatus: sortTestsByAccessStatus,
+    getTestAccessMark: getTestAccessMark,
   };
 })(typeof window !== 'undefined' ? window : this);

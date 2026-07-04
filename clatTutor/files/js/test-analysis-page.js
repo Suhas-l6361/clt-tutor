@@ -83,6 +83,8 @@
   var currentTestId = '';
   var currentBranchFilter = '';
   var selectedAttemptId = null;
+  var loadSeq = 0;
+  var loadInFlight = false;
 
   var BRANCH_CANONICAL = [
     { key: 'malleshwaram', label: 'Malleshwaram' },
@@ -116,8 +118,18 @@
 
   var els = {};
 
+  function refreshTableEls() {
+    els.tableWrap = document.getElementById('ta-table-wrap');
+    els.tableBody = document.getElementById('ta-table-body');
+    els.status = document.getElementById('ta-status');
+  }
+
   function getEls() {
-    els.testSelect = document.getElementById('ta-test-select');
+    els.testPicker = document.getElementById('ta-test-picker');
+    els.testPickerTrigger = document.getElementById('ta-test-select-trigger');
+    els.testPickerMenu = document.getElementById('ta-test-select-menu');
+    els.testPickerCurrent = document.getElementById('ta-test-select-current');
+    els.testSelectLegend = document.getElementById('ta-test-select-legend');
     els.refreshBtn = document.getElementById('ta-refresh-btn');
     els.kpis = document.getElementById('ta-kpis');
     els.kpiAttended = document.getElementById('ta-kpi-attended');
@@ -190,9 +202,11 @@
           var em = String(s.email || '').trim().toLowerCase();
           if (em) studentsByEmail[em] = s;
         });
-        if (attempts.length) applyTableAvatars();
-        if (attempts.length) renderBranchFilter();
-        if (attempts.length) renderSummary();
+        if (loadInFlight) return;
+        if (attempts.length) {
+          renderBranchFilter();
+          renderResults();
+        }
         if (selectedAttemptId) {
           var att = attempts.find(function (a) {
             return a.id === selectedAttemptId;
@@ -214,9 +228,13 @@
       setStatus('ADD_TEST_API is not configured.', true);
       return Promise.resolve();
     }
-    if (els.testSelect) {
-      els.testSelect.innerHTML = '<option value="">Loading tests…</option>';
-      els.testSelect.disabled = true;
+    if (els.testPickerTrigger) {
+      els.testPickerTrigger.disabled = true;
+      if (els.testPickerCurrent) els.testPickerCurrent.textContent = 'Loading tests…';
+    }
+    if (els.testPickerMenu) {
+      els.testPickerMenu.hidden = true;
+      els.testPickerMenu.innerHTML = '';
     }
     return fetch(api, { method: 'GET', credentials: 'omit' })
       .then(function (res) {
@@ -234,33 +252,150 @@
       });
   }
 
-  function renderTestSelect() {
-    if (!els.testSelect) return;
-    els.testSelect.disabled = false;
-    if (!tests.length) {
-      els.testSelect.innerHTML = '<option value="">No tests found</option>';
+  function testRowId(t) {
+    if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.testRowId) {
+      return TestSubjectFlags.testRowId(t);
+    }
+    return String(t.test_id != null ? t.test_id : t.id);
+  }
+
+  function findLastOpenedTestId(testList) {
+    if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.findLastOpenedTestId) {
+      return TestSubjectFlags.findLastOpenedTestId(testList);
+    }
+    return '';
+  }
+
+  function sortTestsForPicker(testList, lastOpenId) {
+    if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.sortTestsByAccessStatus) {
+      return TestSubjectFlags.sortTestsByAccessStatus(testList, lastOpenId);
+    }
+    return (testList || []).slice();
+  }
+
+  function testStatusMark(testRow, lastOpenId) {
+    if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.getTestAccessMark) {
+      return TestSubjectFlags.getTestAccessMark(testRow, lastOpenId);
+    }
+    return 'open';
+  }
+
+  function testPickerBadgeHtml(mark) {
+    if (mark === 'last') {
+      return '<span class="ta-test-picker__badge ta-test-picker__badge--last"><i class="fa-solid fa-star" aria-hidden="true"></i> Last opened</span>';
+    }
+    if (mark === 'closed') {
+      return '<span class="ta-test-picker__badge ta-test-picker__badge--closed"><i class="fa-solid fa-lock" aria-hidden="true"></i> Closed</span>';
+    }
+    if (mark === 'open') {
+      return '<span class="ta-test-picker__badge ta-test-picker__badge--open"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Open</span>';
+    }
+    return '';
+  }
+
+  function updateTestPickerCurrent() {
+    if (!els.testPickerCurrent) return;
+    if (!currentTestId) {
+      els.testPickerCurrent.textContent = '— Select a test —';
       return;
     }
-    var html =
-      '<option value="">— Select a test —</option>' +
-      tests
+    var title = getTestTitle(currentTestId) || 'Untitled test';
+    els.testPickerCurrent.textContent = title + ' (#' + currentTestId + ')';
+  }
+
+  function closeTestPicker() {
+    if (!els.testPickerMenu || !els.testPickerTrigger) return;
+    els.testPickerMenu.hidden = true;
+    els.testPickerTrigger.setAttribute('aria-expanded', 'false');
+    if (els.testPicker) els.testPicker.classList.remove('is-open');
+  }
+
+  function openTestPicker() {
+    if (!els.testPickerMenu || !els.testPickerTrigger || els.testPickerTrigger.disabled) return;
+    els.testPickerMenu.hidden = false;
+    els.testPickerTrigger.setAttribute('aria-expanded', 'true');
+    if (els.testPicker) els.testPicker.classList.add('is-open');
+  }
+
+  function toggleTestPicker() {
+    if (!els.testPickerMenu) return;
+    if (els.testPickerMenu.hidden) openTestPicker();
+    else closeTestPicker();
+  }
+
+  function chooseTest(testId) {
+    var nextId = testId ? String(testId) : '';
+    if (nextId === String(currentTestId || '')) {
+      closeTestPicker();
+      return;
+    }
+    currentTestId = nextId;
+    currentBranchFilter = '';
+    if (els.branchFilter) els.branchFilter.value = '';
+    updateTestPickerCurrent();
+    closeTestPicker();
+    loadAttempts(currentTestId).then(function () {
+      renderTestSelect();
+    });
+  }
+
+  function renderTestSelect() {
+    if (!els.testPickerTrigger || !els.testPickerMenu) return;
+
+    updateTestPickerCurrent();
+
+    if (!tests.length) {
+      els.testPickerTrigger.disabled = true;
+      if (els.testPickerCurrent) els.testPickerCurrent.textContent = 'No tests found';
+      els.testPickerMenu.innerHTML = '';
+      els.testPickerMenu.hidden = true;
+      return;
+    }
+
+    els.testPickerTrigger.disabled = false;
+
+    var lastOpenId = findLastOpenedTestId(tests);
+    var list = sortTestsForPicker(tests, lastOpenId);
+
+    var items =
+      '<button type="button" class="ta-test-picker__item" data-test-id="" role="option">' +
+      '<span class="ta-test-picker__item-text">— Select a test —</span></button>' +
+      list
         .map(function (t) {
-          var id = t.test_id != null ? t.test_id : t.id;
+          var id = testRowId(t);
           var title = t.title || 'Untitled test';
+          var mark = testStatusMark(t, lastOpenId);
+          var itemCls = 'ta-test-picker__item';
+          if (mark === 'last') itemCls += ' ta-test-picker__item--last';
+          else if (mark === 'closed') itemCls += ' ta-test-picker__item--closed';
+          else if (mark === 'open') itemCls += ' ta-test-picker__item--open';
+          if (String(id) === String(currentTestId)) itemCls += ' is-active';
           return (
-            '<option value="' +
+            '<button type="button" class="' +
+            itemCls +
+            '" data-test-id="' +
             esc(String(id)) +
-            '"' +
-            (String(id) === String(currentTestId) ? ' selected' : '') +
-            '>' +
+            '" role="option" aria-selected="' +
+            (String(id) === String(currentTestId) ? 'true' : 'false') +
+            '">' +
+            '<span class="ta-test-picker__item-text">' +
             esc(title) +
-            ' (#' +
+            ' <span class="ta-test-picker__item-id">#' +
             esc(String(id)) +
-            ')</option>'
+            '</span></span>' +
+            testPickerBadgeHtml(mark) +
+            '</button>'
           );
         })
         .join('');
-    els.testSelect.innerHTML = html;
+
+    els.testPickerMenu.innerHTML = items;
+
+    els.testPickerMenu.querySelectorAll('[data-test-id]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        chooseTest(btn.getAttribute('data-test-id') || '');
+      });
+    });
   }
 
   function loadAttempts(testId) {
@@ -270,18 +405,21 @@
       return Promise.resolve();
     }
     if (!testId) {
+      loadInFlight = false;
       attempts = [];
       currentBranchFilter = '';
       renderBranchFilter();
-      renderSummary();
-      renderTable();
+      renderResults();
       setStatus('Choose a test to load results.');
-      if (els.kpis) els.kpis.hidden = true;
       return Promise.resolve();
     }
 
+    var seq = ++loadSeq;
+    loadInFlight = true;
+    attempts = [];
+    renderBranchFilter();
+    renderResults();
     setStatus('Loading student results…');
-    if (els.kpis) els.kpis.hidden = true;
 
     var url =
       api +
@@ -299,21 +437,22 @@
         });
       })
       .then(function (data) {
+        if (seq !== loadSeq) return;
+        loadInFlight = false;
         attempts = Array.isArray(data.attempts) ? data.attempts : [];
         var title = data.title || getTestTitle(testId);
         if (els.panelTitle) {
           els.panelTitle.textContent = title ? title + ' — Students' : 'Student attempts';
         }
-        hideStatus();
         renderBranchFilter();
-        renderSummary();
-        renderTable();
+        renderResults();
       })
       .catch(function (err) {
+        if (seq !== loadSeq) return;
+        loadInFlight = false;
         attempts = [];
         renderBranchFilter();
-        renderSummary();
-        renderTable();
+        renderResults();
         setStatus(err.message || 'Could not load test results.', true);
       });
   }
@@ -386,11 +525,20 @@
     }
   }
 
+  function resetSummary() {
+    if (!els.kpis) return;
+    els.kpis.hidden = true;
+    if (els.kpiAttended) els.kpiAttended.textContent = '0';
+    if (els.kpiAvg) els.kpiAvg.textContent = '—';
+    if (els.kpiPassed) els.kpiPassed.textContent = '0';
+    if (els.kpiTotal) els.kpiTotal.textContent = '—';
+  }
+
   function renderSummary() {
     if (!els.kpis) return;
     var rows = filterAttempts();
     if (!currentTestId || !attempts.length) {
-      els.kpis.hidden = true;
+      resetSummary();
       return;
     }
     els.kpis.hidden = false;
@@ -400,7 +548,8 @@
     }).length;
     var pcts = rows
       .map(function (a) {
-        return a.percentage != null ? Number(a.percentage) : NaN;
+        var p = attemptScorePct(a);
+        return p != null ? p : NaN;
       })
       .filter(function (n) {
         return Number.isFinite(n);
@@ -464,7 +613,13 @@
     });
   }
 
+  function renderResults() {
+    renderSummary();
+    renderTable();
+  }
+
   function renderTable() {
+    refreshTableEls();
     if (!els.tableBody || !els.tableWrap) return;
     var rows = filterAttempts();
     if (!currentTestId) {
@@ -487,7 +642,8 @@
 
     els.tableBody.innerHTML = rows
       .map(function (a) {
-        var pct = a.percentage != null ? a.percentage + '%' : '—';
+        var pctNum = attemptScorePct(a);
+        var pct = pctNum != null ? pctNum + '%' : '—';
         var grade = a.letter_grade ? ' (' + a.letter_grade + ')' : '';
         var unans = a.unanswered != null ? a.unanswered : '—';
         var statusBadge = a.passed
@@ -588,6 +744,55 @@
     };
   }
 
+  /* Score % including negative marking — same formula as the student's
+   * online-test analysis: (correct*mc - wrong*mn) / (total*mc) * 100. */
+  function computeScorePercentage(correct, wrong, total, marksCorrect, marksNegative) {
+    var c = Number.isFinite(Number(correct)) ? Number(correct) : 0;
+    var w = Number.isFinite(Number(wrong)) ? Number(wrong) : 0;
+    var t = Number.isFinite(Number(total)) ? Number(total) : 0;
+    var mc = Number.isFinite(Number(marksCorrect)) && Number(marksCorrect) > 0 ? Number(marksCorrect) : 1;
+    var mn = Number.isFinite(Number(marksNegative)) && Number(marksNegative) >= 0 ? Number(marksNegative) : 0.25;
+    if (t <= 0) return null;
+    var maxMarks = t * mc;
+    if (maxMarks <= 0) return null;
+    var net = c * mc - w * mn;
+    var pct = (net / maxMarks) * 100;
+    if (pct < 0) pct = 0;
+    return Math.round(pct * 10) / 10;
+  }
+
+  function attemptMarks(att) {
+    var mc =
+      att && att.marksCorrect != null && Number.isFinite(Number(att.marksCorrect))
+        ? Number(att.marksCorrect)
+        : att && att.marks_correct != null && Number.isFinite(Number(att.marks_correct))
+          ? Number(att.marks_correct)
+          : 1;
+    var mn =
+      att && att.marksNegative != null && Number.isFinite(Number(att.marksNegative))
+        ? Number(att.marksNegative)
+        : att && att.marks_negative != null && Number.isFinite(Number(att.marks_negative))
+          ? Number(att.marks_negative)
+          : 0.25;
+    return { mc: mc, mn: mn };
+  }
+
+  /* The percentage the CRM should show — negative-marking aware, computed from
+   * the same correct/wrong/total the CRM already displays. Falls back to the
+   * backend att.percentage only when counts aren't usable. */
+  function attemptScorePct(att) {
+    if (!att) return null;
+    var stats = computeStats(att);
+    var m = attemptMarks(att);
+    var pct = computeScorePercentage(stats.correct, stats.wrong, stats.total, m.mc, m.mn);
+    if (pct == null) {
+      return att.percentage != null && Number.isFinite(Number(att.percentage))
+        ? Number(att.percentage)
+        : null;
+    }
+    return pct;
+  }
+
   function buildProfileChips(student, att) {
     var chips = [];
     var batch = (student && student.batch) || att.batch;
@@ -617,7 +822,8 @@
     var cPct = Math.round((stats.correct / total) * 1000) / 10;
     var wPct = Math.round((stats.wrong / total) * 1000) / 10;
     var uPct = Math.max(0, Math.round((stats.unanswered / total) * 1000) / 10);
-    var scorePct = att.percentage != null ? Math.max(0, Math.min(100, Number(att.percentage))) : 0;
+    var scoreVal = attemptScorePct(att);
+    var scorePct = scoreVal != null ? Math.max(0, Math.min(100, scoreVal)) : 0;
 
     if (els.drawerTitle) els.drawerTitle.textContent = displayName;
     if (els.drawerMeta) {
@@ -663,7 +869,7 @@
       '">' +
       '<div class="ta-ax-score-ring__hole">' +
       '<span class="ta-ax-score-ring__pct">' +
-      (att.percentage != null ? esc(String(att.percentage)) + '%' : '—') +
+      (scoreVal != null ? esc(String(scoreVal)) + '%' : '—') +
       '</span>' +
       '<span class="ta-ax-score-ring__sub">Score</span></div></div>' +
       '<div style="text-align:center">' +
@@ -757,16 +963,19 @@
   }
 
   function bindEvents() {
-    if (els.testSelect) {
-      els.testSelect.addEventListener('change', function () {
-        currentTestId = els.testSelect.value || '';
-        currentBranchFilter = '';
-        if (els.branchFilter) els.branchFilter.value = '';
-        loadAttempts(currentTestId);
+    if (els.testPickerTrigger) {
+      els.testPickerTrigger.addEventListener('click', function () {
+        toggleTestPicker();
       });
     }
+    document.addEventListener('click', function (e) {
+      if (!els.testPicker || !els.testPickerMenu || els.testPickerMenu.hidden) return;
+      if (els.testPicker.contains(e.target)) return;
+      closeTestPicker();
+    });
     if (els.refreshBtn) {
       els.refreshBtn.addEventListener('click', function () {
+        closeTestPicker();
         Promise.all([loadTests(), loadStudents()]).then(function () {
           if (currentTestId) loadAttempts(currentTestId);
         });
@@ -774,8 +983,7 @@
     }
     if (els.search) {
       els.search.addEventListener('input', function () {
-        renderSummary();
-        renderTable();
+        renderResults();
       });
     }
     if (els.branchFilter) {
@@ -787,14 +995,16 @@
           });
           if (!stillVisible) closeDrawer();
         }
-        renderSummary();
-        renderTable();
+        renderResults();
       });
     }
     if (els.drawerClose) els.drawerClose.addEventListener('click', closeDrawer);
     if (els.drawerBackdrop) els.drawerBackdrop.addEventListener('click', closeDrawer);
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && els.drawer && !els.drawer.hidden) closeDrawer();
+      if (e.key === 'Escape') {
+        if (els.testPickerMenu && !els.testPickerMenu.hidden) closeTestPicker();
+        if (els.drawer && !els.drawer.hidden) closeDrawer();
+      }
     });
   }
 

@@ -13,6 +13,8 @@ const corsHeaders = {
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
+/** Test file buckets live in us-east-1 (same as addTest.js); wrong region breaks S3 getObject. */
+const S3_BUCKET_REGION = 'us-east-1';
 
 const BUCKET_QUESTIONS = 'clututor-onlinetest-queations';
 const BUCKET_KEYANSWER = 'clututor-onlinetest-keyanswer';
@@ -23,7 +25,12 @@ const TABLE_SUBMITTED = 'submitted_online_test';
 const STUDENT_GENERAL_INFO_URL =
   'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
 
-const s3 = new AWS.S3({ region: AWS_REGION });
+const s3TestBuckets = new AWS.S3({ region: S3_BUCKET_REGION, signatureVersion: 'v4' });
+
+const isOurTestBucketHost = (host, bucket) =>
+  host === `${bucket}.s3.amazonaws.com` ||
+  host === `${bucket}.s3.${S3_BUCKET_REGION}.amazonaws.com` ||
+  host.startsWith(`${bucket}.s3.`);
 
 const getUserFromToken = (event) => {
   if (!JWT_SECRET) return null;
@@ -46,9 +53,9 @@ const parseOurS3BucketKeyFromUrl = (url) => {
     const u = new URL(url);
     const host = u.hostname;
     let bucket = null;
-    if (host === `${BUCKET_QUESTIONS}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_QUESTIONS}.s3.`)) {
+    if (isOurTestBucketHost(host, BUCKET_QUESTIONS)) {
       bucket = BUCKET_QUESTIONS;
-    } else if (host === `${BUCKET_KEYANSWER}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_KEYANSWER}.s3.`)) {
+    } else if (isOurTestBucketHost(host, BUCKET_KEYANSWER)) {
       bucket = BUCKET_KEYANSWER;
     }
     if (!bucket) return null;
@@ -77,6 +84,11 @@ function extractCorrectOptionLetter(tail) {
     blockTrim.match(/Correct\s+Option\s+is\s*:\s*["']?\s*([A-D])\s*["']?/i) ||
     blockTrim.match(/Correct\s+option\s+is\s*:\s*["']?\s*([A-D])\b/i) ||
     blockTrim.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
+    blockTrim.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\s*[\)"']?/i) ||
+    blockTrim.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\b/i) ||
+    blockTrim.match(/Ans\s*[:\-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
+    blockTrim.match(/Ans\s*:\s*([A-D])\b/i) ||
+    blockTrim.match(/Answer\s*:\s*([A-D])\b/i) ||
     blockTrim.match(/["']([A-D])["']/) ||
     blockTrim.match(/^\s*["']?([A-D])["']?\s*$/i);
   return lm ? lm[1].toUpperCase() : null;
@@ -108,7 +120,11 @@ function parseAnswerKeyText(text) {
   const lines = normalizeAnswerKeyLayout(text).split('\n');
   let i = 0;
 
-  const isSectionHeader = (t) => /^(LR|LE|AR|GK|RC|QA)$/i.test(t);
+  const isSectionHeader = (t) =>
+    /^(LR|LE|AR|GK|RC|QA)$/i.test(t) ||
+    /^\([^)]+\)\s*$/i.test(t) ||
+    /^\[[^\]]+\]\s*$/i.test(t) ||
+    /^(English|General Knowledge|Legal Reasoning|Logical Reasoning|Quantitative techniques)\b/i.test(t);
 
   while (i < lines.length) {
     const t = lines[i].trim();
@@ -294,7 +310,7 @@ async function getAnswerKeyTextFromUrl(answerKeyUrl) {
   if (!bk || bk.bucket !== BUCKET_KEYANSWER) {
     throw new Error('Answer key must be in the institute answer-key bucket');
   }
-  const obj = await s3.getObject({ Bucket: bk.bucket, Key: bk.key }).promise();
+  const obj = await s3TestBuckets.getObject({ Bucket: bk.bucket, Key: bk.key }).promise();
   const rawBody = obj.Body;
   if (!rawBody) return '';
   const buf = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
@@ -303,6 +319,9 @@ async function getAnswerKeyTextFromUrl(answerKeyUrl) {
   if (lower.endsWith('.docx')) {
     const result = await mammoth.extractRawText({ buffer: buf });
     return (result && result.value) || '';
+  }
+  if (lower.endsWith('.doc')) {
+    throw new Error('Answer key must be .docx (Word 2007+), not legacy .doc');
   }
   return buf.toString('utf8');
 }

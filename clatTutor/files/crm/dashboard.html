@@ -23,6 +23,82 @@
         <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
       </section>
 
+      <section class="crm-overdue-fees" id="crm-overdue-fees" hidden aria-label="Overdue unpaid installments">
+        <div class="crm-overdue-fees__glow" aria-hidden="true"></div>
+        <div class="crm-overdue-fees__head">
+          <div class="crm-overdue-fees__title-wrap">
+            <span class="crm-overdue-fees__pulse" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <div>
+              <h3 class="crm-overdue-fees__title">Overdue fees — action needed</h3>
+              <p class="crm-overdue-fees__sub" id="crm-overdue-fees-sub">Installment due from Jun 2026 onwards · tuition not fully paid</p>
+            </div>
+          </div>
+          <div class="crm-overdue-fees__head-actions">
+            <div class="crm-overdue-fees__stats" id="crm-overdue-fees-stats" hidden>
+              <span class="crm-overdue-fees__stat">
+                <span class="crm-overdue-fees__stat-num" id="crm-overdue-fees-total-amt">—</span>
+                <span class="crm-overdue-fees__stat-lbl">outstanding</span>
+              </span>
+            </div>
+            <span class="crm-overdue-fees__count" id="crm-overdue-fees-count" hidden></span>
+            <a href="fees.html" class="crm-overdue-fees__link"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Collect fees</a>
+          </div>
+        </div>
+        <p class="crm-overdue-fees__loading" id="crm-overdue-fees-loading">Checking overdue installments…</p>
+        <p class="crm-overdue-fees__error" id="crm-overdue-fees-error" hidden></p>
+        <div class="crm-overdue-fees__grid-wrap" id="crm-overdue-fees-grid-wrap" hidden>
+          <div class="crm-overdue-fees__grid" id="crm-overdue-fees-grid" aria-live="polite"></div>
+        </div>
+        <p class="crm-overdue-fees__empty" id="crm-overdue-fees-empty" hidden>
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+          All clear — every student is up to date on installments.
+        </p>
+      </section>
+
+      <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Upcoming fee installments">
+        <div class="crm-due-fees__head">
+          <div>
+            <h3 class="crm-due-fees__title"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i> Due fees</h3>
+            <p class="crm-due-fees__sub" id="crm-due-fees-sub">Upcoming installments from Jun 2026 onwards — nearest due first</p>
+          </div>
+          <div class="crm-due-fees__head-actions">
+            <span class="crm-due-fees__hint">Hover to pause</span>
+            <span class="crm-due-fees__count" id="crm-due-fees-count" hidden></span>
+            <a href="fees.html" class="crm-due-fees__link"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Open Fees</a>
+          </div>
+        </div>
+        <p class="crm-due-fees__loading" id="crm-due-fees-loading">Loading due fees…</p>
+        <p class="crm-due-fees__error" id="crm-due-fees-error" hidden></p>
+        <div class="crm-due-fees__urgent" id="crm-due-fees-urgent" hidden>
+          <p class="crm-due-fees__urgent-label">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            Due within 5 days
+            <span class="crm-due-fees__urgent-count" id="crm-due-fees-urgent-count"></span>
+          </p>
+          <div class="crm-due-fees__urgent-scroll">
+            <div class="crm-due-fees__urgent-track" id="crm-due-fees-urgent-track" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="crm-due-fees__marquee-wrap" id="crm-due-fees-marquee-wrap" hidden>
+          <p class="crm-due-fees__marquee-label" id="crm-due-fees-marquee-label" hidden>All upcoming</p>
+          <div class="crm-due-fees__marquee" id="crm-due-fees-marquee">
+            <div class="crm-due-fees__track" id="crm-due-fees-track" aria-live="polite"></div>
+          </div>
+        </div>
+        <p class="crm-due-fees__empty" id="crm-due-fees-empty" hidden>All clear — no upcoming installment dues.</p>
+      </section>
+
+      <section class="crm-pending-requests" id="crm-pending-requests" hidden aria-label="Pending enquiry responses">
+        <div class="crm-pending-requests__head">
+          <div>
+            <h3 class="crm-pending-requests__title"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Pending responses</h3>
+            <p class="crm-pending-requests__sub">Unresponded requests from the public website — click to review</p>
+          </div>
+          <span class="crm-pending-requests__total" id="crm-pending-requests-total" hidden></span>
+        </div>
+        <div class="crm-pending-requests__grid" id="crm-pending-requests-grid" aria-live="polite"></div>
+      </section>
+
       <section class="crm-marquee-section" id="crm-marquee-section" hidden aria-label="Latest test scores">
         <div class="crm-marquee-section__head">
           <span class="crm-marquee-section__title"><i class="fa-solid fa-trophy"></i> Latest test scores</span>
@@ -80,7 +156,9 @@
             </div>
             <div class="crm-chart-panel">
               <h4>Batch-wise</h4>
-              <div class="crm-chart-wrap"><canvas id="chart-students-batch" aria-label="Students by batch"></canvas></div>
+              <p class="crm-chart-panel__hint">Stacked by branch — click a segment or legend row</p>
+              <div class="crm-chart-branch-key" id="crm-batch-branch-key" aria-hidden="true"></div>
+              <div class="crm-chart-wrap"><canvas id="chart-students-batch" aria-label="Students by batch and branch"></canvas></div>
               <div class="crm-chart-legend" id="legend-students-batch"></div>
             </div>
           </div>
@@ -226,6 +304,29 @@
   </div>
   <div id="app-root" class="app-shell"></div>
 
+  <div
+    id="crm-student-group-modal"
+    class="crm-student-group-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-student-group-modal-title"
+  >
+    <div class="crm-student-group-modal__backdrop" data-crm-student-modal-close tabindex="-1"></div>
+    <div class="crm-student-group-modal__dialog">
+      <div class="crm-student-group-modal__head">
+        <div>
+          <h3 id="crm-student-group-modal-title">Students</h3>
+          <p id="crm-student-group-modal-count" class="crm-student-group-modal__count"></p>
+        </div>
+        <button type="button" class="crm-student-group-modal__close" data-crm-student-modal-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="crm-student-group-modal-body" class="crm-student-group-modal__body"></div>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -233,11 +334,14 @@
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/fees-installments.js"></script>
+  <script src="../js/fees-installments.js?v=20260630b"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-metrics.js"></script>
+  <script src="../js/crm-dashboard-overdue-fees.js?v=20260630"></script>
+  <script src="../js/crm-dashboard-due-fees.js"></script>
+  <script src="../js/crm-dashboard-pending-requests.js"></script>
   <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

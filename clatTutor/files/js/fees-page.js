@@ -132,6 +132,131 @@
     window.flatpickr(el, fpDateOpts());
   }
 
+  /* ------------------------------------------------------------------ *
+   * Simple Day / Month / Year date selector (replaces the calendar).
+   * Each group = 3 <select>s + a hidden input that holds the ISO value
+   * (YYYY-MM-DD) so the rest of the code can keep reading `.value`.
+   * ------------------------------------------------------------------ */
+  var DATESEL_MONTHS = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  function makeOption(value, label) {
+    var o = document.createElement('option');
+    o.value = value;
+    o.textContent = label;
+    return o;
+  }
+
+  function dateselYearRange() {
+    var now = new Date().getFullYear();
+    return { start: now - 5, end: now + 6 };
+  }
+
+  function daysInMonth(year, month) {
+    var y = Number(year);
+    var m = Number(month);
+    if (!y || !m) return 31;
+    return new Date(y, m, 0).getDate();
+  }
+
+  function selectHasOption(sel, value) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === String(value)) return true;
+    }
+    return false;
+  }
+
+  function fillDateSelectOptions(group) {
+    var day = group.querySelector('.fees-datesel__day');
+    var month = group.querySelector('.fees-datesel__month');
+    var year = group.querySelector('.fees-datesel__year');
+    if (day && !day.dataset.filled) {
+      day.appendChild(makeOption('', 'Day'));
+      for (var d = 1; d <= 31; d++) day.appendChild(makeOption(String(d), String(d)));
+      day.dataset.filled = '1';
+    }
+    if (month && !month.dataset.filled) {
+      month.appendChild(makeOption('', 'Month'));
+      for (var m = 0; m < 12; m++) month.appendChild(makeOption(String(m + 1), DATESEL_MONTHS[m]));
+      month.dataset.filled = '1';
+    }
+    if (year && !year.dataset.filled) {
+      year.appendChild(makeOption('', 'Year'));
+      var r = dateselYearRange();
+      for (var y = r.start; y <= r.end; y++) year.appendChild(makeOption(String(y), String(y)));
+      year.dataset.filled = '1';
+    }
+  }
+
+  function dateselGetIso(group) {
+    var d = group.querySelector('.fees-datesel__day');
+    var m = group.querySelector('.fees-datesel__month');
+    var y = group.querySelector('.fees-datesel__year');
+    var dv = d ? d.value : '';
+    var mv = m ? m.value : '';
+    var yv = y ? y.value : '';
+    if (!dv || !mv || !yv) return '';
+    return yv + '-' + pad2(Number(mv)) + '-' + pad2(Number(dv));
+  }
+
+  function dateselSyncHidden(group) {
+    var hidden = group.querySelector('input[type="hidden"]');
+    if (hidden) hidden.value = dateselGetIso(group);
+  }
+
+  function dateselClampDay(group) {
+    var d = group.querySelector('.fees-datesel__day');
+    var m = group.querySelector('.fees-datesel__month');
+    var y = group.querySelector('.fees-datesel__year');
+    if (!d) return;
+    var max = daysInMonth(y && y.value, m && m.value);
+    for (var i = 0; i < d.options.length; i++) {
+      var opt = d.options[i];
+      if (!opt.value) continue;
+      opt.disabled = Number(opt.value) > max;
+    }
+    if (d.value && Number(d.value) > max) {
+      d.value = '';
+      dateselSyncHidden(group);
+    }
+  }
+
+  function dateselSetIso(group, iso) {
+    var d = group.querySelector('.fees-datesel__day');
+    var m = group.querySelector('.fees-datesel__month');
+    var y = group.querySelector('.fees-datesel__year');
+    fillDateSelectOptions(group);
+    var parts = iso ? String(iso).slice(0, 10).split('-') : [];
+    var yy = parts[0] || '';
+    var mm = parts[1] ? String(Number(parts[1])) : '';
+    var dd = parts[2] ? String(Number(parts[2])) : '';
+    if (yy && y && !selectHasOption(y, yy)) y.appendChild(makeOption(yy, yy));
+    if (m) m.value = mm;
+    if (y) y.value = yy;
+    dateselClampDay(group);
+    if (d) d.value = dd;
+    dateselSyncHidden(group);
+  }
+
+  function wireDateSelGroup(group) {
+    if (!group || group.dataset.wired) return;
+    fillDateSelectOptions(group);
+    group.dataset.wired = '1';
+    group.addEventListener('change', function () {
+      dateselClampDay(group);
+      dateselSyncHidden(group);
+    });
+  }
+
+  function wireAllDateSelGroups(root) {
+    var scope = root || document;
+    scope.querySelectorAll('[data-datesel]').forEach(function (g) {
+      wireDateSelGroup(g);
+    });
+  }
+
   function getStudentApiUrl() {
     var c = window.APP_CONFIG || {};
     return (
@@ -190,6 +315,285 @@
       out.push({ due_date: due, amount: amt });
     }
     return out.length ? out : null;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Payments received ledger — keeps a full history of every payment so
+   * updating a receipt never erases the previous payment. The hidden
+   * #fees-amount-paid (total) and #fees-pay-date (latest) mirrors keep
+   * all the existing save / print code working unchanged.
+   * ------------------------------------------------------------------ */
+  function groupInr(n) {
+    var v = Number(n);
+    if (!Number.isFinite(v)) v = 0;
+    try {
+      return v.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    } catch (e) {
+      return String(v);
+    }
+  }
+
+  function collectPaymentHistoryFromDom() {
+    var rows = document.querySelectorAll('#fees-payment-tbody tr.fees-payment-row');
+    var out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var dIn = rows[i].querySelector('.fees-payment-date');
+      var aIn = rows[i].querySelector('.fees-payment-amt');
+      var date = dIn && dIn.value ? String(dIn.value).trim() : '';
+      var amt = aIn && aIn.value ? String(aIn.value).trim() : '';
+      if (!date && !amt) continue;
+      out.push({ date: date, amount: amt });
+    }
+    return out.length ? out : null;
+  }
+
+  function getPaymentTotals() {
+    var rows = document.querySelectorAll('#fees-payment-tbody tr.fees-payment-row');
+    var total = 0;
+    var latestIso = '';
+    var count = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var dIn = rows[i].querySelector('.fees-payment-date');
+      var aIn = rows[i].querySelector('.fees-payment-amt');
+      var date = dIn && dIn.value ? String(dIn.value).slice(0, 10) : '';
+      var amtRaw = aIn ? String(aIn.value || '').replace(/,/g, '').trim() : '';
+      var amt = parseFloat(amtRaw);
+      if (amtRaw !== '' && Number.isFinite(amt)) {
+        total += amt;
+        count += 1;
+      }
+      if (date && (!latestIso || date > latestIso)) latestIso = date;
+    }
+    return { total: total, latestIso: latestIso, count: count };
+  }
+
+  function recomputePaymentTotals() {
+    var totals = getPaymentTotals();
+    var hiddenAmt = document.getElementById('fees-amount-paid');
+    var hiddenDate = document.getElementById('fees-pay-date');
+    var display = document.getElementById('fees-amount-paid-display');
+    if (hiddenAmt) hiddenAmt.value = totals.total > 0 ? String(totals.total) : '';
+    if (hiddenDate) hiddenDate.value = totals.latestIso || '';
+    if (display) display.value = totals.total > 0 ? groupInr(totals.total) : '';
+    var words = document.getElementById('fees-amount-words');
+    if (words && document.activeElement !== words && !words.dataset.touched) {
+      words.value = totals.total ? inrToWords(totals.total) : '';
+    }
+    updateFeesActionsBar();
+    updateTally();
+  }
+
+  function syncPaymentRows(tbody) {
+    if (!tbody) tbody = document.getElementById('fees-payment-tbody');
+    if (!tbody) return;
+    var rows = tbody.querySelectorAll('.fees-payment-row');
+    var emptyHint = document.getElementById('fees-payment-empty');
+    if (emptyHint) emptyHint.hidden = rows.length > 0;
+    rows.forEach(function (row, i) {
+      var num = row.querySelector('.fees-payment-num');
+      if (num) num.textContent = String(i + 1);
+      var g = row.querySelector('[data-datesel]');
+      if (g) wireDateSelGroup(g);
+      var rm = row.querySelector('.fees-row-remove');
+      if (rm) {
+        rm.hidden = false;
+        var label = rows.length > 1 ? 'Remove payment ' + (i + 1) : 'Remove this payment';
+        rm.setAttribute('aria-label', label);
+        rm.title = label;
+      }
+    });
+  }
+
+  function addPaymentRow(iso, amount) {
+    var tpl = document.getElementById('fees-payment-row-tpl');
+    var tbody = document.getElementById('fees-payment-tbody');
+    if (!tpl || !tbody) return;
+    var node = tpl.content.firstElementChild.cloneNode(true);
+    tbody.appendChild(node);
+    var group = node.querySelector('[data-datesel]');
+    if (group) {
+      wireDateSelGroup(group);
+      dateselSetIso(group, iso ? String(iso).slice(0, 10) : '');
+    }
+    var amtIn = node.querySelector('.fees-payment-amt');
+    if (amtIn) amtIn.value = amount != null && String(amount).trim() !== '' ? String(amount) : '';
+    enforceNumericInput(amtIn);
+    syncPaymentRows(tbody);
+    recomputePaymentTotals();
+  }
+
+  function ensureDefaultPaymentRow() {
+    var tbody = document.getElementById('fees-payment-tbody');
+    if (!tbody || tbody.querySelector('.fees-payment-row')) return;
+    addPaymentRow('', '');
+  }
+
+  function normalizePaymentHistory(hist) {
+    if (hist == null) return [];
+    if (typeof hist === 'string') {
+      try {
+        hist = JSON.parse(hist);
+      } catch (e) {
+        return [];
+      }
+    }
+    if (!Array.isArray(hist)) return [];
+    return hist
+      .map(function (it) {
+        if (!it || typeof it !== 'object') return null;
+        var date =
+          it.date != null ? it.date : it.payment_date != null ? it.payment_date : it.paymentDate;
+        var amount = it.amount != null ? it.amount : it.amt;
+        return {
+          date: date ? String(date).slice(0, 10) : '',
+          amount: amount != null ? String(amount).trim() : '',
+        };
+      })
+      .filter(function (x) {
+        return x && (x.date || x.amount);
+      });
+  }
+
+  function populatePaymentsFromHistory(list) {
+    var tbody = document.getElementById('fees-payment-tbody');
+    if (!tbody) return;
+    tbody.querySelectorAll('.fees-payment-row').forEach(function (r) {
+      r.remove();
+    });
+    var items = normalizePaymentHistory(list);
+    items.forEach(function (it) {
+      addPaymentRow(it.date, it.amount);
+    });
+    syncPaymentRows(tbody);
+    recomputePaymentTotals();
+  }
+
+  /** Populate the payments ledger from a GET /fees row, falling back to the
+   * legacy single amount_paid / payment_date columns when there is no history. */
+  function populatePaymentsFromRecord(row) {
+    var hist = normalizePaymentHistory(row.payment_history);
+    if (!hist.length) {
+      var d = row.payment_date ? String(row.payment_date).slice(0, 10) : '';
+      var a = row.amount_paid != null && row.amount_paid !== '' ? String(row.amount_paid) : '';
+      if (d || a) hist = [{ date: d, amount: a }];
+    }
+    populatePaymentsFromHistory(hist);
+  }
+
+  function buildPaymentRowsHtml(rows) {
+    var html = '';
+    var count = 0;
+    (rows || []).forEach(function (it) {
+      var dv = it && (it.date != null ? it.date : it.payment_date != null ? it.payment_date : it.paymentDate);
+      var av = it && (it.amount != null ? it.amount : it.amt);
+      dv = dv ? String(dv).slice(0, 10) : '';
+      av = av != null ? String(av).trim() : '';
+      if (!dv && !av) return;
+      count += 1;
+      html +=
+        '<tr><td>' +
+        escHtml(String(count)) +
+        '</td><td>' +
+        escHtml(fmtIsoDateInput(dv)) +
+        '</td><td class="fees-print__num">' +
+        escHtml(av ? '₹ ' + av : '—') +
+        '</td></tr>';
+    });
+    return { html: html, count: count };
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Tally: tuition fee must equal (total paid + all installments).
+   * ------------------------------------------------------------------ */
+  function computeTallyState() {
+    var tuition = parseAmount(document.getElementById('fees-base'));
+    var totalPaid = getPaymentTotals().total;
+    var installTotal = 0;
+    document.querySelectorAll('#fees-installment-tbody tr.fees-install-row').forEach(function (r) {
+      var aIn = r.querySelector('.fees-install-amt');
+      var v = aIn ? parseFloat(String(aIn.value || '').replace(/,/g, '').trim()) : NaN;
+      if (Number.isFinite(v)) installTotal += v;
+    });
+    var accounted = totalPaid + installTotal;
+    var hasTuition = tuition > 0;
+    return {
+      tuition: tuition,
+      totalPaid: totalPaid,
+      installTotal: installTotal,
+      accounted: accounted,
+      diff: accounted - tuition,
+      hasTuition: hasTuition,
+      matched: hasTuition ? Math.abs(accounted - tuition) < 0.5 : null,
+    };
+  }
+
+  function updateTally() {
+    var el = document.getElementById('fees-tally');
+    if (!el) return;
+    var s = computeTallyState();
+    if (!s.hasTuition) {
+      el.hidden = true;
+      el.className = 'fees-tally';
+      el.innerHTML = '';
+      return;
+    }
+    el.hidden = false;
+    if (s.matched) {
+      el.className = 'fees-tally fees-tally--ok';
+      el.innerHTML =
+        '<span>Totals match — paid <strong class="fees-tally__num">₹' +
+        groupInr(s.totalPaid) +
+        '</strong> + installments <strong class="fees-tally__num">₹' +
+        groupInr(s.installTotal) +
+        '</strong> = tuition <strong class="fees-tally__num">₹' +
+        groupInr(s.tuition) +
+        '</strong>.</span>';
+    } else {
+      el.className = 'fees-tally fees-tally--warn';
+      var diff = s.accounted - s.tuition;
+      var diffTxt =
+        diff > 0
+          ? 'over by ₹' + groupInr(Math.abs(diff))
+          : 'short by ₹' + groupInr(Math.abs(diff));
+      el.innerHTML =
+        '<span>Does not tally — paid <strong class="fees-tally__num">₹' +
+        groupInr(s.totalPaid) +
+        '</strong> + installments <strong class="fees-tally__num">₹' +
+        groupInr(s.installTotal) +
+        '</strong> = <strong class="fees-tally__num">₹' +
+        groupInr(s.accounted) +
+        '</strong>, but tuition fee is <strong class="fees-tally__num">₹' +
+        groupInr(s.tuition) +
+        '</strong> (' +
+        diffTxt +
+        ').</span>';
+    }
+  }
+
+  function wirePayments() {
+    var tbody = document.getElementById('fees-payment-tbody');
+    var btnAdd = document.getElementById('fees-payment-add');
+    if (!tbody || !btnAdd) return;
+
+    btnAdd.addEventListener('click', function () {
+      addPaymentRow('', '');
+    });
+
+    tbody.addEventListener('click', function (e) {
+      var btn = e.target.closest('.fees-row-remove');
+      if (!btn || btn.hidden) return;
+      var row = btn.closest('.fees-payment-row');
+      if (!row) return;
+      row.remove();
+      syncPaymentRows(tbody);
+      recomputePaymentTotals();
+    });
+
+    tbody.addEventListener('input', recomputePaymentTotals);
+    tbody.addEventListener('change', recomputePaymentTotals);
+
+    ensureDefaultPaymentRow();
+    recomputePaymentTotals();
   }
 
   function escHtml(s) {
@@ -413,6 +817,11 @@
       var payX = copy.querySelector('.js-print-payment-extra');
       if (payX) payX.innerHTML = payload.paymentExtraHtml || '';
 
+      var payWrap = copy.querySelector('.js-print-payments-wrap');
+      var payBody = copy.querySelector('.js-print-payments-tbody');
+      if (payBody) payBody.innerHTML = payload.paymentsRowsHtml || '';
+      if (payWrap) payWrap.style.display = payload.showPayments ? '' : 'none';
+
       var feeGrid = copy.querySelector('.js-print-fee-grid');
       if (feeGrid) feeGrid.innerHTML = payload.feeGridHtml || '';
 
@@ -493,6 +902,7 @@
     });
     var installBuilt = buildInstallRowsHtml(installRows);
     var branchRaw = txtById('fees-disp-branch');
+    var payBuilt = buildPaymentRowsHtml(collectPaymentHistoryFromDom() || []);
 
     return {
       receiptId: rid ? rid.textContent.trim() : '—',
@@ -501,6 +911,8 @@
       studentHtml: studentHtml,
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
+      paymentsRowsHtml: payBuilt.html,
+      showPayments: payBuilt.count > 1,
       feeGridHtml: printLineHtml('Tuition fee', valById('fees-base')),
       netInr: nv ? '₹ ' + nv : '—',
       netWords: valById('fees-net-words') || '—',
@@ -599,6 +1011,14 @@
     }
     var installBuilt = buildInstallRowsHtml(installRows);
 
+    var payHist = normalizePaymentHistory(row.payment_history);
+    if (!payHist.length) {
+      var pd = row.payment_date ? String(row.payment_date).slice(0, 10) : '';
+      var pa = row.amount_paid != null && row.amount_paid !== '' ? String(row.amount_paid) : '';
+      if (pd || pa) payHist = [{ date: pd, amount: pa }];
+    }
+    var payBuilt = buildPaymentRowsHtml(payHist);
+
     return {
       receiptId: rstr(row.receipt_id) || '—',
       receiptDate: formatReceiptDateFromApi(row.receipt_date),
@@ -606,6 +1026,8 @@
       studentHtml: studentHtml,
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
+      paymentsRowsHtml: payBuilt.html,
+      showPayments: payBuilt.count > 1,
       feeGridHtml: printLineHtml('Tuition fee', rstr(nv)),
       netInr: nv != null && rstr(nv) !== '' ? '₹ ' + rstr(nv) : '—',
       netWords: rstr(row.amount_in_words_total) || '—',
@@ -705,6 +1127,11 @@
   function setDateInputVal(id, iso) {
     var el = document.getElementById(id);
     if (!el) return;
+    var group = el.closest ? el.closest('[data-datesel]') : null;
+    if (group) {
+      dateselSetIso(group, iso);
+      return;
+    }
     var v = iso ? String(iso).slice(0, 10) : '';
     if (el._flatpickr) {
       el._flatpickr.setDate(v || null, false);
@@ -741,15 +1168,12 @@
     items.forEach(function (item) {
       var node = tpl.content.firstElementChild.cloneNode(true);
       tbody.appendChild(node);
-      var dateIn = node.querySelector('.fees-install-date');
+      var group = node.querySelector('[data-datesel]');
+      if (group) wireDateSelGroup(group);
       var amtIn = node.querySelector('.fees-install-amt');
       var due = item && (item.due_date != null ? item.due_date : item.dueDate);
       var amt = item && item.amount;
-      if (dateIn) {
-        var dueStr = due ? String(due).slice(0, 10) : '';
-        if (dateIn._flatpickr) dateIn._flatpickr.setDate(dueStr || null, false);
-        else dateIn.value = dueStr;
-      }
+      if (group) dateselSetIso(group, due ? String(due).slice(0, 10) : '');
       if (amtIn) amtIn.value = amt != null && String(amt).trim() !== '' ? String(amt) : '';
       enforceNumericInput(amtIn);
     });
@@ -763,6 +1187,8 @@
     if (!tpl || !tbody) return;
     var node = tpl.content.firstElementChild.cloneNode(true);
     tbody.appendChild(node);
+    var group = node.querySelector('[data-datesel]');
+    if (group) wireDateSelGroup(group);
     var amtInput = node.querySelector('.fees-install-amt');
     enforceNumericInput(amtInput);
     syncInstallmentRows(tbody);
@@ -802,11 +1228,10 @@
     var modeEl = document.getElementById('fees-pay-mode');
     if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
 
-    setDateInputVal('fees-pay-date', row.payment_date);
-    setInputVal('fees-amount-paid', row.amount_paid);
     setInputVal('fees-amount-words', row.amount_in_words);
     var amtWords = document.getElementById('fees-amount-words');
     if (amtWords) amtWords.dataset.touched = row.amount_in_words ? '1' : '';
+    populatePaymentsFromRecord(row);
 
     setInputVal('fees-cheque-no', row.cheque_no);
     setInputVal('fees-cheque-bank', row.DraweeBank);
@@ -917,9 +1342,9 @@
     var modeEl = document.getElementById('fees-pay-mode');
     if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
     clearAllPaymentDetailFields();
-    setDateInputVal('fees-pay-date', '');
-    setInputVal('fees-amount-paid', '');
     setInputVal('fees-amount-words', '');
+    populatePaymentsFromHistory([]);
+    ensureDefaultPaymentRow();
     setInputVal('fees-base', '');
     setInputVal('fees-net-words', '');
     var amtWords = document.getElementById('fees-amount-words');
@@ -964,8 +1389,12 @@
     var toEl = document.getElementById('fees-history-to');
     var applyBtn = document.getElementById('fees-history-apply');
     var resetBtn = document.getElementById('fees-history-reset');
+    var searchEl = document.getElementById('fees-history-search');
+    var searchClearBtn = document.getElementById('fees-history-search-clear');
     var summaryEl = document.getElementById('fees-history-summary');
     var tableWrap = document.getElementById('fees-history-table-wrap');
+    var scrollTopBar = document.getElementById('fees-history-scrolltop');
+    var scrollTopInner = document.getElementById('fees-history-scrolltop-inner');
     var closeBtn = document.getElementById('fees-history-close');
     var backdrop = modal ? modal.querySelector('[data-fees-history-close]') : null;
     var detailClose = document.getElementById('fees-history-detail-close');
@@ -982,6 +1411,38 @@
     var detailRow = null;
     var histEsc = null;
     var detEsc = null;
+
+    /* Keep a horizontal scrollbar mirrored at the top of the history table,
+     * synced both ways with the table's own scroll. */
+    var syncingHistScroll = false;
+    function syncHistoryTopScroll() {
+      if (!scrollTopBar || !scrollTopInner || !tableWrap) return;
+      var table = tableWrap.querySelector('.fees-history-table');
+      var contentWidth = table ? table.scrollWidth : tableWrap.scrollWidth;
+      scrollTopInner.style.width = contentWidth + 'px';
+      var overflowing = contentWidth > tableWrap.clientWidth + 1;
+      scrollTopBar.hidden = !overflowing;
+      if (overflowing) scrollTopBar.scrollLeft = tableWrap.scrollLeft;
+    }
+    function scheduleHistoryScrollSync() {
+      if (window.requestAnimationFrame) window.requestAnimationFrame(syncHistoryTopScroll);
+      else window.setTimeout(syncHistoryTopScroll, 0);
+    }
+    if (scrollTopBar && tableWrap) {
+      scrollTopBar.addEventListener('scroll', function () {
+        if (syncingHistScroll) return;
+        syncingHistScroll = true;
+        tableWrap.scrollLeft = scrollTopBar.scrollLeft;
+        syncingHistScroll = false;
+      });
+      tableWrap.addEventListener('scroll', function () {
+        if (syncingHistScroll) return;
+        syncingHistScroll = true;
+        scrollTopBar.scrollLeft = tableWrap.scrollLeft;
+        syncingHistScroll = false;
+      });
+      window.addEventListener('resize', syncHistoryTopScroll);
+    }
 
     function closeHistoryModal() {
       if (!modal || modal.hidden) return;
@@ -1042,6 +1503,20 @@
         }
       }
 
+      var payHist = normalizePaymentHistory(row.payment_history);
+      var paymentsSection = '';
+      if (payHist.length > 1) {
+        var payRows = payHist
+          .map(function (it, i) {
+            return kvRow(
+              '#' + (i + 1) + '  ·  ' + fmtIsoDateInput(it.date),
+              it.amount ? '₹ ' + it.amount : '—'
+            );
+          })
+          .join('');
+        paymentsSection = section('Payments received', payRows);
+      }
+
       detailContent.innerHTML =
         section(
           'Receipt',
@@ -1077,6 +1552,7 @@
             kvRow('UPI transaction ID', row.upiTransation_id) +
             kvRow('Payment details', row.paymentDetails)
         ) +
+        paymentsSection +
         section(
           'Fee structure',
           kvRow(
@@ -1239,6 +1715,7 @@
       tbody.innerHTML = '';
       updateHistorySummary(rows, fromStr, toStr);
       if (tableWrap) tableWrap.hidden = false;
+      scheduleHistoryScrollSync();
 
       var displayRows = prepareHistoryRowsForDisplay(rows);
 
@@ -1246,14 +1723,15 @@
         var emptyTr = document.createElement('tr');
         emptyTr.className = 'fees-history-table__empty';
         var hasRange = !!(fromStr && String(fromStr).trim()) || !!(toStr && String(toStr).trim());
-        emptyTr.innerHTML =
-          '<td colspan="7">' +
-          escHtml(
-            hasRange
-              ? 'No receipts found for the selected date range.'
-              : 'No receipts found.'
-          ) +
-          '</td>';
+        var hasSearch = !!(searchEl && String(searchEl.value || '').trim());
+        var emptyMsg = 'No receipts found.';
+        if (hasSearch) {
+          emptyMsg = 'No receipts match “' + String(searchEl.value).trim() + '”' +
+            (hasRange ? ' in the selected date range.' : '.');
+        } else if (hasRange) {
+          emptyMsg = 'No receipts found for the selected date range.';
+        }
+        emptyTr.innerHTML = '<td colspan="7">' + escHtml(emptyMsg) + '</td>';
         tbody.appendChild(emptyTr);
         return;
       }
@@ -1289,17 +1767,56 @@
       });
     }
 
+    function rowMatchesQuery(row, q) {
+      if (!q) return true;
+      var hay = (
+        rstr(row.name) + ' ' +
+        rstr(row.student_id) + ' ' +
+        rstr(row.branch) + ' ' +
+        rstr(row.phone) + ' ' +
+        rstr(row.receipt_id) + ' ' +
+        rstr(row.email)
+      ).toLowerCase();
+      var tokens = q.toLowerCase().split(/\s+/);
+      for (var i = 0; i < tokens.length; i++) {
+        if (tokens[i] && hay.indexOf(tokens[i]) < 0) return false;
+      }
+      return true;
+    }
+
+    function updateSearchClearBtn() {
+      if (!searchClearBtn) return;
+      searchClearBtn.hidden = !(searchEl && String(searchEl.value || '').trim());
+    }
+
+    /** Combined view: date range (only when both set) + live name/ID/branch search. */
+    function computeAndRenderHistory() {
+      var fromStr = fromEl ? String(fromEl.value || '').trim() : '';
+      var toStr = toEl ? String(toEl.value || '').trim() : '';
+      var q = searchEl ? String(searchEl.value || '').trim() : '';
+      var dateActive = !!(fromStr && toStr && fromStr <= toStr);
+      var rows = allHistoryRows.slice();
+      if (dateActive) rows = filterHistoryRows(rows, fromStr, toStr);
+      if (q) {
+        rows = rows.filter(function (r) {
+          return rowMatchesQuery(r, q);
+        });
+      }
+      updateSearchClearBtn();
+      renderHistoryTable(rows, dateActive ? fromStr : '', dateActive ? toStr : '');
+    }
+
     function applyHistoryFilter() {
       var fromStr = fromEl ? String(fromEl.value || '').trim() : '';
       var toStr = toEl ? String(toEl.value || '').trim() : '';
-      if (!fromStr || !toStr) {
+      if ((fromStr || toStr) && (!fromStr || !toStr)) {
         if (errEl) {
           errEl.hidden = false;
           errEl.textContent = 'Please select both From date and To date.';
         }
         return;
       }
-      if (fromStr > toStr) {
+      if (fromStr && toStr && fromStr > toStr) {
         if (errEl) {
           errEl.hidden = false;
           errEl.textContent = 'From date cannot be after To date.';
@@ -1310,17 +1827,18 @@
         errEl.hidden = true;
         errEl.textContent = '';
       }
-      var filtered = filterHistoryRows(allHistoryRows, fromStr, toStr);
-      renderHistoryTable(filtered, fromStr, toStr);
+      computeAndRenderHistory();
     }
 
     function resetHistoryFilter() {
       if (fromEl) fromEl.value = '';
       if (toEl) toEl.value = '';
+      if (searchEl) searchEl.value = '';
       if (errEl) {
         errEl.hidden = true;
         errEl.textContent = '';
       }
+      updateSearchClearBtn();
       renderHistoryTable(allHistoryRows, '', '');
     }
 
@@ -1340,6 +1858,8 @@
       if (filtersEl) filtersEl.hidden = true;
       if (fromEl) fromEl.value = '';
       if (toEl) toEl.value = '';
+      if (searchEl) searchEl.value = '';
+      updateSearchClearBtn();
       if (loading) loading.hidden = false;
       openList();
 
@@ -1394,6 +1914,25 @@
     if (backdrop) backdrop.addEventListener('click', closeHistoryModal);
     if (applyBtn) applyBtn.addEventListener('click', applyHistoryFilter);
     if (resetBtn) resetBtn.addEventListener('click', resetHistoryFilter);
+    if (searchEl) {
+      searchEl.addEventListener('input', computeAndRenderHistory);
+      searchEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && String(searchEl.value || '')) {
+          e.preventDefault();
+          searchEl.value = '';
+          computeAndRenderHistory();
+        }
+      });
+    }
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener('click', function () {
+        if (searchEl) {
+          searchEl.value = '';
+          searchEl.focus();
+        }
+        computeAndRenderHistory();
+      });
+    }
     if (fromEl) {
       fromEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
@@ -1488,6 +2027,7 @@
     }
 
     function collectSnapshot() {
+      recomputePaymentTotals();
       var base = formToObject(form);
       var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
       var user = session && session.user ? session.user : null;
@@ -1505,6 +2045,7 @@
         address: textSnap('fees-disp-address'),
       };
       base.installmentPlan = collectInstallmentPlanFromDom();
+      base.paymentHistory = collectPaymentHistoryFromDom();
       delete base.id;
       delete base.fee_id;
       return base;
@@ -1512,6 +2053,26 @@
 
     function runSave() {
       if (!isFeesFormComplete()) return;
+
+      var tally = computeTallyState();
+      if (tally.hasTuition && tally.matched === false) {
+        var overShort =
+          tally.diff > 0
+            ? 'Over by ₹' + groupInr(Math.abs(tally.diff))
+            : 'Short by ₹' + groupInr(Math.abs(tally.diff));
+        var proceed = window.confirm(
+          'The amounts do not tally with the tuition fee.\n\n' +
+            'Total paid:    ₹' + groupInr(tally.totalPaid) + '\n' +
+            'Installments:  ₹' + groupInr(tally.installTotal) + '\n' +
+            '------------------------------\n' +
+            'Sum:           ₹' + groupInr(tally.accounted) + '\n' +
+            'Tuition fee:   ₹' + groupInr(tally.tuition) + '\n' +
+            overShort + '\n\n' +
+            'Save anyway?'
+        );
+        if (!proceed) return;
+      }
+
       var prefix = (window.APP_CONFIG && window.APP_CONFIG.STORAGE_PREFIX) || 'edportal_';
       var isUpdate = feesEditState.id != null;
       var payload = {
@@ -1663,9 +2224,16 @@
       });
     }
 
-    form.addEventListener('input', updateFeesActionsBar);
-    form.addEventListener('change', updateFeesActionsBar);
+    form.addEventListener('input', function () {
+      updateFeesActionsBar();
+      updateTally();
+    });
+    form.addEventListener('change', function () {
+      updateFeesActionsBar();
+      updateTally();
+    });
     updateFeesActionsBar();
+    updateTally();
   }
 
   function wireStudentPicker() {
@@ -1951,27 +2519,15 @@
   }
 
   function wirePaymentWords() {
-    var amt = document.getElementById('fees-amount-paid');
     var words = document.getElementById('fees-amount-words');
-
-    function fill() {
-      if (!words || !amt) return;
-      if (document.activeElement === words) return;
-      var v = parseAmount(amt);
-      words.value = v ? inrToWords(v) : '';
-    }
-
-    if (amt) amt.addEventListener('blur', fill);
-    if (amt) {
-      amt.addEventListener('input', function () {
-        if (words && !words.dataset.touched) fill();
-      });
-    }
-    if (words) {
-      words.addEventListener('input', function () {
-        words.dataset.touched = words.value.trim() ? '1' : '';
-      });
-    }
+    if (!words) return;
+    words.addEventListener('input', function () {
+      words.dataset.touched = words.value.trim() ? '1' : '';
+    });
+    words.addEventListener('focus', function () {
+      var total = getPaymentTotals().total;
+      if (!words.value.trim() && total) words.value = inrToWords(total);
+    });
   }
 
   function wirePaymentMode() {
@@ -2019,10 +2575,8 @@
     rows.forEach(function (row, i) {
       var num = row.querySelector('.fees-install-num');
       if (num) num.textContent = String(i + 1);
-      var dateIn = row.querySelector('.fees-install-date');
-      if (dateIn && !dateIn._flatpickr) {
-        bindDateInput(dateIn);
-      }
+      var dateGroup = row.querySelector('[data-datesel]');
+      if (dateGroup) wireDateSelGroup(dateGroup);
       var rm = row.querySelector('.fees-row-remove');
       if (rm) {
         rm.hidden = false;
@@ -2054,13 +2608,13 @@
       destroyFp(dateIn);
       row.remove();
       syncInstallmentRows(tbody);
+      updateTally();
     });
 
     ensureDefaultInstallmentRow();
   }
 
   function wireNumericOnlyAmounts() {
-    enforceNumericInput(document.getElementById('fees-amount-paid'));
     enforceNumericInput(document.getElementById('fees-base'));
   }
 
@@ -2077,12 +2631,11 @@
       });
     }
 
-    if (typeof window.flatpickr !== 'undefined') {
-      bindDateInput(document.getElementById('fees-pay-date'));
-    }
+    wireAllDateSelGroups(document);
 
     wireStudentPicker();
     wireInstallments();
+    wirePayments();
     wireNumericOnlyAmounts();
     wireTotals();
     wirePaymentWords();

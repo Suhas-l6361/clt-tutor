@@ -267,6 +267,22 @@
       font-size: 0.66rem;
       font-weight: 600;
     }
+    .reg-form .input.input--error,
+    .reg-form .select.input--error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+    }
+    .field-error {
+      display: block;
+      color: #f87171;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin: 4px 0 0 2px;
+      line-height: 1.2;
+    }
+    .field-error:empty {
+      margin: 0;
+    }
     .dob-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1117,7 +1133,7 @@
   <div id="add-student-modal" class="crm-modal" hidden>
     <div class="crm-modal__backdrop" data-close-student-modal></div>
     <div class="crm-modal__dialog">
-      <form id="add-student-form" class="reg-form">
+      <form id="add-student-form" class="reg-form" novalidate>
         <div class="reg-head">
           <h2 class="reg-title">Add Student</h2>
           <button type="button" class="reg-close" data-close-student-modal aria-label="Close">
@@ -1128,15 +1144,15 @@
 
         <div class="reg-grid">
           <label>
-            <input id="sf-name" class="input" type="text" placeholder=" " required />
+            <input id="sf-name" class="input" type="text" placeholder=" " required aria-required="true" />
             <span>Name</span>
           </label>
           <label>
-            <input id="sf-email" class="input" type="email" placeholder=" " required />
-            <span>Email</span>
+            <input id="sf-email" class="input" type="email" placeholder=" " />
+            <span>Email (optional)</span>
           </label>
           <label>
-            <input id="sf-phone" class="input" type="tel" placeholder=" " required />
+            <input id="sf-phone" class="input" type="tel" placeholder=" " required aria-required="true" inputmode="numeric" />
             <span>Phone Number</span>
           </label>
           <label>
@@ -1622,6 +1638,15 @@
           if (rolesContainer && typeof StudentAccess !== 'undefined') {
             StudentAccess.renderRoleCheckboxes(rolesContainer, null, { defaultAll: true });
           }
+          ['sf-name', 'sf-phone'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) {
+              el.classList.remove('input--error');
+              var lbl = el.closest('label');
+              var errEl = lbl ? lbl.querySelector('.field-error') : null;
+              if (errEl) errEl.textContent = '';
+            }
+          });
         });
       }
       var daySelect = document.getElementById('sf-dob-day');
@@ -2017,9 +2042,65 @@
         return signedData.key || fileName;
       }
 
+      function setFieldError(input, message) {
+        if (!input) return;
+        input.classList.add('input--error');
+        var label = input.closest('label');
+        if (!label) return;
+        var errEl = label.querySelector('.field-error');
+        if (!errEl) {
+          errEl = document.createElement('span');
+          errEl.className = 'field-error';
+          label.appendChild(errEl);
+        }
+        errEl.textContent = message;
+      }
+      function clearFieldError(input) {
+        if (!input) return;
+        input.classList.remove('input--error');
+        var label = input.closest('label');
+        if (!label) return;
+        var errEl = label.querySelector('.field-error');
+        if (errEl) errEl.textContent = '';
+      }
+      // Name + phone number are mandatory. Returns true when valid, otherwise
+      // shows inline messages next to the offending field and focuses it.
+      function validateStudentForm() {
+        var nameEl = document.getElementById('sf-name');
+        var phoneEl = document.getElementById('sf-phone');
+        clearFieldError(nameEl);
+        clearFieldError(phoneEl);
+        var firstInvalid = null;
+        if (!nameEl.value.trim()) {
+          setFieldError(nameEl, 'Name is required');
+          firstInvalid = firstInvalid || nameEl;
+        }
+        var phoneRaw = phoneEl.value.trim();
+        var phoneDigits = phoneRaw.replace(/\D/g, '');
+        if (!phoneRaw) {
+          setFieldError(phoneEl, 'Phone number is required');
+          firstInvalid = firstInvalid || phoneEl;
+        } else if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+          setFieldError(phoneEl, 'Enter a valid phone number');
+          firstInvalid = firstInvalid || phoneEl;
+        }
+        if (firstInvalid) {
+          firstInvalid.focus();
+          return false;
+        }
+        return true;
+      }
+      ['sf-name', 'sf-phone'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', function () { clearFieldError(el); });
+        }
+      });
+
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
         statusEl.textContent = '';
+        if (!validateStudentForm()) return;
         var loadingStart = Date.now();
         loadingPopup.hidden = false;
         try {
@@ -2040,8 +2121,8 @@
           var dob = year && month && day ? (year + '-' + month + '-' + day) : null;
           var file = imageInput.files && imageInput.files[0];
 
-          if (!name || !email || !phone) {
-            throw new Error('Name, email, and phone are required');
+          if (!name || !phone) {
+            throw new Error('Name and phone number are required');
           }
 
           var imgKey = await uploadImageIfAny(file);
@@ -2057,7 +2138,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               name: name,
-              email: email,
+              email: email || null,
               phone: Number(phone),
               parents_number: parentsNumber || null,
               dob: dob,

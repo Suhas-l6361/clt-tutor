@@ -39,11 +39,9 @@ function initAppChrome(opts) {
 
   var crmLinks = [
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Overview' },
-    { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'students.html', icon: 'fa-database', label: 'Add Data' },
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
     { href: 'testAnalysis.html', icon: 'fa-chart-pie', label: 'Test Results' },
-    { href: 'uploadOmr.html', icon: 'fa-camera', label: 'Upload OMR' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
@@ -55,11 +53,9 @@ function initAppChrome(opts) {
   var isCrm = opts.role === 'crm';
   var crmIconMap = {
     'dashboard.html': '../image/main.png',
-    'leads.html': '../image/team.png',
     'students.html': '../image/resources.png',
     'addTest.html': '../image/test.png',
     'testAnalysis.html': '../image/test-submit.png',
-    'uploadOmr.html': '../image/Orm sheet.png',
     'fees.html': '../image/fees.png',
     'attendance.html': '../image/attendance.png',
     'enrollment.html': '../image/enrollment.png',

@@ -150,6 +150,833 @@ body.app-body.crm-dashboard {
   font-weight: 600;
 }
 
+/* Due fees — marquee above pending responses */
+.crm-due-fees {
+  background: #fff;
+  border: 1px solid #ead9a3;
+  border-radius: 14px;
+  padding: 0.75rem 0.85rem 0.85rem;
+  overflow: hidden;
+}
+.crm-due-fees__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  padding: 0 0.15rem;
+}
+.crm-due-fees__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.crm-due-fees__title i {
+  color: #b38700;
+}
+.crm-due-fees__sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+.crm-due-fees__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.crm-due-fees__hint {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+.crm-due-fees__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  white-space: nowrap;
+}
+.crm-due-fees__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #854d0e;
+  text-decoration: none !important;
+  border: 1px solid #ecdca8;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  background: #fffceb;
+  white-space: nowrap;
+}
+.crm-due-fees__link:hover {
+  background: #fff8df;
+  border-color: #d9a600;
+}
+.crm-due-fees__loading,
+.crm-due-fees__error,
+.crm-due-fees__empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+  padding: 0.35rem 0.15rem;
+}
+.crm-due-fees__error {
+  color: #b91c1c;
+}
+.crm-due-fees__empty {
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  background: #f9fafb;
+  border-radius: 10px;
+  border: 1px dashed #e5e7eb;
+}
+.crm-due-fees__urgent {
+  margin-bottom: 0.75rem;
+  padding: 0.65rem 0.7rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid #fcd34d;
+  background: linear-gradient(135deg, #fffbeb 0%, #fffdf7 55%, #ffffff 100%);
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.1);
+}
+.crm-due-fees__urgent-label {
+  margin: 0 0 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.crm-due-fees__urgent-label i {
+  font-size: 0.72rem;
+}
+.crm-due-fees__urgent-count {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+.crm-due-fees__urgent-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.15rem;
+}
+.crm-due-fees__urgent-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: max-content;
+  min-width: 100%;
+}
+.crm-due-fees__marquee-label {
+  margin: 0 0 0.45rem;
+  padding: 0 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.crm-due-fees__marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  cursor: default;
+}
+.crm-due-fees__track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  width: max-content;
+  animation: crm-marquee-scroll 50s linear infinite;
+  will-change: transform;
+}
+.crm-due-fees__marquee:hover .crm-due-fees__track {
+  animation-play-state: paused;
+}
+.crm-due-fees-card {
+  flex: 0 0 auto;
+  width: 128px;
+  text-align: center;
+  padding: 0.35rem 0.25rem 0.2rem;
+}
+.crm-due-fees-card__visual {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto;
+}
+.crm-due-fees-card__ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(145deg, #ffcc00, #d9a600);
+  box-shadow: 0 4px 14px rgba(179, 135, 0, 0.15);
+}
+.crm-due-fees-card--soon .crm-due-fees-card__ring {
+  background: linear-gradient(145deg, #fbbf24, #f59e0b);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+.crm-due-fees-card--urgent {
+  width: 136px;
+  padding: 0.45rem 0.35rem 0.3rem;
+  border-radius: 12px;
+  border: 1px solid #fbbf24;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.14);
+}
+.crm-due-fees-card--urgent .crm-due-fees-card__ring {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35), 0 4px 14px rgba(217, 119, 6, 0.3);
+  animation: crm-due-fees-urgent-pulse 2s ease-in-out infinite;
+}
+@keyframes crm-due-fees-urgent-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35), 0 4px 14px rgba(217, 119, 6, 0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.2), 0 4px 18px rgba(217, 119, 6, 0.38); }
+}
+.crm-due-fees-card--urgent .crm-due-fees-card__due-badge {
+  background: #dc2626;
+  color: #fff;
+}
+.crm-due-fees-card--urgent .crm-due-fees-card__days {
+  color: #dc2626;
+  font-weight: 700;
+}
+.crm-due-fees-card__avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(145deg, #fef3c7, #fde68a);
+  color: #854d0e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.crm-due-fees-card__avatar img,
+.crm-due-fees-card__avatar .crm-dash-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+.crm-due-fees-card__due-badge {
+  position: absolute;
+  right: -6px;
+  bottom: -2px;
+  max-width: 5.5rem;
+  padding: 0.12rem 0.35rem;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffcc00;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crm-due-fees-card--soon .crm-due-fees-card__due-badge {
+  background: #b45309;
+  color: #fffbeb;
+}
+.crm-due-fees-card__name {
+  margin: 0.5rem 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-due-fees-card__branch {
+  margin: 0.15rem 0 0;
+  font-size: 0.68rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-due-fees-card__branch i {
+  font-size: 0.62rem;
+  color: #b38700;
+}
+.crm-due-fees-card__install {
+  margin: 0.2rem 0 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-due-fees-card--soon .crm-due-fees-card__install {
+  color: #b45309;
+}
+.crm-due-fees-card__amount {
+  margin: 0.18rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-due-fees-card__days {
+  margin: 0.12rem 0 0;
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-due-fees-card__days--soon {
+  color: #b45309;
+}
+
+/* Overdue fees — past-due installments with outstanding balance */
+.crm-overdue-fees {
+  position: relative;
+  background: linear-gradient(145deg, #fff5f5 0%, #ffffff 42%, #fffafa 100%);
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  padding: 0.85rem 0.9rem 0.95rem;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.crm-overdue-fees--alert {
+  border-color: #f87171;
+  box-shadow: 0 8px 28px rgba(220, 38, 38, 0.12);
+}
+.crm-overdue-fees__glow {
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 120px;
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.crm-overdue-fees__head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+  flex-wrap: wrap;
+}
+.crm-overdue-fees__title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-width: 0;
+}
+.crm-overdue-fees__pulse {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+  animation: crm-overdue-pulse 2.4s ease-in-out infinite;
+}
+@keyframes crm-overdue-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35); }
+  50% { transform: scale(1.06); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45); }
+}
+.crm-overdue-fees__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #7f1d1d;
+  letter-spacing: -0.01em;
+}
+.crm-overdue-fees__sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #991b1b;
+  opacity: 0.85;
+}
+.crm-overdue-fees__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.crm-overdue-fees__stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #fecaca;
+}
+.crm-overdue-fees__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.crm-overdue-fees__stat-num {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #b91c1c;
+}
+.crm-overdue-fees__stat-lbl {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+.crm-overdue-fees__count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-radius: 999px;
+  padding: 0.3rem 0.68rem;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+.crm-overdue-fees__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #991b1b;
+  text-decoration: none !important;
+  border: 1px solid #fca5a5;
+  border-radius: 999px;
+  padding: 0.3rem 0.68rem;
+  background: #fff;
+  white-space: nowrap;
+}
+.crm-overdue-fees__link:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+.crm-overdue-fees__loading,
+.crm-overdue-fees__error,
+.crm-overdue-fees__empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+  padding: 0.35rem 0.15rem;
+}
+.crm-overdue-fees__error {
+  color: #b91c1c;
+}
+.crm-overdue-fees__empty {
+  text-align: center;
+  padding: 0.85rem 0.5rem;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px dashed #86efac;
+  color: #166534;
+  font-weight: 500;
+}
+.crm-overdue-fees__empty i {
+  margin-right: 0.35rem;
+  color: #22c55e;
+}
+.crm-overdue-fees__grid-wrap {
+  position: relative;
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.15rem;
+  scrollbar-width: thin;
+  scrollbar-color: #fca5a5 transparent;
+}
+.crm-overdue-fees__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.65rem;
+}
+.crm-overdue-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 0.7rem 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.crm-overdue-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(220, 38, 38, 0.12);
+}
+.crm-overdue-card--critical {
+  border-color: #f87171;
+  background: linear-gradient(180deg, #fff 0%, #fff1f2 100%);
+}
+.crm-overdue-card--warning {
+  border-color: #fdba74;
+  background: linear-gradient(180deg, #fff 0%, #fff7ed 100%);
+}
+.crm-overdue-card--moderate {
+  border-color: #fcd34d;
+  background: linear-gradient(180deg, #fff 0%, #fffbeb 100%);
+}
+.crm-overdue-card__stamp {
+  position: absolute;
+  top: 0.45rem;
+  right: -1.6rem;
+  transform: rotate(32deg);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(220, 38, 38, 0.18);
+  pointer-events: none;
+  user-select: none;
+}
+.crm-overdue-card__late {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.crm-overdue-card__late-num {
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #dc2626;
+  font-variant-numeric: tabular-nums;
+}
+.crm-overdue-card--warning .crm-overdue-card__late-num {
+  color: #ea580c;
+}
+.crm-overdue-card--moderate .crm-overdue-card__late-num {
+  color: #d97706;
+}
+.crm-overdue-card__late-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+}
+.crm-overdue-card__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.crm-overdue-card__avatar-wrap {
+  flex-shrink: 0;
+}
+.crm-overdue-card__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #fecaca;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b91c1c;
+  overflow: hidden;
+}
+.crm-overdue-card__avatar img,
+.crm-overdue-card__avatar .crm-dash-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.crm-overdue-card__meta {
+  min-width: 0;
+  flex: 1;
+}
+.crm-overdue-card__name {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-overdue-card__branch,
+.crm-overdue-card__phone {
+  margin: 0.12rem 0 0;
+  font-size: 0.66rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crm-overdue-card__branch i,
+.crm-overdue-card__phone i {
+  width: 0.75rem;
+  font-size: 0.6rem;
+  color: #9ca3af;
+}
+.crm-overdue-card__install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.crm-overdue-card__install-pill {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+}
+.crm-overdue-card__due-date {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #b45309;
+}
+.crm-overdue-card__due-date i {
+  margin-right: 0.2rem;
+}
+.crm-overdue-card__amounts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+}
+.crm-overdue-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.66rem;
+  color: #6b7280;
+}
+.crm-overdue-card__row strong {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #111827;
+}
+.crm-overdue-card__row--balance strong {
+  color: #dc2626;
+  font-size: 0.82rem;
+}
+.crm-overdue-card__row--muted {
+  justify-content: flex-end;
+  font-size: 0.6rem;
+  opacity: 0.85;
+}
+.crm-overdue-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none !important;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-radius: 10px;
+  padding: 0.42rem 0.55rem;
+  transition: filter 0.15s ease;
+}
+.crm-overdue-card__cta:hover {
+  filter: brightness(1.05);
+}
+
+/* Pending public enquiries — below welcome */
+.crm-pending-requests {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 0.9rem 1rem 1rem;
+}
+.crm-pending-requests__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.crm-pending-requests__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.crm-pending-requests__title i {
+  color: #b38700;
+}
+.crm-pending-requests__sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+.crm-pending-requests__total {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  white-space: nowrap;
+}
+.crm-pending-requests__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.crm-pending-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.72rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  text-decoration: none !important;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+.crm-pending-card:hover,
+.crm-pending-card:focus,
+.crm-pending-card:focus-visible {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06);
+  transform: translateY(-1px);
+  text-decoration: none !important;
+  color: inherit;
+}
+.crm-pending-card--alert {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 72%);
+  border-color: #fcd34d;
+}
+.crm-pending-card--clear {
+  opacity: 0.92;
+}
+.crm-pending-card--loading {
+  pointer-events: none;
+  animation: crm-pending-pulse 1.2s ease-in-out infinite;
+}
+@keyframes crm-pending-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.crm-pending-card__icon {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.crm-pending-card--alert .crm-pending-card__icon {
+  background: #fff;
+  border-color: #fbbf24;
+  color: #b45309;
+}
+.crm-pending-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+.crm-pending-card__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
+}
+.crm-pending-card__hint {
+  font-size: 0.68rem;
+  color: #9ca3af;
+}
+.crm-pending-card--alert .crm-pending-card__hint {
+  color: #b45309;
+}
+.crm-pending-card__count {
+  flex-shrink: 0;
+  min-width: 1.85rem;
+  height: 1.85rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b7280;
+  background: #e5e7eb;
+}
+.crm-pending-card__count--alert {
+  color: #fff;
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+.crm-pending-card__chev {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  color: #d1d5db;
+}
+.crm-pending-card:hover .crm-pending-card__chev {
+  color: #9ca3af;
+}
+.crm-pending-requests__error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #b45309;
+  grid-column: 1 / -1;
+}
+
 /* Latest scores marquee — after welcome */
 .crm-marquee-section {
   background: #fff;
@@ -906,6 +1733,20 @@ body.app-body.crm-dashboard {
   align-items: center;
   font-size: 0.78rem;
 }
+.crm-chart-legend__item--clickable {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 0.28rem 0.35rem;
+  margin: -0.28rem -0.35rem;
+  transition: background 0.15s ease;
+}
+.crm-chart-legend__item--clickable:hover {
+  background: #fffbeb;
+}
+.crm-chart-legend__item--clickable:focus {
+  outline: 2px solid #fbbf24;
+  outline-offset: 1px;
+}
 .crm-chart-legend__dot {
   width: 10px;
   height: 10px;
@@ -921,6 +1762,50 @@ body.app-body.crm-dashboard {
 .crm-chart-legend__val {
   color: #111827;
   font-variant-numeric: tabular-nums;
+}
+.crm-chart-panel__hint {
+  margin: -0.15rem 0 0.4rem;
+  font-size: 0.68rem;
+  color: #9ca3af;
+}
+.crm-chart-branch-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.68rem;
+  color: #6b7280;
+}
+.crm-chart-branch-key__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+.crm-chart-branch-key__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.crm-chart-legend__item--batch {
+  grid-template-columns: 10px 1fr auto;
+  align-items: flex-start;
+}
+.crm-chart-legend__batch-body {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+.crm-chart-legend__range {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #b45309;
+}
+.crm-chart-legend__branches {
+  font-size: 0.66rem;
+  color: #6b7280;
+  line-height: 1.35;
+  white-space: normal;
 }
 .crm-dash-section {
   margin-top: 1rem;
@@ -1107,6 +1992,139 @@ body.app-body.crm-dashboard {
   line-height: 1.3;
 }
 
+/* Student list modal — branch / batch chart drill-down */
+.crm-student-group-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.crm-student-group-modal[hidden] {
+  display: none !important;
+}
+.crm-student-group-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+}
+.crm-student-group-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 100%);
+  max-height: min(85vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e8dfc4;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+.crm-student-group-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(135deg, #fffceb 0%, #ffffff 55%);
+  border-bottom: 1px solid #ead9a3;
+  flex-shrink: 0;
+}
+.crm-student-group-modal__head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.crm-student-group-modal__count {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+.crm-student-group-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.crm-student-group-modal__close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.crm-student-group-modal__body {
+  padding: 0.65rem 0.85rem 0.85rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.crm-student-group-modal__row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  background: #fafafa;
+}
+.crm-student-group-modal__row .crm-student-cell__avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 0.75rem;
+}
+.crm-student-group-modal__meta {
+  min-width: 0;
+}
+.crm-student-group-modal__name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+.crm-student-group-modal__email {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: #4b5563;
+  word-break: break-word;
+}
+.crm-student-group-modal__tags {
+  margin: 0.35rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+.crm-student-group-modal__tags span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.crm-student-group-modal__tags i {
+  color: #b38700;
+  font-size: 0.68rem;
+}
+.crm-chart-wrap canvas {
+  cursor: pointer;
+}
+
 /* Branch breakdown bars */
 .crm-breakdown {
   display: grid;
@@ -1226,6 +2244,7 @@ body.app-body.crm-dashboard {
 
 @media (max-width: 1100px) {
   .crm-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .crm-pending-requests__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .crm-insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .crm-analytics-grid { grid-template-columns: 1fr; }
   .crm-card--span-2 { grid-column: span 1; }
@@ -1238,6 +2257,12 @@ body.app-body.crm-dashboard {
 }
 @media (max-width: 560px) {
   .crm-kpis { grid-template-columns: 1fr; }
+  .crm-pending-requests__grid { grid-template-columns: 1fr; }
+  .crm-due-fees__head { flex-direction: column; align-items: stretch; }
+  .crm-due-fees__head-actions { justify-content: space-between; flex-wrap: wrap; }
+  .crm-overdue-fees__head { flex-direction: column; align-items: stretch; }
+  .crm-overdue-fees__head-actions { justify-content: space-between; }
+  .crm-overdue-fees__grid { grid-template-columns: 1fr; }
   .crm-insights { grid-template-columns: 1fr; }
   .crm-mini-stats,
   .crm-mini-stats--fees { grid-template-columns: repeat(2, minmax(0, 1fr)); }

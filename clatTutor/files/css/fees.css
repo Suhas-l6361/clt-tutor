@@ -195,6 +195,29 @@
   background: var(--fees-warm);
 }
 
+/* Simple Day / Month / Year date selector (replaces the calendar popup) */
+.fees-receipt-scope .fees-datesel {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1fr;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.fees-receipt-scope .fees-datesel__part {
+  min-width: 0;
+  background: var(--fees-warm);
+}
+
+.fees-receipt-scope .fees-datesel--sm {
+  gap: 0.3rem;
+}
+
+.fees-receipt-scope .fees-datesel--sm .fees-datesel__part {
+  padding: 0.4rem 1.25rem 0.4rem 0.45rem;
+  font-size: 0.82rem;
+  background-position: calc(100% - 8px) 50%, calc(100% - 4px) 50%;
+}
+
 .fees-receipt-scope textarea.fees-input {
   min-height: 3.25rem;
   resize: vertical;
@@ -656,30 +679,72 @@
   display: none !important;
 }
 
-/* Flatpickr popup — only on fees page (calendar appended to body) */
-body.fees-page .flatpickr-calendar {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
-  border-radius: 12px !important;
-  border: 1px solid #e2e8f0 !important;
-  font-family: inherit !important;
+/* Payments received ledger */
+.fees-receipt-scope .fees-table--payments .fees-payment-num {
+  text-align: center;
+  font-weight: 600;
+  color: #475569;
+  background: #fafafa;
 }
 
-body.fees-page .flatpickr-day.selected,
-body.fees-page .flatpickr-day.startRange,
-body.fees-page .flatpickr-day.endRange {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  color: #fff !important;
+.fees-receipt-scope #fees-amount-paid-display {
+  background: #f8fafc;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: default;
 }
 
-body.fees-page .flatpickr-day:hover {
-  background: #dbeafe !important;
-  border-color: #93c5fd !important;
+/* Tuition vs (paid + installments) tally indicator */
+.fees-receipt-scope .fees-tally {
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  border: 1px solid transparent;
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
 }
 
-body.fees-page .flatpickr-current-month .flatpickr-monthDropdown-months,
-body.fees-page .flatpickr-current-month input.cur-year {
-  font-weight: 600 !important;
+.fees-receipt-scope .fees-tally[hidden] {
+  display: none;
+}
+
+.fees-receipt-scope .fees-tally::before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  flex: 0 0 auto;
+  margin-top: 0.05rem;
+}
+
+.fees-receipt-scope .fees-tally--ok {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.fees-receipt-scope .fees-tally--ok::before {
+  content: "\f00c";
+}
+
+.fees-receipt-scope .fees-tally--warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.fees-receipt-scope .fees-tally--warn::before {
+  content: "\f071";
+}
+
+.fees-receipt-scope .fees-tally strong {
+  font-weight: 700;
+}
+
+.fees-receipt-scope .fees-tally__num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Form actions — Save / Print */
@@ -977,6 +1042,74 @@ body.fees-page.fees-print-offer-open {
   margin-bottom: 0.75rem;
 }
 
+.fees-receipt-scope .fees-history-search {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.fees-receipt-scope .fees-history-search__icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.fees-receipt-scope .fees-history-search__input {
+  width: 100%;
+  height: 2.6rem;
+  padding: 0.5rem 2.4rem 0.5rem 2.4rem;
+  border: 1px solid var(--fees-line-strong);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: var(--fees-warm);
+  transition: border-color 0.2s var(--fees-ease), box-shadow 0.2s var(--fees-ease), background 0.2s var(--fees-ease);
+}
+
+.fees-receipt-scope .fees-history-search__input::placeholder {
+  color: #9aa4b2;
+}
+
+.fees-receipt-scope .fees-history-search__input:focus {
+  outline: none;
+  border-color: var(--fees-accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--fees-focus);
+}
+
+.fees-receipt-scope .fees-history-search__clear {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.fees-receipt-scope .fees-history-search__clear:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.fees-receipt-scope .fees-history-search__clear[hidden] {
+  display: none;
+}
+
 .fees-receipt-scope .fees-history-filters__row {
   display: flex;
   flex-wrap: wrap;
@@ -1068,11 +1201,52 @@ body.fees-page.fees-print-offer-open {
   padding: 1.25rem 0.65rem;
 }
 
+/* Horizontal scrollbar mirrored at the top of the history table */
+.fees-receipt-scope .fees-history-scrolltop {
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--fees-line);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: #f8fafc;
+}
+
+.fees-receipt-scope .fees-history-scrolltop[hidden] {
+  display: none;
+}
+
+.fees-receipt-scope .fees-history-scrolltop__inner {
+  height: 10px;
+}
+
+.fees-receipt-scope .fees-history-scrolltop::-webkit-scrollbar {
+  height: 10px;
+}
+
+.fees-receipt-scope .fees-history-scrolltop::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+.fees-receipt-scope .fees-history-scrolltop::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.fees-receipt-scope .fees-history-scrolltop::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .fees-receipt-scope .fees-history-table-wrap {
   overflow: auto;
   max-height: 360px;
   border: 1px solid var(--fees-line);
   border-radius: 10px;
+}
+
+/* When the top scrollbar is showing, square off the shared corner */
+.fees-receipt-scope .fees-history-scrolltop:not([hidden]) + .fees-history-table-wrap {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .fees-receipt-scope .fees-history-table {
@@ -1712,6 +1886,19 @@ body.fees-page.fees-history-detail-open {
   body.fees-page .fees-print__num {
     text-align: right;
     font-variant-numeric: tabular-nums;
+  }
+
+  body.fees-page .fees-print__payments {
+    margin-top: 6px;
+  }
+
+  body.fees-page .fees-print__subtitle {
+    font-size: 6.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #334155;
+    margin: 4px 0 2px;
   }
 
   body.fees-page .fees-print__sign-role {

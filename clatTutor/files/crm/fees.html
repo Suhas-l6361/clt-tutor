@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../vendor/flatpickr/flatpickr.min.css" />
-  <link rel="stylesheet" href="../css/fees.css" />
+  <link rel="stylesheet" href="../css/fees.css?v=20260704e" />
 </head>
 <body class="app-body crm-dashboard fees-page">
   <div id="stock" style="display: none">
@@ -132,7 +132,7 @@
               </div>
               <div class="fees-panel__body">
                 <div class="fees-grid-2">
-                  <div class="fees-field">
+                  <div class="fees-field fees-field--span2">
                     <label class="fees-field-label" for="fees-pay-mode">Payment mode</label>
                     <select id="fees-pay-mode" name="paymentMode" class="fees-input">
                       <option value="">Select</option>
@@ -143,10 +143,6 @@
                       <option value="upi">UPI</option>
                       <option value="other">Other</option>
                     </select>
-                  </div>
-                  <div class="fees-field">
-                    <label class="fees-field-label" for="fees-pay-date">Payment date</label>
-                    <input id="fees-pay-date" name="paymentDate" type="date" class="fees-input fees-input--mono fees-fp-date" />
                   </div>
                   <div id="fees-pay-dynamic" class="fees-pay-dynamic fees-field--span2" hidden>
                     <div class="fees-pay-block" data-pay="cheque" hidden>
@@ -209,15 +205,67 @@
                       </div>
                     </div>
                   </div>
+                  <div class="fees-field fees-field--span2">
+                    <label class="fees-field-label">Payments received</label>
+                    <div class="fees-table-wrap">
+                      <table class="fees-table fees-table--install fees-table--payments">
+                        <thead>
+                          <tr>
+                            <th class="fees-th-num">#</th>
+                            <th>Payment date</th>
+                            <th class="fees-td-num">Amount (INR)</th>
+                            <th class="fees-th-action">Remove</th>
+                          </tr>
+                        </thead>
+                        <tbody id="fees-payment-tbody"></tbody>
+                      </table>
+                    </div>
+                    <p id="fees-payment-empty" class="fees-install-empty" hidden>
+                      No payments recorded yet. Click <strong>Add payment</strong> to add one.
+                    </p>
+                    <div class="fees-install-toolbar">
+                      <button type="button" class="fees-btn-add" id="fees-payment-add" aria-label="Add payment row">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add payment</span>
+                      </button>
+                      <span class="fees-install-hint">Add a row each time the student pays — the total is calculated automatically.</span>
+                    </div>
+                  </div>
+
                   <div class="fees-field">
-                    <label class="fees-field-label" for="fees-amount-paid">Amount paid (INR)</label>
-                    <input id="fees-amount-paid" name="amountPaid" type="text" class="fees-input fees-input--mono" inputmode="decimal" />
+                    <label class="fees-field-label" for="fees-amount-paid-display">Total paid (INR)</label>
+                    <input id="fees-amount-paid-display" type="text" class="fees-input fees-input--mono" inputmode="decimal" readonly placeholder="0" />
                   </div>
                   <div class="fees-field fees-field--span2">
                     <label class="fees-field-label" for="fees-amount-words">Amount in words</label>
                     <textarea id="fees-amount-words" name="amountInWords" class="fees-input" rows="2"></textarea>
                   </div>
+
+                  <input id="fees-amount-paid" name="amountPaid" type="hidden" value="" />
+                  <input id="fees-pay-date" name="paymentDate" type="hidden" value="" />
                 </div>
+
+                <template id="fees-payment-row-tpl">
+                  <tr class="fees-payment-row">
+                    <td class="fees-payment-num">1</td>
+                    <td>
+                      <div class="fees-datesel fees-datesel--sm" data-datesel>
+                        <select class="fees-input fees-datesel__part fees-datesel__day" aria-label="Day"></select>
+                        <select class="fees-input fees-datesel__part fees-datesel__month" aria-label="Month"></select>
+                        <select class="fees-input fees-datesel__part fees-datesel__year" aria-label="Year"></select>
+                        <input type="hidden" class="fees-payment-date" name="paymentReceivedDate[]" />
+                      </div>
+                    </td>
+                    <td class="fees-td-num">
+                      <input type="text" class="fees-input fees-input--mono fees-payment-amt" name="paymentReceivedAmount[]" inputmode="decimal" />
+                    </td>
+                    <td class="fees-install-actions">
+                      <button type="button" class="fees-row-remove" aria-label="Remove payment">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
               </div>
             </section>
           </div>
@@ -251,6 +299,7 @@
                   <label class="fees-field-label" for="fees-net-words">Total amount in words</label>
                   <textarea id="fees-net-words" name="netPayableWords" class="fees-input" rows="2"></textarea>
                 </div>
+                <div id="fees-tally" class="fees-tally" hidden aria-live="polite"></div>
               </div>
             </section>
 
@@ -290,7 +339,12 @@
               <tr class="fees-install-row">
                 <td class="fees-install-num">1</td>
                 <td>
-                  <input type="date" class="fees-input fees-input--mono fees-fp-date fees-install-date" name="installmentDueDate[]" />
+                  <div class="fees-datesel fees-datesel--sm" data-datesel>
+                    <select class="fees-input fees-datesel__part fees-datesel__day" aria-label="Day"></select>
+                    <select class="fees-input fees-datesel__part fees-datesel__month" aria-label="Month"></select>
+                    <select class="fees-input fees-datesel__part fees-datesel__year" aria-label="Year"></select>
+                    <input type="hidden" class="fees-install-date" name="installmentDueDate[]" />
+                  </div>
                 </td>
                 <td class="fees-td-num">
                   <input type="text" class="fees-input fees-input--mono fees-install-amt" name="installmentAmount[]" inputmode="decimal" />
@@ -399,6 +453,19 @@
                     <div class="fees-print__title">Payment</div>
                     <div class="fees-print__lines js-print-payment-lines"></div>
                     <div class="fees-print__lines js-print-payment-extra"></div>
+                    <div class="fees-print__payments js-print-payments-wrap" style="display:none">
+                      <div class="fees-print__subtitle">Payments received</div>
+                      <table class="fees-print__table fees-print__table--payments">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th class="fees-print__num">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody class="js-print-payments-tbody"></tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
                 <div class="fees-print__stack">
@@ -471,6 +538,18 @@
             <p id="fees-history-loading" class="fees-history-loading" hidden>Loading…</p>
             <p id="fees-history-error" class="fees-history-error" hidden></p>
             <div class="fees-history-filters" id="fees-history-filters" hidden>
+              <div class="fees-history-search" id="fees-history-search-wrap">
+                <i class="fa-solid fa-magnifying-glass fees-history-search__icon" aria-hidden="true"></i>
+                <input
+                  type="text"
+                  id="fees-history-search"
+                  class="fees-history-search__input"
+                  placeholder="Search by name, student ID, branch, or phone…"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button type="button" class="fees-history-search__clear" id="fees-history-search-clear" aria-label="Clear search" hidden>&times;</button>
+              </div>
               <div class="fees-history-filters__row">
                 <label class="fees-history-filters__field">
                   <span class="fees-history-filters__label">From date</span>
@@ -490,6 +569,9 @@
                 </div>
               </div>
               <p id="fees-history-summary" class="fees-history-summary" hidden></p>
+            </div>
+            <div class="fees-history-scrolltop" id="fees-history-scrolltop" aria-hidden="true" hidden>
+              <div class="fees-history-scrolltop__inner" id="fees-history-scrolltop-inner"></div>
             </div>
             <div class="fees-history-table-wrap" id="fees-history-table-wrap">
               <table class="fees-history-table">
@@ -556,8 +638,8 @@
   <script src="../js/nav.js?v=20260420"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/fees-installments.js"></script>
-  <script src="../js/fees-page.js"></script>
+  <script src="../js/fees-installments.js?v=20260630b"></script>
+  <script src="../js/fees-page.js?v=20260704e"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

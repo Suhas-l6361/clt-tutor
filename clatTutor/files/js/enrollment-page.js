@@ -642,6 +642,24 @@
       demo: 'Demo class requests',
     };
     var currentKind = null;
+    var filterUnrespondedOnly = false;
+    var pendingOpenId = null;
+
+    function parseEnrollmentQuery() {
+      try {
+        var q = new URLSearchParams(window.location.search);
+        return {
+          kind: (q.get('kind') || '').trim(),
+          id: (q.get('id') || '').trim(),
+          unresponded:
+            q.get('unresponded') === '1' ||
+            q.get('unresponded') === 'true' ||
+            q.get('filter') === 'unresponded',
+        };
+      } catch (e) {
+        return { kind: '', id: '', unresponded: false };
+      }
+    }
 
     function setLoading(on) {
       if (loading) loading.hidden = !on;
@@ -674,6 +692,7 @@
       }
 
       return rows.filter(function (r) {
+        if (filterUnrespondedOnly && isRespondedChecked(r)) return false;
         var createdTs = rowCreatedAtToTs(r.created_at);
         if (createdTs == null) return false;
         if (fromTs != null && createdTs < fromTs) return false;
@@ -900,7 +919,8 @@
       }
 
       panel.hidden = false;
-      heading.textContent = titles[kind] || 'Results';
+      heading.textContent =
+        (titles[kind] || 'Results') + (filterUnrespondedOnly ? ' — pending only' : '');
       listEl.innerHTML = '';
       setError('');
       setLoading(true);
@@ -924,6 +944,11 @@
           lastRowsByKind[kind] = rows;
           try {
             renderKindRows(kind);
+            if (pendingOpenId != null) {
+              var openId = pendingOpenId;
+              pendingOpenId = null;
+              openModal(kind, openId);
+            }
           } catch (e) {
             setError(e && e.message ? e.message : 'Invalid date range.');
           }
@@ -940,6 +965,13 @@
         if (kind) load(kind);
       });
     });
+
+    var initQuery = parseEnrollmentQuery();
+    if (initQuery.kind && titles[initQuery.kind] && urls[initQuery.kind]) {
+      filterUnrespondedOnly = initQuery.unresponded;
+      if (initQuery.id) pendingOpenId = initQuery.id;
+      load(initQuery.kind);
+    }
   }
 
   if (document.readyState === 'loading') {

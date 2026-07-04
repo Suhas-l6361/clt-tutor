@@ -2764,7 +2764,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
-  <script src="../js/exam-question-parser.js"></script>
+  <script src="../js/exam-question-parser.js?v=202607044"></script>
   <script src="../js/exam-answer-key-parser.js"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/data-store.js"></script>
@@ -2931,7 +2931,9 @@
           return r.json().then(function (data) {
             var out = unwrapSubmitPayload(data);
             if (!r.ok) {
-              throw new Error((out && out.message) || 'Submit failed (' + r.status + ')');
+              var msg = (out && out.message) || 'Submit failed (' + r.status + ')';
+              if (out && out.error) msg += ' — ' + out.error;
+              throw new Error(msg);
             }
             return out;
           });
@@ -3376,6 +3378,9 @@
         var visited = {};
         var review = {};
         var timerId = null;
+        var examEndsAt = 0;
+        var examTimerVisibilityHandler = null;
+        var examTimerFocusHandler = null;
         var totalSec = 7200;
         var isSubmitting = false;
         var answerKeyMapCache = null;
@@ -3695,11 +3700,29 @@
         var omrEntryQuestions = [];
         var omrEntryAnswers = {};
 
-        function showGradingLoading() {
+        function stopExamTimer() {
           if (timerId) {
             clearInterval(timerId);
             timerId = null;
           }
+          if (examTimerVisibilityHandler) {
+            document.removeEventListener('visibilitychange', examTimerVisibilityHandler);
+            examTimerVisibilityHandler = null;
+          }
+          if (examTimerFocusHandler) {
+            window.removeEventListener('focus', examTimerFocusHandler);
+            examTimerFocusHandler = null;
+          }
+        }
+
+        function syncExamRemainingSec() {
+          if (!examEndsAt) return totalSec;
+          totalSec = Math.max(0, Math.ceil((examEndsAt - Date.now()) / 1000));
+          return totalSec;
+        }
+
+        function showGradingLoading() {
+          stopExamTimer();
           if (modalDone) modalDone.hidden = false;
           if (modalDoneSummary) modalDoneSummary.hidden = true;
           if (modalDoneLoading) modalDoneLoading.hidden = false;
@@ -3753,6 +3776,23 @@
           }
         }
 
+        function answerKeyMapToLetterPayload(map) {
+          var out = {};
+          if (!map) return out;
+          Object.keys(map).forEach(function (k) {
+            var entry = map[k];
+            var letter =
+              typeof entry === 'string'
+                ? entry
+                : entry && entry.letter
+                  ? entry.letter
+                  : '';
+            letter = String(letter || '').trim().toUpperCase();
+            if (/^[A-D]$/.test(letter)) out[String(k)] = letter;
+          });
+          return out;
+        }
+
         function buildSubmitPayload() {
           var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
           if (!session || !session.user) return null;
@@ -3764,13 +3804,16 @@
             if (v == null || String(v).trim() === '') return;
             normalizedAnswers[String(k)] = String(v).trim().toUpperCase();
           });
-          return {
+          var payload = {
             test_id: paper.test_id,
             answers: normalizedAnswers,
             student_id: sid,
             email: u.email || u.login || '',
             total_questions: qs.length,
           };
+          var clientKey = answerKeyMapToLetterPayload(answerKeyMapCache);
+          if (Object.keys(clientKey).length) payload.client_answer_key = clientKey;
+          return payload;
         }
 
         function submitTestAttempt(options) {
@@ -3838,11 +3881,24 @@
 
           showGradingLoading();
 
-          fetch(apiSubmit, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          })
+          var prepareAnswerKey =
+            answerKeyMapCache && Object.keys(answerKeyMapCache).length
+              ? Promise.resolve()
+              : getAnswerKeyMapCached(paper.test_id)
+                  .then(function (m) {
+                    if (m && Object.keys(m).length) answerKeyMapCache = m;
+                  })
+                  .catch(function () {});
+
+          prepareAnswerKey
+            .then(function () {
+              var submitPayload = buildSubmitPayload();
+              return fetch(apiSubmit, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submitPayload),
+              });
+            })
             .then(parseSubmitResponse)
             .then(function (data) {
               openDoneModal(timedOut, data);
@@ -4423,6 +4479,21 @@
           };
         }
 
+        function computeScorePercentage(correct, wrong, total, marksCorrect, marksNegative) {
+          var c = Number.isFinite(Number(correct)) ? Number(correct) : 0;
+          var w = Number.isFinite(Number(wrong)) ? Number(wrong) : 0;
+          var t = Number.isFinite(Number(total)) ? Number(total) : 0;
+          var mc = Number.isFinite(Number(marksCorrect)) && Number(marksCorrect) > 0 ? Number(marksCorrect) : 1;
+          var mn = Number.isFinite(Number(marksNegative)) && Number(marksNegative) >= 0 ? Number(marksNegative) : 0.25;
+          if (t <= 0) return null;
+          var maxMarks = t * mc;
+          if (maxMarks <= 0) return null;
+          var net = c * mc - w * mn;
+          var pct = (net / maxMarks) * 100;
+          if (pct < 0) pct = 0;
+          return Math.round(pct * 10) / 10;
+        }
+
         function computeAttemptAnalysisStats(questions, answersMap, keyMap, att, row) {
           var numbers = [];
           if (questions && questions.length) {
@@ -4462,12 +4533,18 @@
           });
           if (!total) total = correct + wrong + unanswered;
           var answered = correct + wrong;
-          var pct =
-            att && att.percentage != null && Number.isFinite(Number(att.percentage))
-              ? Number(att.percentage)
-              : total > 0
-                ? Math.round((correct / total) * 1000) / 10
-                : null;
+          var marksCorrect =
+            row && row.marksCorrect != null && Number.isFinite(Number(row.marksCorrect))
+              ? Number(row.marksCorrect)
+              : 1;
+          var marksNegative =
+            row && row.marksNegative != null && Number.isFinite(Number(row.marksNegative))
+              ? Number(row.marksNegative)
+              : 0.25;
+          var pct = computeScorePercentage(correct, wrong, total, marksCorrect, marksNegative);
+          var scoreMarks = Math.round((correct * marksCorrect - wrong * marksNegative) * 100) / 100;
+          var maxMarks = Math.round(total * marksCorrect * 100) / 100;
+          var negativeMarks = Math.round(wrong * marksNegative * 100) / 100;
           var accuracy = answered > 0 ? Math.round((correct / answered) * 1000) / 10 : 0;
           var letter =
             att && att.letter_grade != null && String(att.letter_grade).trim() !== ''
@@ -4497,6 +4574,9 @@
             unanswered: unanswered,
             answered: answered,
             percentage: pct,
+            scoreMarks: scoreMarks,
+            maxMarks: maxMarks,
+            negativeMarks: negativeMarks,
             accuracy: accuracy,
             letter: letter,
             passed: !!(att && att.passed),
@@ -4697,7 +4777,11 @@
             renderAnalysisStatCard(
               'Score Obtained',
               stats.percentage != null ? stats.percentage + '%' : '—',
-              stats.correct + ' / ' + total + (stats.percentage != null ? ' (' + stats.percentage + '%)' : ''),
+              (stats.scoreMarks != null ? stats.scoreMarks : stats.correct) +
+                ' / ' +
+                (stats.maxMarks != null ? stats.maxMarks : total) +
+                (stats.negativeMarks ? ' (−' + stats.negativeMarks + ' neg)' : '') +
+                (stats.percentage != null ? ' · ' + stats.percentage + '%' : ''),
               's',
               'fa-trophy'
             ) +
@@ -4865,6 +4949,14 @@
           var wrongN = Math.max(0, ansN - corrN);
           var potential = Math.round(corrN * mc * 100) / 100;
           var negMarks = Math.round(wrongN * mn * 100) / 100;
+          var totalForPct =
+            totalKey != null && Number.isFinite(totalKey) && totalKey > 0
+              ? totalKey
+              : qs && qs.length
+                ? qs.length
+                : 0;
+          var computedPct = computeScorePercentage(corrN, wrongN, totalForPct, mc, mn);
+          if (computedPct != null) pct = computedPct;
           var accuracyStr =
             ansN > 0 && Number.isFinite(corrN) ? Math.round((corrN / ansN) * 1000) / 10 + '%' : '—';
           var pctClamped =
@@ -5086,8 +5178,7 @@
         }
 
         function openDoneModal(timedOut, submitResult) {
-          if (timerId) clearInterval(timerId);
-          timerId = null;
+          stopExamTimer();
           hideGradingLoading();
           if (modalDone) {
             modalDone.hidden = false;
@@ -5120,9 +5211,28 @@
                   ' question(s) answered.';
               } else if (hasStats) {
                 body.textContent = 'Your attempt was saved. Review your performance below.';
+              } else if (submitResult && submitResult.grading_warning) {
+                body.textContent = submitResult.grading_warning;
               } else {
                 body.textContent = 'Your responses have been recorded for this session.';
               }
+            }
+
+            if (submitResult && submitResult.grading_warning && hasStats) {
+              var warnEl = document.getElementById('modal-done-grading-warning');
+              if (!warnEl && body && body.parentNode) {
+                warnEl = document.createElement('p');
+                warnEl.id = 'modal-done-grading-warning';
+                warnEl.className = 'exam-modal__grading-warning';
+                body.parentNode.insertBefore(warnEl, body.nextSibling);
+              }
+              if (warnEl) {
+                warnEl.hidden = false;
+                warnEl.textContent = submitResult.grading_warning;
+              }
+            } else {
+              var hideWarn = document.getElementById('modal-done-grading-warning');
+              if (hideWarn) hideWarn.hidden = true;
             }
 
             var titleEl = document.getElementById('modal-done-title');
@@ -5227,29 +5337,37 @@
             var pm = Number(params.get('minutes'));
             if (!Number.isNaN(pm) && pm > 0) durationMin = pm;
           }
-          totalSec = Math.max(60, Math.floor(durationMin * 60));
-          if (timerId) clearInterval(timerId);
+          var durationSec = Math.max(60, Math.floor(durationMin * 60));
+          stopExamTimer();
+          examEndsAt = Date.now() + durationSec * 1000;
+          totalSec = durationSec;
+
           function tickTimer() {
             if (!timerSpan) return;
-            timerSpan.textContent = 'Time left: ' + formatTime(totalSec);
+            var remaining = syncExamRemainingSec();
+            timerSpan.textContent = 'Time left: ' + formatTime(remaining);
             var te = document.getElementById('exam-timer');
             if (te) {
               te.classList.remove('exam-timer--warn', 'exam-timer--crit');
-              if (totalSec <= 300 && totalSec > 60) te.classList.add('exam-timer--warn');
-              if (totalSec <= 60) te.classList.add('exam-timer--crit');
+              if (remaining <= 300 && remaining > 60) te.classList.add('exam-timer--warn');
+              if (remaining <= 60) te.classList.add('exam-timer--crit');
             }
-            if (totalSec <= 0) {
-              if (timerId) {
-                clearInterval(timerId);
-                timerId = null;
-              }
+            if (remaining <= 0) {
+              stopExamTimer();
               if (timerSpan) timerSpan.textContent = 'Time left: 0:00';
               submitTestAttempt({ timedOut: true });
-              return;
             }
-            totalSec--;
           }
+
           timerId = setInterval(tickTimer, 1000);
+          examTimerVisibilityHandler = function () {
+            tickTimer();
+          };
+          document.addEventListener('visibilitychange', examTimerVisibilityHandler);
+          examTimerFocusHandler = function () {
+            tickTimer();
+          };
+          window.addEventListener('focus', examTimerFocusHandler);
           tickTimer();
         }
 

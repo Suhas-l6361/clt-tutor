@@ -48,7 +48,7 @@
 
     if (monthEl) {
       monthEl.textContent =
-        FI.currentMonthLabel() + ' — upcoming installments (today or later), nearest due first';
+        FI.currentMonthLabel() + ' — upcoming installments from Jun 2026 onwards';
     }
 
     var api = getFeesApiUrl();
