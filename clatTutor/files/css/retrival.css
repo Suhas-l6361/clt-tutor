@@ -346,6 +346,32 @@
   border-color: #fecdd3;
 }
 
+.retrival-text-btn {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.retrival-text-btn--drop {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fdba74;
+}
+
+.retrival-text-btn--resume {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #6ee7b7;
+}
+
 .crm-modal[hidden],
 .crm-success[hidden] {
   display: none;

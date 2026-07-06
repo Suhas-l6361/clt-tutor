@@ -373,8 +373,22 @@
       showPanel();
     }
 
+    function scopeDashboardData(feesRows, students) {
+      var CBS = window.CrmBranchScope;
+      if (!CBS || !CBS.isScoped()) {
+        return { feesRows: feesRows || [], students: students || [] };
+      }
+      var scopedStudents = CBS.filterStudents(students || []);
+      var lookup = CBS.buildStudentLookup(scopedStudents);
+      return {
+        feesRows: CBS.filterFeeReceipts(feesRows || [], lookup),
+        students: scopedStudents,
+      };
+    }
+
     Promise.all([loadFeesRows(), loadStudents()]).then(function (results) {
-      render(results[0], results[1]);
+      var scoped = scopeDashboardData(results[0], results[1]);
+      render(scoped.feesRows, scoped.students);
     }).catch(onError);
   }
 

@@ -415,9 +415,27 @@
     </div>
   </div>
 
+  <div id="drop-confirm-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-drop-confirm></div>
+    <div class="crm-modal__dialog" style="width:min(430px,100%);">
+      <div class="reg-form" style="background:#ffffff;color:#111827;border:1px solid #fde68a;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.45rem;text-align:center;">
+          <i class="fa-solid fa-user-slash" style="font-size:2rem;color:#b45309;"></i>
+          <h3 id="drop-confirm-title" style="margin:0;font-size:1.05rem;">Drop this student?</h3>
+          <p style="margin:0;color:#4b5563;font-size:0.9rem;">They will not be able to log in until you resume their enrollment.</p>
+          <div style="display:flex;gap:0.55rem;width:100%;margin-top:0.35rem;">
+            <button id="cancel-drop-btn" type="button" class="fancy-btn fancy-btn--reset">Cancel</button>
+            <button id="confirm-drop-btn" type="button" class="fancy-btn" style="background:#d97706;">Drop</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/crm-branch-scope.js"></script>
   <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
@@ -441,6 +459,7 @@
       var searchLabelEl = document.getElementById('search-field-label');
       var displayImageTitleEl = document.getElementById('display-image-title');
       var deleteConfirmTitleEl = document.getElementById('delete-confirm-title');
+      var dropConfirmModal = document.getElementById('drop-confirm-modal');
       var nameEmailInput = document.getElementById('search-name-email');
       var fromDateInput = document.getElementById('filter-from');
       var toDateInput = document.getElementById('filter-to');
@@ -495,6 +514,7 @@
       var fileOpenPdfEl = document.getElementById('display-file-open-pdf');
       var deleteConfirmModal = document.getElementById('delete-confirm-modal');
       var deleteConfirmResolve = null;
+      var dropConfirmResolve = null;
       var efDay = document.getElementById('ef-dob-day');
       var efMonth = document.getElementById('ef-dob-month');
       var efYear = document.getElementById('ef-dob-year');
@@ -825,6 +845,16 @@
         if (filePdfBarEl) filePdfBarEl.style.display = 'none';
       }
 
+      function studentIsDropped(r) {
+        var v = r && r.isDrop;
+        if (v === true || v === 1) return true;
+        if (typeof v === 'string') {
+          var s = v.trim().toLowerCase();
+          return s === 'true' || s === '1' || s === 'yes';
+        }
+        return false;
+      }
+
       function renderRows(rows) {
         if (!rows.length) {
           tbody.innerHTML = '<tr><td class="retrival-empty" colspan="13">No student records found.</td></tr>';
@@ -840,6 +870,10 @@
             imageCell = '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-show-image="' + safeHtml(imgKey) + '" data-image-api="student" title="Display Image" style="width:auto;padding:0 10px;font-size:0.75rem;font-weight:700;">Display Image</button>';
           }
           var id = safeHtml(r.student_id || r.id);
+          var dropped = studentIsDropped(r);
+          var dropResumeBtn = dropped
+            ? '<button class="retrival-text-btn retrival-text-btn--resume" type="button" data-resume-id="' + id + '" title="Resume enrollment">Resume</button>'
+            : '<button class="retrival-text-btn retrival-text-btn--drop" type="button" data-drop-id="' + id + '" title="Drop course">Drop</button>';
           return (
             '<tr>' +
             '<td>' + safeHtml(r.name) + '</td>' +
@@ -856,6 +890,7 @@
             '<td>' + imageCell + '</td>' +
             '<td><span class="retrival-row-actions">' +
             '<button class="retrival-icon-btn retrival-icon-btn--edit" type="button" data-edit-id="' + id + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+            dropResumeBtn +
             '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
             '</span></td>' +
             '</tr>'
@@ -1472,6 +1507,21 @@
         deleteConfirmResolve = null;
       }
 
+      function askDropConfirmation() {
+        return new Promise(function (resolve) {
+          dropConfirmResolve = resolve;
+          if (dropConfirmModal) dropConfirmModal.hidden = false;
+        });
+      }
+
+      function closeDropConfirm(value) {
+        if (dropConfirmModal) dropConfirmModal.hidden = true;
+        if (typeof dropConfirmResolve === 'function') {
+          dropConfirmResolve(Boolean(value));
+        }
+        dropConfirmResolve = null;
+      }
+
       function closeEditModal() {
         editModal.hidden = true;
         currentEditId = null;
@@ -1633,6 +1683,39 @@
         });
         if (!putRes.ok) throw new Error('Upload failed');
         return signedData.key || fileName;
+      }
+
+      async function updateStudentDropStatus(id, isDrop) {
+        metaEl.textContent = isDrop ? 'Marking student as dropped...' : 'Resuming student...';
+        try {
+          var res = await fetch(API_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: Number(id), isDrop: isDrop ? 1 : 0 }),
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Update failed');
+          await loadStudentData();
+          metaEl.textContent = isDrop ? 'Student marked as dropped.' : 'Student resumed successfully.';
+          showSuccessPopup(
+            isDrop ? 'Student Dropped' : 'Student Resumed',
+            isDrop
+              ? 'This student can no longer log in until resumed.'
+              : 'This student can log in again.'
+          );
+        } catch (err) {
+          metaEl.textContent = err.message || 'Update failed';
+        }
+      }
+
+      async function dropStudentById(id) {
+        var yes = await askDropConfirmation();
+        if (!yes) return;
+        await updateStudentDropStatus(id, true);
+      }
+
+      async function resumeStudentById(id) {
+        await updateStudentDropStatus(id, false);
       }
 
       async function deleteStudentById(id) {
@@ -1809,6 +1892,18 @@
             else deleteStudentById(id);
           });
         });
+        if (currentMode === 'student') {
+          Array.prototype.slice.call(document.querySelectorAll('[data-drop-id]')).forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              dropStudentById(btn.getAttribute('data-drop-id'));
+            });
+          });
+          Array.prototype.slice.call(document.querySelectorAll('[data-resume-id]')).forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              resumeStudentById(btn.getAttribute('data-resume-id'));
+            });
+          });
+        }
       }
 
       async function loadStudentData() {
@@ -1819,6 +1914,7 @@
           var data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
           var rows = Array.isArray(data) ? data : [];
+          if (window.CrmBranchScope) rows = CrmBranchScope.filterStudents(rows);
           allRows = rows;
           renderRows(allRows);
           metaEl.textContent = 'Connected successfully. Total fetched records: ' + allRows.length;
@@ -1837,6 +1933,11 @@
           var data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
           var rows = Array.isArray(data) ? data : [];
+          if (window.CrmBranchScope) {
+            rows = CrmBranchScope.filterList(rows, function (r) {
+              return r.branch;
+            });
+          }
           allRows = rows;
           renderAchieverRows(allRows);
           metaEl.textContent = 'Connected successfully. Total achiever records: ' + allRows.length;
@@ -2228,6 +2329,13 @@
       if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', function () { closeDeleteConfirm(true); });
       Array.prototype.slice.call(document.querySelectorAll('[data-close-delete-confirm]')).forEach(function (el) {
         el.addEventListener('click', function () { closeDeleteConfirm(false); });
+      });
+      var cancelDropBtn = document.getElementById('cancel-drop-btn');
+      var confirmDropBtn = document.getElementById('confirm-drop-btn');
+      if (cancelDropBtn) cancelDropBtn.addEventListener('click', function () { closeDropConfirm(false); });
+      if (confirmDropBtn) confirmDropBtn.addEventListener('click', function () { closeDropConfirm(true); });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-drop-confirm]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeDropConfirm(false); });
       });
       Array.prototype.slice.call(document.querySelectorAll('[data-close-image-modal]')).forEach(function (el) {
         el.addEventListener('click', closeImageModal);

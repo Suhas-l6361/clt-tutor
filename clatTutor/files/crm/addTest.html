@@ -2196,7 +2196,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=202607044"></script>
+  <script src="../js/exam-question-parser.js?v=202607071"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
@@ -4224,11 +4224,22 @@
             return;
           }
           var qDocHtml = res.html || '';
-          var parseFn =
-            window.ExamQuestionParser && typeof window.ExamQuestionParser.parseQuestionsFromText === 'function'
-              ? window.ExamQuestionParser.parseQuestionsFromText.bind(window.ExamQuestionParser)
-              : parseQuestionsFromText;
-          var parsed = parseFn(res.text, currentParseOpts());
+          if (
+            !window.ExamQuestionParser ||
+            typeof window.ExamQuestionParser.parseQuestionsFromText !== 'function'
+          ) {
+            loaderOverlay.hidden = true;
+            document.body.style.overflow = '';
+            showToast(
+              'Parser not loaded',
+              'exam-question-parser.js failed to load. Hard refresh the page (Ctrl+F5) and try again.'
+            );
+            return;
+          }
+          var parsed = window.ExamQuestionParser.parseQuestionsFromText(
+            res.text,
+            currentParseOpts()
+          );
           if (parsed.error || !parsed.questions.length) {
             loaderOverlay.hidden = true;
             document.body.style.overflow = '';
@@ -4249,7 +4260,8 @@
             };
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
-            if (parsed.missingNumbers && parsed.missingNumbers.length) {
+            var parseOpts = currentParseOpts();
+            if (parsed.missingNumbers && parsed.missingNumbers.length && !(parseOpts && parseOpts.kind === 'sectional')) {
               var miss = parsed.missingNumbers.slice(0, 12).join(', ');
               if (parsed.missingNumbers.length > 12) {
                 miss += '… (+' + (parsed.missingNumbers.length - 12) + ' more)';

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Legal parser — verify 32 questions</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1rem; max-width: 960px; }
+    textarea { width: 100%; height: 160px; font-size: 12px; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #f0f0f0; }
+    .ok { color: #0a7; font-weight: 600; }
+    .bad { color: #c00; font-weight: 600; }
+    .q6box { background: #f8fff8; border: 1px solid #9c9; padding: 12px; margin-top: 1rem; border-radius: 6px; }
+    button { margin-right: 8px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Legal Reasoning parser verification</h1>
+  <p>Paste your mammoth / Word text, or click <strong>Load full sample</strong>, then <strong>Run parse</strong>.</p>
+  <textarea id="input" placeholder="Paste document text here…"></textarea>
+  <div>
+    <button id="sample">Load full sample (32 Q)</button>
+    <button id="run">Run parse</button>
+  </div>
+  <div id="summary"></div>
+  <div id="q6box"></div>
+  <table id="tbl" hidden>
+    <thead><tr><th>#</th><th>Opts</th><th>Stem (first line)</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <script src="../js/exam-question-parser.js?v=202607071"></script>
+  <script>
+    var SAMPLE = `((Legal Reasoning Starts))
+
+(Paragraph starts)
+
+PASSAGE I
+Article 19(1) of the Constitution of India guarantees to every citizen six fundamental freedoms: (a) freedom of speech and expression; (b) the right to assemble peaceably and without arms; (c) the right to form associations or unions or co-operative societies; (d) the right to move freely throughout the territory of India; (e) the right to reside and settle in any part of the territory of India; and (g) the right to practise any profession, or to carry on any occupation, trade, or business. These freedoms are not absolute. Each is subject to reasonable restrictions that the State may impose by law on the grounds specified in Article 19(2) through (6).
+6.
+Restrictions must be reasonable — not excessive, arbitrary, or disproportionate — and must serve one of the enumerated purposes such as sovereignty and integrity of India, security of the State, public order, decency, or morality.
+
+(Paragraph ends)
+
+1. Article 19(1) guarantees six specific freedoms to citizens. Which of the following is NOT covered by any of the six freedoms enumerated in Article 19(1)?
+
+A. Publishing an article critical of the Union Government's economic policy in a national newspaper
+
+B. Casting a vote in a general election to the Lok Sabha as a participating citizen of a democratic republic
+
+C. Organising a workers' trade union to collectively negotiate service conditions with an employer
+
+D. Relocating from one State to another to take up employment in the destination State
+
+2. In Maneka Gandhi v. Union of India (1978), the Supreme Court held that Articles 14, 19, and 21 form an integrated "golden triangle." Which of the following most accurately describes what this means for a law that deprives a person of personal liberty?
+
+A. A law satisfies the golden triangle test as long as it is enacted by the legislature by the required majority
+
+B. The three Articles operate in sequence — a law is assessed first under Article 14 for non-arbitrariness
+
+C. A law depriving a person of personal liberty must simultaneously satisfy all three: it must be non-arbitrary (Article 14), must not impose an unreasonable restriction on Article 19 freedoms, and must follow fair, just, and reasonable procedure (Article 21)
+
+D. The golden triangle means that Fundamental Rights must always be balanced against Directive Principles
+
+3. Maneka Gandhi v. Union of India (1978) overruled the earlier approach of A.K. Gopalan v. State of Madras (1950). Which of the following most accurately states the significance of the Maneka Gandhi holding?
+
+A. The Maneka Gandhi judgment held that "procedure established by law" must itself be fair, just, and reasonable
+
+B. The Maneka Gandhi judgment held that "procedure established by law" in Article 21 must be a procedure approved by the Supreme Court
+
+C. The Maneka Gandhi judgment held that "procedure" in Article 21 refers only to judicial procedure
+
+D. The Maneka Gandhi judgment held that "procedure established by law" is synonymous with "due process of law" as defined under the Fifth Amendment
+
+4. Article 22 provides safeguards both for persons arrested under ordinary criminal law and for persons detained under preventive detention law. Which of the following describes a safeguard that belongs to the preventive detention provisions of Article 22?
+
+A. The right to be informed of the grounds of arrest as soon as may be
+
+B. The right to consult and to be defended by a legal practitioner of one's choice
+
+C. The right to be produced before the nearest magistrate within 24 hours of arrest
+
+D. The right to have the detention order reviewed by an Advisory Board if detention is to extend beyond three months
+
+5. Ajay, an undertrial prisoner, has been confined in a jail for three months prior to his trial. He alleges physical abuse and solitary confinement. He wishes to approach the Supreme Court directly. Under which constitutional provision would his claim most directly be grounded?
+
+A. Article 20(3), which protects persons from being compelled to be witnesses against themselves
+
+B. Article 21, which the Supreme Court has interpreted to include the right to live with human dignity and the right against custodial torture
+
+C. Article 22(1), which provides the right to consult a legal practitioner of choice
+
+D. Article 14, since custodial abuse constitutes discriminatory and arbitrary treatment of undertrials
+
+(Paragraph starts)
+
+PASSAGE II
+Articles 32 and 226 of the Constitution vest in the Supreme Court and High Courts respectively the power to issue prerogative writs. Article 32 empowers the Supreme Court to issue writs for the enforcement of Fundamental Rights guaranteed under Part III of the Constitution. Article 226 empowers the High Courts to issue writs not only for the enforcement of Fundamental Rights but also "for any other purpose" — making the High Court's writ jurisdiction textually and functionally broader than the Supreme Court's jurisdiction under Article 32.
+
+(Paragraph ends)
+
+6. The passage states that the High Court's writ jurisdiction under Article 226 is broader than the Supreme Court's under Article 32. Which of the following most accurately describes this difference?
+
+A. The High Court may issue writs against private individuals and corporations; the Supreme Court's jurisdiction under Article 32 is limited to writs against State authorities only
+
+B. The Supreme Court under Article 32 may hear writ petitions from any part of India; a High Court under Article 226 may only hear petitions arising from causes of action within its territorial jurisdiction
+
+C. Both the Supreme Court and the High Courts may issue all five writs; the sole difference is that the Supreme Court has exclusive original jurisdiction in matters involving disputes between States
+
+D. The Supreme Court under Article 32 may issue writs only for enforcement of Fundamental Rights; the High Court under Article 226 may issue writs for enforcement of Fundamental Rights and for any other purpose — including enforcement of statutory rights and other legal obligations
+
+7. Kavitha has been detained by the police for nine days without being produced before a magistrate. Which writ should her brother seek, and why?
+
+A. Habeas Corpus — it is specifically designed to challenge unlawful detention
+
+B. Mandamus — since the police have failed to perform their legal duty of producing Kavitha before a magistrate within 24 hours
+
+C. Certiorari — to quash the detention order on the ground that it was passed in excess of authority
+
+D. Prohibition — to restrain the police from continuing to detain Kavitha
+
+8. A State Electricity Regulatory Commission passes a final tariff order that a power company alleges was made in excess of jurisdiction. Which writ is most appropriate?
+
+A. Habeas Corpus — since the illegal tariff order effectively deprives the company of its right to carry on business
+
+B. Mandamus — directing the Electricity Commission to rehear the tariff matter
+
+C. Certiorari — to quash the final tariff order on the grounds that it was passed in excess of jurisdiction
+
+D. Prohibition — since the Commission has already passed a final order
+
+9. A public university refuses to issue a degree certificate to Priya. Which writ is most appropriate, and why?
+
+A. Certiorari — since the university's internal decision to withhold the degree is a quasi-judicial act
+
+B. Mandamus — since the university is a public authority under a legal duty to issue a degree certificate
+
+C. Quo Warranto — since the question concerns Priya's right to hold a recognised academic degree
+
+D. Prohibition — since the university's inaction amounts to an unlawful proceeding
+
+10. In which of the following situations is a writ of Quo Warranto the most appropriate remedy?
+
+A. A person claims that a government officer's administrative order was made in breach of natural justice
+
+B. A person argues that a regulatory tribunal has listed a matter for hearing after its statutory mandate has lapsed
+
+C. A person challenges his continued detention by a prison authority as unlawful
+
+D. A person challenges the right of another individual to hold the office of Mayor on the ground that the officeholder was disqualified
+
+(Paragraph starts)
+PASSAGE III
+The rule of strict liability in tort was established in Rylands v. Fletcher (1868).
+(Paragraph ends)
+
+11. Gopal constructs a large reservoir on his agricultural land. What is the most appropriate legal position under Rylands v. Fletcher?
+A. Gopal is likely liable since a large industrial reservoir constitutes a non-natural use of land
+B. Gopal is not liable since any damage caused by rainfall qualifies as an Act of God
+C. Gopal is not liable since water stored on agricultural land constitutes ordinary agricultural use
+D. Gopal is not liable since Meena has not established that the reservoir itself was defective
+
+12. Which of the following is most likely to constitute non-natural use of land within the meaning of Rylands v. Fletcher?
+A. Installing a rooftop rainwater harvesting system on a residential home
+B. Planting a row of large ornamental trees along the boundary of a farm
+C. Storing large quantities of highly concentrated industrial acids in holding tanks for commercial chemical manufacturing
+D. Maintaining a swimming pool in a residential compound
+
+13. A large chemical manufacturing enterprise stores highly toxic gases. A former employee sabotages a storage valve. What is the most appropriate legal position?
+A. The enterprise has a complete defence since the sabotage by a stranger is a recognised defence
+B. The enterprise may be liable under the absolute liability doctrine since M.C. Mehta applies to hazardous activities
+C. The enterprise is liable only if residents establish failure to implement adequate anti-sabotage security measures
+D. Absolute liability under M.C. Mehta applies only where the enterprise itself physically caused the escape
+
+14. Sunita operates a factory that stores industrial solvent. Trespassers knock over drums causing damage. What is the most appropriate legal position?
+A. Sunita may not be liable since the escape was caused by the independent act of trespassers
+B. Sunita is strictly liable since the solvent was accumulated on her land
+C. The neighbour's only remedy is against the trespassers directly
+D. Sunita is liable since she failed to implement security measures adequate to prevent trespass
+
+15. A State-owned pipeline company is authorised by statute to operate a petroleum pipeline. A fracture causes oil contamination. What is the most appropriate legal position?
+A. The company is not liable since statutory authority is a complete defence whenever damage is caused
+B. The company may not be liable if the fracture was the inevitable consequence of lawful operation conducted with all reasonable care
+C. The company is liable since State-owned enterprises are not entitled to the statutory authority defence
+D. The company is strictly liable since a petroleum pipeline is a non-natural and dangerous use of land
+
+16. Which of the following most accurately describes the key distinction between absolute liability in M.C. Mehta and strict liability in Rylands v. Fletcher?
+A. Rylands v. Fletcher applies only in England and Wales
+B. Rylands v. Fletcher applies to all persons; M.C. Mehta applies only to government enterprises
+C. Absolute liability under M.C. Mehta applies to hazardous activities, admits no defences, and does not require physical escape
+D. The two doctrines differ only in the quantum of compensation
+
+(Paragraph starts)
+PASSAGE IV
+Defamation is both a civil tort and a criminal offence under the Indian Penal Code, 1860.
+(Paragraph ends)
+
+17. Ramesh publishes a blog post about Suresh's firm. Ramesh relies on justification (truth). What is the most appropriate legal position?
+A. Ramesh's statement is not actionable since the phrase "appear to show" signals an opinion
+B. If Ramesh can establish that the financial records genuinely contained the irregularities, the justification defence may be a complete answer
+C. Ramesh has no defence since truth is not a complete defence in civil defamation in India
+D. The blog post is not subject to defamation law since internet publications are governed exclusively by the IT Act
+
+18. Ananya publishes a film review. The director sues for defamation. Ananya pleads fair comment. What is the most appropriate legal position?
+A. The director will succeed since the statement is likely to lower him in the eyes of film industry professionals
+B. The director will succeed since fair comment requires that the factual basis for the opinion be set out in the same article
+C. The statement is not defamatory at all since opinion about a creative work is categorically non-actionable
+D. Ananya may successfully plead fair comment since the statement is clearly an expression of critical opinion about a publicly released film
+
+19. Nisha tells Tarun that Kiran was dishonest in his handling of client accounts. Nisha invokes qualified privilege. What is the most appropriate legal position?
+A. Nisha may rely on qualified privilege since providing a character reference to a prospective employer falls within qualified privilege
+B. Nisha cannot rely on qualified privilege since the defence applies only to true statements
+C. Nisha is not liable since the oral statement was made privately to Tarun alone
+D. Nisha is fully liable since qualified privilege does not apply to statements about financial honesty
+
+20. Vikram tells Suresh that Anita has been misappropriating company funds. Anita sues Vikram for defamation. What is the most appropriate legal position?
+A. There is no publication since Anita only learned of the statement through Suresh
+B. There is no publication since an oral statement communicated privately between two colleagues is covered by implied privilege
+C. The publication requirement is satisfied since Vikram communicated the defamatory statement to Suresh — a person other than the plaintiff
+D. There is no publication since defamatory statements made only in oral form cannot constitute publication
+
+21. A regional newspaper publishes a photograph of Rajan leaving a criminal defence lawyer's office. What legal concept must Rajan rely on?
+A. Qualified privilege
+B. Fair comment
+C. Justification
+D. Innuendo — where a statement is not defamatory on its face, the plaintiff must plead and prove the extrinsic facts that make an apparently innocent statement carry a defamatory meaning
+
+(Paragraph starts)
+PASSAGE V
+Under the Indian Contract Act, 1872, consideration is defined in Section 2(d).
+Section 25 of the Indian Contract Act declares that an agreement without consideration is void.
+(Paragraph ends)
+
+22. In 1995, Ashok guaranteed a bank loan for Ramesh. In 2024, Ramesh promises to pay Ashok Rs. 3 lakhs. Is Ramesh's promise enforceable?
+A. The promise is not enforceable since past consideration is insufficient
+B. The promise may be enforceable since Indian law recognises past consideration and Section 25(2) may apply
+C. The promise is not enforceable since Section 25(2) requires formal commercial capacity
+D. The promise is enforceable only if reduced to writing under Section 25(1)
+
+23. Mohan executes a registered document promising to pay his daughter Rs. 8 lakhs on her marriage. What is the most appropriate legal position?
+A. The promise is enforceable under Section 25(1) of the Indian Contract Act
+B. The promise is not enforceable since a parent's promise on a child's marriage is a social obligation
+C. The promise is enforceable only if Kavitha establishes detrimental reliance
+D. The promise is void since all family promises require bilateral signature
+
+24. Meena agrees to sell her antique clock to Arjun for Rs. 500. What is the most appropriate legal position?
+A. The agreement is voidable since courts may set aside grossly inadequate consideration
+B. The agreement is void since Section 25 requires proportionate consideration
+C. The agreement is valid and enforceable since Indian contract law does not require consideration to be adequate
+D. The agreement is enforceable but Meena may recover the difference between agreed price and fair market value
+
+25. A debt owed by Vivek to Priya became time-barred in March 2021. In June 2024, Vivek signs a written promise to repay. What is the most appropriate legal position?
+A. Priya cannot succeed since a time-barred debt is extinguished at law
+B. Priya may succeed since Section 25(3) provides that a written signed promise to pay a time-barred debt is enforceable
+C. Priya cannot succeed since Section 25(3) requires registration
+D. Priya may succeed but only for 50% of the original amount
+
+26. Sunita publicly announces a reward for solving a factory water pressure problem. Rahul solves it without prior communication. What is the most appropriate legal position?
+A. There is no contract since acceptance must always be communicated before work is commenced
+B. There is no contract since a public announcement is merely an invitation to offer
+C. There is a contract but Rahul must notify Sunita within a reasonable time after completion
+D. There is a valid contract since a public offer can be accepted by performance without prior communication
+
+(Paragraph starts)
+PASSAGE VI
+Under the Indian Partnership Act, 1932, a partnership is defined in Section 4.
+Section 25
+25.
+of the Indian Partnership Act provides for the liability of partners.
+(Paragraph ends)
+
+27. Arun purchases goods worth Rs. 18 lakhs on credit in the firm's name without informing other partners. What is the most appropriate legal position?
+A. The firm is liable since a partner acting within the ordinary course of business has implied authority under Section 19
+B. The firm is not liable since purchases exceeding Rs. 10 lakhs require written approval of all partners
+C. The firm is not liable since an act done without knowledge of other partners binds only the individual partner
+D. The firm is liable only for one-third of the debt
+
+28. Rajesh introduces himself as a founding partner though he is only an employee. What is the most appropriate legal position?
+A. Rajesh is not personally liable since partnership liability is exclusively that of registered partners
+B. Rajesh is not personally liable since his representations were made at general industry events
+C. Rajesh may be personally liable as a partner by estoppel under Section 28
+D. Only the firm is liable to Meera
+
+29. Sonu purchases a luxury car for a catering firm without Monu's consent. What is the most appropriate legal position?
+A. The firm is bound since any purchase made by a partner in the firm's name is binding
+B. The firm is bound since third parties dealing with a partner in good faith are always fully protected
+C. The firm is bound since provision of transport is a general administrative function
+D. The firm is likely not bound since purchasing a luxury car bears no connection to the ordinary course of a catering firm's business
+
+30. Priya was admitted to partnership benefits as a minor and failed to give notice within six months of attaining majority. What is Priya's legal status?
+A. Priya automatically ceases to be connected with the firm after the six-month period
+B. Priya becomes a full partner on the expiry of the six-month period under Section 30
+C. Priya remains admitted to benefits indefinitely until she makes an affirmative election
+D. Priya's status reverts to that of an outsider
+
+31. An unregistered partnership firm seeks to file a suit for recovery against a client. What is the consequence of non-registration?
+A. The firm and its partners are barred from filing a suit to enforce a contractual right against a third party
+B. The firm's contracts with third parties are void and unenforceable from the outset
+C. An unregistered partnership is an illegal association
+D. Non-registration has no effect on the firm's right to sue third parties
+
+32. A written partnership deed records profit-sharing as 40:35:25. Rajan claims a subsequent oral revision to 50%. What is the evidentiary significance of the deed?
+A. A written partnership deed has no special evidentiary status
+B. A written partnership deed is the only evidence admissible on profit-sharing ratio
+C. A written partnership deed is strong evidence; the burden to establish an oral change is substantially higher
+D. The written deed automatically governs until replaced by a fresh written supplementary deed
+
+((Legal Reasoning Ends))`;
+
+    document.getElementById('sample').onclick = function () {
+      document.getElementById('input').value = SAMPLE;
+    };
+
+    document.getElementById('run').onclick = function () {
+      var text = document.getElementById('input').value;
+      var r = ExamQuestionParser.parseQuestionsFromText(text, {
+        kind: 'sectional',
+        category: 'Legal Reasoning',
+      });
+      var missing = [];
+      for (var n = 1; n <= 32; n++) {
+        if (!r.questions.some(function (q) { return q.number === n; })) missing.push(n);
+      }
+      var ok = r.questions.length === 32 && missing.length === 0;
+      document.getElementById('summary').innerHTML =
+        '<p class="' + (ok ? 'ok' : 'bad') + '">' +
+        'Parsed <strong>' + r.questions.length + ' / 32</strong> questions. ' +
+        (missing.length ? 'Missing: Q' + missing.join(', Q') + '. ' : '') +
+        (r.dropped && r.dropped.length ? 'Dropped: ' + JSON.stringify(r.dropped) : '') +
+        '</p>';
+
+      var q6 = r.questions.find(function (q) { return q.number === 6; });
+      var q6html = '';
+      if (q6) {
+        q6html = '<h3>Q6 (parsed correctly)</h3><p><strong>Stem:</strong> ' + escapeHtml(q6.stem) + '</p><ul>';
+        q6.options.forEach(function (o) {
+          q6html += '<li><strong>' + o.letter + '.</strong> ' + escapeHtml(o.text) + '</li>';
+        });
+        q6html += '</ul>';
+      } else {
+        q6html = '<p class="bad">Q6 was NOT parsed.</p>';
+      }
+      document.getElementById('q6box').className = 'q6box';
+      document.getElementById('q6box').innerHTML = q6html;
+
+      var tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      r.questions.forEach(function (q) {
+        var tr = document.createElement('tr');
+        var stemLine = (q.stem || '').split('\n')[0];
+        tr.innerHTML =
+          '<td>Q' + q.number + '</td>' +
+          '<td>' + (q.options || []).map(function (o) { return o.letter; }).join('') + '</td>' +
+          '<td>' + escapeHtml(stemLine.slice(0, 120)) + '</td>';
+        tbody.appendChild(tr);
+      });
+      document.getElementById('tbl').hidden = false;
+    };
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Auto-run sample on load
+    document.getElementById('sample').click();
+    document.getElementById('run').click();
+  </script>
+</body>
+</html>

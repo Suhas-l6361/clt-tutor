@@ -1875,6 +1875,11 @@
             throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
           }
           var list = Array.isArray(x.j) ? x.j : [];
+          if (window.CrmBranchScope) {
+            list = CrmBranchScope.filterList(list, function (r) {
+              return r.branch;
+            });
+          }
           allHistoryRows = list.slice();
           rowsById = {};
           list.forEach(function (r) {
@@ -2425,6 +2430,7 @@
           throw new Error((data && data.message) || 'Request failed');
         }
         students = Array.isArray(data) ? data : [];
+        if (window.CrmBranchScope) students = CrmBranchScope.filterStudents(students);
         hasLoaded = true;
         setStatus(
           students.length

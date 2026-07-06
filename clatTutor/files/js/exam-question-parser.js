@@ -26,16 +26,17 @@
       if (n >= 1 && n <= 199) return before + '\n' + num + '. (';
       return full;
     });
-    t = t.replace(/([^\n])(\s+)(\d{1,3})\.\s/g, function (full, before, sp, num) {
+    t = t.replace(/([^\n])(\s+)(\d{1,3})\.\s/g, function (full, before, sp, num, offset, whole) {
       var n = parseInt(num, 10);
       if (n < 1 || n > 199) return full;
-      var lineStart = before.lastIndexOf('\n');
-      var linePrefix = lineStart >= 0 ? before.slice(lineStart) + sp : before + sp;
-      if (/(?:Article|Section|Chapter|Rule|Act|Part|Schedule|CrPC|IPC)\s+\d{1,3}\s*$/i.test(linePrefix + num)) {
+      var lineStart = whole.lastIndexOf('\n', offset);
+      var beforeNum = whole.slice(lineStart + 1, offset) + before + sp;
+      if (/(?:Article|Section|Chapter|Rule|Act|Part|Schedule|CrPC|IPC)\s+\d{1,3}\s*$/i.test(beforeNum + num)) {
         return full;
       }
-      var ctx = String(before + sp).slice(-28);
-      if (/(?:Section|Article|Act|Order|Rule|Chapter|Part|No|CrPC|IPC|Schedule)\s*$/i.test(ctx)) return full;
+      if (/(?:Section|Article|Act|Order|Rule|Chapter|Part|No|CrPC|IPC|Schedule)\s*$/i.test(beforeNum)) {
+        return full;
+      }
       if (n > 120) return full;
       return before + '\n' + num + '. ';
     });
@@ -43,10 +44,21 @@
     t = t.replace(/([a-z])(\s+)([B-D])\.\s+(?=[A-Z"'(])/g, '$1\n$3. ');
     t = t.replace(/\t+([A-Da-d])\.(\s*)/g, '\n$1.$2');
     t = t.replace(/([^.\n])\s+([B-Da-d])\.(\s+)(?=[A-Z0-9"'(])/g, '$1\n$2.$3');
-    t = t.replace(/\)\s*(\d{1,3})\.\s/g, function (full, num) {
+    t = t.replace(/\)\s*(\d{1,3})\.\s/g, function (full, num, offset, whole) {
       var n = parseInt(num, 10);
-      if (n >= 1 && n <= 199) return ')\n' + num + '. ';
-      return full;
+      if (n < 1 || n > 199) return full;
+      var before = whole.slice(Math.max(0, offset - 24), offset);
+      if (/\(\d{0,3}$/.test(before)) return full;
+      if (/\bthrough\s*$/i.test(before.slice(-14))) return full;
+      var after = whole.slice(offset + full.length, offset + full.length + 32).trim();
+      if (
+        /^(Restrictions\b|Each is subject\b|Over the decades\b|Under Article\b|of the Indian\b|declares that\b)/i.test(
+          after
+        )
+      ) {
+        return full;
+      }
+      return ')\n' + num + '. ';
     });
     t = t.replace(/([^\n])(\s*)(Direction\s)/gi, function (full, before, sp, dir) {
       return before + '\n' + dir;
@@ -54,6 +66,29 @@
     /** Word glues "option B." without space: "1 only B. 2 only" or "A.He" */
     t = t.replace(/(\s)([A-D])\.([A-Za-z"(0-9])/g, '$1$2. $3');
     t = t.replace(/([?.!)])\s*([A-D])\.(\s*)/g, '$1\n$2.$3');
+    /** Word auto-list after "(6)." in passage — merges ghost "6." / "Restrictions" lines. */
+    t = t.replace(
+      /\((\d{1,2})\)\.\s*\n+(\d{1,3})\.\s*\n+(Restrictions\b)/gi,
+      '($1). $3'
+    );
+    t = t.replace(/\bthrough\s+\((\d{1,2})\)\.\s*\n+(Restrictions\b)/gi, 'through ($1). $2');
+    /** Collapse (6). + optional ghost list number before passage continuation. */
+    t = t.replace(
+      /\((\d{1,2})\)\.\s*(?:\n\s*)?(?:\d{1,3}\.\s*)?(?=Restrictions\b|must be reasonable\b|Each is subject\b)/gi,
+      '($1). '
+    );
+    /** Remove Word list ghost "6." before passage continuation lines (not real questions). */
+    t = t.replace(
+      /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:Restrictions\b|must be reasonable\b|Each is subject\b|Over the decades\b|Under Article\b|of the Indian\b|declares that\b|governs\b|provides\b|subject to the provisions\b|All partners are\b|and must serve\b))/gim,
+      '\n'
+    );
+  /** Word list after "Section 25." in passage — merges ghost "25." / "of the…" lines. */
+    t = t.replace(
+      /\bSection\s+(\d{1,3})\s*\n+(\d{1,3})\.\s*\n+(of the|declares)\b/gi,
+      function (m, sec, num, word) {
+        return String(sec) === String(num) ? 'Section ' + sec + ' ' + word : m;
+      }
+    );
     return t.trim();
   }
 
@@ -66,6 +101,7 @@
   function isCitationQuestionLine(s, qn) {
     if (qn > 120) return true;
     var t = String(s || '').trim();
+    if (/\?/.test(t) || /\bwhich of the following\b/i.test(t)) return false;
     if (
       /^\s*\d{1,3}\.\s*(CrPC|IPC|Article|Section|Act\b|Justice|remains|applicable|provides)\b/i.test(
         t
@@ -82,6 +118,10 @@
 
   function acceptsQuestionHeaderStem(s, qn) {
     if (isCitationQuestionLine(s, qn)) return false;
+    var t = String(s || '').trim();
+    if (/^\s*\d{1,3}\.\s*Restrictions\b/i.test(t)) return false;
+    if (/^\s*\d{1,3}\.\s+(?:Each is subject|Over the decades|Under Article)\b/i.test(t)) return false;
+    if (/^\s*\d{1,3}\.\s+(?:of the|declares that|governs|provides|subject to the)\b/i.test(t)) return false;
     var fw = questionHeaderFirstWord(s);
     if (!fw) return true;
     if (/^[A-Z]/.test(fw)) return true;
@@ -92,14 +132,21 @@
   function isStrictOptionLine(line) {
     var s = String(line || '').trim();
     if (!s) return false;
+    /** Article 19(1) passage lists "(a) freedom…" — not MCQ options. */
+    if (/^\([a-d]\)\s/.test(s)) return false;
+    if (/^\([A-D]\)\s*\S/.test(s)) return true;
+    if (/^\([A-D]\)\s*$/.test(s)) return true;
     if (/^\([A-Da-d]\)\s*\S/.test(s)) return true;
     if (/^\([A-Da-d]\)\s*$/.test(s)) return true;
     if (/^\[[A-D]\]\s*\S/i.test(s)) return true;
     if (/^\[[A-D]\]\s*$/i.test(s)) return true;
     if (/^[A-Da-d]\s{2,}\S/.test(s)) return true;
     if (/^[A-Da-d][\.:\),]\s*\S/.test(s)) return true;
+    if (/^[A-Da-d]\s*\.\s*\S/.test(s)) return true;
     if (/^[A-Da-d][\.:\),]\s*$/.test(s)) return true;
     if (/^[A-Da-d][\.:\),]\s*(?:1 only|2 only|Both|Neither)/i.test(s)) return true;
+    if (/^[A-Da-d]$/.test(s)) return true;
+    if (/^[A-Da-d]\)$/.test(s)) return true;
     if (/^[A-Da-d]\s+[A-Za-z]/.test(s) && !/^[A-Da-d][\.:\),]/.test(s)) return false;
     if (/^[A-Da-d]\s+\S/.test(s) && !/^A\s+and\s+R\b/i.test(s)) return true;
     return false;
@@ -108,6 +155,7 @@
   function matchOptionLineStart(s) {
     var t = String(s || '').trim();
     if (!t) return null;
+    if (/^\([a-d]\)\s/.test(t)) return null;
     var m = t.match(/^\(([A-Da-d])\)\s*(.*)$/);
     if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
     m = t.match(/^\[([A-D])\]\s*(.*)$/i);
@@ -116,6 +164,10 @@
     if (m) return { letter: m[1].toUpperCase(), rest: m[2].trim(), raw: t };
     m = t.match(/^([A-Da-d])\s*[\.:\),]\s*(.*)$/);
     if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
+    m = t.match(/^([A-Da-d])$/);
+    if (m) return { letter: m[1].toUpperCase(), rest: '', raw: t };
+    m = t.match(/^([A-Da-d])\)$/);
+    if (m) return { letter: m[1].toUpperCase(), rest: '', raw: t };
     if (/^[A-Da-d]\s+[A-Za-z]/.test(t) && !/^[A-Da-d][\.:\),]/.test(t)) {
       return null;
     }
@@ -660,14 +712,87 @@
       if (!acceptsQuestionHeaderStem(s, n2)) return null;
       return n2;
     }
-    /** Word list numbering often leaves only "3." on its own line; stem is on the next line. */
+    /** Number-only lines (e.g. "6.") are validated via matchSplitQuestionHeader, not here. */
     m = s.match(/^\s*(\d{1,3})\.\s*$/);
-    if (m) {
-      var n3 = parseInt(m[1], 10);
-      if (n3 < 1 || n3 > 199 || n3 > 120) return null;
-      return n3;
-    }
+    if (m) return null;
+    m = s.match(/^(\d{1,3})$/);
+    if (m) return null;
     return null;
+  }
+
+  /** Continuation lines after Word auto-numbering from "(6). Restrictions…" or "Section 25…" in passage text. */
+  function isPassageBleedStem(stem) {
+    var s = String(stem || '').trim();
+    if (!s) return false;
+    if (/^Restrictions\b/i.test(s)) return true;
+    if (/^must be reasonable\b/i.test(s)) return true;
+    if (/^and must serve\b/i.test(s)) return true;
+    if (/^Each is subject\b/i.test(s)) return true;
+    if (/^Over the decades\b/i.test(s)) return true;
+    if (/^Under Article\b/i.test(s)) return true;
+    if (/^of the Indian\b/i.test(s)) return true;
+    if (/^declares that\b/i.test(s)) return true;
+    if (/^governs\b/i.test(s)) return true;
+    if (/^provides\b/i.test(s)) return true;
+    if (/^subject to the provisions\b/i.test(s)) return true;
+    if (/^All partners are\b/i.test(s)) return true;
+    return false;
+  }
+
+  function questionStemTextAt(lines, idx) {
+    var line = String(lines[idx] || '').trim();
+    if (isSplitQuestionNumberOnlyLine(line)) {
+      var parts = [];
+      for (var j = idx + 1; j < lines.length && j <= idx + 5; j++) {
+        var t = String(lines[j] || '').trim();
+        if (!t) continue;
+        if (isStrictOptionLine(t)) break;
+        if (matchQuestionHeaderLine(lines[j]) != null) break;
+        if (matchSplitQuestionHeader(lines, j) != null) break;
+        parts.push(t);
+        if (/\?/.test(t)) break;
+      }
+      return parts.join(' ').trim();
+    }
+    return line.replace(/^\d{1,3}\.\s*/, '').trim();
+  }
+
+  function stemLooksLikeMcqQuestion(stem) {
+    var s = String(stem || '').trim();
+    if (!s || isPassageBleedStem(s)) return false;
+    if (/\?/.test(s)) return true;
+    if (/\bwhich of the following\b/i.test(s)) return true;
+    if (/\bwhat is the most appropriate\b/i.test(s)) return true;
+    if (/\bwhich writ\b/i.test(s)) return true;
+    if (/\bin which of the following\b/i.test(s)) return true;
+    return isLostNumberQuestionStem(s);
+  }
+
+  function stemLooksLikeMcqQuestionAt(lines, idx) {
+    return stemLooksLikeMcqQuestion(questionStemTextAt(lines, idx));
+  }
+
+  function bleedStemAfterNumberLine(lines, idx) {
+    for (var lb = idx + 1; lb <= idx + 4 && lb < lines.length; lb++) {
+      var lbStem = String(lines[lb] || '').trim();
+      if (!lbStem) continue;
+      if (isPassageBleedStem(lbStem) || /^must be reasonable\b/i.test(lbStem)) return true;
+      if (stemLooksLikeMcqQuestion(lbStem) || isStrictOptionLine(lbStem)) return false;
+      if (matchQuestionHeaderLine(lines[lb]) != null) return false;
+    }
+    return false;
+  }
+
+  /** Word list ghost "6." + "Restrictions…" from Article 19(2)–(6) — never a real question. */
+  function isGhostQuestionHeaderAt(lines, idx) {
+    if (isSplitQuestionNumberOnlyLine(lines[idx])) {
+      return bleedStemAfterNumberLine(lines, idx);
+    }
+    var glued = String(lines[idx] || '').trim();
+    if (/^\d{1,3}\.\s*(Restrictions|must be reasonable|Each is subject)\b/i.test(glued)) return true;
+    var hdr = matchQuestionHeaderLine(lines[idx]);
+    if (hdr == null) return false;
+    return isPassageBleedStem(questionStemTextAt(lines, idx));
   }
 
   /** Word auto-numbering: "32" on one line, stem on the next (dot optional). */
@@ -680,6 +805,7 @@
     if (n < 1 || n > 120 || idx + 1 >= lines.length) return null;
     var stem = String(lines[idx + 1] || '').trim();
     if (!stem || isStrictOptionLine(stem)) return null;
+    if (isPassageBleedStem(stem)) return null;
     if (isParagraphStartLine(lines[idx + 1]) || isParagraphEndLine(lines[idx + 1])) return null;
     if (!/^[A-Za-z"(]/.test(stem) && !/^(a|an)\s/i.test(stem)) return null;
     return n;
@@ -701,7 +827,122 @@
     if (/^The Competition Regulatory Tribunal/i.test(s)) return true;
     if (/^Amit runs a successful coffee/i.test(s)) return true;
     if (/^The passage states:/i.test(s)) return true;
+    if (/^The passage states that\b/i.test(s)) return true;
+    if (/^Gopal constructs\b/i.test(s)) return true;
+    if (/^In 1995, Ashok\b/i.test(s)) return true;
+    if (/^Mohan executes\b/i.test(s)) return true;
+    if (/^Meena and Arjun\b/i.test(s)) return true;
+    if (/^A debt of Rs/i.test(s)) return true;
+    if (/^Sunita publicly announces\b/i.test(s)) return true;
+    if (/^Arun, Beena\b/i.test(s)) return true;
+    if (/^Rajesh, a senior employee\b/i.test(s)) return true;
+    if (/^Sonu and Monu\b/i.test(s)) return true;
+    if (/^Priya was admitted\b/i.test(s)) return true;
+    if (/^A partnership firm\b/i.test(s)) return true;
+    if (/^A written partnership deed\b/i.test(s)) return true;
     return false;
+  }
+
+  /** Real MCQ header inside a passage — stem shape or A–D within lookahead. */
+  function looksLikeRealQuestionHeaderAt(lines, idx) {
+    if (isGhostQuestionHeaderAt(lines, idx)) return false;
+    if (isSplitQuestionNumberOnlyLine(lines[idx])) {
+      var splitN = matchSplitQuestionHeader(lines, idx);
+      if (splitN == null) return false;
+      if (stemLooksLikeMcqQuestionAt(lines, idx)) return true;
+      return (
+        lineHasMcqOptionsAhead(lines, idx) ||
+        lineHasGluedOptionsOnSameLine(lines[idx + 1] || '')
+      );
+    }
+    if (matchQuestionHeaderLine(lines[idx]) == null) return false;
+    if (stemLooksLikeMcqQuestionAt(lines, idx)) return true;
+    return lineHasMcqOptionsAhead(lines, idx) || lineHasGluedOptionsOnSameLine(lines[idx]);
+  }
+
+  function countDistinctOptionLettersInBlock(block) {
+    var lines = String(block || '').split('\n');
+    var seen = Object.create(null);
+    for (var i = 0; i < lines.length; i++) {
+      var start = matchOptionLineStart(String(lines[i] || '').trim());
+      if (start && start.letter) seen[start.letter] = true;
+    }
+    return Object.keys(seen).length;
+  }
+
+  function rawBlockMcqScore(block) {
+    var lines = String(block || '').split('\n');
+    var best = 0;
+    var distinctOpts = countDistinctOptionLettersInBlock(block);
+    if (distinctOpts >= 4) best = 90;
+    else if (distinctOpts >= 2) best = 50;
+    for (var i = 0; i < lines.length; i++) {
+      if (lineHasGluedOptionsOnSameLine(lines[i])) return 100;
+      if (isStrictOptionLine(lines[i])) best = Math.max(best, 40);
+      if (lineHasMcqOptionsAhead(lines, i)) best = Math.max(best, 20);
+    }
+    var head = String(block || '')
+      .trim()
+      .replace(/^\d{1,3}\.\s*/, '');
+    if (isPassageBleedStem(head)) best = Math.min(best, 5);
+    return best;
+  }
+
+  function isPassageBleedBlock(block) {
+    var lines = String(block || '')
+      .trim()
+      .split('\n')
+      .map(function (l) {
+        return String(l || '').trim();
+      })
+      .filter(Boolean);
+    if (!lines.length) return false;
+    if (isSplitQuestionNumberOnlyLine(lines[0])) {
+      return isPassageBleedStem(lines[1] || '');
+    }
+    var stem = lines[0].replace(/^\d{1,3}\.\s*/, '');
+    if (isPassageBleedStem(stem)) return true;
+    if (/^\d{1,3}\.\s*Restrictions\b/i.test(lines[0])) return true;
+    return false;
+  }
+
+  function dedupeRawQuestionsByNumber(raw) {
+    var list = Array.isArray(raw) ? raw : [];
+    var groups = Object.create(null);
+    list.forEach(function (item) {
+      if (!item || item.num == null) return;
+      var n = item.num;
+      if (!groups[n]) groups[n] = [];
+      groups[n].push(item);
+    });
+    return Object.keys(groups)
+      .map(function (k) {
+        var candidates = groups[k].slice().sort(function (a, b) {
+          return rawBlockMcqScore(b.block) - rawBlockMcqScore(a.block);
+        });
+        var bestWithOpts = null;
+        var bestOptCount = 0;
+        for (var c = 0; c < candidates.length; c++) {
+          if (isPassageBleedBlock(candidates[c].block)) continue;
+          var pb = parseBlockBody(candidates[c].block);
+          var oc = pb.options ? pb.options.length : 0;
+          if (oc > bestOptCount) {
+            bestOptCount = oc;
+            bestWithOpts = candidates[c];
+          }
+        }
+        if (bestWithOpts) return bestWithOpts;
+        for (var f = 0; f < candidates.length; f++) {
+          if (!isPassageBleedBlock(candidates[f].block)) return candidates[f];
+        }
+        return null;
+      })
+      .filter(function (item) {
+        return item != null;
+      })
+      .sort(function (a, b) {
+        return a.num - b.num;
+      });
   }
 
   function lineHasGluedOptionsOnSameLine(line) {
@@ -712,11 +953,12 @@
     return false;
   }
 
-  function lineHasMcqOptionsAhead(lines, idx) {
+  function lineHasMcqOptionsAhead(lines, idx, maxLook) {
+    var limit = typeof maxLook === 'number' && maxLook > 0 ? maxLook : 40;
     var head = String(lines[idx] || '').trim();
     if (lineHasGluedOptionsOnSameLine(head)) return true;
     var optCount = 0;
-    for (var j = idx + 1; j < lines.length && j <= idx + 12; j++) {
+    for (var j = idx + 1; j < lines.length && j <= idx + limit; j++) {
       var t = String(lines[j] || '').trim();
       if (!t) continue;
       if (matchQuestionHeaderLine(lines[j]) != null) break;
@@ -739,20 +981,58 @@
     return /^(?:\(?[A-D]\)?[\.:\),]\s*)?(?:1 only|2 only|Both\s+1\s+and\s+2|Neither\s+1\s+nor\s+2)\b/i.test(s);
   }
 
+  function isSplitQuestionNumberOnlyLine(line) {
+    var t = String(line || '').trim();
+    return /^(\d{1,3})\.\s*$/.test(t) || /^(\d{1,3})$/.test(t);
+  }
+
+  function blockHasOptionLinesBefore(lines, blockStart, idx) {
+    for (var b = blockStart + 1; b < idx; b++) {
+      var t = String(lines[b] || '').trim();
+      if (!t) continue;
+      if (isStrictOptionLine(lines[b]) || isStatementStyleOptionLine(lines[b])) return true;
+      if (lineHasGluedOptionsOnSameLine(lines[b])) return true;
+    }
+    return false;
+  }
+
   function shouldBreakQuestionBlock(lines, idx, blockStart, currentQn) {
     if (isInformationStartLine(lines[idx]) || isParagraphStartLine(lines[idx])) return true;
     if (isInformationEndLine(lines[idx]) || isParagraphEndLine(lines[idx])) return true;
     var sect = normalizeMarkerOuter(lines[idx]);
     if (/^\(\(\s*.+\s+(Starts|Ends)\s*\)\)$/i.test(sect)) return true;
+    if (isSplitQuestionNumberOnlyLine(lines[idx])) {
+      if (bleedStemAfterNumberLine(lines, idx)) return true;
+      var splitQnOnly = matchSplitQuestionHeader(lines, idx);
+      if (splitQnOnly != null && splitQnOnly > currentQn) return true;
+      return false;
+    }
     var nextQn = matchQuestionHeaderLine(lines[idx]);
+    if (nextQn != null && nextQn === currentQn && idx > blockStart) {
+      var priorBlock = lines.slice(blockStart, idx).join('\n');
+      if (isPassageBleedBlock(priorBlock) && stemLooksLikeMcqQuestionAt(lines, idx)) return true;
+    }
     if (nextQn != null && (nextQn > currentQn || (currentQn > 120 && nextQn <= 120))) return true;
     var splitQn = matchSplitQuestionHeader(lines, idx);
+    if (splitQn != null && splitQn === currentQn && idx > blockStart) {
+      var priorSplit = lines.slice(blockStart, idx).join('\n');
+      if (isPassageBleedBlock(priorSplit) && stemLooksLikeMcqQuestionAt(lines, idx)) return true;
+    }
     if (splitQn != null && splitQn > currentQn) return true;
+    if (
+      idx > blockStart + 1 &&
+      isSplitQuestionNumberOnlyLine(lines[blockStart]) &&
+      isPassageBleedStem(lines[idx])
+    ) {
+      return false;
+    }
     if (
       idx > blockStart + 1 &&
       isLostNumberQuestionStem(lines[idx]) &&
       (lineHasMcqOptionsAhead(lines, idx) || lineHasGluedOptionsOnSameLine(lines[idx]))
     ) {
+      if (isSplitQuestionNumberOnlyLine(lines[blockStart])) return false;
+      if (!blockHasOptionLinesBefore(lines, blockStart, idx)) return false;
       return true;
     }
     return false;
@@ -760,12 +1040,26 @@
 
   function embeddedQuestionNumberAtLine(lines, b, segNum) {
     var eh = matchQuestionHeaderLine(lines[b]);
+    if (eh == null) eh = matchSplitQuestionHeader(lines, b);
+    if (eh != null && eh === segNum && b > 0) {
+      var prior = lines.slice(0, b).join('\n');
+      if (isPassageBleedBlock(prior) && stemLooksLikeMcqQuestionAt(lines, b)) return eh;
+    }
     if (eh != null && eh > segNum && eh <= 120) return eh;
+    if (
+      b > 0 &&
+      isSplitQuestionNumberOnlyLine(lines[0]) &&
+      (isPassageBleedStem(lines[b]) || (b === 1 && isLostNumberQuestionStem(lines[b])))
+    ) {
+      return null;
+    }
     if (
       b > 0 &&
       isLostNumberQuestionStem(lines[b]) &&
       (lineHasMcqOptionsAhead(lines, b) || lineHasGluedOptionsOnSameLine(lines[b]))
     ) {
+      if (b === 1 && isSplitQuestionNumberOnlyLine(lines[0])) return null;
+      if (!blockHasOptionLinesBefore(lines, 0, b)) return null;
       return segNum + 1;
     }
     return null;
@@ -786,7 +1080,13 @@
       var split = false;
       for (var b = 1; b < blockLines.length; b++) {
         var newNum = embeddedQuestionNumberAtLine(blockLines, b, segNum);
-        if (newNum != null && newNum > segNum) {
+        var doSplit = false;
+        if (newNum != null && newNum > segNum) doSplit = true;
+        if (newNum != null && newNum === segNum && b > segStart) {
+          var priorSeg = blockLines.slice(segStart, b).join('\n');
+          if (isPassageBleedBlock(priorSeg) && stemLooksLikeMcqQuestionAt(blockLines, b)) doSplit = true;
+        }
+        if (doSplit) {
           split = true;
           out.push({
             num: segNum,
@@ -859,9 +1159,8 @@
         i++;
         var ib = [];
         while (i < lines.length && !isInformationEnd(lines[i])) {
-          if (matchQuestionHeaderLine(lines[i]) != null) break;
-          if (matchSplitQuestionHeader(lines, i) != null) break;
-          if (isLostNumberQuestionStem(lines[i])) break;
+          if (looksLikeRealQuestionHeaderAt(lines, i)) break;
+          if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           ib.push(lines[i]);
           i++;
         }
@@ -874,9 +1173,8 @@
         i++;
         var pb = [];
         while (i < lines.length && !isParagraphEnd(lines[i])) {
-          if (matchQuestionHeaderLine(lines[i]) != null) break;
-          if (matchSplitQuestionHeader(lines, i) != null) break;
-          if (isLostNumberQuestionStem(lines[i])) break;
+          if (looksLikeRealQuestionHeaderAt(lines, i)) break;
+          if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           pb.push(lines[i]);
           i++;
         }
@@ -922,6 +1220,17 @@
         }
       }
       if (qn != null) {
+        if (isGhostQuestionHeaderAt(lines, i)) {
+          i += isSplitQuestionNumberOnlyLine(lines[i]) ? 2 : 1;
+          continue;
+        }
+        if (
+          !looksLikeRealQuestionHeaderAt(lines, i) &&
+          !lineHasGluedOptionsOnSameLine(lines[i])
+        ) {
+          i++;
+          continue;
+        }
         var snapInfo = globInfo;
         var snapPara = globPara;
         var snapPassageIndex = snapPara ? currentPassageIndex : 0;
@@ -933,6 +1242,9 @@
           i++;
         }
         var block = lines.slice(start, i).join('\n').trim();
+        if (isPassageBleedBlock(block)) {
+          continue;
+        }
         rawQuestions.push({
           num: qn,
           block: block,
@@ -949,6 +1261,15 @@
     }
 
     rawQuestions = splitRawQuestionsByEmbeddedHeaders(rawQuestions);
+    rawQuestions = dedupeRawQuestionsByNumber(rawQuestions);
+
+    /** Recover Q6+ when ghost passage list bled into same-number block without options. */
+    rawQuestions = rawQuestions.filter(function (item) {
+      if (!item || item.num == null) return false;
+      if (!isPassageBleedBlock(item.block)) return true;
+      var pb = parseBlockBody(item.block);
+      return pb.options && pb.options.length > 0;
+    });
 
     var questions = [];
     var dropped = [];
@@ -956,6 +1277,9 @@
       var rqItem = rawQuestions[rq];
       var parsed = parseBlockBody(rqItem.block);
       if (!parsed.options || parsed.options.length === 0) {
+        if (isPassageBleedBlock(rqItem.block)) {
+          continue;
+        }
         if (rqItem.num >= 1 && rqItem.num <= 120) {
           dropped.push({ number: rqItem.num, reason: 'no_options' });
         }
@@ -994,8 +1318,11 @@
     for (var fn = 0; fn < questions.length; fn++) {
       foundNums[questions[fn].number] = true;
     }
-    for (var exp = 1; exp <= 120; exp++) {
-      if (!foundNums[exp]) missingNumbers.push(exp);
+    var isSectional = opts.kind === 'sectional';
+    if (!isSectional) {
+      for (var exp = 1; exp <= 120; exp++) {
+        if (!foundNums[exp]) missingNumbers.push(exp);
+      }
     }
     // A number that WAS parsed as a real (option-bearing) question is not "dropped": a second
     // block with the same number is stray passage/source text (e.g. a numbered paragraph), not a
@@ -1053,6 +1380,7 @@
 
   global.ExamQuestionParser = {
     parseQuestionsFromText: parseQuestionsFromText,
+    normalizeExamText: normalizeExamText,
     sectionalCategoryAliases: sectionalCategoryAliases,
     parseOptsFromTestRow: parseOptsFromTestRow,
   };

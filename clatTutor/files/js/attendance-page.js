@@ -369,6 +369,7 @@
       throw new Error((data && data.message) || 'Failed to fetch data');
     }
     var rows = Array.isArray(data) ? data : [];
+    if (window.CrmBranchScope) rows = CrmBranchScope.filterStudents(rows);
     return rows.map(normalizeStudentRow);
   }
 

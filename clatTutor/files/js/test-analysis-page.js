@@ -198,7 +198,9 @@
       })
       .then(function (rows) {
         studentsByEmail = Object.create(null);
-        (Array.isArray(rows) ? rows : []).forEach(function (s) {
+        var list = Array.isArray(rows) ? rows : [];
+        if (window.CrmBranchScope) list = CrmBranchScope.filterStudents(list);
+        list.forEach(function (s) {
           var em = String(s.email || '').trim().toLowerCase();
           if (em) studentsByEmail[em] = s;
         });
@@ -592,6 +594,16 @@
     var branchKey = currentBranchFilter || '';
 
     return attempts.filter(function (a) {
+      if (
+        window.CrmBranchScope &&
+        window.CrmBranchScope.isScoped() &&
+        !window.CrmBranchScope.canSeeBranch((function () {
+          var student = findStudent(a);
+          return (student && student.branch) || a.branch;
+        })())
+      ) {
+        return false;
+      }
       if (branchKey && getAttemptBranchKey(a) !== branchKey) return false;
       if (!q) return true;
       var blob = [a.student_name, a.submitted_by, a.email, a.batch, a.branch, getAttemptBranchLabel(a)]

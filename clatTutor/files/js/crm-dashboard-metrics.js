@@ -912,6 +912,26 @@
     return feesReady;
   }
 
+  function applyBranchScope(feesRows, students, attendanceRows) {
+    var CBS = window.CrmBranchScope;
+    if (!CBS || !CBS.isScoped()) {
+      return {
+        feesRows: feesRows || [],
+        students: students || [],
+        attendanceRows: attendanceRows || [],
+      };
+    }
+    var scopedStudents = CBS.filterStudents(students || []);
+    var lookup = CBS.buildStudentLookup(scopedStudents);
+    return {
+      feesRows: CBS.filterFeeReceipts(feesRows || [], lookup),
+      students: scopedStudents,
+      attendanceRows: CBS.filterList(attendanceRows || [], function (r) {
+        return r.branch;
+      }),
+    };
+  }
+
   function loadStudents() {
     var api = cfg().STUDENT_GENERAL_INFO_API;
     if (!api) return Promise.resolve([]);
@@ -1218,6 +1238,14 @@
         }
         var em = String(a.email || a.submitted_by || '').trim().toLowerCase();
         var st = em ? studentsByEmail[em] : null;
+        var rawBranch = (st && st.branch) || a.branch;
+        if (
+          window.CrmBranchScope &&
+          window.CrmBranchScope.isScoped() &&
+          !window.CrmBranchScope.canSeeBranch(rawBranch)
+        ) {
+          return;
+        }
         var name = (st && st.name) || a.student_name || a.submitted_by || 'Student';
         if (isExcludedDashboardStudent(name)) return;
         var branch = branchLabel((st && st.branch) || a.branch);
@@ -1700,9 +1728,13 @@
     var studentsP = loadStudents();
     var attP = loadAttendanceRange();
     var testsP = loadTests();
+    var metricsReadyResolve;
+    var metricsReady = new Promise(function (resolve) {
+      metricsReadyResolve = resolve;
+    });
 
     window.CrmDashboardMetrics = {
-      ready: feesP,
+      ready: metricsReady,
       getFeesRows: function () {
         return feesCache || [];
       },
@@ -1710,9 +1742,12 @@
 
     Promise.all([feesP, studentsP, attP, testsP])
       .then(function (results) {
-        var feesRows = results[0];
-        var students = results[1];
-        var attendanceRows = results[2];
+        var scoped = applyBranchScope(results[0], results[1], results[2]);
+        var feesRows = scoped.feesRows;
+        var students = scoped.students;
+        var attendanceRows = scoped.attendanceRows;
+        feesCache = feesRows;
+        if (metricsReadyResolve) metricsReadyResolve(feesRows);
         var tests = results[3];
         var sortedTests = tests.slice().sort(function (a, b) {
           var da = a.created_at || a.createdAt || '';
@@ -1749,6 +1784,7 @@
         renderTestAttemptSections(data);
       })
       .catch(function (err) {
+        if (metricsReadyResolve) metricsReadyResolve([]);
         setTestsLoading(false);
         if (loading) loading.hidden = true;
         if (errEl) {

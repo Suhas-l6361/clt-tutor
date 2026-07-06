@@ -18,6 +18,14 @@
     return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
   }
 
+  function parseIsDrop(value) {
+    if (value === undefined || value === null) return false;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    const s = String(value).trim().toLowerCase();
+    return s === 'true' || s === '1' || s === 'yes';
+  }
+
   const Auth = {
     keys: KEYS,
 
@@ -61,10 +69,20 @@
           if (!res.ok) {
             const msg =
               data.message ||
-              (res.status === 401 ? 'Invalid email or password' : 'Unable to sign in right now');
+              (res.status === 401
+                ? 'Invalid email or password'
+                : res.status === 403
+                  ? 'Your enrollment has been dropped. Please contact the institute.'
+                  : 'Unable to sign in right now');
             return { ok: false, error: msg };
           }
           const s = data.student || {};
+          if (parseIsDrop(s.isDrop)) {
+            return {
+              ok: false,
+              error: 'Your enrollment has been dropped. Please contact the institute.',
+            };
+          }
           const userObj = {
             id: String(s.student_id != null ? s.student_id : ''),
             student_id: s.student_id,
