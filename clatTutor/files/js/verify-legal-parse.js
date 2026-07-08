@@ -94,6 +94,59 @@ assert(q6a && q6a.options.length === 4, 'article32 Q6 must have 4 options');
 assert(!r32.questions.some(function (q) { return q.number === 32; }), 'article32 must not create spurious Q32');
 assert(r32.questions.some(function (q) { return q.number === 7; }), 'article32 Q7 must parse');
 
+// --- Test 6: Section 15 / IPC clause glossary ghosts must not steal Q1–Q5 / Q11–Q16 ---
+var glossaryBleed = [
+  '((Legal Reasoning Starts))',
+  '(Paragraph starts)',
+  'PASSAGE II',
+  'Section 299 defines culpable homicide.',
+  '1.',
+  'with the intention of causing death;',
+  '2.',
+  'with the intention of causing such bodily injury as is likely to cause death;',
+  'Section 300 Exceptions:',
+  '1.',
+  'the offender is deprived of the power of self-control by a grave and sudden provocation,',
+  'Section 302. Prescribes for murder: death, or imprisonment for life.',
+  'Section 304 Part I.',
+  'Prescribes for culpable homicide not amounting to murder.',
+  '(Paragraph ends)',
+  '1. Which of the following most accurately describes the legal relationship between culpable homicide and murder?',
+  'A. Separate offences',
+  'B. Culpable homicide is the genus of which murder is the most aggravated species',
+  'C. Culpable homicide is always more serious',
+  'D. The sections deal with entirely different mental states',
+  '(Paragraph starts)',
+  'PASSAGE III',
+  'Section 15.',
+  'as the committing or threatening to commit any act forbidden by the Indian Penal Code.',
+  'Section 16.',
+  'as a situation where one contracting party stands in a position to overwhelm the will of the other.',
+  'Section 17.',
+  'as any act committed by a contracting party with intent to deceive.',
+  'Section 18.',
+  'as an innocent false statement.',
+  '(Paragraph ends)',
+  '11. Which of the following most accurately states the definition of coercion under Section 15 of the Indian Contract Act, 1872?',
+  'A. Coercion requires physical violence only',
+  'B. Coercion only covers threats at the contracting party',
+  'C. Coercion is any economic pressure',
+  'D. Coercion under Section 15 consists of committing or threatening to commit any act forbidden by the IPC',
+  '12. Kavita is persuaded by her physician. What is the most appropriate legal position?',
+  'A. Cannot be set aside',
+  'B. Voidable under Section 16 for undue influence',
+  'C. Requires express threat',
+  'D. Only fraud applies',
+  '((Legal Reasoning Ends))',
+].join('\n');
+var rg = parse(glossaryBleed, { kind: 'sectional', category: 'Legal Reasoning' });
+assert(rg.questions.length === 3, 'glossaryBleed count expected 3 got ' + rg.questions.length);
+assert(rg.questions.some(function (q) { return q.number === 1 && /genus/i.test(q.stem); }), 'glossaryBleed real Q1');
+assert(rg.questions.some(function (q) { return q.number === 11; }), 'glossaryBleed real Q11');
+assert(rg.questions.some(function (q) { return q.number === 12; }), 'glossaryBleed real Q12');
+assert(!rg.dropped || !rg.dropped.length, 'glossaryBleed should not drop real questions');
+
 console.log('ALL TESTS PASSED');
 console.log('ghost6:', r1.questions.length, 'questions, dropped:', JSON.stringify(r1.dropped || []));
 console.log('article32:', r32.questions.length, 'questions');
+console.log('glossaryBleed:', rg.questions.length, 'questions');

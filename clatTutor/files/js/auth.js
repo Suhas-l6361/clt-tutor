@@ -4,6 +4,7 @@
 (function () {
   const P = window.APP_CONFIG?.STORAGE_PREFIX || 'edportal_';
   const CRM_ADMIN_API = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/admin';
+  const COUNCELER_API = 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/addCounceler';
   const STUDENT_GENERAL_INFO_API =
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
   const KEYS = {
@@ -26,6 +27,34 @@
     return s === 'true' || s === '1' || s === 'yes';
   }
 
+  const CRM_NAV_PAGES = [
+    'dashboard.html',
+    'students.html',
+    'addTest.html',
+    'testAnalysis.html',
+    'fees.html',
+    'attendance.html',
+    'retrival.html',
+    'enrollment.html',
+    'leads.html',
+    'communications.html',
+    'uploadOmr.html',
+    'upload-general-info.html',
+    'addCounceler.html',
+  ];
+
+  function normalizeAccessMap(access) {
+    if (!access || typeof access !== 'object') return {};
+    if (Array.isArray(access)) {
+      var out = {};
+      access.forEach(function (k) {
+        if (k) out[String(k)] = true;
+      });
+      return out;
+    }
+    return access;
+  }
+
   const Auth = {
     keys: KEYS,
 
@@ -43,6 +72,57 @@
     isRole(role) {
       const s = this.getSession();
       return s && s.role === role;
+    },
+
+    isCounceler() {
+      const s = this.getSession();
+      return !!(s && s.role === 'crm' && s.user && s.user.isCounceler);
+    },
+
+    isFullCrmAdmin() {
+      const s = this.getSession();
+      return !!(s && s.role === 'crm' && s.user && !s.user.isCounceler);
+    },
+
+    getCouncelerAccess() {
+      const s = this.getSession();
+      if (!this.isCounceler() || !s.user) return {};
+      return normalizeAccessMap(s.user.access);
+    },
+
+    canAccessCrmPage(page) {
+      const file = String(page || '').split('/').pop() || '';
+      if (file === 'changePassword.html' || file === 'addCounceler.html') {
+        return this.isFullCrmAdmin();
+      }
+      if (!this.isCounceler()) return true;
+      const access = this.getCouncelerAccess();
+      return !!access[file];
+    },
+
+    getCouncelerLandingPath() {
+      if (!this.isCounceler()) return 'crm/dashboard.html';
+      const access = this.getCouncelerAccess();
+      for (let i = 0; i < CRM_NAV_PAGES.length; i++) {
+        const p = CRM_NAV_PAGES[i];
+        if (access[p]) return 'crm/' + p;
+      }
+      return 'crm/dashboard.html';
+    },
+
+    canDeleteInCrm() {
+      return !this.isCounceler();
+    },
+
+    filterCrmNavLinks(links) {
+      const list = Array.isArray(links) ? links : [];
+      if (!this.isCounceler()) return list;
+      const access = this.getCouncelerAccess();
+      return list.filter(function (l) {
+        if (!l || !l.href) return false;
+        if (l.href === 'addCounceler.html') return false;
+        return !!access[l.href];
+      });
     },
 
     async login(role, loginId, password) {
@@ -106,37 +186,90 @@
       }
 
       if (role === 'crm') {
-        if (!loginId || !password) return { ok: false, error: 'Email and password are required' };
+        if (!loginId || !password) {
+          return { ok: false, error: 'Email / User ID and password are required' };
+        }
         try {
           const url = CRM_ADMIN_API + '?email=' + encodeURIComponent(String(loginId).trim());
           const res = await fetch(url, { method: 'GET' });
           const rows = await res.json();
           if (!res.ok) return { ok: false, error: 'Unable to verify CRM account right now' };
-          if (!Array.isArray(rows) || !rows.length) {
-            return { ok: false, error: 'CRM account not found for this email' };
-          }
-          const admin = rows[0];
-          const backendPassword = admin && admin.password ? String(admin.password) : null;
-          if (backendPassword && backendPassword !== String(password)) {
-            return { ok: false, error: 'Invalid CRM password' };
-          }
-          if (!backendPassword && String(password).trim().length < 1) {
-            return { ok: false, error: 'Password is required' };
+          if (Array.isArray(rows) && rows.length) {
+            const admin = rows[0];
+            const backendPassword = admin && admin.password ? String(admin.password) : null;
+            if (backendPassword && backendPassword !== String(password)) {
+              return { ok: false, error: 'Invalid CRM password' };
+            }
+            if (!backendPassword && String(password).trim().length < 1) {
+              return { ok: false, error: 'Password is required' };
+            }
+
+            const userObj = {
+              id: admin.admin_id || 'CRM001',
+              name: admin.name || 'CRM Staff',
+              login: admin.email || loginId,
+              email: admin.email || loginId,
+              branch: admin.branch || null,
+              isCounceler: false,
+            };
+            localStorage.setItem(KEYS.user, JSON.stringify(userObj));
+            localStorage.setItem(KEYS.role, role);
+            localStorage.setItem(KEYS.token, makeToken('crm'));
+            localStorage.removeItem(KEYS.loggedOutAt);
+            this.trackActivity('login');
+            return { ok: true, user: userObj, role };
           }
 
-          const userObj = {
-            id: admin.admin_id || 'CRM001',
-            name: admin.name || 'CRM Staff',
-            login: admin.email || loginId,
-            email: admin.email || loginId,
-            branch: admin.branch || null,
+          const councelerRes = await fetch(COUNCELER_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'login',
+              user_id: String(loginId).trim(),
+              password: String(password),
+            }),
+          });
+          let councelerData = {};
+          try {
+            councelerData = await councelerRes.json();
+          } catch (_) {
+            councelerData = {};
+          }
+          if (!councelerRes.ok) {
+            const msg =
+              councelerData.message ||
+              (councelerRes.status === 401
+                ? 'Invalid user ID or password'
+                : councelerRes.status === 403
+                  ? 'Your counceler account has been dropped. Please contact the institute.'
+                  : 'CRM account not found');
+            return { ok: false, error: msg };
+          }
+
+          const c = councelerData.counceler || councelerData;
+          if (parseIsDrop(c.isDrop)) {
+            return {
+              ok: false,
+              error: 'Your counceler account has been dropped. Please contact the institute.',
+            };
+          }
+
+          const councelerUser = {
+            id: String(c.user_id != null ? c.user_id : ''),
+            user_id: c.user_id,
+            name: c.name || 'Counceler',
+            login: String(c.user_id != null ? c.user_id : loginId),
+            email: null,
+            branch: c.branch || null,
+            access: normalizeAccessMap(c.access),
+            isCounceler: true,
           };
-          localStorage.setItem(KEYS.user, JSON.stringify(userObj));
+          localStorage.setItem(KEYS.user, JSON.stringify(councelerUser));
           localStorage.setItem(KEYS.role, role);
-          localStorage.setItem(KEYS.token, makeToken('crm'));
+          localStorage.setItem(KEYS.token, makeToken('crm-counceler'));
           localStorage.removeItem(KEYS.loggedOutAt);
           this.trackActivity('login');
-          return { ok: true, user: userObj, role };
+          return { ok: true, user: councelerUser, role };
         } catch (_) {
           return { ok: false, error: 'Network issue. Please try again.' };
         }
@@ -176,7 +309,7 @@
       const s = this.getSession();
       if (!s) return;
       if (s.role === 'student') window.location.replace('student/dashboard.html');
-      else if (s.role === 'crm') window.location.replace('crm/dashboard.html');
+      else if (s.role === 'crm') window.location.replace(this.getCouncelerLandingPath());
     },
   };
 

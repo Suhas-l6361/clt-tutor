@@ -82,51 +82,134 @@
       /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:Restrictions\b|must be reasonable\b|Each is subject\b|Over the decades\b|Under Article\b|of the Indian\b|declares that\b|governs\b|provides\b|subject to the provisions\b|All partners are\b|and must serve\b))/gim,
       '\n'
     );
-  /** Word list after "Section 25." in passage — merges ghost "25." / "of the…" lines. */
+  /** Word list after "Section 25." in passage — merges ghost "25." / "of the…" / "as the…" lines. */
     t = t.replace(
-      /\bSection\s+(\d{1,3})\s*\n+(\d{1,3})\.\s*\n+(of the|declares)\b/gi,
+      /\bSection\s+(\d{1,3})\s*\n+(\d{1,3})\.\s*\n+(of the|declares|as the|as an|as a)\b/gi,
       function (m, sec, num, word) {
         return String(sec) === String(num) ? 'Section ' + sec + ' ' + word : m;
       }
+    );
+    /** Same-line Word export: "Section 15. as the committing…" */
+    t = t.replace(
+      /\bSection\s+(\d{1,3})\.\s+(as the|as an|as a)\b/gi,
+      'Section $1 $2'
+    );
+    /** IPC clause / exception Word lists inside passage — drop alone "1.\nwith the intention…" */
+    t = t.replace(
+      /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|as the\b|as an\b|as a\b|including a false\b|active concealment\b|a promise made\b|making a false\b|representing that\b|buys any goods\b|hires or avails\b|means any\b|goodwill or reputation\b|a misrepresentation by\b|actual or likely\b|prescribes for\b|Part I\b|Part II\b|he holds\b|he stands\b|he contracts\b))/gim,
+      '\n'
+    );
+    /** Glued same-line glossary numbers: "15. as the committing" / "11. means any fault" */
+    t = t.replace(
+      /(?:^|\n)\d{1,3}\.\s+(?=as the\b|as an\b|as a\b|with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|buys any\b|hires or\b|means any\b|prescribes for\b|Part I\b|Part II\b)/gim,
+      '\n'
     );
     return t.trim();
   }
 
   function questionHeaderFirstWord(line) {
     var m = String(line || '').match(/^\s*\d{1,3}\.\s*(\S+)/);
-    return m ? m[1] : '';
+    if (!m) return '';
+    /** Strip quotes / brackets / currency so stamps like "Fabrica", (In…), ₹500, 25 men still count. */
+    return String(m[1] || '').replace(/^[\u201C\u201D\u2018\u2019"'\[\(\{₹$€£.…—–\-]+/, '');
   }
 
-  /** "125. CrPC…" / "125. Justice…" from Section 125 citations — not real questions. */
+  function hasMcqPromptCue(t) {
+    var s = String(t || '');
+    return (
+      /\?/.test(s) ||
+      /\bwhich of the following\b/i.test(s) ||
+      /\bwhat is the most appropriate\b/i.test(s) ||
+      /\bmost accurately\b/i.test(s) ||
+      /\baccording to (?:the )?passage\b/i.test(s) ||
+      /\bchoose the (?:correct|best)\b/i.test(s) ||
+      /\bselect the (?:correct|best)\b/i.test(s)
+    );
+  }
+
+  /** "125. CrPC…" / short "Article 32." citation ghosts — not real questions. */
   function isCitationQuestionLine(s, qn) {
     if (qn > 120) return true;
     var t = String(s || '').trim();
-    if (/\?/.test(t) || /\bwhich of the following\b/i.test(t)) return false;
+    if (hasMcqPromptCue(t)) return false;
+    /** Mid-passage "125. under Section…" only (lowercase) — not "32. Under the United Nations…" */
+    if (/^\s*\d{1,3}\.\s*under\s+(?:Section|Article|Act)\b/.test(t)) {
+      return true;
+    }
+    /** IPC punishment notes "302. death or imprisonment…" after Section 302 mentions */
     if (
-      /^\s*\d{1,3}\.\s*(CrPC|IPC|Article|Section|Act\b|Justice|remains|applicable|provides)\b/i.test(
+      /^\s*\d{1,3}\.\s*(death,?\s+or imprisonment|imprisonment for life|imprisonment for up to)\b/i.test(
         t
       )
     ) {
       return true;
     }
-    /** Mid-passage "125. under Section…" only (lowercase) — not "32. Under the United Nations…" */
-    if (/^\s*\d{1,3}\.\s*under\s+(?:Section|Article|Act)\b/.test(t)) {
+    if (/^\s*\d{1,3}\.\s*(CrPC|IPC|Justice|remains|applicable)\b/i.test(t)) {
+      return true;
+    }
+    /**
+     * Short citation ghosts only — real stems often begin with Article/Section
+     * ("Article 14 permits…", "Section 300 provides…") and must stay accepted.
+     */
+    if (/^\s*\d{1,3}\.\s*(Article|Section|Act)\b/i.test(t)) {
+      if (t.length > 72) return false;
+      if (
+        /\b(permits|prohibits|guarantees|defines|provides|abolishes|means|states|held|empowers|requires|prescribes)\b/i.test(
+          t
+        )
+      ) {
+        return false;
+      }
+      return true;
+    }
+    if (/^\s*\d{1,3}\.\s*(provides|prescribes)\b/i.test(t) && t.length < 72) {
       return true;
     }
     return false;
   }
 
+  /**
+   * Accept numbered headers by default across ALL sections (Legal/English/Logical/Math/GK…).
+   * Reject only known Word-list / citation bleed stems so uploaded count == parsed count.
+   */
   function acceptsQuestionHeaderStem(s, qn) {
     if (isCitationQuestionLine(s, qn)) return false;
     var t = String(s || '').trim();
+    if (hasMcqPromptCue(t)) return true;
     if (/^\s*\d{1,3}\.\s*Restrictions\b/i.test(t)) return false;
     if (/^\s*\d{1,3}\.\s+(?:Each is subject|Over the decades|Under Article)\b/i.test(t)) return false;
     if (/^\s*\d{1,3}\.\s+(?:of the|declares that|governs|provides|subject to the)\b/i.test(t)) return false;
+    if (/^\s*\d{1,3}\.\s+(?:as the|as a|as an|with the intention|with the knowledge|the offender)\b/i.test(t)) {
+      return false;
+    }
+    if (/^\s*\d{1,3}\.\s+(?:a public servant|the person who|including a false|active concealment)\b/i.test(t)) {
+      return false;
+    }
+    if (/^\s*\d{1,3}\.\s+(?:making a false|representing that|bait-and-switch|prescribes for|Part I|Part II)\b/i.test(t)) {
+      return false;
+    }
+    if (/^\s*\d{1,3}\.\s+(?:buys any|hires or|means any|goodwill or|a misrepresentation by|actual or likely|the classification|the differentia)\b/i.test(t)) {
+      return false;
+    }
     var fw = questionHeaderFirstWord(s);
     if (!fw) return true;
-    if (/^[A-Z]/.test(fw)) return true;
-    if (/^(a|an)$/i.test(fw)) return true;
-    return false;
+    /** "302. Prescribes…" / "304. Part I…" from IPC citations in Legal passages. */
+    if (
+      /^(Prescribes|Part)\b/i.test(fw) &&
+      !hasMcqPromptCue(t)
+    ) {
+      return false;
+    }
+    /** Lowercase Word-list bleed after glossary numbering — not lowercase English stems. */
+    if (
+      /^(as|with|the|of|including|making|representing|bait|buys|hires|means|goodwill|actual|he|declares|governs|provides|subject|restrictions|must|each|over|under|prescribes)\b/i.test(
+        fw
+      )
+    ) {
+      return false;
+    }
+    /** Default accept: Quant "25 men…", GK years, quoted brands, (In the passage)…, etc. */
+    return true;
   }
 
   function isStrictOptionLine(line) {
@@ -736,6 +819,42 @@
     if (/^provides\b/i.test(s)) return true;
     if (/^subject to the provisions\b/i.test(s)) return true;
     if (/^All partners are\b/i.test(s)) return true;
+    /** IPC Section 300 clauses / exceptions — Word auto-list "1. with the intention…" */
+    if (/^with the intention\b/i.test(s)) return true;
+    if (/^with the knowledge\b/i.test(s)) return true;
+    if (/^the offender\b/i.test(s)) return true;
+    if (/^a public servant\b/i.test(s)) return true;
+    if (/^the person who suffers\b/i.test(s)) return true;
+    if (/^the person who\b/i.test(s) && /\bconsents\b/i.test(s)) return true;
+    /** Contract Act "Section 15 as the committing…" Word-list ghosts */
+    if (/^as the\b/i.test(s)) return true;
+    if (/^as a\b/i.test(s)) return true;
+    if (/^as an\b/i.test(s)) return true;
+    if (/^including a false\b/i.test(s)) return true;
+    if (/^active concealment\b/i.test(s)) return true;
+    if (/^a promise made\b/i.test(s)) return true;
+    if (/^making a false\b/i.test(s)) return true;
+    if (/^representing that\b/i.test(s)) return true;
+    if (/^bait-and-switch\b/i.test(s)) return true;
+    /** Equality / Article list bleed / classic trinity / CPA lists */
+    if (/^equality before the law\b/i.test(s)) return true;
+    if (/^equal protection of the laws\b/i.test(s)) return true;
+    if (/^the classification\b/i.test(s)) return true;
+    if (/^the differentia\b/i.test(s)) return true;
+    if (/^goodwill or reputation\b/i.test(s)) return true;
+    if (/^a misrepresentation by\b/i.test(s)) return true;
+    if (/^actual or likely\b/i.test(s)) return true;
+    if (/^buys any goods\b/i.test(s)) return true;
+    if (/^hires or avails\b/i.test(s)) return true;
+    if (/^means any fault\b/i.test(s)) return true;
+    if (/^means any\b/i.test(s)) return true;
+    if (/^includes\b/i.test(s) && /false representation|bait/i.test(s)) return true;
+    if (/^he holds real or apparent\b/i.test(s)) return true;
+    if (/^he stands in a fiduciary\b/i.test(s)) return true;
+    if (/^he contracts with a person\b/i.test(s)) return true;
+    if (/^prescribes for\b/i.test(s)) return true;
+    if (/^Part I\b/i.test(s)) return true;
+    if (/^Part II\b/i.test(s)) return true;
     return false;
   }
 

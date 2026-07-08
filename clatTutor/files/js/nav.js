@@ -46,9 +46,13 @@ function initAppChrome(opts) {
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
+    { href: 'addCounceler.html', icon: 'fa-user-shield', label: 'Add Counceler' },
   ];
 
   var links = opts.role === 'student' ? studentLinks : crmLinks;
+  if (opts.role === 'crm' && window.Auth && typeof window.Auth.isCounceler === 'function' && window.Auth.isCounceler()) {
+    links = window.Auth.filterCrmNavLinks(crmLinks);
+  }
   var brand = opts.role === 'student' ? 'Student' : 'CRM';
   var isCrm = opts.role === 'crm';
   var crmIconMap = {
@@ -87,6 +91,16 @@ function initAppChrome(opts) {
     .join('');
   var changePasswordCls =
     'btn btn-ghost btn-block' + (opts.active === 'changePassword.html' ? ' active' : '');
+  var showChangePassword =
+    !isCrm ||
+    !window.Auth ||
+    typeof window.Auth.isCounceler !== 'function' ||
+    !window.Auth.isCounceler();
+  var changePasswordLink = showChangePassword
+    ? '<a href="changePassword.html" class="' +
+      changePasswordCls +
+      '" id="btn-change-password"><img src="../image/change-password.png" alt="" class="nav-link-img" style="width:16px;height:16px;object-fit:contain;margin-right:6px;vertical-align:-2px;" onerror="this.style.display=\'none\'" />Change Password</a>'
+    : '';
 
   var shell = document.getElementById('app-root');
   if (!shell) return;
@@ -123,7 +137,7 @@ function initAppChrome(opts) {
     '<div class="user-meta"><strong>' +
     session.user.name +
     '</strong></div></div>' +
-    '<a href="changePassword.html" class="' + changePasswordCls + '" id="btn-change-password"><img src="../image/change-password.png" alt="" class="nav-link-img" style="width:16px;height:16px;object-fit:contain;margin-right:6px;vertical-align:-2px;" onerror="this.style.display=\'none\'" />Change Password</a>' +
+    changePasswordLink +
     '<button type="button" class="btn btn-ghost btn-block" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>' +
     '</div></aside>' +
     '<div class="main-wrap">' +

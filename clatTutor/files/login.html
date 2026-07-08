@@ -194,6 +194,33 @@
 
       var pw = document.getElementById('password');
       var toggle = document.getElementById('pw-toggle');
+      var loginInput = document.getElementById('login-id');
+      var loginLabel = document.querySelector('label[for="login-id"]');
+      var roleInputs = document.querySelectorAll('input[name="role"]');
+
+      function setLoginFieldForRole(role) {
+        if (!loginInput) return;
+        if (role === 'crm') {
+          loginInput.type = 'text';
+          loginInput.autocomplete = 'username';
+          loginInput.inputMode = 'numeric';
+          if (loginLabel) loginLabel.textContent = 'Email or User ID';
+        } else {
+          loginInput.type = 'email';
+          loginInput.autocomplete = 'email';
+          loginInput.removeAttribute('inputmode');
+          if (loginLabel) loginLabel.textContent = 'Email';
+        }
+      }
+
+      roleInputs.forEach(function (radio) {
+        radio.addEventListener('change', function () {
+          setLoginFieldForRole(radio.value);
+        });
+      });
+      var initialRole = document.querySelector('input[name="role"]:checked');
+      setLoginFieldForRole(initialRole ? initialRole.value : 'student');
+
       toggle.addEventListener('click', function () {
         var show = pw.type === 'password';
         pw.type = show ? 'text' : 'password';
@@ -219,7 +246,7 @@
         }, 2000);
         setTimeout(function () {
           if (role === 'student') window.location.href = 'student/dashboard.html';
-          else window.location.href = 'crm/dashboard.html';
+          else window.location.href = Auth.getCouncelerLandingPath();
         }, 2900);
       });
     });

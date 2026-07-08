@@ -17,6 +17,14 @@ function requireRole(allowedRole) {
       return false;
     }
   }
+  if (allowedRole === 'crm' && window.Auth && typeof window.Auth.isCounceler === 'function' && window.Auth.isCounceler()) {
+    const page = (window.location.pathname || '').split('/').pop() || '';
+    if (!window.Auth.canAccessCrmPage(page)) {
+      const landing = window.Auth.getCouncelerLandingPath().replace(/^crm\//, '');
+      window.location.replace(landing);
+      return false;
+    }
+  }
   try {
     if (window.Auth && typeof window.Auth.trackActivity === 'function') {
       window.Auth.trackActivity('page_view');

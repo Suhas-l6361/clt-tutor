@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Counceler — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <style>
+    .ac-wrap { max-width: 960px; margin: 0 auto; display: grid; gap: 1.25rem; }
+    .ac-card {
+      background: #fff;
+      border: 1px solid var(--line, #e5e7eb);
+      border-radius: 14px;
+      padding: 1.15rem 1.2rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .ac-title { margin: 0 0 0.35rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .ac-sub { margin: 0 0 1rem; color: var(--muted, #667085); font-size: 0.9rem; }
+    .ac-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+    .ac-grid .full { grid-column: 1 / -1; }
+    .ac-grid label { display: block; margin-bottom: 0.35rem; font-weight: 600; font-size: 0.85rem; color: #344054; }
+    .ac-grid input,
+    .ac-grid select {
+      width: 100%;
+      border: 1px solid #d4dae4;
+      border-radius: 10px;
+      padding: 0.66rem 0.72rem;
+      font-size: 0.92rem;
+      font-family: inherit;
+    }
+    .ac-grid input:focus,
+    .ac-grid select:focus {
+      outline: none;
+      border-color: #111;
+      box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.06);
+    }
+    .ac-access {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.35rem;
+    }
+    .ac-access label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid #e4e7ec;
+      border-radius: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #fafbfc;
+    }
+    .ac-access input { width: auto; margin: 0; }
+    .ac-actions { display: flex; gap: 0.65rem; margin-top: 0.25rem; flex-wrap: wrap; }
+    .ac-actions button {
+      border-radius: 10px;
+      padding: 0.66rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .ac-submit { background: #ffcc00; color: #111; border-color: #e6b800; }
+    .ac-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+    .ac-reset { background: #fff; color: #1f2937; border-color: #d4dae4; }
+    .ac-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .ac-table-wrap { overflow-x: auto; }
+    .ac-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .ac-table th,
+    .ac-table td {
+      border-bottom: 1px solid #eef2f6;
+      padding: 0.65rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .ac-table th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: #667085; }
+    .ac-badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #f2f4f7;
+      color: #344054;
+      margin: 0.1rem 0.15rem 0.1rem 0;
+    }
+    .ac-badge--drop { background: #fee4e2; color: #b42318; }
+    .ac-badge--active { background: #dcfae6; color: #067647; }
+    .ac-row-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .ac-row-actions button {
+      border: 1px solid #d4dae4;
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .ac-cred-box {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #86efac;
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 0.92rem;
+    }
+    .ac-cred-box strong { font-size: 1rem; }
+    .ac-empty { color: #667085; font-size: 0.9rem; padding: 0.5rem 0; }
+    @media (max-width: 720px) {
+      .ac-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="ac-wrap">
+      <section class="ac-card">
+        <h2 class="ac-title"><i class="fa-solid fa-user-shield" style="color: var(--accent)"></i> Add counceler</h2>
+        <p class="ac-sub">Create a branch counceler account. <strong>User ID</strong> and <strong>password</strong> are generated automatically after save.</p>
+
+        <form id="ac-form" class="ac-grid">
+          <div>
+            <label for="ac-name">Name</label>
+            <input id="ac-name" name="name" required placeholder="Full name" autocomplete="name" />
+          </div>
+          <div>
+            <label for="ac-branch">Branch</label>
+            <select id="ac-branch" name="branch" required>
+              <option value="">Select branch</option>
+              <option value="MALLESHWARAM">MALLESHWARAM</option>
+              <option value="JAYANAGARA">JAYANAGARA</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+              <option value="ONLINE">ONLINE</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>CRM access — select pages this counceler can use</label>
+            <div id="ac-access" class="ac-access" role="group" aria-label="CRM feature access"></div>
+          </div>
+          <div class="full ac-actions">
+            <button type="submit" class="ac-submit" id="ac-submit-btn">
+              <i class="fa-solid fa-user-plus"></i> Create counceler
+            </button>
+            <button type="reset" class="ac-reset">Clear form</button>
+          </div>
+        </form>
+
+        <div id="ac-credentials" class="ac-cred-box" hidden>
+          <p style="margin: 0 0 0.35rem"><strong>Account created</strong> — share these login details with the counceler:</p>
+          <p style="margin: 0">User ID: <strong id="ac-new-user-id">—</strong></p>
+          <p style="margin: 0.35rem 0 0">Password: <strong id="ac-new-password">—</strong></p>
+        </div>
+      </section>
+
+      <section class="ac-card">
+        <div class="ac-toolbar">
+          <div>
+            <h2 class="ac-title" style="margin: 0"><i class="fa-solid fa-users" style="color: var(--accent)"></i> Councelers</h2>
+            <p class="ac-sub" style="margin: 0.35rem 0 0" id="ac-count">Loading…</p>
+          </div>
+          <button type="button" class="ac-reset" id="ac-refresh-btn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="ac-table-wrap">
+          <table class="ac-table" id="ac-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Branch</th>
+                <th>Access</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ac-tbody">
+              <tr><td colspan="7" class="ac-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/add-counceler-page.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'addCounceler.html', title: 'Add Counceler', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof initAddCouncelerPage === 'function') initAddCouncelerPage();
+    });
+  </script>
+</body>
+</html>
