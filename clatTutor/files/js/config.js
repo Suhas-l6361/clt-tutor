@@ -41,6 +41,12 @@ const APP_CONFIG = {
   /** CRM — OMR scan (POST JSON { image_base64 }). Deploy: npm run deploy:omr in Backend/crm_files */
   SCAN_OMR_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/scan_omr',
+  /** CRM — email inbox (GET list/read, POST send reply) */
+  EMAIL_INBOX_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/email_inbox',
+  /** Public site + CRM — July GK workshop registration */
+  JULY_WORKSHOP_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/julyWorkshop',
   DEMO_MODE: true,
 };
 

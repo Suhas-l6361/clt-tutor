@@ -11,6 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/enrollment.css" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
@@ -21,6 +23,24 @@
           <p>Institute overview — students, tests, attendance, fees, installments, and course activity at a glance.</p>
         </div>
         <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
+      </section>
+
+      <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="July workshop registrations">
+        <div class="crm-workshop-overview__head">
+          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-workshop-btn-show" aria-expanded="false">
+            <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+            <span>Show workshop registration</span>
+          </button>
+        </div>
+        <div id="crm-workshop-panel" class="crm-workshop-overview__panel enrollment-crm__panel" hidden>
+          <div class="enrollment-crm__panel-head">
+            <h2 class="enrollment-crm__panel-title">July GK Workshop registrations</h2>
+            <p class="enrollment-crm__lead">All centres — visible to every CRM user. Mark responded and save your follow-up note.</p>
+          </div>
+          <p id="crm-workshop-loading" class="enrollment-loading" hidden>Loading…</p>
+          <p id="crm-workshop-error" class="enrollment-error" hidden></p>
+          <div id="crm-workshop-list" class="enrollment-list"></div>
+        </div>
       </section>
 
       <section class="crm-overdue-fees" id="crm-overdue-fees" hidden aria-label="Overdue unpaid installments">
@@ -332,17 +352,17 @@
   <script src="../js/auth.js"></script>
   <script src="../js/crm-branch-scope.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/fees-installments.js?v=20260630b"></script>
+  <script src="../js/fees-installments.js?v=20260708"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-metrics.js"></script>
-  <script src="../js/crm-dashboard-overdue-fees.js?v=20260630"></script>
+  <script src="../js/crm-dashboard-overdue-fees.js?v=20260708"></script>
   <script src="../js/crm-dashboard-due-fees.js"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
+  <script src="../js/crm-dashboard-workshop.js?v=20260710"></script>
   <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

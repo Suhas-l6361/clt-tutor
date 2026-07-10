@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../css/retrival.css" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
@@ -350,6 +351,16 @@
             <span class="field-label-above">Title / Name (optional)</span>
             <input id="eca-name" class="input input--stacked" type="text" placeholder="" autocomplete="off" />
           </div>
+          <label>
+            <select id="eca-branch" class="select">
+              <option value="">Select branch</option>
+              <option value="MALLESHWARAM">MALLESHWARAM</option>
+              <option value="JAYANAGARA">JAYANAGARA</option>
+              <option value="YALAHANKA">YALAHANKA</option>
+              <option value="ONLINE">ONLINE</option>
+            </select>
+            <span>Branch</span>
+          </label>
           <label class="full"><textarea id="eca-links" class="input" rows="2" placeholder=" " style="min-height:52px;padding-top:14px;"></textarea><span>Links (optional, one per line)</span></label>
           <div class="full">
             <p id="eca-existing-files" class="retrival-warning" style="margin:0 0 0.5rem;font-size:0.78rem;color:rgba(255,255,255,0.75);"></p>
@@ -438,8 +449,7 @@
   <script src="../js/crm-branch-scope.js"></script>
   <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -569,7 +579,7 @@
       var CLASS_HEAD_HTML =
         '<tr><th>Location</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
       var CA_HEAD_HTML =
-        '<tr><th>Date</th><th>Name</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
+        '<tr><th>Date</th><th>Name</th><th>Branch</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
       var NOTES_HEAD_HTML =
         '<tr><th>Title</th><th>Links</th><th>Files</th><th>Added By</th><th>Actions</th></tr>';
       var COURSE_VIDEO_HEAD_HTML =
@@ -1003,7 +1013,7 @@
 
       function renderCaRows(rows) {
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="6">No CA records found.</td></tr>';
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="7">No CA records found.</td></tr>';
           countEl.textContent = '0 rows';
           return;
         }
@@ -1019,6 +1029,8 @@
             safeHtml(asDateOnly(r.date)) +
             '</td><td>' +
             safeHtml(r.name) +
+            '</td><td>' +
+            safeHtml(r.branch || '—') +
             '</td><td>' +
             safeHtml(truncStr(r.links, 40)) +
             '</td><td>' +
@@ -1123,10 +1135,13 @@
         }
         if (currentMode === 'ca') {
           var filteredCa = allRows.filter(function (r) {
+            var hay =
+              (String(r.name || '') + ' ' + String(r.branch || '') + ' ' + String(r.added_by || '') + ' ' + String(r.links || '')).toLowerCase();
+            var matchesText = !query || hay.indexOf(query) !== -1;
             var d = asDateOnly(r.date);
             var matchesFrom = !fromDate || (d && d >= fromDate);
             var matchesTo = !toDate || (d && d <= toDate);
-            return matchesFrom && matchesTo;
+            return matchesText && matchesFrom && matchesTo;
           });
           renderCaRows(filteredCa);
           metaEl.textContent = 'Filtered: ' + filteredCa.length + ' / ' + allRows.length;
@@ -1554,6 +1569,29 @@
         if (ecaStatus) ecaStatus.textContent = '';
         document.getElementById('eca-name').value = row.name || '';
         document.getElementById('eca-links').value = row.links != null ? String(row.links) : '';
+        var ecaBranch = document.getElementById('eca-branch');
+        if (ecaBranch) {
+          var want = row.branch ? String(row.branch).trim() : '';
+          ecaBranch.value = '';
+          if (want) {
+            for (var oi = 0; oi < ecaBranch.options.length; oi++) {
+              if (String(ecaBranch.options[oi].value).toLowerCase() === want.toLowerCase() ||
+                  (window.CrmBranchScope &&
+                    CrmBranchScope.normalizeKey(ecaBranch.options[oi].value) ===
+                      CrmBranchScope.normalizeKey(want))) {
+                ecaBranch.value = ecaBranch.options[oi].value;
+                break;
+              }
+            }
+            if (!ecaBranch.value) {
+              var opt = document.createElement('option');
+              opt.value = want;
+              opt.textContent = want;
+              ecaBranch.appendChild(opt);
+              ecaBranch.value = want;
+            }
+          }
+        }
         var caD = document.getElementById('eca-date-day');
         var caM = document.getElementById('eca-date-month');
         var caY = document.getElementById('eca-date-year');
@@ -1989,7 +2027,26 @@
           var res = await fetch(CA_API_URL, { method: 'GET' });
           var data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to fetch');
-          allRows = Array.isArray(data) ? data : [];
+          var rows = Array.isArray(data) ? data : [];
+          if (window.CrmBranchScope && CrmBranchScope.isScoped()) {
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var meEmail = session && session.user && session.user.email
+              ? String(session.user.email).trim().toLowerCase()
+              : '';
+            var meName = session && session.user && session.user.name
+              ? String(session.user.name).trim().toLowerCase()
+              : '';
+            rows = rows.filter(function (r) {
+              if (CrmBranchScope.canSeeBranch(r && r.branch)) return true;
+              // Legacy CA rows with no branch: only show if this user uploaded them.
+              var br = r && r.branch != null ? String(r.branch).trim() : '';
+              if (br) return false;
+              var by = r && r.added_by != null ? String(r.added_by).trim().toLowerCase() : '';
+              if (!by) return false;
+              return (meEmail && by === meEmail) || (meName && by === meName);
+            });
+          }
+          allRows = rows;
           renderCaRows(allRows);
           metaEl.textContent = 'Total CA: ' + allRows.length;
         } catch (err) {
@@ -2187,6 +2244,8 @@
             var merged = currentEditCaImgKeys.slice().concat(newKeys);
             var session = Auth.getSession ? Auth.getSession() : null;
             var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var ecaBranchEl = document.getElementById('eca-branch');
+            var caBranchVal = ecaBranchEl && ecaBranchEl.value ? ecaBranchEl.value.trim() : '';
             var res = await fetch(CA_API_URL, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
@@ -2196,6 +2255,7 @@
                 name: nameStr || null,
                 links: linksStr || null,
                 img_url: merged.length ? merged : null,
+                branch: caBranchVal || null,
                 added_by: addedBy,
               }),
             });

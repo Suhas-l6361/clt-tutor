@@ -102,15 +102,61 @@
     }
     .ac-badge--drop { background: #fee4e2; color: #b42318; }
     .ac-badge--active { background: #dcfae6; color: #067647; }
-    .ac-row-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .ac-row-actions {
+      display: inline-flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
     .ac-row-actions button {
       border: 1px solid #d4dae4;
       background: #fff;
       border-radius: 8px;
-      padding: 0.35rem 0.55rem;
+      padding: 0.38rem 0.62rem;
       font-size: 0.78rem;
+      font-weight: 600;
       cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      line-height: 1.2;
     }
+    .ac-row-actions button:hover { background: #f8fafc; }
+    .ac-row-actions .ac-edit {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .ac-row-actions .ac-edit:hover { background: #dbeafe; }
+    .ac-row-actions .ac-delete {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+    .ac-row-actions .ac-delete:hover { background: #fee2e2; }
+    .ac-row-actions .ac-toggle-drop,
+    .ac-row-actions .ac-regen-pw {
+      color: #344054;
+    }
+    .ac-editing-banner {
+      display: none;
+      margin: 0 0 0.9rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 0.88rem;
+      font-weight: 600;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .ac-editing-banner.is-visible { display: flex; }
+    .ac-submit.is-update { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    tr.ac-row-editing { background: #f8fbff; }
     .ac-cred-box {
       margin-top: 1rem;
       padding: 0.85rem 1rem;
@@ -126,15 +172,22 @@
       .ac-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
     <div class="ac-wrap">
       <section class="ac-card">
-        <h2 class="ac-title"><i class="fa-solid fa-user-shield" style="color: var(--accent)"></i> Add counceler</h2>
-        <p class="ac-sub">Create a branch counceler account. <strong>User ID</strong> and <strong>password</strong> are generated automatically after save.</p>
+        <h2 class="ac-title" id="ac-form-title"><i class="fa-solid fa-user-shield" style="color: var(--accent)"></i> Add counceler</h2>
+        <p class="ac-sub" id="ac-form-sub">Create a branch counceler account. <strong>User ID</strong> and <strong>password</strong> are generated automatically after save.</p>
+
+        <div id="ac-editing-banner" class="ac-editing-banner" role="status">
+          <span>Editing counceler <strong id="ac-editing-id">—</strong></span>
+          <button type="button" class="ac-reset" id="ac-cancel-edit-btn"><i class="fa-solid fa-xmark"></i> Cancel edit</button>
+        </div>
 
         <form id="ac-form" class="ac-grid">
+          <input type="hidden" id="ac-edit-user-id" value="" />
           <div>
             <label for="ac-name">Name</label>
             <input id="ac-name" name="name" required placeholder="Full name" autocomplete="name" />
@@ -157,7 +210,7 @@
             <button type="submit" class="ac-submit" id="ac-submit-btn">
               <i class="fa-solid fa-user-plus"></i> Create counceler
             </button>
-            <button type="reset" class="ac-reset">Clear form</button>
+            <button type="button" class="ac-reset" id="ac-clear-btn">Clear form</button>
           </div>
         </form>
 
@@ -186,7 +239,7 @@
                 <th>Access</th>
                 <th>Status</th>
                 <th>Created</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="ac-tbody">
@@ -202,11 +255,10 @@
   <script src="../js/config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/add-counceler-page.js"></script>
+  <script src="../js/add-counceler-page.js?v=202607086"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

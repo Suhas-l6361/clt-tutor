@@ -172,12 +172,21 @@
    * Accept numbered headers by default across ALL sections (Legal/English/Logical/Math/GK…).
    * Reject only known Word-list / citation bleed stems so uploaded count == parsed count.
    */
-  function acceptsQuestionHeaderStem(s, qn) {
-    if (isCitationQuestionLine(s, qn)) return false;
+  function acceptsQuestionHeaderStem(s, qn, lines, idx) {
     var t = String(s || '').trim();
+    /** Word often wraps long Legal stems — check full stem before bleed rules on line 1 only. */
+    if (lines != null && idx != null && /^\d{1,3}\.\s/.test(t)) {
+      var multiStem = collectStemLinesAfterHeader(lines, idx, 12);
+      if (multiStem && (hasMcqPromptCue(multiStem) || /\?/.test(multiStem) || stemLooksLikeMcqQuestion(multiStem))) {
+        return true;
+      }
+    }
+    if (isCitationQuestionLine(s, qn)) return false;
     if (hasMcqPromptCue(t)) return true;
     if (/^\s*\d{1,3}\.\s*Restrictions\b/i.test(t)) return false;
-    if (/^\s*\d{1,3}\.\s+(?:Each is subject|Over the decades|Under Article)\b/i.test(t)) return false;
+    if (/^\s*\d{1,3}\.\s+(?:Each is subject|Over the decades)\b/i.test(t)) return false;
+    /** Short "N. Under Article…" ghosts only — real Q1 stems start the same way but continue with MCQ cue. */
+    if (/^\s*\d{1,3}\.\s+Under Article\b/i.test(t) && !hasMcqPromptCue(t) && t.length < 90) return false;
     if (/^\s*\d{1,3}\.\s+(?:of the|declares that|governs|provides|subject to the)\b/i.test(t)) return false;
     if (/^\s*\d{1,3}\.\s+(?:as the|as a|as an|with the intention|with the knowledge|the offender)\b/i.test(t)) {
       return false;
@@ -202,12 +211,14 @@
     }
     /** Lowercase Word-list bleed after glossary numbering — not lowercase English stems. */
     if (
-      /^(as|with|the|of|including|making|representing|bait|buys|hires|means|goodwill|actual|he|declares|governs|provides|subject|restrictions|must|each|over|under|prescribes)\b/i.test(
+      /^(as|with|the|of|including|making|representing|bait|buys|hires|means|goodwill|actual|he|declares|governs|provides|subject|restrictions|must|each|over|prescribes)\b/i.test(
         fw
       )
     ) {
       return false;
     }
+    /** Lowercase "under Section…" bleed — not capitalised "Under Article 109…" legal stems. */
+    if (/^under\b/.test(fw) && !hasMcqPromptCue(t)) return false;
     /** Default accept: Quant "25 men…", GK years, quoted brands, (In the passage)…, etc. */
     return true;
   }
@@ -777,7 +788,7 @@
     return createMarkerMatchers(null).isParagraphEnd(line);
   }
 
-  function matchQuestionHeaderLine(line) {
+  function matchQuestionHeaderLine(line, lines, idx) {
     var s = String(line || '')
       .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
       .replace(/\uFF0E/g, '.');
@@ -785,14 +796,14 @@
     if (m) {
       var n1 = parseInt(m[1], 10);
       if (n1 < 1 || n1 > 199) return null;
-      if (!acceptsQuestionHeaderStem(s, n1)) return null;
+      if (!acceptsQuestionHeaderStem(s, n1, lines, idx)) return null;
       return n1;
     }
     m = s.match(/^\s*(\d{1,3})\.(\S)/);
     if (m) {
       var n2 = parseInt(m[1], 10);
       if (n2 < 1 || n2 > 199) return null;
-      if (!acceptsQuestionHeaderStem(s, n2)) return null;
+      if (!acceptsQuestionHeaderStem(s, n2, lines, idx)) return null;
       return n2;
     }
     /** Number-only lines (e.g. "6.") are validated via matchSplitQuestionHeader, not here. */
@@ -807,6 +818,7 @@
   function isPassageBleedStem(stem) {
     var s = String(stem || '').trim();
     if (!s) return false;
+    if (hasMcqPromptCue(s) || /\?/.test(s)) return false;
     if (/^Restrictions\b/i.test(s)) return true;
     if (/^must be reasonable\b/i.test(s)) return true;
     if (/^and must serve\b/i.test(s)) return true;
@@ -855,23 +867,38 @@
     if (/^prescribes for\b/i.test(s)) return true;
     if (/^Part I\b/i.test(s)) return true;
     if (/^Part II\b/i.test(s)) return true;
+    if (/^Infringement occurs\b/i.test(s)) return true;
+    if (/^abolishes untouchability\b/i.test(s)) return true;
     return false;
+  }
+
+  function collectStemLinesAfterHeader(lines, idx, maxLines) {
+    var limit = typeof maxLines === 'number' && maxLines > 0 ? maxLines : 16;
+    var parts = [];
+    var startLine = String(lines[idx] || '').trim();
+    if (/^\d{1,3}\.\s/.test(startLine)) {
+      parts.push(startLine.replace(/^\d{1,3}\.\s*/, '').trim());
+    }
+    for (var j = idx + 1; j < lines.length && j <= idx + limit; j++) {
+      var t = String(lines[j] || '').trim();
+      if (!t) continue;
+      if (isStrictOptionLine(t)) break;
+      if (matchQuestionHeaderLine(lines[j]) != null) break;
+      if (matchSplitQuestionHeader(lines, j) != null) break;
+      if (isParagraphStartLine(lines[j]) || isParagraphEndLine(lines[j])) break;
+      parts.push(t);
+      if (/\?/.test(t) || hasMcqPromptCue(t)) break;
+    }
+    return parts.join(' ').trim();
   }
 
   function questionStemTextAt(lines, idx) {
     var line = String(lines[idx] || '').trim();
     if (isSplitQuestionNumberOnlyLine(line)) {
-      var parts = [];
-      for (var j = idx + 1; j < lines.length && j <= idx + 5; j++) {
-        var t = String(lines[j] || '').trim();
-        if (!t) continue;
-        if (isStrictOptionLine(t)) break;
-        if (matchQuestionHeaderLine(lines[j]) != null) break;
-        if (matchSplitQuestionHeader(lines, j) != null) break;
-        parts.push(t);
-        if (/\?/.test(t)) break;
-      }
-      return parts.join(' ').trim();
+      return collectStemLinesAfterHeader(lines, idx, 8);
+    }
+    if (/^\d{1,3}\.\s/.test(line)) {
+      return collectStemLinesAfterHeader(lines, idx, 16);
     }
     return line.replace(/^\d{1,3}\.\s*/, '').trim();
   }
@@ -880,8 +907,8 @@
     var s = String(stem || '').trim();
     if (!s || isPassageBleedStem(s)) return false;
     if (/\?/.test(s)) return true;
-    if (/\bwhich of the following\b/i.test(s)) return true;
-    if (/\bwhat is the most appropriate\b/i.test(s)) return true;
+    if (hasMcqPromptCue(s)) return true;
+    if (/^["\u201C\u201D']/.test(s) && /\b(is a|was a|has been)\b/i.test(s)) return true;
     if (/\bwhich writ\b/i.test(s)) return true;
     if (/\bin which of the following\b/i.test(s)) return true;
     return isLostNumberQuestionStem(s);
@@ -909,9 +936,12 @@
     }
     var glued = String(lines[idx] || '').trim();
     if (/^\d{1,3}\.\s*(Restrictions|must be reasonable|Each is subject)\b/i.test(glued)) return true;
-    var hdr = matchQuestionHeaderLine(lines[idx]);
+    var hdr = matchQuestionHeaderLine(lines[idx], lines, idx);
     if (hdr == null) return false;
-    return isPassageBleedStem(questionStemTextAt(lines, idx));
+    var stem = questionStemTextAt(lines, idx);
+    if (hasMcqPromptCue(stem) || /\?/.test(stem)) return false;
+    if (/^["\u201C\u201D']/.test(stem) && /\b(is a|was a|has been)\b/i.test(stem)) return false;
+    return isPassageBleedStem(stem);
   }
 
   /** Word auto-numbering: "32" on one line, stem on the next (dot optional). */
@@ -974,7 +1004,7 @@
         lineHasGluedOptionsOnSameLine(lines[idx + 1] || '')
       );
     }
-    if (matchQuestionHeaderLine(lines[idx]) == null) return false;
+    if (matchQuestionHeaderLine(lines[idx], lines, idx) == null) return false;
     if (stemLooksLikeMcqQuestionAt(lines, idx)) return true;
     return lineHasMcqOptionsAhead(lines, idx) || lineHasGluedOptionsOnSameLine(lines[idx]);
   }
@@ -1330,7 +1360,7 @@
         continue;
       }
 
-      var qn = matchQuestionHeaderLine(lines[i]);
+      var qn = matchQuestionHeaderLine(lines[i], lines, i);
       if (qn == null) qn = matchSplitQuestionHeader(lines, i);
       if (qn == null && isLostNumberQuestionStem(lines[i])) {
         if (lineHasMcqOptionsAhead(lines, i) || lineHasGluedOptionsOnSameLine(lines[i])) {
@@ -1441,6 +1471,14 @@
     if (!isSectional) {
       for (var exp = 1; exp <= 120; exp++) {
         if (!foundNums[exp]) missingNumbers.push(exp);
+      }
+    } else if (questions.length) {
+      var maxQn = 0;
+      for (var mq = 0; mq < questions.length; mq++) {
+        if (questions[mq].number > maxQn) maxQn = questions[mq].number;
+      }
+      for (var expS = 1; expS <= maxQn; expS++) {
+        if (!foundNums[expS]) missingNumbers.push(expS);
       }
     }
     // A number that WAS parsed as a real (option-bearing) question is not "dropped": a second

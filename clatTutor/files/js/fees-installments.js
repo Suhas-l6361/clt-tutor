@@ -364,7 +364,8 @@
         }
 
         var daysOverdue = Math.round((today.getTime() - due.getTime()) / 86400000);
-        var amountOverdue = instAmt > 0 ? Math.max(0, instAmt - remainingPaid) : balance;
+        /** Unpaid leftover on this installment after applying paid so far. */
+        var unpaidOnInstallment = instAmt > 0 ? Math.max(0, instAmt - remainingPaid) : balance;
         remainingPaid = 0;
 
         var entry = {
@@ -373,7 +374,9 @@
           installment: inst,
           label: ordinal(inst.number) + ' installment',
           daysOverdue: daysOverdue,
-          amountOverdue: amountOverdue > 0 ? amountOverdue : balance,
+          /** Full scheduled installment amount from fees plan (matches receipt). */
+          installmentAmount: instAmt > 0 ? instAmt : balance,
+          amountOverdue: unpaidOnInstallment > 0 ? unpaidOnInstallment : balance,
           balance: balance,
           tuition: tuition,
           totalPaid: totalPaid,

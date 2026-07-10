@@ -58,6 +58,17 @@ body.app-body.crm-dashboard {
   flex-shrink: 0;
 }
 
+.crm-dashboard .sidebar-nav a.active > i.nav-has-img,
+.crm-dashboard .sidebar-nav a.active:hover > i.nav-has-img {
+  background: rgba(255, 204, 0, 0.95);
+  border-radius: 8px;
+}
+
+.crm-dashboard .sidebar-nav a:hover > i.nav-has-img {
+  background: rgba(255, 204, 0, 0.2);
+  border-radius: 8px;
+}
+
 
 
 .crm-dashboard .sidebar {
@@ -820,6 +831,28 @@ body.app-body.crm-dashboard {
 }
 .crm-overdue-card__cta:hover {
   filter: brightness(1.05);
+}
+
+/* July workshop registrations — overview top */
+.crm-workshop-overview {
+  margin-bottom: 1rem;
+}
+.crm-workshop-overview__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+.crm-workshop-overview__panel {
+  margin-top: 0.25rem;
+}
+.crm-workshop-overview .enrollment-table__td-message {
+  max-width: 220px;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 0.82rem;
+  color: #475569;
 }
 
 /* Pending public enquiries — below welcome */

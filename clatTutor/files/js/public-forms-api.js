@@ -71,6 +71,48 @@
     return Number(d);
   }
 
+  var GMAIL_EMAIL_RE = /^[a-z0-9](?:[a-z0-9._%+-]{0,22}[a-z0-9])?@gmail\.com$/i;
+  var WORKSHOP_PHONE_RE = /^(?:\+91[6-9]\d{9}|[6-9]\d{9})$/;
+  var WORKSHOP_NAME_RE = /^[A-Za-z][A-Za-z\s.'-]{1,28}$/;
+
+  function normalizeWorkshopPhone(str) {
+    return String(str || '')
+      .trim()
+      .replace(/\s+/g, '');
+  }
+
+  function isValidWorkshopGmailEmail(str) {
+    var email = String(str || '').trim().toLowerCase();
+    if (!email || email.length > 30) return false;
+    return GMAIL_EMAIL_RE.test(email);
+  }
+
+  function isValidWorkshopPhone(str) {
+    return WORKSHOP_PHONE_RE.test(normalizeWorkshopPhone(str));
+  }
+
+  function workshopPhoneToNumber(str) {
+    var normalized = normalizeWorkshopPhone(str);
+    if (!WORKSHOP_PHONE_RE.test(normalized)) return NaN;
+    var digits = normalized.replace(/\D/g, '');
+    if (digits.length === 12 && digits.indexOf('91') === 0) digits = digits.slice(2);
+    return Number(digits);
+  }
+
+  function isValidWorkshopName(str) {
+    var name = String(str || '').trim();
+    if (!name || name.length < 2 || name.length > 30) return false;
+    return WORKSHOP_NAME_RE.test(name);
+  }
+
+  function sanitizePlainText(str, maxLen) {
+    return String(str || '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/[\u0000-\u001F\u007F]/g, '')
+      .trim()
+      .slice(0, maxLen);
+  }
+
   window.PublicFormsApi = {
     phoneToNumber: phoneToNumber,
     isValidIndianPhone: isValidIndianPhone,
@@ -79,6 +121,11 @@
     isValidIndianMobile10: isValidIndianMobile10,
     indianMobile10ToNumber: indianMobile10ToNumber,
     normalizeIndianMobile10: normalizeIndianMobile10,
+    isValidWorkshopGmailEmail: isValidWorkshopGmailEmail,
+    isValidWorkshopPhone: isValidWorkshopPhone,
+    workshopPhoneToNumber: workshopPhoneToNumber,
+    isValidWorkshopName: isValidWorkshopName,
+    sanitizePlainText: sanitizePlainText,
     postRequestCallback: function (payload) {
       var u = C.REQUEST_CALLBACK_API;
       if (!u) {
@@ -133,6 +180,44 @@
         });
       }
       return postJson(u, payload);
+    },
+    postJulyWorkshop: function (payload) {
+      var u = C.JULY_WORKSHOP_API;
+      if (!u) {
+        return Promise.resolve({
+          ok: false,
+          status: 0,
+          data: { message: 'JULY_WORKSHOP_API not configured' },
+        });
+      }
+      var body = payload && typeof payload === 'object' ? Object.assign({}, payload) : {};
+      if (!isValidWorkshopName(body.fullName)) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter your full name (letters only, 2–30 characters).' },
+        });
+      }
+      if (!isValidWorkshopGmailEmail(body.email)) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter a valid Gmail address ending with @gmail.com' },
+        });
+      }
+      if (!isValidWorkshopPhone(body.phoneNumber != null ? String(body.phoneNumber) : '')) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter a valid 10-digit mobile starting with 6, 7, 8, or 9 (or +91).' },
+        });
+      }
+      body.fullName = sanitizePlainText(body.fullName, 30);
+      body.email = String(body.email).trim().toLowerCase().slice(0, 30);
+      body.phoneNumber = workshopPhoneToNumber(String(body.phoneNumber));
+      body.message = body.message != null ? sanitizePlainText(body.message, 400) : null;
+      body.branch = sanitizePlainText(body.branch, 20);
+      return postJson(u, body);
     },
   };
 })();

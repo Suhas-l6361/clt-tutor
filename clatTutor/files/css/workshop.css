@@ -1,0 +1,904 @@
+/* CLAT GK Workshop — shareable poster (no site chrome) */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.5rem, 2vw, 1rem);
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(30, 64, 175, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(255, 204, 0, 0.15), transparent 45%),
+    #e8edf5;
+  overflow-x: hidden;
+}
+
+/* ── Poster canvas ── */
+.ws-poster {
+  --ink: #0c1222;
+  --ink-soft: #334155;
+  --cream: #faf8f3;
+  --white: #ffffff;
+  --blue: #1e3a8a;
+  --blue-mid: #2563eb;
+  --gold: #f5b800;
+  --gold-dark: #c99700;
+  --line: rgba(12, 18, 34, 0.1);
+  --shadow: 0 24px 60px rgba(12, 18, 34, 0.18);
+
+  width: 100%;
+  max-width: 440px;
+  background: var(--white);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+/* subtle corner accent */
+.ws-poster::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, transparent 50%, rgba(245, 184, 0, 0.18) 50%);
+  pointer-events: none;
+}
+
+/* ── Top brand strip ── */
+.ws-poster__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--cream);
+  border-bottom: 2px solid var(--gold);
+}
+
+.ws-poster__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.ws-poster__logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ws-poster__logo-text {
+  font-family: 'Shrikhand', cursive;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.ws-poster__logo-text span {
+  color: var(--gold-dark);
+}
+
+.ws-poster__since {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+/* ── Urgency band ── */
+.ws-poster__alert {
+  padding: 0.45rem 1rem;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--gold);
+}
+
+/* ── Hero block ── */
+.ws-poster__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-poster__content-left,
+.ws-poster__content-right {
+  min-width: 0;
+}
+
+.ws-poster__hero {
+  padding: 1.35rem 1.15rem 1.15rem;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -10%, rgba(96, 165, 250, 0.22), transparent 55%),
+    linear-gradient(168deg, #1e3a8a 0%, #1e40af 48%, #172554 100%);
+  color: var(--white);
+  text-align: center;
+  position: relative;
+}
+
+.ws-poster__hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), #ffe566, var(--gold), transparent);
+}
+
+.ws-poster__tag {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: 0.35rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--gold);
+  border: none;
+  border-radius: 999px;
+}
+
+.ws-poster__headline {
+  margin: 0 0 1.1rem;
+}
+
+.ws-poster__title {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.15rem, 9vw, 2.65rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.ws-poster__subtitle {
+  margin: 0.45rem 0 0;
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  font-size: clamp(1rem, 4.2vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.ws-poster__amp {
+  color: var(--gold);
+  font-weight: 700;
+  margin-right: 0.2em;
+}
+
+.ws-poster__features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ws-poster__features li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  padding: 0.55rem 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+.ws-poster__features i {
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+
+.ws-poster__features span {
+  text-align: center;
+}
+
+/* ── FOMO strip ── */
+.ws-poster__fomo {
+  padding: 0.45rem 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: #fff8e1;
+  border-bottom: 1px solid var(--line);
+}
+
+.ws-poster__fomo strong {
+  color: #b45309;
+}
+
+/* ── Section label ── */
+.ws-poster__label {
+  margin: 0;
+  padding: 0.6rem 1rem 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue-mid);
+}
+
+/* ── Dates grid ── */
+.ws-poster__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  padding: 0 1rem 0.75rem;
+}
+
+.ws-poster__date-card {
+  padding: 0.65rem 0.7rem;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  border-left: 3px solid var(--blue-mid);
+}
+
+.ws-poster__date-card--online {
+  border-left-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.ws-poster__date-city {
+  margin: 0 0 0.15rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.ws-poster__date-when {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1.2;
+}
+
+.ws-poster__date-mode {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ── Why + Takeaways ── */
+.ws-poster__grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.ws-poster__col {
+  padding: 0.65rem 0.8rem 0.75rem;
+}
+
+.ws-poster__col:first-child {
+  border-right: 1px solid var(--line);
+}
+
+.ws-poster__col-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.ws-poster__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ws-poster__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.ws-poster__list li::before {
+  content: '✓';
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.625rem;
+  color: var(--gold-dark);
+  margin-top: 0.05rem;
+}
+
+/* ── Faculty bar ── */
+.ws-poster__faculty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--ink);
+  text-align: center;
+}
+
+.ws-poster__faculty span {
+  opacity: 0.85;
+}
+
+.ws-poster__faculty strong {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ── Bottom: register + contact ── */
+.ws-poster__bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Contact footer (poster style, not site footer) ── */
+.ws-poster__contact {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.ws-poster__contact-text {
+  min-width: 0;
+}
+
+.ws-poster__contact-cta {
+  margin: 0 0 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ws-poster__contact-phone {
+  margin: 0;
+  font-size: clamp(1rem, 4.5vw, 1.2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.ws-poster__contact-web {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ws-poster__qr {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 4px;
+  background: var(--white);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ws-poster__qr img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ── Wider phones / small tablets ── */
+@media (min-width: 400px) {
+  .ws-poster {
+    max-width: 480px;
+  }
+
+  .ws-poster__list li {
+    font-size: 0.72rem;
+  }
+}
+
+/* ── Tablet & desktop: same vertical poster as phone, centered ── */
+@media (min-width: 768px) {
+  body {
+    padding: 1.5rem 1rem;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(30, 64, 175, 0.1), transparent 42%),
+      radial-gradient(circle at 85% 80%, rgba(255, 204, 0, 0.12), transparent 40%),
+      #e8edf5;
+  }
+
+  .ws-poster {
+    max-width: 480px;
+    border-radius: 8px;
+    box-shadow:
+      0 0 0 1px rgba(12, 18, 34, 0.05),
+      0 24px 64px rgba(12, 18, 34, 0.16);
+  }
+}
+
+/* ── Register button on poster ── */
+.ws-poster__register-wrap {
+  padding: 0.65rem 1rem;
+  background: var(--cream);
+  border-top: 1px solid var(--line);
+}
+
+.ws-poster__register-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.6rem 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(29, 78, 216, 0.35);
+}
+
+.ws-poster__register-btn:hover {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.45);
+}
+
+.ws-poster__register-btn:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* ── Modals ── */
+.ws-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.ws-modal.is-open {
+  display: flex;
+}
+
+.ws-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 18, 34, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.ws-modal__dialog {
+  position: relative;
+  width: min(100%, 420px);
+  max-height: min(92dvh, 640px);
+  overflow: auto;
+  padding: 1.35rem 1.25rem 1.25rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 28px 70px rgba(12, 18, 34, 0.28);
+  border: 1px solid rgba(12, 18, 34, 0.08);
+  animation: ws-modal-in 0.28s ease;
+}
+
+@keyframes ws-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ws-modal__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1rem;
+  color: #64748b;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ws-modal__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ws-modal__head {
+  padding-right: 2rem;
+  margin-bottom: 1.1rem;
+}
+
+.ws-modal__kicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.ws-modal__title {
+  margin: 0 0 0.35rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0c1222;
+  line-height: 1.2;
+}
+
+.ws-modal__lead {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.ws-modal__step-label {
+  margin: 0 0 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Branch cards */
+.ws-branch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.ws-branch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.75rem 0.7rem;
+  text-align: left;
+  font-family: inherit;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ws-branch-card:hover,
+.ws-branch-card:focus-visible {
+  border-color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.ws-branch-card--online {
+  background: #f5f3ff;
+}
+
+.ws-branch-card--online:hover,
+.ws-branch-card--online:focus-visible {
+  border-color: #7c3aed;
+  background: #ede9fe;
+}
+
+.ws-branch-card__city {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #0c1222;
+}
+
+.ws-branch-card__date {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.ws-branch-card__mode {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ws-modal__selected {
+  margin: 0 0 0.85rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e40af;
+  background: #dbeafe;
+  border-radius: 8px;
+  border: 1px solid #93c5fd;
+}
+
+/* Registration form */
+.ws-reg-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ws-reg-form__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ws-reg-form__req {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.ws-reg-form__field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.ws-reg-form__optional {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.ws-reg-form__field input,
+.ws-reg-form__field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: #0c1222;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ws-reg-form__field input:focus,
+.ws-reg-form__field textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.ws-reg-form__field textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.ws-reg-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+.ws-reg-form__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ws-reg-form__back:hover {
+  background: #e2e8f0;
+}
+
+.ws-reg-form__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0c1222;
+  background: #f5b800;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 184, 0, 0.35);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.ws-reg-form__submit:hover:not(:disabled) {
+  background: #e6a800;
+  transform: translateY(-1px);
+}
+
+.ws-reg-form__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Success popup */
+.ws-modal--success .ws-modal__backdrop {
+  background: rgba(12, 18, 34, 0.45);
+}
+
+.ws-success-card {
+  position: relative;
+  width: min(100%, 360px);
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 28px 70px rgba(12, 18, 34, 0.25);
+  animation: ws-modal-in 0.32s ease;
+}
+
+.ws-success-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  font-size: 2.25rem;
+  color: #059669;
+  background: #d1fae5;
+  border-radius: 50%;
+  animation: ws-success-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ws-success-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ws-success-card__title {
+  margin: 0 0 0.5rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0c1222;
+}
+
+.ws-success-card__text {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.ws-success-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  background: #1d4ed8;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ws-success-card__btn:hover {
+  background: #1e40af;
+}
+
+body.ws-modal-open {
+  overflow: hidden;
+}
+
+/* ── Print / screenshot ── */
+@media print {
+  body {
+    padding: 0;
+    background: #fff;
+  }
+
+  .ws-poster {
+    max-width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+
+  .ws-modal,
+  .ws-poster__register-wrap {
+    display: none !important;
+  }
+}

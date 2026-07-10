@@ -1062,6 +1062,7 @@
       }
     }
   </style>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
@@ -1611,8 +1612,7 @@
   <script src="../js/crm-branch-scope.js"></script>
   <script src="../js/student-access.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -2442,6 +2442,10 @@
             }
             var session = Auth.getSession ? Auth.getSession() : null;
             var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var caBranch =
+              session && session.user && session.user.branch
+                ? String(session.user.branch).trim()
+                : null;
             var res = await fetch(CA_API_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -2450,6 +2454,7 @@
                 name: nameStr || null,
                 img_url: keys.length ? keys : null,
                 links: linksStr || null,
+                branch: caBranch,
                 added_by: addedBy,
               }),
             });

@@ -21,6 +21,9 @@
     { key: 'upload-general-info.html', label: 'Upload General Info' },
   ];
 
+  var editingUserId = null;
+  var cachedRows = [];
+
   function escapeHtml(s) {
     if (s == null) return '';
     var d = document.createElement('div');
@@ -62,6 +65,13 @@
       access[cb.value] = true;
     });
     return access;
+  }
+
+  function setAccessCheckboxes(form, access) {
+    var map = access && typeof access === 'object' ? access : {};
+    form.querySelectorAll('input[name="access"]').forEach(function (cb) {
+      cb.checked = !!map[cb.value];
+    });
   }
 
   function formatDate(value) {
@@ -119,12 +129,105 @@
     });
   }
 
+  function findRow(userId) {
+    var id = String(userId);
+    return (
+      cachedRows.find(function (r) {
+        return String(r.user_id) === id;
+      }) || null
+    );
+  }
+
+  function setFormMode(mode, row) {
+    var form = document.getElementById('ac-form');
+    var submitBtn = document.getElementById('ac-submit-btn');
+    var titleEl = document.getElementById('ac-form-title');
+    var subEl = document.getElementById('ac-form-sub');
+    var banner = document.getElementById('ac-editing-banner');
+    var editingIdEl = document.getElementById('ac-editing-id');
+    var hiddenId = document.getElementById('ac-edit-user-id');
+    var credBox = document.getElementById('ac-credentials');
+
+    if (mode === 'edit' && row) {
+      editingUserId = row.user_id;
+      if (hiddenId) hiddenId.value = String(row.user_id);
+      if (banner) banner.classList.add('is-visible');
+      if (editingIdEl) editingIdEl.textContent = String(row.user_id);
+      if (titleEl) {
+        titleEl.innerHTML =
+          '<i class="fa-solid fa-pen-to-square" style="color: var(--accent)"></i> Edit counceler';
+      }
+      if (subEl) {
+        subEl.innerHTML =
+          'Update name, branch, or CRM access for user <strong>' +
+          escapeHtml(row.user_id) +
+          '</strong>. Password is unchanged unless you use <em>New password</em> in the list.';
+      }
+      if (submitBtn) {
+        submitBtn.classList.add('is-update');
+        submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update counceler';
+      }
+      if (credBox) credBox.hidden = true;
+    } else {
+      editingUserId = null;
+      if (hiddenId) hiddenId.value = '';
+      if (banner) banner.classList.remove('is-visible');
+      if (editingIdEl) editingIdEl.textContent = '—';
+      if (titleEl) {
+        titleEl.innerHTML =
+          '<i class="fa-solid fa-user-shield" style="color: var(--accent)"></i> Add counceler';
+      }
+      if (subEl) {
+        subEl.innerHTML =
+          'Create a branch counceler account. <strong>User ID</strong> and <strong>password</strong> are generated automatically after save.';
+      }
+      if (submitBtn) {
+        submitBtn.classList.remove('is-update');
+        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create counceler';
+      }
+    }
+
+    tbodyHighlight();
+  }
+
+  function tbodyHighlight() {
+    var tbody = document.getElementById('ac-tbody');
+    if (!tbody) return;
+    tbody.querySelectorAll('tr[data-user-id]').forEach(function (tr) {
+      var match = editingUserId != null && String(tr.getAttribute('data-user-id')) === String(editingUserId);
+      tr.classList.toggle('ac-row-editing', match);
+    });
+  }
+
+  function fillFormFromRow(row) {
+    var form = document.getElementById('ac-form');
+    if (!form || !row) return;
+    var nameEl = document.getElementById('ac-name');
+    var branchEl = document.getElementById('ac-branch');
+    if (nameEl) nameEl.value = row.name || '';
+    if (branchEl) branchEl.value = row.branch || '';
+    setAccessCheckboxes(form, row.access);
+    setFormMode('edit', row);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (nameEl) nameEl.focus();
+  }
+
+  function clearFormToCreate() {
+    var form = document.getElementById('ac-form');
+    var credBox = document.getElementById('ac-credentials');
+    if (form) form.reset();
+    if (form) setAccessCheckboxes(form, {});
+    if (credBox) credBox.hidden = true;
+    setFormMode('create');
+  }
+
   function renderTable(rows) {
     var tbody = document.getElementById('ac-tbody');
     var countEl = document.getElementById('ac-count');
     if (!tbody) return;
 
-    var list = Array.isArray(rows) ? rows : [];
+    cachedRows = Array.isArray(rows) ? rows.slice() : [];
+    var list = cachedRows;
     if (countEl) countEl.textContent = list.length + ' counceler' + (list.length === 1 ? '' : 's');
 
     if (!list.length) {
@@ -135,10 +238,13 @@
     tbody.innerHTML = list
       .map(function (row) {
         var dropped = row.isDrop === true || row.isDrop === 1;
+        var editing = editingUserId != null && String(editingUserId) === String(row.user_id);
         return (
           '<tr data-user-id="' +
           escapeHtml(row.user_id) +
-          '">' +
+          '"' +
+          (editing ? ' class="ac-row-editing"' : '') +
+          '>' +
           '<td><strong>' +
           escapeHtml(row.user_id) +
           '</strong></td>' +
@@ -160,6 +266,9 @@
           escapeHtml(formatDate(row.created_at)) +
           '</td>' +
           '<td><div class="ac-row-actions">' +
+          '<button type="button" class="ac-edit" data-user-id="' +
+          escapeHtml(row.user_id) +
+          '" title="Edit"><i class="fa-solid fa-pen"></i> Edit</button>' +
           '<button type="button" class="ac-toggle-drop" data-user-id="' +
           escapeHtml(row.user_id) +
           '" data-drop="' +
@@ -172,7 +281,7 @@
           '">New password</button>' +
           '<button type="button" class="ac-delete" data-user-id="' +
           escapeHtml(row.user_id) +
-          '">Delete</button>' +
+          '" title="Delete"><i class="fa-solid fa-trash"></i> Delete</button>' +
           '</div></td></tr>'
         );
       })
@@ -211,14 +320,29 @@
     var credUserId = document.getElementById('ac-new-user-id');
     var credPassword = document.getElementById('ac-new-password');
     var refreshBtn = document.getElementById('ac-refresh-btn');
+    var clearBtn = document.getElementById('ac-clear-btn');
+    var cancelEditBtn = document.getElementById('ac-cancel-edit-btn');
     var tbody = document.getElementById('ac-tbody');
 
     renderAccessCheckboxes(accessEl);
+    setFormMode('create');
     loadCouncelers();
 
     if (refreshBtn) {
       refreshBtn.addEventListener('click', function () {
         loadCouncelers();
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        clearFormToCreate();
+      });
+    }
+
+    if (cancelEditBtn) {
+      cancelEditBtn.addEventListener('click', function () {
+        clearFormToCreate();
       });
     }
 
@@ -230,10 +354,32 @@
         var name = String(document.getElementById('ac-name').value || '').trim();
         var branch = String(document.getElementById('ac-branch').value || '').trim();
         var access = collectAccess(form);
+        var editId = editingUserId != null ? parseInt(String(editingUserId), 10) : null;
 
         if (!name || !branch) {
           popup('error', 'Name and branch are required.');
           if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+
+        if (editId) {
+          apiFetch('PUT', {
+            user_id: editId,
+            name: name,
+            branch: branch,
+            access: access,
+          })
+            .then(function () {
+              popup('success', 'Counceler ' + editId + ' updated.');
+              clearFormToCreate();
+              loadCouncelers();
+            })
+            .catch(function (err) {
+              popup('error', (err.data && err.data.message) || err.message || 'Could not update counceler.');
+            })
+            .finally(function () {
+              if (submitBtn) submitBtn.disabled = false;
+            });
           return;
         }
 
@@ -246,6 +392,8 @@
             }
             popup('success', 'Counceler created. User ID: ' + data.user_id);
             form.reset();
+            setAccessCheckboxes(form, {});
+            setFormMode('create');
             loadCouncelers();
           })
           .catch(function (err) {
@@ -255,17 +403,25 @@
             if (submitBtn) submitBtn.disabled = false;
           });
       });
-
-      form.addEventListener('reset', function () {
-        if (credBox) credBox.hidden = true;
-      });
     }
 
     if (tbody) {
       tbody.addEventListener('click', function (e) {
+        var editBtn = e.target.closest('.ac-edit');
         var dropBtn = e.target.closest('.ac-toggle-drop');
         var regenBtn = e.target.closest('.ac-regen-pw');
         var delBtn = e.target.closest('.ac-delete');
+
+        if (editBtn) {
+          var editUid = editBtn.getAttribute('data-user-id');
+          var row = findRow(editUid);
+          if (!row) {
+            popup('error', 'Could not find that counceler. Refresh and try again.');
+            return;
+          }
+          fillFormFromRow(row);
+          return;
+        }
 
         if (dropBtn) {
           var uid = dropBtn.getAttribute('data-user-id');
@@ -304,6 +460,9 @@
           apiFetch('DELETE', null, { user_id: uid3 })
             .then(function () {
               popup('success', 'Counceler deleted.');
+              if (editingUserId != null && String(editingUserId) === String(uid3)) {
+                clearFormToCreate();
+              }
               loadCouncelers();
             })
             .catch(function (err) {

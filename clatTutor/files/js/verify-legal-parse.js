@@ -146,6 +146,69 @@ assert(rg.questions.some(function (q) { return q.number === 11; }), 'glossaryBle
 assert(rg.questions.some(function (q) { return q.number === 12; }), 'glossaryBleed real Q12');
 assert(!rg.dropped || !rg.dropped.length, 'glossaryBleed should not drop real questions');
 
+// --- Test 7: multi-line quoted-brand stems (Legal Q24/Q25 style) ---
+var quotedBrands = [
+  '((Legal Reasoning Starts))',
+  '(Paragraph starts)',
+  'PASSAGE V',
+  'Section 29 governs infringement of registered trademarks.',
+  '(Paragraph ends)',
+  '24. "DigitalStar" is a trademark registered by and declared well-known in favour of a large technology company for computer software and related services.',
+  'A new bakery in another city begins using the name "Digital Star" for its products and café premises.',
+  'The bakery argues that there can be no infringement since the technology company operates in software and the bakery operates in food — markets so different that no consumer confusion is possible.',
+  'What is the most appropriate legal position?',
+  'A. The bakery argument succeeds',
+  'B. Passing off only',
+  'C. Bakery is fully exempt',
+  'D. Cross-class well-known mark protection applies',
+  '25. "Fabrica" is a registered trademark of a textile company for premium synthetic fabrics.',
+  'A competitor begins marketing competing fabrics under the name "Fabrika."',
+  'The competitor argues that the marks are different — different spelling, different logo font, and a different colour scheme.',
+  'What is the most appropriate legal position?',
+  'A. Imperfect recollection test favours proprietor',
+  'B. One letter change is enough',
+  'C. Survey required',
+  'D. Font difference prevents infringement',
+  '32.  Nisha pays a real estate developer Rs. 1.2 crore as the full consideration for a premium apartment under a registered sale agreement.',
+  'The developer fails to deliver the apartment within the agreed timeframe.',
+  'Before which forum should Nisha file her consumer complaint under the Consumer Protection Act, 2019?',
+  'A. District Commission',
+  'B. State Commission',
+  'C. National Commission',
+  'D. RERA only',
+  '((Legal Reasoning Ends))',
+].join('\n');
+var rq = parse(quotedBrands, { kind: 'sectional', category: 'Legal Reasoning' });
+assert(rq.questions.length === 3, 'quotedBrands count expected 3 got ' + rq.questions.length);
+assert(rq.questions.some(function (q) { return q.number === 24 && /DigitalStar/i.test(q.stem); }), 'quotedBrands Q24');
+assert(rq.questions.some(function (q) { return q.number === 25 && /Fabrica/i.test(q.stem); }), 'quotedBrands Q25');
+assert(rq.questions.some(function (q) { return q.number === 32 && /Nisha/i.test(q.stem); }), 'quotedBrands Q32');
+
+// --- Test 7: Q1 "Under Article 109…" — Word wraps stem before MCQ cue (Parliament paper) ---
+var underArticleQ1 = [
+  '((Legal Reasoning Starts))',
+  '(Paragraph starts)',
+  'PASSAGE I',
+  'Parliament of India, as constituted under Article 79, consists of the President and two Houses.',
+  '(Paragraph ends)',
+  '1. Under Article 109, if the Rajya Sabha does not return a Money Bill to the Lok Sabha within fourteen days of its receipt,',
+  'which of the following best describes the legal consequence?',
+  'A. The bill lapses and must be reintroduced afresh in the Lok Sabha.',
+  'B. The bill shall be deemed to have been passed by both Houses of Parliament in the form in which it was passed by the Lok Sabha.',
+  'C. The President shall summon a joint sitting of both Houses.',
+  'D. The bill is automatically referred to a Select Committee.',
+  '2. The Speaker of the Lok Sabha certifies a bill as a Money Bill. Which of the following statements most precisely captures what legally distinguishes a Money Bill?',
+  'A. Any bill introduced alongside the Union Budget.',
+  'B. Any bill involving tax or government expenditure.',
+  'C. Any bill requiring higher public expenditure than existing legislation.',
+  'D. A Money Bill under Article 110 must contain only the subjects specifically listed in that Article.',
+  '((Legal Reasoning Ends))',
+].join('\n');
+var ru = parse(underArticleQ1, { kind: 'sectional', category: 'Legal Reasoning' });
+assert(ru.questions.length === 2, 'underArticleQ1 count expected 2 got ' + ru.questions.length);
+assert(ru.questions.some(function (q) { return q.number === 1 && /Money Bill/i.test(q.stem); }), 'underArticleQ1 Q1 must parse');
+assert(!ru.missingNumbers || ru.missingNumbers.length === 0, 'underArticleQ1 must not report missing numbers');
+
 console.log('ALL TESTS PASSED');
 console.log('ghost6:', r1.questions.length, 'questions, dropped:', JSON.stringify(r1.dropped || []));
 console.log('article32:', r32.questions.length, 'questions');

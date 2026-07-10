@@ -46,11 +46,12 @@ function initAppChrome(opts) {
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
+    { href: 'inbox.html', icon: 'fa-envelope', label: 'Business Email' },
     { href: 'addCounceler.html', icon: 'fa-user-shield', label: 'Add Counceler' },
   ];
 
   var links = opts.role === 'student' ? studentLinks : crmLinks;
-  if (opts.role === 'crm' && window.Auth && typeof window.Auth.isCounceler === 'function' && window.Auth.isCounceler()) {
+  if (opts.role === 'crm' && window.Auth && typeof window.Auth.filterCrmNavLinks === 'function') {
     links = window.Auth.filterCrmNavLinks(crmLinks);
   }
   var brand = opts.role === 'student' ? 'Student' : 'CRM';
@@ -64,6 +65,8 @@ function initAppChrome(opts) {
     'attendance.html': '../image/attendance.png',
     'enrollment.html': '../image/enrollment.png',
     'retrival.html': '../image/retrive data.png',
+    'inbox.html': '../image/Business Mail.png',
+    'addCounceler.html': '../image/add councelor.png',
   };
 
   var navHtml = links

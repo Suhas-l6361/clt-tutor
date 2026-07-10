@@ -152,7 +152,14 @@
     var dueStr = inst.dueDate && FI ? FI.formatDisplayDate(inst.dueDate) : '—';
     var severity = item.severity || 'moderate';
     var balanceStr = formatInrAmount(item.balance);
-    var instAmtStr = formatInrAmount(item.amountOverdue);
+    /** Show scheduled installment from fees plan, not residual after payments. */
+    var planInstAmt =
+      item.installmentAmount != null
+        ? item.installmentAmount
+        : inst.amount != null
+          ? inst.amount
+          : item.amountOverdue;
+    var instAmtStr = formatInrAmount(planInstAmt);
     var paidStr = formatInrAmount(item.totalPaid);
     var tuitionStr = formatInrAmount(item.tuition);
 

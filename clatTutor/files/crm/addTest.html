@@ -1706,6 +1706,7 @@
       gap: 0.3rem;
     }
   </style>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
@@ -2196,14 +2197,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=202607086"></script>
+  <script src="../js/exam-question-parser.js?v=202607091"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/site-protection.js" data-protection-mode="app"></script>
-  <script src="../js/nav.js?v=20260708"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -4261,14 +4261,22 @@
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
             var parseOpts = currentParseOpts();
-            if (parsed.missingNumbers && parsed.missingNumbers.length && !(parseOpts && parseOpts.kind === 'sectional')) {
+            if (parsed.missingNumbers && parsed.missingNumbers.length) {
               var miss = parsed.missingNumbers.slice(0, 12).join(', ');
               if (parsed.missingNumbers.length > 12) {
                 miss += '… (+' + (parsed.missingNumbers.length - 12) + ' more)';
               }
+              var expectedLabel =
+                parseOpts && parseOpts.kind === 'sectional'
+                  ? 'Expected all questions through Q' +
+                    (parsed.questions.length
+                      ? parsed.questions[parsed.questions.length - 1].number
+                      : '?')
+                  : 'Expected 120';
               showToast(
                 'Some questions missing',
-                'Expected 120 but got ' +
+                expectedLabel +
+                  ' but got ' +
                   parsed.questions.length +
                   '. Missing Q' +
                   miss +

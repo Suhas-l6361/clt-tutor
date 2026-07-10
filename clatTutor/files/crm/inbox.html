@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Email — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/inbox.css?v=20260710i" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard inbox-page">
+  <div id="stock" style="display: none">
+    <div class="inbox-root">
+      <!-- Screen 1: mailbox picker (only this visible initially) -->
+      <section id="inbox-mailbox-screen" class="inbox-picker is-active" aria-label="Choose mailbox">
+        <div class="inbox-picker__inner">
+          <header class="inbox-picker__head">
+            <div class="inbox-picker__logo" aria-hidden="true">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <h1 class="inbox-picker__title">CLATutor Mail</h1>
+            <p class="inbox-picker__sub">Choose a mailbox to open</p>
+          </header>
+
+          <p id="inbox-mailbox-loading" class="inbox-muted" hidden>
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Loading…
+          </p>
+          <p id="inbox-mailbox-error" class="inbox-picker__error" hidden></p>
+          <div id="inbox-mailbox-warnings" class="inbox-picker__warn" hidden></div>
+
+          <div id="inbox-mailbox-grid" class="inbox-picker__grid"></div>
+        </div>
+      </section>
+
+      <!-- Screen 2: full mail client (hidden until a card is clicked) -->
+      <section id="inbox-workspace" class="inbox-mail" hidden aria-label="Mailbox">
+        <aside class="inbox-mail__rail" aria-label="Mailbox navigation">
+          <button type="button" class="inbox-mail__back" id="inbox-btn-back" title="All mailboxes">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          </button>
+
+          <div class="inbox-mail__account">
+            <span class="inbox-mail__account-avatar" id="inbox-active-avatar" aria-hidden="true">H</span>
+            <div class="inbox-mail__account-text">
+              <strong id="inbox-active-name">—</strong>
+              <span id="inbox-active-email">—</span>
+            </div>
+          </div>
+
+          <nav class="inbox-mail__nav" role="tablist">
+            <button type="button" class="inbox-mail__nav-btn is-active" id="inbox-tab-inbox" role="tab" aria-selected="true">
+              <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+              <span>Inbox</span>
+              <em id="inbox-tab-inbox-count">0</em>
+            </button>
+            <button type="button" class="inbox-mail__nav-btn" id="inbox-tab-sent" role="tab" aria-selected="false">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              <span>Sent</span>
+              <em id="inbox-tab-sent-count">0</em>
+            </button>
+          </nav>
+
+          <div class="inbox-mail__rail-foot">
+            <p class="inbox-mail__stats" id="inbox-active-stats" aria-live="polite"></p>
+            <button type="button" class="inbox-mail__refresh" id="inbox-btn-refresh" title="Refresh">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </aside>
+
+        <div class="inbox-mail__list-col">
+          <header class="inbox-mail__list-head">
+            <h2 id="inbox-list-title">Inbox</h2>
+            <p id="inbox-loading" class="inbox-mail__list-loading" hidden>
+              <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            </p>
+          </header>
+          <div id="inbox-list" class="inbox-mail__list">
+            <p class="inbox-mail__list-empty">Loading messages…</p>
+          </div>
+        </div>
+
+        <div class="inbox-mail__read-col">
+          <div id="inbox-detail" class="inbox-mail__read">
+            <div class="inbox-mail__read-placeholder">
+              <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>
+              <p>Select a message to read</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260710g"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/inbox-page.js?v=20260710k"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'inbox.html', title: 'Business Email', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (window.InboxPage && typeof window.InboxPage.init === 'function') {
+        window.InboxPage.init();
+      }
+    });
+  </script>
+</body>
+</html>

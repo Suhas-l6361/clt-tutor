@@ -36,12 +36,19 @@
     'attendance.html',
     'retrival.html',
     'enrollment.html',
+    'inbox.html',
     'leads.html',
     'communications.html',
     'uploadOmr.html',
     'upload-general-info.html',
     'addCounceler.html',
   ];
+
+  const BUSINESS_EMAIL_INBOX_USER = 'pranab.mehta@gmail.com';
+
+  function normalizeEmail(value) {
+    return String(value || '').trim().toLowerCase();
+  }
 
   function normalizeAccessMap(access) {
     if (!access || typeof access !== 'object') return {};
@@ -84,6 +91,15 @@
       return !!(s && s.role === 'crm' && s.user && !s.user.isCounceler);
     },
 
+    canAccessBusinessEmail() {
+      const s = this.getSession();
+      if (!s || s.role !== 'crm' || !s.user) return false;
+      const allowed = normalizeEmail(BUSINESS_EMAIL_INBOX_USER);
+      const email = normalizeEmail(s.user.email);
+      const login = normalizeEmail(s.user.login);
+      return email === allowed || login === allowed;
+    },
+
     getCouncelerAccess() {
       const s = this.getSession();
       if (!this.isCounceler() || !s.user) return {};
@@ -92,6 +108,9 @@
 
     canAccessCrmPage(page) {
       const file = String(page || '').split('/').pop() || '';
+      if (file === 'inbox.html') {
+        return this.canAccessBusinessEmail();
+      }
       if (file === 'changePassword.html' || file === 'addCounceler.html') {
         return this.isFullCrmAdmin();
       }
@@ -116,13 +135,21 @@
 
     filterCrmNavLinks(links) {
       const list = Array.isArray(links) ? links : [];
-      if (!this.isCounceler()) return list;
-      const access = this.getCouncelerAccess();
-      return list.filter(function (l) {
-        if (!l || !l.href) return false;
-        if (l.href === 'addCounceler.html') return false;
-        return !!access[l.href];
-      });
+      var filtered = list;
+      if (this.isCounceler()) {
+        const access = this.getCouncelerAccess();
+        filtered = list.filter(function (l) {
+          if (!l || !l.href) return false;
+          if (l.href === 'addCounceler.html') return false;
+          return !!access[l.href];
+        });
+      }
+      if (!this.canAccessBusinessEmail()) {
+        filtered = filtered.filter(function (l) {
+          return l && l.href !== 'inbox.html';
+        });
+      }
+      return filtered;
     },
 
     async login(role, loginId, password) {
