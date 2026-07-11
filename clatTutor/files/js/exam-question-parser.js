@@ -174,6 +174,10 @@
    */
   function acceptsQuestionHeaderStem(s, qn, lines, idx) {
     var t = String(s || '').trim();
+    /** A/B/C/D below the header — strong signal for real MCQs (e.g. "50. The headquarters…"). */
+    if (lines != null && idx != null && lineHasMcqOptionsAhead(lines, idx)) {
+      return true;
+    }
     /** Word often wraps long Legal stems — check full stem before bleed rules on line 1 only. */
     if (lines != null && idx != null && /^\d{1,3}\.\s/.test(t)) {
       var multiStem = collectStemLinesAfterHeader(lines, idx, 12);
@@ -209,9 +213,9 @@
     ) {
       return false;
     }
-    /** Lowercase Word-list bleed after glossary numbering — not lowercase English stems. */
+    /** Lowercase Word-list bleed after glossary numbering — not capitalised stems like "The headquarters…". */
     if (
-      /^(as|with|the|of|including|making|representing|bait|buys|hires|means|goodwill|actual|he|declares|governs|provides|subject|restrictions|must|each|over|prescribes)\b/i.test(
+      /^(as|with|the|of|including|making|representing|bait|buys|hires|means|goodwill|actual|he|declares|governs|provides|subject|restrictions|must|each|over|prescribes)\b/.test(
         fw
       )
     ) {

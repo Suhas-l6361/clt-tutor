@@ -74,9 +74,12 @@
       block.match(/Correct\s+option\s*:\s*["']?\s*([A-D])\b/i) ||
       block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\s*[\)"']?/i) ||
       block.match(/Correct\s+Answer\s*:\s*["']?\s*([A-D])\b/i) ||
+      block.match(/Answer\s*[-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
+      block.match(/Ans\s*[-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
       block.match(/Ans\s*[:\-\u2013\u2014]\s*\(?\s*([A-D])\s*\)?/i) ||
       block.match(/Ans\s*:\s*([A-D])\b/i) ||
       block.match(/Answer\s*:\s*([A-D])\b/i) ||
+      block.match(/^\s*\(?\s*([A-D])\s*\)?(?:\s|$|\[)/i) ||
       block.match(/["']([A-D])["']/) ||
       block.match(/^\s*["']?([A-D])["']?\s*$/i);
     return lm ? lm[1].toUpperCase() : null;
@@ -103,8 +106,43 @@
     s = s.replace(/(^|\n)(LR|LE|AR|GK|RC|QA)(?=(\d{1,3})\s*\.\s*Answer\s*:)/gi, '$1$2\n');
     s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.\s*Answer\s*:)/gi, '\n');
     s = s.replace(/(?<!\d)(?=([0-9]{1,3})Answer\s*:)/gi, '\n');
+    s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.\s*Answer\s*[-\u2013\u2014])/gi, '\n');
+    s = s.replace(/(?<!\d)(\d{1,3})(Correct\s+Answer\s*:)/gi, '$1.$2');
+    s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.?\s*Correct\s+Answer\s*:)/gi, '\n');
     s = s.replace(/(?<!\d)(?=(\d{1,3})\s*\.\s*[A-Da-d]\b)/gi, '\n');
     return s;
+  }
+
+  function isNextAnswerKeyLine(nt) {
+    return (
+      /^(\d+)\s*\.\s*Answer\s*:/i.test(nt) ||
+      /^(\d+)Answer\s*:/i.test(nt) ||
+      /^(\d+)\s*\.\s*Answer\s*[-\u2013\u2014]/i.test(nt) ||
+      /^(\d+)\s*\.?\s*Correct\s+Answer\s*:/i.test(nt) ||
+      /^(\d+)\s*[\.\)]\s*[A-Da-d]\b/.test(nt) ||
+      /^(\d+)\s+[A-Da-d]\b/.test(nt)
+    );
+  }
+
+  function collectAnswerKeySolutionLines(lines, startIdx, isSectionHeader) {
+    var solParts = [];
+    var i = startIdx;
+    while (i < lines.length) {
+      var nt = lines[i].trim();
+      if (!nt) {
+        i++;
+        continue;
+      }
+      if (isNextAnswerKeyLine(nt)) break;
+      if (isSectionHeader(nt)) break;
+      if (/^\s*(?:Solution|Reason)\s*:/i.test(lines[i])) {
+        solParts.push(lines[i].replace(/^\s*(?:Solution|Reason)\s*:\s*/i, '').trim());
+      } else {
+        solParts.push(nt);
+      }
+      i++;
+    }
+    return { solParts: solParts, nextIdx: i };
   }
 
   function parseAnswerKeyText(text) {
@@ -149,28 +187,70 @@
           if (tailReason) solParts.push(tailReason);
         }
         i++;
-        while (i < lines.length) {
-          var nt = lines[i].trim();
-          if (!nt) {
-            i++;
-            continue;
-          }
-          if (/^(\d+)\s*\.\s*Answer\s*:/i.test(nt) || /^(\d+)Answer\s*:/i.test(nt)) break;
-          if (/^(\d+)\s*[\.\)]\s*[A-Da-d]\b/.test(nt)) break;
-          if (/^(\d+)\s+[A-Da-d]\b/.test(nt)) break;
-          if (isSectionHeader(nt)) break;
-          if (/^\s*(?:Solution|Reason)\s*:/i.test(lines[i])) {
-            solParts.push(lines[i].replace(/^\s*(?:Solution|Reason)\s*:\s*/i, '').trim());
-          } else {
-            solParts.push(nt);
-          }
-          i++;
-        }
+        var collected = collectAnswerKeySolutionLines(lines, i, isSectionHeader);
+        solParts = solParts.concat(collected.solParts);
+        i = collected.nextIdx;
         if (letter) {
           var parsedSol = extractInlineImageUrls(solParts.join('\n').trim());
           map[qn] = { letter: letter, solution: parsedSol.clean, solutionImages: parsedSol.images };
         }
         continue;
+      }
+
+      var ad = t.match(/^(\d+)\s*\.\s*Answer\s*[-\u2013\u2014]\s*(.*)$/i);
+      if (ad) {
+        var qnAd = parseInt(ad[1], 10);
+        if (qnAd >= 1 && qnAd <= 199) {
+          var tailAd = normalizeAnswerKeyQuotes((ad[2] || '').trim());
+          var letterAd = extractCorrectOptionLetter(tailAd);
+          var solPartsAd = [];
+          var mTailAd = tailAd.match(/\b(?:Solution|Reason)\s*:\s*([\s\S]*)$/i);
+          if (mTailAd && mTailAd[1]) {
+            var tailReasonAd = mTailAd[1].trim();
+            if (tailReasonAd) solPartsAd.push(tailReasonAd);
+          }
+          i++;
+          var collectedAd = collectAnswerKeySolutionLines(lines, i, isSectionHeader);
+          solPartsAd = solPartsAd.concat(collectedAd.solParts);
+          i = collectedAd.nextIdx;
+          if (letterAd) {
+            var parsedSolAd = extractInlineImageUrls(solPartsAd.join('\n').trim());
+            map[qnAd] = {
+              letter: letterAd,
+              solution: parsedSolAd.clean,
+              solutionImages: parsedSolAd.images,
+            };
+          }
+          continue;
+        }
+      }
+
+      var cal = t.match(/^(\d+)\s*\.?\s*Correct\s+Answer\s*:\s*(.*)$/i);
+      if (cal) {
+        var qnCa = parseInt(cal[1], 10);
+        if (qnCa >= 1 && qnCa <= 199) {
+          var tailCa = normalizeAnswerKeyQuotes((cal[2] || '').trim());
+          var letterCa = extractCorrectOptionLetter(tailCa);
+          var solPartsCa = [];
+          var mTailCa = tailCa.match(/\b(?:Solution|Reason)\s*:\s*([\s\S]*)$/i);
+          if (mTailCa && mTailCa[1]) {
+            var tailReasonCa = mTailCa[1].trim();
+            if (tailReasonCa) solPartsCa.push(tailReasonCa);
+          }
+          i++;
+          var collectedCa = collectAnswerKeySolutionLines(lines, i, isSectionHeader);
+          solPartsCa = solPartsCa.concat(collectedCa.solParts);
+          i = collectedCa.nextIdx;
+          if (letterCa) {
+            var parsedSolCa = extractInlineImageUrls(solPartsCa.join('\n').trim());
+            map[qnCa] = {
+              letter: letterCa,
+              solution: parsedSolCa.clean,
+              solutionImages: parsedSolCa.images,
+            };
+          }
+          continue;
+        }
       }
 
       var smLine = lines[i];
@@ -191,27 +271,9 @@
           solPartsSm.push(inlineSol[1].trim());
         }
         i++;
-        while (i < lines.length) {
-          var ntSm = lines[i].trim();
-          if (!ntSm) {
-            i++;
-            continue;
-          }
-          if (/^(\d+)\s*\.\s*Answer\s*:/i.test(ntSm) || /^(\d+)Answer\s*:/i.test(ntSm)) break;
-          if (
-            /^\s*(\d{1,3})\s*[\.\)]\s*[A-Da-d]\b/.test(lines[i]) ||
-            /^\s*(\d{1,3})\s+[A-Da-d]\b/.test(lines[i])
-          ) {
-            break;
-          }
-          if (isSectionHeader(ntSm)) break;
-          if (/^\s*(?:Solution|Reason)\s*:/i.test(lines[i])) {
-            solPartsSm.push(lines[i].replace(/^\s*(?:Solution|Reason)\s*:\s*/i, '').trim());
-          } else {
-            solPartsSm.push(ntSm);
-          }
-          i++;
-        }
+        var collectedSm = collectAnswerKeySolutionLines(lines, i, isSectionHeader);
+        solPartsSm = solPartsSm.concat(collectedSm.solParts);
+        i = collectedSm.nextIdx;
         var parsedSolSm = extractInlineImageUrls(solPartsSm.join('\n').trim());
         map[qnSm] = { letter: letterSm, solution: parsedSolSm.clean, solutionImages: parsedSolSm.images };
         continue;

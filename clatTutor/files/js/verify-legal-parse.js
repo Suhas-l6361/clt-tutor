@@ -209,6 +209,34 @@ assert(ru.questions.length === 2, 'underArticleQ1 count expected 2 got ' + ru.qu
 assert(ru.questions.some(function (q) { return q.number === 1 && /Money Bill/i.test(q.stem); }), 'underArticleQ1 Q1 must parse');
 assert(!ru.missingNumbers || ru.missingNumbers.length === 0, 'underArticleQ1 must not report missing numbers');
 
+// --- Test 8: GK Q50 "The headquarters…" — must not reject capitalised "The" bleed ---
+var gkQ50 = [
+  '((General Knowledge starts))',
+  '(Paragraph starts)',
+  'Middle-income economies are set to power the next phase of global expansion.',
+  '(Paragraph ends)',
+  '49. According to discussions at Davos 2026, India is widely expected to become which-largest economy in the world?',
+  'A. Second-largest',
+  'B. Third-largest',
+  'C. Fourth-largest',
+  'D. Fifth-largest',
+  '50. The headquarters of the World Economic Forum is located in:',
+  'A. New York, USA',
+  'B. Geneva, Switzerland',
+  'C. Paris, France',
+  'D. Davos, Switzerland',
+  '51. Which organisation publishes the Human Development Report?',
+  'A. IMF',
+  'B. UNDP',
+  'C. WEF',
+  'D. World Bank',
+  '((General Knowledge ends))',
+].join('\n');
+var rgk = parse(gkQ50, { kind: 'full' });
+assert(rgk.questions.length === 3, 'gkQ50 count expected 3 got ' + rgk.questions.length);
+assert(rgk.questions.some(function (q) { return q.number === 50 && /headquarters/i.test(q.stem); }), 'gkQ50 Q50 must parse');
+assert(!rgk.missingNumbers || !rgk.missingNumbers.some(function (n) { return n === 50; }), 'gkQ50 must not report missing Q50');
+
 console.log('ALL TESTS PASSED');
 console.log('ghost6:', r1.questions.length, 'questions, dropped:', JSON.stringify(r1.dropped || []));
 console.log('article32:', r32.questions.length, 'questions');
