@@ -844,15 +844,161 @@ body.app-body.crm-dashboard {
   gap: 0.65rem;
   margin-bottom: 0.75rem;
 }
-.crm-workshop-overview__panel {
-  margin-top: 0.25rem;
+
+/* Workshop registrations — large popup */
+.crm-workshop-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
 }
-.crm-workshop-overview .enrollment-table__td-message {
-  max-width: 220px;
+.crm-workshop-modal[hidden] {
+  display: none !important;
+}
+.crm-workshop-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(3px);
+}
+.crm-workshop-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  max-height: min(92vh, 900px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e8dfc4;
+  border-radius: 18px;
+  box-shadow: 0 28px 64px rgba(15, 23, 42, 0.22);
+  overflow: hidden;
+  animation: crm-workshop-modal-in 0.22s ease-out;
+}
+@keyframes crm-workshop-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.crm-workshop-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem 1.05rem;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 58%);
+  border-bottom: 1px solid #ead9a3;
+  flex-shrink: 0;
+}
+.crm-workshop-modal__head-text {
+  min-width: 0;
+}
+.crm-workshop-modal__eyebrow {
+  margin: 0 0 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a16207;
+}
+.crm-workshop-modal__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.crm-workshop-modal__lead {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #64748b;
+  max-width: 42rem;
+}
+.crm-workshop-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.crm-workshop-modal__close:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+.crm-workshop-modal__close:focus-visible {
+  outline: 2px solid #ca8a04;
+  outline-offset: 2px;
+}
+.crm-workshop-modal__body {
+  padding: 1rem 1.2rem 1.25rem;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  background: #fafbfc;
+}
+.crm-workshop-modal__list .enrollment-table-wrap {
+  background: #fff;
+  border: 1px solid #e8dfc4;
+  border-radius: 12px;
+  overflow: auto;
+  max-height: none;
+}
+.crm-workshop-modal__list .enrollment-table {
+  min-width: 980px;
+}
+.crm-workshop-modal .enrollment-table__td-message {
+  max-width: 240px;
   white-space: normal;
   word-break: break-word;
   font-size: 0.82rem;
   color: #475569;
+}
+.crm-workshop-modal .enrollment-empty,
+.crm-workshop-modal .enrollment-loading,
+.crm-workshop-modal .enrollment-error {
+  margin: 0.5rem 0;
+}
+@media (max-width: 720px) {
+  .crm-workshop-modal {
+    padding: 0.65rem;
+    align-items: stretch;
+  }
+  .crm-workshop-modal__dialog {
+    max-height: none;
+    height: 100%;
+    border-radius: 14px;
+  }
+  .crm-workshop-modal__head {
+    padding: 0.95rem 1rem;
+  }
+  .crm-workshop-modal__body {
+    padding: 0.85rem;
+  }
 }
 
 /* Pending public enquiries — below welcome */

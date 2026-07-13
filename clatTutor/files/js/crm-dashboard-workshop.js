@@ -1,11 +1,12 @@
 /**
  * CRM dashboard — July workshop registrations (all branches, all CRM users).
+ * Opens in a large modal with close (X), backdrop, and Escape.
  */
 (function () {
   'use strict';
 
   var rows = [];
-  var panelOpen = false;
+  var modalOpen = false;
 
   function esc(s) {
     var d = document.createElement('div');
@@ -257,20 +258,50 @@
       });
   }
 
-  function togglePanel() {
-    var panel = document.getElementById('crm-workshop-panel');
+  function openModal() {
+    var modal = document.getElementById('crm-workshop-modal');
     var btn = document.getElementById('crm-workshop-btn-show');
-    if (!panel || !btn) return;
-    panelOpen = !panelOpen;
-    panel.hidden = !panelOpen;
-    btn.classList.toggle('is-active', panelOpen);
-    btn.setAttribute('aria-expanded', panelOpen ? 'true' : 'false');
-    if (panelOpen) fetchRows();
+    if (!modal || modalOpen) return;
+    modalOpen = true;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (btn) {
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    var closeBtn = modal.querySelector('.crm-workshop-modal__close');
+    if (closeBtn) closeBtn.focus();
+    fetchRows();
+  }
+
+  function closeModal() {
+    var modal = document.getElementById('crm-workshop-modal');
+    var btn = document.getElementById('crm-workshop-btn-show');
+    if (!modal || !modalOpen) return;
+    modalOpen = false;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (btn) {
+      btn.classList.remove('is-active');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
   }
 
   function bindEvents() {
     var btn = document.getElementById('crm-workshop-btn-show');
-    if (btn) btn.addEventListener('click', togglePanel);
+    if (btn) btn.addEventListener('click', openModal);
+
+    var modal = document.getElementById('crm-workshop-modal');
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target.closest('[data-crm-workshop-modal-close]')) closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modalOpen) closeModal();
+    });
 
     var list = document.getElementById('crm-workshop-list');
     if (!list) return;
@@ -304,7 +335,6 @@
 
   function init() {
     bindEvents();
-    fetchRows();
   }
 
   if (document.readyState === 'loading') {

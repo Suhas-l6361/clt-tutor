@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260713" />
   <link rel="stylesheet" href="../css/enrollment.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -27,19 +27,10 @@
 
       <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="July workshop registrations">
         <div class="crm-workshop-overview__head">
-          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-workshop-btn-show" aria-expanded="false">
+          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-workshop-btn-show" aria-haspopup="dialog" aria-controls="crm-workshop-modal" aria-expanded="false">
             <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
             <span>Show workshop registration</span>
           </button>
-        </div>
-        <div id="crm-workshop-panel" class="crm-workshop-overview__panel enrollment-crm__panel" hidden>
-          <div class="enrollment-crm__panel-head">
-            <h2 class="enrollment-crm__panel-title">July GK Workshop registrations</h2>
-            <p class="enrollment-crm__lead">All centres — visible to every CRM user. Mark responded and save your follow-up note.</p>
-          </div>
-          <p id="crm-workshop-loading" class="enrollment-loading" hidden>Loading…</p>
-          <p id="crm-workshop-error" class="enrollment-error" hidden></p>
-          <div id="crm-workshop-list" class="enrollment-list"></div>
         </div>
       </section>
 
@@ -347,6 +338,39 @@
     </div>
   </div>
 
+  <div
+    id="crm-workshop-modal"
+    class="crm-workshop-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-workshop-modal-title"
+  >
+    <div class="crm-workshop-modal__backdrop" data-crm-workshop-modal-close tabindex="-1"></div>
+    <div class="crm-workshop-modal__dialog">
+      <div class="crm-workshop-modal__head">
+        <div class="crm-workshop-modal__head-text">
+          <p class="crm-workshop-modal__eyebrow">
+            <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
+            July GK Workshop
+          </p>
+          <h2 id="crm-workshop-modal-title" class="crm-workshop-modal__title">Workshop registrations</h2>
+          <p class="crm-workshop-modal__lead">
+            All centres — visible to every CRM user. Mark responded and save your follow-up note.
+          </p>
+        </div>
+        <button type="button" class="crm-workshop-modal__close" data-crm-workshop-modal-close aria-label="Close registration details">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="crm-workshop-modal__body">
+        <p id="crm-workshop-loading" class="enrollment-loading" hidden>Loading…</p>
+        <p id="crm-workshop-error" class="enrollment-error" hidden></p>
+        <div id="crm-workshop-list" class="enrollment-list crm-workshop-modal__list"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -362,7 +386,7 @@
   <script src="../js/crm-dashboard-overdue-fees.js?v=20260708"></script>
   <script src="../js/crm-dashboard-due-fees.js"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
-  <script src="../js/crm-dashboard-workshop.js?v=20260710"></script>
+  <script src="../js/crm-dashboard-workshop.js?v=20260713"></script>
   <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

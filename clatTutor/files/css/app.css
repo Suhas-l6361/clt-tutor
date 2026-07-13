@@ -2096,7 +2096,8 @@ textarea {
 }
 
 .login-card .form-control--login input:focus,
-.login-card .form-control--login input:valid {
+.login-card .form-control--login input:valid,
+.login-card .form-control--login input:not(:placeholder-shown) {
   outline: 0 !important;
   border-bottom-color: var(--black) !important;
   box-shadow: none !important;
@@ -2121,7 +2122,8 @@ textarea {
 }
 
 .login-card .form-control--login input:focus + label span,
-.login-card .form-control--login input:valid + label span {
+.login-card .form-control--login input:valid + label span,
+.login-card .form-control--login input:not(:placeholder-shown) + label span {
   color: var(--black);
   transform: translateY(-1.75rem);
 }

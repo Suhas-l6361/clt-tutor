@@ -52,7 +52,8 @@
 }
 
 /* Above sticky header (z-index 10000) so the bar stays clickable */
-body.page-public > .announce-bar {
+body.page-public > .announce-bar,
+body.page-public > .site-top-bars {
   position: relative;
   z-index: 10050 !important;
 }
