@@ -32,6 +32,22 @@ const relaxPhoneUniqueIfNeeded = async (connection) => {
   }
 };
 
+const ensureColumnExists = async (connection, columnName, columnDef) => {
+  try {
+    const [rows] = await connection.execute(
+      `SELECT COUNT(*) AS c FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      [TABLE_NAME, columnName],
+    );
+    const exists = rows && rows[0] && Number(rows[0].c) > 0;
+    if (!exists) {
+      await connection.execute(`ALTER TABLE \`${TABLE_NAME}\` ADD COLUMN ${columnName} ${columnDef}`);
+    }
+  } catch (e) {
+    console.warn(`[fees] ensureColumnExists(${columnName}):`, e.message);
+  }
+};
+
 const ensureSchema = async (connection) => {
   await connection.execute(`
     CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
@@ -62,18 +78,22 @@ const ensureSchema = async (connection) => {
       tution_fess BIGINT,
       amount_in_words_total VARCHAR(1000),
       installment_plan JSON,
+      payment_history JSON,
       added_by VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
   await relaxPhoneUniqueIfNeeded(connection);
+  /* Older tables won't have payment_history — add it in place so a full history
+     of payments is stored (updating a receipt no longer erases the last one). */
+  await ensureColumnExists(connection, 'payment_history', 'JSON NULL');
 };
 
 const SELECT_LIST = `
   id, receipt_id, receipt_date, student_id, name, email, phone, dob, batch, branch, address,
   payement_mode, payment_date, amount_paid, cheque_no, DraweeBank, bank_branch,
   transation_id, bank, cardNum, network, upiTransation_id, paymentDetails, amount_in_words,
-  tution_fess, amount_in_words_total, installment_plan, added_by, created_at
+  tution_fess, amount_in_words_total, installment_plan, payment_history, added_by, created_at
 `.replace(/\s+/g, ' ').trim();
 
 const toStr = (v) => {
@@ -124,6 +144,30 @@ const parseInstallmentPlan = (v) => {
 const stringifyInstallmentPlan = (plan) => {
   if (plan == null) return null;
   return JSON.stringify(plan, (_k, v) => (typeof v === 'bigint' ? v.toString() : v));
+};
+
+/** Normalize the payments ledger [{ date, amount }] sent by fees-page.js */
+const parsePaymentHistory = (v) => {
+  let p = v;
+  if (p == null) return null;
+  if (typeof p === 'string') {
+    try {
+      p = JSON.parse(p);
+    } catch {
+      return null;
+    }
+  }
+  if (!Array.isArray(p)) return null;
+  const rows = [];
+  for (const it of p) {
+    if (!it || typeof it !== 'object') continue;
+    const date = toDateOrNull(it.date ?? it.payment_date ?? it.paymentDate);
+    const amtRaw = it.amount ?? it.amt;
+    const bi = amtRaw != null && String(amtRaw).trim() !== '' ? toBigIntOrNull(amtRaw) : null;
+    if (!date && bi == null) continue;
+    rows.push({ date, amount: bi != null ? bi.toString() : null });
+  }
+  return rows.length ? rows : null;
 };
 
 const sanitizeCreatePayload = (raw) => {
@@ -249,6 +293,8 @@ const mapBodyToRow = (data) => {
     }
   }
 
+  const payment_history = parsePaymentHistory(d.payment_history ?? d.paymentHistory);
+
   const added_by = toStr(d.added_by ?? d.addedBy);
 
   return {
@@ -277,6 +323,7 @@ const mapBodyToRow = (data) => {
     tution_fess,
     amount_in_words_total,
     installment_plan,
+    payment_history,
     added_by,
   };
 };
@@ -339,6 +386,13 @@ const getFees = async (queryStringParameters) => {
           /* keep string */
         }
       }
+      if (row.payment_history != null && typeof row.payment_history === 'string') {
+        try {
+          row.payment_history = JSON.parse(row.payment_history);
+        } catch {
+          /* keep string */
+        }
+      }
       return row;
     });
     return { statusCode: 200, headers: corsHeaders, body: JSON.stringify(parsed) };
@@ -379,6 +433,7 @@ const createFee = async (body) => {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'name or student_id is required' }) };
     }
     const instJson = stringifyInstallmentPlan(row.installment_plan);
+    const payHistJson = stringifyInstallmentPlan(row.payment_history);
 
     connection = await pool.getConnection();
     await ensureSchema(connection);
@@ -387,10 +442,12 @@ const createFee = async (body) => {
       'receipt_id', 'student_id', 'name', 'email', 'phone', 'dob', 'batch', 'branch', 'address',
       'payement_mode', 'payment_date', 'amount_paid', 'cheque_no', 'DraweeBank', 'bank_branch',
       'transation_id', 'bank', 'cardNum', 'network', 'upiTransation_id', 'paymentDetails',
-      'amount_in_words', 'tution_fess', 'amount_in_words_total', 'installment_plan', 'added_by',
+      'amount_in_words', 'tution_fess', 'amount_in_words_total', 'installment_plan',
+      'payment_history', 'added_by',
     ];
     const vals = cols.map((c) => {
       if (c === 'installment_plan') return instJson;
+      if (c === 'payment_history') return payHistJson;
       return row[c];
     });
     const ph = cols.map(() => '?').join(', ');
@@ -491,6 +548,9 @@ const updateFee = async (body) => {
     if (hasKeyInBody(data, 'amount_in_words_total', 'netPayableWords')) push('amount_in_words_total', mapped.amount_in_words_total);
     if (hasKeyInBody(data, 'installment_plan', 'installmentPlan')) {
       push('installment_plan', stringifyInstallmentPlan(mapped.installment_plan));
+    }
+    if (hasKeyInBody(data, 'payment_history', 'paymentHistory')) {
+      push('payment_history', stringifyInstallmentPlan(mapped.payment_history));
     }
     if (hasKeyInBody(data, 'added_by', 'addedBy')) push('added_by', mapped.added_by);
 

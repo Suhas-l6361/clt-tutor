@@ -12,16 +12,28 @@ const corsHeaders = {
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
+/** Test file buckets live in us-east-1 (LocationConstraint null); wrong region → 301 + browser CORS failure. */
+const S3_BUCKET_REGION = 'us-east-1';
 
 const BUCKET_QUESTIONS = 'clututor-onlinetest-queations';
 const BUCKET_KEYANSWER = 'clututor-onlinetest-keyanswer';
 
 const TABLE = 'addtest';
 
-const s3 = new AWS.S3({ region: AWS_REGION });
+const s3TestBuckets = new AWS.S3({ region: S3_BUCKET_REGION, signatureVersion: 'v4' });
 
-const publicObjectUrl = (bucket, key) =>
-  `https://${bucket}.s3.${AWS_REGION}.amazonaws.com/${key.split('/').map(encodeURIComponent).join('/')}`;
+const publicObjectUrl = (bucket, key) => {
+  const encoded = key.split('/').map(encodeURIComponent).join('/');
+  if (S3_BUCKET_REGION === 'us-east-1') {
+    return `https://${bucket}.s3.amazonaws.com/${encoded}`;
+  }
+  return `https://${bucket}.s3.${S3_BUCKET_REGION}.amazonaws.com/${encoded}`;
+};
+
+const isOurTestBucketHost = (host, bucket) =>
+  host === `${bucket}.s3.amazonaws.com` ||
+  host === `${bucket}.s3.${S3_BUCKET_REGION}.amazonaws.com` ||
+  host.startsWith(`${bucket}.s3.`);
 
 const getUserFromToken = (event) => {
   if (!JWT_SECRET) return null;
@@ -75,6 +87,54 @@ const ensureAddTestSchema = async (connection) => {
   await ensureColumn('selected_branch', 'selected_branch JSON');
   await ensureColumn('added_by', 'added_by VARCHAR(100)');
   await ensureColumn('created_at', 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+  await ensureColumn('test_kind', 'test_kind VARCHAR(32) NULL');
+  await ensureColumn('test_category', 'test_category VARCHAR(64) NULL');
+  await ensureColumn('isClose', 'isClose BOOL DEFAULT TRUE');
+  await ensureColumn('isEnglish', 'isEnglish BOOL DEFAULT FALSE');
+  await ensureColumn('isLogic', 'isLogic BOOL DEFAULT FALSE');
+  await ensureColumn('isLegal', 'isLegal BOOL DEFAULT FALSE');
+  await ensureColumn('isMath', 'isMath BOOL DEFAULT FALSE');
+  await ensureColumn('isGK', 'isGK BOOL DEFAULT FALSE');
+};
+
+const BOOL_FLAG_COLUMNS = ['isClose', 'isEnglish', 'isLogic', 'isLegal', 'isMath', 'isGK'];
+
+const TEST_SELECT_COLUMNS =
+  'test_id, title, question_paper_url, answer_key_url, scheduled, selected_branch, added_by, created_at, test_kind, test_category, isClose, isEnglish, isLogic, isLegal, isMath, isGK';
+
+const parseBoolInput = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  const s = String(value).trim().toLowerCase();
+  if (s === 'true' || s === '1' || s === 'yes') return true;
+  if (s === 'false' || s === '0' || s === 'no' || s === '') return false;
+  return defaultValue;
+};
+
+const boolToDb = (value) => (parseBoolInput(value, false) ? 1 : 0);
+
+const formatTestRow = (row) => {
+  if (!row || typeof row !== 'object') return row;
+  const out = { ...row };
+  BOOL_FLAG_COLUMNS.forEach((col) => {
+    if (Object.prototype.hasOwnProperty.call(out, col)) {
+      out[col] = parseBoolInput(out[col], false);
+    }
+  });
+  return out;
+};
+
+const readBoolFieldsFromBody = (data, useDefaults = true) => {
+  const out = {};
+  BOOL_FLAG_COLUMNS.forEach((col) => {
+    if (data[col] !== undefined) {
+      out[col] = boolToDb(data[col]);
+    } else if (useDefaults) {
+      out[col] = col === 'isClose' ? 1 : 0;
+    }
+  });
+  return out;
 };
 
 const normalizeBase64Payload = (input) => {
@@ -83,6 +143,25 @@ const normalizeBase64Payload = (input) => {
   if (!trimmed) return null;
   const commaIndex = trimmed.indexOf(',');
   return commaIndex >= 0 ? trimmed.slice(commaIndex + 1) : trimmed;
+};
+
+const isZipDocxBuffer = (buf) =>
+  buf && buf.length >= 4 && buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04;
+
+const isOleDocBuffer = (buf) =>
+  buf && buf.length >= 4 && buf[0] === 0xd0 && buf[1] === 0xcf && buf[2] === 0x11 && buf[3] === 0xe0;
+
+const assertValidAnswerKeyBuffer = (buf, fileName) => {
+  if (!buf || !buf.length) throw new Error('Answer key file is empty');
+  const lower = String(fileName || '').toLowerCase();
+  if (isOleDocBuffer(buf)) {
+    throw new Error('Answer key is legacy Word .doc. Re-save as .docx in Word and upload again.');
+  }
+  if (lower.endsWith('.docx') || lower.endsWith('.doc') || (lower.includes('answer') && lower.includes('key'))) {
+    if (!isZipDocxBuffer(buf)) {
+      throw new Error('Answer key is not a valid Word .docx document. Re-save as .docx and upload again.');
+    }
+  }
 };
 
 const uploadFileToS3 = async ({ base64, fileName, contentType, bucket, keyPrefix }) => {
@@ -94,11 +173,12 @@ const uploadFileToS3 = async ({ base64, fileName, contentType, bucket, keyPrefix
   if (!raw) throw new Error('file base64 is empty or invalid');
   const buf = Buffer.from(raw, 'base64');
   if (!buf.length) throw new Error('Unable to decode file base64');
+  if (bucket === BUCKET_KEYANSWER) assertValidAnswerKeyBuffer(buf, fileName);
 
   const safeName = String(fileName).replace(/[^a-zA-Z0-9._-]/g, '_');
   const key = `${keyPrefix}${Date.now()}-${safeName}`;
 
-  await s3
+  await s3TestBuckets
     .putObject({
       Bucket: bucket,
       Key: key,
@@ -110,6 +190,54 @@ const uploadFileToS3 = async ({ base64, fileName, contentType, bucket, keyPrefix
   return publicObjectUrl(bucket, key);
 };
 
+const presignAddTestUpload = async (body) => {
+  try {
+    const data = typeof body === 'string' ? JSON.parse(body) : body;
+    const fileRole = data?.file_role != null ? String(data.file_role).trim() : '';
+    const fileName = data?.file_name != null ? String(data.file_name).trim() : '';
+    const contentType = data?.content_type != null ? String(data.content_type).trim() : '';
+
+    if (!fileRole || !fileName || !contentType) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: 'file_role, file_name, and content_type are required' }),
+      };
+    }
+
+    const isAnswerKey = fileRole === 'answer_key';
+    const bucket = isAnswerKey ? BUCKET_KEYANSWER : BUCKET_QUESTIONS;
+    const keyPrefix = isAnswerKey ? 'answer-keys/' : 'question-papers/';
+    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `${keyPrefix}${Date.now()}-${safeName}`;
+
+    const uploadUrl = await s3TestBuckets.getSignedUrlPromise('putObject', {
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+      Expires: 300,
+    });
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        upload_url: uploadUrl,
+        object_url: publicObjectUrl(bucket, key),
+        key,
+        bucket,
+      }),
+    };
+  } catch (error) {
+    console.error('presignAddTestUpload:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: 'Failed to generate upload URL', error: error.message }),
+    };
+  }
+};
+
 const deleteObjectIfInOurBuckets = async (url) => {
   if (!url || typeof url !== 'string') return;
   let bucket = null;
@@ -117,15 +245,15 @@ const deleteObjectIfInOurBuckets = async (url) => {
   try {
     const u = new URL(url);
     const host = u.hostname;
-    if (host === `${BUCKET_QUESTIONS}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_QUESTIONS}.s3.`)) {
+    if (isOurTestBucketHost(host, BUCKET_QUESTIONS)) {
       bucket = BUCKET_QUESTIONS;
-    } else if (host === `${BUCKET_KEYANSWER}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_KEYANSWER}.s3.`)) {
+    } else if (isOurTestBucketHost(host, BUCKET_KEYANSWER)) {
       bucket = BUCKET_KEYANSWER;
     }
     if (!bucket) return;
     key = decodeURIComponent(u.pathname.replace(/^\//, ''));
     if (!key) return;
-    await s3.deleteObject({ Bucket: bucket, Key: key }).promise();
+    await s3TestBuckets.deleteObject({ Bucket: bucket, Key: key }).promise();
   } catch (e) {
     console.warn('S3 delete skipped:', e.message);
   }
@@ -138,9 +266,9 @@ const parseOurS3BucketKeyFromUrl = (url) => {
     const u = new URL(url);
     const host = u.hostname;
     let bucket = null;
-    if (host === `${BUCKET_QUESTIONS}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_QUESTIONS}.s3.`)) {
+    if (isOurTestBucketHost(host, BUCKET_QUESTIONS)) {
       bucket = BUCKET_QUESTIONS;
-    } else if (host === `${BUCKET_KEYANSWER}.s3.${AWS_REGION}.amazonaws.com` || host.startsWith(`${BUCKET_KEYANSWER}.s3.`)) {
+    } else if (isOurTestBucketHost(host, BUCKET_KEYANSWER)) {
       bucket = BUCKET_KEYANSWER;
     }
     if (!bucket) return null;
@@ -152,8 +280,34 @@ const parseOurS3BucketKeyFromUrl = (url) => {
   }
 };
 
+/** Presigned GET URL — avoids API Gateway 502 when proxying large docx/pdf as base64. */
+const presignTestFileDownload = async ({ bucket, key, contentType, fileName }) => {
+  const safeName = String(fileName || 'file').replace(/[^\w.\-()+ ]/g, '_');
+  const ct = String(contentType || 'application/octet-stream').trim();
+  const downloadUrl = await s3TestBuckets.getSignedUrlPromise('getObject', {
+    Bucket: bucket,
+    Key: key,
+    Expires: 300,
+    ResponseContentType: ct,
+    ResponseContentDisposition: `inline; filename="${safeName}"`,
+  });
+  return {
+    download_url: downloadUrl,
+    content_type: ct,
+    file_name: safeName,
+  };
+};
+
+const guessContentTypeFromKey = (key, fallback) => {
+  const lower = String(key || '').toLowerCase();
+  if (lower.endsWith('.pdf')) return 'application/pdf';
+  if (lower.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if (lower.endsWith('.doc')) return 'application/msword';
+  return fallback || 'application/octet-stream';
+};
+
 /**
- * Student / browser-safe download: S3 has no CORS for localhost. Lambda reads the object and returns base64 JSON.
+ * Student / browser-safe download: returns presigned S3 URL (small JSON — no 502 on large files).
  * GET ?test_id=N&paper=1
  */
 const getQuestionPaperPayload = async (testId) => {
@@ -188,28 +342,20 @@ const getQuestionPaperPayload = async (testId) => {
         body: JSON.stringify({ message: 'Question paper must be stored in the institute questions bucket' }),
       };
     }
-    const obj = await s3.getObject({ Bucket: bk.bucket, Key: bk.key }).promise();
-    const rawBody = obj.Body;
-    if (!rawBody) {
-      return {
-        statusCode: 404,
-        headers: corsHeaders,
-        body: JSON.stringify({ message: 'File not found in storage' }),
-      };
-    }
-    const buf = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
-    const contentType =
-      obj.ContentType ||
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const fileName = bk.key ? String(bk.key).split('/').pop() : 'question-paper';
+    const signed = await presignTestFileDownload({
+      bucket: bk.bucket,
+      key: bk.key,
+      contentType: guessContentTypeFromKey(bk.key),
+      fileName,
+    });
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify({
         test_id: rows[0].test_id,
         title: rows[0].title,
-        content_base64: buf.toString('base64'),
-        content_type: contentType,
-        file_name: bk && bk.key ? String(bk.key).split('/').pop() : 'question-paper',
+        ...signed,
       }),
     };
   } catch (error) {
@@ -225,7 +371,7 @@ const getQuestionPaperPayload = async (testId) => {
 };
 
 /**
- * Browser-safe answer-key download payload.
+ * Browser-safe answer-key download payload (presigned URL).
  * GET ?test_id=N&answer=1
  */
 const getAnswerKeyPayload = async (testId) => {
@@ -260,28 +406,20 @@ const getAnswerKeyPayload = async (testId) => {
         body: JSON.stringify({ message: 'Answer key must be stored in the institute answer-key bucket' }),
       };
     }
-    const obj = await s3.getObject({ Bucket: bk.bucket, Key: bk.key }).promise();
-    const rawBody = obj.Body;
-    if (!rawBody) {
-      return {
-        statusCode: 404,
-        headers: corsHeaders,
-        body: JSON.stringify({ message: 'File not found in storage' }),
-      };
-    }
-    const buf = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
-    const contentType =
-      obj.ContentType ||
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const fileName = bk.key ? String(bk.key).split('/').pop() : 'answer-key';
+    const signed = await presignTestFileDownload({
+      bucket: bk.bucket,
+      key: bk.key,
+      contentType: guessContentTypeFromKey(bk.key),
+      fileName,
+    });
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify({
         test_id: rows[0].test_id,
         title: rows[0].title,
-        content_base64: buf.toString('base64'),
-        content_type: contentType,
-        file_name: bk && bk.key ? String(bk.key).split('/').pop() : 'answer-key',
+        ...signed,
       }),
     };
   } catch (error) {
@@ -357,8 +495,7 @@ const getAddTests = async (queryStringParameters) => {
 
     if (testId != null) {
       const [rows] = await connection.execute(
-        `SELECT test_id, title, question_paper_url, answer_key_url, scheduled, selected_branch, added_by, created_at
-         FROM ${TABLE} WHERE test_id = ? LIMIT 1`,
+        `SELECT ${TEST_SELECT_COLUMNS} FROM ${TABLE} WHERE test_id = ? LIMIT 1`,
         [parseInt(String(testId), 10)],
       );
       if (!rows.length) {
@@ -371,18 +508,17 @@ const getAddTests = async (queryStringParameters) => {
       return {
         statusCode: 200,
         headers: corsHeaders,
-        body: JSON.stringify(rows[0]),
+        body: JSON.stringify(formatTestRow(rows[0])),
       };
     }
 
     const [rows] = await connection.execute(
-      `SELECT test_id, title, question_paper_url, answer_key_url, scheduled, selected_branch, added_by, created_at
-       FROM ${TABLE} ORDER BY created_at DESC`,
+      `SELECT ${TEST_SELECT_COLUMNS} FROM ${TABLE} ORDER BY created_at DESC`,
     );
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify(rows),
+      body: JSON.stringify(rows.map(formatTestRow)),
     };
   } catch (error) {
     console.error('getAddTests:', error);
@@ -420,6 +556,9 @@ const createAddTest = async (body, event) => {
     }
 
     const selectedBranch = parseSelectedBranch(data.selected_branch);
+    const testKind = data.test_kind != null ? String(data.test_kind).trim().slice(0, 32) : null;
+    const testCategory = data.test_category != null ? String(data.test_category).trim().slice(0, 64) : null;
+    const boolFields = readBoolFieldsFromBody(data, true);
 
     const user = getUserFromToken(event);
     const addedBy = user ? (user.email || user.name || user.sub || null) : (data.added_by != null ? String(data.added_by).trim() : null);
@@ -450,8 +589,8 @@ const createAddTest = async (body, event) => {
     await ensureAddTestSchema(connection);
 
     const [result] = await connection.execute(
-      `INSERT INTO ${TABLE} (title, question_paper_url, answer_key_url, scheduled, selected_branch, added_by)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO ${TABLE} (title, question_paper_url, answer_key_url, scheduled, selected_branch, added_by, test_kind, test_category, isClose, isEnglish, isLogic, isLegal, isMath, isGK)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         questionPaperUrl || null,
@@ -459,6 +598,14 @@ const createAddTest = async (body, event) => {
         scheduled,
         selectedBranch != null ? stringifyBranchForDb(selectedBranch) : null,
         addedBy || null,
+        testKind || null,
+        testCategory || null,
+        boolFields.isClose,
+        boolFields.isEnglish,
+        boolFields.isLogic,
+        boolFields.isLegal,
+        boolFields.isMath,
+        boolFields.isGK,
       ],
     );
 
@@ -541,21 +688,52 @@ const updateAddTest = async (body, event) => {
       selectedBranch = parseSelectedBranch(data.selected_branch);
     }
 
+    let testKind = row.test_kind;
+    if (data.test_kind !== undefined) {
+      testKind = data.test_kind != null ? String(data.test_kind).trim().slice(0, 32) : null;
+    }
+
+    let testCategory = row.test_category;
+    if (data.test_category !== undefined) {
+      testCategory = data.test_category != null ? String(data.test_category).trim().slice(0, 64) : null;
+    }
+
     const user = getUserFromToken(event);
     const addedBy = user ? (user.email || user.name || user.sub || row.added_by) : row.added_by;
 
+    const updateFields = [
+      'title = ?',
+      'question_paper_url = ?',
+      'answer_key_url = ?',
+      'scheduled = ?',
+      'selected_branch = ?',
+      'added_by = ?',
+      'test_kind = ?',
+      'test_category = ?',
+    ];
+    const updateParams = [
+      title,
+      questionPaperUrl,
+      answerKeyUrl,
+      scheduled,
+      selectedBranch != null ? stringifyBranchForDb(selectedBranch) : null,
+      addedBy || null,
+      testKind || null,
+      testCategory || null,
+    ];
+
+    BOOL_FLAG_COLUMNS.forEach((col) => {
+      if (data[col] !== undefined) {
+        updateFields.push(`${col} = ?`);
+        updateParams.push(boolToDb(data[col]));
+      }
+    });
+
+    updateParams.push(testId);
+
     await connection.execute(
-      `UPDATE ${TABLE} SET title = ?, question_paper_url = ?, answer_key_url = ?, scheduled = ?, selected_branch = ?, added_by = ?
-       WHERE test_id = ?`,
-      [
-        title,
-        questionPaperUrl,
-        answerKeyUrl,
-        scheduled,
-        selectedBranch != null ? stringifyBranchForDb(selectedBranch) : null,
-        addedBy || null,
-        testId,
-      ],
+      `UPDATE ${TABLE} SET ${updateFields.join(', ')} WHERE test_id = ?`,
+      updateParams,
     );
 
     return {
@@ -639,6 +817,9 @@ export const handler = async (event) => {
       case 'GET':
         return await getAddTests(event.queryStringParameters);
       case 'POST':
+        if (parsedBody && parsedBody.action === 'presign_upload') {
+          return await presignAddTestUpload(parsedBody);
+        }
         return await createAddTest(parsedBody || body, event);
       case 'PUT':
         return await updateAddTest(parsedBody || body, event);

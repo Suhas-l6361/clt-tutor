@@ -61,6 +61,7 @@ const ensureCurrentAffairsSchema = async (connection) => {
       name VARCHAR(50),
       img_url JSON,
       links VARCHAR(5000),
+      branch VARCHAR(30),
       added_by VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -77,6 +78,20 @@ const ensureCurrentAffairsSchema = async (connection) => {
   );
   if (Array.isArray(rows) && rows[0] && Number(rows[0].cnt) > 0) {
     await connection.execute(`ALTER TABLE ${CURRENT_AFFAIRS_TABLE} CHANGE file img_url JSON`);
+  }
+
+  const [branchCols] = await connection.execute(
+    `
+      SELECT COUNT(*) AS cnt
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = ?
+        AND COLUMN_NAME = 'branch'
+    `,
+    [CURRENT_AFFAIRS_TABLE],
+  );
+  if (Array.isArray(branchCols) && branchCols[0] && Number(branchCols[0].cnt) === 0) {
+    await connection.execute(`ALTER TABLE ${CURRENT_AFFAIRS_TABLE} ADD COLUMN branch VARCHAR(30)`);
   }
 };
 
@@ -139,8 +154,9 @@ const getCurrentAffairs = async (queryStringParameters) => {
     const id = params.id != null ? cleanParam(params.id) : null;
     const name = params.name != null ? cleanParam(params.name) : null;
     const date = params.date != null ? cleanParam(params.date) : null;
+    const branch = params.branch != null ? cleanParam(params.branch) : null;
 
-    let query = `SELECT id, date, name, img_url, links, added_by, created_at FROM ${CURRENT_AFFAIRS_TABLE} WHERE 1=1`;
+    let query = `SELECT id, date, name, img_url, links, branch, added_by, created_at FROM ${CURRENT_AFFAIRS_TABLE} WHERE 1=1`;
     const queryParams = [];
     if (id) {
       query += ' AND id = ?';
@@ -153,6 +169,10 @@ const getCurrentAffairs = async (queryStringParameters) => {
     if (date) {
       query += ' AND date = ?';
       queryParams.push(date);
+    }
+    if (branch) {
+      query += ' AND branch = ?';
+      queryParams.push(branch);
     }
     query += ' ORDER BY date DESC, created_at DESC';
     const [rows] = await connection.execute(query, queryParams);
@@ -179,6 +199,7 @@ const createCurrentAffairs = async (body, event) => {
       data.name != null && String(data.name).trim() !== '' ? String(data.name).trim() : null;
     const imgUrl = data.img_url !== undefined ? data.img_url : (data.file !== undefined ? data.file : null);
     const links = data.links != null && String(data.links).trim() !== '' ? String(data.links).trim() : null;
+    const branch = data.branch != null && String(data.branch).trim() !== '' ? String(data.branch).trim().slice(0, 30) : null;
     const userFromToken = getUserFromToken(event);
     const addedBy = userFromToken ? (userFromToken.email || userFromToken.name || null) : (data.added_by != null ? String(data.added_by).trim() : null);
 
@@ -195,8 +216,8 @@ const createCurrentAffairs = async (body, event) => {
     connection = await pool.getConnection();
     await ensureCurrentAffairsSchema(connection);
     const [result] = await connection.execute(
-      `INSERT INTO ${CURRENT_AFFAIRS_TABLE} (date, name, img_url, links, added_by) VALUES (?, ?, ?, ?, ?)`,
-      [date, name, imgJson, links, addedBy || null],
+      `INSERT INTO ${CURRENT_AFFAIRS_TABLE} (date, name, img_url, links, branch, added_by) VALUES (?, ?, ?, ?, ?, ?)`,
+      [date, name, imgJson, links, branch, addedBy || null],
     );
     return { statusCode: 201, headers: corsHeaders, body: JSON.stringify({ message: 'Current affairs item created successfully', id: result.insertId }) };
   } catch (error) {
@@ -233,6 +254,10 @@ const updateCurrentAffairs = async (body, event) => {
       updateParams.push(j);
     }
     if (data.links !== undefined) { updateFields.push('links = ?'); updateParams.push((data.links == null ? null : String(data.links).trim()) || null); }
+    if (data.branch !== undefined) {
+      updateFields.push('branch = ?');
+      updateParams.push((data.branch == null ? null : String(data.branch).trim().slice(0, 30)) || null);
+    }
     if (data.added_by !== undefined) {
       updateFields.push('added_by = ?');
       updateParams.push((data.added_by == null ? null : String(data.added_by).trim()) || null);

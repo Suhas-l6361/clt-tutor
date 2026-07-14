@@ -242,6 +242,7 @@ const ensureSubmittedSchema = async (connection) => {
       attended_queations BIGINT,
       correctAnswer BIGINT,
       totalgrade VARCHAR(30),
+      isOmr TINYINT(1) NOT NULL DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -305,25 +306,100 @@ async function fetchStudentFromGeneralInfo(studentId, email) {
   );
 }
 
+function isZipDocxBuffer(buf) {
+  return buf && buf.length >= 4 && buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04;
+}
+
+function isOleDocBuffer(buf) {
+  return buf && buf.length >= 4 && buf[0] === 0xd0 && buf[1] === 0xcf && buf[2] === 0x11 && buf[3] === 0xe0;
+}
+
+async function bufferFromS3Body(body) {
+  if (!body) return Buffer.alloc(0);
+  if (Buffer.isBuffer(body)) return body;
+  if (body instanceof Uint8Array) return Buffer.from(body);
+  if (body && typeof body[Symbol.asyncIterator] === 'function') {
+    const parts = [];
+    for await (const chunk of body) parts.push(Buffer.from(chunk));
+    return Buffer.concat(parts);
+  }
+  return Buffer.from(body);
+}
+
+/** Download via presigned GET — same path the student browser uses (avoids SDK body quirks). */
+async function downloadAnswerKeyBuffer(bk) {
+  let expectedLen = 0;
+  try {
+    const head = await s3TestBuckets.headObject({ Bucket: bk.bucket, Key: bk.key }).promise();
+    expectedLen = Number(head.ContentLength) || 0;
+  } catch (e) {
+    throw new Error(`Answer key not found in storage (${e.message})`);
+  }
+
+  const signedUrl = await s3TestBuckets.getSignedUrlPromise('getObject', {
+    Bucket: bk.bucket,
+    Key: bk.key,
+    Expires: 120,
+  });
+  const res = await fetch(signedUrl);
+  if (!res.ok) {
+    throw new Error(`Could not download answer key (HTTP ${res.status})`);
+  }
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (!buf.length) {
+    throw new Error('Answer key file is empty (0 bytes). Re-upload the answer key in CRM → Add Test.');
+  }
+  if (expectedLen > 0 && buf.length !== expectedLen) {
+    console.warn('Answer key byte length mismatch', { expected: expectedLen, got: buf.length, key: bk.key });
+  }
+  return buf;
+}
+
+function normalizeClientAnswerKey(input) {
+  const map = Object.create(null);
+  if (!input || typeof input !== 'object') return map;
+  Object.keys(input).forEach((k) => {
+    const qn = parseInt(String(k), 10);
+    if (!Number.isFinite(qn) || qn < 1 || qn > 199) return;
+    const letter = String(input[k] || '')
+      .trim()
+      .toUpperCase();
+    if (/^[A-D]$/.test(letter)) map[qn] = { letter, solution: '' };
+  });
+  return map;
+}
+
+async function extractTextFromAnswerKeyBuffer(buf, keyName) {
+  const lower = String(keyName || '').toLowerCase();
+  if (lower.endsWith('.docx') || isZipDocxBuffer(buf)) {
+    if (isOleDocBuffer(buf)) {
+      throw new Error(
+        'Answer key is legacy Word .doc format. Open it in Word, choose Save As → .docx, then re-upload in CRM → Add Test.',
+      );
+    }
+    if (!isZipDocxBuffer(buf)) {
+      throw new Error(
+        `Answer key is not a valid Word .docx file (${buf.length} bytes). Re-upload a proper .docx in CRM → Add Test.`,
+      );
+    }
+    const result = await mammoth.extractRawText({ buffer: buf });
+    return (result && result.value) || '';
+  }
+  if (lower.endsWith('.doc') || isOleDocBuffer(buf)) {
+    throw new Error(
+      'Answer key must be .docx (Word 2007+), not legacy .doc. Re-save as .docx and re-upload in CRM.',
+    );
+  }
+  return buf.toString('utf8');
+}
+
 async function getAnswerKeyTextFromUrl(answerKeyUrl) {
   const bk = parseOurS3BucketKeyFromUrl(answerKeyUrl);
   if (!bk || bk.bucket !== BUCKET_KEYANSWER) {
     throw new Error('Answer key must be in the institute answer-key bucket');
   }
-  const obj = await s3TestBuckets.getObject({ Bucket: bk.bucket, Key: bk.key }).promise();
-  const rawBody = obj.Body;
-  if (!rawBody) return '';
-  const buf = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
-  const lower = bk.key.toLowerCase();
-  /* Node.js: mammoth expects { buffer }, not { arrayBuffer } (browser API). Wrong option → "Could not find file in options". */
-  if (lower.endsWith('.docx')) {
-    const result = await mammoth.extractRawText({ buffer: buf });
-    return (result && result.value) || '';
-  }
-  if (lower.endsWith('.doc')) {
-    throw new Error('Answer key must be .docx (Word 2007+), not legacy .doc');
-  }
-  return buf.toString('utf8');
+  const buf = await downloadAnswerKeyBuffer(bk);
+  return extractTextFromAnswerKeyBuffer(buf, bk.key);
 }
 
 function letterGrade(pct) {
@@ -453,17 +529,26 @@ const submitOnlineTest = async (body, event) => {
         : 0;
 
     let keyMap = {};
+    let gradingWarning = null;
     if (answerKeyUrl && String(answerKeyUrl).trim()) {
       try {
         const keyText = await getAnswerKeyTextFromUrl(answerKeyUrl);
         keyMap = parseAnswerKeyText(keyText);
+        if (!Object.keys(keyMap).length) {
+          gradingWarning = 'Answer key file loaded but no answers could be parsed. Check the key format or re-upload in CRM.';
+        }
       } catch (e) {
         console.error('Answer key parse:', e);
-        return {
-          statusCode: 400,
-          headers: corsHeaders,
-          body: JSON.stringify({ message: 'Could not read answer key file', error: e.message }),
-        };
+        const clientKey = normalizeClientAnswerKey(data.client_answer_key);
+        if (Object.keys(clientKey).length) {
+          keyMap = clientKey;
+          gradingWarning =
+            'Server could not read the stored answer key file; graded using the copy loaded in your browser. Ask admin to re-upload the answer key as .docx in CRM.';
+        } else {
+          gradingWarning =
+            (e && e.message) ||
+            'Could not read answer key file. Your answers were saved but could not be auto-graded — re-upload the answer key in CRM → Add Test.';
+        }
       }
     }
 
@@ -520,12 +605,146 @@ const submitOnlineTest = async (body, event) => {
         percentage: evalResult.percentage,
         letter_grade: evalResult.letterGrade,
         totalgrade: evalResult.totalgrade,
+        grading_warning: gradingWarning || null,
         submitted_by: submittedBy,
         isOmr: isOmr === 1,
       }),
     };
   } catch (error) {
     console.error('submitOnlineTest:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: 'Internal Server Error', error: error.message }),
+    };
+  } finally {
+    if (connection) try { connection.release(); } catch (_) {}
+  }
+};
+
+const listTestAttempts = async (event) => {
+  const qs = event.queryStringParameters || {};
+  if ((qs.action || '').trim() !== 'test_attempts') {
+    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'Invalid action' }) };
+  }
+
+  const testId = qs.test_id != null ? parseInt(String(qs.test_id), 10) : NaN;
+  if (!Number.isFinite(testId)) {
+    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'test_id is required' }) };
+  }
+
+  const emailFilter = (qs.email || '').trim().toLowerCase();
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await ensureSubmittedSchema(connection);
+    await ensureSubmittedExtraColumns(connection);
+
+    const [rows] = await connection.execute(
+      `SELECT id, test_id, title, student_name, batch, branch, answers, submitted_by,
+              attended_queations, correctAnswer, percentage, letter_grade, totalgrade,
+              unanswered_questions, total_questions_paper, total_questions_in_key, created_at, isOmr
+       FROM ${TABLE_SUBMITTED}
+       WHERE test_id = ?
+       ORDER BY created_at DESC`,
+      [testId],
+    );
+
+    const parseAnswersCell = (cell) => {
+      let answersObj = cell;
+      if (typeof answersObj === 'string') {
+        try {
+          answersObj = JSON.parse(answersObj);
+        } catch {
+          answersObj = {};
+        }
+      }
+      if (!answersObj || typeof answersObj !== 'object') answersObj = {};
+      return answersObj;
+    };
+
+    const pctFromRow = (row) => {
+      let pct = row.percentage != null ? Number(row.percentage) : NaN;
+      if (Number.isNaN(pct) && row.totalgrade) {
+        const m = String(row.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
+        if (m) pct = parseFloat(m[1], 10);
+      }
+      return pct;
+    };
+
+    const latestByStudent = {};
+    for (const r of rows) {
+      const key = String(r.submitted_by || r.student_name || r.id || '').trim().toLowerCase();
+      if (!key) continue;
+      if (emailFilter && key !== emailFilter) continue;
+      if (!latestByStudent[key]) latestByStudent[key] = r;
+    }
+
+    const attempts = Object.values(latestByStudent).map((r) => {
+      const pct = pctFromRow(r);
+      const attended = r.attended_queations != null ? Number(r.attended_queations) : 0;
+      const correct = r.correctAnswer != null ? Number(r.correctAnswer) : 0;
+      const unanswered =
+        r.unanswered_questions != null && Number.isFinite(Number(r.unanswered_questions))
+          ? Number(r.unanswered_questions)
+          : null;
+      const totalPaper =
+        r.total_questions_paper != null && Number.isFinite(Number(r.total_questions_paper))
+          ? Number(r.total_questions_paper)
+          : null;
+      const wrong = Math.max(0, attended - correct);
+      const passed = Number.isFinite(pct) && pct >= 75;
+
+      return {
+        id: r.id,
+        test_id: Number(r.test_id),
+        title: r.title || null,
+        student_name: r.student_name || null,
+        batch: r.batch || null,
+        branch: r.branch || null,
+        submitted_by: r.submitted_by || null,
+        email: r.submitted_by || null,
+        attended,
+        correct,
+        wrong,
+        unanswered,
+        total_questions_paper: totalPaper,
+        total_questions_in_key:
+          r.total_questions_in_key != null && Number.isFinite(Number(r.total_questions_in_key))
+            ? Number(r.total_questions_in_key)
+            : null,
+        percentage: Number.isFinite(pct) ? Math.round(pct * 10) / 10 : null,
+        letter_grade: r.letter_grade || null,
+        totalgrade: r.totalgrade || null,
+        passed,
+        completed: true,
+        created_at: r.created_at || null,
+        isOmr: !!(r.isOmr === true || r.isOmr === 1 || Number(r.isOmr) === 1),
+        answers: parseAnswersCell(r.answers),
+      };
+    });
+
+    attempts.sort((a, b) => {
+      const ta = a.created_at ? Date.parse(a.created_at) : 0;
+      const tb = b.created_at ? Date.parse(b.created_at) : 0;
+      return tb - ta;
+    });
+
+    const title = attempts[0] && attempts[0].title ? attempts[0].title : null;
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        test_id: testId,
+        title,
+        attendee_count: attempts.length,
+        attempts,
+      }),
+    };
+  } catch (error) {
+    console.error('listTestAttempts:', error);
     return {
       statusCode: 500,
       headers: corsHeaders,
@@ -560,22 +779,10 @@ const listStudentAttempts = async (event) => {
       [email],
     );
 
-    const latestByTest = {};
-    for (const r of rows) {
-      const tid = r.test_id;
-      if (tid == null) continue;
-      if (!latestByTest[tid]) latestByTest[tid] = r;
-    }
+    const rowIsOmr = (row) => !!(row.isOmr === true || row.isOmr === 1 || Number(row.isOmr) === 1);
 
-    const attempts = Object.keys(latestByTest).map((tidKey) => {
-      const r = latestByTest[tidKey];
-      let pct = r.percentage != null ? Number(r.percentage) : NaN;
-      if (Number.isNaN(pct) && r.totalgrade) {
-        const m = String(r.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
-        if (m) pct = parseFloat(m[1], 10);
-      }
-      const passed = Number.isFinite(pct) && pct >= 75;
-      let answersObj = r.answers;
+    const parseAnswersCell = (cell) => {
+      let answersObj = cell;
       if (typeof answersObj === 'string') {
         try {
           answersObj = JSON.parse(answersObj);
@@ -584,10 +791,57 @@ const listStudentAttempts = async (event) => {
         }
       }
       if (!answersObj || typeof answersObj !== 'object') answersObj = {};
+      return answersObj;
+    };
+
+    const pctFromRow = (row) => {
+      let pct = row.percentage != null ? Number(row.percentage) : NaN;
+      if (Number.isNaN(pct) && row.totalgrade) {
+        const m = String(row.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
+        if (m) pct = parseFloat(m[1], 10);
+      }
+      return pct;
+    };
+
+    const latestByTest = {};
+    const latestOmrByTest = {};
+    for (const r of rows) {
+      const tid = r.test_id;
+      if (tid == null) continue;
+      if (!latestByTest[tid]) latestByTest[tid] = r;
+      if (rowIsOmr(r) && !latestOmrByTest[tid]) latestOmrByTest[tid] = r;
+    }
+
+    const attempts = Object.keys(latestByTest).map((tidKey) => {
+      const r = latestByTest[tidKey];
+      const pct = pctFromRow(r);
+      const passed = Number.isFinite(pct) && pct >= 75;
+      const answersObj = parseAnswersCell(r.answers);
       const tqp =
         r.total_questions_paper != null && Number.isFinite(Number(r.total_questions_paper))
           ? Number(r.total_questions_paper)
           : null;
+
+      const omrRow = latestOmrByTest[tidKey];
+      let omrAttempt = null;
+      if (omrRow) {
+        const omrPct = pctFromRow(omrRow);
+        const omrAnswers = parseAnswersCell(omrRow.answers);
+        const omrTqp =
+          omrRow.total_questions_paper != null && Number.isFinite(Number(omrRow.total_questions_paper))
+            ? Number(omrRow.total_questions_paper)
+            : null;
+        omrAttempt = {
+          test_id: Number(tidKey),
+          answers: omrAnswers,
+          percentage: Number.isFinite(omrPct) ? Math.round(omrPct * 10) / 10 : null,
+          letter_grade: omrRow.letter_grade || null,
+          total_questions_paper: omrTqp,
+          created_at: omrRow.created_at || null,
+          isOmr: true,
+        };
+      }
+
       return {
         test_id: Number(tidKey),
         title: r.title || null,
@@ -596,9 +850,10 @@ const listStudentAttempts = async (event) => {
         total_questions_paper: tqp,
         answers: answersObj,
         created_at: r.created_at || null,
-        isOmr: !!(r.isOmr === true || r.isOmr === 1 || Number(r.isOmr) === 1),
+        isOmr: rowIsOmr(r),
         passed,
         completed: true,
+        omrAttempt,
       };
     });
 
@@ -628,6 +883,10 @@ export const handler = async (event) => {
 
   if (httpMethod === 'GET') {
     try {
+      const qs = event.queryStringParameters || {};
+      if ((qs.action || '').trim() === 'test_attempts') {
+        return await listTestAttempts(event);
+      }
       return await listStudentAttempts(event);
     } catch (error) {
       console.error('handler GET:', error);

@@ -1,79 +1,119 @@
-create database clatutor;
-use clatutor;
+-- MySQL reference scripts for clatutor (not SQL Server syntax).
+-- Run statements one at a time in MySQL Workbench / CLI.
 
-create table admin(admin_id int primary key auto_increment,
-name varchar(100), email varchar(100), branch varchar(30),
-password varchar(50), created_at timestamp default current_timestamp);
+CREATE DATABASE IF NOT EXISTS clatutor;
+USE clatutor;
 
-select*from admin;
+CREATE TABLE IF NOT EXISTS admin (
+  admin_id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  branch VARCHAR(30),
+  password VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-insert into admin (name, email, branch, password) values(
-'admin head', 'clatutor.malleshwaram@gmail.com','Malleshwarm','Clatutor123!');
+SELECT * FROM admin;
 
+INSERT INTO admin (name, email, branch, password) VALUES
+  ('admin head', 'biplavmehta@gmail.com', 'yelahanka', 'Clatutor123!');
 
-insert into admin (name, email, branch, password) values(
-'admin head', 'clatutor.jayanagara@gmail.com','Malleshwarm','Clatutor123!');
+INSERT INTO admin (name, email, branch, password) VALUES
+  ('admin head', 'clatutor.jayanagara@gmail.com', 'Malleshwarm', 'Clatutor123!');
 
-drop table admin;
+INSERT INTO admin (name, email, branch, password) VALUES
+  ('admin head', 'sandya.clatutor@gmail.com', 'Malleshwarm', 'Clatutor123!');
 
-create table student_general_info(student_id bigint primary key auto_increment,img_url varchar(1000),
-name varchar(40), email varchar(50), phone bigint unique, dob date, previous_organisation varchar(50),
-batch varchar(20), branch varchar(30),
-stream varchar(50), address varchar(1000), source_of_info varchar(100), targetYear varchar(50), added_by varchar(100),
-password varchar(50) unique,
-created_at timestamp default current_timestamp)AUTO_INCREMENT = 2026001;
+CREATE TABLE IF NOT EXISTS student_general_info (
+  student_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  img_url VARCHAR(1000),
+  name VARCHAR(40),
+  email VARCHAR(50),
+  phone BIGINT UNIQUE,
+  parents_number VARCHAR(100),
+  dob DATE,
+  previous_organisation VARCHAR(50),
+  batch VARCHAR(20),
+  branch VARCHAR(30),
+  stream VARCHAR(50),
+  address VARCHAR(1000),
+  source_of_info VARCHAR(100),
+  targetYear VARCHAR(50),
+  added_by VARCHAR(100),
+  password VARCHAR(50) UNIQUE,
+  roles JSON,
+  isDrop BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) AUTO_INCREMENT = 2026001;
 
-select *from student_general_info;
+SELECT * FROM student_general_info;
 
-drop table student_general_info;
+-- Safe migrations for existing tables (run only if column missing)
+-- ALTER TABLE student_general_info ADD COLUMN roles JSON;
+-- ALTER TABLE student_general_info ADD COLUMN isDrop BOOLEAN DEFAULT FALSE;
 
+CREATE TABLE IF NOT EXISTS student_achievement (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100),
+  img_url VARCHAR(1000),
+  percentage VARCHAR(50),
+  exam VARCHAR(30),
+  city VARCHAR(100),
+  branch VARCHAR(30),
+  added_by VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-create table student_achievement(id int primary key auto_increment, name varchar(100),
-img_url varchar(1000),percentage varchar(50), exam varchar(30), city varchar(100),
-branch varchar(30),
-added_by varchar(100), created_at timestamp default current_timestamp);
+SELECT * FROM student_achievement;
 
-select*from student_achievement;
+CREATE TABLE IF NOT EXISTS faculty (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  phone BIGINT,
+  img_url VARCHAR(1000),
+  education VARCHAR(50),
+  city VARCHAR(30),
+  branch VARCHAR(30),
+  address VARCHAR(100),
+  password VARCHAR(10) UNIQUE,
+  added_by VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) AUTO_INCREMENT = 20211;
 
-drop table student_achievement;
+SELECT * FROM faculty;
 
+USE clatutor;
 
+CREATE TABLE IF NOT EXISTS class (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  image_url JSON,
+  location VARCHAR(50),
+  added_by VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-create table faculty(id int primary key auto_increment, name varchar(100),
-email varchar(100), phone bigint,
-img_url varchar(1000), education varchar(50), city varchar(30), branch varchar(30),
-address varchar(100), password varchar(10) unique, added_by varchar(100), 
-created_At timestamp default current_timestamp)AUTO_INCREMENT = 20211;
+SELECT * FROM class;
 
-select *from faculty;
+CREATE TABLE IF NOT EXISTS currentAffairs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  date DATE,
+  name VARCHAR(50),
+  img_url JSON,
+  links VARCHAR(5000),
+  added_by VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-drop table faculty;
+SELECT * FROM currentAffairs;
 
-use clatutor;
+CREATE TABLE IF NOT EXISTS notes (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  Title VARCHAR(100),
+  img_url JSON,
+  link JSON,
+  added_by VARCHAR(100),
+  created_by TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-
-create table class(id int primary key auto_increment, image_url json,
-location varchar(50), added_by varchar(100), created_at timestamp default current_timestamp);
-
-select *from class;
-
-drop table class;
-
-
-
-create table currentAffairs(id int primary key auto_increment, date date,
-name varchar(50), img_url json, links varchar(5000), added_by varchar(100),
-created_at timestamp default current_timestamp);
-
-select *from currentAffairs;
-
-drop table currentAffairs;
-
-
-create table notes(id int primary key auto_increment, date date, 
-details varchar(100), img_url json, link json, added_by varchar(100),
-created_by timestamp default current_timestamp);
-
-select *from notes;
-
-drop table notes;
+SELECT * FROM notes;

@@ -46,6 +46,7 @@ const ensureGeneralInfoSchema = async (connection) => {
       name VARCHAR(40),
       email VARCHAR(50),
       phone BIGINT UNIQUE,
+      parents_number VARCHAR(100),
       dob DATE,
       previous_organisation VARCHAR(50),
       batch VARCHAR(20),
@@ -56,6 +57,8 @@ const ensureGeneralInfoSchema = async (connection) => {
       targetYear VARCHAR(50),
       added_by VARCHAR(100),
       password VARCHAR(50) UNIQUE,
+      roles JSON,
+      isDrop BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     AUTO_INCREMENT = 2026001
@@ -82,6 +85,7 @@ const ensureGeneralInfoSchema = async (connection) => {
   await ensureColumn('name', 'name VARCHAR(40)');
   await ensureColumn('email', 'email VARCHAR(50)');
   await ensureColumn('phone', 'phone BIGINT UNIQUE');
+  await ensureColumn('parents_number', 'parents_number VARCHAR(100)');
   await ensureColumn('dob', 'dob DATE');
   await ensureColumn('previous_organisation', 'previous_organisation VARCHAR(50)');
   await ensureColumn('batch', 'batch VARCHAR(20)');
@@ -92,7 +96,52 @@ const ensureGeneralInfoSchema = async (connection) => {
   await ensureColumn('targetYear', 'targetYear VARCHAR(50)');
   await ensureColumn('added_by', 'added_by VARCHAR(100)');
   await ensureColumn('password', 'password VARCHAR(50) UNIQUE');
+  await ensureColumn('roles', 'roles JSON');
+  await ensureColumn('isDrop', 'isDrop BOOLEAN DEFAULT FALSE');
   await ensureColumn('created_at', 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+};
+
+const parseRolesFromDb = (roles) => {
+  if (roles == null) return null;
+  if (typeof roles === 'object') return roles;
+  if (typeof roles === 'string') {
+    const trimmed = roles.trim();
+    if (!trimmed) return null;
+    try {
+      return JSON.parse(trimmed);
+    } catch (_) {
+      return null;
+    }
+  }
+  return null;
+};
+
+const normalizeRolesForDb = (roles) => {
+  if (roles === undefined || roles === null) return null;
+  if (typeof roles === 'string') {
+    const trimmed = roles.trim();
+    if (!trimmed) return null;
+    JSON.parse(trimmed);
+    return trimmed;
+  }
+  return JSON.stringify(roles);
+};
+
+const parseIsDrop = (value) => {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  const s = String(value).trim().toLowerCase();
+  return s === 'true' || s === '1' || s === 'yes';
+};
+
+const formatStudentRow = (row) => {
+  if (!row || typeof row !== 'object') return row;
+  return {
+    ...row,
+    roles: parseRolesFromDb(row.roles),
+    isDrop: parseIsDrop(row.isDrop),
+  };
 };
 
 const generatePassword = () => {
@@ -218,7 +267,7 @@ const loginStudent = async (body) => {
     connection = await pool.getConnection();
     await ensureGeneralInfoSchema(connection);
     const [rows] = await connection.execute(
-      `SELECT student_id, img_url, name, email, phone, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, created_at
+      `SELECT student_id, img_url, name, email, phone, parents_number, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, roles, isDrop, created_at
        FROM ${STUDENT_TABLE} WHERE email = ? AND password = ? LIMIT 1`,
       [email, password],
     );
@@ -231,7 +280,16 @@ const loginStudent = async (body) => {
       };
     }
 
-    const student = rows[0];
+    const student = formatStudentRow(rows[0]);
+    if (student.isDrop) {
+      return {
+        statusCode: 403,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          message: 'Your enrollment has been dropped. Please contact the institute.',
+        }),
+      };
+    }
     return {
       statusCode: 200,
       headers: corsHeaders,
@@ -243,6 +301,7 @@ const loginStudent = async (body) => {
           name: student.name,
           email: student.email,
           phone: student.phone,
+          parents_number: student.parents_number,
           dob: student.dob,
           previous_organisation: student.previous_organisation,
           batch: student.batch,
@@ -252,6 +311,8 @@ const loginStudent = async (body) => {
           source_of_info: student.source_of_info,
           targetYear: student.targetYear,
           added_by: student.added_by,
+          roles: student.roles,
+          isDrop: student.isDrop,
           created_at: student.created_at,
         },
       }),
@@ -282,9 +343,11 @@ const getGeneralInfo = async (queryStringParameters) => {
     const name = params.name != null ? cleanParam(params.name) : null;
     const email = params.email != null ? cleanParam(params.email) : null;
     const phone = params.phone != null ? cleanParam(params.phone) : null;
-    const targetYear = params.targetYear != null ? cleanParam(params.targetYear) : null;
+    const targetYear = params.targetYear != null ? cleanParam(params.targetYear) : (params.target_year != null ? cleanParam(params.target_year) : null);
+    const batch = params.batch != null ? cleanParam(params.batch) : null;
+    const branch = params.branch != null ? cleanParam(params.branch) : null;
 
-    let query = `SELECT student_id, img_url, name, email, password, phone, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, created_at FROM ${STUDENT_TABLE} WHERE 1=1`;
+    let query = `SELECT student_id, img_url, name, email, password, phone, parents_number, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, roles, isDrop, created_at FROM ${STUDENT_TABLE} WHERE 1=1`;
     const queryParams = [];
 
     if (student_id) {
@@ -303,6 +366,14 @@ const getGeneralInfo = async (queryStringParameters) => {
       query += ' AND phone = ?';
       queryParams.push(Number(phone));
     }
+    if (batch) {
+      query += ' AND batch = ?';
+      queryParams.push(batch);
+    }
+    if (branch) {
+      query += ' AND branch = ?';
+      queryParams.push(branch);
+    }
     if (targetYear) {
       query += ' AND targetYear = ?';
       queryParams.push(targetYear);
@@ -314,7 +385,7 @@ const getGeneralInfo = async (queryStringParameters) => {
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify(rows),
+      body: JSON.stringify(rows.map(formatStudentRow)),
     };
   } catch (error) {
     console.error('Error in getGeneralInfo:', error);
@@ -349,6 +420,12 @@ const createGeneralInfo = async (body, event) => {
     const name = data.name != null ? String(data.name).trim() : '';
     const email = data.email != null ? String(data.email).trim() : '';
     const phoneRaw = data.phone != null ? String(data.phone).trim() : '';
+    const parentsNumberRaw =
+      data.parents_number != null
+        ? String(data.parents_number).trim()
+        : data.parentsNumber != null
+          ? String(data.parentsNumber).trim()
+          : '';
     let imgUrl = data.img_url != null ? String(data.img_url).trim() : null;
     const dob = data.dob != null ? String(data.dob).trim() : null;
     const previousOrganisation = data.previous_organisation != null ? String(data.previous_organisation).trim() : null;
@@ -358,6 +435,24 @@ const createGeneralInfo = async (body, event) => {
     const address = data.address != null ? String(data.address).trim() : null;
     const sourceOfInfo = data.source_of_info != null ? String(data.source_of_info).trim() : null;
     const targetYear = data.targetYear != null ? String(data.targetYear).trim() : null;
+    let rolesJson = null;
+    if (data.roles !== undefined) {
+      try {
+        rolesJson = normalizeRolesForDb(data.roles);
+      } catch (rolesError) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ message: 'roles must be valid JSON (array or object)' }),
+        };
+      }
+    }
+    const isDrop =
+      data.isDrop !== undefined
+        ? parseIsDrop(data.isDrop)
+        : data.is_drop !== undefined
+          ? parseIsDrop(data.is_drop)
+          : false;
     const userFromToken = event ? getUserFromToken(event) : null;
     const addedBy = userFromToken ? (userFromToken.email || userFromToken.name || null) : (data.added_by != null ? String(data.added_by).trim() : null);
 
@@ -392,14 +487,15 @@ const createGeneralInfo = async (body, event) => {
       try {
         const insertQuery = `
           INSERT INTO ${STUDENT_TABLE}
-            (img_url, name, email, phone, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, password)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (img_url, name, email, phone, parents_number, dob, previous_organisation, batch, branch, stream, address, source_of_info, targetYear, added_by, password, roles, isDrop)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const insertParams = [
           imgUrl || null,
           name,
           email,
           phone,
+          parentsNumberRaw || null,
           dob || null,
           previousOrganisation || null,
           batch || null,
@@ -410,6 +506,8 @@ const createGeneralInfo = async (body, event) => {
           targetYear || null,
           addedBy || null,
           generatedPassword,
+          rolesJson,
+          isDrop ? 1 : 0,
         ];
         [result] = await connection.execute(insertQuery, insertParams);
         break;
@@ -439,6 +537,8 @@ const createGeneralInfo = async (body, event) => {
         student_id: result.insertId,
         img_url: imgUrl || null,
         password: generatedPassword,
+        roles: parseRolesFromDb(rolesJson),
+        isDrop,
       }),
     };
   } catch (error) {
@@ -522,6 +622,12 @@ const updateGeneralInfo = async (body, event) => {
         updateParams.push(p);
       }
     }
+    if (data.parents_number !== undefined || data.parentsNumber !== undefined) {
+      const raw =
+        data.parents_number !== undefined ? data.parents_number : data.parentsNumber;
+      updateFields.push('parents_number = ?');
+      updateParams.push(raw == null || String(raw).trim() === '' ? null : String(raw).trim());
+    }
     if (data.img_url !== undefined) {
       updateFields.push('img_url = ?');
       updateParams.push((data.img_url == null ? null : String(data.img_url).trim()) || null);
@@ -557,6 +663,24 @@ const updateGeneralInfo = async (body, event) => {
     if (data.targetYear !== undefined) {
       updateFields.push('targetYear = ?');
       updateParams.push((data.targetYear == null ? null : String(data.targetYear).trim()) || null);
+    }
+    if (data.roles !== undefined) {
+      try {
+        updateFields.push('roles = ?');
+        updateParams.push(normalizeRolesForDb(data.roles));
+      } catch (rolesError) {
+        connection.release();
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ message: 'roles must be valid JSON (array or object)' }),
+        };
+      }
+    }
+    if (data.isDrop !== undefined || data.is_drop !== undefined) {
+      const raw = data.isDrop !== undefined ? data.isDrop : data.is_drop;
+      updateFields.push('isDrop = ?');
+      updateParams.push(parseIsDrop(raw) ? 1 : 0);
     }
     if (data.added_by !== undefined) {
       updateFields.push('added_by = ?');

@@ -82,6 +82,14 @@ functions:
 
   general_info:
     handler: general_info.handler
+    package:
+      patterns:
+        - '!admin.js'
+        - '!faculty.js'
+        - '!class.js'
+        - '!currentAffairs.js'
+        - '!notes.js'
+        - '!student_achieve.js'
     events:
       - http:
           path: student_general_info
@@ -216,6 +224,7 @@ package:
     - '!**/.env.*'
     - '!**/README.md'
     - '!**/*.md'
+    - '!**/*.sql'
     - '!**/package-lock.json'
     - '!**/yarn.lock'
     - '!**/.DS_Store'
@@ -224,3 +233,25 @@ package:
     - '!**/__tests__/**'
     - '!**/.gitignore'
     - '!**/.npmignore'
+    - '!node_modules/serverless/**'
+    - '!node_modules/serverless-offline/**'
+    - '!node_modules/mysql/**'
+    - '!node_modules/cors/**'
+    - '!node_modules/dotenv/**'
+    - '!node_modules/fs/**'
+    - '!node_modules/crypto/**'
+    - '!node_modules/@types/**'
+    - '!node_modules/**/*.d.ts'
+    - '!node_modules/**/*.map'
+    - '!node_modules/**/test/**'
+    - '!node_modules/**/tests/**'
+    - '!node_modules/**/__tests__/**'
+    - '!node_modules/**/docs/**'
+    - '!node_modules/**/doc/**'
+    - '!node_modules/**/example/**'
+    - '!node_modules/**/examples/**'
+    - '!node_modules/**/.github/**'
+    - '!node_modules/aws-sdk/dist/**'
+    - '!node_modules/aws-sdk/dist-tools/**'
+    - '!node_modules/aws-sdk/scripts/**'
+    - '!node_modules/aws-sdk/doc/**'

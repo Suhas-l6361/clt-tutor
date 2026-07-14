@@ -15,6 +15,23 @@ const cleanParam = (param) => {
   return String(param).replace(/^['"]+|['"]+$/g, '').trim();
 };
 
+const toBoolOrNull = (value) => {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  const v = String(value).trim().toLowerCase();
+  if (v === 'true' || v === '1' || v === 'yes') return true;
+  if (v === 'false' || v === '0' || v === 'no') return false;
+  return null;
+};
+
+const trimResponseMessage = (value) => {
+  if (value === undefined || value === null) return null;
+  const s = String(value).trim();
+  if (!s) return null;
+  return s.slice(0, 100);
+};
+
 const ensureSchema = async (connection) => {
   await connection.execute(`
     CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
@@ -24,9 +41,28 @@ const ensureSchema = async (connection) => {
       phone BIGINT,
       interested_in VARCHAR(100),
       message VARCHAR(2000),
+      isResponded BOOL DEFAULT FALSE,
+      response_message VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  const ensureColumn = async (columnName, ddl) => {
+    const [rows] = await connection.execute(
+      `
+        SELECT COUNT(*) AS cnt
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME = ?
+      `,
+      [TABLE_NAME, columnName],
+    );
+    if (Array.isArray(rows) && rows[0] && Number(rows[0].cnt) === 0) {
+      await connection.execute(`ALTER TABLE ${TABLE_NAME} ADD COLUMN ${ddl}`);
+    }
+  };
+  await ensureColumn('isResponded', 'isResponded BOOL DEFAULT FALSE');
+  await ensureColumn('response_message', 'response_message VARCHAR(100)');
 };
 
 const getRequestCallbacks = async (queryStringParameters) => {
@@ -40,7 +76,7 @@ const getRequestCallbacks = async (queryStringParameters) => {
     const email = params.email != null ? cleanParam(params.email) : null;
     const phone = params.phone != null ? cleanParam(params.phone) : null;
 
-    let query = `SELECT id, fullname, email, phone, interested_in, message, created_at FROM ${TABLE_NAME} WHERE 1=1`;
+    let query = `SELECT id, fullname, email, phone, interested_in, message, isResponded, response_message, created_at FROM ${TABLE_NAME} WHERE 1=1`;
     const queryParams = [];
 
     if (id) {
@@ -96,8 +132,8 @@ const createRequestCallback = async (body) => {
     await ensureSchema(connection);
 
     const [result] = await connection.execute(
-      `INSERT INTO ${TABLE_NAME} (fullname, email, phone, interested_in, message) VALUES (?, ?, ?, ?, ?)`,
-      [fullname, email, phone, interestedIn, message || null],
+      `INSERT INTO ${TABLE_NAME} (fullname, email, phone, interested_in, message, isResponded) VALUES (?, ?, ?, ?, ?, ?)`,
+      [fullname, email, phone, interestedIn, message || null, false],
     );
 
     return {
@@ -147,6 +183,11 @@ const updateRequestCallback = async (body) => {
     }
     if (data.interested_in !== undefined) { updateFields.push('interested_in = ?'); updateParams.push((data.interested_in == null ? null : String(data.interested_in).trim()) || null); }
     if (data.message !== undefined) { updateFields.push('message = ?'); updateParams.push((data.message == null ? null : String(data.message).trim()) || null); }
+    if (data.isResponded !== undefined) { updateFields.push('isResponded = ?'); updateParams.push(toBoolOrNull(data.isResponded)); }
+    if (data.response_message !== undefined) {
+      updateFields.push('response_message = ?');
+      updateParams.push(trimResponseMessage(data.response_message));
+    }
 
     if (!updateFields.length) {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ message: 'No fields to update' }) };
