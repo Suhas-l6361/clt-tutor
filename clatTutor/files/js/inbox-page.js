@@ -14,8 +14,8 @@
     return API;
   }
 
-  var PRANAB_MAILBOX_ORDER = ['hello', 'pranab.m'];
-  var MAILBOX_CACHE_KEY = 'clatutor_inbox_mailboxes_v1';
+  var PRANAB_MAILBOX_ORDER = ['hello', 'info', 'pranab.m'];
+  var MAILBOX_CACHE_KEY = 'clatutor_inbox_mailboxes_v2';
   var MAILBOX_CACHE_TTL_MS = 45000;
 
   function isPranabBusinessUser() {
@@ -53,7 +53,7 @@
   function filterMailboxesForUser(mailboxes) {
     var list = Array.isArray(mailboxes) ? mailboxes.slice() : [];
     if (!isPranabBusinessUser()) return list;
-    var allowed = { hello: true, 'pranab.m': true };
+    var allowed = { hello: true, info: true, 'pranab.m': true };
     list = list.filter(function (mb) {
       var id = String(mb.id || '').toLowerCase();
       var local = id.split('@')[0];
@@ -285,6 +285,7 @@
     var grid = $('inbox-mailbox-grid');
     if (!grid) return;
     var mailboxes = state.mailboxes;
+    grid.classList.toggle('inbox-picker__grid--trio', mailboxes.length === 3);
     grid.classList.toggle('inbox-picker__grid--duo', mailboxes.length === 2);
     grid.classList.toggle('inbox-picker__grid--single', mailboxes.length === 1);
     if (!mailboxes.length) {

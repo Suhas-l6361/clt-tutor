@@ -99,15 +99,30 @@ body.inbox-page.crm-dashboard .page-content {
   gap: 1.25rem;
 }
 
+.inbox-picker__grid--trio {
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  max-width: 980px;
+  margin: 0 auto;
+  gap: 1.25rem;
+}
+
 .inbox-picker__grid--single {
   grid-template-columns: minmax(280px, 360px);
   justify-content: center;
   margin: 0 auto;
 }
 
+@media (max-width: 900px) {
+  .inbox-picker__grid--trio {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    max-width: 720px;
+  }
+}
+
 @media (max-width: 640px) {
   .inbox-picker__grid,
-  .inbox-picker__grid--duo {
+  .inbox-picker__grid--duo,
+  .inbox-picker__grid--trio {
     grid-template-columns: 1fr;
     max-width: none;
   }
