@@ -44,7 +44,14 @@
     'addCounceler.html',
   ];
 
-  const BUSINESS_EMAIL_INBOX_USER = 'pranab.mehta@gmail.com';
+  const BUSINESS_EMAIL_ACCESS = {
+    'pranab.mehta@gmail.com': {
+      mailboxOrder: ['hello', 'info', 'pranab.m'],
+    },
+    'niraj.clatutor@gmai.com': {
+      mailboxOrder: ['niraj.k'],
+    },
+  };
 
   function normalizeEmail(value) {
     return String(value || '').trim().toLowerCase();
@@ -91,13 +98,24 @@
       return !!(s && s.role === 'crm' && s.user && !s.user.isCounceler);
     },
 
-    canAccessBusinessEmail() {
+    getBusinessEmailConfig() {
       const s = this.getSession();
-      if (!s || s.role !== 'crm' || !s.user) return false;
-      const allowed = normalizeEmail(BUSINESS_EMAIL_INBOX_USER);
+      if (!s || s.role !== 'crm' || !s.user) return null;
       const email = normalizeEmail(s.user.email);
       const login = normalizeEmail(s.user.login);
-      return email === allowed || login === allowed;
+      return BUSINESS_EMAIL_ACCESS[email] || BUSINESS_EMAIL_ACCESS[login] || null;
+    },
+
+    canAccessBusinessEmail() {
+      return !!this.getBusinessEmailConfig();
+    },
+
+    getBusinessEmailMailboxAccess() {
+      var config = this.getBusinessEmailConfig();
+      if (!config || !Array.isArray(config.mailboxOrder)) return null;
+      return {
+        mailboxOrder: config.mailboxOrder.slice(),
+      };
     },
 
     getCouncelerAccess() {

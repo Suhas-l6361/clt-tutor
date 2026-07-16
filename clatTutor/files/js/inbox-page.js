@@ -14,12 +14,12 @@
     return API;
   }
 
-  var PRANAB_MAILBOX_ORDER = ['hello', 'info', 'pranab.m'];
-  var MAILBOX_CACHE_KEY = 'clatutor_inbox_mailboxes_v2';
+  var MAILBOX_CACHE_KEY = 'clatutor_inbox_mailboxes_v3';
   var MAILBOX_CACHE_TTL_MS = 45000;
 
-  function isPranabBusinessUser() {
-    return !!(window.Auth && typeof window.Auth.canAccessBusinessEmail === 'function' && window.Auth.canAccessBusinessEmail());
+  function getBusinessMailboxAccess() {
+    if (!window.Auth || typeof window.Auth.getBusinessEmailMailboxAccess !== 'function') return null;
+    return window.Auth.getBusinessEmailMailboxAccess();
   }
 
   function readMailboxCache() {
@@ -52,8 +52,13 @@
 
   function filterMailboxesForUser(mailboxes) {
     var list = Array.isArray(mailboxes) ? mailboxes.slice() : [];
-    if (!isPranabBusinessUser()) return list;
-    var allowed = { hello: true, info: true, 'pranab.m': true };
+    var access = getBusinessMailboxAccess();
+    if (!access || !Array.isArray(access.mailboxOrder) || !access.mailboxOrder.length) return list;
+    var order = access.mailboxOrder.slice();
+    var allowed = {};
+    order.forEach(function (local) {
+      if (local) allowed[String(local).toLowerCase()] = true;
+    });
     list = list.filter(function (mb) {
       var id = String(mb.id || '').toLowerCase();
       var local = id.split('@')[0];
@@ -62,7 +67,12 @@
     list.sort(function (a, b) {
       var aLocal = String(a.id || '').toLowerCase().split('@')[0];
       var bLocal = String(b.id || '').toLowerCase().split('@')[0];
-      return PRANAB_MAILBOX_ORDER.indexOf(aLocal) - PRANAB_MAILBOX_ORDER.indexOf(bLocal);
+      var aIdx = order.indexOf(aLocal);
+      var bIdx = order.indexOf(bLocal);
+      if (aIdx === -1 && bIdx === -1) return 0;
+      if (aIdx === -1) return 1;
+      if (bIdx === -1) return -1;
+      return aIdx - bIdx;
     });
     return list;
   }

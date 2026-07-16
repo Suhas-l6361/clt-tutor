@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/header-nav.css" />
   <link rel="stylesheet" href="css/index.css?v=20260715hero5" />
-  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="css/modal.css?v=20260715m2" />
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
@@ -1190,25 +1190,28 @@
         modal.innerHTML =
           '<div class="enroll-modal__backdrop" data-close="true" aria-hidden="true"></div>' +
           '<div class="enroll-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="enroll-modal-title">' +
-          '  <div class="enroll-modal__head">' +
-          '    <div class="enroll-modal__titles">' +
-          '      <div class="enroll-modal__badge"><img src="image/Clat%20Logo.png" alt="" class="enroll-modal__badge-icon" width="18" height="18" loading="lazy" /> CLAT Dec 2026/2027</div>' +
-          '      <h2 id="enroll-modal-title" class="enroll-modal__title enroll-modal__shine">Your NLS Journey Starts Here</h2>' +
+          '  <button type="button" class="enroll-modal__close" data-close="true" aria-label="Close popup">' +
+          '    <i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
+          '  </button>' +
+          '  <div class="enroll-modal__content">' +
+          '    <div class="enroll-modal__badge"><img src="image/Clat%20Logo.png" alt="" class="enroll-modal__badge-icon" width="14" height="14" loading="lazy" /> CLAT Dec 2026/2027</div>' +
+          '    <h2 id="enroll-modal-title" class="enroll-modal__title">Your NLS Journey <span>Starts Here</span></h2>' +
+          '    <p class="enroll-modal__quote">The students who rise highest are the ones who start before everyone else.</p>' +
+          '    <div class="enroll-modal__date">' +
+          '      <span class="enroll-modal__date-icon" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>' +
+          '      <div class="enroll-modal__date-copy">' +
+          '        <span class="enroll-modal__date-label">New batch opens</span>' +
+          '        <span class="enroll-modal__date-value">30th July · CLAT Dec 2026/2027</span>' +
+          '      </div>' +
           '    </div>' +
-          '    <button type="button" class="enroll-modal__close" data-close="true" aria-label="Close popup">' +
-          '      <i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
-          '    </button>' +
-          '  </div>' +
-          '  <div class="enroll-modal__body">' +
-          '    <p class="enroll-modal__headline"><img src="image/Clat%20Logo.png" class="enroll-modal__law-icon enroll-modal__law-icon--headline" alt="" /> CLAT Dec 2026/2027 NEW Batch Begins 30th July</p>' +
-          '    <p class="enroll-modal__sub">The students who rise highest are the ones who start before everyone else.</p>' +
           '    <ul class="enroll-modal__list">' +
-          '      <li>This is your moment to turn intention into action.</li>' +
-          '      <li>Seats are filling. Take the first step today.</li>' +
-          '      <li>Contact us with the form below or call <a class="enroll-modal__tel" href="tel:8150884422">8150884422</a> to secure your spot now.</li>' +
+          '      <li><span class="enroll-modal__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span><span>Turn intention into action — this is your moment.</span></li>' +
+          '      <li><span class="enroll-modal__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span><span>Seats are filling fast. Take the first step today.</span></li>' +
+          '      <li><span class="enroll-modal__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span><span>Call <a class="enroll-modal__tel" href="tel:8150884422">8150884422</a> or enroll below to lock your spot.</span></li>' +
           '    </ul>' +
           '    <div class="enroll-modal__cta">' +
-          '      <a href="html_files/admission.html" class="btn btn-primary enroll-modal__cta-btn"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ENROLL NOW</a>' +
+          '      <a href="html_files/admission.html" class="enroll-modal__cta-btn"><span>Enroll Now</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
+          '      <p class="enroll-modal__hint">Free counselling · Confirm in under 2 minutes</p>' +
           '    </div>' +
           '  </div>' +
           '</div>';

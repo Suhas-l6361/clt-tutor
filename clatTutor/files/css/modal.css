@@ -1,4 +1,4 @@
-/* Dedicated promo modal styles (loaded after app.css) */
+/* Dedicated promo modal — modern CLATutor enroll popup */
 
 .enroll-modal {
   position: fixed !important;
@@ -7,7 +7,7 @@
   display: none !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 20px !important;
+  padding: 1rem !important;
   box-sizing: border-box !important;
 }
 
@@ -18,301 +18,325 @@
 .enroll-modal__backdrop {
   position: absolute !important;
   inset: 0 !important;
-  background: rgba(0, 0, 0, 0.58) !important;
+  background: rgba(8, 18, 40, 0.52) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
   cursor: pointer !important;
   z-index: 0 !important;
 }
 
 .enroll-modal__dialog {
+  --em-ink: #0b1f44;
+  --em-blue: #1d4ed8;
+  --em-gold: #f5b800;
+  --em-gold-hot: #ffc107;
+  --em-muted: #64748b;
+  --em-line: #e8edf5;
   position: relative !important;
   z-index: 1 !important;
-  width: min(860px, 100%) !important;
-  max-height: min(86vh, 100%) !important;
+  width: min(420px, 100%) !important;
+  max-height: min(90vh, 100%) !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
-  border-radius: 14px !important;
-  background: var(--white) !important;
-  border: 1px solid transparent !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(245, 184, 0, 0.14), transparent 55%),
+    radial-gradient(90% 60% at 0% 100%, rgba(29, 78, 216, 0.06), transparent 50%),
+    #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.07) !important;
+  box-shadow: 0 24px 56px rgba(8, 18, 40, 0.22) !important;
   isolation: isolate !important;
   opacity: 0 !important;
-  transform: translateY(10px) !important;
-  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease) !important;
-}
-
-/* Rotating amber ring — same theme as Programs cards; scoped to enroll dialog only */
-.enroll-modal__dialog::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 50% !important;
-  top: 50% !important;
-  width: 100px !important;
-  height: 140% !important;
-  z-index: 0 !important;
-  margin: 0 !important;
-  background-image: linear-gradient(
-    180deg,
-    #fff3c4 0%,
-    var(--accent) 35%,
-    #e6a800 70%,
-    #b8860b 100%
-  ) !important;
-  transform-origin: center center !important;
-  animation: enroll-modal-rot-border 3.5s linear infinite !important;
-  pointer-events: none !important;
-}
-
-.enroll-modal__dialog::after {
-  content: '' !important;
-  position: absolute !important;
-  inset: 3px !important;
-  z-index: 1 !important;
-  border-radius: 11px !important;
-  background: var(--white) !important;
-  pointer-events: none !important;
-}
-
-.enroll-modal__dialog .enroll-modal__head,
-.enroll-modal__dialog .enroll-modal__body {
-  position: relative !important;
-  z-index: 2 !important;
+  transform: translateY(16px) scale(0.975) !important;
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
 }
 
 .enroll-modal.open .enroll-modal__dialog {
   opacity: 1 !important;
-  transform: translateY(0) !important;
+  transform: translateY(0) scale(1) !important;
 }
 
-@keyframes enroll-modal-rot-border {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
+.enroll-modal__dialog::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #ffd54a, var(--em-gold), #ffe9a0) !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .enroll-modal__dialog::before {
-    animation: none !important;
-  }
+.enroll-modal__close {
+  position: absolute !important;
+  top: 0.95rem !important;
+  right: 0.95rem !important;
+  z-index: 4 !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: none !important;
+  background: rgba(15, 23, 42, 0.05) !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.88rem !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
 }
 
-.enroll-modal__head {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 1rem !important;
-  flex-shrink: 0 !important;
-  padding: 1.1rem 1.1rem 0.85rem !important;
-  border-bottom: 1px solid var(--line-light) !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 204, 0, 0.24) 0%,
-    rgba(255, 204, 0, 0.06) 50%,
-    rgba(255, 255, 255, 1) 100%
-  ) !important;
+.enroll-modal__close:hover {
+  background: rgba(15, 23, 42, 0.09) !important;
+  color: var(--em-ink) !important;
+}
+
+.enroll-modal__close:focus-visible {
+  outline: 2px solid var(--em-gold) !important;
+  outline-offset: 2px !important;
+}
+
+.enroll-modal__content {
+  position: relative !important;
+  z-index: 2 !important;
+  padding: 1.65rem 1.55rem 1.35rem !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
 }
 
 .enroll-modal__badge {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 0.55rem !important;
-  padding: 0.35rem 0.65rem !important;
+  gap: 0.4rem !important;
+  padding: 0.3rem 0.72rem !important;
   border-radius: 999px !important;
-  background: var(--paper) !important;
-  border: 1px solid var(--line-light) !important;
-  font-weight: 600 !important;
-  font-size: 0.82rem !important;
-  color: var(--black) !important;
-  margin-bottom: 0.55rem !important;
+  background: var(--em-gold-hot) !important;
+  font-weight: 800 !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #111827 !important;
+  margin: 0 2.4rem 1.1rem 0 !important;
 }
 
 .enroll-modal__badge-icon {
-  width: 18px !important;
-  height: 18px !important;
+  width: 14px !important;
+  height: 14px !important;
   flex-shrink: 0 !important;
   object-fit: contain !important;
   display: block !important;
 }
 
-.enroll-modal__law-icon {
-  width: 20px !important;
-  height: 20px !important;
-  flex-shrink: 0 !important;
-  object-fit: contain !important;
-  display: inline-block !important;
-}
-
 .enroll-modal__title {
   margin: 0 !important;
-  font-size: clamp(1.25rem, 2.6vw, 1.85rem) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.02em !important;
-  color: var(--black) !important;
-  line-height: 1.3 !important;
+  font-size: clamp(1.6rem, 4.2vw, 1.95rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  color: var(--em-ink) !important;
+  line-height: 1.15 !important;
 }
 
-/* Horizontal light sweep on title (gradient clipped to text — “white” band moves across) */
-.enroll-modal__title.enroll-modal__shine {
-  background-image: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.98) 0%,
-    rgba(255, 255, 255, 0.95) 45%,
-    rgba(0, 0, 0, 0.98) 100%
-  ) !important;
-  background-size: 200% 100% !important;
-  animation: enroll-modal-shine 2.8s linear infinite !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
+.enroll-modal__title span {
+  color: var(--em-blue) !important;
 }
 
-@keyframes enroll-modal-shine {
-  0% {
-    background-position: -140% 0;
-  }
-  100% {
-    background-position: 140% 0;
-  }
+.enroll-modal__quote {
+  margin: 0.7rem 0 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  color: var(--em-muted) !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  line-height: 1.5 !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .enroll-modal__title.enroll-modal__shine {
-    animation: none !important;
-    background: none !important;
-    color: var(--black) !important;
-    -webkit-text-fill-color: currentColor !important;
-  }
+.enroll-modal__date {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.85rem !important;
+  margin-top: 1.25rem !important;
+  padding: 0.95rem 1rem !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  border: 1px solid var(--em-line) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04) !important;
 }
 
-.enroll-modal__close {
-  flex-shrink: 0 !important;
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: rgba(0, 0, 0, 0.03) !important;
-  color: var(--black) !important;
-  cursor: pointer !important;
+.enroll-modal__date-icon {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 1.05rem !important;
-  transition: background 0.15s var(--ease), transform 0.15s var(--ease) !important;
+  flex-shrink: 0 !important;
+  width: 2.55rem !important;
+  height: 2.55rem !important;
+  border-radius: 13px !important;
+  background: linear-gradient(155deg, #ffe566 0%, var(--em-gold) 100%) !important;
+  color: var(--em-ink) !important;
+  font-size: 1rem !important;
+  box-shadow: 0 6px 14px rgba(245, 184, 0, 0.28) !important;
 }
 
-.enroll-modal__close:hover {
-  background: var(--paper) !important;
-  transform: translateY(-1px) !important;
-}
-
-.enroll-modal__body {
-  padding: 1.15rem 1.15rem 1.35rem !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-}
-
-.enroll-modal__headline {
-  margin: 0 !important;
+.enroll-modal__date-copy {
+  min-width: 0 !important;
   display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0.6rem !important;
-  flex-wrap: wrap !important;
-  text-align: center !important;
-  font-weight: 500 !important;
-  font-style: normal !important;
-  letter-spacing: normal !important;
-  color: var(--black) !important;
+  flex-direction: column !important;
+  gap: 0.12rem !important;
 }
 
-.enroll-modal__law-icon--headline {
-  margin-top: 1px !important;
+.enroll-modal__date-label {
+  font-size: 0.64rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--em-muted) !important;
 }
 
-.enroll-modal__sub {
-  margin: 0.75rem 0 0 !important;
-  text-align: center !important;
-  color: var(--muted) !important;
-  font-size: 0.95rem !important;
-  font-weight: 400 !important;
-  font-style: normal !important;
-  line-height: 1.55 !important;
+.enroll-modal__date-value {
+  font-size: 0.98rem !important;
+  font-weight: 800 !important;
+  color: var(--em-ink) !important;
+  line-height: 1.3 !important;
 }
 
 .enroll-modal__list {
-  margin: 1rem 0 0 !important;
-  padding-left: 1.2rem !important;
-  color: var(--muted) !important;
-  line-height: 1.75 !important;
-  font-weight: 400 !important;
+  list-style: none !important;
+  margin: 1.2rem 0 0 !important;
+  padding: 0.15rem 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--em-line) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  overflow: hidden !important;
+}
+
+.enroll-modal__list li {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.7rem !important;
+  margin: 0 !important;
+  padding: 0.85rem 1rem !important;
+  color: #334155 !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  border-bottom: 1px solid var(--em-line) !important;
+}
+
+.enroll-modal__list li:last-child {
+  border-bottom: none !important;
+}
+
+.enroll-modal__check {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+  margin-top: 0.05rem !important;
+  border-radius: 999px !important;
+  background: #eef6ff !important;
+  color: var(--em-blue) !important;
+  font-size: 0.58rem !important;
 }
 
 .enroll-modal__cta {
-  margin-top: 1.2rem !important;
+  margin-top: 1.35rem !important;
   display: flex !important;
-  justify-content: center !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.7rem !important;
 }
 
 .enroll-modal__cta-btn {
-  width: min(260px, 100%) !important;
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
   justify-content: center !important;
+  gap: 0.55rem !important;
+  min-height: 3.1rem !important;
+  padding: 0.8rem 1.25rem !important;
+  border-radius: 14px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #ffe566 0%, var(--em-gold-hot) 45%, var(--em-gold) 100%) !important;
+  color: var(--em-ink) !important;
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
   text-decoration: none !important;
-  position: relative !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.02em !important;
-  transition: box-shadow 0.25s ease, transform 0.15s ease !important;
+  box-shadow: 0 10px 22px rgba(245, 184, 0, 0.32) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
 }
 
 .enroll-modal__cta-btn:hover,
 .enroll-modal__cta-btn:focus,
 .enroll-modal__cta-btn:active {
+  color: var(--em-ink) !important;
   text-decoration: none !important;
 }
 
-/* Hover/press effect (PRESS IN) for popup CTA only */
 .enroll-modal__cta-btn:hover {
-  box-shadow:
-    inset 0px -6px 18px -6px rgba(0, 0, 0, 0.35),
-    inset 0px 6px 18px -6px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px) !important;
+  box-shadow: 0 14px 26px rgba(245, 184, 0, 0.4) !important;
+  filter: brightness(1.03) !important;
 }
 
 .enroll-modal__cta-btn:active {
-  transform: scale(0.96) !important;
-  box-shadow:
-    inset 0px -12px 12px -6px rgba(0, 0, 0, 0.5),
-    inset 0px 12px 12px -6px rgba(0, 0, 0, 0.35);
+  transform: translateY(0) scale(0.985) !important;
 }
 
-/* Scale icon/text slightly on hover + active */
-.enroll-modal__cta-btn > * {
-  transition: transform 0.2s ease !important;
+.enroll-modal__cta-btn:focus-visible {
+  outline: 2px solid var(--em-ink) !important;
+  outline-offset: 3px !important;
 }
 
-.enroll-modal__cta-btn:hover > *,
-.enroll-modal__cta-btn:focus > * {
-  transform: scale(0.9) !important;
-}
-
-.enroll-modal__cta-btn:active > * {
-  transform: scale(0.8) !important;
+.enroll-modal__hint {
+  margin: 0 !important;
+  text-align: center !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  color: var(--em-muted) !important;
+  line-height: 1.4 !important;
 }
 
 .enroll-modal__tel {
-  color: var(--link) !important;
+  color: var(--em-blue) !important;
   text-decoration: none !important;
-  font-weight: 600 !important;
+  font-weight: 800 !important;
   cursor: pointer !important;
 }
 
 .enroll-modal__tel:hover,
 .enroll-modal__tel:focus,
 .enroll-modal__tel:active {
-  color: var(--link-hover) !important;
-  text-decoration: none !important;
+  color: #1e40af !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .enroll-modal__dialog {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .enroll-modal {
+    padding: 0.7rem !important;
+  }
+
+  .enroll-modal__content {
+    padding: 1.4rem 1.15rem 1.2rem !important;
+  }
+
+  .enroll-modal__dialog {
+    border-radius: 20px !important;
+  }
+}
