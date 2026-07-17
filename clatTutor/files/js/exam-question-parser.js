@@ -6,6 +6,10 @@
 (function (global) {
   'use strict';
 
+  var DEFAULT_QUESTION_LIMIT = 120;
+  var MAX_QUESTION_LIMIT = 200;
+  var activeQuestionLimit = DEFAULT_QUESTION_LIMIT;
+
   function normalizeExamText(raw) {
     var t = String(raw || '')
       .replace(/\r\n/g, '\n')
@@ -23,12 +27,12 @@
     });
     t = t.replace(/([^\n\s])(\s+)(\d{1,3})\.\(/g, function (full, before, sp, num) {
       var n = parseInt(num, 10);
-      if (n >= 1 && n <= 199) return before + '\n' + num + '. (';
+      if (n >= 1 && n <= activeQuestionLimit) return before + '\n' + num + '. (';
       return full;
     });
     t = t.replace(/([^\n])(\s+)(\d{1,3})\.\s/g, function (full, before, sp, num, offset, whole) {
       var n = parseInt(num, 10);
-      if (n < 1 || n > 199) return full;
+      if (n < 1 || n > activeQuestionLimit) return full;
       var lineStart = whole.lastIndexOf('\n', offset);
       var beforeNum = whole.slice(lineStart + 1, offset) + before + sp;
       if (/(?:Article|Section|Chapter|Rule|Act|Part|Schedule|CrPC|IPC)\s+\d{1,3}\s*$/i.test(beforeNum + num)) {
@@ -37,7 +41,7 @@
       if (/(?:Section|Article|Act|Order|Rule|Chapter|Part|No|CrPC|IPC|Schedule)\s*$/i.test(beforeNum)) {
         return full;
       }
-      if (n > 120) return full;
+      if (n > activeQuestionLimit) return full;
       return before + '\n' + num + '. ';
     });
     t = t.replace(/([?.!)])\s+([A-D])\.\s+/g, '$1\n$2. ');
@@ -46,7 +50,7 @@
     t = t.replace(/([^.\n])\s+([B-Da-d])\.(\s+)(?=[A-Z0-9"'(])/g, '$1\n$2.$3');
     t = t.replace(/\)\s*(\d{1,3})\.\s/g, function (full, num, offset, whole) {
       var n = parseInt(num, 10);
-      if (n < 1 || n > 199) return full;
+      if (n < 1 || n > activeQuestionLimit) return full;
       var before = whole.slice(Math.max(0, offset - 24), offset);
       if (/\(\d{0,3}$/.test(before)) return full;
       if (/\bthrough\s*$/i.test(before.slice(-14))) return full;
@@ -129,7 +133,7 @@
 
   /** "125. CrPC…" / short "Article 32." citation ghosts — not real questions. */
   function isCitationQuestionLine(s, qn) {
-    if (qn > 120) return true;
+    if (qn > activeQuestionLimit) return true;
     var t = String(s || '').trim();
     if (hasMcqPromptCue(t)) return false;
     /** Mid-passage "125. under Section…" only (lowercase) — not "32. Under the United Nations…" */
@@ -799,14 +803,14 @@
     var m = s.match(/^\s*(\d{1,3})\.\s+(\S)/);
     if (m) {
       var n1 = parseInt(m[1], 10);
-      if (n1 < 1 || n1 > 199) return null;
+      if (n1 < 1 || n1 > activeQuestionLimit) return null;
       if (!acceptsQuestionHeaderStem(s, n1, lines, idx)) return null;
       return n1;
     }
     m = s.match(/^\s*(\d{1,3})\.(\S)/);
     if (m) {
       var n2 = parseInt(m[1], 10);
-      if (n2 < 1 || n2 > 199) return null;
+      if (n2 < 1 || n2 > activeQuestionLimit) return null;
       if (!acceptsQuestionHeaderStem(s, n2, lines, idx)) return null;
       return n2;
     }
@@ -955,7 +959,7 @@
     if (!m) m = line.match(/^(\d{1,3})$/);
     if (!m) return null;
     var n = parseInt(m[1], 10);
-    if (n < 1 || n > 120 || idx + 1 >= lines.length) return null;
+    if (n < 1 || n > activeQuestionLimit || idx + 1 >= lines.length) return null;
     var stem = String(lines[idx + 1] || '').trim();
     if (!stem || isStrictOptionLine(stem)) return null;
     if (isPassageBleedStem(stem)) return null;
@@ -1165,7 +1169,13 @@
       var priorBlock = lines.slice(blockStart, idx).join('\n');
       if (isPassageBleedBlock(priorBlock) && stemLooksLikeMcqQuestionAt(lines, idx)) return true;
     }
-    if (nextQn != null && (nextQn > currentQn || (currentQn > 120 && nextQn <= 120))) return true;
+    if (
+      nextQn != null &&
+      (nextQn > currentQn ||
+        (currentQn > activeQuestionLimit && nextQn <= activeQuestionLimit))
+    ) {
+      return true;
+    }
     var splitQn = matchSplitQuestionHeader(lines, idx);
     if (splitQn != null && splitQn === currentQn && idx > blockStart) {
       var priorSplit = lines.slice(blockStart, idx).join('\n');
@@ -1198,7 +1208,7 @@
       var prior = lines.slice(0, b).join('\n');
       if (isPassageBleedBlock(prior) && stemLooksLikeMcqQuestionAt(lines, b)) return eh;
     }
-    if (eh != null && eh > segNum && eh <= 120) return eh;
+    if (eh != null && eh > segNum && eh <= activeQuestionLimit) return eh;
     if (
       b > 0 &&
       isSplitQuestionNumberOnlyLine(lines[0]) &&
@@ -1283,6 +1293,12 @@
 
   function parseQuestionsFromText(text, opts) {
     opts = opts && typeof opts === 'object' ? opts : {};
+    var requestedLimit = parseInt(opts.expectedQuestionCount, 10);
+    var hasExpectedLimit =
+      Number.isFinite(requestedLimit) &&
+      requestedLimit >= 1 &&
+      requestedLimit <= MAX_QUESTION_LIMIT;
+    activeQuestionLimit = hasExpectedLimit ? requestedLimit : DEFAULT_QUESTION_LIMIT;
     var sectionalCategory =
       opts.kind === 'sectional' && opts.category ? String(opts.category).trim() : '';
     var sectionalPatterns = sectionalCategory
@@ -1369,7 +1385,7 @@
       if (qn == null && isLostNumberQuestionStem(lines[i])) {
         if (lineHasMcqOptionsAhead(lines, i) || lineHasGluedOptionsOnSameLine(lines[i])) {
           qn = lastQuestionNum + 1;
-          if (qn > 120) qn = null;
+          if (qn > activeQuestionLimit) qn = null;
         }
       }
       if (qn != null) {
@@ -1433,7 +1449,7 @@
         if (isPassageBleedBlock(rqItem.block)) {
           continue;
         }
-        if (rqItem.num >= 1 && rqItem.num <= 120) {
+        if (rqItem.num >= 1 && rqItem.num <= activeQuestionLimit) {
           dropped.push({ number: rqItem.num, reason: 'no_options' });
         }
         continue;
@@ -1472,8 +1488,8 @@
       foundNums[questions[fn].number] = true;
     }
     var isSectional = opts.kind === 'sectional';
-    if (!isSectional) {
-      for (var exp = 1; exp <= 120; exp++) {
+    if (!isSectional || hasExpectedLimit) {
+      for (var exp = 1; exp <= activeQuestionLimit; exp++) {
         if (!foundNums[exp]) missingNumbers.push(exp);
       }
     } else if (questions.length) {
@@ -1533,10 +1549,21 @@
   function parseOptsFromTestRow(row) {
     if (!row || typeof row !== 'object') return undefined;
     var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
-    if (kind !== 'sectional') return undefined;
     var category = row.test_category != null ? String(row.test_category).trim() : '';
-    if (!category) return undefined;
-    return { kind: 'sectional', category: category };
+    var count = parseInt(row.question_count, 10);
+    var hasCount = Number.isFinite(count) && count >= 1 && count <= MAX_QUESTION_LIMIT;
+    if (!hasCount && category.toUpperCase() === 'AILET') {
+      count = 150;
+      hasCount = true;
+    }
+    if (kind !== 'sectional' && !hasCount) return undefined;
+    var result = {};
+    if (kind === 'sectional' && category) {
+      result.kind = 'sectional';
+      result.category = category;
+    }
+    if (hasCount) result.expectedQuestionCount = count;
+    return Object.keys(result).length ? result : undefined;
   }
 
   global.ExamQuestionParser = {

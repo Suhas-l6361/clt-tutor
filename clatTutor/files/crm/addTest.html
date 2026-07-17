@@ -1934,6 +1934,11 @@
             <label for="at-title">Assessment title</label>
             <input id="at-title" name="title" type="text" required placeholder="e.g. Legal reasoning — Weekly drill 12" autocomplete="off" />
           </div>
+          <div class="at-field" style="margin-bottom: 0.75rem">
+            <label for="at-question-count">Number of questions</label>
+            <input id="at-question-count" name="questionCount" type="number" min="1" max="200" step="1" required placeholder="Enter 1 to 200" inputmode="numeric" />
+            <p class="at-hint" style="margin: 0.35rem 0 0">The question paper parser will read up to this question number.</p>
+          </div>
           <div class="at-upload-pair">
             <div class="at-upload-col">
               <div class="at-upload-col-title">Question paper</div>
@@ -2212,7 +2217,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=202607092"></script>
+  <script src="../js/exam-question-parser.js?v=202607171"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/config.js"></script>
@@ -2287,6 +2292,7 @@
       var testCategoryInput = document.getElementById('at-test-category');
       var sectionTagInput = document.getElementById('at-section-tag');
       var titleInput = document.getElementById('at-title');
+      var questionCountInput = document.getElementById('at-question-count');
       var testOpenInput = document.getElementById('at-test-open');
       var visibilityStatusEl = document.getElementById('at-visibility-status');
       var uploadModalOpen = false;
@@ -2657,6 +2663,14 @@
         if (testKindInput) testKindInput.value = kind || '';
         if (testCategoryInput) testCategoryInput.value = category || '';
         if (sectionTagInput) sectionTagInput.value = sectionTag || '';
+        if (questionCountInput) {
+          questionCountInput.value =
+            kind === 'mock' && String(category).toUpperCase() === 'AILET'
+              ? '150'
+              : kind === 'mock' && String(category).toUpperCase() === 'CLAT'
+                ? '120'
+                : '';
+        }
         if (uploadModalTitle) {
           uploadModalTitle.textContent =
             kind === 'mock' ? String(category) + ' Mock Test' : String(category) + ' Sectional Test';
@@ -4024,11 +4038,24 @@
 
       function currentParseOpts() {
         var kind = testKindInput && testKindInput.value ? String(testKindInput.value).trim().toLowerCase() : '';
-        if (kind !== 'sectional') return undefined;
         var category =
           testCategoryInput && testCategoryInput.value ? String(testCategoryInput.value).trim() : '';
-        if (!category) return undefined;
-        return { kind: 'sectional', category: category };
+        var expectedQuestionCount = questionCountInput
+          ? parseInt(questionCountInput.value, 10)
+          : NaN;
+        var opts = {};
+        if (kind === 'sectional' && category) {
+          opts.kind = 'sectional';
+          opts.category = category;
+        }
+        if (
+          Number.isFinite(expectedQuestionCount) &&
+          expectedQuestionCount >= 1 &&
+          expectedQuestionCount <= 200
+        ) {
+          opts.expectedQuestionCount = expectedQuestionCount;
+        }
+        return Object.keys(opts).length ? opts : undefined;
       }
 
       function runQuizPreview() {
@@ -4092,7 +4119,9 @@
                 miss += '… (+' + (parsed.missingNumbers.length - 12) + ' more)';
               }
               var expectedLabel =
-                parseOpts && parseOpts.kind === 'sectional'
+                parseOpts && parseOpts.expectedQuestionCount
+                  ? 'Expected ' + parseOpts.expectedQuestionCount
+                  : parseOpts && parseOpts.kind === 'sectional'
                   ? 'Expected all questions through Q' +
                     (parsed.questions.length
                       ? parsed.questions[parsed.questions.length - 1].number
@@ -4113,7 +4142,11 @@
                   return d.number;
                 })
                 .filter(function (n) {
-                  return n >= 1 && n <= 120;
+                  var limit =
+                    parseOpts && parseOpts.expectedQuestionCount
+                      ? parseOpts.expectedQuestionCount
+                      : 120;
+                  return n >= 1 && n <= limit;
                 })
                 .join(', ');
               if (dropNums) {
@@ -4940,6 +4973,14 @@
           document.getElementById('at-title').focus();
           return;
         }
+        var questionCount = questionCountInput
+          ? parseInt(questionCountInput.value, 10)
+          : NaN;
+        if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
+          showToast('Invalid question count', 'Enter the number of questions from 1 to 200.');
+          if (questionCountInput) questionCountInput.focus();
+          return;
+        }
         if (!fileQ.files || !fileQ.files.length || !extOk(fileQ.files[0].name)) {
           showToast('Question paper required', 'Upload a PDF or Word file for the question paper.');
           dropQ.focus();
@@ -4978,6 +5019,7 @@
           scheduled: scheduledFull || null,
           scheduled_at: scheduledFull || null,
           selected_branch: branches,
+          question_count: questionCount,
         };
         if (testKindInput && testKindInput.value) postPayload.test_kind = testKindInput.value;
         if (testCategoryInput && testCategoryInput.value) postPayload.test_category = testCategoryInput.value;
