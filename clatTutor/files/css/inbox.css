@@ -404,12 +404,57 @@ body.inbox-page.crm-dashboard .page-content {
 
 .inbox-mail__rail-foot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
   padding-top: 0.65rem;
   border-top: 1px solid #e2e8f0;
   margin-top: auto;
+}
+
+.inbox-mail__rail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.inbox-mail__sync {
+  flex: 1;
+  min-height: 2rem;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 0.55rem;
+}
+
+.inbox-mail__sync:hover:not(:disabled) {
+  background: #dbeafe;
+}
+
+.inbox-mail__sync:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.inbox-mail__sync-status {
+  margin: 0;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.inbox-mail__sync-status.is-error {
+  color: #b91c1c;
 }
 
 .inbox-mail__stats {

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/inbox.css?v=20260715a" />
+  <link rel="stylesheet" href="../css/inbox.css?v=20260716b" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -69,9 +69,17 @@
 
           <div class="inbox-mail__rail-foot">
             <p class="inbox-mail__stats" id="inbox-active-stats" aria-live="polite"></p>
-            <button type="button" class="inbox-mail__refresh" id="inbox-btn-refresh" title="Refresh">
-              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-            </button>
+            <div class="inbox-mail__rail-actions">
+              <button type="button" class="inbox-mail__sync" id="inbox-btn-upload-eml" title="Upload older .eml emails into CRM">
+                <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+                <span>Upload emails</span>
+              </button>
+              <input type="file" id="inbox-eml-file" accept=".eml,message/rfc822,.msg" multiple hidden />
+              <button type="button" class="inbox-mail__refresh" id="inbox-btn-refresh" title="Refresh">
+                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p id="inbox-sync-status" class="inbox-mail__sync-status" hidden></p>
           </div>
         </aside>
 
@@ -108,7 +116,7 @@
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/inbox-page.js?v=20260716a"></script>
+  <script src="../js/inbox-page.js?v=20260716d"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

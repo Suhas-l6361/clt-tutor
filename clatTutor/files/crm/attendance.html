@@ -79,6 +79,10 @@
           <strong id="attendance-stat-absent">0</strong>
           <span>Absent</span>
         </div>
+        <div class="attendance-stat attendance-stat--unmarked">
+          <strong id="attendance-stat-unmarked">0</strong>
+          <span>Not marked</span>
+        </div>
       </div>
 
       <p id="attendance-loading" class="attendance-loading" hidden>
@@ -109,7 +113,7 @@
       </section>
 
       <div class="attendance-save-bar">
-        <p>Review present / absent for each student, then save attendance for this date.</p>
+        <p>Mark every student present or absent, review the totals, then save attendance for this date.</p>
         <button type="button" class="attendance-btn attendance-btn--primary" id="attendance-save" disabled>
           <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
           Save attendance
@@ -127,7 +131,12 @@
       >
         <div class="attendance-history-modal__head">
           <h2 id="attendance-history-title" class="attendance-history-modal__title">Attendance history</h2>
-          <button type="button" class="attendance-history-modal__x" id="attendance-history-close" aria-label="Close">×</button>
+          <div class="attendance-history-modal__head-actions">
+            <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-history-export">
+              <i class="fa-solid fa-file-excel" aria-hidden="true"></i> Export Excel
+            </button>
+            <button type="button" class="attendance-history-modal__x" id="attendance-history-close" aria-label="Close">×</button>
+          </div>
         </div>
         <div class="attendance-history-modal__body">
           <div class="attendance-history-filters">
@@ -139,13 +148,35 @@
               <span class="attendance-history-filters__label">To date</span>
               <input type="date" id="attendance-history-to" class="attendance-history-filters__input" />
             </label>
+            <label class="attendance-history-filters__field attendance-history-filters__field--student">
+              <span class="attendance-history-filters__label">Find student</span>
+              <input
+                type="text"
+                id="attendance-history-student"
+                class="attendance-history-filters__input"
+                list="attendance-history-student-list"
+                placeholder="Name or student ID"
+                autocomplete="off"
+              />
+              <datalist id="attendance-history-student-list"></datalist>
+            </label>
             <div class="attendance-history-filters__actions">
               <button type="button" class="attendance-btn attendance-btn--primary attendance-btn--xs" id="attendance-history-apply">Apply</button>
               <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-history-reset">Reset</button>
+              <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-history-view-student">
+                <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Student analytics
+              </button>
             </div>
           </div>
           <p id="attendance-history-loading" class="attendance-history-loading" hidden>Loading…</p>
           <p id="attendance-history-error" class="attendance-history-error" hidden></p>
+          <div class="attendance-history-summary" id="attendance-history-summary">
+            <div><span>Sessions</span><strong id="attendance-history-stat-sessions">0</strong></div>
+            <div><span>Records</span><strong id="attendance-history-stat-records">0</strong></div>
+            <div class="is-present"><span>Present</span><strong id="attendance-history-stat-present">0</strong></div>
+            <div class="is-absent"><span>Absent</span><strong id="attendance-history-stat-absent">0</strong></div>
+            <div class="is-rate"><span>Attendance rate</span><strong id="attendance-history-stat-rate">0%</strong></div>
+          </div>
           <div class="attendance-history-table-wrap">
             <table class="attendance-history-table">
               <thead>
@@ -185,6 +216,7 @@
               <tr>
                 <th>Student</th>
                 <th>Status</th>
+                <th class="attendance-history-table__th-actions">Correction</th>
               </tr>
             </thead>
             <tbody id="attendance-history-detail-tbody"></tbody>
@@ -192,6 +224,87 @@
         </div>
         <div class="attendance-history-detail-footer">
           <button type="button" class="attendance-btn" id="attendance-history-detail-close-2">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="attendance-student-analytics-modal" class="attendance-history-modal attendance-history-modal--analytics" hidden>
+      <div class="attendance-history-modal__backdrop" data-attendance-analytics-close tabindex="-1"></div>
+      <div
+        class="attendance-history-modal__panel attendance-history-modal__panel--analytics"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-analytics-title"
+      >
+        <div class="attendance-history-modal__head">
+          <div>
+            <p class="attendance-analytics__eyebrow">Student report</p>
+            <h2 id="attendance-analytics-title" class="attendance-history-modal__title">Attendance analytics</h2>
+          </div>
+          <div class="attendance-history-modal__head-actions">
+            <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-analytics-export">
+              <i class="fa-solid fa-file-excel" aria-hidden="true"></i> Export
+            </button>
+            <button type="button" class="attendance-history-modal__x" id="attendance-analytics-close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="attendance-analytics__body">
+          <div class="attendance-analytics__student">
+            <div class="attendance-analytics__avatar" id="attendance-analytics-avatar">ST</div>
+            <div>
+              <h3 id="attendance-analytics-name">Student</h3>
+              <p id="attendance-analytics-meta">—</p>
+            </div>
+          </div>
+          <div class="attendance-history-filters attendance-analytics__filters">
+            <label class="attendance-history-filters__field">
+              <span class="attendance-history-filters__label">From date</span>
+              <input type="date" id="attendance-analytics-from" class="attendance-history-filters__input" />
+            </label>
+            <label class="attendance-history-filters__field">
+              <span class="attendance-history-filters__label">To date</span>
+              <input type="date" id="attendance-analytics-to" class="attendance-history-filters__input" />
+            </label>
+            <div class="attendance-history-filters__actions">
+              <button type="button" class="attendance-btn attendance-btn--primary attendance-btn--xs" id="attendance-analytics-apply">Apply</button>
+              <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-analytics-reset">All time</button>
+            </div>
+          </div>
+          <p id="attendance-analytics-loading" class="attendance-history-loading" hidden>Loading student attendance…</p>
+          <p id="attendance-analytics-error" class="attendance-history-error" hidden></p>
+          <div class="attendance-analytics__stats">
+            <div><span>Total classes</span><strong id="attendance-analytics-total">0</strong></div>
+            <div class="is-present"><span>Present</span><strong id="attendance-analytics-present">0</strong></div>
+            <div class="is-absent"><span>Absent</span><strong id="attendance-analytics-absent">0</strong></div>
+            <div class="is-rate"><span>Attendance rate</span><strong id="attendance-analytics-rate">0%</strong></div>
+          </div>
+          <div class="attendance-analytics__grid">
+            <section class="attendance-analytics__chart-card">
+              <div>
+                <h3>Attendance overview</h3>
+                <p>Present and absent distribution for the selected period.</p>
+              </div>
+              <div class="attendance-analytics__chart-wrap">
+                <canvas id="attendance-analytics-chart"></canvas>
+              </div>
+            </section>
+            <section class="attendance-analytics__records">
+              <div class="attendance-history-detail-scroll">
+                <table class="attendance-history-detail-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Batch</th>
+                      <th>Branch</th>
+                      <th>Status</th>
+                      <th class="attendance-history-table__th-actions">Correction</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendance-analytics-tbody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>
@@ -208,6 +321,8 @@
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/student-chrome.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="../js/attendance-page.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

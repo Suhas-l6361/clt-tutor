@@ -21,6 +21,10 @@
   var studentsById = Object.create(null);
   var historySessionsByKey = Object.create(null);
   var historyDetailSession = null;
+  var currentHistoryRows = [];
+  var analyticsRows = [];
+  var analyticsStudent = null;
+  var analyticsChart = null;
 
   var elBatch;
   var elBranch;
@@ -35,6 +39,7 @@
   var elStatTotal;
   var elStatPresent;
   var elStatAbsent;
+  var elStatUnmarked;
   var elRosterMeta;
 
   function todayIso() {
@@ -254,19 +259,23 @@
   function updateStats() {
     var present = 0;
     var absent = 0;
+    var unmarked = 0;
     roster.forEach(function (s) {
       var id = String(s.student_id);
-      var st = statusByStudentId[id] || 'absent';
+      var st = statusByStudentId[id] || 'not_marked';
       if (st === 'present') present += 1;
-      else absent += 1;
+      else if (st === 'absent') absent += 1;
+      else unmarked += 1;
     });
     if (elStatTotal) elStatTotal.textContent = String(roster.length);
     if (elStatPresent) elStatPresent.textContent = String(present);
     if (elStatAbsent) elStatAbsent.textContent = String(absent);
+    if (elStatUnmarked) elStatUnmarked.textContent = String(unmarked);
   }
 
   function setStatus(studentId, status) {
-    statusByStudentId[String(studentId)] = status === 'present' ? 'present' : 'absent';
+    if (status !== 'present' && status !== 'absent') status = 'not_marked';
+    statusByStudentId[String(studentId)] = status;
     updateStats();
     var row = elTableBody && elTableBody.querySelector('tr[data-student-id="' + studentId + '"]');
     if (!row) return;
@@ -306,7 +315,7 @@
     elTableBody.innerHTML = roster
       .map(function (s) {
         var id = String(s.student_id);
-        var st = statusByStudentId[id] || 'absent';
+        var st = statusByStudentId[id] || 'not_marked';
         var name = escapeHtml(s.name || '—');
         return (
           '<tr data-student-id="' +
@@ -352,7 +361,7 @@
   function resetAttendanceMarks(defaultStatus) {
     statusByStudentId = {};
     roster.forEach(function (s) {
-      statusByStudentId[String(s.student_id)] = defaultStatus || 'absent';
+      statusByStudentId[String(s.student_id)] = defaultStatus || 'not_marked';
     });
   }
 
@@ -384,6 +393,15 @@
     return q ? ATTENDANCE_API + '?' + q : ATTENDANCE_API;
   }
 
+  function attendanceHeaders(includeJson) {
+    var base = { Accept: 'application/json' };
+    if (includeJson) base['Content-Type'] = 'application/json';
+    if (window.Auth && typeof window.Auth.authHeaders === 'function') {
+      return window.Auth.authHeaders(base);
+    }
+    return base;
+  }
+
   async function fetchSavedAttendance(f) {
     if (!ATTENDANCE_API) return [];
     var url = attendanceApiUrl({
@@ -392,7 +410,7 @@
       targetYear: f.targetYear,
       attendance_date: f.attendance_date,
     });
-    var res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
+    var res = await fetch(url, { method: 'GET', headers: attendanceHeaders(false) });
     var data = await res.json();
     if (!res.ok) {
       throw new Error((data && data.message) || 'Failed to load saved attendance');
@@ -503,7 +521,7 @@
         return;
       }
 
-      resetAttendanceMarks('absent');
+      resetAttendanceMarks('not_marked');
 
       try {
         var saved = await fetchSavedAttendance(f);
@@ -534,6 +552,56 @@
       return;
     }
 
+    var unmarked = roster.filter(function (s) {
+      var status = statusByStudentId[String(s.student_id)];
+      return status !== 'present' && status !== 'absent';
+    });
+    if (unmarked.length) {
+      showPopup(
+        'error',
+        'Mark every student as present or absent before saving. ' +
+          unmarked.length +
+          ' student' +
+          (unmarked.length === 1 ? ' is' : 's are') +
+          ' still unmarked.'
+      );
+      return;
+    }
+
+    var presentCount = roster.filter(function (s) {
+      return statusByStudentId[String(s.student_id)] === 'present';
+    }).length;
+    var absentCount = roster.length - presentCount;
+    var confirmed;
+    if (typeof window.showFriendlyConfirm === 'function') {
+      confirmed = await window.showFriendlyConfirm({
+        title: 'Confirm attendance',
+        message:
+          'Review the attendance summary before saving. Every student will receive their attendance status by email.',
+        confirmText: 'Save & notify',
+        cancelText: 'Review again',
+        details: [
+          { label: 'Students', value: roster.length, tone: 'neutral' },
+          { label: 'Present', value: presentCount, tone: 'success' },
+          { label: 'Absent', value: absentCount, tone: 'danger' },
+          { label: 'Emails', value: roster.length, tone: 'warning' },
+        ],
+      });
+    } else {
+      confirmed = window.confirm(
+        'Confirm attendance submission?\n\n' +
+          'Total students: ' +
+          roster.length +
+          '\nPresent: ' +
+          presentCount +
+          '\nAbsent: ' +
+          absentCount +
+          '\nEmails to queue: ' +
+          roster.length
+      );
+    }
+    if (!confirmed) return;
+
     if (elSave) elSave.disabled = true;
 
     var records = roster.map(function (s) {
@@ -548,7 +616,7 @@
     try {
       var res = await fetch(ATTENDANCE_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: attendanceHeaders(true),
         body: JSON.stringify({
           batch: f.batch,
           branch: f.branch,
@@ -559,7 +627,23 @@
       });
       var data = await res.json();
       if (!res.ok) throw new Error((data && data.message) || 'Save failed');
-      showPopup('success', (data && data.message) || 'Attendance saved successfully.');
+      var resultMessage = (data && data.message) || 'Attendance saved successfully.';
+      if (data && typeof data.emailsQueued === 'number') {
+        resultMessage += ' ' + data.emailsQueued + ' attendance email notification';
+        resultMessage += data.emailsQueued === 1 ? ' was' : 's were';
+        resultMessage += ' queued.';
+      }
+      if (data && data.emailsSkipped) {
+        resultMessage += ' ' + data.emailsSkipped + ' student email';
+        resultMessage += data.emailsSkipped === 1 ? ' was' : 's were';
+        resultMessage += ' skipped.';
+      }
+      if (data && data.emailsFailedToQueue) {
+        resultMessage += ' ' + data.emailsFailedToQueue + ' notification';
+        resultMessage += data.emailsFailedToQueue === 1 ? ' failed' : 's failed';
+        resultMessage += ' to queue.';
+      }
+      showPopup(data && data.emailsFailedToQueue ? 'error' : 'success', resultMessage);
     } catch (err) {
       showPopup('error', err && err.message ? err.message : 'Could not save attendance.');
     } finally {
@@ -621,18 +705,148 @@
     var toEl = document.getElementById('attendance-history-to');
     var applyBtn = document.getElementById('attendance-history-apply');
     var resetBtn = document.getElementById('attendance-history-reset');
+    var exportBtn = document.getElementById('attendance-history-export');
+    var studentInput = document.getElementById('attendance-history-student');
+    var studentList = document.getElementById('attendance-history-student-list');
+    var viewStudentBtn = document.getElementById('attendance-history-view-student');
     var closeBtn = document.getElementById('attendance-history-close');
     var detailClose = document.getElementById('attendance-history-detail-close');
     var detailClose2 = document.getElementById('attendance-history-detail-close-2');
     var backdrop = modal ? modal.querySelector('[data-attendance-history-close]') : null;
     var detailBackdrop = detailModal ? detailModal.querySelector('[data-attendance-history-close]') : null;
+    var analyticsModal = document.getElementById('attendance-student-analytics-modal');
+    var analyticsClose = document.getElementById('attendance-analytics-close');
+    var analyticsBackdrop = analyticsModal
+      ? analyticsModal.querySelector('[data-attendance-analytics-close]')
+      : null;
+    var analyticsFrom = document.getElementById('attendance-analytics-from');
+    var analyticsTo = document.getElementById('attendance-analytics-to');
+    var analyticsApply = document.getElementById('attendance-analytics-apply');
+    var analyticsReset = document.getElementById('attendance-analytics-reset');
+    var analyticsExport = document.getElementById('attendance-analytics-export');
+    var analyticsTbody = document.getElementById('attendance-analytics-tbody');
+    var analyticsLoading = document.getElementById('attendance-analytics-loading');
+    var analyticsError = document.getElementById('attendance-analytics-error');
 
     if (!btn || !modal || !tbody) return;
 
     var histEsc = null;
     var detEsc = null;
+    var analyticsEsc = null;
     var activeFrom = '';
     var activeTo = '';
+
+    function populateStudentList() {
+      if (!studentList) return;
+      studentList.innerHTML = allRows
+        .slice()
+        .sort(function (a, b) {
+          return String(a.name || '').localeCompare(String(b.name || ''));
+        })
+        .map(function (student) {
+          return (
+            '<option value="' +
+            escapeAttr(String(student.student_id) + ' — ' + (student.name || 'Student')) +
+            '">' +
+            escapeHtml(student.email || '') +
+            '</option>'
+          );
+        })
+        .join('');
+    }
+
+    function resolveStudent(value) {
+      var query = normKey(value);
+      if (!query) return null;
+      var idPart = query.split('—')[0].trim();
+      return (
+        allRows.find(function (student) {
+          return String(student.student_id) === idPart;
+        }) ||
+        allRows.find(function (student) {
+          return (
+            normKey(student.name) === query ||
+            normKey(student.email) === query ||
+            normKey(student.name).indexOf(query) !== -1
+          );
+        }) ||
+        null
+      );
+    }
+
+    function updateHistorySummary(rows, sessions) {
+      var present = rows.filter(function (row) {
+        return String(row.status).toLowerCase() === 'present';
+      }).length;
+      var absent = rows.length - present;
+      var rate = rows.length ? Math.round((present / rows.length) * 100) : 0;
+      document.getElementById('attendance-history-stat-sessions').textContent = String(sessions.length);
+      document.getElementById('attendance-history-stat-records').textContent = String(rows.length);
+      document.getElementById('attendance-history-stat-present').textContent = String(present);
+      document.getElementById('attendance-history-stat-absent').textContent = String(absent);
+      document.getElementById('attendance-history-stat-rate').textContent = rate + '%';
+    }
+
+    function exportAttendanceRows(rows, filename, sheetName) {
+      if (!rows.length) {
+        showPopup('error', 'There is no attendance data to export.');
+        return;
+      }
+      var data = rows.map(function (row) {
+        return {
+          Date: String(row.attendance_date || '').slice(0, 10),
+          'Student ID': row.student_id,
+          Student: row.name || '',
+          Batch: row.batch || '',
+          Branch: row.branch || '',
+          'Target Year': row.target_year || '',
+          Status: String(row.status || '').toLowerCase() === 'present' ? 'Present' : 'Absent',
+          'Recorded By': row.added_by || '',
+        };
+      });
+      if (window.XLSX && XLSX.utils) {
+        var worksheet = XLSX.utils.json_to_sheet(data);
+        worksheet['!cols'] = [
+          { wch: 13 },
+          { wch: 12 },
+          { wch: 24 },
+          { wch: 20 },
+          { wch: 16 },
+          { wch: 13 },
+          { wch: 11 },
+          { wch: 24 },
+        ];
+        var workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName || 'Attendance');
+        XLSX.writeFile(workbook, filename);
+        return;
+      }
+      var headers = Object.keys(data[0]);
+      var csv = [headers]
+        .concat(
+          data.map(function (row) {
+            return headers.map(function (header) {
+              return row[header];
+            });
+          })
+        )
+        .map(function (row) {
+          return row
+            .map(function (cell) {
+              return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
+            })
+            .join(',');
+        })
+        .join('\r\n');
+      var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename.replace(/\.xlsx$/i, '.csv');
+      link.click();
+      setTimeout(function () {
+        URL.revokeObjectURL(link.href);
+      }, 1000);
+    }
 
     function closeHistoryModal() {
       if (!modal || modal.hidden) return;
@@ -655,9 +869,26 @@
       }
     }
 
+    function closeAnalyticsModal() {
+      if (!analyticsModal || analyticsModal.hidden) return;
+      analyticsModal.hidden = true;
+      document.body.classList.remove('attendance-analytics-modal-open');
+      analyticsStudent = null;
+      analyticsRows = [];
+      if (analyticsChart) {
+        analyticsChart.destroy();
+        analyticsChart = null;
+      }
+      if (analyticsEsc) {
+        document.removeEventListener('keydown', analyticsEsc);
+        analyticsEsc = null;
+      }
+    }
+
     function openHistoryModal() {
       modal.hidden = false;
       document.body.classList.add('attendance-history-modal-open');
+      populateStudentList();
       histEsc = function (e) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -697,7 +928,9 @@
             var st = String(r.status || '').toLowerCase() === 'present' ? 'present' : 'absent';
             return (
               '<tr>' +
-              '<td><div class="attendance-student-cell">' +
+              '<td><button type="button" class="attendance-history-student-link" data-student-id="' +
+              escapeAttr(id) +
+              '"><div class="attendance-student-cell">' +
               '<div class="attendance-student-cell__avatar" data-att-avatar="' +
               escapeAttr(id) +
               '" data-att-name="' +
@@ -709,12 +942,19 @@
               '</span>' +
               '<span class="attendance-student-cell__id">#' +
               escapeHtml(id) +
-              '</span></div></div></td>' +
+              '</span></div></div></button></td>' +
               '<td><span class="attendance-badge attendance-badge--' +
               st +
               '">' +
               (st === 'present' ? 'Present' : 'Absent') +
-              '</span></td></tr>'
+              '</span></td>' +
+              '<td><button type="button" class="attendance-correction-btn" data-correct-id="' +
+              escapeAttr(r.id) +
+              '" data-current-status="' +
+              st +
+              '">' +
+              (st === 'present' ? 'Change to absent' : 'Change to present') +
+              '</button></td></tr>'
             );
           })
           .join('');
@@ -731,9 +971,229 @@
       document.addEventListener('keydown', detEsc);
     }
 
+    function findAttendanceRecord(recordId) {
+      var id = String(recordId);
+      return currentHistoryRows
+        .concat(analyticsRows)
+        .find(function (row) {
+          return String(row.id) === id;
+        });
+    }
+
+    async function correctAttendance(recordId) {
+      var record = findAttendanceRecord(recordId);
+      if (!record) {
+        showPopup('error', 'Attendance record could not be found.');
+        return;
+      }
+      var current = String(record.status || '').toLowerCase() === 'present' ? 'present' : 'absent';
+      var next = current === 'present' ? 'absent' : 'present';
+      var confirmed =
+        typeof window.showFriendlyConfirm === 'function'
+          ? await window.showFriendlyConfirm({
+              title: 'Correct attendance status',
+              message:
+                'Change ' +
+                (record.name || 'this student') +
+                ' from ' +
+                current +
+                ' to ' +
+                next +
+                ' for ' +
+                formatDisplayDate(record.attendance_date) +
+                '?',
+              confirmText: 'Change to ' + next,
+              cancelText: 'Keep ' + current,
+              details: [
+                { label: 'Current', value: current, tone: current === 'present' ? 'success' : 'danger' },
+                { label: 'New status', value: next, tone: next === 'present' ? 'success' : 'danger' },
+              ],
+            })
+          : window.confirm('Change attendance from ' + current + ' to ' + next + '?');
+      if (!confirmed) return;
+
+      try {
+        var res = await fetch(ATTENDANCE_API, {
+          method: 'PUT',
+          headers: attendanceHeaders(true),
+          body: JSON.stringify({
+            id: record.id,
+            status: next,
+            reason: 'Manual correction from CRM attendance history',
+          }),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error((data && data.message) || 'Correction failed');
+        showPopup('success', (data && data.message) || 'Attendance corrected successfully.');
+        closeDetailModal();
+        await loadHistory(activeFrom, activeTo);
+        if (analyticsStudent) {
+          await loadStudentAnalytics(
+            analyticsFrom ? analyticsFrom.value : '',
+            analyticsTo ? analyticsTo.value : ''
+          );
+        }
+      } catch (error) {
+        showPopup('error', error.message || 'Could not correct attendance.');
+      }
+    }
+
+    function renderAnalyticsChart(present, absent) {
+      var canvas = document.getElementById('attendance-analytics-chart');
+      if (!canvas || typeof window.Chart !== 'function') return;
+      if (analyticsChart) analyticsChart.destroy();
+      analyticsChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent'],
+          datasets: [
+            {
+              data: [present, absent],
+              backgroundColor: ['#22c55e', '#ef4444'],
+              borderColor: ['#ffffff', '#ffffff'],
+              borderWidth: 3,
+              hoverOffset: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { usePointStyle: true, padding: 18, font: { size: 12, weight: '600' } },
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  var total = present + absent;
+                  var percent = total ? Math.round((context.raw / total) * 100) : 0;
+                  return ' ' + context.label + ': ' + context.raw + ' (' + percent + '%)';
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderStudentAnalytics(rows) {
+      analyticsRows = rows.slice();
+      var present = rows.filter(function (row) {
+        return String(row.status).toLowerCase() === 'present';
+      }).length;
+      var absent = rows.length - present;
+      var rate = rows.length ? Math.round((present / rows.length) * 100) : 0;
+      document.getElementById('attendance-analytics-total').textContent = String(rows.length);
+      document.getElementById('attendance-analytics-present').textContent = String(present);
+      document.getElementById('attendance-analytics-absent').textContent = String(absent);
+      document.getElementById('attendance-analytics-rate').textContent = rate + '%';
+      renderAnalyticsChart(present, absent);
+
+      if (!analyticsTbody) return;
+      if (!rows.length) {
+        analyticsTbody.innerHTML =
+          '<tr class="attendance-history-table__empty"><td colspan="5">No attendance records found for this period.</td></tr>';
+        return;
+      }
+      analyticsTbody.innerHTML = rows
+        .map(function (row) {
+          var status = String(row.status).toLowerCase() === 'present' ? 'present' : 'absent';
+          return (
+            '<tr>' +
+            '<td>' +
+            escapeHtml(formatDisplayDate(row.attendance_date)) +
+            '</td><td>' +
+            escapeHtml(row.batch || '—') +
+            '</td><td>' +
+            escapeHtml(row.branch || '—') +
+            '</td><td><span class="attendance-badge attendance-badge--' +
+            status +
+            '">' +
+            (status === 'present' ? 'Present' : 'Absent') +
+            '</span></td><td><button type="button" class="attendance-correction-btn" data-correct-id="' +
+            escapeAttr(row.id) +
+            '">' +
+            (status === 'present' ? 'Change to absent' : 'Change to present') +
+            '</button></td></tr>'
+          );
+        })
+        .join('');
+    }
+
+    async function loadStudentAnalytics(fromDate, toDate) {
+      if (!analyticsStudent) return;
+      if (fromDate && toDate && fromDate > toDate) {
+        analyticsError.hidden = false;
+        analyticsError.textContent = 'From date cannot be after To date.';
+        return;
+      }
+      if (analyticsError) {
+        analyticsError.hidden = true;
+        analyticsError.textContent = '';
+      }
+      if (analyticsLoading) analyticsLoading.hidden = false;
+      try {
+        var params = { student_id: analyticsStudent.student_id };
+        if (fromDate) params.from_date = fromDate;
+        if (toDate) params.to_date = toDate;
+        var res = await fetch(attendanceApiUrl(params), {
+          method: 'GET',
+          headers: attendanceHeaders(false),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error((data && data.message) || 'Failed to load student attendance');
+        renderStudentAnalytics(Array.isArray(data) ? data : []);
+      } catch (error) {
+        renderStudentAnalytics([]);
+        if (analyticsError) {
+          analyticsError.hidden = false;
+          analyticsError.textContent = error.message || String(error);
+        }
+      } finally {
+        if (analyticsLoading) analyticsLoading.hidden = true;
+      }
+    }
+
+    function openStudentAnalytics(studentId, fallbackRecord) {
+      if (!analyticsModal) return;
+      analyticsStudent =
+        studentsById[String(studentId)] ||
+        allRows.find(function (student) {
+          return String(student.student_id) === String(studentId);
+        }) || {
+          student_id: studentId,
+          name: fallbackRecord && fallbackRecord.name ? fallbackRecord.name : 'Student',
+          email: '',
+          branch: fallbackRecord && fallbackRecord.branch ? fallbackRecord.branch : '',
+        };
+      document.getElementById('attendance-analytics-name').textContent =
+        analyticsStudent.name || 'Student';
+      document.getElementById('attendance-analytics-meta').textContent =
+        '#' +
+        analyticsStudent.student_id +
+        (analyticsStudent.email ? ' · ' + analyticsStudent.email : '') +
+        (analyticsStudent.branch ? ' · ' + analyticsStudent.branch : '');
+      document.getElementById('attendance-analytics-avatar').textContent = getInitials(
+        analyticsStudent.name
+      );
+      if (analyticsFrom) analyticsFrom.value = '';
+      if (analyticsTo) analyticsTo.value = '';
+      analyticsModal.hidden = false;
+      document.body.classList.add('attendance-analytics-modal-open');
+      analyticsEsc = function (event) {
+        if (event.key === 'Escape') closeAnalyticsModal();
+      };
+      document.addEventListener('keydown', analyticsEsc);
+      loadStudentAnalytics('', '');
+    }
+
     function renderHistoryTable(sessions) {
       historySessionsByKey = Object.create(null);
       tbody.innerHTML = '';
+      updateHistorySummary(currentHistoryRows, sessions);
       if (!sessions.length) {
         var emptyTr = document.createElement('tr');
         emptyTr.className = 'attendance-history-table__empty';
@@ -792,11 +1252,13 @@
         if (fromStr) params.from_date = fromStr;
         if (toStr) params.to_date = toStr;
         var url = attendanceApiUrl(params);
-        var res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
+        var res = await fetch(url, { method: 'GET', headers: attendanceHeaders(false) });
         var data = await res.json();
         if (!res.ok) throw new Error((data && data.message) || 'Failed to load history');
-        renderHistoryTable(groupAttendanceSessions(Array.isArray(data) ? data : []));
+        currentHistoryRows = Array.isArray(data) ? data : [];
+        renderHistoryTable(groupAttendanceSessions(currentHistoryRows));
       } catch (err) {
+        currentHistoryRows = [];
         renderHistoryTable([]);
         if (errEl) {
           errEl.hidden = false;
@@ -827,6 +1289,7 @@
       activeTo = '';
       if (fromEl) fromEl.value = '';
       if (toEl) toEl.value = '';
+      if (studentInput) studentInput.value = '';
       openHistoryModal();
       loadHistory('', '');
     });
@@ -836,9 +1299,36 @@
       resetBtn.addEventListener('click', function () {
         if (fromEl) fromEl.value = '';
         if (toEl) toEl.value = '';
+        if (studentInput) studentInput.value = '';
         activeFrom = '';
         activeTo = '';
         loadHistory('', '');
+      });
+    }
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function () {
+        var suffix = activeFrom || activeTo ? (activeFrom || 'start') + '_to_' + (activeTo || 'today') : 'all';
+        exportAttendanceRows(currentHistoryRows, 'clatutor-attendance-' + suffix + '.xlsx', 'Attendance');
+      });
+    }
+
+    function viewSelectedStudent() {
+      var student = resolveStudent(studentInput ? studentInput.value : '');
+      if (!student) {
+        showPopup('error', 'Select a student from the list or enter a valid student ID.');
+        return;
+      }
+      openStudentAnalytics(student.student_id);
+    }
+
+    if (viewStudentBtn) viewStudentBtn.addEventListener('click', viewSelectedStudent);
+    if (studentInput) {
+      studentInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          viewSelectedStudent();
+        }
       });
     }
 
@@ -849,11 +1339,55 @@
       if (session) openDetail(session);
     });
 
+    if (detailTbody) {
+      detailTbody.addEventListener('click', function (event) {
+        var studentButton = event.target.closest && event.target.closest('[data-student-id]');
+        if (studentButton) {
+          var studentId = studentButton.getAttribute('data-student-id');
+          var fallback = currentHistoryRows.find(function (row) {
+            return String(row.student_id) === String(studentId);
+          });
+          openStudentAnalytics(studentId, fallback);
+          return;
+        }
+        var correction = event.target.closest && event.target.closest('[data-correct-id]');
+        if (correction) correctAttendance(correction.getAttribute('data-correct-id'));
+      });
+    }
+
+    if (analyticsTbody) {
+      analyticsTbody.addEventListener('click', function (event) {
+        var correction = event.target.closest && event.target.closest('[data-correct-id]');
+        if (correction) correctAttendance(correction.getAttribute('data-correct-id'));
+      });
+    }
+
+    if (analyticsApply) {
+      analyticsApply.addEventListener('click', function () {
+        loadStudentAnalytics(analyticsFrom ? analyticsFrom.value : '', analyticsTo ? analyticsTo.value : '');
+      });
+    }
+    if (analyticsReset) {
+      analyticsReset.addEventListener('click', function () {
+        if (analyticsFrom) analyticsFrom.value = '';
+        if (analyticsTo) analyticsTo.value = '';
+        loadStudentAnalytics('', '');
+      });
+    }
+    if (analyticsExport) {
+      analyticsExport.addEventListener('click', function () {
+        var id = analyticsStudent ? analyticsStudent.student_id : 'student';
+        exportAttendanceRows(analyticsRows, 'student-' + id + '-attendance.xlsx', 'Student Attendance');
+      });
+    }
+
     if (closeBtn) closeBtn.addEventListener('click', closeHistoryModal);
     if (backdrop) backdrop.addEventListener('click', closeHistoryModal);
     if (detailClose) detailClose.addEventListener('click', closeDetailModal);
     if (detailClose2) detailClose2.addEventListener('click', closeDetailModal);
     if (detailBackdrop) detailBackdrop.addEventListener('click', closeDetailModal);
+    if (analyticsClose) analyticsClose.addEventListener('click', closeAnalyticsModal);
+    if (analyticsBackdrop) analyticsBackdrop.addEventListener('click', closeAnalyticsModal);
   }
 
   function bindEvents() {
@@ -912,6 +1446,7 @@
     elStatTotal = document.getElementById('attendance-stat-total');
     elStatPresent = document.getElementById('attendance-stat-present');
     elStatAbsent = document.getElementById('attendance-stat-absent');
+    elStatUnmarked = document.getElementById('attendance-stat-unmarked');
     elRosterMeta = document.getElementById('attendance-roster-meta');
 
     if (elDate && !elDate.value) elDate.value = todayIso();

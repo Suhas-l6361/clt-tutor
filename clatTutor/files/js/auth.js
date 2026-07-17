@@ -3,8 +3,9 @@
  */
 (function () {
   const P = window.APP_CONFIG?.STORAGE_PREFIX || 'edportal_';
-  const CRM_ADMIN_API = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/admin';
-  const COUNCELER_API = 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/addCounceler';
+  const CRM_AUTH_API =
+    window.APP_CONFIG?.CRM_AUTH_API ||
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/crmAuth';
   const STUDENT_GENERAL_INFO_API =
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
   const KEYS = {
@@ -51,6 +52,9 @@
     'niraj.clatutor@gmai.com': {
       mailboxOrder: ['niraj.k'],
     },
+    'niraj.clatutor@gmail.com': {
+      mailboxOrder: ['niraj.k'],
+    },
   };
 
   function normalizeEmail(value) {
@@ -77,10 +81,21 @@
         const raw = localStorage.getItem(KEYS.user);
         const role = localStorage.getItem(KEYS.role);
         if (!raw || !role) return null;
-        return { user: JSON.parse(raw), role };
+        return { user: JSON.parse(raw), role, token: localStorage.getItem(KEYS.token) || '' };
       } catch {
         return null;
       }
+    },
+
+    getToken() {
+      return localStorage.getItem(KEYS.token) || '';
+    },
+
+    authHeaders(extra) {
+      const headers = Object.assign({}, extra || {});
+      const token = this.getToken();
+      if (token) headers.Authorization = 'Bearer ' + token;
+      return headers;
     },
 
     isRole(role) {
@@ -235,63 +250,32 @@
           return { ok: false, error: 'Email / User ID and password are required' };
         }
         try {
-          const url = CRM_ADMIN_API + '?email=' + encodeURIComponent(String(loginId).trim());
-          const res = await fetch(url, { method: 'GET' });
-          const rows = await res.json();
-          if (!res.ok) return { ok: false, error: 'Unable to verify CRM account right now' };
-          if (Array.isArray(rows) && rows.length) {
-            const admin = rows[0];
-            const backendPassword = admin && admin.password ? String(admin.password) : null;
-            if (backendPassword && backendPassword !== String(password)) {
-              return { ok: false, error: 'Invalid CRM password' };
-            }
-            if (!backendPassword && String(password).trim().length < 1) {
-              return { ok: false, error: 'Password is required' };
-            }
-
-            const userObj = {
-              id: admin.admin_id || 'CRM001',
-              name: admin.name || 'CRM Staff',
-              login: admin.email || loginId,
-              email: admin.email || loginId,
-              branch: admin.branch || null,
-              isCounceler: false,
-            };
-            localStorage.setItem(KEYS.user, JSON.stringify(userObj));
-            localStorage.setItem(KEYS.role, role);
-            localStorage.setItem(KEYS.token, makeToken('crm'));
-            localStorage.removeItem(KEYS.loggedOutAt);
-            this.trackActivity('login');
-            return { ok: true, user: userObj, role };
-          }
-
-          const councelerRes = await fetch(COUNCELER_API, {
+          const res = await fetch(CRM_AUTH_API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'login',
-              user_id: String(loginId).trim(),
+              login: String(loginId).trim(),
               password: String(password),
             }),
           });
-          let councelerData = {};
+          let data = {};
           try {
-            councelerData = await councelerRes.json();
+            data = await res.json();
           } catch (_) {
-            councelerData = {};
+            data = {};
           }
-          if (!councelerRes.ok) {
+          if (!res.ok || !data.token || !data.user) {
             const msg =
-              councelerData.message ||
-              (councelerRes.status === 401
+              data.message ||
+              (res.status === 401
                 ? 'Invalid user ID or password'
-                : councelerRes.status === 403
+                : res.status === 403
                   ? 'Your counceler account has been dropped. Please contact the institute.'
-                  : 'CRM account not found');
+                  : 'Unable to verify CRM account right now');
             return { ok: false, error: msg };
           }
 
-          const c = councelerData.counceler || councelerData;
+          const c = data.user;
           if (parseIsDrop(c.isDrop)) {
             return {
               ok: false,
@@ -300,18 +284,18 @@
           }
 
           const councelerUser = {
-            id: String(c.user_id != null ? c.user_id : ''),
+            id: String(c.id != null ? c.id : c.user_id != null ? c.user_id : ''),
             user_id: c.user_id,
             name: c.name || 'Counceler',
-            login: String(c.user_id != null ? c.user_id : loginId),
-            email: null,
+            login: String(c.email || (c.user_id != null ? c.user_id : loginId)),
+            email: c.email || null,
             branch: c.branch || null,
             access: normalizeAccessMap(c.access),
-            isCounceler: true,
+            isCounceler: c.isCounceler === true,
           };
           localStorage.setItem(KEYS.user, JSON.stringify(councelerUser));
           localStorage.setItem(KEYS.role, role);
-          localStorage.setItem(KEYS.token, makeToken('crm-counceler'));
+          localStorage.setItem(KEYS.token, data.token);
           localStorage.removeItem(KEYS.loggedOutAt);
           this.trackActivity('login');
           return { ok: true, user: councelerUser, role };

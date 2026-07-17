@@ -88,6 +88,8 @@
     selectedEmail: null,
     replies: [],
     unreadCount: 0,
+    gmailSyncConfigured: null,
+    syncingGmail: false,
   };
 
   function escHtml(s) {
@@ -275,7 +277,9 @@
         throw new Error(errMsg);
       }
       writeMailboxCache(data.mailboxes, data.warnings);
+      state.gmailSyncConfigured = data.gmailSyncConfigured !== false;
       applyMailboxData(data);
+      updateGmailSyncButton();
     } catch (e) {
       if (cached) return;
       var msg = e.message || 'Could not load mailboxes';
@@ -354,6 +358,7 @@
     showScreen('workspace');
     updateWorkspaceHeader();
     renderDetailEmpty();
+    updateGmailSyncButton();
     loadMailboxData();
   }
 
@@ -408,9 +413,7 @@
     if (!list) return;
     if (!state.items.length) {
       list.innerHTML =
-        '<p class="inbox-mail__list-empty">No messages yet.<br><small>Mail to ' +
-        escHtml(state.mailbox.id) +
-        ' appears here.</small></p>';
+        '<p class="inbox-mail__list-empty">No messages yet.<br><small>Only mail stored in CRM shows here. Use <strong>Upload emails</strong> to add older .eml files.</small></p>';
       return;
     }
     list.innerHTML = state.items
@@ -717,6 +720,110 @@
     }
   }
 
+  function updateGmailSyncButton() {
+    var btn = $('inbox-btn-upload-eml');
+    if (!btn) return;
+    var show = state.screen === 'workspace' && state.mailbox;
+    btn.hidden = !show;
+    btn.disabled = !!state.syncingGmail;
+    if (state.syncingGmail) {
+      btn.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>Uploading…</span>';
+    } else {
+      btn.innerHTML =
+        '<i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i><span>Upload emails</span>';
+    }
+  }
+
+  function setSyncStatus(message, isError) {
+    var el = $('inbox-sync-status');
+    if (!el) return;
+    if (!message) {
+      el.hidden = true;
+      el.textContent = '';
+      el.classList.remove('is-error');
+      return;
+    }
+    el.hidden = false;
+    el.textContent = message;
+    el.classList.toggle('is-error', !!isError);
+  }
+
+  function readFileAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || '');
+        var comma = result.indexOf(',');
+        resolve(comma >= 0 ? result.slice(comma + 1) : result);
+      };
+      reader.onerror = function () {
+        reject(new Error('Could not read ' + (file.name || 'file')));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadEmlFiles(fileList) {
+    if (!state.mailbox || state.syncingGmail) return;
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!files.length) return;
+
+    state.syncingGmail = true;
+    updateGmailSyncButton();
+    setSyncStatus('Uploading ' + files.length + ' file(s)…', false);
+
+    try {
+      var payloadFiles = [];
+      for (var i = 0; i < files.length; i++) {
+        var f = files[i];
+        var contentBase64 = await readFileAsBase64(f);
+        payloadFiles.push({
+          filename: f.name || 'mail-' + (i + 1) + '.eml',
+          contentBase64: contentBase64,
+        });
+      }
+
+      var res = await fetch(getApi(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'upload_eml',
+          mailbox: state.mailbox.id,
+          files: payloadFiles,
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok) {
+        var errMsg = data.message || data.error || 'Upload failed';
+        if (data.error && data.message) errMsg = data.message + ': ' + data.error;
+        throw new Error(errMsg);
+      }
+
+      var count = Number(data.count) || (data.uploaded && data.uploaded.length) || 0;
+      var errCount = (data.errors && data.errors.length) || 0;
+      setSyncStatus(
+        'Uploaded ' + count + ' email(s)' + (errCount ? ' · ' + errCount + ' failed' : ''),
+        errCount > 0 && count === 0,
+      );
+      showToast(
+        count ? 'success' : 'error',
+        count ? 'Uploaded ' + count + ' older email(s). Refreshing inbox…' : 'Upload failed.',
+      );
+      await loadMailboxData(true);
+      fetchMailboxes({ force: true });
+    } catch (e) {
+      var msg = e.message || 'Could not upload emails';
+      setSyncStatus(msg, true);
+      showToast('error', msg);
+    } finally {
+      state.syncingGmail = false;
+      updateGmailSyncButton();
+      var input = $('inbox-eml-file');
+      if (input) input.value = '';
+    }
+  }
+
   function switchTab(view) {
     state.view = view;
     state.selectedKey = null;
@@ -742,6 +849,20 @@
       if (state.screen === 'mailboxes') fetchMailboxes({ force: true });
       else loadMailboxData(true);
     });
+
+    var uploadBtn = $('inbox-btn-upload-eml');
+    var fileInput = $('inbox-eml-file');
+    if (uploadBtn && fileInput) {
+      uploadBtn.addEventListener('click', function () {
+        if (state.syncingGmail) return;
+        fileInput.click();
+      });
+      fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files.length) {
+          uploadEmlFiles(fileInput.files);
+        }
+      });
+    }
 
     $('inbox-tab-inbox').addEventListener('click', function () {
       switchTab('inbox');
