@@ -117,6 +117,11 @@
 
     if (window.CrmDashboardMetrics && typeof window.CrmDashboardMetrics.ready === 'object' && window.CrmDashboardMetrics.ready.then) {
       window.CrmDashboardMetrics.ready.then(renderFromRows).catch(onFeesError);
+      window.addEventListener('crm-dashboard-branch-filter-changed', function () {
+        if (window.CrmDashboardMetrics && typeof window.CrmDashboardMetrics.getFeesRows === 'function') {
+          renderFromRows(window.CrmDashboardMetrics.getFeesRows());
+        }
+      });
       return;
     }
 

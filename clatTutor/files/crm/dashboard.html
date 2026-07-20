@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20260713" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260720" />
   <link rel="stylesheet" href="../css/enrollment.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -21,6 +21,16 @@
         <div>
           <h2 id="crm-hero-title">Welcome, CRM Staff</h2>
           <p>Institute overview — students, tests, attendance, fees, installments, and course activity at a glance.</p>
+          <div class="crm-branch-filter" id="crm-branch-filter" hidden>
+            <label for="crm-branch-filter-select">Select branch</label>
+            <select id="crm-branch-filter-select" aria-label="Filter dashboard by branch">
+              <option value="" selected>All branches</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Jayanagara">Jayanagara</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
         </div>
         <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
       </section>
@@ -382,6 +392,7 @@
   <script src="../js/test-subject-flags.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="../js/crm-dashboard-branch-filter.js"></script>
   <script src="../js/crm-dashboard-metrics.js"></script>
   <script src="../js/crm-dashboard-overdue-fees.js?v=20260708"></script>
   <script src="../js/crm-dashboard-due-fees.js"></script>

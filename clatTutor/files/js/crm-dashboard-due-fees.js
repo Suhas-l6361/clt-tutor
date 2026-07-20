@@ -375,21 +375,34 @@
 
     function scopeDashboardData(feesRows, students) {
       var CBS = window.CrmBranchScope;
-      if (!CBS || !CBS.isScoped()) {
+      if (!CBS || !CBS.isDashboardScoped()) {
         return { feesRows: feesRows || [], students: students || [] };
       }
-      var scopedStudents = CBS.filterStudents(students || []);
+      var scopedStudents = CBS.filterStudentsDashboard(students || []);
       var lookup = CBS.buildStudentLookup(scopedStudents);
       return {
-        feesRows: CBS.filterFeeReceipts(feesRows || [], lookup),
+        feesRows: CBS.filterFeeReceiptsDashboard(feesRows || [], lookup),
         students: scopedStudents,
       };
     }
 
-    Promise.all([loadFeesRows(), loadStudents()]).then(function (results) {
-      var scoped = scopeDashboardData(results[0], results[1]);
+    var rawFees = [];
+    var rawStudents = [];
+
+    function applyAndRender() {
+      var scoped = scopeDashboardData(rawFees, rawStudents);
       render(scoped.feesRows, scoped.students);
+    }
+
+    Promise.all([loadFeesRows(), loadStudents()]).then(function (results) {
+      rawFees = results[0] || [];
+      rawStudents = results[1] || [];
+      applyAndRender();
     }).catch(onError);
+
+    window.addEventListener('crm-dashboard-branch-filter-changed', function () {
+      if (rawFees.length || rawStudents.length) applyAndRender();
+    });
   }
 
   if (document.readyState === 'loading') {

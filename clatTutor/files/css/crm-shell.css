@@ -149,6 +149,36 @@ body.app-body.crm-dashboard {
   font-size: 0.9rem;
   color: #4b5563;
 }
+.crm-branch-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
+.crm-branch-filter label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #946200;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.crm-branch-filter select {
+  min-width: 180px;
+  border: 1px solid #ecdca8;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.42rem 0.7rem;
+  cursor: pointer;
+}
+.crm-branch-filter select:focus {
+  outline: 2px solid #ffcc00;
+  outline-offset: 1px;
+}
 .crm-pill {
   display: inline-flex;
   align-items: center;
@@ -315,7 +345,7 @@ body.app-body.crm-dashboard {
   align-items: flex-start;
   gap: 0.85rem;
   width: max-content;
-  animation: crm-marquee-scroll 50s linear infinite;
+  animation: crm-marquee-scroll 240s linear infinite;
   will-change: transform;
 }
 .crm-due-fees__marquee:hover .crm-due-fees__track {

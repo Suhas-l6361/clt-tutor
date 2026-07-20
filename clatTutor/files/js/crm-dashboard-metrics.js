@@ -914,19 +914,19 @@
 
   function applyBranchScope(feesRows, students, attendanceRows) {
     var CBS = window.CrmBranchScope;
-    if (!CBS || !CBS.isScoped()) {
+    if (!CBS || !CBS.isDashboardScoped()) {
       return {
         feesRows: feesRows || [],
         students: students || [],
         attendanceRows: attendanceRows || [],
       };
     }
-    var scopedStudents = CBS.filterStudents(students || []);
+    var scopedStudents = CBS.filterStudentsDashboard(students || []);
     var lookup = CBS.buildStudentLookup(scopedStudents);
     return {
-      feesRows: CBS.filterFeeReceipts(feesRows || [], lookup),
+      feesRows: CBS.filterFeeReceiptsDashboard(feesRows || [], lookup),
       students: scopedStudents,
-      attendanceRows: CBS.filterList(attendanceRows || [], function (r) {
+      attendanceRows: CBS.filterListDashboard(attendanceRows || [], function (r) {
         return r.branch;
       }),
     };
@@ -1241,8 +1241,8 @@
         var rawBranch = (st && st.branch) || a.branch;
         if (
           window.CrmBranchScope &&
-          window.CrmBranchScope.isScoped() &&
-          !window.CrmBranchScope.canSeeBranch(rawBranch)
+          window.CrmBranchScope.isDashboardScoped() &&
+          !window.CrmBranchScope.canSeeDashboardBranch(rawBranch)
         ) {
           return;
         }
@@ -1733,49 +1733,85 @@
       metricsReadyResolve = resolve;
     });
 
+    var rawFees = [];
+    var rawStudents = [];
+    var rawAttendance = [];
+    var rawTests = [];
+    var rawSortedTests = [];
+    var rawBundles = null;
+
+    function paintFromRaw() {
+      var scoped = applyBranchScope(rawFees, rawStudents, rawAttendance);
+      var feesRows = scoped.feesRows;
+      var students = scoped.students;
+      var attendanceRows = scoped.attendanceRows;
+      feesCache = feesRows;
+      var tests = rawTests;
+      var sortedTests = rawSortedTests;
+
+      var data = buildDashboardData(
+        feesRows,
+        students,
+        attendanceRows,
+        tests,
+        rawBundles || emptyBundlesForTests(sortedTests)
+      );
+      data.sortedTests = sortedTests;
+
+      if (errEl) errEl.hidden = true;
+      revealDashboard(loading);
+      renderDashboard(data);
+      if (rawBundles) {
+        setTestsLoading(false);
+        renderTestAttemptSections(data);
+      } else if (!tests.length) {
+        setTestsLoading(false);
+      }
+      return feesRows;
+    }
+
     window.CrmDashboardMetrics = {
       ready: metricsReady,
       getFeesRows: function () {
         return feesCache || [];
       },
+      reapplyBranchFilter: function () {
+        if (!rawStudents.length && !rawFees.length) return feesCache || [];
+        return paintFromRaw();
+      },
     };
 
     Promise.all([feesP, studentsP, attP, testsP])
       .then(function (results) {
-        var scoped = applyBranchScope(results[0], results[1], results[2]);
-        var feesRows = scoped.feesRows;
-        var students = scoped.students;
-        var attendanceRows = scoped.attendanceRows;
-        feesCache = feesRows;
-        if (metricsReadyResolve) metricsReadyResolve(feesRows);
-        var tests = results[3];
-        var sortedTests = tests.slice().sort(function (a, b) {
+        rawFees = results[0] || [];
+        rawStudents = results[1] || [];
+        rawAttendance = results[2] || [];
+        rawTests = results[3] || [];
+        rawSortedTests = rawTests.slice().sort(function (a, b) {
           var da = a.created_at || a.createdAt || '';
           var db = b.created_at || b.createdAt || '';
           return String(db).localeCompare(String(da));
         });
 
-        var data = buildDashboardData(
-          feesRows,
-          students,
-          attendanceRows,
-          tests,
-          emptyBundlesForTests(sortedTests)
-        );
-        data.sortedTests = sortedTests;
+        var feesRows = paintFromRaw();
+        if (metricsReadyResolve) metricsReadyResolve(feesRows);
 
-        if (errEl) errEl.hidden = true;
-        revealDashboard(loading);
-        renderDashboard(data);
-
-        if (!tests.length) {
+        if (!rawTests.length) {
           setTestsLoading(false);
           return null;
         }
 
         setTestsLoading(true);
-        return loadAttemptsForTests(data.sortedTests).then(function (bundles) {
-          return buildDashboardData(feesRows, students, attendanceRows, tests, bundles);
+        return loadAttemptsForTests(rawSortedTests).then(function (bundles) {
+          rawBundles = bundles;
+          var scoped = applyBranchScope(rawFees, rawStudents, rawAttendance);
+          return buildDashboardData(
+            scoped.feesRows,
+            scoped.students,
+            scoped.attendanceRows,
+            rawTests,
+            bundles
+          );
         });
       })
       .then(function (data) {
@@ -1792,6 +1828,12 @@
           errEl.textContent = err.message || String(err);
         }
       });
+
+    window.addEventListener('crm-dashboard-branch-filter-changed', function () {
+      if (typeof window.CrmDashboardMetrics.reapplyBranchFilter === 'function') {
+        window.CrmDashboardMetrics.reapplyBranchFilter();
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
