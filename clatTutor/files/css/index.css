@@ -386,17 +386,29 @@
 }
 
 .ws-nls-strip__viewport {
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 184, 0, 0.45) transparent;
+}
+
+.ws-nls-strip__viewport::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ws-nls-strip__viewport::-webkit-scrollbar-thumb {
+  background: rgba(245, 184, 0, 0.45);
+  border-radius: 4px;
 }
 
 .ws-nls-strip__track {
   display: flex;
   width: max-content;
   gap: 0.35rem;
-  padding: 0.15rem 0.5rem;
-  animation: ws-nls-marquee 55s linear infinite;
+  padding: 0.15rem 0.75rem 0.35rem;
+  /* Single pass — no cloned cards, so no visible repeat */
+  animation: ws-nls-marquee 80s linear infinite;
 }
 
 .ws-nls-strip__viewport:hover .ws-nls-strip__track {
@@ -458,14 +470,6 @@
   text-overflow: ellipsis;
 }
 
-.ws-nls-card__year {
-  margin: 0.12rem 0 0;
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ws-gold);
-}
-
 .ws-nls-card__school {
   margin: 0.08rem 0 0;
   font-size: 0.58rem;
@@ -475,11 +479,11 @@
 }
 
 @keyframes ws-nls-marquee {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(-50%);
+  100% {
+    transform: translateX(calc(-100% + 100vw));
   }
 }
 
@@ -553,15 +557,6 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.55rem 0.35rem;
-  }
-
-  .ws-nls-strip__track .ws-nls-card[aria-hidden='true'] {
-    display: none;
-  }
-
-  .ws-nls-strip__viewport {
-    mask-image: none;
-    -webkit-mask-image: none;
   }
 }
 
