@@ -441,6 +441,11 @@
   object-position: center 18%;
 }
 
+/* Hide whole card when photo fails (no broken-image / empty dark circle) */
+.ws-nls-card.ws-nls-card--missing {
+  display: none !important;
+}
+
 .ws-nls-card__name {
   margin: 0.45rem 0 0;
   max-width: 100%;
