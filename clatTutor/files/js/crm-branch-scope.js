@@ -54,8 +54,21 @@
   }
 
   /** Only GENERAL session users get the dashboard branch dropdown. */
+  function isFullCrmAdmin() {
+    try {
+      var s = window.Auth && window.Auth.getSession ? window.Auth.getSession() : null;
+      return !!(s && s.role === 'crm' && s.user && !s.user.isCounceler);
+    } catch (_) {
+      return false;
+    }
+  }
+
   function canUseDashboardBranchPicker() {
-    return getAdminBranchKey() === GENERAL_KEY;
+    var key = getAdminBranchKey();
+    if (key === GENERAL_KEY) return true;
+    // Head-office admins (admin table, no branch scope) — e.g. pranab.mehta@gmail.com
+    if (isFullCrmAdmin() && !isScoped()) return true;
+    return false;
   }
 
   /** Dashboard view filter (GENERAL users only). Empty = All branches. */

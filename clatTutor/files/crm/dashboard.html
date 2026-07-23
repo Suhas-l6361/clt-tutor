@@ -10,8 +10,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20260720" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260723batch1" />
   <link rel="stylesheet" href="../css/enrollment.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -40,6 +41,10 @@
           <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-workshop-btn-show" aria-haspopup="dialog" aria-controls="crm-workshop-modal" aria-expanded="false">
             <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
             <span>Show workshop registration</span>
+          </button>
+          <button type="button" class="enrollment-btn" id="crm-batch-btn-create" aria-haspopup="dialog" aria-controls="crm-batch-modal" aria-expanded="false">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            <span>Create batch</span>
           </button>
         </div>
       </section>
@@ -75,6 +80,29 @@
           All clear — every student is up to date on installments.
         </p>
       </section>
+
+      <div
+        id="crm-overdue-branch-modal"
+        class="crm-overdue-branch-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="crm-overdue-branch-modal-title"
+      >
+        <div class="crm-overdue-branch-modal__backdrop" data-crm-overdue-branch-close tabindex="-1"></div>
+        <div class="crm-overdue-branch-modal__dialog">
+          <div class="crm-overdue-branch-modal__head">
+            <div>
+              <h3 id="crm-overdue-branch-modal-title">Overdue fees</h3>
+              <p id="crm-overdue-branch-modal-sub" class="crm-overdue-branch-modal__sub"></p>
+            </div>
+            <button type="button" class="crm-overdue-branch-modal__close" data-crm-overdue-branch-close aria-label="Close">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="crm-overdue-branch-modal-body" class="crm-overdue-branch-modal__body"></div>
+        </div>
+      </div>
 
       <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Upcoming fee installments">
         <div class="crm-due-fees__head">
@@ -381,11 +409,89 @@
     </div>
   </div>
 
+  <div
+    id="crm-batch-modal"
+    class="crm-batch-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-batch-modal-title"
+  >
+    <div class="crm-batch-modal__backdrop" data-crm-batch-close tabindex="-1"></div>
+    <div class="crm-batch-modal__dialog">
+      <div class="crm-batch-modal__head">
+        <div>
+          <h3 id="crm-batch-modal-title">Create batch</h3>
+          <p class="crm-batch-modal__lead">Choose a centre and add a batch name.</p>
+        </div>
+        <div class="crm-batch-modal__head-actions">
+          <button type="button" class="crm-batch-modal__history-btn" id="crm-batch-history-btn" hidden>
+            History
+          </button>
+          <button type="button" class="crm-batch-modal__close" data-crm-batch-close aria-label="Close">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div class="crm-batch-modal__body">
+        <p id="crm-batch-error" class="crm-batch-modal__error" hidden></p>
+        <div id="crm-batch-view-form">
+          <form id="crm-batch-form" class="crm-batch-form" novalidate>
+            <div class="crm-batch-form__field">
+              <label for="crm-batch-branch">Branch</label>
+              <select id="crm-batch-branch" name="branch" required>
+                <option value="Malleshwaram">Malleshwaram</option>
+                <option value="Jayanagara">Jayanagara</option>
+                <option value="Yelahanka">Yelahanka</option>
+              </select>
+            </div>
+            <div class="crm-batch-form__field">
+              <label for="crm-batch-name">Batch name</label>
+              <input
+                id="crm-batch-name"
+                name="batch"
+                type="text"
+                maxlength="30"
+                required
+                placeholder="e.g. CLAT Dec 2026"
+                autocomplete="off"
+              />
+            </div>
+            <button type="submit" class="crm-batch-form__submit" id="crm-batch-submit">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i> Create
+            </button>
+          </form>
+        </div>
+        <div id="crm-batch-view-history" hidden>
+          <div class="crm-batch-history__toolbar">
+            <button type="button" class="crm-batch-history__back" id="crm-batch-history-back">
+              <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+            </button>
+          </div>
+          <p id="crm-batch-history-empty" class="crm-batch-history__empty" hidden>No batches created yet.</p>
+          <div class="crm-batch-history__table-wrap">
+            <table class="crm-batch-history__table">
+              <thead>
+                <tr>
+                  <th>Branch</th>
+                  <th>Batch</th>
+                  <th>Added by</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="crm-batch-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
-  <script src="../js/auth.js"></script>
+  <script src="../js/auth.js?v=20260723b"></script>
   <script src="../js/crm-branch-scope.js"></script>
-  <script src="../js/guard.js"></script>
+  <script src="../js/guard.js?v=20260723b"></script>
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/fees-installments.js?v=20260708"></script>
@@ -394,10 +500,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-branch-filter.js"></script>
   <script src="../js/crm-dashboard-metrics.js"></script>
-  <script src="../js/crm-dashboard-overdue-fees.js?v=20260708"></script>
+  <script src="../js/crm-dashboard-overdue-fees.js?v=20260723overdue2"></script>
   <script src="../js/crm-dashboard-due-fees.js"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
   <script src="../js/crm-dashboard-workshop.js?v=20260713"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/crm-dashboard-batches.js?v=20260723b"></script>
   <script src="../js/crm-dashboard-installments.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

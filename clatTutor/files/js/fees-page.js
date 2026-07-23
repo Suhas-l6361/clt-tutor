@@ -1377,6 +1377,61 @@
     }
   }
 
+  function tryOpenFeesEditFromQuery() {
+    var params;
+    try {
+      params = new URLSearchParams(window.location.search || '');
+    } catch (_) {
+      return;
+    }
+    var editId = params.get('edit') || params.get('receipt') || '';
+    if (!editId) return;
+
+    var api = getFeesApiUrl();
+    if (!api) {
+      window.alert('Fees API is not configured.');
+      return;
+    }
+
+    fetch(api, { method: 'GET', headers: { Accept: 'application/json' } })
+      .then(function (res) {
+        return res.json().then(function (j) {
+          return { res: res, j: j };
+        });
+      })
+      .then(function (x) {
+        if (!x.res.ok) {
+          throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
+        }
+        var list = Array.isArray(x.j) ? x.j : [];
+        if (window.CrmBranchScope) {
+          list = CrmBranchScope.filterList(list, function (r) {
+            return r && r.branch;
+          });
+        }
+        var want = String(editId).trim();
+        var row = null;
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] && String(list[i].id) === want) {
+            row = list[i];
+            break;
+          }
+        }
+        if (!row) {
+          window.alert('Could not find that fee record to edit.');
+          return;
+        }
+        startFeesEditFromRecord(row);
+        try {
+          var url = window.location.pathname + window.location.hash;
+          history.replaceState(null, '', url);
+        } catch (_) {}
+      })
+      .catch(function (err) {
+        window.alert(err && err.message ? err.message : 'Could not open fee record.');
+      });
+  }
+
   function wireFeesHistory() {
     var btn = document.getElementById('fees-btn-history');
     var modal = document.getElementById('fees-history-modal');
@@ -2648,6 +2703,7 @@
     wirePaymentMode();
     wireFeesActions();
     wireFeesHistory();
+    tryOpenFeesEditFromQuery();
 
     ensurePrintCopiesInDom();
 

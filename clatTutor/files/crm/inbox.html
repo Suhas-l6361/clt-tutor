@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/inbox.css?v=20260716b" />
+  <link rel="stylesheet" href="../css/inbox.css?v=20260723del1" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -86,9 +86,31 @@
         <div class="inbox-mail__list-col">
           <header class="inbox-mail__list-head">
             <h2 id="inbox-list-title">Inbox</h2>
-            <p id="inbox-loading" class="inbox-mail__list-loading" hidden>
-              <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
-            </p>
+            <div class="inbox-mail__list-head-right">
+              <div class="inbox-mail__list-actions" id="inbox-list-actions">
+                <button
+                  type="button"
+                  class="inbox-mail__delete-btn"
+                  id="inbox-btn-delete"
+                  title="Delete messages"
+                  aria-label="Delete messages"
+                  hidden
+                >
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="inbox-mail__delete-cancel"
+                  id="inbox-btn-delete-cancel"
+                  hidden
+                >
+                  Cancel
+                </button>
+              </div>
+              <p id="inbox-loading" class="inbox-mail__list-loading" hidden>
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+              </p>
+            </div>
           </header>
           <div id="inbox-list" class="inbox-mail__list">
             <p class="inbox-mail__list-empty">Loading messages…</p>
@@ -116,7 +138,7 @@
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/inbox-page.js?v=20260716d"></script>
+  <script src="../js/inbox-page.js?v=20260723del1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

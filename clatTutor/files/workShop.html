@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700;800&family=Playfair+Display:wght@700;800;900&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/workshop.css" />
+  <link rel="stylesheet" href="css/friendly-popup.css" />
   <script src="js/site-protection.js" data-protection-mode="public"></script>
 </head>
 <body>
@@ -156,12 +157,39 @@
       <div class="ws-modal__head">
         <p class="ws-modal__kicker">CLAT GK Workshop</p>
         <h2 id="ws-reg-title" class="ws-modal__title">Workshop registration</h2>
-        <p id="ws-reg-desc" class="ws-modal__lead">Choose your preferred centre, then share your details.</p>
+        <p id="ws-reg-desc" class="ws-modal__lead">
+          4-hour GK &amp; Current Affairs session with NLS Bangalore faculty and rank holders.
+        </p>
       </div>
 
-      <!-- Step 1: branch -->
-      <div class="ws-modal__step" id="ws-step-branch" data-step="branch">
-        <p class="ws-modal__step-label">Step 1 of 2 — Select branch</p>
+      <div class="ws-modal__step" id="ws-step-info" data-step="info">
+        <ul class="ws-info-highlights">
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>Jan–July CA Compendium</strong> included</span>
+          </li>
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>3 Bangalore centres</strong> + live online</span>
+          </li>
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>Mock Marathon</strong> access</span>
+          </li>
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>50 seats</strong> per centre — register early</span>
+          </li>
+        </ul>
+        <p class="ws-info-meta">Free registration · Confirm in about 2 minutes</p>
+        <button type="button" class="ws-reg-form__submit ws-info-next" id="ws-info-next">
+          Continue <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Step: branch -->
+      <div class="ws-modal__step" id="ws-step-branch" data-step="branch" hidden>
+        <p class="ws-modal__step-label">Select centre</p>
         <div class="ws-branch-grid" role="list">
           <button type="button" class="ws-branch-card" data-branch="Yelahanka" data-date="26 Jul 2026" role="listitem">
             <span class="ws-branch-card__city">Yelahanka</span>
@@ -184,11 +212,14 @@
             <span class="ws-branch-card__mode">Offline · Bangalore</span>
           </button>
         </div>
+        <button type="button" class="ws-reg-form__back" id="ws-branch-back">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
+        </button>
       </div>
 
-      <!-- Step 2: details -->
+      <!-- Step: details -->
       <div class="ws-modal__step" id="ws-step-form" data-step="form" hidden>
-        <p class="ws-modal__step-label">Step 2 of 2 — Your details</p>
+        <p class="ws-modal__step-label">Your details</p>
         <p class="ws-modal__selected" id="ws-selected-branch" aria-live="polite"></p>
         <form id="ws-reg-form" class="ws-reg-form" novalidate>
           <div class="ws-reg-form__hp" aria-hidden="true">
@@ -272,6 +303,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/public-forms-api.js"></script>
-  <script src="js/workshop-register.js"></script>
+  <script src="js/friendly-popup.js"></script>
+  <script src="js/workshop-register.js?v=20260723info1"></script>
 </body>
 </html>

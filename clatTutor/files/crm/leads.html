@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -25,21 +26,21 @@
             <label for="l-name">Name</label>
             <div class="input-wrap">
               <i class="fa-solid fa-user"></i>
-              <input id="l-name" name="name" required placeholder="Full name" />
+              <input id="l-name" name="name" required placeholder="Full name" maxlength="100" />
             </div>
           </div>
           <div class="form-group" style="margin: 0">
             <label for="l-email">Email</label>
             <div class="input-wrap">
               <i class="fa-solid fa-envelope"></i>
-              <input id="l-email" name="email" type="email" placeholder="email@…" />
+              <input id="l-email" name="email" type="email" placeholder="email@…" maxlength="100" />
             </div>
           </div>
           <div class="form-group" style="margin: 0">
             <label for="l-phone">Phone</label>
             <div class="input-wrap">
               <i class="fa-solid fa-phone"></i>
-              <input id="l-phone" name="phone" placeholder="Mobile" />
+              <input id="l-phone" name="phone" placeholder="Mobile" inputmode="tel" maxlength="13" />
             </div>
           </div>
           <div class="form-group" style="margin: 0">
@@ -58,7 +59,7 @@
             <label for="l-course">Interest</label>
             <div class="input-wrap">
               <i class="fa-solid fa-book"></i>
-              <input id="l-course" name="courseInterest" placeholder="Program / batch" />
+              <input id="l-course" name="courseInterest" placeholder="Program / batch" maxlength="50" />
             </div>
           </div>
         </div>
@@ -70,7 +71,7 @@
         <strong style="font-size: 1.05rem">Pipeline</strong>
         <span id="lead-count" class="text-muted" style="font-weight: 500; margin-left: 0.35rem"></span>
       </div>
-      <span class="text-muted" style="font-size: 0.85rem"><i class="fa-solid fa-arrows-rotate"></i> Change stage inline · <i class="fa-solid fa-graduation-cap"></i> converts to student</span>
+      <span class="text-muted" style="font-size: 0.85rem"><i class="fa-solid fa-arrows-rotate"></i> Change stage inline · <i class="fa-solid fa-graduation-cap"></i> mark enrolled</span>
     </div>
     <div class="table-wrap">
       <table id="leads-table">
@@ -92,105 +93,17 @@
 
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/guard.js"></script>
+  <script src="../js/auth.js?v=20260723b"></script>
+  <script src="../js/guard.js?v=20260723b"></script>
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/leads-page.js?v=20260723b"></script>
   <script>
-    function renderLeads() {
-      var tbody = document.querySelector('#leads-table tbody');
-      var leads = DataStore.leads();
-      var countEl = document.getElementById('lead-count');
-      if (countEl) countEl.textContent = '· ' + leads.length + ' total';
-      tbody.innerHTML = leads
-        .map(function (l) {
-          return (
-            '<tr data-id="' +
-            l.id +
-            '"><td><strong>' +
-            escapeHtml(l.name) +
-            '</strong></td><td>' +
-            escapeHtml(l.email || '—') +
-            '<br><small class="text-muted">' +
-            escapeHtml(l.phone || '') +
-            '</small></td><td>' +
-            escapeHtml(l.source) +
-            '</td><td>' +
-            escapeHtml(l.courseInterest || '—') +
-            '</td><td><select class="stage-select" data-id="' +
-            l.id +
-            '">' +
-            ['new', 'contacted', 'enrolled', 'lost']
-              .map(function (s) {
-                return '<option value="' + s + '"' + (l.stage === s ? ' selected' : '') + '>' + s + '</option>';
-              })
-              .join('') +
-            '</select></td><td><button type="button" class="btn btn-ghost btn-icon-only btn-enroll" data-id="' +
-            l.id +
-            '" title="Convert to student"><i class="fa-solid fa-graduation-cap"></i></button></td></tr>'
-          );
-        })
-        .join('');
-    }
-
-    function escapeHtml(s) {
-      if (!s) return '';
-      var d = document.createElement('div');
-      d.textContent = s;
-      return d.innerHTML;
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
       initAppChrome({ role: 'crm', active: 'leads.html', title: 'Leads', contentEl: stock });
       if (typeof applyCrmChrome === 'function') applyCrmChrome();
-
-      renderLeads();
-
-      document.getElementById('form-lead').addEventListener('submit', function (e) {
-        e.preventDefault();
-        var fd = new FormData(e.target);
-        DataStore.addLead({
-          name: fd.get('name'),
-          email: fd.get('email'),
-          phone: fd.get('phone'),
-          source: fd.get('source'),
-          courseInterest: fd.get('courseInterest'),
-          stage: 'new',
-        });
-        e.target.reset();
-        renderLeads();
-      });
-
-      document.querySelector('#leads-table tbody').addEventListener('change', function (e) {
-        if (!e.target.classList.contains('stage-select')) return;
-        var id = e.target.getAttribute('data-id');
-        DataStore.updateLead(id, { stage: e.target.value });
-      });
-
-      document.querySelector('#leads-table tbody').addEventListener('click', function (e) {
-        var btn = e.target.closest('.btn-enroll');
-        if (!btn) return;
-        var id = btn.getAttribute('data-id');
-        var lead = DataStore.leads().find(function (x) {
-          return x.id === id;
-        });
-        if (!lead) return;
-        DataStore.addStudent({
-          name: lead.name,
-          email: lead.email,
-          batch: lead.courseInterest || 'General',
-        });
-        DataStore.updateLead(id, { stage: 'enrolled' });
-        DataStore.addComm({
-          relatedType: 'lead',
-          relatedId: id,
-          channel: 'system',
-          message: 'Lead converted to student from CRM.',
-        });
-        renderLeads();
-        alert('Student record created from this lead.');
-      });
     });
   </script>
 </body>

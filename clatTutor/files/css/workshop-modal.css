@@ -1,0 +1,437 @@
+/* Workshop registration popup only — used on index + workShop. Does not restyle page chrome. */
+
+.ws-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ws-modal.is-open {
+  display: flex !important;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ws-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 18, 34, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.ws-modal__dialog {
+  position: relative;
+  width: min(100%, 420px);
+  max-height: min(92dvh, 640px);
+  overflow: auto;
+  padding: 1.35rem 1.25rem 1.25rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 28px 70px rgba(12, 18, 34, 0.28);
+  border: 1px solid rgba(12, 18, 34, 0.08);
+  animation: ws-modal-in 0.28s ease;
+}
+
+@keyframes ws-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ws-modal__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1rem;
+  color: #64748b;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ws-modal__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ws-modal__head {
+  padding-right: 2rem;
+  margin-bottom: 1.1rem;
+}
+
+.ws-modal__kicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.ws-modal__title {
+  margin: 0 0 0.35rem;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0c1222;
+  line-height: 1.2;
+}
+
+.ws-modal__lead {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.ws-modal__step-label {
+  margin: 0 0 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ws-info-highlights {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ws-info-highlights li {
+  display: grid;
+  grid-template-columns: 1.15rem 1fr;
+  gap: 0.65rem;
+  align-items: start;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.ws-info-highlights strong {
+  color: #0c1222;
+  font-weight: 700;
+}
+
+.ws-info-highlights__mark {
+  display: inline-flex;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.12rem;
+  border-radius: 50%;
+  background: #ecfdf3;
+  border: 1.5px solid #86efac;
+  box-shadow: inset 0 0 0 3px #fff;
+  position: relative;
+}
+
+.ws-info-highlights__mark::after {
+  content: '';
+  position: absolute;
+  left: 0.28rem;
+  top: 0.12rem;
+  width: 0.28rem;
+  height: 0.5rem;
+  border: solid #16a34a;
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(45deg);
+}
+
+.ws-info-meta {
+  margin: 0 0 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #eef2f7;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.ws-info-next {
+  width: 100%;
+}
+
+#ws-branch-back {
+  width: 100%;
+  margin-top: 0.85rem;
+}
+
+.ws-branch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.ws-branch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.75rem 0.7rem;
+  text-align: left;
+  font-family: inherit;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ws-branch-card:hover,
+.ws-branch-card:focus-visible {
+  border-color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.ws-branch-card--online {
+  background: #eff6ff;
+}
+
+.ws-branch-card--online:hover,
+.ws-branch-card--online:focus-visible {
+  border-color: #2563eb;
+  background: #dbeafe;
+}
+
+.ws-branch-card__city {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #0c1222;
+}
+
+.ws-branch-card__date {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.ws-branch-card__mode {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ws-modal__selected {
+  margin: 0 0 0.85rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e40af;
+  background: #dbeafe;
+  border-radius: 8px;
+  border: 1px solid #93c5fd;
+}
+
+.ws-reg-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ws-reg-form__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ws-reg-form__req {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.ws-reg-form__field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.ws-reg-form__field input,
+.ws-reg-form__field textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: #0c1222;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ws-reg-form__field input:focus,
+.ws-reg-form__field textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.ws-reg-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+.ws-reg-form__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ws-reg-form__back:hover {
+  background: #e2e8f0;
+}
+
+.ws-reg-form__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0c1222;
+  background: #f5b800;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 184, 0, 0.35);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.ws-reg-form__submit:hover:not(:disabled) {
+  background: #e6a800;
+  transform: translateY(-1px);
+}
+
+.ws-reg-form__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ws-modal--success .ws-modal__backdrop {
+  background: rgba(12, 18, 34, 0.45);
+}
+
+.ws-success-card {
+  position: relative;
+  width: min(100%, 360px);
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 28px 70px rgba(12, 18, 34, 0.25);
+  animation: ws-modal-in 0.32s ease;
+}
+
+.ws-success-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  font-size: 2.25rem;
+  color: #059669;
+  background: #d1fae5;
+  border-radius: 50%;
+  animation: ws-success-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ws-success-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ws-success-card__title {
+  margin: 0 0 0.5rem;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0c1222;
+}
+
+.ws-success-card__text {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.ws-success-card__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  background: #1d4ed8;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ws-success-card__btn:hover {
+  background: #1e40af;
+}
+
+body.ws-modal-open {
+  overflow: hidden;
+}

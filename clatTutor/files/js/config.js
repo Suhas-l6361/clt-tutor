@@ -50,6 +50,10 @@ const APP_CONFIG = {
   /** Public site + CRM — July GK workshop registration */
   JULY_WORKSHOP_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/julyWorkshop',
+  /** CRM — leads capture + pipeline */
+  LEADS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/leads',
+  /** CRM — branch batches (create / history) */
+  BATCHES_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/batches',
   DEMO_MODE: true,
 };
 

@@ -46,6 +46,7 @@ function initAppChrome(opts) {
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
+    { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'inbox.html', icon: 'fa-envelope', label: 'Business Email' },
     { href: 'addCounceler.html', icon: 'fa-user-shield', label: 'Add Counceler' },
   ];
@@ -64,6 +65,7 @@ function initAppChrome(opts) {
     'fees.html': '../image/fees.png',
     'attendance.html': '../image/attendance.png',
     'enrollment.html': '../image/enrollment.png',
+    'leads.html': '../image/leads.png',
     'retrival.html': '../image/retrive data.png',
     'inbox.html': '../image/Business Mail.png',
     'addCounceler.html': '../image/add councelor.png',

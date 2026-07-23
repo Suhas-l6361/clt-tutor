@@ -3,10 +3,37 @@
  */
 function requireRole(allowedRole) {
   const s = window.Auth?.getSession();
-  const token = window.localStorage.getItem(window.Auth?.keys?.token || '');
+  const token =
+    (window.Auth && typeof window.Auth.getToken === 'function'
+      ? window.Auth.getToken()
+      : '') ||
+    window.localStorage.getItem(window.Auth?.keys?.token || '') ||
+    '';
   if (!s || !token || s.role !== allowedRole) {
     const base = allowedRole === 'student' ? '../login.html' : '../login.html';
     window.location.replace(base);
+    return false;
+  }
+  if (
+    allowedRole === 'crm' &&
+    window.Auth &&
+    typeof window.Auth.isCrmApiTokenValid === 'function' &&
+    !window.Auth.isCrmApiTokenValid()
+  ) {
+    try {
+      if (typeof window.showFriendlyPopup === 'function') {
+        window.showFriendlyPopup({
+          type: 'error',
+          message: 'Your CRM session expired. Please log in again.',
+          durationMs: 3500,
+        });
+      }
+    } catch (_) {}
+    if (window.Auth && typeof window.Auth.logout === 'function') {
+      window.Auth.logout();
+    } else {
+      window.location.replace('../login.html');
+    }
     return false;
   }
   if (allowedRole === 'student' && window.StudentAccess) {

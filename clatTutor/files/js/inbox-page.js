@@ -90,6 +90,9 @@
     unreadCount: 0,
     gmailSyncConfigured: null,
     syncingGmail: false,
+    selectMode: false,
+    selectedKeys: {},
+    deleting: false,
   };
 
   function escHtml(s) {
@@ -199,6 +202,169 @@
       return;
     }
     if (message) window.alert(message);
+  }
+
+  function selectedCount() {
+    return Object.keys(state.selectedKeys).filter(function (k) {
+      return !!state.selectedKeys[k];
+    }).length;
+  }
+
+  function exitSelectMode() {
+    state.selectMode = false;
+    state.selectedKeys = {};
+    updateDeleteUi();
+    if (state.view === 'sent') renderSentList();
+    else renderInboxList();
+  }
+
+  function enterSelectMode() {
+    state.selectMode = true;
+    state.selectedKeys = {};
+    updateDeleteUi();
+    if (state.view === 'sent') renderSentList();
+    else renderInboxList();
+  }
+
+  function updateDeleteUi() {
+    var delBtn = $('inbox-btn-delete');
+    var cancelBtn = $('inbox-btn-delete-cancel');
+    var listCol = document.querySelector('.inbox-mail__list-col');
+    var hasRows =
+      state.view === 'sent' ? state.sentItems.length > 0 : state.items.length > 0;
+    if (delBtn) {
+      delBtn.hidden = !hasRows && !state.selectMode;
+      delBtn.classList.toggle('is-selecting', !!state.selectMode);
+      delBtn.classList.toggle('has-selection', selectedCount() > 0);
+      var count = selectedCount();
+      delBtn.title = state.selectMode
+        ? count
+          ? 'Delete selected (' + count + ')'
+          : 'Select messages, then click delete'
+        : 'Delete messages';
+      delBtn.setAttribute(
+        'aria-label',
+        state.selectMode
+          ? count
+            ? 'Delete ' + count + ' selected messages'
+            : 'Select messages to delete'
+          : 'Delete messages',
+      );
+      var icon = delBtn.querySelector('i');
+      if (icon) {
+        icon.className = state.selectMode
+          ? 'fa-solid fa-trash-can'
+          : 'fa-solid fa-trash-can';
+      }
+      if (state.selectMode && count) {
+        delBtn.innerHTML =
+          '<i class="fa-solid fa-trash-can" aria-hidden="true"></i><span class="inbox-mail__delete-count">' +
+          count +
+          '</span>';
+      } else {
+        delBtn.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
+      }
+    }
+    if (cancelBtn) cancelBtn.hidden = !state.selectMode;
+    if (listCol) listCol.classList.toggle('is-select-mode', !!state.selectMode);
+  }
+
+  function currentListKeys() {
+    if (state.view === 'sent') {
+      return state.sentItems
+        .map(function (r) {
+          return r.key || r.id || '';
+        })
+        .filter(Boolean);
+    }
+    return state.items
+      .map(function (item) {
+        return item.key || '';
+      })
+      .filter(Boolean);
+  }
+
+  async function confirmAndDeleteSelected() {
+    var keys = Object.keys(state.selectedKeys).filter(function (k) {
+      return !!state.selectedKeys[k];
+    });
+    if (!keys.length) {
+      showToast('error', 'Select at least one message to delete.');
+      return;
+    }
+    if (!state.mailbox) return;
+
+    var confirmed = false;
+    if (typeof window.showFriendlyConfirm === 'function') {
+      confirmed = await window.showFriendlyConfirm({
+        title: 'Delete messages?',
+        message: 'Selected emails will be permanently removed from storage.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        details: [{ label: 'Messages', value: keys.length, tone: 'danger' }],
+      });
+    } else {
+      confirmed = window.confirm('Delete ' + keys.length + ' message(s)? This cannot be undone.');
+    }
+    if (!confirmed) return;
+
+    state.deleting = true;
+    updateDeleteUi();
+    setLoading(true);
+    try {
+      var res = await fetch(getApi(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_emails',
+          mailbox: state.mailbox.id,
+          keys: keys,
+        }),
+      });
+      var data = await res.json().catch(function () {
+        return {};
+      });
+      if (!res.ok) {
+        throw new Error((data && data.message) || 'Could not delete messages');
+      }
+      var deleted = Array.isArray(data.deleted) ? data.deleted : keys;
+      deleted.forEach(function (k) {
+        if (state.selectedKey === k) {
+          state.selectedKey = null;
+          state.selectedEmail = null;
+          renderDetailEmpty();
+        }
+      });
+      showToast(
+        'success',
+        (data && data.message) ||
+          'Deleted ' + (data.deletedCount != null ? data.deletedCount : deleted.length) + ' message(s)',
+      );
+      exitSelectMode();
+      await loadMailboxData(true);
+      fetchMailboxes({ force: true });
+    } catch (e) {
+      showToast('error', e.message || 'Could not delete messages');
+    } finally {
+      state.deleting = false;
+      setLoading(false);
+      updateDeleteUi();
+    }
+  }
+
+  async function onDeleteButtonClick() {
+    if (state.deleting) return;
+    var hasRows = currentListKeys().length > 0;
+    if (!hasRows && !state.selectMode) return;
+    if (!state.selectMode) {
+      enterSelectMode();
+      return;
+    }
+    if (!selectedCount()) {
+      showToast('error', 'Select messages to delete, or tap Cancel.');
+      return;
+    }
+    await confirmAndDeleteSelected();
   }
 
   function showScreen(name) {
@@ -351,6 +517,8 @@
     state.view = 'inbox';
     state.selectedKey = null;
     state.selectedEmail = null;
+    state.selectMode = false;
+    state.selectedKeys = {};
     $('inbox-tab-inbox').classList.add('is-active');
     $('inbox-tab-sent').classList.remove('is-active');
     $('inbox-tab-inbox').setAttribute('aria-selected', 'true');
@@ -359,10 +527,13 @@
     updateWorkspaceHeader();
     renderDetailEmpty();
     updateGmailSyncButton();
+    updateDeleteUi();
     loadMailboxData();
   }
 
   function backToMailboxes() {
+    state.selectMode = false;
+    state.selectedKeys = {};
     state.mailbox = null;
     state.items = [];
     state.sentItems = [];
@@ -414,20 +585,34 @@
     if (!state.items.length) {
       list.innerHTML =
         '<p class="inbox-mail__list-empty">No messages yet.<br><small>Only mail stored in CRM shows here. Use <strong>Upload emails</strong> to add older .eml files.</small></p>';
+      updateDeleteUi();
       return;
     }
     list.innerHTML = state.items
       .map(function (item) {
         var sel = state.selectedKey === item.key ? ' is-selected' : '';
         var unread = !item.isRead ? ' is-unread' : ' is-read';
+        var checked = state.selectMode && state.selectedKeys[item.key] ? ' is-checked' : '';
         var name = displayName(item.from);
+        var checkHtml = state.selectMode
+          ? '<span class="inbox-list__check">' +
+            '<input type="checkbox" data-select-key="' +
+            escHtml(item.key) +
+            '"' +
+            (state.selectedKeys[item.key] ? ' checked' : '') +
+            ' />' +
+            '</span>'
+          : '';
         return (
-          '<button type="button" class="inbox-list__item' +
+          '<div role="button" tabindex="0" class="inbox-list__item' +
           sel +
           unread +
+          checked +
+          (state.selectMode ? ' is-selectable' : '') +
           '" data-key="' +
           escHtml(item.key) +
           '">' +
+          checkHtml +
           '<span class="inbox-list__unread-dot" aria-hidden="true"></span>' +
           '<span class="inbox-list__avatar" aria-hidden="true">' +
           escHtml(initials(name)) +
@@ -445,10 +630,11 @@
           '</span>' +
           '<span class="inbox-list__snippet">' +
           escHtml(item.snippet || '') +
-          '</span></span></button>'
+          '</span></span></div>'
         );
       })
       .join('');
+    updateDeleteUi();
   }
 
   function renderSentList() {
@@ -456,14 +642,30 @@
     if (!list) return;
     if (!state.sentItems.length) {
       list.innerHTML = '<p class="inbox-mail__list-empty">No sent replies yet.</p>';
+      updateDeleteUi();
       return;
     }
     list.innerHTML = state.sentItems
       .map(function (r) {
+        var key = r.key || r.id || '';
+        var checked = state.selectMode && state.selectedKeys[key] ? ' is-checked' : '';
+        var checkHtml = state.selectMode
+          ? '<span class="inbox-list__check">' +
+            '<input type="checkbox" data-select-key="' +
+            escHtml(key) +
+            '"' +
+            (state.selectedKeys[key] ? ' checked' : '') +
+            ' />' +
+            '</span>'
+          : '';
         return (
-          '<button type="button" class="inbox-list__item inbox-list__item--sent" data-sent-key="' +
-          escHtml(r.key || r.id || '') +
+          '<div role="button" tabindex="0" class="inbox-list__item inbox-list__item--sent' +
+          checked +
+          (state.selectMode ? ' is-selectable' : '') +
+          '" data-sent-key="' +
+          escHtml(key) +
           '">' +
+          checkHtml +
           '<span class="inbox-list__avatar inbox-list__avatar--sent" aria-hidden="true">' +
           '<i class="fa-solid fa-paper-plane"></i></span>' +
           '<span class="inbox-list__content">' +
@@ -479,10 +681,11 @@
           '</span>' +
           '<span class="inbox-list__snippet">' +
           escHtml(String(r.body || '').slice(0, 100)) +
-          '</span></span></button>'
+          '</span></span></div>'
         );
       })
       .join('');
+    updateDeleteUi();
   }
 
   function renderDetailEmpty() {
@@ -827,6 +1030,7 @@
   function switchTab(view) {
     state.view = view;
     state.selectedKey = null;
+    exitSelectMode();
     $('inbox-tab-inbox').classList.toggle('is-active', view === 'inbox');
     $('inbox-tab-sent').classList.toggle('is-active', view === 'sent');
     $('inbox-tab-inbox').setAttribute('aria-selected', view === 'inbox' ? 'true' : 'false');
@@ -844,11 +1048,27 @@
       openMailbox(card.getAttribute('data-mailbox'));
     });
 
-    $('inbox-btn-back').addEventListener('click', backToMailboxes);
+    $('inbox-btn-back').addEventListener('click', function () {
+      exitSelectMode();
+      backToMailboxes();
+    });
     $('inbox-btn-refresh').addEventListener('click', function () {
       if (state.screen === 'mailboxes') fetchMailboxes({ force: true });
       else loadMailboxData(true);
     });
+
+    var deleteBtn = $('inbox-btn-delete');
+    var deleteCancel = $('inbox-btn-delete-cancel');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
+        onDeleteButtonClick();
+      });
+    }
+    if (deleteCancel) {
+      deleteCancel.addEventListener('click', function () {
+        exitSelectMode();
+      });
+    }
 
     var uploadBtn = $('inbox-btn-upload-eml');
     var fileInput = $('inbox-eml-file');
@@ -871,15 +1091,53 @@
       switchTab('sent');
     });
 
+    $('inbox-list').addEventListener('change', function (e) {
+      var input = e.target.closest('[data-select-key]');
+      if (!input || !state.selectMode) return;
+      var key = input.getAttribute('data-select-key');
+      if (!key) return;
+      if (input.checked) state.selectedKeys[key] = true;
+      else delete state.selectedKeys[key];
+      var row = input.closest('.inbox-list__item');
+      if (row) row.classList.toggle('is-checked', !!input.checked);
+      updateDeleteUi();
+    });
+
     $('inbox-list').addEventListener('click', function (e) {
+      if (e.target.closest('.inbox-list__check') || e.target.closest('[data-select-key]')) {
+        return;
+      }
       var inboxBtn = e.target.closest('[data-key]');
       if (inboxBtn && state.view === 'inbox') {
-        openEmail(inboxBtn.getAttribute('data-key'));
+        var inboxKey = inboxBtn.getAttribute('data-key');
+        if (state.selectMode) {
+          var inboxCheck = inboxBtn.querySelector('[data-select-key]');
+          if (inboxCheck) {
+            inboxCheck.checked = !inboxCheck.checked;
+            if (inboxCheck.checked) state.selectedKeys[inboxKey] = true;
+            else delete state.selectedKeys[inboxKey];
+            inboxBtn.classList.toggle('is-checked', !!inboxCheck.checked);
+            updateDeleteUi();
+          }
+          return;
+        }
+        openEmail(inboxKey);
         return;
       }
       var sentBtn = e.target.closest('[data-sent-key]');
       if (sentBtn && state.view === 'sent') {
         var key = sentBtn.getAttribute('data-sent-key');
+        if (state.selectMode) {
+          var sentCheck = sentBtn.querySelector('[data-select-key]');
+          if (sentCheck) {
+            sentCheck.checked = !sentCheck.checked;
+            if (sentCheck.checked) state.selectedKeys[key] = true;
+            else delete state.selectedKeys[key];
+            sentBtn.classList.toggle('is-checked', !!sentCheck.checked);
+            updateDeleteUi();
+          }
+          return;
+        }
         var r = state.sentItems.find(function (x) {
           return (x.key || x.id) === key;
         });

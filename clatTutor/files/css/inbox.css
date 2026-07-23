@@ -495,6 +495,7 @@ body.inbox-page.crm-dashboard .page-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.7rem 1rem;
   border-bottom: 1px solid #f1f5f9;
   background: #fafafa;
@@ -509,10 +510,109 @@ body.inbox-page.crm-dashboard .page-content {
   color: #64748b;
 }
 
+.inbox-mail__list-head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.inbox-mail__list-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.inbox-mail__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.55rem;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.inbox-mail__delete-btn:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.inbox-mail__delete-btn.is-selecting {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.inbox-mail__delete-btn.has-selection {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+}
+
+.inbox-mail__delete-count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.inbox-mail__delete-cancel {
+  height: 2rem;
+  padding: 0 0.65rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inbox-mail__delete-cancel:hover {
+  background: #f8fafc;
+}
+
 .inbox-mail__list-loading {
   margin: 0;
   font-size: 0.85rem;
   color: #94a3b8;
+}
+
+.inbox-list__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.1rem;
+  margin-right: 0.15rem;
+  cursor: pointer;
+}
+
+.inbox-list__check input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: #dc2626;
+  cursor: pointer;
+}
+
+.inbox-list__item.is-selectable {
+  padding-left: 0.65rem;
+}
+
+.inbox-list__item.is-checked {
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.inbox-mail__list-col.is-select-mode .inbox-mail__list-head {
+  background: #fff7f7;
+  border-bottom-color: #fecaca;
 }
 
 .inbox-mail__list {

@@ -678,6 +678,71 @@ body {
   color: #64748b;
 }
 
+.ws-info-highlights {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ws-info-highlights li {
+  display: grid;
+  grid-template-columns: 1.15rem 1fr;
+  gap: 0.65rem;
+  align-items: start;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.ws-info-highlights strong {
+  color: #0c1222;
+  font-weight: 700;
+}
+
+.ws-info-highlights__mark {
+  display: inline-flex;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.12rem;
+  border-radius: 50%;
+  background: #ecfdf3;
+  border: 1.5px solid #86efac;
+  box-shadow: inset 0 0 0 3px #fff;
+  position: relative;
+}
+
+.ws-info-highlights__mark::after {
+  content: '';
+  position: absolute;
+  left: 0.28rem;
+  top: 0.12rem;
+  width: 0.28rem;
+  height: 0.5rem;
+  border: solid #16a34a;
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(45deg);
+}
+
+.ws-info-meta {
+  margin: 0 0 1.1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #eef2f7;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.ws-info-next {
+  width: 100%;
+}
+
+#ws-branch-back {
+  width: 100%;
+  margin-top: 0.85rem;
+}
+
 /* Branch cards */
 .ws-branch-grid {
   display: grid;

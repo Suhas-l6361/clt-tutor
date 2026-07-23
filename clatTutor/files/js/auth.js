@@ -88,7 +88,37 @@
     },
 
     getToken() {
-      return localStorage.getItem(KEYS.token) || '';
+      let token = localStorage.getItem(KEYS.token) || '';
+      token = String(token).trim();
+      if (/^bearer\s+/i.test(token)) token = token.replace(/^bearer\s+/i, '').trim();
+      return token;
+    },
+
+    /** Decode JWT payload (CRM API tokens). Returns null if not a JWT. */
+    parseJwtPayload(token) {
+      try {
+        var t = String(token || '').trim();
+        if (/^bearer\s+/i.test(t)) t = t.replace(/^bearer\s+/i, '').trim();
+        var parts = t.split('.');
+        if (parts.length !== 3) return null;
+        var b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) b64 += '=';
+        var json = atob(b64);
+        return JSON.parse(json);
+      } catch (_) {
+        return null;
+      }
+    },
+
+    /** CRM APIs need a signed JWT from crmAuth — not an old demo/local token. */
+    isCrmApiTokenValid() {
+      var role = localStorage.getItem(KEYS.role);
+      if (role !== 'crm') return true;
+      var payload = this.parseJwtPayload(this.getToken());
+      if (!payload || (payload.role && payload.role !== 'crm')) return false;
+      var now = Math.floor(Date.now() / 1000);
+      if (!payload.exp || payload.exp <= now + 30) return false;
+      return true;
     },
 
     authHeaders(extra) {
