@@ -386,29 +386,18 @@
 }
 
 .ws-nls-strip__viewport {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(245, 184, 0, 0.45) transparent;
-}
-
-.ws-nls-strip__viewport::-webkit-scrollbar {
-  height: 4px;
-}
-
-.ws-nls-strip__viewport::-webkit-scrollbar-thumb {
-  background: rgba(245, 184, 0, 0.45);
-  border-radius: 4px;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
 }
 
 .ws-nls-strip__track {
   display: flex;
   width: max-content;
   gap: 0.35rem;
-  padding: 0.15rem 0.75rem 0.35rem;
-  /* Single pass — no cloned cards, so no visible repeat */
-  animation: ws-nls-marquee 80s linear infinite;
+  padding: 0.15rem 0.5rem;
+  animation: ws-nls-marquee 55s linear infinite;
+  will-change: transform;
 }
 
 .ws-nls-strip__viewport:hover .ws-nls-strip__track {
@@ -479,11 +468,12 @@
 }
 
 @keyframes ws-nls-marquee {
-  0% {
+  from {
     transform: translateX(0);
   }
-  100% {
-    transform: translateX(calc(-100% + 100vw));
+  to {
+    /* Track is [full set][full set] — move exactly one set, then loop */
+    transform: translateX(-50%);
   }
 }
 
@@ -557,6 +547,15 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.55rem 0.35rem;
+  }
+
+  .ws-nls-strip__track .ws-nls-card[aria-hidden='true'] {
+    display: none;
+  }
+
+  .ws-nls-strip__viewport {
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 }
 
