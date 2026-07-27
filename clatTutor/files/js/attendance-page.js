@@ -328,12 +328,17 @@
       var profile = studentsById[sid] || null;
       var targetYear = profile && profile.targetYear ? String(profile.targetYear).trim() : '';
 
+      // The backend requires a valid targetYear for attendance + email notifications.
+      // If a student's target year is missing from general_info, skip them to avoid
+      // writing "Unknown" attendance sessions.
+      if (!targetYear) return;
+
       out.push({
         student_id: sid,
         name: (profile && profile.name) || (assignment && assignment.student_name) || 'Student',
         batch: f.batch,
         branch: f.branch,
-        targetYear: targetYear || 'Unknown',
+        targetYear: targetYear,
         email: profile ? profile.email : '',
         phone: profile ? profile.phone : '',
         img_url: profile ? profile.img_url : null,
@@ -543,11 +548,12 @@
     return base;
   }
 
-  async function fetchSavedAttendance(f) {
+  async function fetchSavedAttendance(f, targetYear) {
     if (!ATTENDANCE_API) return [];
     var url = attendanceApiUrl({
       batch: f.batch,
       branch: f.branch,
+      targetYear: targetYear,
       attendance_date: f.attendance_date,
     });
     var res = await fetch(url, { method: 'GET', headers: attendanceHeaders(false) });
@@ -604,8 +610,19 @@
       resetAttendanceMarks('not_marked');
 
       try {
-        var saved = await fetchSavedAttendance(f);
-        mergeSavedStatuses(saved);
+        var years = uniqueSorted(
+          roster
+            .map(function (s) {
+              return normStr(s.targetYear);
+            })
+            .filter(function (y) {
+              return !!y;
+            })
+        );
+        for (var i = 0; i < years.length; i++) {
+          var saved = await fetchSavedAttendance(f, years[i]);
+          mergeSavedStatuses(saved);
+        }
       } catch (saveErr) {
         console.warn('Could not load saved attendance:', saveErr);
       }
@@ -685,9 +702,14 @@
     if (elSave) elSave.disabled = true;
 
     var recordsByYear = Object.create(null);
+    var missingTargetYear = false;
     roster.forEach(function (s) {
       var id = String(s.student_id);
-      var year = normStr(s.targetYear) || 'Unknown';
+      var year = normStr(s.targetYear);
+      if (!year) {
+        missingTargetYear = true;
+        return;
+      }
       if (!recordsByYear[year]) recordsByYear[year] = [];
       recordsByYear[year].push({
         student_id: id,
@@ -695,6 +717,11 @@
         status: statusByStudentId[id] === 'present' ? 'present' : 'absent',
       });
     });
+    if (missingTargetYear) {
+      showPopup('error', 'Some students are missing target year. Please verify student data.');
+      if (elSave) elSave.disabled = false;
+      return;
+    }
 
     try {
       var emailsQueued = 0;
