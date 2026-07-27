@@ -1,5 +1,6 @@
 /**
- * CRM attendance — students from student_general_info; save/history via attendance API.
+ * CRM attendance — batch/branch filters from assignStudent; roster enriched via general_info.
+ * Save + email notifications via attendance API (unchanged).
  */
 (function () {
   'use strict';
@@ -12,10 +13,12 @@
     (window.APP_CONFIG && window.APP_CONFIG.ATTENDANCE_API) ||
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/attendance';
 
-  /** Keep in sync with batch options in crm/students.html */
-  var KNOWN_BATCH_OPTIONS = ['CLAT Dec 2026', 'CLAT Dec 2027', 'IPMAT'];
+  var ASSIGN_STUDENT_API =
+    (window.APP_CONFIG && window.APP_CONFIG.ASSIGN_STUDENT_API) ||
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent';
 
   var allRows = [];
+  var assignedAll = [];
   var roster = [];
   var statusByStudentId = {};
   var studentsById = Object.create(null);
@@ -28,7 +31,6 @@
 
   var elBatch;
   var elBranch;
-  var elTargetYear;
   var elDate;
   var elLoad;
   var elSave;
@@ -166,6 +168,37 @@
     return normKey(studentVal) === normKey(filterVal);
   }
 
+  function normalizeBranchKey(raw) {
+    if (window.CrmBranchScope && typeof window.CrmBranchScope.normalizeKey === 'function') {
+      return window.CrmBranchScope.normalizeKey(raw);
+    }
+    return String(raw || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  function branchKeysMatch(a, b) {
+    return normalizeBranchKey(a) === normalizeBranchKey(b);
+  }
+
+  function authHeaders(extra) {
+    var base = Object.assign({ Accept: 'application/json' }, extra || {});
+    if (window.Auth && typeof window.Auth.authHeaders === 'function') {
+      return window.Auth.authHeaders(base);
+    }
+    return base;
+  }
+
+  function ensureCrmAuth() {
+    if (window.Auth && typeof window.Auth.isCrmApiTokenValid === 'function' && !window.Auth.isCrmApiTokenValid()) {
+      var err = new Error('Session expired. Please log out and log in again.');
+      err.status = 401;
+      return Promise.reject(err);
+    }
+    return Promise.resolve();
+  }
+
   function showPopup(type, message) {
     if (typeof window.showFriendlyPopup === 'function') {
       window.showFriendlyPopup({
@@ -222,38 +255,96 @@
     return {
       batch: elBatch ? elBatch.value.trim() : '',
       branch: elBranch ? elBranch.value.trim() : '',
-      targetYear: elTargetYear ? elTargetYear.value.trim() : '',
       attendance_date: elDate ? elDate.value : todayIso(),
     };
   }
 
   function filtersValid(f) {
-    return !!(f.batch && f.branch && f.targetYear && f.attendance_date);
+    return !!(f.batch && f.branch && f.attendance_date);
   }
 
-  function filterRosterFromAll(f) {
-    return allRows.filter(function (s) {
-      if (!s) return false;
-      if (!fieldMatches(s.batch, f.batch)) return false;
-      if (!fieldMatches(s.branch, f.branch)) return false;
-      if (!fieldMatches(s.targetYear, f.targetYear)) return false;
-      return true;
+  function uniqueBatchesFromAssign(branchVal) {
+    var map = {};
+    (assignedAll || []).forEach(function (row) {
+      if (!row) return;
+      if (branchVal && !branchKeysMatch(row.branch, branchVal)) return;
+      if (window.CrmBranchScope && typeof window.CrmBranchScope.canSeeBranch === 'function') {
+        if (row.branch && !window.CrmBranchScope.canSeeBranch(row.branch)) return;
+      }
+      var name = normStr(row.batch);
+      if (name) map[name] = true;
+    });
+    return Object.keys(map).sort(function (a, b) {
+      return a.localeCompare(b, undefined, { sensitivity: 'base' });
     });
   }
 
-  function rowsForBranchOptions(batchVal) {
-    if (!batchVal) return allRows.slice();
-    return allRows.filter(function (s) {
-      return fieldMatches(s.batch, batchVal);
+  function uniqueBranchesFromAssign() {
+    var map = {};
+    (assignedAll || []).forEach(function (row) {
+      if (!row || !row.branch) return;
+      if (window.CrmBranchScope && typeof window.CrmBranchScope.canSeeBranch === 'function') {
+        if (!window.CrmBranchScope.canSeeBranch(row.branch)) return;
+      }
+      var key = normalizeBranchKey(row.branch);
+      if (!key) return;
+      if (!map[key]) {
+        map[key] =
+          window.CrmBranchScope && typeof window.CrmBranchScope.displayLabel === 'function'
+            ? window.CrmBranchScope.displayLabel(row.branch)
+            : normStr(row.branch);
+      }
     });
+    return Object.keys(map)
+      .map(function (k) {
+        return map[k];
+      })
+      .sort(function (a, b) {
+        return a.localeCompare(b, undefined, { sensitivity: 'base' });
+      });
   }
 
-  function rowsForTargetYearOptions(batchVal, branchVal) {
-    var rows = rowsForBranchOptions(batchVal);
-    if (!branchVal) return rows;
-    return rows.filter(function (s) {
-      return fieldMatches(s.branch, branchVal);
+  function assignedIdsForFilters(f) {
+    var ids = Object.create(null);
+    (assignedAll || []).forEach(function (row) {
+      if (!row) return;
+      if (!branchKeysMatch(row.branch, f.branch)) return;
+      if (!fieldMatches(row.batch, f.batch)) return;
+      var sid = row.student_id != null ? String(row.student_id).trim() : '';
+      if (sid) ids[sid] = row;
     });
+    return ids;
+  }
+
+  function buildRosterFromAssigned(f) {
+    var assignedMap = assignedIdsForFilters(f);
+    var out = [];
+    var seen = Object.create(null);
+
+    Object.keys(assignedMap).forEach(function (sid) {
+      if (seen[sid]) return;
+      seen[sid] = true;
+      var assignment = assignedMap[sid];
+      var profile = studentsById[sid] || null;
+      var targetYear = profile && profile.targetYear ? String(profile.targetYear).trim() : '';
+
+      out.push({
+        student_id: sid,
+        name: (profile && profile.name) || (assignment && assignment.student_name) || 'Student',
+        batch: f.batch,
+        branch: f.branch,
+        targetYear: targetYear || 'Unknown',
+        email: profile ? profile.email : '',
+        phone: profile ? profile.phone : '',
+        img_url: profile ? profile.img_url : null,
+        created_at: profile ? profile.created_at : null,
+      });
+    });
+
+    out.sort(function (a, b) {
+      return Number(a.student_id) - Number(b.student_id);
+    });
+    return out;
   }
 
   function updateStats() {
@@ -382,6 +473,56 @@
     return rows.map(normalizeStudentRow);
   }
 
+  async function loadAssignedData(branch, batch) {
+    if (!ASSIGN_STUDENT_API) throw new Error('ASSIGN_STUDENT_API is not configured');
+    await ensureCrmAuth();
+    var res = await fetch(ASSIGN_STUDENT_API, { method: 'GET', headers: authHeaders() });
+    var data = await res.json();
+    if (!res.ok) {
+      throw new Error((data && data.message) || 'Failed to load assigned students');
+    }
+    var rows = Array.isArray(data) ? data : [];
+    return rows.filter(function (row) {
+      if (!row) return false;
+      if (branch && !branchKeysMatch(row.branch, branch)) return false;
+      if (batch && !fieldMatches(row.batch, batch)) return false;
+      return true;
+    });
+  }
+
+  function populateFilterDropdowns() {
+    var prevBatch = elBatch ? elBatch.value : '';
+    var prevBranch = elBranch ? elBranch.value : '';
+
+    var batchOptions = uniqueBatchesFromAssign('');
+    fillSelect(elBatch, batchOptions, 'Select batch');
+    if (
+      elBatch &&
+      prevBatch &&
+      batchOptions.some(function (b) {
+        return fieldMatches(b, prevBatch);
+      })
+    ) {
+      elBatch.value = prevBatch;
+    } else if (elBatch) {
+      elBatch.value = '';
+    }
+
+    var branchOptions = uniqueBranchesFromAssign();
+    fillSelect(elBranch, branchOptions, 'Select branch');
+    if (
+      elBranch &&
+      prevBranch &&
+      branchOptions.some(function (b) {
+        return fieldMatches(b, prevBranch) || branchKeysMatch(b, prevBranch);
+      })
+    ) {
+      elBranch.value = prevBranch;
+    } else if (elBranch) {
+      elBranch.value = '';
+    }
+  }
+
   function attendanceApiUrl(params) {
     if (!ATTENDANCE_API) return '';
     if (!params) return ATTENDANCE_API;
@@ -407,7 +548,6 @@
     var url = attendanceApiUrl({
       batch: f.batch,
       branch: f.branch,
-      targetYear: f.targetYear,
       attendance_date: f.attendance_date,
     });
     var res = await fetch(url, { method: 'GET', headers: attendanceHeaders(false) });
@@ -428,69 +568,6 @@
     return true;
   }
 
-  function populateFilterDropdowns() {
-    var prevBatch = elBatch ? elBatch.value : '';
-    var prevBranch = elBranch ? elBranch.value : '';
-    var prevYear = elTargetYear ? elTargetYear.value : '';
-
-    fillSelect(
-      elBatch,
-      uniqueSorted(
-        KNOWN_BATCH_OPTIONS.concat(
-          allRows.map(function (s) {
-            return s.batch;
-          })
-        )
-      ),
-      'Select batch'
-    );
-    if (elBatch && prevBatch) elBatch.value = prevBatch;
-
-    var branchRows = rowsForBranchOptions(elBatch ? elBatch.value : '');
-    fillSelect(
-      elBranch,
-      uniqueSorted(
-        branchRows.map(function (s) {
-          return s.branch;
-        })
-      ),
-      'Select branch'
-    );
-    if (
-      elBranch &&
-      prevBranch &&
-      branchRows.some(function (s) {
-        return fieldMatches(s.branch, prevBranch);
-      })
-    ) {
-      elBranch.value = prevBranch;
-    } else if (elBranch) {
-      elBranch.value = '';
-    }
-
-    var yearRows = rowsForTargetYearOptions(elBatch ? elBatch.value : '', elBranch ? elBranch.value : '');
-    fillSelect(
-      elTargetYear,
-      uniqueSorted(
-        yearRows.map(function (s) {
-          return s.targetYear;
-        })
-      ),
-      'Select target year'
-    );
-    if (
-      elTargetYear &&
-      prevYear &&
-      yearRows.some(function (s) {
-        return fieldMatches(s.targetYear, prevYear);
-      })
-    ) {
-      elTargetYear.value = prevYear;
-    } else if (elTargetYear) {
-      elTargetYear.value = '';
-    }
-  }
-
   function onBatchOrBranchFilterChange() {
     populateFilterDropdowns();
   }
@@ -498,7 +575,7 @@
   async function loadRoster() {
     var f = getFilters();
     if (!filtersValid(f)) {
-      showPopup('error', 'Please select batch, branch, and target year.');
+      showPopup('error', 'Please select batch and branch.');
       return;
     }
 
@@ -508,16 +585,19 @@
     try {
       allRows = await loadStudentData();
       rebuildStudentsById();
+      assignedAll = await loadAssignedData();
       populateFilterDropdowns();
+      if (elBatch) elBatch.value = f.batch;
+      if (elBranch) elBranch.value = f.branch;
 
-      roster = filterRosterFromAll(f);
-      roster.sort(function (a, b) {
-        return Number(a.student_id) - Number(b.student_id);
-      });
+      roster = buildRosterFromAssigned(f);
 
       if (!roster.length) {
         renderTable();
-        showPopup('error', 'No students found for the selected batch, branch, and target year.');
+        showPopup(
+          'error',
+          'No assigned students found for this batch and branch. Assign students first.'
+        );
         return;
       }
 
@@ -604,46 +684,61 @@
 
     if (elSave) elSave.disabled = true;
 
-    var records = roster.map(function (s) {
+    var recordsByYear = Object.create(null);
+    roster.forEach(function (s) {
       var id = String(s.student_id);
-      return {
+      var year = normStr(s.targetYear) || 'Unknown';
+      if (!recordsByYear[year]) recordsByYear[year] = [];
+      recordsByYear[year].push({
         student_id: id,
         name: s.name || '',
         status: statusByStudentId[id] === 'present' ? 'present' : 'absent',
-      };
+      });
     });
 
     try {
-      var res = await fetch(ATTENDANCE_API, {
-        method: 'POST',
-        headers: attendanceHeaders(true),
-        body: JSON.stringify({
-          batch: f.batch,
-          branch: f.branch,
-          targetYear: f.targetYear,
-          attendance_date: f.attendance_date,
-          records: records,
-        }),
-      });
-      var data = await res.json();
-      if (!res.ok) throw new Error((data && data.message) || 'Save failed');
-      var resultMessage = (data && data.message) || 'Attendance saved successfully.';
-      if (data && typeof data.emailsQueued === 'number') {
-        resultMessage += ' ' + data.emailsQueued + ' attendance email notification';
-        resultMessage += data.emailsQueued === 1 ? ' was' : 's were';
+      var emailsQueued = 0;
+      var emailsSkipped = 0;
+      var emailsFailedToQueue = 0;
+      var years = Object.keys(recordsByYear);
+      for (var i = 0; i < years.length; i++) {
+        var year = years[i];
+        var res = await fetch(ATTENDANCE_API, {
+          method: 'POST',
+          headers: attendanceHeaders(true),
+          body: JSON.stringify({
+            batch: f.batch,
+            branch: f.branch,
+            targetYear: year,
+            attendance_date: f.attendance_date,
+            records: recordsByYear[year],
+          }),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error((data && data.message) || 'Save failed');
+        if (data && typeof data.emailsQueued === 'number') emailsQueued += data.emailsQueued;
+        if (data && typeof data.emailsSkipped === 'number') emailsSkipped += data.emailsSkipped;
+        if (data && typeof data.emailsFailedToQueue === 'number') {
+          emailsFailedToQueue += data.emailsFailedToQueue;
+        }
+      }
+      var resultMessage = 'Attendance saved successfully.';
+      if (emailsQueued) {
+        resultMessage += ' ' + emailsQueued + ' attendance email notification';
+        resultMessage += emailsQueued === 1 ? ' was' : 's were';
         resultMessage += ' queued.';
       }
-      if (data && data.emailsSkipped) {
-        resultMessage += ' ' + data.emailsSkipped + ' student email';
-        resultMessage += data.emailsSkipped === 1 ? ' was' : 's were';
+      if (emailsSkipped) {
+        resultMessage += ' ' + emailsSkipped + ' student email';
+        resultMessage += emailsSkipped === 1 ? ' was' : 's were';
         resultMessage += ' skipped.';
       }
-      if (data && data.emailsFailedToQueue) {
-        resultMessage += ' ' + data.emailsFailedToQueue + ' notification';
-        resultMessage += data.emailsFailedToQueue === 1 ? ' failed' : 's failed';
+      if (emailsFailedToQueue) {
+        resultMessage += ' ' + emailsFailedToQueue + ' notification';
+        resultMessage += emailsFailedToQueue === 1 ? ' failed' : 's failed';
         resultMessage += ' to queue.';
       }
-      showPopup(data && data.emailsFailedToQueue ? 'error' : 'success', resultMessage);
+      showPopup(emailsFailedToQueue ? 'error' : 'success', resultMessage);
     } catch (err) {
       showPopup('error', err && err.message ? err.message : 'Could not save attendance.');
     } finally {
@@ -1435,7 +1530,6 @@
   function initAttendancePage() {
     elBatch = document.getElementById('attendance-batch');
     elBranch = document.getElementById('attendance-branch');
-    elTargetYear = document.getElementById('attendance-target-year');
     elDate = document.getElementById('attendance-date');
     elLoad = document.getElementById('attendance-load');
     elSave = document.getElementById('attendance-save');
@@ -1453,14 +1547,15 @@
 
     bindEvents();
 
-    loadStudentData()
-      .then(function (rows) {
-        allRows = rows;
+    Promise.all([loadStudentData(), loadAssignedData()])
+      .then(function (results) {
+        allRows = results[0] || [];
+        assignedAll = results[1] || [];
         rebuildStudentsById();
         populateFilterDropdowns();
       })
       .catch(function (err) {
-        showPopup('error', err && err.message ? err.message : 'Could not load student filters.');
+        showPopup('error', err && err.message ? err.message : 'Could not load attendance filters.');
       });
   }
 

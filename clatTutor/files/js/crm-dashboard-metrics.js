@@ -204,7 +204,14 @@
     if (!s) return 'Unassigned';
     if (s.indexOf('malle') === 0) return 'Malleshwaram';
     if (s.indexOf('jayan') === 0) return 'Jayanagara';
-    if (s.indexOf('yel') === 0 || s.indexOf('yal') === 0) return 'Yelahanka';
+    if (
+      s.indexOf('yel') === 0 ||
+      s.indexOf('yal') === 0 ||
+      s.indexOf('yelahanka') >= 0 ||
+      s.indexOf('yalahanka') >= 0
+    ) {
+      return 'Yelahanka';
+    }
     if (s === 'online') return 'Online';
     var trimmed = String(raw || '').trim();
     return trimmed || 'Other';

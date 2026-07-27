@@ -115,6 +115,9 @@
   }
 
   function branchLabel(branch) {
+    if (window.CrmBranchScope && typeof window.CrmBranchScope.displayLabel === 'function') {
+      return window.CrmBranchScope.displayLabel(branch);
+    }
     var b = String(branch || '').trim();
     return b || 'Unassigned';
   }

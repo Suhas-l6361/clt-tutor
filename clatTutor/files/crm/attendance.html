@@ -21,10 +21,16 @@
       <section class="attendance-crm__filters" aria-label="Attendance filters">
         <div class="attendance-crm__filters-head">
           <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
-          <button type="button" class="attendance-btn attendance-btn--toolbar" id="attendance-btn-history" aria-label="Attendance history">
-            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-            <span>History</span>
-          </button>
+          <div class="attendance-crm__filters-head-actions">
+            <button type="button" class="attendance-btn attendance-btn--toolbar" id="attendance-btn-assign" aria-label="Assign students to batch" aria-haspopup="dialog" aria-controls="attendance-assign-modal">
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+              <span>Assign student</span>
+            </button>
+            <button type="button" class="attendance-btn attendance-btn--toolbar" id="attendance-btn-history" aria-label="Attendance history">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+              <span>History</span>
+            </button>
+          </div>
         </div>
         <div class="attendance-filter-grid">
           <div class="attendance-field">
@@ -37,12 +43,6 @@
             <label for="attendance-branch">Branch</label>
             <select id="attendance-branch" required>
               <option value="">Select branch</option>
-            </select>
-          </div>
-          <div class="attendance-field">
-            <label for="attendance-target-year">Target year</label>
-            <select id="attendance-target-year" required>
-              <option value="">Select target year</option>
             </select>
           </div>
           <div class="attendance-field">
@@ -91,7 +91,7 @@
 
       <div id="attendance-empty" class="attendance-empty">
         <i class="fa-solid fa-user-group" aria-hidden="true"></i>
-        Select batch, branch, and target year, then click <strong>Load students</strong>.
+        Select batch and branch, then click <strong>Load students</strong>.
       </div>
 
       <section id="attendance-panel" class="attendance-panel" hidden aria-label="Attendance roster">
@@ -118,6 +118,80 @@
           <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
           Save attendance
         </button>
+      </div>
+    </div>
+
+    <div id="attendance-assign-modal" class="attendance-assign-modal" hidden>
+      <div class="attendance-assign-modal__backdrop" data-attendance-assign-close tabindex="-1"></div>
+      <div
+        class="attendance-assign-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-assign-title"
+      >
+        <div class="attendance-assign-modal__head">
+          <div>
+            <h2 id="attendance-assign-title" class="attendance-assign-modal__title">Assign students to batch</h2>
+            <p class="attendance-assign-modal__lead">Pick a branch, load students, then assign them to a batch for that centre.</p>
+          </div>
+          <button type="button" class="attendance-assign-modal__x" id="attendance-assign-close" aria-label="Close">×</button>
+        </div>
+
+        <div class="attendance-assign-modal__body">
+          <div class="attendance-assign-toolbar">
+            <label class="attendance-assign-field">
+              <span>Branch</span>
+              <select id="attendance-assign-branch">
+                <option value="">Select branch</option>
+                <option value="Malleshwaram">Malleshwaram</option>
+                <option value="Jayanagara">Jayanagara</option>
+                <option value="Yelahanka">Yelahanka</option>
+              </select>
+            </label>
+            <button type="button" class="attendance-btn attendance-btn--primary" id="attendance-assign-load" disabled>
+              <i class="fa-solid fa-users" aria-hidden="true"></i>
+              Load students
+            </button>
+          </div>
+
+          <p id="attendance-assign-status" class="attendance-assign-status" aria-live="polite"></p>
+          <p id="attendance-assign-error" class="attendance-assign-error" hidden></p>
+
+          <div class="attendance-assign-table-wrap" id="attendance-assign-table-wrap" hidden>
+            <table class="attendance-assign-table">
+              <thead>
+                <tr>
+                  <th class="attendance-assign-table__check">
+                    <input type="checkbox" id="attendance-assign-select-all" title="Select all available" aria-label="Select all available students" />
+                  </th>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Current batch</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-assign-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="attendance-assign-footer" id="attendance-assign-footer" hidden>
+            <div class="attendance-assign-footer__meta">
+              <strong id="attendance-assign-selected-count">0</strong>
+              <span>selected</span>
+            </div>
+            <label class="attendance-assign-field attendance-assign-field--batch">
+              <span>Assign to batch</span>
+              <select id="attendance-assign-batch" disabled>
+                <option value="">Select batch</option>
+              </select>
+            </label>
+            <button type="button" class="attendance-btn attendance-btn--primary" id="attendance-assign-submit" disabled>
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              Assign selected
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -323,13 +397,15 @@
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="../js/attendance-page.js"></script>
+  <script src="../js/attendance-page.js?v=20260727b5"></script>
+  <script src="../js/attendance-assign-student.js?v=20260727a1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
       initAppChrome({ role: 'crm', active: 'attendance.html', title: 'Attendance', contentEl: stock });
       if (typeof applyCrmChrome === 'function') applyCrmChrome();
       if (typeof initAttendancePage === 'function') initAttendancePage();
+      if (typeof initAttendanceAssignStudent === 'function') initAttendanceAssignStudent();
     });
   </script>
 </body>

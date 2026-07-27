@@ -16,7 +16,15 @@
     if (!s) return '';
     if (s.indexOf('malle') === 0) return 'malleshwaram';
     if (s.indexOf('jayan') === 0) return 'jayanagara';
-    if (s.indexOf('yel') === 0 || s.indexOf('yal') === 0) return 'yelahanka';
+    // Fees/students often store misspelling YALAHANKA; also match yel*/yal*/…yelahanka…
+    if (
+      s.indexOf('yel') === 0 ||
+      s.indexOf('yal') === 0 ||
+      s.indexOf('yelahanka') >= 0 ||
+      s.indexOf('yalahanka') >= 0
+    ) {
+      return 'yelahanka';
+    }
     if (s === 'online') return ONLINE_KEY;
     if (s === 'general') return GENERAL_KEY;
     return s;

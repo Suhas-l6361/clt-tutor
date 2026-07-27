@@ -269,11 +269,46 @@
     return parseAmount(raw);
   }
 
+  /**
+   * Total paid on one receipt. Prefer payment_history (authoritative on updated
+   * receipts); fall back to amount_paid.
+   */
+  function getPaidFromReceipt(receipt) {
+    if (!receipt) return 0;
+    var hist = receipt.payment_history;
+    if (typeof hist === 'string') {
+      try {
+        hist = JSON.parse(hist);
+      } catch (e) {
+        hist = null;
+      }
+    }
+    if (Array.isArray(hist) && hist.length) {
+      var sum = 0;
+      for (var i = 0; i < hist.length; i++) {
+        var row = hist[i];
+        if (!row) continue;
+        sum += parseAmount(row.amount != null ? row.amount : row.amt);
+      }
+      return sum;
+    }
+    return parseAmount(receipt.amount_paid);
+  }
+
   function receiptSortDate(receipt) {
     return (
       parseDueDate(receipt.payment_date || receipt.receipt_date || receipt.created_at) ||
       new Date(0)
     );
+  }
+
+  /** Prefer newest DB row (created_at / id) — payment_date is often the first payment and shared across duplicate receipts. */
+  function receiptRecencyTime(receipt) {
+    var created = parseDueDate(receipt && receipt.created_at);
+    if (created) return created.getTime();
+    var idNum = Number(receipt && receipt.id);
+    if (isFinite(idNum)) return idNum;
+    return receiptSortDate(receipt).getTime();
   }
 
   function studentGroupKey(receipt) {
@@ -300,7 +335,10 @@
     });
     if (!withPlan.length) return null;
     withPlan.sort(function (a, b) {
-      return receiptSortDate(b).getTime() - receiptSortDate(a).getTime();
+      var tb = receiptRecencyTime(b);
+      var ta = receiptRecencyTime(a);
+      if (tb !== ta) return tb - ta;
+      return Number(b.id || 0) - Number(a.id || 0);
     });
     return withPlan[0];
   }
@@ -314,6 +352,14 @@
   /**
    * Students with past-due installments where tuition ≠ total paid (balance remains).
    * One entry per student — worst (most days overdue) installment shown.
+   *
+   * Use the latest receipt that has an installment_plan as the source of truth
+   * (tuition / paid / plan). Many Yelahanka (and some other) students have an older
+   * duplicate receipt; summing amount_paid across duplicates double-counts the same
+   * payment (e.g. Mithil 50k+50k) and hides real overdue installments.
+   *
+   * installment_plan is the remaining fee schedule (≈ outstanding balance). Covered
+   * portion of that plan = max(0, planSum - balance).
    */
   function getOverdueUnpaidInstallments(rows) {
     var today = todayStart();
@@ -322,24 +368,30 @@
 
     Object.keys(groups).forEach(function (key) {
       var receipts = groups[key];
-      var totalPaid = 0;
-      var tuition = 0;
-      receipts.forEach(function (r) {
-        totalPaid += parseAmount(r.amount_paid);
-        var t = getTuitionFromReceipt(r);
-        if (t > tuition) tuition = t;
-      });
-
-      var balance = tuition - totalPaid;
-      if (balance <= 0.5) return;
-
       var planReceipt = getLatestReceiptWithPlan(receipts);
       if (!planReceipt) return;
+
+      var tuition = getTuitionFromReceipt(planReceipt);
+      if (tuition <= 0) {
+        receipts.forEach(function (r) {
+          var t = getTuitionFromReceipt(r);
+          if (t > tuition) tuition = t;
+        });
+      }
+
+      var totalPaid = getPaidFromReceipt(planReceipt);
+      var balance = tuition - totalPaid;
+      if (balance <= 0.5) return;
 
       var installments = normalizeInstallments(planReceipt.installment_plan);
       if (!installments.length) return;
 
-      var remainingPaid = totalPaid;
+      var planSum = 0;
+      for (var p = 0; p < installments.length; p++) {
+        planSum += parseAmount(installments[p].amount);
+      }
+      /** How much of the remaining plan is already covered by payments. */
+      var remainingPaid = Math.max(0, planSum - Math.max(0, balance));
       var worst = null;
 
       for (var i = 0; i < installments.length; i++) {
@@ -364,7 +416,7 @@
         }
 
         var daysOverdue = Math.round((today.getTime() - due.getTime()) / 86400000);
-        /** Unpaid leftover on this installment after applying paid so far. */
+        /** Unpaid leftover on this installment after applying covered-so-far. */
         var unpaidOnInstallment = instAmt > 0 ? Math.max(0, instAmt - remainingPaid) : balance;
         remainingPaid = 0;
 
@@ -413,6 +465,8 @@
     normalizeInstallments: normalizeInstallments,
     getNextInstallmentInfo: getNextInstallmentInfo,
     hasInstallmentPlan: hasInstallmentPlan,
+    getPaidFromReceipt: getPaidFromReceipt,
+    getTuitionFromReceipt: getTuitionFromReceipt,
     sortReceiptsByNextInstallment: sortReceiptsByNextInstallment,
     getInstallmentsDueThisMonth: getInstallmentsDueThisMonth,
     getAllUpcomingInstallments: getAllUpcomingInstallments,
