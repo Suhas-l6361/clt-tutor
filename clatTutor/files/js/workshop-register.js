@@ -20,25 +20,29 @@
   var emailInput = document.getElementById('ws-reg-email');
   var phoneInput = document.getElementById('ws-reg-phone');
   var honeypotInput = document.getElementById('ws-reg-website');
+  var screenshotInput = document.getElementById('ws-reg-screenshot');
+  var screenshotPreview = document.getElementById('ws-screenshot-preview');
+  var screenshotPreviewImg = document.getElementById('ws-screenshot-preview-img');
+  var screenshotChangeBtn = document.getElementById('ws-screenshot-change');
   var successText = document.getElementById('ws-success-text');
   var leadEl = document.getElementById('ws-reg-desc');
 
   var state = {
     branch: '',
     date: '',
+    paymentFile: null,
+    paymentImageUrl: '',
   };
 
   var ALLOWED_BRANCHES = {
     Yelahanka: true,
-    Online: true,
     Malleshwaram: true,
-    Jayanagar: true,
   };
 
   var LEAD_TEXT = {
-    info: '4-hour GK & Current Affairs session with NLS Bangalore faculty and rank holders.',
+    info: '4-hour GK & Current Affairs session with NLS Bangalore faculty and rank holders. Workshop fee ₹49.',
     branch: 'Choose your preferred centre.',
-    form: 'Share your details to claim your seat.',
+    form: 'Pay ₹49, upload your payment screenshot, and share your details.',
   };
 
   function api() {
@@ -109,13 +113,17 @@
       selectedBranchEl.textContent = 'Selected: ' + state.branch + ' · ' + state.date;
     }
     setLead('form');
+    bindCopyButtons();
     if (nameInput) nameInput.focus();
   }
 
   function resetRegistration() {
     state.branch = '';
     state.date = '';
+    state.paymentFile = null;
+    state.paymentImageUrl = '';
     if (form) form.reset();
+    clearScreenshotPreview();
     if (stepInfo) {
       showInfoStep();
     } else {
@@ -144,6 +152,8 @@
   }
 
   function openSuccess(message) {
+    if (!successModal) successModal = document.getElementById('ws-success-modal');
+    if (!successText) successText = document.getElementById('ws-success-text');
     if (successText && message) successText.textContent = message;
     if (successModal) {
       openModal(successModal);
@@ -196,6 +206,182 @@
       sync();
     });
     emailInput.addEventListener('blur', sync);
+  }
+
+  function clearScreenshotPreview() {
+    state.paymentFile = null;
+    state.paymentImageUrl = '';
+    if (screenshotInput) screenshotInput.value = '';
+    if (screenshotPreview) screenshotPreview.hidden = true;
+    if (screenshotPreviewImg) {
+      if (screenshotPreviewImg.dataset.objectUrl) {
+        try {
+          URL.revokeObjectURL(screenshotPreviewImg.dataset.objectUrl);
+        } catch (_) {}
+        delete screenshotPreviewImg.dataset.objectUrl;
+      }
+      screenshotPreviewImg.removeAttribute('src');
+    }
+  }
+
+  function safeFileName(name) {
+    return String(name || 'payment.png').replace(/[^a-zA-Z0-9._-]/g, '_');
+  }
+
+  function compressScreenshotFile(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+        reject(new Error('Please upload an image file (JPG, PNG, or screenshot).'));
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        reject(new Error('Image is too large. Please use a file under 8 MB.'));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          var maxW = 1280;
+          var scale = Math.min(1, maxW / (img.width || maxW));
+          canvas.width = Math.max(1, Math.round((img.width || maxW) * scale));
+          canvas.height = Math.max(1, Math.round((img.height || maxW) * scale));
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          var quality = 0.8;
+          var dataUrl = canvas.toDataURL('image/jpeg', quality);
+          while (dataUrl.length > 3500000 && quality > 0.4) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          if (dataUrl.length > 4500000) {
+            reject(new Error('Screenshot is too large after compression. Try a smaller image.'));
+            return;
+          }
+          resolve({ dataUrl: dataUrl, fileType: 'image/jpeg' });
+        };
+        img.onerror = function () {
+          reject(new Error('Could not read the image. Please try another file.'));
+        };
+        img.src = reader.result;
+      };
+      reader.onerror = function () {
+        reject(new Error('Could not read the file. Please try again.'));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /** Upload via Lambda → S3 (no browser CORS to S3). */
+  function uploadPaymentScreenshotToS3(file) {
+    var apiBase = (window.APP_CONFIG && window.APP_CONFIG.JULY_WORKSHOP_API) || '';
+    if (!apiBase) {
+      return Promise.reject(new Error('Workshop API is not configured.'));
+    }
+    if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+      return Promise.reject(new Error('Please upload an image file (JPG, PNG, or screenshot).'));
+    }
+
+    var fileName = 'workshop-payments/' + Date.now() + '-' + safeFileName(file.name).replace(/\.[^.]+$/, '') + '.jpg';
+
+    return compressScreenshotFile(file).then(function (compressed) {
+      return fetch(apiBase, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'upload_payment_image',
+          fileName: fileName,
+          fileType: compressed.fileType,
+          img_base64: compressed.dataUrl,
+        }),
+      }).then(function (res) {
+        return res.json().then(function (data) {
+          return { ok: res.ok, status: res.status, data: data };
+        });
+      }).then(function (result) {
+        if (!result.ok || !result.data || !result.data.key) {
+          throw new Error(
+            (result.data && (result.data.message || result.data.error)) ||
+              'Failed to upload payment screenshot. Please try again.',
+          );
+        }
+        return result.data.key;
+      });
+    });
+  }
+
+  function bindScreenshotUpload() {
+    if (!screenshotInput) return;
+
+    function handleFile(file) {
+      if (!file) {
+        clearScreenshotPreview();
+        return;
+      }
+      if (!file.type || file.type.indexOf('image/') !== 0) {
+        clearScreenshotPreview();
+        notify('error', 'Please upload an image file (JPG, PNG, or screenshot).');
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        clearScreenshotPreview();
+        notify('error', 'Image is too large. Please use a file under 8 MB.');
+        return;
+      }
+
+      state.paymentFile = file;
+      state.paymentImageUrl = '';
+      if (screenshotPreviewImg) {
+        if (screenshotPreviewImg.dataset.objectUrl) {
+          try {
+            URL.revokeObjectURL(screenshotPreviewImg.dataset.objectUrl);
+          } catch (_) {}
+        }
+        var objectUrl = URL.createObjectURL(file);
+        screenshotPreviewImg.dataset.objectUrl = objectUrl;
+        screenshotPreviewImg.src = objectUrl;
+      }
+      if (screenshotPreview) screenshotPreview.hidden = false;
+    }
+
+    screenshotInput.addEventListener('change', function () {
+      var file = screenshotInput.files && screenshotInput.files[0];
+      handleFile(file);
+    });
+
+    if (screenshotChangeBtn) {
+      screenshotChangeBtn.addEventListener('click', function () {
+        screenshotInput.click();
+      });
+    }
+  }
+
+  function bindCopyButtons() {
+    document.querySelectorAll('.ws-pay-copy[data-copy]').forEach(function (btn) {
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', function () {
+        var text = btn.getAttribute('data-copy') || '';
+        if (!text) return;
+        function markCopied() {
+          btn.classList.add('is-copied');
+          var old = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Copied';
+          setTimeout(function () {
+            btn.classList.remove('is-copied');
+            btn.innerHTML = old;
+          }, 1400);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(markCopied).catch(function () {
+            notify('info', 'Copy: ' + text);
+          });
+          return;
+        }
+        notify('info', 'Copy: ' + text);
+      });
+    });
   }
 
   function bindPhoneValidation() {
@@ -299,7 +485,49 @@
         return false;
       }
     }
+    if (!state.paymentFile) {
+      notify('error', 'Please upload a payment screenshot (bank transfer or GPay).');
+      if (screenshotInput) screenshotInput.focus();
+      return false;
+    }
     return true;
+  }
+
+  function setSubmitLoading(on, message) {
+    var submitBtn = document.getElementById('ws-reg-submit');
+    var statusEl = document.getElementById('ws-reg-status');
+    if (submitBtn) {
+      submitBtn.disabled = !!on;
+      submitBtn.classList.toggle('is-loading', !!on);
+      if (on) {
+        if (!submitBtn.dataset.idleHtml) submitBtn.dataset.idleHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Submitting…';
+      } else if (submitBtn.dataset.idleHtml) {
+        submitBtn.innerHTML = submitBtn.dataset.idleHtml;
+      }
+    }
+    if (statusEl) {
+      if (on) {
+        statusEl.hidden = false;
+        statusEl.className = 'ws-reg-status ws-reg-status--loading';
+        statusEl.textContent = message || 'Uploading payment screenshot and saving registration…';
+      } else if (!message) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+        statusEl.className = 'ws-reg-status';
+      }
+    }
+  }
+
+  function setFormError(message) {
+    var statusEl = document.getElementById('ws-reg-status');
+    if (statusEl) {
+      statusEl.hidden = false;
+      statusEl.className = 'ws-reg-status ws-reg-status--error';
+      statusEl.textContent = message || 'Something went wrong. Please try again.';
+    }
+    notify('error', message);
   }
 
   function bindForm() {
@@ -315,7 +543,7 @@
       }
 
       if (typeof window.PublicFormsApi === 'undefined') {
-        notify('error', 'Form could not load. Please refresh the page.');
+        setFormError('Form could not load. Please refresh the page.');
         return;
       }
 
@@ -341,42 +569,49 @@
       }
 
       var workshopMessage = message
-        ? api().sanitizePlainText(message, 350) + ' | Session: ' + state.date
-        : 'Workshop registration for ' + state.branch + ' on ' + state.date + '.';
+        ? api().sanitizePlainText(message, 350) + ' | Session: ' + state.date + ' | Fee: ₹49'
+        : 'Workshop registration for ' + state.branch + ' on ' + state.date + ' | Fee: ₹49';
 
-      var submitBtn = document.getElementById('ws-reg-submit');
-      if (submitBtn) submitBtn.disabled = true;
+      setSubmitLoading(true, 'Uploading payment screenshot…');
 
-      api()
-        .postJulyWorkshop({
-          branch: state.branch,
-          fullName: fullname,
-          email: email,
-          phoneNumber: phone,
-          message: workshopMessage,
+      uploadPaymentScreenshotToS3(state.paymentFile)
+        .then(function (key) {
+          state.paymentImageUrl = key;
+          setSubmitLoading(true, 'Saving your registration…');
+          return api().postJulyWorkshop({
+            branch: state.branch,
+            fullName: fullname,
+            email: email,
+            phoneNumber: phone,
+            message: workshopMessage,
+            payment_image_url: key,
+          });
         })
         .then(function (res) {
-          if (res.ok && (res.status === 201 || res.status === 200)) {
-            var okMsg =
-              'Seat claimed for ' +
-              state.branch +
-              ' (' +
-              state.date +
-              '). Our team will contact you shortly to confirm.';
+          if (res && res.ok && (res.status === 201 || res.status === 200)) {
+            var okMsg = 'Registration successful!';
+            setSubmitLoading(false);
             closeRegistration();
+            openSuccess(okMsg);
             notify('success', okMsg);
             return;
           }
           var errMsg =
-            (res.data && (res.data.message || res.data.error)) ||
-            'Could not submit your registration. Please try again or call 8150884422.';
-          notify('error', errMsg);
+            (res && res.data && (res.data.message || res.data.error)) ||
+            'Could not submit your registration. Please try again or call 8747884422.';
+          if (res && res.status === 409) {
+            errMsg =
+              (res.data && (res.data.message || res.data.error)) ||
+              'This phone number is already registered for the workshop.';
+          }
+          setSubmitLoading(false);
+          setFormError(errMsg);
         })
-        .catch(function () {
-          notify('error', 'Network error. Please check your connection and try again.');
-        })
-        .finally(function () {
-          if (submitBtn) submitBtn.disabled = false;
+        .catch(function (err) {
+          setSubmitLoading(false);
+          setFormError(
+            (err && err.message) || 'Network error. Please check your connection and try again.',
+          );
         });
     });
   }
@@ -397,6 +632,10 @@
     emailInput = document.getElementById('ws-reg-email') || emailInput;
     phoneInput = document.getElementById('ws-reg-phone') || phoneInput;
     honeypotInput = document.getElementById('ws-reg-website') || honeypotInput;
+    screenshotInput = document.getElementById('ws-reg-screenshot') || screenshotInput;
+    screenshotPreview = document.getElementById('ws-screenshot-preview') || screenshotPreview;
+    screenshotPreviewImg = document.getElementById('ws-screenshot-preview-img') || screenshotPreviewImg;
+    screenshotChangeBtn = document.getElementById('ws-screenshot-change') || screenshotChangeBtn;
     successText = document.getElementById('ws-success-text') || successText;
     leadEl = document.getElementById('ws-reg-desc') || leadEl;
 
@@ -423,6 +662,8 @@
     bindNameValidation();
     bindEmailValidation();
     bindPhoneValidation();
+    bindScreenshotUpload();
+    bindCopyButtons();
     bindForm();
   }
 

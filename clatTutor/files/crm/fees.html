@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../vendor/flatpickr/flatpickr.min.css" />
-  <link rel="stylesheet" href="../css/fees.css?v=20260704e" />
+  <link rel="stylesheet" href="../css/fees.css?v=20260729pay3" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard fees-page">
@@ -214,6 +214,8 @@
                           <tr>
                             <th class="fees-th-num">#</th>
                             <th>Payment date</th>
+                            <th>Mode</th>
+                            <th>Details</th>
                             <th class="fees-td-num">Amount (INR)</th>
                             <th class="fees-th-action">Remove</th>
                           </tr>
@@ -229,7 +231,7 @@
                         <i class="fa-solid fa-plus"></i>
                         <span>Add payment</span>
                       </button>
-                      <span class="fees-install-hint">Add a row each time the student pays — the total is calculated automatically.</span>
+                      <span class="fees-install-hint">Each payment row keeps its own mode and details. Set mode above before adding a new row, or edit any row directly.</span>
                     </div>
                   </div>
 
@@ -249,13 +251,33 @@
                 <template id="fees-payment-row-tpl">
                   <tr class="fees-payment-row">
                     <td class="fees-payment-num">1</td>
-                    <td>
-                      <div class="fees-datesel fees-datesel--sm" data-datesel>
+                    <td class="fees-payment-date-cell">
+                      <div class="fees-datesel fees-datesel--sm fees-datesel--payments" data-datesel>
                         <select class="fees-input fees-datesel__part fees-datesel__day" aria-label="Day"></select>
                         <select class="fees-input fees-datesel__part fees-datesel__month" aria-label="Month"></select>
                         <select class="fees-input fees-datesel__part fees-datesel__year" aria-label="Year"></select>
                         <input type="hidden" class="fees-payment-date" name="paymentReceivedDate[]" />
                       </div>
+                    </td>
+                    <td class="fees-payment-mode-cell">
+                      <select class="fees-input fees-payment-mode-select" aria-label="Payment mode">
+                        <option value="">Select</option>
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="online">Online / NEFT / IMPS</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                        <option value="other">Other</option>
+                      </select>
+                      <input type="hidden" class="fees-payment-meta" value="" />
+                    </td>
+                    <td class="fees-payment-details-cell">
+                      <input
+                        type="text"
+                        class="fees-input fees-payment-details-input"
+                        placeholder="UTR, cheque no., notes…"
+                        aria-label="Payment details"
+                      />
                     </td>
                     <td class="fees-td-num">
                       <input type="text" class="fees-input fees-input--mono fees-payment-amt" name="paymentReceivedAmount[]" inputmode="decimal" />
@@ -461,6 +483,8 @@
                           <tr>
                             <th>#</th>
                             <th>Date</th>
+                            <th>Mode</th>
+                            <th>Details</th>
                             <th class="fees-print__num">Amount</th>
                           </tr>
                         </thead>
@@ -640,7 +664,7 @@
   <script src="../js/crm-chrome.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
   <script src="../js/fees-installments.js?v=20260630b"></script>
-  <script src="../js/fees-page.js?v=20260723edit1"></script>
+  <script src="../js/fees-page.js?v=20260729pay2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

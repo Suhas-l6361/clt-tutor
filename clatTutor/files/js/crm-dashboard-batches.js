@@ -61,6 +61,27 @@
     alert(message);
   }
 
+  function confirmDeleteBatch(batchName, branch) {
+    var label =
+      (batchName || 'this batch') + (branch ? ' (' + branch + ')' : '');
+    if (typeof window.showFriendlyConfirm === 'function') {
+      return window.showFriendlyConfirm({
+        title: 'Delete batch?',
+        message: 'This batch will be removed from the list. This cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        details: [
+          { label: 'Batch', value: batchName || '—', tone: 'neutral' },
+          { label: 'Branch', value: branch || '—', tone: 'neutral' },
+          { label: 'Action', value: 'Permanent delete', tone: 'danger' },
+        ],
+      });
+    }
+    return Promise.resolve(
+      window.confirm('Delete batch “' + label + '”? This cannot be undone.')
+    );
+  }
+
   function actorName() {
     try {
       var s = window.Auth && window.Auth.getSession ? window.Auth.getSession() : null;
@@ -116,6 +137,23 @@
     });
   }
 
+  function deleteBatch(id) {
+    var url = apiUrl();
+    if (!url) return Promise.reject(new Error('BATCHES_API is not configured'));
+    var endpoint = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'id=' + encodeURIComponent(String(id));
+    return ensureCrmAuth().then(function () {
+      return fetch(endpoint, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      }).then(function (res) {
+        return res.json().then(function (j) {
+          if (!res.ok) throw parseApiError(res, j, 'Failed to delete batch');
+          return j;
+        });
+      });
+    });
+  }
+
   function initCrmBatchesPanel() {
     var openBtn = document.getElementById('crm-batch-btn-create');
     var modal = document.getElementById('crm-batch-modal');
@@ -147,11 +185,13 @@
     function showFormView() {
       if (formView) formView.hidden = false;
       if (historyView) historyView.hidden = true;
+      modal.classList.remove('crm-batch-modal--history');
     }
 
     function showHistoryView() {
       if (formView) formView.hidden = true;
       if (historyView) historyView.hidden = false;
+      modal.classList.add('crm-batch-modal--history');
     }
 
     function renderHistory(rows) {
@@ -170,8 +210,11 @@
       if (historyEmpty) historyEmpty.hidden = true;
       historyBody.innerHTML = cachedRows
         .map(function (row) {
+          var id = row && row.id != null ? String(row.id) : '';
           return (
-            '<tr>' +
+            '<tr data-batch-id="' +
+            escHtml(id) +
+            '">' +
             '<td><strong>' +
             escHtml(row.branch) +
             '</strong></td>' +
@@ -183,6 +226,17 @@
             '</td>' +
             '<td>' +
             escHtml(formatWhen(row.created_at)) +
+            '</td>' +
+            '<td class="crm-batch-history__td-action">' +
+            '<button type="button" class="crm-batch-history__delete" data-action="delete-batch" data-id="' +
+            escHtml(id) +
+            '" data-branch="' +
+            escHtml(row.branch || '') +
+            '" data-batch="' +
+            escHtml(row.batch || '') +
+            '" title="Delete batch">' +
+            '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete' +
+            '</button>' +
             '</td>' +
             '</tr>'
           );
@@ -241,6 +295,33 @@
       historyBack.addEventListener('click', function () {
         setError('');
         showFormView();
+      });
+    }
+
+    if (historyBody) {
+      historyBody.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="delete-batch"]');
+        if (!btn || !historyBody.contains(btn)) return;
+        var id = btn.getAttribute('data-id');
+        if (!id) return;
+        var batchName = btn.getAttribute('data-batch') || '';
+        var branch = btn.getAttribute('data-branch') || '';
+        confirmDeleteBatch(batchName, branch).then(function (confirmed) {
+          if (!confirmed) return;
+          btn.disabled = true;
+          setError('');
+          deleteBatch(id)
+            .then(function (res) {
+              popup('success', (res && res.message) || 'Batch deleted successfully');
+              return refreshHistory(true);
+            })
+            .catch(function (err) {
+              setError(err.message || 'Could not delete batch');
+              popup('error', err.message || 'Could not delete batch');
+              handleAuthFailure(err);
+              btn.disabled = false;
+            });
+        });
       });
     }
 

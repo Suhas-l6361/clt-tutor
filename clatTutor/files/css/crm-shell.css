@@ -1273,7 +1273,7 @@ body.crm-overdue-branch-modal-open {
   max-height: none;
 }
 .crm-workshop-modal__list .enrollment-table {
-  min-width: 980px;
+  min-width: 1100px;
 }
 .crm-workshop-modal .enrollment-table__td-message {
   max-width: 240px;
@@ -1281,6 +1281,125 @@ body.crm-overdue-branch-modal-open {
   word-break: break-word;
   font-size: 0.82rem;
   color: #475569;
+}
+.crm-workshop-modal .enrollment-table__td-shot {
+  white-space: nowrap;
+  text-align: center;
+}
+.crm-workshop-shot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.crm-workshop-shot-btn:hover {
+  background: #dbeafe;
+}
+.crm-workshop-shot-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.crm-workshop-shot-missing {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+.crm-workshop-shot-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.crm-workshop-shot-modal[hidden] {
+  display: none !important;
+}
+.crm-workshop-shot-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+}
+.crm-workshop-shot-modal__dialog {
+  position: relative;
+  width: min(100%, 560px);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  padding: 1rem 1.1rem 1.15rem;
+}
+.crm-workshop-shot-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.crm-workshop-shot-modal__head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.crm-workshop-shot-modal__close {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+}
+.crm-workshop-shot-modal__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.crm-workshop-shot-modal__status {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+.crm-workshop-shot-modal__status[hidden] {
+  display: none !important;
+}
+.crm-workshop-shot-modal__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.crm-workshop-shot-modal__preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+.crm-workshop-shot-modal__actions {
+  margin: 0.75rem 0 0;
+}
+.crm-workshop-shot-modal__actions a {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+.crm-workshop-shot-modal__actions a[hidden] {
+  display: none !important;
 }
 .crm-workshop-modal .enrollment-empty,
 .crm-workshop-modal .enrollment-loading,
@@ -2854,6 +2973,23 @@ body.crm-overdue-branch-modal-open {
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 28px 70px rgba(15, 23, 42, 0.28);
+  transition: width 0.2s ease, max-height 0.2s ease;
+}
+.crm-batch-modal--history .crm-batch-modal__dialog {
+  width: min(96vw, 960px);
+  max-height: min(92vh, 860px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.crm-batch-modal--history .crm-batch-modal__head {
+  flex-shrink: 0;
+}
+.crm-batch-modal--history .crm-batch-modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 1.35rem;
 }
 .crm-batch-modal__head {
   display: flex;
@@ -2988,22 +3124,56 @@ body.crm-overdue-branch-modal-open {
   font-weight: 600;
 }
 .crm-batch-history__table-wrap {
-  overflow: auto;
+  overflow: visible;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
-  max-height: 320px;
+}
+.crm-batch-modal--history .crm-batch-history__table-wrap {
+  overflow: visible;
+  max-height: none;
 }
 .crm-batch-history__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
+  table-layout: auto;
 }
 .crm-batch-history__table th,
 .crm-batch-history__table td {
-  padding: 0.6rem 0.7rem;
+  padding: 0.75rem 0.85rem;
   text-align: left;
   border: 1px solid #cbd5e1;
   vertical-align: middle;
+}
+.crm-batch-history__table td:nth-child(3) {
+  word-break: break-word;
+  min-width: 10rem;
+}
+.crm-batch-history__td-action {
+  width: 1%;
+  white-space: nowrap;
+}
+.crm-batch-history__delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.crm-batch-history__delete:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+.crm-batch-history__delete:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 .crm-batch-history__table th {
   background: #f1f5f9;

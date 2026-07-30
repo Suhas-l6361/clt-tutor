@@ -28,6 +28,8 @@
   var analyticsRows = [];
   var analyticsStudent = null;
   var analyticsChart = null;
+  /** Session-only extras (not written to assignStudent). Cleared on Load students. */
+  var sessionExtraIds = Object.create(null);
 
   var elBatch;
   var elBranch;
@@ -394,12 +396,14 @@
 
   function renderTable() {
     if (!elTableBody) return;
+    var addExtraBtn = document.getElementById('attendance-btn-add-extra');
 
     if (!roster.length) {
       elTableBody.innerHTML = '';
       if (elPanel) elPanel.hidden = true;
       if (elEmpty) elEmpty.hidden = false;
       if (elSave) elSave.disabled = true;
+      if (addExtraBtn) addExtraBtn.hidden = true;
       updateStats();
       return;
     }
@@ -407,16 +411,27 @@
     if (elEmpty) elEmpty.hidden = true;
     if (elPanel) elPanel.hidden = false;
     if (elSave) elSave.disabled = false;
+    if (addExtraBtn) addExtraBtn.hidden = false;
 
     elTableBody.innerHTML = roster
       .map(function (s) {
         var id = String(s.student_id);
         var st = statusByStudentId[id] || 'not_marked';
         var name = escapeHtml(s.name || '—');
+        var isExtra = !!s.isSessionExtra || !!sessionExtraIds[id];
+        var extraBadge = isExtra
+          ? '<span class="attendance-extra-badge" title="Added for this session only">Extra</span>'
+          : '';
+        var homeNote =
+          isExtra && s.homeBatch
+            ? '<span class="attendance-student-cell__home">Home: ' + escapeHtml(s.homeBatch) + '</span>'
+            : '';
         return (
           '<tr data-student-id="' +
           escapeAttr(id) +
-          '">' +
+          '"' +
+          (isExtra ? ' class="attendance-row--extra"' : '') +
+          '>' +
           '<td class="col-student">' +
           '<div class="attendance-student-cell">' +
           '<div class="attendance-student-cell__avatar" data-att-avatar="' +
@@ -427,10 +442,13 @@
           '<div class="attendance-student-cell__text">' +
           '<span class="attendance-student-cell__name">' +
           name +
+          extraBadge +
           '</span>' +
           '<span class="attendance-student-cell__id">#' +
           escapeHtml(id) +
-          '</span></div></div></td>' +
+          '</span>' +
+          homeNote +
+          '</div></div></td>' +
           '<td class="col-status">' +
           '<div class="attendance-status-toggle" role="group" aria-label="Attendance for ' +
           name +
@@ -447,7 +465,15 @@
       .join('');
 
     if (elRosterMeta) {
-      elRosterMeta.textContent = roster.length + ' student' + (roster.length === 1 ? '' : 's');
+      var extraCount = roster.filter(function (s) {
+        return !!s.isSessionExtra || !!sessionExtraIds[String(s.student_id)];
+      }).length;
+      var meta =
+        roster.length + ' student' + (roster.length === 1 ? '' : 's');
+      if (extraCount) {
+        meta += ' · ' + extraCount + ' extra';
+      }
+      elRosterMeta.textContent = meta;
     }
 
     updateStats();
@@ -597,6 +623,7 @@
       if (elBranch) elBranch.value = f.branch;
 
       roster = buildRosterFromAssigned(f);
+      sessionExtraIds = Object.create(null);
 
       if (!roster.length) {
         renderTable();
@@ -631,6 +658,7 @@
     } catch (err) {
       roster = [];
       statusByStudentId = {};
+      sessionExtraIds = Object.create(null);
       renderTable();
       showPopup('error', err && err.message ? err.message : 'Failed to load roster.');
     } finally {
@@ -776,6 +804,228 @@
   function markAll(status) {
     roster.forEach(function (s) {
       setStatus(s.student_id, status);
+    });
+  }
+
+  function homeBatchForStudent(studentId, branch) {
+    var sid = String(studentId);
+    var fromAssign = '';
+    (assignedAll || []).forEach(function (row) {
+      if (!row) return;
+      if (String(row.student_id) !== sid) return;
+      if (branch && !branchKeysMatch(row.branch, branch)) return;
+      if (!fromAssign) fromAssign = normStr(row.batch);
+    });
+    if (fromAssign) return fromAssign;
+    var profile = studentsById[sid];
+    return profile && profile.batch ? normStr(profile.batch) : '';
+  }
+
+  function listExtraCandidates(searchQuery) {
+    var f = getFilters();
+    if (!f.branch) return [];
+    var onRoster = Object.create(null);
+    roster.forEach(function (s) {
+      if (s && s.student_id != null) onRoster[String(s.student_id)] = true;
+    });
+    var q = normKey(searchQuery || '');
+    return (allRows || [])
+      .filter(function (student) {
+        if (!student || student.student_id == null) return false;
+        var sid = String(student.student_id);
+        if (onRoster[sid]) return false;
+        if (!branchKeysMatch(student.branch, f.branch)) return false;
+        if (!normStr(student.targetYear)) return false;
+        if (window.CrmBranchScope && typeof window.CrmBranchScope.canSeeBranch === 'function') {
+          if (student.branch && !window.CrmBranchScope.canSeeBranch(student.branch)) return false;
+        }
+        if (!q) return true;
+        return (
+          normKey(student.name).indexOf(q) !== -1 ||
+          normKey(sid).indexOf(q) !== -1 ||
+          normKey(student.email).indexOf(q) !== -1
+        );
+      })
+      .map(function (student) {
+        var sid = String(student.student_id);
+        return {
+          student_id: sid,
+          name: student.name || 'Student',
+          homeBatch: homeBatchForStudent(sid, f.branch) || student.batch || '—',
+          targetYear: student.targetYear,
+          email: student.email || '',
+          phone: student.phone,
+          img_url: student.img_url,
+        };
+      })
+      .sort(function (a, b) {
+        return String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+          sensitivity: 'base',
+        });
+      });
+  }
+
+  function addExtraStudentToRoster(studentId) {
+    var f = getFilters();
+    if (!filtersValid(f) || !roster.length) {
+      showPopup('error', 'Load a batch roster before adding extra students.');
+      return false;
+    }
+    var sid = String(studentId || '').trim();
+    if (!sid) return false;
+    if (
+      roster.some(function (s) {
+        return String(s.student_id) === sid;
+      })
+    ) {
+      showPopup('error', 'That student is already on this roster.');
+      return false;
+    }
+    var profile = studentsById[sid];
+    if (!profile) {
+      showPopup('error', 'Student profile not found.');
+      return false;
+    }
+    if (!branchKeysMatch(profile.branch, f.branch)) {
+      showPopup('error', 'Student must belong to the selected branch.');
+      return false;
+    }
+    var targetYear = normStr(profile.targetYear);
+    if (!targetYear) {
+      showPopup('error', 'This student has no target year and cannot be saved in attendance.');
+      return false;
+    }
+
+    sessionExtraIds[sid] = true;
+    roster.push({
+      student_id: sid,
+      name: profile.name || 'Student',
+      batch: f.batch,
+      branch: f.branch,
+      targetYear: targetYear,
+      email: profile.email || '',
+      phone: profile.phone,
+      img_url: profile.img_url,
+      created_at: profile.created_at,
+      isSessionExtra: true,
+      homeBatch: homeBatchForStudent(sid, f.branch) || profile.batch || '',
+    });
+    roster.sort(function (a, b) {
+      return Number(a.student_id) - Number(b.student_id);
+    });
+    statusByStudentId[sid] = 'not_marked';
+    renderTable();
+    return true;
+  }
+
+  function wireAttendanceExtraStudents() {
+    var openBtn = document.getElementById('attendance-btn-add-extra');
+    var modal = document.getElementById('attendance-extra-modal');
+    var tbody = document.getElementById('attendance-extra-tbody');
+    var searchEl = document.getElementById('attendance-extra-search');
+    var statusEl = document.getElementById('attendance-extra-status');
+    var closeBtn = document.getElementById('attendance-extra-close');
+    if (!openBtn || !modal || !tbody) return;
+
+    var escHandler = null;
+
+    function setExtraStatus(text) {
+      if (statusEl) statusEl.textContent = text || '';
+    }
+
+    function renderExtraList() {
+      var f = getFilters();
+      var rows = listExtraCandidates(searchEl ? searchEl.value : '');
+      if (!rows.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="3" class="attendance-extra-empty">No other students available for ' +
+          escapeHtml(f.branch || 'this branch') +
+          '.</td></tr>';
+        setExtraStatus('0 students available to add');
+        return;
+      }
+      setExtraStatus(rows.length + ' student' + (rows.length === 1 ? '' : 's') + ' available');
+      tbody.innerHTML = rows
+        .map(function (s) {
+          return (
+            '<tr data-extra-sid="' +
+            escapeAttr(s.student_id) +
+            '">' +
+            '<td class="attendance-extra-student">' +
+            '<div class="attendance-student-cell">' +
+            '<div class="attendance-student-cell__avatar" data-att-avatar="' +
+            escapeAttr(s.student_id) +
+            '" data-att-name="' +
+            escapeAttr(s.name || '') +
+            '"></div>' +
+            '<div class="attendance-student-cell__text">' +
+            '<span class="attendance-student-cell__name">' +
+            escapeHtml(s.name) +
+            '</span>' +
+            '<span class="attendance-student-cell__id">#' +
+            escapeHtml(s.student_id) +
+            '</span></div></div></td>' +
+            '<td>' +
+            escapeHtml(s.homeBatch || '—') +
+            '</td>' +
+            '<td><button type="button" class="attendance-btn attendance-btn--xs attendance-extra-add-btn" data-action="add-extra" data-sid="' +
+            escapeAttr(s.student_id) +
+            '"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add</button></td>' +
+            '</tr>'
+          );
+        })
+        .join('');
+      applyTableAvatars(tbody);
+    }
+
+    function closeExtraModal() {
+      modal.hidden = true;
+      document.body.classList.remove('attendance-extra-modal-open');
+      if (escHandler) {
+        document.removeEventListener('keydown', escHandler);
+        escHandler = null;
+      }
+    }
+
+    function openExtraModal() {
+      var f = getFilters();
+      if (!filtersValid(f) || !roster.length) {
+        showPopup('error', 'Load students for a batch first, then add extras.');
+        return;
+      }
+      if (searchEl) searchEl.value = '';
+      renderExtraList();
+      modal.hidden = false;
+      document.body.classList.add('attendance-extra-modal-open');
+      escHandler = function (e) {
+        if (e.key === 'Escape') closeExtraModal();
+      };
+      document.addEventListener('keydown', escHandler);
+      if (searchEl) searchEl.focus();
+    }
+
+    openBtn.addEventListener('click', openExtraModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeExtraModal);
+    modal.addEventListener('click', function (e) {
+      if (e.target.closest('[data-attendance-extra-close]')) closeExtraModal();
+    });
+    if (searchEl) {
+      searchEl.addEventListener('input', function () {
+        renderExtraList();
+      });
+    }
+    tbody.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action="add-extra"]');
+      if (!btn || !tbody.contains(btn)) return;
+      var sid = btn.getAttribute('data-sid');
+      if (!sid) return;
+      btn.disabled = true;
+      if (addExtraStudentToRoster(sid)) {
+        showPopup('success', 'Student added to this session roster.');
+        renderExtraList();
+      } else {
+        btn.disabled = false;
+      }
     });
   }
 
@@ -1551,6 +1801,7 @@
     if (elBatch) elBatch.addEventListener('change', onBatchOrBranchFilterChange);
     if (elBranch) elBranch.addEventListener('change', onBatchOrBranchFilterChange);
 
+    wireAttendanceExtraStudents();
     wireAttendanceHistory();
   }
 

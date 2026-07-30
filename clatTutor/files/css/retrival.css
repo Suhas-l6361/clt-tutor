@@ -81,6 +81,10 @@
   grid-template-columns: 1fr 1fr;
 }
 
+.retrival-filters--with-branch .retrival-grid {
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+}
+
 .retrival-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr;
@@ -95,16 +99,19 @@
   color: #334155;
 }
 
-.retrival-field input {
+.retrival-field input,
+.retrival-field select {
   width: 100%;
   border: 1px solid #d2dbe8;
   border-radius: 10px;
   padding: 0.58rem 0.7rem;
   font-size: 0.9rem;
   background: #fff;
+  color: #0f172a;
 }
 
-.retrival-field input:focus {
+.retrival-field input:focus,
+.retrival-field select:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
@@ -573,7 +580,8 @@
   .retrival-chip-grid {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
   }
-  .retrival-grid {
+  .retrival-grid,
+  .retrival-filters--with-branch .retrival-grid {
     grid-template-columns: 1fr;
   }
   .reg-grid {

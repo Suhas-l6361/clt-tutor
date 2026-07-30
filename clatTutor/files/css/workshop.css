@@ -593,12 +593,12 @@ body {
 
 .ws-modal__dialog {
   position: relative;
-  width: min(100%, 420px);
-  max-height: min(92dvh, 640px);
+  width: min(100%, 640px);
+  max-height: min(94dvh, 820px);
   overflow: auto;
-  padding: 1.35rem 1.25rem 1.25rem;
+  padding: 1.5rem 1.5rem 1.35rem;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 28px 70px rgba(12, 18, 34, 0.28);
   border: 1px solid rgba(12, 18, 34, 0.08);
   animation: ws-modal-in 0.28s ease;
@@ -877,7 +877,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  margin-top: 0.25rem;
+  margin-top: 0.85rem;
 }
 
 .ws-reg-form__back {
@@ -926,8 +926,43 @@ body {
 }
 
 .ws-reg-form__submit:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.ws-reg-form__submit.is-loading {
+  pointer-events: none;
+}
+
+.ws-reg-status {
+  margin: 0.65rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ws-reg-status[hidden] {
+  display: none !important;
+}
+
+.ws-reg-status--loading {
+  color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.ws-reg-status--error {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.ws-reg-status--success {
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
 }
 
 /* Success popup */
@@ -1010,6 +1045,345 @@ body {
 
 body.ws-modal-open {
   overflow: hidden;
+}
+
+/* Workshop payment (₹49) */
+.ws-pay-card {
+  margin: 0 0 1.1rem;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ws-pay-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #eef2f7;
+  background: #f8fafc;
+}
+
+.ws-pay-card__kicker {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ws-pay-card__fee {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.ws-pay-card__fee-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ws-pay-card__note {
+  margin: 0;
+  flex: 1 1 12rem;
+  max-width: none;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.ws-pay-methods {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.ws-pay-method {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+}
+
+.ws-pay-method + .ws-pay-method {
+  border-top: 1px solid #eef2f7;
+}
+
+.ws-pay-method--gpay {
+  border-color: transparent;
+  background: #fff;
+}
+
+.ws-pay-method__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.ws-pay-method__title i {
+  color: #2563eb;
+  font-size: 0.85rem;
+}
+
+.ws-pay-method--gpay .ws-pay-method__title i {
+  color: #16a34a;
+}
+
+.ws-pay-details {
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ws-pay-details__row {
+  display: grid;
+  grid-template-columns: 5.75rem minmax(0, 1fr);
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  margin: 0;
+  min-height: 1.75rem;
+}
+
+.ws-pay-details dt {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.ws-pay-details dd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.ws-pay-details__val {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-pay-details__val--mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.ws-pay-gpay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.ws-pay-gpay__num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: #0f172a;
+}
+
+.ws-pay-method__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.ws-pay-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 2rem;
+  height: 1.75rem;
+  padding: 0 0.55rem;
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ws-pay-copy:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.ws-pay-copy.is-copied {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.ws-screenshot-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ws-screenshot-upload__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  border: 2px dashed #93c5fd;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ws-screenshot-upload__btn:hover {
+  background: #dbeafe;
+  border-color: #60a5fa;
+}
+
+.ws-screenshot-upload__hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.ws-screenshot-upload__preview {
+  margin-top: 0.65rem;
+  padding: 0.55rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.ws-screenshot-upload__preview img {
+  display: block;
+  width: 100%;
+  max-height: 10rem;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ws-screenshot-upload__change {
+  margin-top: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ws-screenshot-upload__change:hover {
+  background: #f8fafc;
+}
+
+.ws-reg-form__optional {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.ws-reg-form__grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 560px) {
+  .ws-pay-methods {
+    grid-template-columns: 1.35fr 1fr;
+  }
+
+  .ws-pay-method + .ws-pay-method {
+    border-top: none;
+    border-left: 1px solid #eef2f7;
+  }
+
+  .ws-pay-method--gpay {
+    justify-content: center;
+  }
+
+  .ws-reg-form__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ws-reg-form__grid .ws-reg-form__field--full {
+    grid-column: 1 / -1;
+  }
+
+  .ws-reg-form__actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .ws-reg-form__actions .ws-reg-form__back {
+    flex: 0 0 auto;
+  }
+
+  .ws-reg-form__actions .ws-reg-form__submit {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 559px) {
+  .ws-modal__dialog {
+    width: min(100%, 100%);
+    padding: 1.2rem 1rem 1.1rem;
+  }
 }
 
 /* ── Print / screenshot ── */

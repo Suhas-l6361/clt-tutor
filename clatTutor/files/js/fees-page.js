@@ -333,16 +333,183 @@
     }
   }
 
+  function snapshotPaymentModeFromForm() {
+    var mode = String(valById('fees-pay-mode') || '').toLowerCase();
+    var details = {};
+    if (mode === 'cheque') {
+      details.cheque_no = valById('fees-cheque-no');
+      details.drawee_bank = valById('fees-cheque-bank');
+      details.bank_branch = valById('fees-cheque-branch');
+    } else if (mode === 'online') {
+      details.transaction_id = valById('fees-online-txn');
+      details.bank = valById('fees-online-bank');
+    } else if (mode === 'card') {
+      details.card_last4 = valById('fees-card-last4');
+      details.network = selectLabel('fees-card-network') || valById('fees-card-network');
+    } else if (mode === 'upi') {
+      details.transaction_id = valById('fees-upi-txn');
+    } else if (mode === 'other') {
+      details.notes = valById('fees-other-detail');
+    }
+    return { mode: mode, details: details };
+  }
+
+  function normalizePaymentEntryMeta(meta) {
+    if (!meta || typeof meta !== 'object') return { mode: '', details: {} };
+    var mode = String(meta.mode || meta.payment_mode || meta.paymentMode || '').toLowerCase();
+    var details = meta.details && typeof meta.details === 'object' ? meta.details : {};
+    if (!Object.keys(details).length) {
+      if (meta.cheque_no || meta.chequeNo) details.cheque_no = meta.cheque_no || meta.chequeNo;
+      if (meta.drawee_bank || meta.DraweeBank || meta.chequeBank) {
+        details.drawee_bank = meta.drawee_bank || meta.DraweeBank || meta.chequeBank;
+      }
+      if (meta.bank_branch || meta.bankBranch || meta.chequeBranch) {
+        details.bank_branch = meta.bank_branch || meta.bankBranch || meta.chequeBranch;
+      }
+      if (meta.transaction_id || meta.transation_id || meta.onlineTxnId || meta.upiTransation_id || meta.upiTransactionId) {
+        details.transaction_id =
+          meta.transaction_id || meta.transation_id || meta.onlineTxnId || meta.upiTransation_id || meta.upiTransactionId;
+      }
+      if (meta.bank || meta.onlineBank) details.bank = meta.bank || meta.onlineBank;
+      if (meta.card_last4 || meta.cardNum || meta.cardLast4) details.card_last4 = meta.card_last4 || meta.cardNum || meta.cardLast4;
+      if (meta.network || meta.cardNetwork) details.network = meta.network || meta.cardNetwork;
+      if (meta.notes || meta.paymentDetails || meta.otherPaymentDetail) {
+        details.notes = meta.notes || meta.paymentDetails || meta.otherPaymentDetail;
+      }
+    }
+    return { mode: mode, details: details };
+  }
+
+  function formatPaymentDetailsText(mode, details) {
+    var d = details && typeof details === 'object' ? details : {};
+    var m = String(mode || '').toLowerCase();
+    var parts = [];
+    if (m === 'cheque') {
+      if (d.cheque_no) parts.push('Cheque ' + d.cheque_no);
+      if (d.drawee_bank) parts.push(d.drawee_bank);
+      if (d.bank_branch) parts.push(d.bank_branch);
+    } else if (m === 'online') {
+      if (d.transaction_id) parts.push('UTR ' + d.transaction_id);
+      if (d.bank) parts.push(d.bank);
+    } else if (m === 'card') {
+      if (d.card_last4) parts.push('Card ****' + d.card_last4);
+      if (d.network) parts.push(d.network);
+    } else if (m === 'upi') {
+      if (d.transaction_id) parts.push('Txn ' + d.transaction_id);
+    } else if (m === 'other') {
+      if (d.notes) parts.push(d.notes);
+    } else if (m === 'cash') {
+      parts.push('Cash');
+    }
+    return parts.length ? parts.join(' · ') : '—';
+  }
+
+  function paymentDetailsToInput(mode, details) {
+    var d = details && typeof details === 'object' ? details : {};
+    var m = String(mode || '').toLowerCase();
+    if (m === 'cheque') {
+      var parts = [];
+      if (d.cheque_no) parts.push(d.cheque_no);
+      if (d.drawee_bank) parts.push(d.drawee_bank);
+      if (d.bank_branch) parts.push(d.bank_branch);
+      return parts.join(' · ');
+    }
+    if (m === 'online' || m === 'upi') return d.transaction_id ? String(d.transaction_id) : '';
+    if (m === 'card') {
+      var card = d.card_last4 ? '****' + d.card_last4 : '';
+      return [card, d.network].filter(Boolean).join(' · ');
+    }
+    if (m === 'other') return d.notes ? String(d.notes) : '';
+    return '';
+  }
+
+  function paymentDetailsFromInput(mode, text) {
+    var m = String(mode || '').toLowerCase();
+    var t = String(text || '').trim();
+    if (!t) return {};
+    if (m === 'cheque') return { cheque_no: t };
+    if (m === 'online' || m === 'upi') return { transaction_id: t };
+    if (m === 'card') {
+      var digits = t.replace(/\D/g, '');
+      var last4 = digits.length >= 4 ? digits.slice(-4) : digits;
+      return last4 ? { card_last4: last4, network: t.replace(/[*0-9\s]/g, '').trim() || undefined } : {};
+    }
+    if (m === 'other') return { notes: t };
+    return {};
+  }
+
+  function readPaymentRowMeta(row) {
+    if (!row) return { mode: '', details: {} };
+    var modeSel = row.querySelector('.fees-payment-mode-select');
+    var detailsIn = row.querySelector('.fees-payment-details-input');
+    var mode = modeSel ? String(modeSel.value || '').toLowerCase() : '';
+    var details = paymentDetailsFromInput(mode, detailsIn ? detailsIn.value : '');
+    if (!mode) {
+      var input = row.querySelector('.fees-payment-meta');
+      if (input && input.value) {
+        try {
+          return normalizePaymentEntryMeta(JSON.parse(input.value));
+        } catch (e) {}
+      }
+    }
+    return { mode: mode, details: details };
+  }
+
+  function writePaymentRowMeta(row, meta) {
+    if (!row) return;
+    var normalized = normalizePaymentEntryMeta(meta);
+    var modeSel = row.querySelector('.fees-payment-mode-select');
+    var detailsIn = row.querySelector('.fees-payment-details-input');
+    var input = row.querySelector('.fees-payment-meta');
+    if (modeSel) modeSel.value = normalized.mode || '';
+    if (detailsIn) detailsIn.value = paymentDetailsToInput(normalized.mode, normalized.details);
+    if (input) input.value = JSON.stringify(normalized);
+  }
+
+  function syncPaymentRowMetaFromInputs(row) {
+    if (!row) return;
+    var meta = readPaymentRowMeta(row);
+    writePaymentRowMeta(row, meta);
+  }
+
+  function applyReceiptLevelModeFromHistory(history) {
+    var items = normalizePaymentHistory(history);
+    if (!items.length) return;
+    var last = items[items.length - 1];
+    var meta = normalizePaymentEntryMeta(last);
+    if (!meta.mode) return;
+    setInputVal('fees-pay-mode', meta.mode);
+    var modeEl = document.getElementById('fees-pay-mode');
+    if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
+    var d = meta.details || {};
+    setInputVal('fees-cheque-no', d.cheque_no || '');
+    setInputVal('fees-cheque-bank', d.drawee_bank || '');
+    setInputVal('fees-cheque-branch', d.bank_branch || '');
+    setInputVal('fees-online-txn', d.transaction_id || '');
+    setInputVal('fees-online-bank', d.bank || '');
+    setInputVal('fees-card-last4', d.card_last4 || '');
+    setInputVal('fees-card-network', d.network ? String(d.network).toLowerCase() : '');
+    setInputVal('fees-upi-txn', d.transaction_id || '');
+    setInputVal('fees-other-detail', d.notes || '');
+  }
+
   function collectPaymentHistoryFromDom() {
     var rows = document.querySelectorAll('#fees-payment-tbody tr.fees-payment-row');
     var out = [];
     for (var i = 0; i < rows.length; i++) {
-      var dIn = rows[i].querySelector('.fees-payment-date');
-      var aIn = rows[i].querySelector('.fees-payment-amt');
+      var row = rows[i];
+      var dIn = row.querySelector('.fees-payment-date');
+      var aIn = row.querySelector('.fees-payment-amt');
       var date = dIn && dIn.value ? String(dIn.value).trim() : '';
       var amt = aIn && aIn.value ? String(aIn.value).trim() : '';
       if (!date && !amt) continue;
-      out.push({ date: date, amount: amt });
+      var meta = readPaymentRowMeta(row);
+      out.push({
+        date: date,
+        amount: amt,
+        mode: meta.mode || '',
+        details: meta.details || {},
+      });
     }
     return out.length ? out : null;
   }
@@ -394,6 +561,25 @@
       if (num) num.textContent = String(i + 1);
       var g = row.querySelector('[data-datesel]');
       if (g) wireDateSelGroup(g);
+      var meta = readPaymentRowMeta(row);
+      writePaymentRowMeta(row, meta);
+      var modeSel = row.querySelector('.fees-payment-mode-select');
+      var detailsIn = row.querySelector('.fees-payment-details-input');
+      if (modeSel && !modeSel.dataset.wired) {
+        modeSel.dataset.wired = '1';
+        modeSel.addEventListener('change', function () {
+          syncPaymentRowMetaFromInputs(row);
+        });
+      }
+      if (detailsIn && !detailsIn.dataset.wired) {
+        detailsIn.dataset.wired = '1';
+        detailsIn.addEventListener('input', function () {
+          syncPaymentRowMetaFromInputs(row);
+        });
+        detailsIn.addEventListener('change', function () {
+          syncPaymentRowMetaFromInputs(row);
+        });
+      }
       var rm = row.querySelector('.fees-row-remove');
       if (rm) {
         rm.hidden = false;
@@ -404,7 +590,7 @@
     });
   }
 
-  function addPaymentRow(iso, amount) {
+  function addPaymentRow(iso, amount, meta) {
     var tpl = document.getElementById('fees-payment-row-tpl');
     var tbody = document.getElementById('fees-payment-tbody');
     if (!tpl || !tbody) return;
@@ -418,6 +604,7 @@
     var amtIn = node.querySelector('.fees-payment-amt');
     if (amtIn) amtIn.value = amount != null && String(amount).trim() !== '' ? String(amount) : '';
     enforceNumericInput(amtIn);
+    writePaymentRowMeta(node, meta || snapshotPaymentModeFromForm());
     syncPaymentRows(tbody);
     recomputePaymentTotals();
   }
@@ -444,9 +631,12 @@
         var date =
           it.date != null ? it.date : it.payment_date != null ? it.payment_date : it.paymentDate;
         var amount = it.amount != null ? it.amount : it.amt;
+        var meta = normalizePaymentEntryMeta(it);
         return {
           date: date ? String(date).slice(0, 10) : '',
           amount: amount != null ? String(amount).trim() : '',
+          mode: meta.mode,
+          details: meta.details,
         };
       })
       .filter(function (x) {
@@ -462,7 +652,7 @@
     });
     var items = normalizePaymentHistory(list);
     items.forEach(function (it) {
-      addPaymentRow(it.date, it.amount);
+      addPaymentRow(it.date, it.amount, { mode: it.mode, details: it.details });
     });
     syncPaymentRows(tbody);
     recomputePaymentTotals();
@@ -475,9 +665,55 @@
     if (!hist.length) {
       var d = row.payment_date ? String(row.payment_date).slice(0, 10) : '';
       var a = row.amount_paid != null && row.amount_paid !== '' ? String(row.amount_paid) : '';
-      if (d || a) hist = [{ date: d, amount: a }];
+      if (d || a) {
+        hist = [{
+          date: d,
+          amount: a,
+          mode: String(row.payement_mode || '').toLowerCase(),
+          details: {
+            cheque_no: row.cheque_no,
+            drawee_bank: row.DraweeBank,
+            bank_branch: row.bank_branch,
+            transaction_id: row.transation_id || row.upiTransation_id,
+            bank: row.bank,
+            card_last4: row.cardNum,
+            network: row.network,
+            notes: row.paymentDetails,
+          },
+        }];
+      }
+    } else {
+      hist.forEach(function (item, idx) {
+        if (item.mode) return;
+        if (hist.length === 1 && row.payement_mode) {
+          item.mode = String(row.payement_mode).toLowerCase();
+          item.details = {
+            cheque_no: row.cheque_no,
+            drawee_bank: row.DraweeBank,
+            bank_branch: row.bank_branch,
+            transaction_id: row.transation_id || row.upiTransation_id,
+            bank: row.bank,
+            card_last4: row.cardNum,
+            network: row.network,
+            notes: row.paymentDetails,
+          };
+        } else if (idx === hist.length - 1 && row.payement_mode) {
+          item.mode = String(row.payement_mode).toLowerCase();
+          item.details = {
+            cheque_no: row.cheque_no,
+            drawee_bank: row.DraweeBank,
+            bank_branch: row.bank_branch,
+            transaction_id: row.transation_id || row.upiTransation_id,
+            bank: row.bank,
+            card_last4: row.cardNum,
+            network: row.network,
+            notes: row.paymentDetails,
+          };
+        }
+      });
     }
     populatePaymentsFromHistory(hist);
+    applyReceiptLevelModeFromHistory(hist);
   }
 
   function buildPaymentRowsHtml(rows) {
@@ -489,12 +725,17 @@
       dv = dv ? String(dv).slice(0, 10) : '';
       av = av != null ? String(av).trim() : '';
       if (!dv && !av) return;
+      var meta = normalizePaymentEntryMeta(it);
       count += 1;
       html +=
         '<tr><td>' +
         escHtml(String(count)) +
         '</td><td>' +
         escHtml(fmtIsoDateInput(dv)) +
+        '</td><td>' +
+        escHtml(meta.mode ? payModeLabel(meta.mode) : '—') +
+        '</td><td>' +
+        escHtml(formatPaymentDetailsText(meta.mode, meta.details)) +
         '</td><td class="fees-print__num">' +
         escHtml(av ? '₹ ' + av : '—') +
         '</td></tr>';
@@ -576,7 +817,7 @@
     if (!tbody || !btnAdd) return;
 
     btnAdd.addEventListener('click', function () {
-      addPaymentRow('', '');
+      addPaymentRow('', '', snapshotPaymentModeFromForm());
     });
 
     tbody.addEventListener('click', function (e) {
@@ -589,8 +830,14 @@
       recomputePaymentTotals();
     });
 
-    tbody.addEventListener('input', recomputePaymentTotals);
-    tbody.addEventListener('change', recomputePaymentTotals);
+    tbody.addEventListener('input', function (e) {
+      if (e.target.classList.contains('fees-payment-amt')) recomputePaymentTotals();
+    });
+    tbody.addEventListener('change', function (e) {
+      if (e.target.classList.contains('fees-payment-date') || e.target.closest('[data-datesel]')) {
+        recomputePaymentTotals();
+      }
+    });
 
     ensureDefaultPaymentRow();
     recomputePaymentTotals();
@@ -912,7 +1159,7 @@
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
       paymentsRowsHtml: payBuilt.html,
-      showPayments: payBuilt.count > 1,
+      showPayments: payBuilt.count > 0,
       feeGridHtml: printLineHtml('Tuition fee', valById('fees-base')),
       netInr: nv ? '₹ ' + nv : '—',
       netWords: valById('fees-net-words') || '—',
@@ -1015,7 +1262,23 @@
     if (!payHist.length) {
       var pd = row.payment_date ? String(row.payment_date).slice(0, 10) : '';
       var pa = row.amount_paid != null && row.amount_paid !== '' ? String(row.amount_paid) : '';
-      if (pd || pa) payHist = [{ date: pd, amount: pa }];
+      if (pd || pa) {
+        payHist = [{
+          date: pd,
+          amount: pa,
+          mode: String(row.payement_mode || '').toLowerCase(),
+          details: {
+            cheque_no: row.cheque_no,
+            drawee_bank: row.DraweeBank,
+            bank_branch: row.bank_branch,
+            transaction_id: row.transation_id || row.upiTransation_id,
+            bank: row.bank,
+            card_last4: row.cardNum,
+            network: row.network,
+            notes: row.paymentDetails,
+          },
+        }];
+      }
     }
     var payBuilt = buildPaymentRowsHtml(payHist);
 
@@ -1027,7 +1290,7 @@
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
       paymentsRowsHtml: payBuilt.html,
-      showPayments: payBuilt.count > 1,
+      showPayments: payBuilt.count > 0,
       feeGridHtml: printLineHtml('Tuition fee', rstr(nv)),
       netInr: nv != null && rstr(nv) !== '' ? '₹ ' + rstr(nv) : '—',
       netWords: rstr(row.amount_in_words_total) || '—',
@@ -1560,13 +1823,22 @@
 
       var payHist = normalizePaymentHistory(row.payment_history);
       var paymentsSection = '';
-      if (payHist.length > 1) {
+      if (payHist.length) {
         var payRows = payHist
           .map(function (it, i) {
-            return kvRow(
-              '#' + (i + 1) + '  ·  ' + fmtIsoDateInput(it.date),
-              it.amount ? '₹ ' + it.amount : '—'
-            );
+            var meta = normalizePaymentEntryMeta(it);
+            var left =
+              '#' +
+              (i + 1) +
+              ' · ' +
+              fmtIsoDateInput(it.date) +
+              (meta.mode ? ' · ' + payModeLabel(meta.mode) : '');
+            var right =
+              (it.amount ? '₹ ' + it.amount : '—') +
+              (formatPaymentDetailsText(meta.mode, meta.details) !== '—'
+                ? ' · ' + formatPaymentDetailsText(meta.mode, meta.details)
+                : '');
+            return kvRow(left, right);
           })
           .join('');
         paymentsSection = section('Payments received', payRows);
@@ -2106,6 +2378,27 @@
       };
       base.installmentPlan = collectInstallmentPlanFromDom();
       base.paymentHistory = collectPaymentHistoryFromDom();
+      var payHist = base.paymentHistory || [];
+      if (payHist.length) {
+        var lastPay = normalizePaymentEntryMeta(payHist[payHist.length - 1]);
+        if (lastPay.mode) base.paymentMode = lastPay.mode;
+        var pd = lastPay.details || {};
+        if (lastPay.mode === 'cheque') {
+          base.chequeNo = pd.cheque_no || '';
+          base.chequeBank = pd.drawee_bank || '';
+          base.chequeBranch = pd.bank_branch || '';
+        } else if (lastPay.mode === 'online') {
+          base.onlineTxnId = pd.transaction_id || '';
+          base.onlineBank = pd.bank || '';
+        } else if (lastPay.mode === 'card') {
+          base.cardLast4 = pd.card_last4 || '';
+          base.cardNetwork = pd.network || '';
+        } else if (lastPay.mode === 'upi') {
+          base.upiTransactionId = pd.transaction_id || '';
+        } else if (lastPay.mode === 'other') {
+          base.otherPaymentDetail = pd.notes || '';
+        }
+      }
       delete base.id;
       delete base.fee_id;
       return base;

@@ -41,6 +41,16 @@
             <label id="search-field-label" for="search-name-email">Search Name / Email</label>
             <input id="search-name-email" type="text" placeholder="Type student name or email" />
           </div>
+          <div id="retrival-filter-branch-wrap" class="retrival-field" hidden>
+            <label for="filter-branch">Select branch</label>
+            <select id="filter-branch" aria-label="Filter students by branch">
+              <option value="" selected>All branches</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Jayanagara">Jayanagara</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
           <div class="retrival-field">
             <label for="filter-from">From Date</label>
             <input id="filter-from" type="date" />
@@ -473,8 +483,30 @@
       var nameEmailInput = document.getElementById('search-name-email');
       var fromDateInput = document.getElementById('filter-from');
       var toDateInput = document.getElementById('filter-to');
+      var branchFilterWrap = document.getElementById('retrival-filter-branch-wrap');
+      var branchFilterSelect = document.getElementById('filter-branch');
       var applyBtn = document.getElementById('btn-apply-filter');
       var resetBtn = document.getElementById('btn-reset-filter');
+
+      /** Branch dropdown only for admins whose profile branch is GENERAL. */
+      function canUseStudentBranchFilter() {
+        var CBS = window.CrmBranchScope;
+        if (!CBS || !CBS.getAdminBranchKey) return false;
+        return CBS.getAdminBranchKey() === 'general';
+      }
+
+      function studentMatchesBranchFilter(row, selectedRaw) {
+        if (!selectedRaw) return true;
+        var CBS = window.CrmBranchScope;
+        if (!CBS || !CBS.normalizeKey) {
+          return String(row && row.branch || '')
+            .trim()
+            .toLowerCase() === String(selectedRaw).trim().toLowerCase();
+        }
+        var want = CBS.normalizeKey(selectedRaw);
+        var got = CBS.normalizeKey(row && row.branch);
+        return !!(want && got && want === got);
+      }
       var refreshBtn = document.getElementById('btn-refresh-data');
       var roleMessageEl = document.getElementById('role-message');
       var metaEl = document.getElementById('retrival-meta');
@@ -710,6 +742,9 @@
         var full = role === 'student' || role === 'faculty' || role === 'achievers';
         var caOnly = role === 'ca';
         var refreshOnly = role === 'classroom' || role === 'notes' || role === 'coursevideo';
+        var showBranch = role === 'student' && canUseStudentBranchFilter();
+        if (branchFilterWrap) branchFilterWrap.hidden = !showBranch;
+        filtersSection.classList.toggle('retrival-filters--with-branch', showBranch);
         if (full || caOnly) {
           filtersSection.hidden = false;
           filtersSection.classList.toggle('retrival-filters--ca-only', caOnly);
@@ -1206,7 +1241,9 @@
           var matchesText = !query || name.indexOf(query) !== -1 || email.indexOf(query) !== -1 || br.indexOf(query) !== -1;
           var matchesFrom = !fromDate || (created && created >= fromDate);
           var matchesTo = !toDate || (created && created <= toDate);
-          return matchesText && matchesFrom && matchesTo;
+          var branchRaw = branchFilterSelect && !branchFilterWrap.hidden ? branchFilterSelect.value : '';
+          var matchesBranch = studentMatchesBranchFilter(r, branchRaw);
+          return matchesText && matchesFrom && matchesTo && matchesBranch;
         });
 
         renderRows(filtered);
@@ -1954,8 +1991,17 @@
           var rows = Array.isArray(data) ? data : [];
           if (window.CrmBranchScope) rows = CrmBranchScope.filterStudents(rows);
           allRows = rows;
-          renderRows(allRows);
-          metaEl.textContent = 'Connected successfully. Total fetched records: ' + allRows.length;
+          if (
+            branchFilterSelect &&
+            branchFilterWrap &&
+            !branchFilterWrap.hidden &&
+            branchFilterSelect.value
+          ) {
+            applyFilters();
+          } else {
+            renderRows(allRows);
+            metaEl.textContent = 'Connected successfully. Total fetched records: ' + allRows.length;
+          }
         } catch (err) {
           allRows = [];
           renderRows([]);
@@ -2101,6 +2147,7 @@
         nameEmailInput.value = '';
         fromDateInput.value = '';
         toDateInput.value = '';
+        if (branchFilterSelect) branchFilterSelect.value = '';
         if (currentMode === 'achievers') renderAchieverRows(allRows);
         else if (currentMode === 'student') renderRows(allRows);
         else if (currentMode === 'faculty') renderFacultyRows(allRows);
@@ -2110,6 +2157,11 @@
         else if (currentMode === 'coursevideo') renderCourseVideoRows(allRows);
         metaEl.textContent = 'Filters cleared. Showing all records: ' + allRows.length;
       });
+      if (branchFilterSelect) {
+        branchFilterSelect.addEventListener('change', function () {
+          if (currentMode === 'student') applyFilters();
+        });
+      }
       function runRefreshForMode() {
         if (currentMode === 'achievers') loadAchieverData();
         else if (currentMode === 'student') loadStudentData();

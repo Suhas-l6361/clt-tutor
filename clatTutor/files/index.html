@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
-  <link rel="stylesheet" href="css/workshop-modal.css?v=20260723m6" />
+  <link rel="stylesheet" href="css/workshop-modal.css?v=20260730submit3" />
   <style id="ws-claim-seat-critical">
     /* Beat body.page-public > * { position:relative; z-index:1 } so popup is never trapped */
     body.page-public > #ws-reg-modal,
@@ -333,7 +333,7 @@
         </p>
         <ul class="ws-home-offer__perks" aria-label="Workshop highlights">
           <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Jan–July CA Compendium</li>
-          <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 3 Bangalore Centres + Online</li>
+          <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 2 Bangalore Centres</li>
           <li><i class="fa-solid fa-star" aria-hidden="true"></i> Mock Marathon Access</li>
         </ul>
         <div class="ws-home-offer__action">
@@ -352,8 +352,12 @@
             </span>
           </a>
           <p class="ws-home-offer__cta-note">
-            <i class="fa-regular fa-clock" aria-hidden="true"></i>
-            <span>Free registration · Confirm in 2 minutes</span>
+            <i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i>
+            <span>Workshop fee ₹49 · Pay via bank or GPay &amp; upload screenshot</span>
+          </p>
+          <p class="ws-home-offer__cta-note">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            <span>Contact / reach: <a href="tel:+918747884422">8747884422</a></span>
           </p>
         </div>
       </div>
@@ -1056,7 +1060,7 @@
           </li>
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
-            <span><strong>3 Bangalore centres</strong> + live online</span>
+            <span><strong>2 Bangalore centres</strong></span>
           </li>
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
@@ -1064,10 +1068,14 @@
           </li>
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>Workshop fee ₹49</strong> — pay &amp; upload screenshot</span>
+          </li>
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
             <span><strong>50 seats</strong> per centre — register early</span>
           </li>
         </ul>
-        <p class="ws-info-meta">Free registration · Confirm in about 2 minutes</p>
+        <p class="ws-info-meta">Fee ₹49 · Bank transfer or GPay · Upload payment screenshot to confirm</p>
         <button type="button" class="ws-reg-form__submit ws-info-next" id="ws-info-next">
           Continue <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </button>
@@ -1080,19 +1088,9 @@
             <span class="ws-branch-card__date">15 Aug 2026</span>
             <span class="ws-branch-card__mode">Offline · Bangalore</span>
           </button>
-          <button type="button" class="ws-branch-card ws-branch-card--online" data-branch="Online" data-date="01 Aug 2026" role="listitem">
-            <span class="ws-branch-card__city">Online</span>
-            <span class="ws-branch-card__date">01 Aug 2026</span>
-            <span class="ws-branch-card__mode">Live session</span>
-          </button>
           <button type="button" class="ws-branch-card" data-branch="Malleshwaram" data-date="15 Aug 2026" role="listitem">
             <span class="ws-branch-card__city">Malleshwaram</span>
             <span class="ws-branch-card__date">15 Aug 2026</span>
-            <span class="ws-branch-card__mode">Offline · Bangalore</span>
-          </button>
-          <button type="button" class="ws-branch-card" data-branch="Jayanagar" data-date="09 Aug 2026" role="listitem">
-            <span class="ws-branch-card__city">Jayanagar</span>
-            <span class="ws-branch-card__date">09 Aug 2026</span>
             <span class="ws-branch-card__mode">Offline · Bangalore</span>
           </button>
         </div>
@@ -1103,11 +1101,77 @@
       <div class="ws-modal__step" id="ws-step-form" data-step="form" hidden>
         <p class="ws-modal__step-label">Your details</p>
         <p class="ws-modal__selected" id="ws-selected-branch" aria-live="polite"></p>
+
+        <div class="ws-pay-card" aria-labelledby="ws-pay-title">
+          <div class="ws-pay-card__head">
+            <p class="ws-pay-card__fee" id="ws-pay-title" aria-label="Workshop fee 49 rupees">
+              <span class="ws-pay-card__fee-label">Fee</span>
+              ₹49
+            </p>
+            <p class="ws-pay-card__note">Pay by bank or GPay, then upload the payment screenshot below.</p>
+          </div>
+          <div class="ws-pay-methods">
+            <div class="ws-pay-method">
+              <p class="ws-pay-method__title">
+                <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                Bank transfer
+              </p>
+              <dl class="ws-pay-details">
+                <div class="ws-pay-details__row">
+                  <dt>Name</dt>
+                  <dd>
+                    <span class="ws-pay-details__val">MindTree Education</span>
+                    <button type="button" class="ws-pay-copy" data-copy="MindTree Education" aria-label="Copy account name">
+                      <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+                    </button>
+                  </dd>
+                </div>
+                <div class="ws-pay-details__row">
+                  <dt>A/C no.</dt>
+                  <dd>
+                    <span class="ws-pay-details__val ws-pay-details__val--mono">502-000-363-626-42</span>
+                    <button type="button" class="ws-pay-copy" data-copy="50200036362642" aria-label="Copy account number">
+                      <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+                    </button>
+                  </dd>
+                </div>
+                <div class="ws-pay-details__row">
+                  <dt>IFSC</dt>
+                  <dd>
+                    <span class="ws-pay-details__val ws-pay-details__val--mono">HDFC0000041</span>
+                    <button type="button" class="ws-pay-copy" data-copy="HDFC0000041" aria-label="Copy IFSC code">
+                      <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+                    </button>
+                  </dd>
+                </div>
+                <div class="ws-pay-details__row">
+                  <dt>Branch</dt>
+                  <dd><span class="ws-pay-details__val">Malleswaram</span></dd>
+                </div>
+              </dl>
+            </div>
+            <div class="ws-pay-method ws-pay-method--gpay">
+              <p class="ws-pay-method__title">
+                <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+                GPay
+              </p>
+              <p class="ws-pay-gpay">
+                <span class="ws-pay-gpay__num">9886145351</span>
+                <button type="button" class="ws-pay-copy" data-copy="9886145351" aria-label="Copy GPay number">
+                  <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+                </button>
+              </p>
+              <p class="ws-pay-method__hint">Send ₹49, then upload screenshot below.</p>
+            </div>
+          </div>
+        </div>
+
         <form id="ws-reg-form" class="ws-reg-form" novalidate>
           <div class="ws-reg-form__hp" aria-hidden="true">
             <label for="ws-reg-website">Website</label>
             <input id="ws-reg-website" name="website" type="text" tabindex="-1" autocomplete="off" />
           </div>
+          <div class="ws-reg-form__grid">
           <div class="ws-reg-form__field">
             <label for="ws-reg-name">Full name <span class="ws-reg-form__req" aria-hidden="true">*</span></label>
             <input
@@ -1132,7 +1196,7 @@
               required
               maxlength="30"
               placeholder="suhas@gmail.com"
-              pattern="[a-zA-Z0-9._%+-]+@gmail\.com"
+              pattern="[a-zA-Z0-9._%+\-]+@gmail\.com"
               title="Must be a valid @gmail.com address."
             />
           </div>
@@ -1151,6 +1215,29 @@
               title="10-digit mobile starting with 6, 7, 8, or 9 — or +91 followed by the number."
             />
           </div>
+          <div class="ws-reg-form__field ws-reg-form__field--full">
+            <label for="ws-reg-screenshot">Payment screenshot <span class="ws-reg-form__req" aria-hidden="true">*</span></label>
+            <div class="ws-screenshot-upload">
+              <input
+                id="ws-reg-screenshot"
+                name="paymentScreenshot"
+                type="file"
+                accept="image/*"
+                required
+                class="ws-screenshot-upload__input"
+              />
+              <label for="ws-reg-screenshot" class="ws-screenshot-upload__btn" id="ws-screenshot-label">
+                <i class="fa-solid fa-image" aria-hidden="true"></i>
+                <span>Choose payment screenshot</span>
+              </label>
+              <p class="ws-screenshot-upload__hint">JPG or PNG · Screenshot of bank transfer or GPay payment</p>
+              <div class="ws-screenshot-upload__preview" id="ws-screenshot-preview" hidden>
+                <img id="ws-screenshot-preview-img" alt="Payment screenshot preview" />
+                <button type="button" class="ws-screenshot-upload__change" id="ws-screenshot-change">Change image</button>
+              </div>
+            </div>
+          </div>
+          </div>
           <div class="ws-reg-form__actions">
             <button type="button" class="ws-reg-form__back" id="ws-reg-back">
               <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Change centre
@@ -1159,6 +1246,7 @@
               <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit
             </button>
           </div>
+          <p id="ws-reg-status" class="ws-reg-status" role="status" aria-live="polite" hidden></p>
         </form>
       </div>
     </div>
@@ -1170,9 +1258,9 @@
       <div class="ws-success-card__icon" aria-hidden="true">
         <i class="fa-solid fa-circle-check"></i>
       </div>
-      <h2 id="ws-success-title" class="ws-success-card__title">Seat claimed!</h2>
+      <h2 id="ws-success-title" class="ws-success-card__title">Registration successful!</h2>
       <p class="ws-success-card__text" id="ws-success-text">
-        Thank you for registering. Our team will contact you shortly to confirm your seat.
+        Registration successful!
       </p>
       <button type="button" class="ws-success-card__btn" data-ws-success-close>Done</button>
     </div>
@@ -1184,7 +1272,7 @@
   <script src="js/data-store.js"></script>
   <script src="js/public-forms-api.js"></script>
   <script src="js/friendly-popup.js"></script>
-  <script src="js/workshop-register.js?v=20260727aug15"></script>
+  <script src="js/workshop-register.js?v=20260730ok1"></script>
   <script>
     (function () {
       function closeClaimSeatPopup() {

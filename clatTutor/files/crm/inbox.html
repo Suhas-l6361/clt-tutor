@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/inbox.css?v=20260723del1" />
+  <link rel="stylesheet" href="../css/inbox.css?v=20260729fold2" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -39,12 +39,15 @@
         </div>
       </section>
 
-      <!-- Screen 2: full mail client (hidden until a card is clicked) -->
+      <!-- Screen 2: full mail client (Hostinger-style layout) -->
       <section id="inbox-workspace" class="inbox-mail" hidden aria-label="Mailbox">
-        <aside class="inbox-mail__rail" aria-label="Mailbox navigation">
-          <button type="button" class="inbox-mail__back" id="inbox-btn-back" title="All mailboxes">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-          </button>
+        <aside class="inbox-mail__sidebar" aria-label="Mailbox navigation">
+          <div class="inbox-mail__brand-row">
+            <button type="button" class="inbox-mail__back" id="inbox-btn-back" title="All mailboxes" aria-label="All mailboxes">
+              <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            </button>
+            <span class="inbox-mail__brand">CLATutor <span>| Mail</span></span>
+          </div>
 
           <div class="inbox-mail__account">
             <span class="inbox-mail__account-avatar" id="inbox-active-avatar" aria-hidden="true">H</span>
@@ -60,72 +63,108 @@
               <span>Inbox</span>
               <em id="inbox-tab-inbox-count">0</em>
             </button>
+            <button type="button" class="inbox-mail__nav-btn" id="inbox-tab-drafts" role="tab" aria-selected="false">
+              <i class="fa-solid fa-file-pen" aria-hidden="true"></i>
+              <span>Drafts</span>
+              <em id="inbox-tab-drafts-count">0</em>
+            </button>
             <button type="button" class="inbox-mail__nav-btn" id="inbox-tab-sent" role="tab" aria-selected="false">
               <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
               <span>Sent</span>
               <em id="inbox-tab-sent-count">0</em>
             </button>
+            <button type="button" class="inbox-mail__nav-btn" id="inbox-tab-spam" role="tab" aria-selected="false">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              <span>Spam</span>
+              <em id="inbox-tab-spam-count">0</em>
+            </button>
           </nav>
 
-          <div class="inbox-mail__rail-foot">
+          <div class="inbox-mail__sidebar-foot">
+            <button type="button" class="inbox-mail__sync" id="inbox-btn-upload-eml" title="Upload older .eml emails into CRM">
+              <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+              <span>Upload emails</span>
+            </button>
+            <input type="file" id="inbox-eml-file" accept=".eml,message/rfc822,.msg" multiple hidden />
+            <button type="button" class="inbox-mail__refresh" id="inbox-btn-refresh" title="Refresh" aria-label="Refresh">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+            </button>
             <p class="inbox-mail__stats" id="inbox-active-stats" aria-live="polite"></p>
-            <div class="inbox-mail__rail-actions">
-              <button type="button" class="inbox-mail__sync" id="inbox-btn-upload-eml" title="Upload older .eml emails into CRM">
-                <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
-                <span>Upload emails</span>
-              </button>
-              <input type="file" id="inbox-eml-file" accept=".eml,message/rfc822,.msg" multiple hidden />
-              <button type="button" class="inbox-mail__refresh" id="inbox-btn-refresh" title="Refresh">
-                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-              </button>
-            </div>
             <p id="inbox-sync-status" class="inbox-mail__sync-status" hidden></p>
           </div>
         </aside>
 
-        <div class="inbox-mail__list-col">
-          <header class="inbox-mail__list-head">
-            <h2 id="inbox-list-title">Inbox</h2>
-            <div class="inbox-mail__list-head-right">
-              <div class="inbox-mail__list-actions" id="inbox-list-actions">
-                <button
-                  type="button"
-                  class="inbox-mail__delete-btn"
-                  id="inbox-btn-delete"
-                  title="Delete messages"
-                  aria-label="Delete messages"
-                  hidden
-                >
-                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                </button>
-                <button
-                  type="button"
-                  class="inbox-mail__delete-cancel"
-                  id="inbox-btn-delete-cancel"
-                  hidden
-                >
-                  Cancel
-                </button>
-              </div>
-              <p id="inbox-loading" class="inbox-mail__list-loading" hidden>
-                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
-              </p>
+        <div class="inbox-mail__main">
+          <header class="inbox-mail__topbar">
+            <div class="inbox-mail__search-wrap">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input id="inbox-search" type="search" placeholder="Search mail" autocomplete="off" aria-label="Search mail" />
             </div>
           </header>
-          <div id="inbox-list" class="inbox-mail__list">
-            <p class="inbox-mail__list-empty">Loading messages…</p>
-          </div>
-        </div>
 
-        <div class="inbox-mail__read-col">
-          <div id="inbox-detail" class="inbox-mail__read">
-            <div class="inbox-mail__read-placeholder">
-              <i class="fa-regular fa-envelope-open" aria-hidden="true"></i>
-              <p>Select a message to read</p>
+          <div class="inbox-mail__content">
+            <header class="inbox-mail__toolbar">
+              <h2 id="inbox-list-title">Inbox</h2>
+              <div class="inbox-mail__toolbar-right">
+                <div class="inbox-mail__list-actions" id="inbox-list-actions">
+                  <button
+                    type="button"
+                    class="inbox-mail__delete-btn"
+                    id="inbox-btn-delete"
+                    title="Delete messages"
+                    aria-label="Delete messages"
+                    hidden
+                  >
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="inbox-mail__delete-cancel" id="inbox-btn-delete-cancel" hidden>
+                    Cancel
+                  </button>
+                </div>
+                <p id="inbox-loading" class="inbox-mail__list-loading" hidden>
+                  <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                </p>
+              </div>
+            </header>
+
+            <div id="inbox-filter-row" class="inbox-mail__filters" role="group" aria-label="Filter messages">
+              <button type="button" class="inbox-mail__filter is-active" data-filter="all">All mail</button>
+              <button type="button" class="inbox-mail__filter" data-filter="unread">Unread</button>
+              <button type="button" class="inbox-mail__filter" data-filter="read">Read</button>
+            </div>
+
+            <div id="inbox-list" class="inbox-mail__list">
+              <p class="inbox-mail__list-empty">Loading messages…</p>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- Loading popup (mailbox / message list) -->
+      <div id="inbox-loading-modal" class="inbox-loading-modal" hidden aria-hidden="true">
+        <div class="inbox-loading-modal__backdrop" aria-hidden="true"></div>
+        <div class="inbox-loading-modal__card" role="status" aria-live="polite" aria-busy="true">
+          <div class="inbox-loading-modal__spinner" aria-hidden="true">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          </div>
+          <p id="inbox-loading-text" class="inbox-loading-modal__text">Loading messages…</p>
+          <p class="inbox-loading-modal__sub">Please wait while we fetch your mail.</p>
+        </div>
+      </div>
+
+      <!-- Big popup when a message is opened -->
+      <div id="inbox-message-modal" class="inbox-modal" hidden aria-hidden="true">
+        <div class="inbox-modal__backdrop" data-close-modal tabindex="-1"></div>
+        <div class="inbox-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="inbox-modal-title">
+          <header class="inbox-modal__head">
+            <h2 id="inbox-modal-title" class="inbox-modal__title">Message</h2>
+            <button type="button" class="inbox-modal__close" id="inbox-modal-close" aria-label="Close message">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </header>
+          <div id="inbox-detail" class="inbox-modal__body"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -138,7 +177,7 @@
   <script src="../js/nav.js?v=20260710g"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/inbox-page.js?v=20260723del1"></script>
+  <script src="../js/inbox-page.js?v=20260729fold5"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

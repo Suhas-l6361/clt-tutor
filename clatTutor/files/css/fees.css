@@ -680,11 +680,64 @@
 }
 
 /* Payments received ledger */
+.fees-receipt-scope .fees-table--payments {
+  min-width: 38rem;
+}
+
+.fees-receipt-scope .fees-table--payments .fees-payment-date-cell {
+  min-width: 11rem;
+  width: 11rem;
+}
+
+.fees-receipt-scope .fees-table--payments .fees-datesel--payments {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(4.25rem, 1fr) 3.75rem;
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 10.5rem;
+}
+
+.fees-receipt-scope .fees-table--payments .fees-datesel--payments .fees-datesel__part {
+  min-width: 0;
+  padding: 0.35rem 1.1rem 0.35rem 0.35rem;
+  font-size: 0.78rem;
+  background-color: var(--fees-warm);
+  color: var(--fees-ink);
+  background-image: linear-gradient(45deg, transparent 50%, #64748b 50%),
+    linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-position: calc(100% - 8px) 50%, calc(100% - 4px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.fees-receipt-scope .fees-table--payments .fees-td-num {
+  width: 6.5rem;
+  min-width: 6.5rem;
+}
+
 .fees-receipt-scope .fees-table--payments .fees-payment-num {
   text-align: center;
   font-weight: 600;
   color: #475569;
   background: #fafafa;
+}
+
+.fees-receipt-scope .fees-payment-mode-cell,
+.fees-receipt-scope .fees-payment-details-cell {
+  min-width: 7.5rem;
+  vertical-align: middle;
+}
+
+.fees-receipt-scope .fees-payment-mode-select {
+  min-width: 7.25rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.45rem;
+}
+
+.fees-receipt-scope .fees-payment-details-input {
+  min-width: 8.5rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.45rem;
 }
 
 .fees-receipt-scope #fees-amount-paid-display {

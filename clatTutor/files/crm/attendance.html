@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
-  <link rel="stylesheet" href="../css/attendance.css" />
+  <link rel="stylesheet" href="../css/attendance.css?v=20260730extra1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard attendance-page">
@@ -96,8 +96,21 @@
 
       <section id="attendance-panel" class="attendance-panel" hidden aria-label="Attendance roster">
         <div class="attendance-panel__head">
-          <h2>Roster</h2>
-          <span class="attendance-panel__meta" id="attendance-roster-meta">0 students</span>
+          <div class="attendance-panel__head-left">
+            <h2>Roster</h2>
+            <span class="attendance-panel__meta" id="attendance-roster-meta">0 students</span>
+          </div>
+          <button
+            type="button"
+            class="attendance-btn attendance-btn--toolbar"
+            id="attendance-btn-add-extra"
+            hidden
+            aria-haspopup="dialog"
+            aria-controls="attendance-extra-modal"
+          >
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            <span>Add student</span>
+          </button>
         </div>
         <div class="attendance-table-wrap">
           <table class="attendance-table">
@@ -118,6 +131,50 @@
           <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
           Save attendance
         </button>
+      </div>
+    </div>
+
+    <div id="attendance-extra-modal" class="attendance-extra-modal" hidden>
+      <div class="attendance-extra-modal__backdrop" data-attendance-extra-close tabindex="-1"></div>
+      <div
+        class="attendance-extra-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-extra-title"
+      >
+        <div class="attendance-extra-modal__head">
+          <div>
+            <h2 id="attendance-extra-title" class="attendance-extra-modal__title">Add student to this session</h2>
+            <p class="attendance-extra-modal__lead">
+              Pick students from this branch who are not already on today’s roster. They are added only for this attendance save — not permanently reassigned.
+            </p>
+          </div>
+          <button type="button" class="attendance-extra-modal__x" id="attendance-extra-close" aria-label="Close">×</button>
+        </div>
+        <div class="attendance-extra-modal__body">
+          <label class="attendance-extra-search">
+            <span class="visually-hidden">Search students</span>
+            <input
+              type="search"
+              id="attendance-extra-search"
+              placeholder="Search by name or student ID"
+              autocomplete="off"
+            />
+          </label>
+          <p id="attendance-extra-status" class="attendance-extra-status" aria-live="polite"></p>
+          <div class="attendance-extra-table-wrap">
+            <table class="attendance-extra-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Home batch</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-extra-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -397,7 +454,7 @@
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="../js/attendance-page.js?v=20260727b6"></script>
+  <script src="../js/attendance-page.js?v=20260730extra2"></script>
   <script src="../js/attendance-assign-student.js?v=20260727a1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

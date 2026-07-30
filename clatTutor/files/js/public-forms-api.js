@@ -205,18 +205,41 @@
           data: { message: 'Enter a valid Gmail address ending with @gmail.com' },
         });
       }
-      if (!isValidWorkshopPhone(body.phoneNumber != null ? String(body.phoneNumber) : '')) {
+      body.fullName = sanitizePlainText(body.fullName, 30);
+      body.email = String(body.email).trim().toLowerCase().slice(0, 30);
+      var phoneDigits =
+        body.phoneNumber != null
+          ? String(body.phoneNumber).replace(/\D/g, '')
+          : '';
+      if (phoneDigits.length === 12 && phoneDigits.indexOf('91') === 0) {
+        phoneDigits = phoneDigits.slice(2);
+      }
+      if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
         return Promise.resolve({
           ok: false,
           status: 400,
           data: { message: 'Enter a valid 10-digit mobile starting with 6, 7, 8, or 9 (or +91).' },
         });
       }
-      body.fullName = sanitizePlainText(body.fullName, 30);
-      body.email = String(body.email).trim().toLowerCase().slice(0, 30);
-      body.phoneNumber = workshopPhoneToNumber(String(body.phoneNumber));
+      body.phoneNumber = Number(phoneDigits);
       body.message = body.message != null ? sanitizePlainText(body.message, 400) : null;
       body.branch = sanitizePlainText(body.branch, 20);
+      var payKey =
+        body.payment_image_url != null
+          ? String(body.payment_image_url).trim()
+          : body.paymentImageUrl != null
+            ? String(body.paymentImageUrl).trim()
+            : '';
+      if (!payKey || payKey.indexOf('data:') === 0 || payKey.length > 1000) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Please upload a valid payment screenshot image.' },
+        });
+      }
+      body.payment_image_url = payKey;
+      delete body.paymentScreenshot;
+      delete body.paymentImageUrl;
       return postJson(u, body);
     },
   };

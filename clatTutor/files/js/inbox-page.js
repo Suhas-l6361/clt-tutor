@@ -82,10 +82,15 @@
     mailboxes: [],
     mailbox: null,
     view: 'inbox',
+    listFilter: 'all',
+    searchQuery: '',
     items: [],
+    spamItems: [],
     sentItems: [],
+    draftItems: [],
     selectedKey: null,
     selectedEmail: null,
+    activeDraftKey: null,
     replies: [],
     unreadCount: 0,
     gmailSyncConfigured: null,
@@ -93,6 +98,7 @@
     selectMode: false,
     selectedKeys: {},
     deleting: false,
+    loadingList: false,
   };
 
   function escHtml(s) {
@@ -174,14 +180,43 @@
     return document.getElementById(id);
   }
 
-  function setMailboxLoading(on) {
+  function setMailboxLoading(on, message) {
     var el = $('inbox-mailbox-loading');
     if (el) el.hidden = !on;
+    if (on && state.screen === 'mailboxes') {
+      setLoadingPopup(true, message || 'Loading mailboxes…');
+    } else if (!on && state.screen === 'mailboxes') {
+      setLoadingPopup(false);
+    }
   }
 
-  function setLoading(on) {
+  function setLoadingPopup(on, message) {
+    var modal = $('inbox-loading-modal');
+    var text = $('inbox-loading-text');
+    if (text && message) text.textContent = message;
+    if (modal) {
+      modal.hidden = !on;
+      modal.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
+    document.body.classList.toggle('inbox-loading-open', !!on);
+  }
+
+  function renderListLoading() {
+    var list = $('inbox-list');
+    if (!list) return;
+    var rows = '';
+    for (var i = 0; i < 5; i++) {
+      rows += '<div class="inbox-list-skeleton__row"></div>';
+    }
+    list.innerHTML = '<div class="inbox-list-skeleton" aria-hidden="true">' + rows + '</div>';
+  }
+
+  function setLoading(on, message) {
+    state.loadingList = !!on;
+    setLoadingPopup(on, message || 'Loading messages…');
     var el = $('inbox-loading');
-    if (el) el.hidden = !on;
+    if (el) el.hidden = true;
+    if (on) renderListLoading();
   }
 
   function setStatus(msg, kind) {
@@ -214,24 +249,164 @@
     state.selectMode = false;
     state.selectedKeys = {};
     updateDeleteUi();
-    if (state.view === 'sent') renderSentList();
-    else renderInboxList();
+    renderCurrentList();
   }
 
   function enterSelectMode() {
     state.selectMode = true;
     state.selectedKeys = {};
     updateDeleteUi();
+    renderCurrentList();
+  }
+
+  function closeMessageModal() {
+    var modal = $('inbox-message-modal');
+    if (modal) {
+      modal.hidden = true;
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('inbox-modal-open');
+    state.selectedKey = null;
+    state.selectedEmail = null;
+    if (!state.loadingList) {
+      renderCurrentList();
+    }
+  }
+
+  function setActiveNavTab(view) {
+    var tabs = ['inbox', 'drafts', 'sent', 'spam'];
+    tabs.forEach(function (id) {
+      var btn = $('inbox-tab-' + id);
+      if (!btn) return;
+      var on = view === id;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  function openMessageModal(title) {
+    var modal = $('inbox-message-modal');
+    var titleEl = $('inbox-modal-title');
+    if (titleEl) titleEl.textContent = title || 'Message';
+    if (modal) {
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+    }
+    document.body.classList.add('inbox-modal-open');
+  }
+
+  function viewTitle(view) {
+    if (view === 'sent') return 'Sent';
+    if (view === 'drafts') return 'Drafts';
+    if (view === 'spam') return 'Spam';
+    return 'Inbox';
+  }
+
+  function renderCurrentList() {
     if (state.view === 'sent') renderSentList();
+    else if (state.view === 'spam') renderSpamList();
+    else if (state.view === 'drafts') renderDraftsList();
     else renderInboxList();
+  }
+
+  function updateFilterUi() {
+    var row = $('inbox-filter-row');
+    if (row) row.hidden = state.view !== 'inbox' && state.view !== 'spam';
+    Array.prototype.slice.call(document.querySelectorAll('.inbox-mail__filter')).forEach(function (btn) {
+      var id = btn.getAttribute('data-filter');
+      btn.classList.toggle('is-active', id === state.listFilter);
+    });
+  }
+
+  function applyMailListFilter(items, getHaystack) {
+    var list = items.slice();
+    if (state.listFilter === 'unread') list = list.filter(function (x) { return !x.isRead; });
+    else if (state.listFilter === 'read') list = list.filter(function (x) { return !!x.isRead; });
+    var q = (state.searchQuery || '').trim().toLowerCase();
+    if (!q) return list;
+    return list.filter(function (item) {
+      return getHaystack(item).toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function getFilteredInboxItems() {
+    return applyMailListFilter(state.items, function (item) {
+      return (
+        displayName(item.from) +
+        ' ' +
+        String(item.subject || '') +
+        ' ' +
+        String(item.snippet || '')
+      );
+    });
+  }
+
+  function getFilteredSpamItems() {
+    return applyMailListFilter(state.spamItems, function (item) {
+      return (
+        displayName(item.from) +
+        ' ' +
+        String(item.subject || '') +
+        ' ' +
+        String(item.snippet || '')
+      );
+    });
+  }
+
+  function getFilteredDraftItems() {
+    var items = state.draftItems.slice();
+    var q = (state.searchQuery || '').trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(function (d) {
+      var hay = (
+        String(d.to || '') +
+        ' ' +
+        String(d.subject || '') +
+        ' ' +
+        String(d.snippet || d.body || '')
+      ).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+
+  function getFilteredSentItems() {
+    var items = state.sentItems.slice();
+    var q = (state.searchQuery || '').trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(function (r) {
+      var hay = (
+        String(r.to || '') +
+        ' ' +
+        String(r.subject || '') +
+        ' ' +
+        String(r.body || '')
+      ).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+
+  function renderListEmpty(message, hint) {
+    return (
+      '<div class="inbox-empty-state">' +
+      '<i class="fa-regular fa-envelope" aria-hidden="true"></i>' +
+      '<h3>No Messages Here</h3>' +
+      '<p>' +
+      escHtml(hint || 'Try adjusting the filters or check back later.') +
+      '</p>' +
+      (message ? '<small>' + escHtml(message) + '</small>' : '') +
+      '</div>'
+    );
   }
 
   function updateDeleteUi() {
     var delBtn = $('inbox-btn-delete');
     var cancelBtn = $('inbox-btn-delete-cancel');
-    var listCol = document.querySelector('.inbox-mail__list-col');
-    var hasRows =
-      state.view === 'sent' ? state.sentItems.length > 0 : state.items.length > 0;
+    var listCol = document.querySelector('.inbox-mail__content');
+    var hasRows = false;
+    if (state.view === 'sent') hasRows = getFilteredSentItems().length > 0;
+    else if (state.view === 'spam') hasRows = getFilteredSpamItems().length > 0;
+    else if (state.view === 'drafts') hasRows = getFilteredDraftItems().length > 0;
+    else hasRows = getFilteredInboxItems().length > 0;
     if (delBtn) {
       delBtn.hidden = !hasRows && !state.selectMode;
       delBtn.classList.toggle('is-selecting', !!state.selectMode);
@@ -271,13 +446,27 @@
 
   function currentListKeys() {
     if (state.view === 'sent') {
-      return state.sentItems
+      return getFilteredSentItems()
         .map(function (r) {
           return r.key || r.id || '';
         })
         .filter(Boolean);
     }
-    return state.items
+    if (state.view === 'spam') {
+      return getFilteredSpamItems()
+        .map(function (item) {
+          return item.key || '';
+        })
+        .filter(Boolean);
+    }
+    if (state.view === 'drafts') {
+      return getFilteredDraftItems()
+        .map(function (d) {
+          return d.key || d.id || '';
+        })
+        .filter(Boolean);
+    }
+    return getFilteredInboxItems()
       .map(function (item) {
         return item.key || '';
       })
@@ -310,7 +499,7 @@
 
     state.deleting = true;
     updateDeleteUi();
-    setLoading(true);
+    setLoading(true, 'Deleting messages…');
     try {
       var res = await fetch(getApi(), {
         method: 'POST',
@@ -332,7 +521,7 @@
         if (state.selectedKey === k) {
           state.selectedKey = null;
           state.selectedEmail = null;
-          renderDetailEmpty();
+          closeMessageModal();
         }
       });
       showToast(
@@ -388,13 +577,43 @@
     $('inbox-active-email').textContent = mb.id;
     $('inbox-active-avatar').textContent = initials(mb.name || mb.label || mb.id);
     var inboxN = state.items.length;
+    var spamN = state.spamItems.length;
+    var draftN = state.draftItems.length;
     var sentN = state.sentItems.length;
     var unreadN = state.unreadCount || 0;
     $('inbox-tab-inbox-count').textContent = unreadN > 0 ? String(unreadN) : String(inboxN);
+    $('inbox-tab-spam-count').textContent = String(spamN);
+    $('inbox-tab-drafts-count').textContent = String(draftN);
     $('inbox-tab-sent-count').textContent = String(sentN);
     $('inbox-active-stats').innerHTML =
-      (unreadN > 0 ? unreadN + ' unread · ' : '') + inboxN + ' in · ' + sentN + ' sent';
-    $('inbox-list-title').textContent = state.view === 'sent' ? 'Sent' : 'Inbox';
+      (unreadN > 0 ? unreadN + ' unread · ' : '') +
+      inboxN +
+      ' in · ' +
+      spamN +
+      ' spam · ' +
+      draftN +
+      ' drafts · ' +
+      sentN +
+      ' sent';
+    $('inbox-list-title').textContent = viewTitle(state.view);
+    updateFilterUi();
+  }
+
+  function assignInboxAndSpam(inboxData, spamData) {
+    var inboxItems = Array.isArray(inboxData.items) ? inboxData.items : [];
+    var spamItems = Array.isArray(spamData.items) ? spamData.items : [];
+    if (inboxData.folder === 'inbox' || spamData.folder === 'spam') {
+      state.items = inboxItems;
+      state.spamItems = spamItems;
+      return;
+    }
+    var all = inboxItems;
+    state.items = [];
+    state.spamItems = [];
+    all.forEach(function (item) {
+      if (item.folder === 'spam' || item.isSpamDetected || item.isMarkedSpam) state.spamItems.push(item);
+      else state.items.push(item);
+    });
   }
 
   function isCriticalInboxWarning(text) {
@@ -515,17 +734,24 @@
     if (!mb) return;
     state.mailbox = mb;
     state.view = 'inbox';
+    state.listFilter = 'all';
+    state.searchQuery = '';
+    var searchInput = $('inbox-search');
+    if (searchInput) searchInput.value = '';
     state.selectedKey = null;
     state.selectedEmail = null;
+    state.activeDraftKey = null;
     state.selectMode = false;
     state.selectedKeys = {};
-    $('inbox-tab-inbox').classList.add('is-active');
-    $('inbox-tab-sent').classList.remove('is-active');
-    $('inbox-tab-inbox').setAttribute('aria-selected', 'true');
-    $('inbox-tab-sent').setAttribute('aria-selected', 'false');
+    state.items = [];
+    state.spamItems = [];
+    state.sentItems = [];
+    state.draftItems = [];
+    setLoading(true, 'Loading mailbox…');
+    closeMessageModal();
+    setActiveNavTab('inbox');
     showScreen('workspace');
     updateWorkspaceHeader();
-    renderDetailEmpty();
     updateGmailSyncButton();
     updateDeleteUi();
     loadMailboxData();
@@ -534,61 +760,107 @@
   function backToMailboxes() {
     state.selectMode = false;
     state.selectedKeys = {};
+    setLoadingPopup(false);
+    state.loadingList = false;
+    closeMessageModal();
     state.mailbox = null;
     state.items = [];
+    state.spamItems = [];
     state.sentItems = [];
+    state.draftItems = [];
     showScreen('mailboxes');
     fetchMailboxes({ force: false });
   }
 
   async function loadMailboxData(forceRefresh) {
     if (!state.mailbox) return;
-    setLoading(true);
+    setLoading(true, forceRefresh ? 'Refreshing messages…' : 'Loading messages…');
+    var mailbox = state.mailbox.id;
+    var refreshParam = forceRefresh ? { refresh: '1' } : {};
+
+    // Phase 1: fetch inbox (the view the user sees first) — show it ASAP
     try {
-      var mailbox = state.mailbox.id;
-      var refreshParam = forceRefresh ? { refresh: '1' } : {};
       var inboxParams = Object.assign({ action: 'list_inbox', mailbox: mailbox }, refreshParam);
-      var sentParams = Object.assign({ action: 'list_replies', mailbox: mailbox }, refreshParam);
-      var results = await Promise.all([
-        fetch(apiUrl(inboxParams), { method: 'GET' }).then(function (res) {
-          return res.json().then(function (data) {
-            if (!res.ok) throw new Error(data.message || 'Failed to load inbox');
-            return data;
-          });
-        }),
-        fetch(apiUrl(sentParams), { method: 'GET' }).then(function (res) {
-          return res.json();
-        }),
-      ]);
-      var inboxData = results[0];
-      var sentData = results[1];
+      var inboxRes = await fetch(apiUrl(inboxParams), { method: 'GET' });
+      var inboxData = await inboxRes.json();
+      if (!inboxRes.ok) throw new Error(inboxData.message || 'Failed to load inbox');
+
       state.items = Array.isArray(inboxData.items) ? inboxData.items : [];
+      state.spamItems = [];
       state.unreadCount = Number(inboxData.unreadCount) || state.items.filter(function (x) {
         return !x.isRead;
       }).length;
-      state.sentItems = Array.isArray(sentData.items) ? sentData.items : [];
 
+      setLoading(false);
       updateWorkspaceHeader();
-      if (state.view === 'sent') renderSentList();
-      else renderInboxList();
+      renderCurrentList();
     } catch (e) {
+      setLoading(false);
       $('inbox-list').innerHTML =
         '<p class="inbox-mail__list-empty">' + escHtml(e.message || 'Load failed') + '</p>';
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    // Phase 2: fetch spam, sent, drafts in background (no loading popup)
+    var spamParams = Object.assign({ action: 'list_inbox', mailbox: mailbox, folder: 'spam' }, refreshParam);
+    var sentParams = Object.assign({ action: 'list_replies', mailbox: mailbox }, refreshParam);
+    var draftParams = Object.assign({ action: 'list_drafts', mailbox: mailbox }, refreshParam);
+
+    var bg = await Promise.allSettled([
+      fetch(apiUrl(spamParams), { method: 'GET' }).then(function (r) { return r.json(); }).catch(function () { return { items: [] }; }),
+      fetch(apiUrl(sentParams), { method: 'GET' }).then(function (r) { return r.json(); }).catch(function () { return { items: [] }; }),
+      fetch(apiUrl(draftParams), { method: 'GET' }).then(function (r) { return r.json(); }).catch(function () { return { items: [] }; }),
+    ]);
+
+    var spamData = bg[0].status === 'fulfilled' ? bg[0].value : { items: [] };
+    var sentData = bg[1].status === 'fulfilled' ? bg[1].value : { items: [] };
+    var draftData = bg[2].status === 'fulfilled' ? bg[2].value : { items: [] };
+
+    // Split inbox vs spam if backend returned folder info
+    if (spamData && Array.isArray(spamData.items) && spamData.items.length) {
+      state.spamItems = spamData.items;
+    } else {
+      // Client-side fallback: split from inbox items
+      var inbox = [];
+      var spam = [];
+      state.items.forEach(function (item) {
+        if (item.folder === 'spam' || item.isSpamDetected || item.isMarkedSpam) spam.push(item);
+        else inbox.push(item);
+      });
+      if (spam.length) {
+        state.items = inbox;
+        state.spamItems = spam;
+      }
+    }
+    state.sentItems = Array.isArray(sentData.items) ? sentData.items : [];
+    state.draftItems = Array.isArray(draftData.items) ? draftData.items : [];
+
+    updateWorkspaceHeader();
+    if (state.view !== 'inbox') renderCurrentList();
   }
 
   function renderInboxList() {
     var list = $('inbox-list');
     if (!list) return;
+    if (state.loadingList) {
+      renderListLoading();
+      return;
+    }
+    var items = getFilteredInboxItems();
     if (!state.items.length) {
-      list.innerHTML =
-        '<p class="inbox-mail__list-empty">No messages yet.<br><small>Only mail stored in CRM shows here. Use <strong>Upload emails</strong> to add older .eml files.</small></p>';
+      list.innerHTML = renderListEmpty(
+        'Only mail stored in CRM shows here. Use Upload emails to add older .eml files.',
+        'Your inbox is empty.'
+      );
       updateDeleteUi();
       return;
     }
-    list.innerHTML = state.items
+    if (!items.length) {
+      list.innerHTML = renderListEmpty('', 'Try adjusting the filters or check back later.');
+      updateDeleteUi();
+      return;
+    }
+    list.innerHTML = items
       .map(function (item) {
         var sel = state.selectedKey === item.key ? ' is-selected' : '';
         var unread = !item.isRead ? ' is-unread' : ' is-read';
@@ -637,17 +909,178 @@
     updateDeleteUi();
   }
 
-  function renderSentList() {
+  function renderMailItemsList(items, opts) {
     var list = $('inbox-list');
     if (!list) return;
-    if (!state.sentItems.length) {
-      list.innerHTML = '<p class="inbox-mail__list-empty">No sent replies yet.</p>';
+    if (state.loadingList) {
+      renderListLoading();
+      return;
+    }
+    if (!items.length) {
+      list.innerHTML = renderListEmpty(opts.emptyNote || '', opts.emptyHint || 'Try adjusting the filters or check back later.');
       updateDeleteUi();
       return;
     }
-    list.innerHTML = state.sentItems
+    list.innerHTML = items
+      .map(function (item) {
+        var sel = state.selectedKey === item.key ? ' is-selected' : '';
+        var unread = !item.isRead ? ' is-unread' : ' is-read';
+        var checked = state.selectMode && state.selectedKeys[item.key] ? ' is-checked' : '';
+        var name = displayName(item.from);
+        var extraClass = opts.itemClass || '';
+        var checkHtml = state.selectMode
+          ? '<span class="inbox-list__check">' +
+            '<input type="checkbox" data-select-key="' +
+            escHtml(item.key) +
+            '"' +
+            (state.selectedKeys[item.key] ? ' checked' : '') +
+            ' />' +
+            '</span>'
+          : '';
+        return (
+          '<div role="button" tabindex="0" class="inbox-list__item' +
+          extraClass +
+          sel +
+          unread +
+          checked +
+          (state.selectMode ? ' is-selectable' : '') +
+          '" data-key="' +
+          escHtml(item.key) +
+          '">' +
+          checkHtml +
+          '<span class="inbox-list__unread-dot" aria-hidden="true"></span>' +
+          '<span class="inbox-list__avatar" aria-hidden="true">' +
+          escHtml(initials(name)) +
+          '</span>' +
+          '<span class="inbox-list__content">' +
+          '<span class="inbox-list__row">' +
+          '<span class="inbox-list__from">' +
+          escHtml(name) +
+          '</span>' +
+          '<span class="inbox-list__date">' +
+          fmtShortDate(item.lastModified || item.date) +
+          '</span></span>' +
+          '<span class="inbox-list__subject">' +
+          escHtml(item.subject || '(no subject)') +
+          '</span>' +
+          '<span class="inbox-list__snippet">' +
+          escHtml(item.snippet || '') +
+          '</span></span></div>'
+        );
+      })
+      .join('');
+    updateDeleteUi();
+  }
+
+  function renderSpamList() {
+    var list = $('inbox-list');
+    if (!list) return;
+    if (state.loadingList) {
+      renderListLoading();
+      return;
+    }
+    if (!state.spamItems.length) {
+      list.innerHTML = renderListEmpty('', 'No spam messages here.');
+      updateDeleteUi();
+      return;
+    }
+    var items = getFilteredSpamItems();
+    if (!items.length) {
+      list.innerHTML = renderListEmpty('', 'Try adjusting the filters or check back later.');
+      updateDeleteUi();
+      return;
+    }
+    renderMailItemsList(items, { itemClass: ' inbox-list__item--spam' });
+  }
+
+  function renderDraftsList() {
+    var list = $('inbox-list');
+    if (!list) return;
+    if (state.loadingList) {
+      renderListLoading();
+      return;
+    }
+    var items = getFilteredDraftItems();
+    if (!state.draftItems.length) {
+      list.innerHTML = renderListEmpty(
+        'Reply to a message and tap Save draft, or start composing from an email.',
+        'No drafts yet.'
+      );
+      updateDeleteUi();
+      return;
+    }
+    if (!items.length) {
+      list.innerHTML = renderListEmpty('', 'Try adjusting your search or check back later.');
+      updateDeleteUi();
+      return;
+    }
+    list.innerHTML = items
+      .map(function (d) {
+        var key = d.key || d.id || '';
+        var sel = state.selectedKey === key ? ' is-selected' : '';
+        var checked = state.selectMode && state.selectedKeys[key] ? ' is-checked' : '';
+        var checkHtml = state.selectMode
+          ? '<span class="inbox-list__check">' +
+            '<input type="checkbox" data-select-key="' +
+            escHtml(key) +
+            '"' +
+            (state.selectedKeys[key] ? ' checked' : '') +
+            ' />' +
+            '</span>'
+          : '';
+        return (
+          '<div role="button" tabindex="0" class="inbox-list__item inbox-list__item--draft' +
+          sel +
+          checked +
+          (state.selectMode ? ' is-selectable' : '') +
+          '" data-draft-key="' +
+          escHtml(key) +
+          '">' +
+          checkHtml +
+          '<span class="inbox-list__avatar inbox-list__avatar--draft" aria-hidden="true">' +
+          '<i class="fa-solid fa-file-pen"></i></span>' +
+          '<span class="inbox-list__content">' +
+          '<span class="inbox-list__row">' +
+          '<span class="inbox-list__from">To: ' +
+          escHtml(d.to || '—') +
+          '</span>' +
+          '<span class="inbox-list__date">' +
+          fmtShortDate(d.updatedAt || d.lastModified) +
+          '</span></span>' +
+          '<span class="inbox-list__subject">' +
+          escHtml(d.subject || '(no subject)') +
+          '</span>' +
+          '<span class="inbox-list__snippet">' +
+          escHtml(String(d.snippet || d.body || '').slice(0, 100)) +
+          '</span></span></div>'
+        );
+      })
+      .join('');
+    updateDeleteUi();
+  }
+
+  function renderSentList() {
+    var list = $('inbox-list');
+    if (!list) return;
+    if (state.loadingList) {
+      renderListLoading();
+      return;
+    }
+    var items = getFilteredSentItems();
+    if (!state.sentItems.length) {
+      list.innerHTML = renderListEmpty('', 'No sent replies yet.');
+      updateDeleteUi();
+      return;
+    }
+    if (!items.length) {
+      list.innerHTML = renderListEmpty('', 'Try adjusting your search or check back later.');
+      updateDeleteUi();
+      return;
+    }
+    list.innerHTML = items
       .map(function (r) {
         var key = r.key || r.id || '';
+        var sel = state.selectedKey === key ? ' is-selected' : '';
         var checked = state.selectMode && state.selectedKeys[key] ? ' is-checked' : '';
         var checkHtml = state.selectMode
           ? '<span class="inbox-list__check">' +
@@ -660,6 +1093,7 @@
           : '';
         return (
           '<div role="button" tabindex="0" class="inbox-list__item inbox-list__item--sent' +
+          sel +
           checked +
           (state.selectMode ? ' is-selectable' : '') +
           '" data-sent-key="' +
@@ -693,13 +1127,14 @@
     if (!detail) return;
     detail.innerHTML =
       '<div class="inbox-mail__read-placeholder">' +
-      '<i class="fa-regular fa-envelope-open" aria-hidden="true"></i>' +
-      '<p>Select a message to read</p></div>';
+      '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>' +
+      '<p>Loading message…</p></div>';
   }
 
   function renderSentDetail(r) {
     var detail = $('inbox-detail');
     if (!detail || !r) return;
+    openMessageModal(r.subject || 'Sent message');
     detail.innerHTML =
       '<div class="inbox-detail__head">' +
       '<h2 class="inbox-detail__subject">' +
@@ -777,6 +1212,7 @@
     var detail = $('inbox-detail');
     if (!detail || !email) return;
     var fromName = displayName(email.from);
+    openMessageModal(email.subject || '(no subject)');
 
     detail.innerHTML =
       '<div class="inbox-detail__head">' +
@@ -800,6 +1236,11 @@
       fmtDate(email.date || email.lastModified) +
       '</div>' +
       '</div></div>' +
+      (state.view === 'inbox'
+        ? '<div class="inbox-detail__actions"><button type="button" class="inbox-btn inbox-btn--ghost" id="inbox-mark-spam-btn"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Move to Spam</button></div>'
+        : state.view === 'spam'
+          ? '<div class="inbox-detail__actions"><button type="button" class="inbox-btn inbox-btn--ghost" id="inbox-not-spam-btn"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Not spam</button></div>'
+          : '') +
       '<div class="inbox-detail__body">' +
       escHtml(email.body || '(empty body)') +
       '</div>' +
@@ -814,8 +1255,11 @@
       '<input id="inbox-reply-subject" type="text" required /></div>' +
       '<div class="inbox-field"><label for="inbox-reply-body">Message</label>' +
       '<textarea id="inbox-reply-body" required placeholder="Write your reply…"></textarea></div>' +
+      '<div class="inbox-reply__actions">' +
       '<button type="submit" class="inbox-btn inbox-btn--primary" id="inbox-send-btn">' +
       '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send</button>' +
+      '<button type="button" class="inbox-btn" id="inbox-save-draft-btn"><i class="fa-solid fa-file-pen" aria-hidden="true"></i> Save draft</button>' +
+      '</div>' +
       '<p id="inbox-status" class="inbox-status" hidden></p>' +
       '</form></section>' +
       '<div id="inbox-replies-wrap"></div>';
@@ -828,34 +1272,178 @@
       e.preventDefault();
       sendReply(email);
     });
+    var saveDraftBtn = $('inbox-save-draft-btn');
+    if (saveDraftBtn) {
+      saveDraftBtn.addEventListener('click', function () {
+        saveDraftFromForm({ originalKey: email.key });
+      });
+    }
+    var markSpamBtn = $('inbox-mark-spam-btn');
+    if (markSpamBtn) {
+      markSpamBtn.addEventListener('click', function () {
+        markSpamMessages([email.key], true);
+      });
+    }
+    var notSpamBtn = $('inbox-not-spam-btn');
+    if (notSpamBtn) {
+      notSpamBtn.addEventListener('click', function () {
+        markSpamMessages([email.key], false);
+      });
+    }
 
     fetchReplies(email.key);
   }
 
+  function renderDraftDetail(draft) {
+    var detail = $('inbox-detail');
+    if (!detail || !draft) return;
+    state.activeDraftKey = draft.key || draft.id || null;
+    openMessageModal(draft.subject || 'Draft');
+    detail.innerHTML =
+      '<div class="inbox-detail__head">' +
+      '<h2 class="inbox-detail__subject">' +
+      escHtml(draft.subject || '(no subject)') +
+      '</h2>' +
+      '<p class="inbox-detail__from-line">Draft · last updated ' +
+      fmtDate(draft.updatedAt || draft.lastModified) +
+      '</p></div>' +
+      '<section class="inbox-reply" aria-label="Edit draft">' +
+      '<h3><i class="fa-solid fa-file-pen" aria-hidden="true"></i> Edit draft</h3>' +
+      '<form id="inbox-draft-form">' +
+      '<div class="inbox-field"><label for="inbox-reply-to">To</label>' +
+      '<input id="inbox-reply-to" type="email" required /></div>' +
+      '<div class="inbox-field"><label for="inbox-reply-subject">Subject</label>' +
+      '<input id="inbox-reply-subject" type="text" required /></div>' +
+      '<div class="inbox-field"><label for="inbox-reply-body">Message</label>' +
+      '<textarea id="inbox-reply-body" required placeholder="Write your message…"></textarea></div>' +
+      '<div class="inbox-reply__actions">' +
+      '<button type="button" class="inbox-btn inbox-btn--primary" id="inbox-draft-send-btn"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send</button>' +
+      '<button type="button" class="inbox-btn" id="inbox-save-draft-btn"><i class="fa-solid fa-file-pen" aria-hidden="true"></i> Save draft</button>' +
+      '</div>' +
+      '<p id="inbox-status" class="inbox-status" hidden></p>' +
+      '</form></section>';
+
+    $('inbox-reply-to').value = draft.to || '';
+    $('inbox-reply-subject').value = draft.subject || '';
+    $('inbox-reply-body').value = draft.body || '';
+
+    var saveBtn = $('inbox-save-draft-btn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        saveDraftFromForm({ originalKey: draft.originalKey || null });
+      });
+    }
+    var sendBtn = $('inbox-draft-send-btn');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', function () {
+        var pseudo = {
+          key: draft.originalKey || draft.key,
+          messageId: draft.originalKey || draft.key,
+          subject: draft.subject,
+        };
+        sendReply(pseudo);
+      });
+    }
+  }
+
+  async function saveDraftFromForm(opts) {
+    opts = opts || {};
+    var to = $('inbox-reply-to');
+    var subject = $('inbox-reply-subject');
+    var body = $('inbox-reply-body');
+    if (!state.mailbox) return;
+    var toVal = to ? to.value.trim() : '';
+    var subjVal = subject ? subject.value.trim() : '';
+    var bodyVal = body ? body.value.trim() : '';
+    if (!toVal && !subjVal && !bodyVal) {
+      showToast('error', 'Draft is empty.');
+      return;
+    }
+    try {
+      var res = await fetch(getApi(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_draft',
+          mailbox: state.mailbox.id,
+          to: toVal,
+          subject: subjVal,
+          body: bodyVal,
+          originalKey: opts.originalKey || null,
+          id: state.activeDraftKey || undefined,
+          key: state.activeDraftKey || undefined,
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Could not save draft');
+      if (data.key) state.activeDraftKey = data.key;
+      showToast('success', 'Draft saved.');
+      await loadMailboxData();
+    } catch (e) {
+      showToast('error', e.message || 'Could not save draft');
+    }
+  }
+
+  async function markSpamMessages(keys, spam) {
+    if (!state.mailbox || !keys || !keys.length) return;
+    try {
+      var res = await fetch(getApi(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'mark_spam',
+          mailbox: state.mailbox.id,
+          keys: keys,
+          spam: spam !== false,
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Could not update spam folder');
+      showToast('success', spam !== false ? 'Moved to spam.' : 'Moved to inbox.');
+      closeMessageModal();
+      await loadMailboxData(true);
+    } catch (e) {
+      showToast('error', e.message || 'Could not update spam folder');
+    }
+  }
+
   function markItemReadLocally(key) {
     var changed = false;
-    state.items = state.items.map(function (item) {
-      if (item.key === key && !item.isRead) {
-        changed = true;
-        return Object.assign({}, item, { isRead: true });
-      }
-      return item;
-    });
+    function mapList(list) {
+      return list.map(function (item) {
+        if (item.key === key && !item.isRead) {
+          changed = true;
+          return Object.assign({}, item, { isRead: true });
+        }
+        return item;
+      });
+    }
+    state.items = mapList(state.items);
+    state.spamItems = mapList(state.spamItems);
     if (changed) {
       state.unreadCount = Math.max(0, state.unreadCount - 1);
       updateWorkspaceHeader();
     }
   }
 
+  function openDraft(key) {
+    if (!key || !state.mailbox) return;
+    var draft = state.draftItems.find(function (d) {
+      return (d.key || d.id) === key;
+    });
+    if (!draft) return;
+    state.selectedKey = key;
+    state.activeDraftKey = key;
+    renderDraftsList();
+    renderDraftDetail(draft);
+  }
+
   async function openEmail(key) {
     if (!key || !state.mailbox) return;
     state.selectedKey = key;
-    if (state.view === 'inbox') renderInboxList();
-    var detail = $('inbox-detail');
-    if (detail) {
-      detail.innerHTML =
-        '<div class="inbox-mail__read-placeholder"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><p>Loading message…</p></div>';
-    }
+    state.activeDraftKey = null;
+    openMessageModal('Loading…');
+    renderDetailEmpty();
     try {
       var res = await fetch(
         apiUrl({ action: 'get_inbox', key: key, mailbox: state.mailbox.id }),
@@ -865,12 +1453,24 @@
       if (!res.ok) throw new Error(data.message || 'Failed to open email');
       state.selectedEmail = data;
       markItemReadLocally(key);
-      renderInboxList();
       renderDetail(data);
+      // Re-render list after modal content is visible.
+      renderCurrentList();
     } catch (e) {
-      renderDetailEmpty();
-      $('inbox-detail').innerHTML =
-        '<div class="inbox-mail__read-placeholder"><p>' + escHtml(e.message || 'Open failed') + '</p></div>';
+      // Keep the modal open so the user sees what went wrong.
+      openMessageModal('Message');
+      var detail = $('inbox-detail');
+      if (detail) {
+        detail.innerHTML =
+          '<div class="inbox-mail__read-placeholder">' +
+          '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
+          '<p>Could not load this message.</p>' +
+          '<p class="inbox-muted" style="margin-top:0.5rem;">' +
+          escHtml(e && e.message ? e.message : e ? String(e) : 'Open failed') +
+          '</p>' +
+          '</div>';
+      }
+      showToast('error', e.message || 'Open failed');
     }
   }
 
@@ -910,6 +1510,20 @@
       setStatus('', '');
       body.value = '';
       showToast('success', 'Reply sent successfully.');
+      if (state.activeDraftKey) {
+        try {
+          await fetch(getApi(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'delete_emails',
+              mailbox: state.mailbox.id,
+              keys: [state.activeDraftKey],
+            }),
+          });
+        } catch (_) {}
+        state.activeDraftKey = null;
+      }
       await loadMailboxData();
       fetchReplies(email.key);
     } catch (e) {
@@ -1029,16 +1643,14 @@
 
   function switchTab(view) {
     state.view = view;
+    state.listFilter = 'all';
     state.selectedKey = null;
+    state.activeDraftKey = null;
+    closeMessageModal();
     exitSelectMode();
-    $('inbox-tab-inbox').classList.toggle('is-active', view === 'inbox');
-    $('inbox-tab-sent').classList.toggle('is-active', view === 'sent');
-    $('inbox-tab-inbox').setAttribute('aria-selected', view === 'inbox' ? 'true' : 'false');
-    $('inbox-tab-sent').setAttribute('aria-selected', view === 'sent' ? 'true' : 'false');
+    setActiveNavTab(view);
     updateWorkspaceHeader();
-    renderDetailEmpty();
-    if (view === 'sent') renderSentList();
-    else renderInboxList();
+    renderCurrentList();
   }
 
   function bindEvents() {
@@ -1087,8 +1699,47 @@
     $('inbox-tab-inbox').addEventListener('click', function () {
       switchTab('inbox');
     });
+    $('inbox-tab-drafts').addEventListener('click', function () {
+      switchTab('drafts');
+    });
     $('inbox-tab-sent').addEventListener('click', function () {
       switchTab('sent');
+    });
+    $('inbox-tab-spam').addEventListener('click', function () {
+      switchTab('spam');
+    });
+
+    var searchInput = $('inbox-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        state.searchQuery = searchInput.value || '';
+        renderCurrentList();
+      });
+    }
+
+    var filterRow = $('inbox-filter-row');
+    if (filterRow) {
+      filterRow.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-filter]');
+        if (!btn || (state.view !== 'inbox' && state.view !== 'spam')) return;
+        state.listFilter = btn.getAttribute('data-filter') || 'all';
+        updateFilterUi();
+        renderCurrentList();
+      });
+    }
+
+    var modalClose = $('inbox-modal-close');
+    if (modalClose) modalClose.addEventListener('click', closeMessageModal);
+    var modal = $('inbox-message-modal');
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target.closest('[data-close-modal]')) closeMessageModal();
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !($('inbox-message-modal') && $('inbox-message-modal').hidden)) {
+        closeMessageModal();
+      }
     });
 
     $('inbox-list').addEventListener('change', function (e) {
@@ -1107,21 +1758,38 @@
       if (e.target.closest('.inbox-list__check') || e.target.closest('[data-select-key]')) {
         return;
       }
-      var inboxBtn = e.target.closest('[data-key]');
-      if (inboxBtn && state.view === 'inbox') {
-        var inboxKey = inboxBtn.getAttribute('data-key');
+      var mailBtn = e.target.closest('[data-key]');
+      if (mailBtn && (state.view === 'inbox' || state.view === 'spam')) {
+        var mailKey = mailBtn.getAttribute('data-key');
         if (state.selectMode) {
-          var inboxCheck = inboxBtn.querySelector('[data-select-key]');
-          if (inboxCheck) {
-            inboxCheck.checked = !inboxCheck.checked;
-            if (inboxCheck.checked) state.selectedKeys[inboxKey] = true;
-            else delete state.selectedKeys[inboxKey];
-            inboxBtn.classList.toggle('is-checked', !!inboxCheck.checked);
+          var mailCheck = mailBtn.querySelector('[data-select-key]');
+          if (mailCheck) {
+            mailCheck.checked = !mailCheck.checked;
+            if (mailCheck.checked) state.selectedKeys[mailKey] = true;
+            else delete state.selectedKeys[mailKey];
+            mailBtn.classList.toggle('is-checked', !!mailCheck.checked);
             updateDeleteUi();
           }
           return;
         }
-        openEmail(inboxKey);
+        openEmail(mailKey);
+        return;
+      }
+      var draftBtn = e.target.closest('[data-draft-key]');
+      if (draftBtn && state.view === 'drafts') {
+        var draftKey = draftBtn.getAttribute('data-draft-key');
+        if (state.selectMode) {
+          var draftCheck = draftBtn.querySelector('[data-select-key]');
+          if (draftCheck) {
+            draftCheck.checked = !draftCheck.checked;
+            if (draftCheck.checked) state.selectedKeys[draftKey] = true;
+            else delete state.selectedKeys[draftKey];
+            draftBtn.classList.toggle('is-checked', !!draftCheck.checked);
+            updateDeleteUi();
+          }
+          return;
+        }
+        openDraft(draftKey);
         return;
       }
       var sentBtn = e.target.closest('[data-sent-key]');
@@ -1141,7 +1809,11 @@
         var r = state.sentItems.find(function (x) {
           return (x.key || x.id) === key;
         });
-        if (r) renderSentDetail(r);
+        if (r) {
+          state.selectedKey = key;
+          renderSentList();
+          renderSentDetail(r);
+        }
       }
     });
   }
