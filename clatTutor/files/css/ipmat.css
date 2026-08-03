@@ -936,6 +936,107 @@ a.ipmat-tab--link {
   color: #475569;
 }
 
+/* ——— Register CTA (Bangalore) ——— */
+.ipmat-register-cta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  margin: 0 0 1.35rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(30, 64, 175, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 204, 0, 0.22) 0%, rgba(255, 248, 220, 0.95) 42%, rgba(239, 246, 255, 0.98) 100%);
+  box-shadow: 0 10px 28px -18px rgba(15, 23, 42, 0.35);
+}
+
+.ipmat-register-cta__eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a3412;
+}
+
+.ipmat-register-cta__title {
+  margin: 0 0 0.3rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.ipmat-register-cta__text {
+  margin: 0 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.45 !important;
+  color: #475569 !important;
+}
+
+.ipmat-register-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none !important;
+  color: #0f172a !important;
+  background: #ffcc00;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.45);
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ipmat-register-cta__btn:hover {
+  background: #ffd633;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px -10px rgba(15, 23, 42, 0.5);
+  text-decoration: none !important;
+}
+
+.ipmat-register-cta__btn:focus-visible {
+  outline: 3px solid rgba(30, 64, 175, 0.45);
+  outline-offset: 2px;
+}
+
+.ipmat-register-cta__link {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e40af !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+
+.ipmat-register-cta__link:hover {
+  color: #1d4ed8 !important;
+}
+
+@media (max-width: 640px) {
+  .ipmat-register-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .ipmat-register-cta__btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipmat-register-cta__btn,
+  .ipmat-register-cta__btn:hover {
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ipmat-panel {
     animation: none;
