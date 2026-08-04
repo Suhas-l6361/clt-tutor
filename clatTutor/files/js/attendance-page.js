@@ -450,6 +450,7 @@
           homeNote +
           '</div></div></td>' +
           '<td class="col-status">' +
+          '<div class="attendance-status-row">' +
           '<div class="attendance-status-toggle" role="group" aria-label="Attendance for ' +
           name +
           '">' +
@@ -459,6 +460,12 @@
           '<button type="button" data-status="absent" class="' +
           (st === 'absent' ? 'is-absent' : '') +
           '">Absent</button>' +
+          '</div>' +
+          '<button type="button" class="attendance-remove-btn" data-action="remove-from-roster" data-student-id="' +
+          escapeAttr(id) +
+          '" title="Remove from today’s list (will not be saved or emailed)">' +
+          '<i class="fa-solid fa-user-minus" aria-hidden="true"></i> Remove' +
+          '</button>' +
           '</div></td></tr>'
         );
       })
@@ -805,6 +812,21 @@
     roster.forEach(function (s) {
       setStatus(s.student_id, status);
     });
+  }
+
+  /** Remove from today's in-memory roster only (not saved / not emailed). */
+  function removeFromTodaysRoster(studentId) {
+    var sid = String(studentId || '').trim();
+    if (!sid) return;
+    var before = roster.length;
+    roster = roster.filter(function (s) {
+      return String(s.student_id) !== sid;
+    });
+    if (roster.length === before) return;
+    delete statusByStudentId[sid];
+    delete sessionExtraIds[sid];
+    renderTable();
+    showPopup('success', 'Removed from today’s list. They will not be saved or emailed.');
   }
 
   function homeBatchForStudent(studentId, branch) {
@@ -1777,6 +1799,12 @@
 
     if (elTableBody) {
       elTableBody.addEventListener('click', function (e) {
+        var removeBtn = e.target.closest && e.target.closest('[data-action="remove-from-roster"]');
+        if (removeBtn) {
+          var removeId = removeBtn.getAttribute('data-student-id');
+          if (removeId) removeFromTodaysRoster(removeId);
+          return;
+        }
         var btn = e.target.closest && e.target.closest('button[data-status]');
         if (!btn) return;
         var row = btn.closest('tr[data-student-id]');

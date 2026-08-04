@@ -2,6 +2,10 @@
  * Attendance CRM — Assign students to a branch batch (popup).
  * Loads students from general_info by branch; writes only to ASSIGN_STUDENT_API.
  * Does not modify student_general_info or attendance roster logic.
+ *
+ * Multi-batch: a student may belong to several batches in the same branch.
+ * Shows "Assigned: …" badges and allows selecting them for another batch.
+ * Unassign removes only that batch assignment.
  */
 (function () {
   'use strict';
@@ -11,9 +15,12 @@
   var state = {
     branch: '',
     students: [],
-    assignedIds: Object.create(null),
+    /** student_id -> [{ id, batch, student_name }] */
+    assignedByStudent: Object.create(null),
     batches: [],
     selected: Object.create(null),
+    /** Currently opened batch chip for manage/delete view */
+    manageBatch: '',
   };
 
   function cfg() {
@@ -75,6 +82,13 @@
     alert(message);
   }
 
+  function confirmAction(opts) {
+    if (typeof window.showFriendlyConfirm === 'function') {
+      return window.showFriendlyConfirm(opts);
+    }
+    return Promise.resolve(window.confirm((opts && opts.message) || 'Confirm?'));
+  }
+
   function escHtml(s) {
     var d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
@@ -132,6 +146,23 @@
     }
   }
 
+  function selectedBatchName() {
+    var batchSel = $('attendance-assign-batch');
+    return batchSel ? String(batchSel.value || '').trim() : '';
+  }
+
+  function assignmentsFor(sid) {
+    return state.assignedByStudent[String(sid)] || [];
+  }
+
+  function isAssignedToBatch(sid, batchName) {
+    if (!batchName) return false;
+    var want = String(batchName).trim().toLowerCase();
+    return assignmentsFor(sid).some(function (a) {
+      return String(a.batch || '').trim().toLowerCase() === want;
+    });
+  }
+
   function populateBranchSelect() {
     var sel = $('attendance-assign-branch');
     if (!sel) return;
@@ -172,9 +203,10 @@
       if (branchSel) branchSel.value = '';
     }
     state.students = [];
-    state.assignedIds = Object.create(null);
+    state.assignedByStudent = Object.create(null);
     state.batches = [];
     state.selected = Object.create(null);
+    state.manageBatch = '';
     var loadBtn = $('attendance-assign-load');
     var branchSel2 = $('attendance-assign-branch');
     if (loadBtn) loadBtn.disabled = !(branchSel2 && branchSel2.value);
@@ -183,9 +215,13 @@
     var tbody = $('attendance-assign-tbody');
     var selectAll = $('attendance-assign-select-all');
     var batchSel = $('attendance-assign-batch');
+    var batchesPanel = $('attendance-assign-batches-panel');
+    var batchRoster = $('attendance-assign-batch-roster');
     if (wrap) wrap.hidden = true;
     if (footer) footer.hidden = true;
     if (tbody) tbody.innerHTML = '';
+    if (batchesPanel) batchesPanel.hidden = true;
+    if (batchRoster) batchRoster.hidden = true;
     if (selectAll) {
       selectAll.checked = false;
       selectAll.indeterminate = false;
@@ -241,11 +277,195 @@
           if (!row) return;
           if (normalizeBranchKey(row.branch) !== key) return;
           var sid = row.student_id != null ? String(row.student_id).trim() : '';
-          if (sid) map[sid] = true;
+          var batch = String(row.batch || '').trim();
+          var id = row.id != null ? Number(row.id) : null;
+          var studentName = String(row.student_name || '').trim() || 'Student';
+          if (!sid || !batch || !id) return;
+          if (!map[sid]) map[sid] = [];
+          map[sid].push({ id: id, batch: batch, student_name: studentName });
+        });
+        Object.keys(map).forEach(function (sid) {
+          map[sid].sort(function (a, b) {
+            return String(a.batch).localeCompare(String(b.batch), undefined, { sensitivity: 'base' });
+          });
         });
         return map;
       });
     });
+  }
+
+  function batchesWithAssignmentCounts() {
+    var counts = Object.create(null);
+    Object.keys(state.assignedByStudent).forEach(function (sid) {
+      assignmentsFor(sid).forEach(function (a) {
+        var name = String(a.batch || '').trim();
+        if (!name) return;
+        counts[name] = (counts[name] || 0) + 1;
+      });
+    });
+    return Object.keys(counts)
+      .sort(function (a, b) {
+        return a.localeCompare(b, undefined, { sensitivity: 'base' });
+      })
+      .map(function (batch) {
+        return { batch: batch, count: counts[batch] };
+      });
+  }
+
+  function studentsInManagedBatch(batchName) {
+    var want = String(batchName || '').trim().toLowerCase();
+    if (!want) return [];
+    var out = [];
+    Object.keys(state.assignedByStudent).forEach(function (sid) {
+      assignmentsFor(sid).forEach(function (a) {
+        if (String(a.batch || '').trim().toLowerCase() !== want) return;
+        out.push({
+          assignId: a.id,
+          student_id: sid,
+          name: a.student_name || sid,
+          batch: a.batch,
+        });
+      });
+    });
+    out.sort(function (a, b) {
+      return String(a.name).localeCompare(String(b.name), undefined, { sensitivity: 'base' });
+    });
+    return out;
+  }
+
+  function renderAssignedBatchChips() {
+    var panel = $('attendance-assign-batches-panel');
+    var chipsEl = $('attendance-assign-batch-chips');
+    var emptyEl = $('attendance-assign-batches-empty');
+    var rosterEl = $('attendance-assign-batch-roster');
+    if (!panel || !chipsEl) return;
+
+    if (!state.branch) {
+      panel.hidden = true;
+      state.manageBatch = '';
+      if (rosterEl) rosterEl.hidden = true;
+      return;
+    }
+
+    panel.hidden = false;
+    var items = batchesWithAssignmentCounts();
+    if (!items.length) {
+      chipsEl.innerHTML = '';
+      if (emptyEl) emptyEl.hidden = false;
+      state.manageBatch = '';
+      if (rosterEl) rosterEl.hidden = true;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+
+    if (
+      state.manageBatch &&
+      !items.some(function (i) {
+        return i.batch === state.manageBatch;
+      })
+    ) {
+      state.manageBatch = '';
+      if (rosterEl) rosterEl.hidden = true;
+    }
+
+    chipsEl.innerHTML = items
+      .map(function (item) {
+        var active = state.manageBatch === item.batch;
+        return (
+          '<button type="button" class="attendance-assign-batch-chip' +
+          (active ? ' is-active' : '') +
+          '" role="listitem" data-action="open-assigned-batch" data-batch="' +
+          escHtml(item.batch) +
+          '">' +
+          '<span class="attendance-assign-batch-chip__name">' +
+          escHtml(item.batch) +
+          '</span>' +
+          '<span class="attendance-assign-batch-chip__count">' +
+          escHtml(String(item.count)) +
+          '</span></button>'
+        );
+      })
+      .join('');
+
+    if (state.manageBatch) renderManagedBatchRoster();
+    else if (rosterEl) rosterEl.hidden = true;
+  }
+
+  function renderManagedBatchRoster() {
+    var rosterEl = $('attendance-assign-batch-roster');
+    var titleEl = $('attendance-assign-batch-roster-title');
+    var bodyEl = $('attendance-assign-batch-roster-body');
+    if (!rosterEl || !bodyEl) return;
+
+    var batchName = state.manageBatch;
+    if (!batchName) {
+      rosterEl.hidden = true;
+      return;
+    }
+
+    var rows = studentsInManagedBatch(batchName);
+    if (titleEl) {
+      titleEl.textContent =
+        'Students in “' + batchName + '” (' + rows.length + ') — remove from this batch only';
+    }
+
+    if (!rows.length) {
+      bodyEl.innerHTML =
+        '<tr><td colspan="3" class="attendance-assign-table__empty">No students in this batch.</td></tr>';
+    } else {
+      bodyEl.innerHTML = rows
+        .map(function (r) {
+          return (
+            '<tr>' +
+            '<td>' +
+            escHtml(r.student_id) +
+            '</td>' +
+            '<td><strong>' +
+            escHtml(r.name) +
+            '</strong></td>' +
+            '<td>' +
+            '<button type="button" class="attendance-btn attendance-btn--xs attendance-assign-unassign-btn" data-action="unassign" data-assign-id="' +
+            escHtml(String(r.assignId)) +
+            '" data-sid="' +
+            escHtml(r.student_id) +
+            '" data-batch="' +
+            escHtml(r.batch) +
+            '">' +
+            '<i class="fa-solid fa-trash" aria-hidden="true"></i> Remove' +
+            '</button></td></tr>'
+          );
+        })
+        .join('');
+    }
+    rosterEl.hidden = false;
+  }
+
+  function openManagedBatch(batchName) {
+    var name = String(batchName || '').trim();
+    if (!name) return;
+    if (state.manageBatch === name) {
+      state.manageBatch = '';
+      renderAssignedBatchChips();
+      return;
+    }
+    state.manageBatch = name;
+    renderAssignedBatchChips();
+  }
+
+  function loadAssignedBatchesForBranch(branch) {
+    if (!branch) {
+      renderAssignedBatchChips();
+      return Promise.resolve();
+    }
+    return fetchAssignedForBranch(branch)
+      .then(function (map) {
+        state.assignedByStudent = map || Object.create(null);
+        renderAssignedBatchChips();
+      })
+      .catch(function (err) {
+        handleAuthFailure(err);
+        setError(err.message || String(err));
+      });
   }
 
   function studentMatchesBranch(student, branchLabel) {
@@ -286,6 +506,7 @@
   function renderBatchOptions() {
     var sel = $('attendance-assign-batch');
     if (!sel) return;
+    var prev = sel.value;
     var options = uniqueBatches(state.batches);
     sel.innerHTML = '<option value="">Select batch</option>';
     options.forEach(function (b) {
@@ -294,13 +515,24 @@
       opt.textContent = b.batch;
       sel.appendChild(opt);
     });
+    if (
+      prev &&
+      options.some(function (b) {
+        return b.batch === prev;
+      })
+    ) {
+      sel.value = prev;
+    }
     sel.disabled = true;
     updateSelectionUi();
   }
 
+  /** Students who can still be assigned to the currently selected target batch. */
   function selectableStudents() {
+    var target = selectedBatchName();
     return state.students.filter(function (s) {
-      return !state.assignedIds[s.student_id];
+      if (target && isAssignedToBatch(s.student_id, target)) return false;
+      return true;
     });
   }
 
@@ -341,6 +573,40 @@
     }
   }
 
+  function statusCellHtml(s) {
+    var list = assignmentsFor(s.student_id);
+    var target = selectedBatchName();
+    if (!list.length) {
+      return '<span class="attendance-assign-badge">Available</span>';
+    }
+    var chips = list
+      .map(function (a) {
+        return (
+          '<span class="attendance-assign-chip">' +
+          '<span class="attendance-assign-chip__label">Assigned: ' +
+          escHtml(a.batch) +
+          '</span>' +
+          '<button type="button" class="attendance-assign-chip__remove" data-action="unassign" data-assign-id="' +
+          escHtml(String(a.id)) +
+          '" data-sid="' +
+          escHtml(s.student_id) +
+          '" data-batch="' +
+          escHtml(a.batch) +
+          '" title="Remove from ' +
+          escHtml(a.batch) +
+          '">' +
+          '<i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
+          '</button></span>'
+        );
+      })
+      .join('');
+    var note =
+      target && isAssignedToBatch(s.student_id, target)
+        ? '<span class="attendance-assign-badge attendance-assign-badge--done">Already in selected batch</span>'
+        : '';
+    return '<div class="attendance-assign-status-cell">' + chips + note + '</div>';
+  }
+
   function renderTable() {
     var tbody = $('attendance-assign-tbody');
     var wrap = $('attendance-assign-table-wrap');
@@ -356,19 +622,23 @@
       return;
     }
 
+    var target = selectedBatchName();
+
     tbody.innerHTML = state.students
       .map(function (s) {
-        var assigned = !!state.assignedIds[s.student_id];
-        var checked = !assigned && !!state.selected[s.student_id];
+        var lockedForTarget = !!(target && isAssignedToBatch(s.student_id, target));
+        var hasAny = assignmentsFor(s.student_id).length > 0;
+        var checked = !lockedForTarget && !!state.selected[s.student_id];
         return (
           '<tr class="' +
-          (assigned ? 'is-assigned' : '') +
+          (hasAny ? 'is-assigned' : '') +
+          (lockedForTarget ? ' is-locked-batch' : '') +
           '">' +
           '<td class="attendance-assign-table__check">' +
           '<input type="checkbox" class="attendance-assign-row-check" data-sid="' +
           escHtml(s.student_id) +
           '"' +
-          (assigned ? ' disabled' : '') +
+          (lockedForTarget ? ' disabled' : '') +
           (checked ? ' checked' : '') +
           ' aria-label="Select ' +
           escHtml(s.name) +
@@ -387,9 +657,7 @@
           escHtml(s.phone || '—') +
           '</td>' +
           '<td>' +
-          (assigned
-            ? '<span class="attendance-assign-badge attendance-assign-badge--done">Already assigned</span>'
-            : '<span class="attendance-assign-badge">Available</span>') +
+          statusCellHtml(s) +
           '</td>' +
           '</tr>'
         );
@@ -424,7 +692,7 @@
     Promise.all([fetchStudents(), fetchAssignedForBranch(branch), fetchBatchesForBranch(branch)])
       .then(function (results) {
         var allStudents = results[0] || [];
-        state.assignedIds = results[1] || Object.create(null);
+        state.assignedByStudent = results[1] || Object.create(null);
         state.batches = results[2] || [];
 
         if (window.CrmBranchScope && typeof window.CrmBranchScope.filterStudents === 'function') {
@@ -441,31 +709,27 @@
             return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
           });
 
-        var assignedCount = state.students.filter(function (s) {
-          return state.assignedIds[s.student_id];
+        var assignedStudentCount = state.students.filter(function (s) {
+          return assignmentsFor(s.student_id).length > 0;
         }).length;
-        var availableCount = state.students.length - assignedCount;
 
         renderBatchOptions();
         renderTable();
+        renderAssignedBatchChips();
 
         if (!state.batches.length) {
           setStatus(
             state.students.length +
-              ' student(s) loaded · ' +
-              availableCount +
-              ' available. No batches found for this branch — create a batch on Overview first.'
+              ' student(s) loaded. No batches found for this branch — create a batch on Overview first.'
           );
         } else {
           setStatus(
             state.students.length +
               ' student(s) · ' +
-              availableCount +
-              ' available · ' +
-              assignedCount +
-              ' already assigned · ' +
+              assignedStudentCount +
+              ' with batch assignment(s) · ' +
               uniqueBatches(state.batches).length +
-              ' batch(es)'
+              ' batch(es). Students can be assigned to more than one batch.'
           );
         }
       })
@@ -513,11 +777,11 @@
       })
       .filter(Boolean)
       .filter(function (s) {
-        return !state.assignedIds[s.student_id];
+        return !isAssignedToBatch(s.student_id, batchName);
       });
 
     if (!payloadStudents.length) {
-      setError('No available students selected.');
+      setError('Selected students are already in ' + batchName + '.');
       return;
     }
 
@@ -554,13 +818,28 @@
               return res.json().then(function (j) {
                 if (!res.ok) {
                   acc.fail += 1;
-                  acc.errors.push(
-                    student.name + ': ' + ((j && j.message) || 'Failed')
-                  );
+                  acc.errors.push(student.name + ': ' + ((j && j.message) || 'Failed'));
                 } else {
                   acc.ok += 1;
-                  state.assignedIds[student.student_id] = true;
-                  delete state.selected[student.student_id];
+                  var sid = student.student_id;
+                  if (!state.assignedByStudent[sid]) state.assignedByStudent[sid] = [];
+                  var newId =
+                    j && j.assignment && j.assignment.id != null
+                      ? Number(j.assignment.id)
+                      : null;
+                  if (newId) {
+                    state.assignedByStudent[sid].push({
+                      id: newId,
+                      batch: batchName,
+                      student_name: student.name,
+                    });
+                    state.assignedByStudent[sid].sort(function (a, b) {
+                      return String(a.batch).localeCompare(String(b.batch), undefined, {
+                        sensitivity: 'base',
+                      });
+                    });
+                  }
+                  delete state.selected[sid];
                 }
                 return acc;
               });
@@ -571,12 +850,13 @@
       })
       .then(function (acc) {
         renderTable();
+        renderAssignedBatchChips();
         if (acc.ok && !acc.fail) {
           notify(
             'success',
             acc.ok + ' student(s) assigned to ' + batchName + ' (' + branch + ').'
           );
-          setStatus('Done — ' + acc.ok + ' assigned. Already-assigned students stay locked.');
+          setStatus('Done — ' + acc.ok + ' assigned to ' + batchName + '.');
         } else if (acc.ok && acc.fail) {
           notify('error', acc.ok + ' assigned, ' + acc.fail + ' failed.');
           setError(acc.errors.slice(0, 3).join(' · '));
@@ -597,12 +877,67 @@
       });
   }
 
+  function unassignFromBatch(assignId, sid, batchName) {
+    var url = assignApi();
+    if (!url) {
+      setError('ASSIGN_STUDENT_API is not configured');
+      return;
+    }
+    var id = String(assignId || '').trim();
+    if (!id) return;
+
+    confirmAction({
+      title: 'Remove from batch?',
+      message: 'This removes the student from this batch only. Other batch assignments stay.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      details: [
+        { label: 'Batch', value: batchName || '—', tone: 'neutral' },
+        { label: 'Student ID', value: sid || '—', tone: 'neutral' },
+      ],
+    }).then(function (ok) {
+      if (!ok) return;
+      setError('');
+      setStatus('Removing from ' + (batchName || 'batch') + '…');
+      ensureCrmAuth()
+        .then(function () {
+          var endpoint = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'id=' + encodeURIComponent(id);
+          return fetch(endpoint, { method: 'DELETE', headers: authHeaders() }).then(function (res) {
+            return res.json().then(function (j) {
+              if (!res.ok) throw parseApiError(res, j, 'Failed to remove assignment');
+              return j;
+            });
+          });
+        })
+        .then(function () {
+          var list = state.assignedByStudent[sid] || [];
+          state.assignedByStudent[sid] = list.filter(function (a) {
+            return String(a.id) !== id;
+          });
+          if (!state.assignedByStudent[sid].length) delete state.assignedByStudent[sid];
+          notify('success', 'Removed from ' + (batchName || 'batch') + '.');
+          setStatus('Updated assignments.');
+          renderTable();
+          renderAssignedBatchChips();
+        })
+        .catch(function (err) {
+          handleAuthFailure(err);
+          setError(err.message || String(err));
+          setStatus('');
+        });
+    });
+  }
+
   function onRowCheckChange(e) {
     var input = e.target.closest('.attendance-assign-row-check');
     if (!input) return;
     var sid = input.getAttribute('data-sid') || '';
-    if (!sid || state.assignedIds[sid]) {
+    if (!sid) return;
+    var target = selectedBatchName();
+    if (target && isAssignedToBatch(sid, target)) {
       input.checked = false;
+      delete state.selected[sid];
+      updateSelectionUi();
       return;
     }
     if (input.checked) state.selected[sid] = true;
@@ -621,6 +956,16 @@
     } else {
       available.forEach(function (s) {
         delete state.selected[s.student_id];
+      });
+    }
+    renderTable();
+  }
+
+  function onTargetBatchChange() {
+    var target = selectedBatchName();
+    if (target) {
+      Object.keys(state.selected).forEach(function (sid) {
+        if (isAssignedToBatch(sid, target)) delete state.selected[sid];
       });
     }
     renderTable();
@@ -655,14 +1000,67 @@
         var load = $('attendance-assign-load');
         if (load) load.disabled = !branchSel.value;
         resetListUi(true);
-        state.branch = '';
+        state.branch = branchSel.value ? String(branchSel.value).trim() : '';
         if (load) load.disabled = !branchSel.value;
+        if (state.branch) {
+          setStatus('Loading assigned batches for ' + branchDisplay(state.branch) + '…');
+          loadAssignedBatchesForBranch(state.branch).then(function () {
+            setStatus(
+              'Assigned batches shown above. Click Load students to assign more, or open a batch to remove students.'
+            );
+          });
+        }
       });
     }
     if (loadBtn) loadBtn.addEventListener('click', loadStudentsForBranch);
     if (selectAll) selectAll.addEventListener('change', onSelectAllChange);
-    if (tbody) tbody.addEventListener('change', onRowCheckChange);
-    if (batchSel) batchSel.addEventListener('change', updateSelectionUi);
+    if (tbody) {
+      tbody.addEventListener('change', onRowCheckChange);
+      tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="unassign"]');
+        if (!btn || !tbody.contains(btn)) return;
+        unassignFromBatch(
+          btn.getAttribute('data-assign-id'),
+          btn.getAttribute('data-sid'),
+          btn.getAttribute('data-batch')
+        );
+      });
+    }
+
+    var chipsEl = $('attendance-assign-batch-chips');
+    var batchRosterBody = $('attendance-assign-batch-roster-body');
+    var batchRosterClose = $('attendance-assign-batch-roster-close');
+    var batchesPanel = $('attendance-assign-batches-panel');
+
+    if (chipsEl) {
+      chipsEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="open-assigned-batch"]');
+        if (!btn || !chipsEl.contains(btn)) return;
+        openManagedBatch(btn.getAttribute('data-batch'));
+      });
+    }
+    if (batchRosterBody) {
+      batchRosterBody.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="unassign"]');
+        if (!btn || !batchRosterBody.contains(btn)) return;
+        unassignFromBatch(
+          btn.getAttribute('data-assign-id'),
+          btn.getAttribute('data-sid'),
+          btn.getAttribute('data-batch')
+        );
+      });
+    }
+    if (batchRosterClose) {
+      batchRosterClose.addEventListener('click', function () {
+        state.manageBatch = '';
+        renderAssignedBatchChips();
+      });
+    }
+    if (batchesPanel) {
+      // keep panel click from bubbling oddly
+    }
+
+    if (batchSel) batchSel.addEventListener('change', onTargetBatchChange);
     if (submitBtn) submitBtn.addEventListener('click', assignSelected);
   }
 

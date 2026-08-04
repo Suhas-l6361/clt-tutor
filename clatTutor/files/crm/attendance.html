@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
-  <link rel="stylesheet" href="../css/attendance.css?v=20260730extra1" />
+  <link rel="stylesheet" href="../css/attendance.css?v=20260803assign2" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard attendance-page">
@@ -189,7 +189,9 @@
         <div class="attendance-assign-modal__head">
           <div>
             <h2 id="attendance-assign-title" class="attendance-assign-modal__title">Assign students to batch</h2>
-            <p class="attendance-assign-modal__lead">Pick a branch, load students, then assign them to a batch for that centre.</p>
+            <p class="attendance-assign-modal__lead">
+              Pick a branch, load students, then assign them to a batch. Students can belong to more than one batch — use × on a badge to remove from that batch only.
+            </p>
           </div>
           <button type="button" class="attendance-assign-modal__x" id="attendance-assign-close" aria-label="Close">×</button>
         </div>
@@ -209,6 +211,36 @@
               <i class="fa-solid fa-users" aria-hidden="true"></i>
               Load students
             </button>
+          </div>
+
+          <div id="attendance-assign-batches-panel" class="attendance-assign-batches-panel" hidden>
+            <p class="attendance-assign-batches-panel__label">
+              Assigned batches for this branch — click a batch to view / remove students
+            </p>
+            <div id="attendance-assign-batch-chips" class="attendance-assign-batch-chips" role="list"></div>
+            <p id="attendance-assign-batches-empty" class="attendance-assign-batches-empty" hidden>
+              No students assigned to any batch in this branch yet.
+            </p>
+            <div id="attendance-assign-batch-roster" class="attendance-assign-batch-roster" hidden>
+              <div class="attendance-assign-batch-roster__head">
+                <h3 id="attendance-assign-batch-roster-title">Students in batch</h3>
+                <button type="button" class="attendance-btn attendance-btn--xs" id="attendance-assign-batch-roster-close">
+                  Close
+                </button>
+              </div>
+              <div class="attendance-assign-batch-roster__wrap">
+                <table class="attendance-assign-table attendance-assign-batch-roster__table">
+                  <thead>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Name</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendance-assign-batch-roster-body"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <p id="attendance-assign-status" class="attendance-assign-status" aria-live="polite"></p>
@@ -454,8 +486,8 @@
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="../js/attendance-page.js?v=20260730extra2"></script>
-  <script src="../js/attendance-assign-student.js?v=20260727a1"></script>
+  <script src="../js/attendance-page.js?v=20260803assign1"></script>
+  <script src="../js/attendance-assign-student.js?v=20260803assign2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

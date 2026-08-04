@@ -305,8 +305,37 @@
 }
 
 .attendance-table .col-status {
-  width: 12.5rem;
+  width: 18rem;
   text-align: right;
+}
+
+.attendance-status-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.attendance-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.attendance-remove-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
 }
 
 .attendance-status-toggle {
@@ -1065,6 +1094,9 @@ body.attendance-assign-modal-open {
 
 .attendance-assign-table tr.is-assigned {
   background: #f8fafc;
+}
+
+.attendance-assign-table tr.is-locked-batch {
   color: #94a3b8;
 }
 
@@ -1087,6 +1119,148 @@ body.attendance-assign-modal-open {
 .attendance-assign-badge--done {
   background: #f1f5f9;
   color: #64748b;
+}
+
+.attendance-assign-status-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.attendance-assign-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.25rem 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.attendance-assign-chip__label {
+  white-space: nowrap;
+}
+
+.attendance-assign-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.attendance-assign-chip__remove:hover {
+  background: #fee2e2;
+}
+
+.attendance-assign-batches-panel {
+  margin: 0.85rem 0 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.attendance-assign-batches-panel__label {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.attendance-assign-batch-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.attendance-assign-batch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.attendance-assign-batch-chip:hover {
+  background: #dbeafe;
+}
+
+.attendance-assign-batch-chip.is-active {
+  color: #0f172a;
+  background: #ffcc00;
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+.attendance-assign-batch-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.attendance-assign-batches-empty {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.attendance-assign-batch-roster {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.attendance-assign-batch-roster__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.attendance-assign-batch-roster__head h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.attendance-assign-batch-roster__wrap {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.attendance-assign-unassign-btn {
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
 }
 
 .attendance-assign-footer {
