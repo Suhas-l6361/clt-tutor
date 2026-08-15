@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance — Parent</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260815f" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body parent-portal-body">
+  <div id="stock" style="display: none">
+    <div class="pp-wrap">
+      <section class="pp-hero">
+        <p class="pp-hero__eyebrow">Attendance</p>
+        <h2>Daily class presence</h2>
+        <p>See when your child was marked present or absent. This list is only for your linked student.</p>
+      </section>
+      <div class="pp-stats">
+        <div class="pp-stat"><span class="pp-stat__label">Sessions</span><strong id="pa-total">0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Present</span><strong id="pa-present">0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Absent</span><strong id="pa-absent">0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Rate</span><strong id="pa-rate">0%</strong></div>
+      </div>
+      <section class="pp-card">
+        <h3>Attendance history</h3>
+        <p class="pp-card__lead" id="pa-status">Loading attendance…</p>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Batch</th>
+                <th>Branch</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="pa-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+  <script src="../js/config.js?v=20260815a"></script>
+  <script src="../js/auth.js?v=20260815a"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260815b"></script>
+  <script src="../js/parent-portal.js?v=20260815f"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initAppChrome({ role: 'parent', active: 'attendance.html', title: 'Attendance', contentEl: document.getElementById('stock') });
+      var PP = window.ParentPortal;
+      if (!PP) return;
+      PP.loadAttendance().then(function (rows) {
+        var sum = PP.summarizeAttendance(rows);
+        document.getElementById('pa-total').textContent = String(sum.total);
+        document.getElementById('pa-present').textContent = String(sum.present);
+        document.getElementById('pa-absent').textContent = String(sum.absent);
+        document.getElementById('pa-rate').textContent = sum.pct + '%';
+        var status = document.getElementById('pa-status');
+        var tbody = document.getElementById('pa-tbody');
+        if (!rows.length) {
+          status.textContent = 'No attendance records found yet for your child.';
+          tbody.innerHTML = '<tr><td colspan="4" class="pp-empty">Nothing to show</td></tr>';
+          return;
+        }
+        status.textContent = rows.length + ' record(s) for your child.';
+        tbody.innerHTML = rows.map(function (r) {
+          var ok = String(r.status || '').toLowerCase() === 'present';
+          return '<tr><td>' + PP.escapeHtml(PP.formatDate(r.attendance_date)) + '</td><td>' +
+            PP.escapeHtml(r.batch || '—') + '</td><td>' + PP.escapeHtml(r.branch || '—') +
+            '</td><td><span class="pp-badge ' + (ok ? 'pp-badge--ok' : 'pp-badge--bad') + '">' +
+            PP.escapeHtml(ok ? 'Present' : 'Absent') + '</span></td></tr>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('pa-status').textContent = (err && err.message) || 'Could not load attendance.';
+      });
+    });
+  </script>
+</body>
+</html>

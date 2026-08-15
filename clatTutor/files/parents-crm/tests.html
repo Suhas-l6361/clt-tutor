@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock tests — Parent</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260815f" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body parent-portal-body">
+  <div id="stock" style="display: none">
+    <div class="pp-wrap">
+      <section class="pp-hero">
+        <p class="pp-hero__eyebrow">Mock tests</p>
+        <h2>Test performance</h2>
+        <p>Completed mocks for your child. Open any test with Analyse to see the graphs.</p>
+      </section>
+      <div class="pp-stats">
+        <div class="pp-stat"><span class="pp-stat__label">Attempts</span><strong id="pt-count">0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Average</span><strong id="pt-avg">—</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Best</span><strong id="pt-best">—</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Latest</span><strong id="pt-latest">—</strong></div>
+      </div>
+
+      <section class="pp-card">
+        <h3>Completed tests</h3>
+        <p class="pp-card__lead" id="pt-status">Loading mock results…</p>
+        <div class="pp-test-list" id="pt-test-list"></div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+  <script src="../js/config.js?v=20260815a"></script>
+  <script src="../js/auth.js?v=20260815a"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260815b"></script>
+  <script src="../js/parent-portal.js?v=20260815f"></script>
+  <script src="../js/parent-tests-page.js?v=20260815e"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initAppChrome({ role: 'parent', active: 'tests.html', title: 'Mock tests', contentEl: document.getElementById('stock') });
+      if (window.ParentTestsPage) ParentTestsPage.init();
+    });
+  </script>
+</body>
+</html>

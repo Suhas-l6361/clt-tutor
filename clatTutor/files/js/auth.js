@@ -8,6 +8,12 @@
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/crmAuth';
   const STUDENT_GENERAL_INFO_API =
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info';
+  const PARENT_CREDENTIALS_API =
+    window.APP_CONFIG?.PARENT_CREDENTIALS_API ||
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentCredentials';
+  const PARENT_AUTH_API =
+    window.APP_CONFIG?.PARENT_AUTH_API ||
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentAuth';
   const KEYS = {
     user: P + 'user',
     role: P + 'role',
@@ -35,6 +41,7 @@
     'testAnalysis.html',
     'fees.html',
     'attendance.html',
+    'parent-credentials.html',
     'retrival.html',
     'enrollment.html',
     'inbox.html',
@@ -334,6 +341,88 @@
         }
       }
 
+      if (role === 'parent') {
+        if (!loginId || !password) {
+          return { ok: false, error: 'Parent ID and password are required' };
+        }
+        const payload = {
+          action: 'login',
+          parents_id: String(loginId).trim(),
+          password: String(password),
+        };
+        // Use the live /parentCredentials route (CORS works). /parentAuth is not
+        // deployed on API Gateway yet, so calling it looks like a network error.
+        const credApi = String(PARENT_CREDENTIALS_API || PARENT_AUTH_API || '').replace(/\?.*$/, '');
+        const loginUrl = credApi + (credApi.indexOf('?') >= 0 ? '&' : '?') + 'action=login';
+
+        try {
+          const res = await fetch(loginUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (_) {
+            data = {};
+          }
+          if (!res.ok) {
+            const raw = String(data.message || '');
+            const lower = raw.toLowerCase();
+            if (
+              lower.includes('authentication required') ||
+              lower.includes('missing authentication token')
+            ) {
+              return {
+                ok: false,
+                error:
+                  'Parent login is not connected on the server yet. From Backend/extra_quries run: npm run deploy:parentLogin',
+              };
+            }
+            const msg =
+              raw ||
+              (res.status === 401
+                ? 'Invalid Parent ID or password'
+                : res.status === 403
+                  ? 'Access denied. Please contact the institute.'
+                  : 'Unable to sign in right now');
+            return { ok: false, error: msg };
+          }
+          const p = data.parent || {};
+          const st = data.student || {};
+          const parentUser = {
+            id: String(p.parents_id || loginId),
+            parents_id: p.parents_id || String(loginId).trim(),
+            student_id: String(p.student_id || st.student_id || ''),
+            name: p.name || (st.name ? 'Parent of ' + st.name : 'Parent'),
+            student_name: p.student_name || st.name || 'Student',
+            login: p.parents_id || String(loginId).trim(),
+            email: p.student_email || st.email || '',
+            phone: p.student_phone || st.phone || '',
+            branch: p.branch || st.branch || '',
+            batch: p.student_batch || st.batch || '',
+            img_url: p.student_img || st.img_url || null,
+            targetYear: p.targetYear || st.targetYear || null,
+            parentPassword: String(password),
+          };
+          if (!parentUser.student_id) {
+            return {
+              ok: false,
+              error: 'Parent account is missing a linked student. Contact the institute.',
+            };
+          }
+          localStorage.setItem(KEYS.user, JSON.stringify(parentUser));
+          localStorage.setItem(KEYS.role, role);
+          localStorage.setItem(KEYS.token, makeToken('parent'));
+          localStorage.removeItem(KEYS.loggedOutAt);
+          this.trackActivity('login');
+          return { ok: true, user: parentUser, role };
+        } catch (_) {
+          return { ok: false, error: 'Network issue. Please try again.' };
+        }
+      }
+
       return { ok: false, error: 'Invalid role' };
     },
 
@@ -360,7 +449,8 @@
       localStorage.removeItem(KEYS.token);
       localStorage.setItem(KEYS.loggedOutAt, String(Date.now()));
       const path = (window.location.pathname || '').replace(/\\/g, '/');
-      const inAppFolder = path.includes('/student/') || path.includes('/crm/');
+      const inAppFolder =
+        path.includes('/student/') || path.includes('/crm/') || path.includes('/parents-crm/');
       window.location.replace(inAppFolder ? '../login.html' : 'login.html');
     },
 
@@ -369,6 +459,7 @@
       if (!s) return;
       if (s.role === 'student') window.location.replace('student/dashboard.html');
       else if (s.role === 'crm') window.location.replace(this.getCouncelerLandingPath());
+      else if (s.role === 'parent') window.location.replace('parents-crm/dashboard.html');
     },
   };
 

@@ -75,6 +75,10 @@
                 <label for="role-student"><i class="fa-solid fa-user-graduate"></i> <b>Student</b></label>
               </div>
               <div class="role-option">
+                <input type="radio" name="role" id="role-parent" value="parent" />
+                <label for="role-parent"><i class="fa-solid fa-people-roof"></i> <b>Parent</b></label>
+              </div>
+              <div class="role-option">
                 <input type="radio" name="role" id="role-crm" value="crm" />
                 <label for="role-crm"><i class="fa-solid fa-headset"></i> <b>CRM</b></label>
               </div>
@@ -127,8 +131,8 @@
     </div>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/config.js?v=20260815a"></script>
+  <script src="js/auth.js?v=20260815a"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       Auth.redirectIfAuthed();
@@ -216,6 +220,11 @@
           loginInput.autocomplete = 'username';
           loginInput.inputMode = 'numeric';
           setFloatingLabel(loginLabel, 'Email or User ID');
+        } else if (role === 'parent') {
+          loginInput.type = 'text';
+          loginInput.autocomplete = 'username';
+          loginInput.removeAttribute('inputmode');
+          setFloatingLabel(loginLabel, 'Parent ID');
         } else {
           loginInput.type = 'email';
           loginInput.autocomplete = 'email';
@@ -257,6 +266,7 @@
         }, 2000);
         setTimeout(function () {
           if (role === 'student') window.location.href = 'student/dashboard.html';
+          else if (role === 'parent') window.location.href = 'parents-crm/dashboard.html';
           else window.location.href = Auth.getCouncelerLandingPath();
         }, 2900);
       });

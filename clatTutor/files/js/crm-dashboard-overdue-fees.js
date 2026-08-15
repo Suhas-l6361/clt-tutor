@@ -49,6 +49,20 @@
     return '₹ ' + Math.round(num).toLocaleString('en-IN');
   }
 
+  function cleanPhone(v) {
+    var s = v == null ? '' : String(v).trim();
+    if (!s || s === '0' || s === 'null' || s === 'undefined' || s === '—') return '';
+    return s;
+  }
+
+  function preferredContactPhone(student, fallback) {
+    var parent = cleanPhone(student && (student.parents_number || student.parentsNumber));
+    if (parent) return parent;
+    var own = cleanPhone(student && student.phone);
+    if (own) return own;
+    return cleanPhone(fallback) || '—';
+  }
+
   function fetchJson(url) {
     return fetch(url, { method: 'GET', headers: { Accept: 'application/json' } }).then(function (res) {
       return res.json().then(function (j) {
@@ -201,7 +215,7 @@
             var r = item.receipt || {};
             var matched = matchStudent(r, currentLookup);
             var name = String((matched && matched.name) || r.name || 'Student').trim() || 'Student';
-            var phone = String((matched && matched.phone) || r.phone || '').trim() || '—';
+            var phone = preferredContactPhone(matched, r.phone);
             var email = String((matched && matched.email) || r.email || '').trim() || '—';
             var inst = item.installment || {};
             var dueStr = inst.dueDate && FI ? FI.formatDisplayDate(inst.dueDate) : '—';

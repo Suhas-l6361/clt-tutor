@@ -2162,8 +2162,14 @@ textarea {
 
 .role-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
+}
+
+@media (max-width: 420px) {
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .role-option input {
@@ -3410,6 +3416,17 @@ tbody tr:last-child td {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #fff;
+}
+
+/* Brand column only: keep “utor” lowercase (do not uppercase other footer headings) */
+.site-footer__heading:has(.site-footer__logo-accent) {
+  text-transform: none;
+  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+}
+
+.site-footer__heading .site-footer__logo-accent {
+  text-transform: none;
 }
 
 .site-footer__links {

@@ -24,6 +24,46 @@
     return '₹ ' + num.toLocaleString('en-IN');
   }
 
+  function cleanPhone(v) {
+    var s = v == null ? '' : String(v).trim();
+    if (!s || s === '0' || s === 'null' || s === 'undefined' || s === '—') return '';
+    return s;
+  }
+
+  function preferredContactPhone(student, fallback) {
+    var parent = cleanPhone(student && (student.parents_number || student.parentsNumber));
+    if (parent) return parent;
+    var own = cleanPhone(student && student.phone);
+    if (own) return own;
+    return cleanPhone(fallback) || '—';
+  }
+
+  function findStudentForReceipt(receipt, students) {
+    if (!receipt || !students || !students.length) return null;
+    var sid = receipt.student_id != null ? String(receipt.student_id).trim() : '';
+    if (sid) {
+      for (var i = 0; i < students.length; i++) {
+        if (students[i] && String(students[i].student_id != null ? students[i].student_id : '').trim() === sid) {
+          return students[i];
+        }
+      }
+    }
+    var em = String(receipt.email || '').trim().toLowerCase();
+    if (em) {
+      for (var j = 0; j < students.length; j++) {
+        if (students[j] && String(students[j].email || '').trim().toLowerCase() === em) return students[j];
+      }
+    }
+    return null;
+  }
+
+  function metricsStudents() {
+    if (window.CrmDashboardMetrics && typeof window.CrmDashboardMetrics.getStudents === 'function') {
+      return window.CrmDashboardMetrics.getStudents() || [];
+    }
+    return [];
+  }
+
   function initCrmInstallmentsPanel() {
     var section = document.getElementById('crm-installments-section');
     if (!section) return;
@@ -65,6 +105,7 @@
       if (loadingEl) loadingEl.hidden = true;
       var dueList = FI.getInstallmentsDueThisMonth(rows);
       var studentCount = FI.countUniqueStudentsDueThisMonth(rows);
+      var students = metricsStudents();
 
       if (countEl) countEl.textContent = String(studentCount);
       if (kpiEl) kpiEl.textContent = String(studentCount);
@@ -82,6 +123,8 @@
       dueList.forEach(function (item) {
         var r = item.receipt || {};
         var inst = item.installment || {};
+        var matched = findStudentForReceipt(r, students);
+        var phone = preferredContactPhone(matched, r.phone);
         var tr = document.createElement('tr');
         if (item.daysUntil != null && item.daysUntil <= 7) tr.className = 'crm-install-row--soon';
 
@@ -93,7 +136,7 @@
           '</td><td>' +
           escHtml(r.branch || '—') +
           '</td><td>' +
-          escHtml(r.phone != null ? r.phone : '—') +
+          escHtml(phone) +
           '</td><td><span class="crm-install-pill">' +
           escHtml(item.label) +
           '</span></td><td>' +

@@ -57,6 +57,12 @@ const APP_CONFIG = {
   /** CRM — assign students to a branch batch (log only; does not update general_info) */
   ASSIGN_STUDENT_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',
+  /** CRM — parent login credentials (staff generate / manage) */
+  PARENT_CREDENTIALS_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentCredentials',
+  /** Public parent login (same pattern as CRM_AUTH_API — no CRM JWT) */
+  PARENT_AUTH_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentAuth',
   DEMO_MODE: true,
 };
 

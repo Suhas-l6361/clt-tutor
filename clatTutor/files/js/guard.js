@@ -1,5 +1,5 @@
 /**
- * @param {'student' | 'crm'} allowedRole
+ * @param {'student' | 'crm' | 'parent'} allowedRole
  */
 function requireRole(allowedRole) {
   const s = window.Auth?.getSession();
@@ -10,8 +10,7 @@ function requireRole(allowedRole) {
     window.localStorage.getItem(window.Auth?.keys?.token || '') ||
     '';
   if (!s || !token || s.role !== allowedRole) {
-    const base = allowedRole === 'student' ? '../login.html' : '../login.html';
-    window.location.replace(base);
+    window.location.replace('../login.html');
     return false;
   }
   if (
@@ -35,6 +34,13 @@ function requireRole(allowedRole) {
       window.location.replace('../login.html');
     }
     return false;
+  }
+  if (allowedRole === 'parent') {
+    const u = s.user || {};
+    if (!u.student_id) {
+      window.location.replace('../login.html');
+      return false;
+    }
   }
   if (allowedRole === 'student' && window.StudentAccess) {
     const page = (window.location.pathname || '').split('/').pop() || '';

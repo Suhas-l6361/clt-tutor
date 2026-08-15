@@ -4,8 +4,126 @@
 (function () {
   'use strict';
 
+  var feesStudentsCache = [];
+
   function pad2(n) {
     return String(n).padStart(2, '0');
+  }
+
+  function cleanPhone(v) {
+    var s = v == null ? '' : String(v).trim();
+    if (!s || s === '0' || s === 'null' || s === 'undefined' || s === '—') return '';
+    return s;
+  }
+
+  function preferredContactPhone(student, fallback) {
+    var parent = cleanPhone(student && (student.parents_number || student.parentsNumber));
+    if (parent) return parent;
+    var own = cleanPhone(student && student.phone);
+    if (own) return own;
+    return cleanPhone(fallback) || '—';
+  }
+
+  function findCachedStudent(row) {
+    if (!row || !feesStudentsCache.length) return null;
+    var sid = row.student_id != null ? String(row.student_id).trim() : '';
+    if (sid) {
+      for (var i = 0; i < feesStudentsCache.length; i++) {
+        var s = feesStudentsCache[i];
+        if (s && String(s.student_id != null ? s.student_id : '').trim() === sid) return s;
+      }
+    }
+    return null;
+  }
+
+  function firstStoredKey(val) {
+    if (val == null || val === '') return '';
+    if (typeof val === 'object' && !Array.isArray(val) && val.key) return String(val.key);
+    if (typeof val === 'string') {
+      try {
+        var p = JSON.parse(val);
+        if (Array.isArray(p) && p.length) {
+          var x = p[0];
+          if (typeof x === 'string') return x;
+          if (x && x.key) return String(x.key);
+          if (x && x.url) return String(x.url);
+        }
+        if (typeof p === 'string') return p;
+      } catch (e) {
+        return val;
+      }
+    }
+    if (Array.isArray(val) && val.length) {
+      var y = val[0];
+      if (typeof y === 'string') return y;
+      if (y && y.key) return String(y.key);
+    }
+    return '';
+  }
+
+  function studentImgKey(student) {
+    if (!student) return '';
+    return firstStoredKey(student.img_url) || (student.img_url ? String(student.img_url).trim() : '');
+  }
+
+  var feesPhotoSeq = 0;
+
+  function hideFeesStudentPhoto() {
+    var wrap = document.getElementById('fees-disp-photo');
+    var img = document.getElementById('fees-disp-photo-img');
+    if (wrap) wrap.hidden = true;
+    if (img) {
+      img.onload = null;
+      img.onerror = null;
+      img.removeAttribute('src');
+      img.alt = '';
+    }
+  }
+
+  function resolveStudentPhotoUrl(imgKey) {
+    var key = String(imgKey || '').trim();
+    if (!key) return Promise.resolve('');
+    if (typeof window.resolveStudentPhotoDisplayUrl === 'function') {
+      return window.resolveStudentPhotoDisplayUrl(key);
+    }
+    if (/^https?:\/\//i.test(key)) return Promise.resolve(key);
+    return Promise.resolve('');
+  }
+
+  function showFeesStudentPhoto(student) {
+    var wrap = document.getElementById('fees-disp-photo');
+    var img = document.getElementById('fees-disp-photo-img');
+    if (!wrap || !img) return;
+    var key = studentImgKey(student);
+    if (!key) {
+      feesPhotoSeq += 1;
+      hideFeesStudentPhoto();
+      return;
+    }
+    var seq = ++feesPhotoSeq;
+    resolveStudentPhotoUrl(key).then(function (url) {
+      if (seq !== feesPhotoSeq) return;
+      if (!url) {
+        hideFeesStudentPhoto();
+        return;
+      }
+      img.onload = function () {
+        if (seq !== feesPhotoSeq) return;
+        wrap.hidden = false;
+      };
+      img.onerror = function () {
+        if (seq !== feesPhotoSeq) return;
+        hideFeesStudentPhoto();
+      };
+      img.alt = student && student.name ? String(student.name) : 'Student photo';
+      img.src = url;
+    });
+  }
+
+  function currentStudentImgKey() {
+    var sidEl = document.getElementById('fees-student-id');
+    var sid = sidEl ? String(sidEl.value || '').trim() : '';
+    return studentImgKey(findCachedStudent({ student_id: sid }));
   }
 
   function formatReceiptDate(d) {
@@ -498,9 +616,12 @@
     var out = [];
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
+      var g = row.querySelector('[data-datesel]');
+      if (g) dateselSyncHidden(g);
       var dIn = row.querySelector('.fees-payment-date');
       var aIn = row.querySelector('.fees-payment-amt');
       var date = dIn && dIn.value ? String(dIn.value).trim() : '';
+      if (!date && g) date = dateselGetIso(g);
       var amt = aIn && aIn.value ? String(aIn.value).trim() : '';
       if (!date && !amt) continue;
       var meta = readPaymentRowMeta(row);
@@ -865,11 +986,72 @@
       var img = imgs[i];
       var s = img.getAttribute('src');
       if (!s) continue;
+      if (/^(https?:|data:|blob:)/i.test(s)) continue;
       try {
         img.setAttribute('src', new URL(s, document.baseURI).href);
       } catch (e) {}
     }
     return wrap.innerHTML;
+  }
+
+  function isPrintablePhotoSrc(s) {
+    return /^(https?:|data:|blob:)/i.test(String(s || '').trim());
+  }
+
+  function liveStudentPhotoSrc() {
+    var wrap = document.getElementById('fees-disp-photo');
+    var img = document.getElementById('fees-disp-photo-img');
+    if (!wrap || wrap.hidden || !img) return '';
+    if (img.naturalWidth > 0 && img.currentSrc) return img.currentSrc;
+    if (img.naturalWidth > 0 && img.src) return img.src;
+    return '';
+  }
+
+  function photoSrcToDataUrl(url) {
+    return new Promise(function (resolve) {
+      if (!url) {
+        resolve('');
+        return;
+      }
+      if (/^data:/i.test(url)) {
+        resolve(url);
+        return;
+      }
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      var settled = false;
+      function done(src) {
+        if (settled) return;
+        settled = true;
+        resolve(src || '');
+      }
+      img.onload = function () {
+        try {
+          var canvas = document.createElement('canvas');
+          var w = img.naturalWidth || 240;
+          var h = img.naturalHeight || 300;
+          var max = 520;
+          if (w > max || h > max) {
+            var scale = max / Math.max(w, h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          done(canvas.toDataURL('image/jpeg', 0.86));
+        } catch (e) {
+          done(url);
+        }
+      };
+      img.onerror = function () {
+        done(url);
+      };
+      window.setTimeout(function () {
+        done(url);
+      }, 3500);
+      img.src = url;
+    });
   }
 
   /** Shared iframe print path (same as “Print receipt” / Ctrl+P). */
@@ -884,12 +1066,12 @@
       iframe.setAttribute('aria-hidden', 'true');
       iframe.setAttribute('title', 'Print');
       iframe.style.cssText =
-        'position:fixed;right:0;bottom:0;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden;visibility:hidden';
+        'position:fixed;left:-1200px;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;';
       document.body.appendChild(iframe);
     }
 
     var baseHref = document.baseURI || String(window.location.href);
-    var feesCssUrl = new URL('../css/fees.css', baseHref).href;
+    var feesCssUrl = new URL('../css/fees.css?v=20260815print4', baseHref).href;
     var fontCss =
       'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap';
 
@@ -904,6 +1086,7 @@
       '<link rel="stylesheet" href="' +
       escAttr(fontCss) +
       '" />' +
+      '<style>.fees-receipt-scope .fees-print-sheet{display:flex!important;flex-direction:column;}</style>' +
       '</head><body class="app-body fees-page">' +
       '<div class="fees-receipt-scope">' +
       sheetHtml +
@@ -911,12 +1094,30 @@
 
     iframe.onload = function () {
       iframe.onload = null;
-      window.setTimeout(function () {
-        try {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        } catch (e) {}
-      }, 200);
+      var doc = iframe.contentDocument;
+      var imgs = doc ? doc.querySelectorAll('img') : [];
+      var waits = [];
+      for (var i = 0; i < imgs.length; i++) {
+        if (imgs[i].complete) continue;
+        waits.push(
+          new Promise(function (resolve) {
+            imgs[i].addEventListener('load', resolve, { once: true });
+            imgs[i].addEventListener('error', resolve, { once: true });
+          })
+        );
+      }
+      var ready = waits.length ? Promise.all(waits) : Promise.resolve();
+      var timeout = new Promise(function (resolve) {
+        window.setTimeout(resolve, 3500);
+      });
+      Promise.race([ready, timeout]).then(function () {
+        window.setTimeout(function () {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } catch (e) {}
+        }, 80);
+      });
     };
 
     iframe.srcdoc = docHtml;
@@ -927,8 +1128,7 @@
    * No <base href> to the CRM page. If a URL still appears, disable “Headers and footers” in the print dialog.
    */
   function printFeesReceipt() {
-    fillPrintSheet();
-    printFeesSheetDom();
+    prepareAndPrintPayload(buildPrintPayloadFromForm());
   }
 
   function valById(id) {
@@ -1019,7 +1219,18 @@
     var tpl = document.getElementById('fees-print-copy-tpl');
     if (!duplex || !tpl) return;
     var existing = duplex.querySelector('.fees-print__copy');
-    if (existing && existing.querySelector('.fees-print__copy-foot') && existing.querySelector('.js-print-org-address') && existing.querySelector('.fees-print__signs') && existing.querySelector('.fees-print__doc-title')) return;
+    var payWrapExisting = existing && existing.querySelector('.js-print-payments-wrap');
+    var paymentsOk = !!(payWrapExisting && payWrapExisting.parentNode === existing);
+    if (
+      existing &&
+      paymentsOk &&
+      existing.querySelector('.fees-print__copy-foot') &&
+      existing.querySelector('.js-print-org-address') &&
+      existing.querySelector('.fees-print__signs') &&
+      existing.querySelector('.fees-print__doc-title')
+    ) {
+      return;
+    }
     duplex.innerHTML = '';
 
     var labels = ['Parent copy', 'Office copy'];
@@ -1058,16 +1269,50 @@
       var stu = copy.querySelector('.js-print-student-lines');
       if (stu) stu.innerHTML = payload.studentHtml || '';
 
+      var photoWrap = copy.querySelector('.js-print-student-photo');
+      if (!photoWrap && stu && stu.parentNode) {
+        photoWrap = document.createElement('div');
+        photoWrap.className = 'fees-print__student-photo js-print-student-photo';
+        photoWrap.hidden = true;
+        photoWrap.innerHTML = '<img alt="" />';
+        var head = stu.parentNode.querySelector('.fees-print__student-head');
+        if (head) head.appendChild(photoWrap);
+        else stu.parentNode.insertBefore(photoWrap, stu);
+      }
+      if (photoWrap) {
+        var pimg = photoWrap.querySelector('img');
+        if (isPrintablePhotoSrc(payload.studentPhotoUrl)) {
+          photoWrap.hidden = false;
+          if (pimg) {
+            pimg.removeAttribute('alt');
+            pimg.alt = '';
+            pimg.src = payload.studentPhotoUrl;
+          }
+        } else {
+          photoWrap.hidden = true;
+          if (pimg) {
+            pimg.removeAttribute('src');
+            pimg.alt = '';
+          }
+        }
+      }
+
       var payLines = copy.querySelector('.js-print-payment-lines');
       if (payLines) payLines.innerHTML = payload.paymentHtml || '';
 
       var payX = copy.querySelector('.js-print-payment-extra');
-      if (payX) payX.innerHTML = payload.paymentExtraHtml || '';
+      if (payX) {
+        payX.innerHTML = payload.paymentExtraHtml || '';
+        payX.hidden = !payload.paymentExtraHtml;
+      }
 
       var payWrap = copy.querySelector('.js-print-payments-wrap');
       var payBody = copy.querySelector('.js-print-payments-tbody');
       if (payBody) payBody.innerHTML = payload.paymentsRowsHtml || '';
-      if (payWrap) payWrap.style.display = payload.showPayments ? '' : 'none';
+      if (payWrap) {
+        payWrap.hidden = !payload.showPayments;
+        payWrap.style.removeProperty('display');
+      }
 
       var feeGrid = copy.querySelector('.js-print-fee-grid');
       if (feeGrid) feeGrid.innerHTML = payload.feeGridHtml || '';
@@ -1150,12 +1395,17 @@
     var installBuilt = buildInstallRowsHtml(installRows);
     var branchRaw = txtById('fees-disp-branch');
     var payBuilt = buildPaymentRowsHtml(collectPaymentHistoryFromDom() || []);
+    if (payBuilt.count > 0) {
+      extraParts = [];
+    }
 
     return {
       receiptId: rid ? rid.textContent.trim() : '—',
       receiptDate: rdate ? rdate.textContent.trim() : '—',
       branchAddress: getBranchOfficeAddress(branchRaw),
       studentHtml: studentHtml,
+      studentImgKey: currentStudentImgKey(),
+      studentPhotoUrl: '',
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
       paymentsRowsHtml: payBuilt.html,
@@ -1182,7 +1432,7 @@
     var studentHtml = [
       ['Name', rstr(row.name)],
       ['Student ID', rstr(row.student_id)],
-      ['Phone', rstr(row.phone)],
+      ['Phone', preferredContactPhone(findCachedStudent(row), row.phone)],
       ['DOB', dobDisp],
       ['Batch', rstr(row.batch)],
       ['Branch', rstr(row.branch)],
@@ -1281,12 +1531,15 @@
       }
     }
     var payBuilt = buildPaymentRowsHtml(payHist);
+    if (payBuilt.count > 0) extraParts = [];
 
     return {
       receiptId: rstr(row.receipt_id) || '—',
       receiptDate: formatReceiptDateFromApi(row.receipt_date),
       branchAddress: getBranchOfficeAddress(row.branch),
       studentHtml: studentHtml,
+      studentImgKey: studentImgKey(findCachedStudent(row) || row),
+      studentPhotoUrl: '',
       paymentHtml: paymentHtml,
       paymentExtraHtml: extraParts.length ? extraParts.join('') : '',
       paymentsRowsHtml: payBuilt.html,
@@ -1301,6 +1554,28 @@
 
   function fillPrintSheet() {
     renderPrintCopies(buildPrintPayloadFromForm());
+  }
+
+  function prepareAndPrintPayload(payload) {
+    if (!payload) return;
+    renderPrintCopies(payload);
+    var key = payload.studentImgKey || '';
+    var startUrl = '';
+    if (isPrintablePhotoSrc(payload.studentPhotoUrl)) startUrl = payload.studentPhotoUrl;
+    if (!startUrl) startUrl = liveStudentPhotoSrc();
+    var resolved = startUrl
+      ? Promise.resolve(startUrl)
+      : resolveStudentPhotoUrl(key);
+    resolved
+      .then(function (url) {
+        if (!isPrintablePhotoSrc(url)) return '';
+        return photoSrcToDataUrl(url);
+      })
+      .then(function (src) {
+        payload.studentPhotoUrl = isPrintablePhotoSrc(src) ? src : '';
+        renderPrintCopies(payload);
+        printFeesSheetDom();
+      });
   }
 
   function rstr(v) {
@@ -1368,8 +1643,8 @@
   }
 
   function printFeesReceiptFromRecord(row) {
-    fillPrintSheetFromRecord(row);
-    printFeesSheetDom();
+    var payload = buildPrintPayloadFromRecord(row);
+    if (payload) prepareAndPrintPayload(payload);
   }
 
   var feesEditState = { id: null, email: null };
@@ -1475,7 +1750,7 @@
     if (studentDetail) studentDetail.hidden = false;
     setDispText('fees-disp-name', row.name);
     setDispText('fees-disp-student-id', row.student_id);
-    setDispText('fees-disp-phone', row.phone);
+    setDispText('fees-disp-phone', preferredContactPhone(findCachedStudent(row), row.phone));
     var dobDisp = '—';
     if (row.dob) {
       var ds = String(row.dob).slice(0, 10);
@@ -1485,6 +1760,7 @@
     setDispText('fees-disp-batch', row.batch);
     setDispText('fees-disp-branch', row.branch);
     setDispText('fees-disp-address', row.address);
+    showFeesStudentPhoto(findCachedStudent(row) || row);
 
     var payMode = String(row.payement_mode || '').toLowerCase();
     setInputVal('fees-pay-mode', payMode);
@@ -1600,6 +1876,7 @@
         setDispText(id, '—');
       }
     );
+    hideFeesStudentPhoto();
 
     setInputVal('fees-pay-mode', '');
     var modeEl = document.getElementById('fees-pay-mode');
@@ -1857,7 +2134,7 @@
           kvRow('Student ID', row.student_id) +
             kvRow('Name', row.name) +
             kvRow('Email', row.email) +
-            kvRow('Phone', row.phone) +
+            kvRow('Phone', preferredContactPhone(findCachedStudent(row), row.phone)) +
             kvRow('DOB', row.dob) +
             kvRow('Batch', row.batch) +
             kvRow('Branch', row.branch) +
@@ -2101,6 +2378,7 @@
         rstr(row.student_id) + ' ' +
         rstr(row.branch) + ' ' +
         rstr(row.phone) + ' ' +
+        rstr(row.parents_number) + ' ' +
         rstr(row.receipt_id) + ' ' +
         rstr(row.email)
       ).toLowerCase();
@@ -2451,7 +2729,12 @@
       }
 
       function onSaveSucceeded() {
-        feesLastSavedPrintPayload = buildPrintPayloadFromForm();
+        var savedPayload = buildPrintPayloadFromForm();
+        resolveStudentPhotoUrl(savedPayload.studentImgKey).then(function (url) {
+          savedPayload.studentPhotoUrl = url || '';
+          feesLastSavedPrintPayload = savedPayload;
+        });
+        feesLastSavedPrintPayload = savedPayload;
         if (isUpdate) {
           clearFeesEditMode();
         } else {
@@ -2545,8 +2828,7 @@
 
     function runPrint() {
       if (feesLastSavedPrintPayload) {
-        renderPrintCopies(feesLastSavedPrintPayload);
-        printFeesSheetDom();
+        prepareAndPrintPayload(feesLastSavedPrintPayload);
         return;
       }
       if (!isFeesFormComplete()) return;
@@ -2628,6 +2910,7 @@
         var el = disp[k];
         if (el) el.textContent = '—';
       });
+      hideFeesStudentPhoto();
       updateFeesActionsBar();
     }
 
@@ -2636,11 +2919,12 @@
       detail.hidden = false;
       if (disp.name) disp.name.textContent = s.name || '—';
       if (disp.sid) disp.sid.textContent = s.student_id != null ? String(s.student_id) : '—';
-      if (disp.phone) disp.phone.textContent = s.phone != null ? String(s.phone) : '—';
+      if (disp.phone) disp.phone.textContent = preferredContactPhone(s);
       if (disp.dob) disp.dob.textContent = formatDobDisplay(s.dob);
       if (disp.batch) disp.batch.textContent = s.batch || '—';
       if (disp.branch) disp.branch.textContent = s.branch || '—';
       if (disp.address) disp.address.textContent = s.address || '—';
+      showFeesStudentPhoto(s);
     }
 
     function selectStudent(s) {
@@ -2661,7 +2945,8 @@
         var name = String(s.name || '').toLowerCase();
         var id = String(s.student_id != null ? s.student_id : '');
         var phone = String(s.phone != null ? s.phone : '');
-        return name.indexOf(t) >= 0 || id.indexOf(t) >= 0 || phone.indexOf(t) >= 0;
+        var parentPhone = String(s.parents_number != null ? s.parents_number : s.parentsNumber || '');
+        return name.indexOf(t) >= 0 || id.indexOf(t) >= 0 || phone.indexOf(t) >= 0 || parentPhone.indexOf(t) >= 0;
       });
       return base.slice(0, 50);
     }
@@ -2683,7 +2968,7 @@
           'ID ' +
           (s.student_id != null ? s.student_id : '—') +
           ' · ' +
-          (s.phone != null ? s.phone : '—');
+          preferredContactPhone(s);
         li.appendChild(nameDiv);
         li.appendChild(meta);
         li.addEventListener('mousedown', function (e) {
@@ -2779,7 +3064,13 @@
         }
         students = Array.isArray(data) ? data : [];
         if (window.CrmBranchScope) students = CrmBranchScope.filterStudents(students);
+        feesStudentsCache = students;
         hasLoaded = true;
+        var selectedId = hiddenId.value;
+        if (selectedId) {
+          var already = findCachedStudent({ student_id: selectedId });
+          if (already) showFeesStudentPhoto(already);
+        }
         setStatus(
           students.length
             ? students.length + ' students — type to filter and select.'
@@ -2788,6 +3079,7 @@
       } catch (err) {
         setStatus(err.message || 'Could not load student list', true);
         students = [];
+        feesStudentsCache = [];
       } finally {
         isLoading = false;
       }

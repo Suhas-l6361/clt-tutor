@@ -1782,6 +1782,9 @@
       getFeesRows: function () {
         return feesCache || [];
       },
+      getStudents: function () {
+        return dashboardStudents || [];
+      },
       reapplyBranchFilter: function () {
         if (!rawStudents.length && !rawFees.length) return feesCache || [];
         return paintFromRaw();

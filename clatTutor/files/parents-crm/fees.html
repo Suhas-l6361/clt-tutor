@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fees — Parent</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260815f" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body parent-portal-body">
+  <div id="stock" style="display: none">
+    <div class="pp-wrap">
+      <section class="pp-hero">
+        <p class="pp-hero__eyebrow">Fees</p>
+        <h2>Payments &amp; receipts</h2>
+        <p>Fee payments recorded for your child. Contact the institute if anything looks incorrect.</p>
+      </section>
+      <div class="pp-stats">
+        <div class="pp-stat"><span class="pp-stat__label">Receipts</span><strong id="pf-count">0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Total paid</span><strong id="pf-paid">₹0</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Latest</span><strong id="pf-latest">—</strong></div>
+        <div class="pp-stat"><span class="pp-stat__label">Branch</span><strong id="pf-branch" style="font-size:1.05rem">—</strong></div>
+      </div>
+      <section class="pp-card">
+        <h3>Fee history</h3>
+        <p class="pp-card__lead" id="pf-status">Loading fees…</p>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Batch / Branch</th>
+              </tr>
+            </thead>
+            <tbody id="pf-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+  <script src="../js/config.js?v=20260815a"></script>
+  <script src="../js/auth.js?v=20260815a"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260815b"></script>
+  <script src="../js/parent-portal.js?v=20260815f"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initAppChrome({ role: 'parent', active: 'fees.html', title: 'Fees', contentEl: document.getElementById('stock') });
+      var PP = window.ParentPortal;
+      if (!PP) return;
+      var u = PP.parentUser();
+      if (u && u.branch) document.getElementById('pf-branch').textContent = u.branch;
+      PP.loadFees().then(function (rows) {
+        var sum = PP.summarizeFees(rows);
+        document.getElementById('pf-count').textContent = String(sum.count);
+        document.getElementById('pf-paid').textContent = PP.money(sum.paid);
+        if (rows[0]) {
+          document.getElementById('pf-latest').textContent = PP.formatDate(rows[0].receipt_date || rows[0].created_at);
+        }
+        var status = document.getElementById('pf-status');
+        var tbody = document.getElementById('pf-tbody');
+        if (!rows.length) {
+          status.textContent = 'No fee receipts found for your child yet.';
+          tbody.innerHTML = '<tr><td colspan="4" class="pp-empty">Nothing to show</td></tr>';
+          return;
+        }
+        status.textContent = rows.length + ' receipt(s) linked to student ID ' + (u && u.student_id ? u.student_id : '') + '.';
+        tbody.innerHTML = rows.map(function (r) {
+          return '<tr><td>' + PP.escapeHtml(r.receipt_id || r.id || '—') + '</td><td>' +
+            PP.escapeHtml(PP.formatDate(r.receipt_date || r.created_at)) + '</td><td><strong>' +
+            PP.escapeHtml(PP.money(PP.feeAmount(r))) + '</strong></td><td>' +
+            PP.escapeHtml((r.batch || '—') + ' · ' + (r.branch || '—')) + '</td></tr>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('pf-status').textContent = (err && err.message) || 'Could not load fees.';
+      });
+    });
+  </script>
+</body>
+</html>

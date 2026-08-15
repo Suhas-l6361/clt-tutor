@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../vendor/flatpickr/flatpickr.min.css" />
-  <link rel="stylesheet" href="../css/fees.css?v=20260729pay3" />
+  <link rel="stylesheet" href="../css/fees.css?v=20260815print4" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard fees-page">
@@ -91,7 +91,11 @@
 
                   <div id="fees-student-detail" class="fees-student-detail fees-field--span2" hidden>
                     <div class="fees-student-detail__title">Student details</div>
-                    <dl class="fees-kv">
+                    <div class="fees-student-detail__body">
+                      <div id="fees-disp-photo" class="fees-student-photo" hidden>
+                        <img id="fees-disp-photo-img" alt="" />
+                      </div>
+                      <dl class="fees-kv">
                       <div class="fees-kv__row">
                         <dt>Name</dt>
                         <dd id="fees-disp-name">—</dd>
@@ -121,6 +125,7 @@
                         <dd id="fees-disp-address">—</dd>
                       </div>
                     </dl>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -469,28 +474,18 @@
               <div class="fees-print__grid-2col">
                 <div class="fees-print__stack">
                   <div class="fees-print__card">
-                    <div class="fees-print__title">Student</div>
+                    <div class="fees-print__student-head">
+                      <div class="fees-print__title">Student</div>
+                      <div class="fees-print__student-photo js-print-student-photo" hidden>
+                        <img alt="" />
+                      </div>
+                    </div>
                     <div class="fees-print__lines js-print-student-lines"></div>
                   </div>
                   <div class="fees-print__card">
                     <div class="fees-print__title">Payment</div>
                     <div class="fees-print__lines js-print-payment-lines"></div>
                     <div class="fees-print__lines js-print-payment-extra"></div>
-                    <div class="fees-print__payments js-print-payments-wrap" style="display:none">
-                      <div class="fees-print__subtitle">Payments received</div>
-                      <table class="fees-print__table fees-print__table--payments">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Date</th>
-                            <th>Mode</th>
-                            <th>Details</th>
-                            <th class="fees-print__num">Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody class="js-print-payments-tbody"></tbody>
-                      </table>
-                    </div>
                   </div>
                 </div>
                 <div class="fees-print__stack">
@@ -518,6 +513,21 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="fees-print__payments js-print-payments-wrap" hidden>
+              <div class="fees-print__subtitle">Payments received</div>
+              <table class="fees-print__table fees-print__table--payments">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Mode</th>
+                    <th>Details</th>
+                    <th class="fees-print__num">Amount</th>
+                  </tr>
+                </thead>
+                <tbody class="js-print-payments-tbody"></tbody>
+              </table>
             </div>
             <footer class="fees-print__copy-foot">
               <div class="fees-print__signs">
@@ -664,7 +674,8 @@
   <script src="../js/crm-chrome.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
   <script src="../js/fees-installments.js?v=20260630b"></script>
-  <script src="../js/fees-page.js?v=20260729pay2"></script>
+  <script src="../js/student-chrome.js"></script>
+  <script src="../js/fees-page.js?v=20260815print4"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
