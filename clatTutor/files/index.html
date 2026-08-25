@@ -18,7 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/header-nav.css" />
-  <link rel="stylesheet" href="css/index.css?v=20260723claim4" />
+  <link rel="stylesheet" href="css/index.css?v=20260825sideinfo" />
   <link rel="stylesheet" href="css/modal.css?v=20260715m2" />
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
@@ -96,6 +96,7 @@
   <script src="js/site-protection.js" data-protection-mode="public" defer></script>
   <script src="js/branch-home.js" defer></script>
   <script src="js/hero-testimonials-carousel.js" defer></script>
+  <script src="js/home-slider.js?v=20260825slidefill" defer></script>
 </head>
 <body class="page-public">
   <div class="site-top-bars" id="site-top-bars">
@@ -325,71 +326,72 @@
           <span class="ws-home-offer__live">Seats filling fast</span>
           <span class="ws-home-offer__exam">CLAT Dec 2026</span>
         </div>
-        <h2 class="ws-home-offer__title">
-          Master <em>CLAT GK &amp; Current Affairs</em> in one <span class="ws-home-offer__nowrap">4-hour</span> workshop
-        </h2>
-        <p class="ws-home-offer__hook">
-          Taught by NLS Bangalore faculty &amp; rank holders
-        </p>
-        <ul class="ws-home-offer__perks" aria-label="Workshop highlights">
-          <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Jan–July CA Compendium</li>
-          <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 2 Bangalore Centres</li>
-          <li><i class="fa-solid fa-star" aria-hidden="true"></i> Mock Marathon Access</li>
-        </ul>
-        <div class="ws-home-offer__action">
-          <a
-            href="#ws-reg-modal"
-            class="ws-home-offer__cta"
-            id="ws-open-register"
-            role="button"
-            aria-haspopup="dialog"
-            aria-controls="ws-reg-modal"
-            onclick="return window.openClaimSeatPopup(event);"
-          >
-            <span class="ws-home-offer__cta-label">Claim your seat</span>
+        <div class="ws-home-mini-slider" data-home-slider aria-label="Featured slides">
+          <div class="ws-home-mini-slider__viewport">
+            <div class="ws-home-mini-slider__slide is-active" data-home-slide aria-hidden="false">
+              <a class="ws-home-mini-slider__link" href="html_files/admission.html">
+                <img
+                  src="image/slide%20one.jpeg"
+                  alt="CLAT Score Booster Series. Click to enroll."
+                  decoding="async"
+                />
+              </a>
+            </div>
+            <div class="ws-home-mini-slider__slide" data-home-slide aria-hidden="true">
+              <a class="ws-home-mini-slider__link" href="html_files/admission.html">
+                <img
+                  src="image/slide%202.jpeg"
+                  alt="Online programmes for CLAT. Click to enroll."
+                  decoding="async"
+                />
+              </a>
+            </div>
+          </div>
+          <div class="ws-home-mini-slider__dots" role="group" aria-label="Choose slide">
+            <button type="button" class="ws-home-mini-slider__dot is-active" data-home-slider-dot aria-label="Show slide 1" aria-current="true"></button>
+            <button type="button" class="ws-home-mini-slider__dot" data-home-slider-dot aria-label="Show slide 2"></button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="ws-home-offer__visual" aria-label="Batch details and enrollment">
+        <div class="ws-home-side">
+          <p class="ws-home-side__eyebrow">New batch opening</p>
+          <h2 class="ws-home-side__title">CLAT Dec 2026 / 2027</h2>
+          <p class="ws-home-side__date">
+            <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+            <span>Starts <strong>30 August</strong></span>
+          </p>
+          <ul class="ws-home-side__facts">
+            <li>
+              <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+              <span><strong>NLS faculty</strong> Expert classroom guidance</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+              <span><strong>Since 2008</strong> Bangalore’s trusted coaching</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-users" aria-hidden="true"></i>
+              <span><strong>50+ seats</strong> per centre</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+              <span><strong>Mocks &amp; analysis</strong> Latest CLAT pattern</span>
+            </li>
+          </ul>
+          <a class="ws-home-offer__cta" href="html_files/admission.html">
+            <span class="ws-home-offer__cta-label">Enroll now</span>
             <span class="ws-home-offer__cta-arrow" aria-hidden="true">
               <i class="fa-solid fa-arrow-right"></i>
             </span>
           </a>
           <p class="ws-home-offer__cta-note">
-            <i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i>
-            <span>Workshop fee ₹49 · Pay via bank or GPay &amp; upload screenshot</span>
-          </p>
-          <p class="ws-home-offer__cta-note">
             <i class="fa-solid fa-phone" aria-hidden="true"></i>
-            <span>Contact / reach: <a href="tel:+918747884422">8747884422</a></span>
+            <span>Call / WhatsApp: <a href="tel:+918150884422">8150884422</a></span>
           </p>
         </div>
-      </div>
-
-      <div class="ws-home-offer__visual">
-        <div class="ws-home-offer__glow" aria-hidden="true"></div>
-        <div class="ws-home-offer__ring" aria-hidden="true"></div>
-        <div class="ws-home-offer__dots" aria-hidden="true"></div>
-        <div class="ws-home-offer__portrait">
-          <img
-            class="ws-home-offer__girl"
-            src="image/girl-image.png"
-            alt="CLATutor student with CLAT GK &amp; CA book"
-            width="560"
-            height="560"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </div>
-        <div class="ws-home-offer__float ws-home-offer__float--rank">
-          <span class="ws-home-offer__float-icon" aria-hidden="true"><i class="fa-solid fa-star"></i></span>
-          <span class="ws-home-offer__float-text"><strong>Rank Holders</strong> Learn from the Best</span>
-        </div>
-        <div class="ws-home-offer__float ws-home-offer__float--seats">
-          <span class="ws-home-offer__float-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span>
-          <span class="ws-home-offer__float-text"><strong>50+</strong> Seats per Centre</span>
-        </div>
-        <div class="ws-home-offer__float ws-home-offer__float--faculty">
-          <span class="ws-home-offer__float-icon" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
-          <span class="ws-home-offer__float-text"><strong>NLS Faculty</strong> Expert Guidance</span>
-        </div>
-      </div>
+      </aside>
     </div>
 
     <div class="ws-nls-strip" aria-label="NLS Bangalore rank holders">
@@ -1027,7 +1029,8 @@
           Copyright © 2021 CLATutor.com by MTe., All Rights Reserved
         </p>
         <nav class="site-footer__legal" aria-label="Legal">
-          <a href="html_files/terms-and-conditions-privacy-policy.html">Terms and Conditions &mdash; Privacy Policy</a>
+          <a href="html_files/terms-and-conditions-privacy-policy.html">Terms and Conditions</a>
+          <a href="html_files/privacy-policy.html">Privacy Policy</a>
         </nav>
       </div>
     </div>
@@ -1049,18 +1052,22 @@
         <p class="ws-modal__kicker">CLAT GK Workshop</p>
         <h2 id="ws-reg-title" class="ws-modal__title">Claim your seat</h2>
         <p id="ws-reg-desc" class="ws-modal__lead">
-          4-hour GK &amp; Current Affairs session with NLS Bangalore faculty and rank holders.
+          Taught by NLS Bangalore faculty and rank holders.
         </p>
       </div>
       <div class="ws-modal__step" id="ws-step-info" data-step="info">
         <ul class="ws-info-highlights">
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
-            <span><strong>Jan–July CA Compendium</strong> included</span>
+            <span><strong>Online GK workshop</strong> — 23 Aug 2026, Sunday 10:00 AM to 2:30 PM</span>
           </li>
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
-            <span><strong>2 Bangalore centres</strong></span>
+            <span><strong>Offline Jayanagar</strong> — 22 Aug 2026, Saturday 3:00 PM to 7:00 PM</span>
+          </li>
+          <li>
+            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
+            <span><strong>Jan–July CA Compendium</strong> included</span>
           </li>
           <li>
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
@@ -1070,10 +1077,6 @@
             <span class="ws-info-highlights__mark" aria-hidden="true"></span>
             <span><strong>Workshop fee ₹49</strong> — pay &amp; upload screenshot</span>
           </li>
-          <li>
-            <span class="ws-info-highlights__mark" aria-hidden="true"></span>
-            <span><strong>50 seats</strong> per centre — register early</span>
-          </li>
         </ul>
         <p class="ws-info-meta">Fee ₹49 · Bank transfer or GPay · Upload payment screenshot to confirm</p>
         <button type="button" class="ws-reg-form__submit ws-info-next" id="ws-info-next">
@@ -1081,17 +1084,17 @@
         </button>
       </div>
       <div class="ws-modal__step" id="ws-step-branch" data-step="branch" hidden>
-        <p class="ws-modal__step-label">Select centre</p>
+        <p class="ws-modal__step-label">Select session</p>
         <div class="ws-branch-grid" role="list">
-          <button type="button" class="ws-branch-card" data-branch="Yelahanka" data-date="15 Aug 2026" role="listitem">
-            <span class="ws-branch-card__city">Yelahanka</span>
-            <span class="ws-branch-card__date">15 Aug 2026</span>
-            <span class="ws-branch-card__mode">Offline · Bangalore</span>
+          <button type="button" class="ws-branch-card ws-branch-card--online" data-branch="Online" data-date="23 Aug 2026 · Sunday 10:00 AM to 2:30 PM" role="listitem">
+            <span class="ws-branch-card__city">Online GK workshop</span>
+            <span class="ws-branch-card__date">23 Aug 2026</span>
+            <span class="ws-branch-card__mode">Sunday · 10:00 AM to 2:30 PM</span>
           </button>
-          <button type="button" class="ws-branch-card" data-branch="Malleshwaram" data-date="15 Aug 2026" role="listitem">
-            <span class="ws-branch-card__city">Malleshwaram</span>
-            <span class="ws-branch-card__date">15 Aug 2026</span>
-            <span class="ws-branch-card__mode">Offline · Bangalore</span>
+          <button type="button" class="ws-branch-card" data-branch="Jayanagar" data-date="22 Aug 2026 · Saturday 3:00 PM to 7:00 PM" role="listitem">
+            <span class="ws-branch-card__city">Offline Jayanagar</span>
+            <span class="ws-branch-card__date">22 Aug 2026</span>
+            <span class="ws-branch-card__mode">Saturday · 3:00 PM to 7:00 PM</span>
           </button>
         </div>
         <button type="button" class="ws-reg-form__back" id="ws-branch-back">
@@ -1272,7 +1275,7 @@
   <script src="js/data-store.js"></script>
   <script src="js/public-forms-api.js"></script>
   <script src="js/friendly-popup.js"></script>
-  <script src="js/workshop-register.js?v=20260730ok1"></script>
+  <script src="js/workshop-register.js?v=20260816gk3"></script>
   <script>
     (function () {
       function closeClaimSeatPopup() {

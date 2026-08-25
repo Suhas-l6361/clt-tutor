@@ -30,7 +30,7 @@
   z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(300px, 420px);
-  align-items: center;
+  align-items: stretch;
   gap: clamp(1rem, 2.5vw, 2rem);
   max-width: 1180px;
   margin: 0 auto;
@@ -39,6 +39,8 @@
 
 .ws-home-offer__copy {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .ws-home-offer__top {
@@ -92,6 +94,87 @@
   color: var(--ws-blue);
 }
 
+.ws-home-mini-slider {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0.45rem 0 0;
+  max-width: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.ws-home-mini-slider__viewport {
+  position: relative;
+}
+
+.ws-home-mini-slider__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.ws-home-mini-slider__slide.is-active {
+  position: relative;
+  inset: auto;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.ws-home-mini-slider__slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: top center;
+}
+
+.ws-home-mini-slider__link {
+  display: block;
+  cursor: pointer;
+}
+
+.ws-home-mini-slider__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.4rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transform: translateX(-50%);
+}
+
+.ws-home-mini-slider__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(11, 31, 68, 0.28);
+  cursor: pointer;
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.ws-home-mini-slider__dot.is-active {
+  width: 1rem;
+  background: var(--ws-gold);
+}
+
+.ws-home-mini-slider__dot:focus-visible {
+  outline: 2px solid var(--ws-gold);
+  outline-offset: 2px;
+}
+
 .ws-home-offer__nowrap {
   white-space: nowrap;
 }
@@ -103,6 +186,58 @@
   font-weight: 500;
   line-height: 1.4;
   color: #334155;
+}
+
+.ws-home-offer__sessions {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 28rem;
+}
+
+.ws-home-offer__sessions li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  background: #fff;
+  border: 1px solid #dbe7ff;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.ws-home-offer__sessions li i {
+  margin-top: 0.18rem;
+  color: var(--ws-blue);
+  font-size: 0.85rem;
+  width: 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.ws-home-offer__sessions li span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.ws-home-offer__sessions li strong {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ws-ink);
+}
+
+.ws-home-offer__sessions li span span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .ws-home-offer__perks {
@@ -167,8 +302,7 @@
   overflow: hidden;
 }
 
-/* Decorative hero art must never steal clicks from Claim your seat */
-.ws-home-offer__visual,
+/* Decorative leftover art must never steal clicks */
 .ws-home-offer__float,
 .ws-home-offer__glow,
 .ws-home-offer__dots {
@@ -232,17 +366,117 @@
 
 .ws-home-offer__visual {
   position: relative;
-  justify-self: end;
+  justify-self: stretch;
   width: 100%;
   max-width: 400px;
   height: auto;
   min-height: 0;
-  aspect-ratio: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   isolation: isolate;
-  overflow: visible;
+}
+
+.ws-home-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 1.1rem 1.15rem 1.2rem;
+  background: #fff;
+  border: 1px solid #dbe7ff;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.ws-home-side__eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ws-blue);
+}
+
+.ws-home-side__title {
+  margin: 0.28rem 0 0;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--ws-ink);
+}
+
+.ws-home-side__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.55rem 0 0;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+}
+
+.ws-home-side__date i {
+  color: var(--ws-blue);
+}
+
+.ws-home-side__facts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.9rem 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ws-home-side__facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.ws-home-side__facts li i {
+  margin-top: 0.15rem;
+  width: 1rem;
+  color: var(--ws-gold);
+  text-align: center;
+}
+
+.ws-home-side__facts span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.ws-home-side__facts strong {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--ws-ink);
+}
+
+.ws-home-side .ws-home-offer__cta {
+  width: 100%;
+}
+
+.ws-home-side .ws-home-offer__cta-note {
+  margin-top: 0.7rem;
+}
+
+.ws-home-side .ws-home-offer__cta-note a {
+  color: var(--ws-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ws-home-side .ws-home-offer__cta-note a:hover,
+.ws-home-side .ws-home-offer__cta-note a:focus-visible {
+  text-decoration: underline;
 }
 
 /* Soft backdrop only — PNG already has its own blue circle + yellow crescent */
@@ -540,6 +774,10 @@
     animation: none;
   }
 
+  .ws-home-mini-slider__slide {
+    transition: none;
+  }
+
   .ws-nls-strip__track {
     width: 100%;
     max-width: 1100px;
@@ -572,9 +810,8 @@
   }
 
   .ws-home-offer__visual {
-    order: -1;
-    justify-self: center;
-    max-width: 280px;
+    justify-self: stretch;
+    max-width: none;
   }
 
   .ws-home-offer__portrait {

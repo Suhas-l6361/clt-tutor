@@ -302,11 +302,11 @@
       }
     }
     .exam-picker__grid--sectional {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     @media (max-width: 900px) {
       .exam-picker__grid--sectional {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
     @media (max-width: 560px) {
@@ -351,6 +351,7 @@
     .exam-pick-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
     .exam-pick-card__icon--purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
     .exam-pick-card__icon--rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .exam-pick-card__icon--sky { background: linear-gradient(135deg, #38bdf8, #0284c7); }
     .exam-pick-card__icon--amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .exam-pick-card--clat { border-bottom-color: #2563eb; }
     .exam-pick-card--ailet { border-bottom-color: #16a34a; }
@@ -360,6 +361,7 @@
     .exam-pick-card--logical { border-bottom-color: #4f46e5; }
     .exam-pick-card--legal { border-bottom-color: #9333ea; }
     .exam-pick-card--math { border-bottom-color: #e11d48; }
+    .exam-pick-card--qt { border-bottom-color: #0284c7; }
     .exam-pick-card--gk { border-bottom-color: #d97706; }
     .exam-pick-card__title {
       margin: 0;
@@ -2765,9 +2767,9 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=202607171"></script>
+  <script src="../js/exam-question-parser.js?v=20260822qt2"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
-  <script src="../js/test-subject-flags.js"></script>
+  <script src="../js/test-subject-flags.js?v=20260822qt2"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/student-access.js"></script>
@@ -2795,16 +2797,30 @@
           .replace(/\s+/g, ' ');
       }
 
+      function isTruthyTestFlag(v) {
+        return v === true || v === 1 || v === '1' || String(v).toLowerCase() === 'true';
+      }
+
       function classifyTestRow(row) {
+        if (!row) return { kind: 'mock', category: 'CLAT' };
+        if (isTruthyTestFlag(row.isQT)) return { kind: 'sectional', category: 'QT' };
+        var rowKind = String(row.test_kind || '').trim().toLowerCase();
+        var rowCat = String(row.test_category || '').trim();
+        if (rowKind === 'sectional' && /^qt$/i.test(rowCat)) {
+          return { kind: 'sectional', category: 'QT' };
+        }
         if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.classifyTestRow) {
           return TestSubjectFlags.classifyTestRow(row);
         }
-        if (!row) return { kind: 'mock', category: 'CLAT' };
         return { kind: 'mock', category: 'CLAT' };
       }
 
       function rowMatchesPicker(row, filter) {
         if (!filter || !filter.kind || !filter.category) return false;
+        if (normPickerKey(filter.kind) === 'sectional' && normPickerKey(filter.category) === 'qt') {
+          if (isTruthyTestFlag(row && row.isQT)) return true;
+          if (normPickerKey(row && row.test_category) === 'qt') return true;
+        }
         if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.rowMatchesTestFilter) {
           return TestSubjectFlags.rowMatchesTestFilter(row, filter);
         }
@@ -2892,6 +2908,14 @@
               iconClass: 'exam-pick-card__icon--rose',
               fa: 'fa-calculator',
               desc: 'Improve numerical ability with structured practice.',
+            },
+            {
+              category: 'QT',
+              title: 'QT',
+              cardClass: 'exam-pick-card--qt',
+              iconClass: 'exam-pick-card__icon--sky',
+              fa: 'fa-chart-column',
+              desc: 'Quantitative Techniques — charts, tables, and data interpretation.',
             },
             {
               category: 'GK',
@@ -3300,6 +3324,7 @@
 
         function pickerCategoryLabel(category) {
           if (category === 'Logical') return 'LOGIC';
+          if (/^qt$/i.test(String(category || ''))) return 'QT';
           return category;
         }
 
@@ -4353,13 +4378,14 @@
           );
         }
 
-        var ANALYSIS_SECTION_ORDER = ['English', 'Logical', 'Legal', 'GK', 'Math', 'Other'];
+        var ANALYSIS_SECTION_ORDER = ['English', 'Logical', 'Legal', 'GK', 'Math', 'QT', 'Other'];
         var ANALYSIS_SECTION_ICONS = {
           English: 'fa-book',
           Logical: 'fa-brain',
           Legal: 'fa-scale-balanced',
           GK: 'fa-globe',
           Math: 'fa-calculator',
+          QT: 'fa-chart-column',
           Other: 'fa-layer-group',
         };
         var ANALYSIS_SECTION_COLORS = {
@@ -4368,6 +4394,7 @@
           Legal: '#8b5cf6',
           GK: '#f59e0b',
           Math: '#ec4899',
+          QT: '#0284c7',
           Other: '#64748b',
         };
         var CLAT_MOCK_SECTION_RANGES = [
@@ -4385,6 +4412,7 @@
           if (/english|language|^rc$/i.test(low)) return 'English';
           if (/logical|reasoning|^lr$/i.test(low) && !/legal/i.test(low)) return 'Logical';
           if (/legal|^le$/i.test(low)) return 'Legal';
+          if (/\bqt\b|quantitative techniques/i.test(low)) return 'QT';
           if (/gk|general knowledge|current affairs/i.test(low)) return 'GK';
           if (/math|quant|quantitative|^qa$/i.test(low)) return 'Math';
           return s.charAt(0).toUpperCase() + s.slice(1);
@@ -4398,7 +4426,8 @@
           if (/^GK$/.test(ctx)) return 'GK';
           if (/^LE$/.test(ctx)) return 'Legal';
           if (/^LR$/.test(ctx)) return 'Logical';
-          if (/^(QA|QT|MATH)$/.test(ctx)) return 'Math';
+          if (/^QT$/.test(ctx)) return 'QT';
+          if (/^(QA|MATH)$/.test(ctx)) return 'Math';
           var classified = classifyTestRow(row);
           if (classified.kind === 'sectional' && classified.category) {
             return normalizeAnalysisSectionLabel(classified.category);

@@ -228,4 +228,60 @@ run(
   }
 );
 
+run(
+  'Legal sectional — keep full-CLAT numbering Q53–Q84, do not require Q1',
+  [
+    '((Legal Starts))',
+    '(Paragraph starts)',
+    'Section 15 of the POCSO Act recognises three distinct offences.',
+    '(Paragraph ends)',
+    '53. Vikram owns a popular online gaming platform. What follows?',
+    'A. Intent to monetize is enough',
+    'B. Profit must be proven',
+    'C. Delete before sharing',
+    'D. User-generated content is exempt',
+    '54. Can the court proceed on prima facie evidence?',
+    'A. No, download origin is unknown',
+    'B. No, he did not create the images',
+    'C. Yes, metadata proves distribution',
+    'D. Yes, forensic report is enough',
+    '((Legal Ends))',
+  ].join('\n'),
+  { kind: 'sectional', category: 'Legal', expectedQuestionCount: 2 },
+  function (r) {
+    assert(r.questions.length === 2, 'expected 2 questions, got ' + r.questions.length);
+    assert(r.questions[0].number === 53 && r.questions[1].number === 54, 'must keep Q53–Q54');
+    assert(!r.missingNumbers || r.missingNumbers.length === 0, 'must not treat Q1–Q52 as missing');
+    assert(!r.missingNumbers || !r.missingNumbers.some(function (n) { return n < 53; }), 'no missing before first found Q');
+  }
+);
+
+run(
+  'QT sectional — Quantitative Techniques markers and QT tag',
+  [
+    '((QT Starts))',
+    '(Paragraph starts)',
+    'The bar graph shows monthly sales of four products.',
+    '(Paragraph ends)',
+    '1. Which product had the highest sales in March?',
+    'A. P',
+    'B. Q',
+    'C. R',
+    'D. S',
+    'QT',
+    '2. What is the average of the given values?',
+    'A. 10',
+    'B. 12',
+    'C. 15',
+    'D. 18',
+    '((QT Ends))',
+  ].join('\n'),
+  { kind: 'sectional', category: 'QT', expectedQuestionCount: 2 },
+  function (r) {
+    assert(r.questions.length === 2, 'expected 2 QT questions, got ' + r.questions.length);
+    assert(r.questions[0].number === 1 && r.questions[1].number === 2, 'Q1 Q2');
+    assert(!r.missingNumbers || r.missingNumbers.length === 0, 'no missing QT numbers');
+  }
+);
+
 console.log('ALL SECTIONAL / MOCK CHECKS PASSED');

@@ -1455,11 +1455,11 @@
       white-space: nowrap;
     }
     .at-picker__grid--sectional {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     @media (max-width: 960px) {
       .at-picker__grid--sectional {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
     @media (max-width: 620px) {
@@ -1512,6 +1512,7 @@
     .at-type-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
     .at-type-card__icon--purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
     .at-type-card__icon--rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .at-type-card__icon--sky { background: linear-gradient(135deg, #38bdf8, #0284c7); }
     .at-type-card__icon--amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .at-type-card--clat { border-bottom-color: #2563eb; }
     .at-type-card--ailet { border-bottom-color: #16a34a; }
@@ -1521,6 +1522,7 @@
     .at-type-card--logical { border-bottom-color: #4f46e5; }
     .at-type-card--legal { border-bottom-color: #9333ea; }
     .at-type-card--math { border-bottom-color: #e11d48; }
+    .at-type-card--qt { border-bottom-color: #0284c7; }
     .at-type-card--gk { border-bottom-color: #d97706; }
     .at-type-card__title {
       margin: 0;
@@ -1881,6 +1883,24 @@
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
             </button>
             </div>
+            <div class="at-type-card-wrap" data-kind="sectional" data-category="QT">
+            <button
+              type="button"
+              class="at-type-card at-type-card--qt"
+              data-kind="sectional"
+              data-category="QT"
+              data-section-tag="QT"
+              data-sub="Use (QT Information starts)…(QT Information ends), (QT Paragraph starts)…(QT Paragraph ends), or ((QT Starts))…((QT Ends)). Quantitative Techniques tag also works."
+              data-placeholder="e.g. QT graphs — Set 4"
+            >
+              <span class="at-type-card__icon at-type-card__icon--sky" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>
+              <span class="at-type-card__title">QT</span>
+              <span class="at-type-card__desc">Quantitative Techniques — charts, tables, and data interpretation.</span>
+            </button>
+            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="QT">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+            </button>
+            </div>
             <div class="at-type-card-wrap" data-kind="sectional" data-category="GK">
             <button
               type="button"
@@ -1936,8 +1956,8 @@
           </div>
           <div class="at-field" style="margin-bottom: 0.75rem">
             <label for="at-question-count">Number of questions</label>
-            <input id="at-question-count" name="questionCount" type="number" min="1" max="200" step="1" required placeholder="Enter 1 to 200" inputmode="numeric" />
-            <p class="at-hint" style="margin: 0.35rem 0 0">The question paper parser will read up to this question number.</p>
+            <input id="at-question-count" name="questionCount" type="number" min="1" max="200" step="1" placeholder="Auto from paper, or 1–200" inputmode="numeric" />
+            <p class="at-hint" style="margin: 0.35rem 0 0">Count of questions, not the last printed number. Legal Q53–Q84 is 32. Leave blank to auto-count from the .docx.</p>
           </div>
           <div class="at-upload-pair">
             <div class="at-upload-col">
@@ -2217,9 +2237,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=202607171"></script>
+  <script src="../js/exam-question-parser.js?v=20260822qt"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
-  <script src="../js/test-subject-flags.js"></script>
+  <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -2627,7 +2647,8 @@
           if (wantCat === 'english') return /\benglish\b/.test(title) || /\brc\b/.test(title);
           if (wantCat === 'logical') return /\blogical\b/.test(title) || /\blr\b/.test(title);
           if (wantCat === 'legal') return /\blegal\b/.test(title) || /\ble\b/.test(title);
-          if (wantCat === 'math') return /\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title);
+          if (wantCat === 'math') return /\bmath\b/.test(title) || (/\bquant/.test(title) && !/techniques/.test(title)) || /\bqa\b/.test(title);
+          if (wantCat === 'qt') return /\bqt\b/.test(title) || /quantitative techniques/.test(title);
           if (wantCat === 'gk') return /\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title);
         }
         return false;
@@ -2656,6 +2677,32 @@
         markSelectedTestCard(activeHistoryFilter);
       }
 
+      function defaultQuestionCountForType(kind, category) {
+        var k = String(kind || '').trim().toLowerCase();
+        var c = String(category || '').trim().toUpperCase();
+        if (k === 'mock' && c === 'AILET') return 150;
+        if (k === 'mock') return 120;
+        if (k === 'sectional') {
+          if (c === 'ENGLISH') return 24;
+          if (c === 'LOGICAL') return 24;
+          if (c === 'LEGAL') return 32;
+          if (c === 'MATH') return 12;
+          if (c === 'QT') return 12;
+          if (c === 'GK') return 28;
+        }
+        return NaN;
+      }
+
+      function applyDetectedQuestionCount(count, overwrite) {
+        if (!questionCountInput) return;
+        if (!Number.isInteger(count) || count < 1 || count > 200) return;
+        if (!overwrite) {
+          var existing = parseInt(questionCountInput.value, 10);
+          if (Number.isInteger(existing) && existing >= 1 && existing <= 200) return;
+        }
+        questionCountInput.value = String(count);
+      }
+
       function openUploadModal(kind, category, subtitle, placeholder, sectionTag) {
         if (!uploadModal) return;
         resetUploadForm();
@@ -2664,12 +2711,8 @@
         if (testCategoryInput) testCategoryInput.value = category || '';
         if (sectionTagInput) sectionTagInput.value = sectionTag || '';
         if (questionCountInput) {
-          questionCountInput.value =
-            kind === 'mock' && String(category).toUpperCase() === 'AILET'
-              ? '150'
-              : kind === 'mock' && String(category).toUpperCase() === 'CLAT'
-                ? '120'
-                : '';
+          var defCount = defaultQuestionCountForType(kind, category);
+          questionCountInput.value = Number.isInteger(defCount) ? String(defCount) : '';
         }
         if (uploadModalTitle) {
           uploadModalTitle.textContent =
@@ -3086,7 +3129,7 @@
       }
 
       function isSectionTagLine(line) {
-        return /^(LR|LE|AR|GK|RC|QA)$/i.test(normalizeMarkerOuter(line));
+        return /^(LR|LE|AR|GK|RC|QA|QT)$/i.test(normalizeMarkerOuter(line));
       }
 
       function matchCustomSectionStartLine(line) {
@@ -4112,20 +4155,24 @@
             };
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
+            applyDetectedQuestionCount(parsed.questions.length, true);
             var parseOpts = currentParseOpts();
             if (parsed.missingNumbers && parsed.missingNumbers.length) {
               var miss = parsed.missingNumbers.slice(0, 12).join(', ');
               if (parsed.missingNumbers.length > 12) {
                 miss += '… (+' + (parsed.missingNumbers.length - 12) + ' more)';
               }
+              var firstQn = parsed.questions.length ? parsed.questions[0].number : 1;
+              var lastQn = parsed.questions.length
+                ? parsed.questions[parsed.questions.length - 1].number
+                : '?';
               var expectedLabel =
-                parseOpts && parseOpts.expectedQuestionCount
+                parseOpts && parseOpts.kind === 'sectional'
+                  ? firstQn > 1
+                    ? 'Expected questions from Q' + firstQn + ' through Q' + lastQn
+                    : 'Expected all questions through Q' + lastQn
+                  : parseOpts && parseOpts.expectedQuestionCount
                   ? 'Expected ' + parseOpts.expectedQuestionCount
-                  : parseOpts && parseOpts.kind === 'sectional'
-                  ? 'Expected all questions through Q' +
-                    (parsed.questions.length
-                      ? parsed.questions[parsed.questions.length - 1].number
-                      : '?')
                   : 'Expected 120';
               showToast(
                 'Some questions missing',
@@ -4142,6 +4189,13 @@
                   return d.number;
                 })
                 .filter(function (n) {
+                  if (parseOpts && parseOpts.kind === 'sectional') {
+                    var firstDrop = parsed.questions.length ? parsed.questions[0].number : 1;
+                    var lastDrop = parsed.questions.length
+                      ? parsed.questions[parsed.questions.length - 1].number
+                      : 200;
+                    return n >= firstDrop && n <= lastDrop;
+                  }
                   var limit =
                     parseOpts && parseOpts.expectedQuestionCount
                       ? parseOpts.expectedQuestionCount
@@ -4977,7 +5031,63 @@
           ? parseInt(questionCountInput.value, 10)
           : NaN;
         if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
-          showToast('Invalid question count', 'Enter the number of questions from 1 to 200.');
+          var guessed = defaultQuestionCountForType(
+            testKindInput && testKindInput.value,
+            testCategoryInput && testCategoryInput.value
+          );
+          if (Number.isInteger(guessed)) {
+            questionCount = guessed;
+            if (questionCountInput) questionCountInput.value = String(guessed);
+          }
+        }
+        if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
+          var paperForCount = fileQ.files && fileQ.files[0];
+          if (
+            paperForCount &&
+            isDocx(paperForCount.name) &&
+            window.ExamQuestionParser &&
+            typeof window.ExamQuestionParser.parseQuestionsFromText === 'function'
+          ) {
+            var submitBtnEarly = form.querySelector('button[type="submit"]');
+            if (submitBtnEarly) submitBtnEarly.disabled = true;
+            if (loaderTitleEl) loaderTitleEl.textContent = 'Counting questions';
+            loaderCaption.textContent = 'Reading the question paper…';
+            loaderOverlay.hidden = false;
+            document.body.style.overflow = 'hidden';
+            extractDocxText(paperForCount, function (countErr, countText) {
+              var counted = 0;
+              if (!countErr && countText) {
+                var countedParse = window.ExamQuestionParser.parseQuestionsFromText(
+                  countText,
+                  currentParseOpts()
+                );
+                counted =
+                  countedParse && countedParse.questions ? countedParse.questions.length : 0;
+              }
+              if (!Number.isInteger(counted) || counted < 1 || counted > 200) {
+                loaderOverlay.hidden = true;
+                document.body.style.overflow = '';
+                if (submitBtnEarly) submitBtnEarly.disabled = false;
+                showToast(
+                  'Invalid question count',
+                  'Could not auto-count. Enter how many questions are in this paper (e.g. 32 for Legal Q53–Q84).'
+                );
+                if (questionCountInput) questionCountInput.focus();
+                return;
+              }
+              if (questionCountInput) questionCountInput.value = String(counted);
+              loaderOverlay.hidden = true;
+              document.body.style.overflow = '';
+              if (submitBtnEarly) submitBtnEarly.disabled = false;
+              if (typeof form.requestSubmit === 'function') form.requestSubmit();
+              else form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            });
+            return;
+          }
+          showToast(
+            'Invalid question count',
+            'Enter how many questions are in this paper (1–200). For Legal Q53–Q84 enter 32, not 84.'
+          );
           if (questionCountInput) questionCountInput.focus();
           return;
         }
@@ -5033,6 +5143,7 @@
           postPayload.isLegal = subjectFlags.isLegal;
           postPayload.isMath = subjectFlags.isMath;
           postPayload.isGK = subjectFlags.isGK;
+          postPayload.isQT = !!subjectFlags.isQT;
           postPayload.isClose = !(testOpenInput && testOpenInput.checked);
         } else {
           postPayload.isClose = !(testOpenInput && testOpenInput.checked);

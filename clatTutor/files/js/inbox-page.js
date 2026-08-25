@@ -107,6 +107,112 @@
     return d.innerHTML;
   }
 
+  function looksLikeHtml(s) {
+    var t = String(s || '')
+      .replace(/^\uFEFF/, '')
+      .trim();
+    if (!t) return false;
+    if (/^<!DOCTYPE\s+html/i.test(t) || /^<html[\s>]/i.test(t)) return true;
+    var tags = t.match(
+      /<\/?(?:html|head|body|table|tr|td|div|p|span|img|br|h[1-6]|ul|ol|li|a|strong|b|em|font)(?:\s|\/|>)/gi
+    );
+    return !!(tags && tags.length >= 3);
+  }
+
+  function decodeQuotedPrintableLite(s) {
+    var t = String(s || '');
+    if (!/=3D/i.test(t) && !/=\r?\n/.test(t)) return t;
+    return t
+      .replace(/=\r?\n/g, '')
+      .replace(/=([0-9A-Fa-f]{2})/g, function (_, hex) {
+        return String.fromCharCode(parseInt(hex, 16));
+      });
+  }
+
+  function unescapeEncodedHtml(s) {
+    var t = String(s || '').trim();
+    if (!/^&lt;(!DOCTYPE|html|body|table|div|p)\b/i.test(t)) return s;
+    var el = document.createElement('textarea');
+    el.innerHTML = t;
+    return el.value;
+  }
+
+  function sanitizeEmailHtml(html) {
+    var s = decodeQuotedPrintableLite(unescapeEncodedHtml(html));
+    s = String(s || '');
+    s = s.replace(/<script[\s\S]*?<\/script>/gi, '');
+    s = s.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
+    s = s.replace(/<object[\s\S]*?<\/object>/gi, '');
+    s = s.replace(/<embed[\s\S]*?>/gi, '');
+    s = s.replace(/<link[\s\S]*?>/gi, '');
+    s = s.replace(/<meta[^>]+http-equiv\s*=\s*["']?refresh["']?[^>]*>/gi, '');
+    s = s.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    s = s.replace(/javascript\s*:/gi, '');
+    return s;
+  }
+
+  var EMAIL_FRAME_CSS =
+    '<style>html,body{margin:0;padding:12px;font-family:Calibri,Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#1e293b;background:#fff;}img{max-width:100%;height:auto;}table{max-width:100%;}a{color:#1d4ed8;}</style>';
+
+  function wrapEmailDocument(html) {
+    var inner = String(html || '');
+    if (/<html[\s>]/i.test(inner) || /<!DOCTYPE/i.test(inner)) {
+      if (/<\/head>/i.test(inner)) {
+        return inner.replace(/<\/head>/i, EMAIL_FRAME_CSS + '</head>');
+      }
+      if (/<html[\s>]/i.test(inner)) {
+        return inner.replace(/<html([^>]*)>/i, '<html$1><head>' + EMAIL_FRAME_CSS + '</head>');
+      }
+      return inner;
+    }
+    return (
+      '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+      EMAIL_FRAME_CSS +
+      '</head><body>' +
+      inner +
+      '</body></html>'
+    );
+  }
+
+  function getEmailHtml(email) {
+    if (!email) return '';
+    var html = email.bodyHtml || email.html || email.body_html || '';
+    if (String(html).trim()) return String(html);
+    var body = email.body ? String(email.body) : '';
+    body = unescapeEncodedHtml(decodeQuotedPrintableLite(body));
+    return looksLikeHtml(body) ? body : '';
+  }
+
+  function sizeEmailFrame(frame) {
+    try {
+      var doc = frame.contentDocument;
+      if (!doc) return;
+      var h = Math.max(
+        (doc.body && doc.body.scrollHeight) || 0,
+        (doc.documentElement && doc.documentElement.scrollHeight) || 0
+      );
+      if (h) frame.style.height = Math.min(Math.max(h + 24, 140), 3200) + 'px';
+    } catch (_) {}
+  }
+
+  function mountEmailHtml(frame, html) {
+    if (!frame) return;
+    frame.srcdoc = wrapEmailDocument(sanitizeEmailHtml(html));
+    frame.addEventListener('load', function onLoad() {
+      frame.removeEventListener('load', onLoad);
+      sizeEmailFrame(frame);
+      try {
+        var imgs = frame.contentDocument && frame.contentDocument.images;
+        if (!imgs) return;
+        for (var i = 0; i < imgs.length; i++) {
+          imgs[i].addEventListener('load', function () {
+            sizeEmailFrame(frame);
+          });
+        }
+      } catch (_) {}
+    });
+  }
+
   function fmtDate(raw) {
     if (!raw) return '—';
     var t = Date.parse(raw);
@@ -1241,9 +1347,11 @@
         : state.view === 'spam'
           ? '<div class="inbox-detail__actions"><button type="button" class="inbox-btn inbox-btn--ghost" id="inbox-not-spam-btn"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Not spam</button></div>'
           : '') +
-      '<div class="inbox-detail__body">' +
-      escHtml(email.body || '(empty body)') +
-      '</div>' +
+      (getEmailHtml(email)
+        ? '<div class="inbox-detail__body inbox-detail__body--html"><iframe class="inbox-html-frame" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" title="Email message"></iframe></div>'
+        : '<div class="inbox-detail__body">' +
+          escHtml(email.body || '(empty body)') +
+          '</div>') +
       '<section class="inbox-reply" aria-label="Reply">' +
       '<h3><i class="fa-solid fa-reply" aria-hidden="true"></i> Reply from ' +
       escHtml(state.mailbox.id) +
@@ -1263,6 +1371,9 @@
       '<p id="inbox-status" class="inbox-status" hidden></p>' +
       '</form></section>' +
       '<div id="inbox-replies-wrap"></div>';
+
+    var htmlBody = getEmailHtml(email);
+    if (htmlBody) mountEmailHtml(detail.querySelector('.inbox-html-frame'), htmlBody);
 
     $('inbox-reply-to').value = extractEmailAddress(email.from);
     $('inbox-reply-subject').value = replySubject(email.subject);

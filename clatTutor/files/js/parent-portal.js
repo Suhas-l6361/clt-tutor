@@ -363,13 +363,14 @@
     { label: 'Logical', max: 90 },
     { label: 'Math', max: 9999 },
   ];
-  var ANALYSIS_SECTION_ORDER = ['English', 'GK', 'Legal', 'Logical', 'Math', 'Other'];
+  var ANALYSIS_SECTION_ORDER = ['English', 'GK', 'Legal', 'Logical', 'Math', 'QT', 'Other'];
   var ANALYSIS_SECTION_ICONS = {
     English: 'fa-book-open',
     Logical: 'fa-brain',
     Legal: 'fa-scale-balanced',
     GK: 'fa-globe',
     Math: 'fa-calculator',
+    QT: 'fa-chart-column',
     Other: 'fa-layer-group',
   };
   var ANALYSIS_SECTION_COLORS = {
@@ -378,6 +379,7 @@
     Legal: '#8b5cf6',
     GK: '#f59e0b',
     Math: '#ec4899',
+    QT: '#0284c7',
     Other: '#64748b',
   };
   var answerKeyCache = Object.create(null);
@@ -390,6 +392,7 @@
     if (/english|language|^rc$/i.test(low)) return 'English';
     if (/logical|reasoning|^lr$/i.test(low) && !/legal/i.test(low)) return 'Logical';
     if (/legal|^le$/i.test(low)) return 'Legal';
+    if (/\bqt\b|quantitative techniques/i.test(low)) return 'QT';
     if (/gk|general knowledge|current affairs/i.test(low)) return 'GK';
     if (/math|quant|quantitative|^qa$/i.test(low)) return 'Math';
     return s.charAt(0).toUpperCase() + s.slice(1);
@@ -408,6 +411,9 @@
     if (/\benglish\b/.test(title) || /\brc\b/.test(title)) return { kind: 'sectional', category: 'English' };
     if (/\blogic(al)?\b/.test(title) || /\blr\b/.test(title)) return { kind: 'sectional', category: 'Logical' };
     if (/\blegal\b/.test(title)) return { kind: 'sectional', category: 'Legal' };
+    if (/\bqt\b/.test(title) || /quantitative techniques/.test(title)) {
+      return { kind: 'sectional', category: 'QT' };
+    }
     if (/\bmath\b/.test(title) || /\bquant/.test(title)) return { kind: 'sectional', category: 'Math' };
     if (/\bgk\b/.test(title) || /\bgeneral knowledge\b/.test(title)) {
       return { kind: 'sectional', category: 'GK' };

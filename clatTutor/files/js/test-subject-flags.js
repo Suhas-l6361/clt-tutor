@@ -1,5 +1,5 @@
 /**
- * Sectional subject flags on addtest rows (isEnglish, isLogic, isLegal, isMath, isGK).
+ * Sectional subject flags on addtest rows (isEnglish, isLogic, isLegal, isMath, isGK, isQT).
  */
 (function (global) {
   var SECTION_CATEGORY_TO_FLAG = {
@@ -9,6 +9,8 @@
     legal: 'isLegal',
     math: 'isMath',
     gk: 'isGK',
+    qt: 'isQT',
+    'quantitative techniques': 'isQT',
   };
 
   var FLAG_TO_CATEGORY = {
@@ -17,6 +19,7 @@
     isLegal: 'Legal',
     isMath: 'Math',
     isGK: 'GK',
+    isQT: 'QT',
   };
 
   function normKey(v) {
@@ -37,6 +40,7 @@
       isLegal: false,
       isMath: false,
       isGK: false,
+      isQT: false,
     };
   }
 
@@ -102,6 +106,9 @@
     if (/\benglish\b/.test(title) || /\brc\b/.test(title)) return { kind: 'sectional', category: 'English' };
     if (/\blogic(al)?\b/.test(title) || /\blr\b/.test(title)) return { kind: 'sectional', category: 'Logical' };
     if (/\blegal\b/.test(title) || /\ble\b/.test(title)) return { kind: 'sectional', category: 'Legal' };
+    if (/\bqt\b/.test(title) || /quantitative techniques/.test(title)) {
+      return { kind: 'sectional', category: 'QT' };
+    }
     if (/\bmath\b/.test(title) || /\bquant/.test(title) || /\bqa\b/.test(title)) {
       return { kind: 'sectional', category: 'Math' };
     }

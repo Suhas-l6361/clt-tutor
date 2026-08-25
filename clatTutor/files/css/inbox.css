@@ -1117,6 +1117,21 @@ body.inbox-modal-open {
   border: 1px solid #f1f5f9;
 }
 
+.inbox-detail__body--html {
+  white-space: normal;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.inbox-html-frame {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  border: 0;
+  background: #fff;
+}
+
 .inbox-reply {
   border-top: 1px solid #e2e8f0;
   padding-top: 1.25rem;

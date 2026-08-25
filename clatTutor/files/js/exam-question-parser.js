@@ -680,6 +680,9 @@
     if (key === 'logical') aliases.push('LR', 'Logical Reasoning');
     if (key === 'legal') aliases.push('LE', 'Legal Aptitude', 'Legal Reasoning');
     if (key === 'math') aliases.push('QA', 'Quantitative', 'Quantitative Ability', 'Mathematics');
+    if (key === 'qt' || key === 'quantitative techniques') {
+      aliases.push('QT', 'Quantitative Techniques', 'Quant Techniques');
+    }
     if (key === 'gk') aliases.push('General Knowledge', 'Current Affairs');
     var out = [];
     aliases.forEach(function (a) {
@@ -1281,7 +1284,7 @@
 
   function isSectionTagLine(line, sectionalCategory) {
     var tag = normalizeMarkerOuter(line);
-    if (/^(LR|LE|AR|GK|RC|QA)$/i.test(tag)) return true;
+    if (/^(LR|LE|AR|GK|RC|QA|QT)$/i.test(tag)) return true;
     if (sectionalCategory) {
       var aliases = sectionalCategoryAliases(sectionalCategory);
       for (var i = 0; i < aliases.length; i++) {
@@ -1298,9 +1301,19 @@
       Number.isFinite(requestedLimit) &&
       requestedLimit >= 1 &&
       requestedLimit <= MAX_QUESTION_LIMIT;
-    activeQuestionLimit = hasExpectedLimit ? requestedLimit : DEFAULT_QUESTION_LIMIT;
+    var isSectional = opts.kind === 'sectional';
+    /**
+     * expectedQuestionCount is how many questions the paper contains, not the highest
+     * printed number. Legal sectionals often keep full-CLAT numbering (Q53–Q84).
+     * Capping headers at 32 would drop those questions.
+     */
+    activeQuestionLimit = isSectional
+      ? MAX_QUESTION_LIMIT
+      : hasExpectedLimit
+        ? requestedLimit
+        : DEFAULT_QUESTION_LIMIT;
     var sectionalCategory =
-      opts.kind === 'sectional' && opts.category ? String(opts.category).trim() : '';
+      isSectional && opts.category ? String(opts.category).trim() : '';
     var sectionalPatterns = sectionalCategory
       ? buildSectionalMarkerPatterns(sectionalCategory)
       : null;
@@ -1487,18 +1500,19 @@
     for (var fn = 0; fn < questions.length; fn++) {
       foundNums[questions[fn].number] = true;
     }
-    var isSectional = opts.kind === 'sectional';
-    if (!isSectional || hasExpectedLimit) {
+    if (isSectional && questions.length) {
+      var minQn = questions[0].number;
+      var maxQn = questions[questions.length - 1].number;
+      var rangeEnd = maxQn;
+      if (hasExpectedLimit) {
+        rangeEnd = Math.max(maxQn, minQn + requestedLimit - 1);
+      }
+      for (var expS = minQn; expS <= rangeEnd; expS++) {
+        if (!foundNums[expS]) missingNumbers.push(expS);
+      }
+    } else if (!isSectional) {
       for (var exp = 1; exp <= activeQuestionLimit; exp++) {
         if (!foundNums[exp]) missingNumbers.push(exp);
-      }
-    } else if (questions.length) {
-      var maxQn = 0;
-      for (var mq = 0; mq < questions.length; mq++) {
-        if (questions[mq].number > maxQn) maxQn = questions[mq].number;
-      }
-      for (var expS = 1; expS <= maxQn; expS++) {
-        if (!foundNums[expS]) missingNumbers.push(expS);
       }
     }
     // A number that WAS parsed as a real (option-bearing) question is not "dropped": a second
@@ -1550,6 +1564,16 @@
     if (!row || typeof row !== 'object') return undefined;
     var kind = row.test_kind != null ? String(row.test_kind).trim().toLowerCase() : '';
     var category = row.test_category != null ? String(row.test_category).trim() : '';
+    var qtFlag = row.isQT;
+    var isQt =
+      qtFlag === true ||
+      qtFlag === 1 ||
+      qtFlag === '1' ||
+      String(qtFlag).toLowerCase() === 'true';
+    if (isQt || /^qt$/i.test(category) || /^quantitative techniques$/i.test(category)) {
+      kind = 'sectional';
+      category = 'QT';
+    }
     var count = parseInt(row.question_count, 10);
     var hasCount = Number.isFinite(count) && count >= 1 && count <= MAX_QUESTION_LIMIT;
     if (!hasCount && category.toUpperCase() === 'AILET') {

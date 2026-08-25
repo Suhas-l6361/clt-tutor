@@ -177,10 +177,13 @@
     var y = now.getFullYear();
     var m = now.getMonth();
     var today = todayStart();
+    var groups = groupReceiptsByStudent(rows);
     var out = [];
-    (rows || []).forEach(function (receipt) {
-      var installments = normalizeInstallments(receipt.installment_plan);
-      installments.forEach(function (inst) {
+
+    Object.keys(groups).forEach(function (key) {
+      var state = getCanonicalFeeState(groups[key]);
+      if (!state || state.balance <= 0.5) return;
+      state.installments.forEach(function (inst) {
         if (!isInstallmentInScope(inst.dueDate)) return;
         var due = startOfDay(inst.dueDate);
         if (
@@ -189,7 +192,7 @@
           due.getTime() >= today.getTime()
         ) {
           out.push({
-            receipt: receipt,
+            receipt: state.latest,
             installment: inst,
             label: ordinal(inst.number) + ' installment',
             daysUntil: Math.round((due.getTime() - today.getTime()) / 86400000),
@@ -197,6 +200,7 @@
         }
       });
     });
+
     out.sort(function (a, b) {
       if (a.daysUntil !== b.daysUntil) return a.daysUntil - b.daysUntil;
       return a.installment.dueDate.getTime() - b.installment.dueDate.getTime();
@@ -221,29 +225,48 @@
 
   /** Every student with a next installment (today or later), nearest due first — one row per student. */
   function getAllUpcomingInstallments(rows) {
-    var sorted = sortReceiptsByNextInstallment(rows);
-    var seen = Object.create(null);
+    var today = todayStart();
+    var now = new Date();
+    var groups = groupReceiptsByStudent(rows);
     var out = [];
-    sorted.forEach(function (receipt) {
-      var info = getNextInstallmentInfo(receipt);
-      if (!info) return;
-      var sid = receipt.student_id != null ? String(receipt.student_id).trim() : '';
-      var key = sid || 'name:' + String(receipt.name || '').trim().toLowerCase();
-      if (seen[key]) return;
-      seen[key] = true;
+
+    Object.keys(groups).forEach(function (key) {
+      var state = getCanonicalFeeState(groups[key]);
+      if (!state || state.balance <= 0.5) return;
+
+      var upcoming = null;
+      for (var i = 0; i < state.installments.length; i++) {
+        var inst = state.installments[i];
+        if (!isInstallmentInScope(inst.dueDate)) continue;
+        if (startOfDay(inst.dueDate).getTime() >= today.getTime()) {
+          upcoming = inst;
+          break;
+        }
+      }
+      if (!upcoming) return;
+
+      var dueDay = startOfDay(upcoming.dueDate);
+      var daysUntil = Math.round((dueDay.getTime() - today.getTime()) / 86400000);
       out.push({
-        receipt: receipt,
+        receipt: state.latest,
         installment: {
-          dueDate: info.dueDate,
-          dueIso: info.dueIso,
-          amount: info.amount,
-          number: info.number,
+          dueDate: upcoming.dueDate,
+          dueIso: upcoming.dueIso,
+          amount: upcoming.amount,
+          number: upcoming.number,
         },
-        label: info.label,
-        daysUntil: info.daysUntil,
-        isDueSoon: info.isDueSoon,
-        isDueThisMonth: info.isDueThisMonth,
+        label: ordinal(upcoming.number) + ' installment',
+        daysUntil: daysUntil,
+        isDueSoon: daysUntil <= 14,
+        isDueThisMonth:
+          upcoming.dueDate.getFullYear() === now.getFullYear() &&
+          upcoming.dueDate.getMonth() === now.getMonth(),
       });
+    });
+
+    out.sort(function (a, b) {
+      if (a.daysUntil !== b.daysUntil) return a.daysUntil - b.daysUntil;
+      return a.installment.dueDate.getTime() - b.installment.dueDate.getTime();
     });
     return out;
   }
@@ -329,18 +352,56 @@
     return groups;
   }
 
-  function getLatestReceiptWithPlan(receipts) {
-    var withPlan = (receipts || []).filter(function (r) {
-      return normalizeInstallments(r.installment_plan).length > 0;
-    });
-    if (!withPlan.length) return null;
-    withPlan.sort(function (a, b) {
+  function sortReceiptsNewestFirst(receipts) {
+    return (receipts || []).slice().sort(function (a, b) {
       var tb = receiptRecencyTime(b);
       var ta = receiptRecencyTime(a);
       if (tb !== ta) return tb - ta;
       return Number(b.id || 0) - Number(a.id || 0);
     });
-    return withPlan[0];
+  }
+
+  function getLatestReceipt(receipts) {
+    var sorted = sortReceiptsNewestFirst(receipts);
+    return sorted.length ? sorted[0] : null;
+  }
+
+  function getLatestReceiptWithPlan(receipts) {
+    var withPlan = (receipts || []).filter(function (r) {
+      return normalizeInstallments(r.installment_plan).length > 0;
+    });
+    if (!withPlan.length) return null;
+    return sortReceiptsNewestFirst(withPlan)[0];
+  }
+
+  /**
+   * One student may have several receipts. The newest row is the live record
+   * (staff often save a new receipt when they update payments, and leave
+   * installment_plan empty once tuition is fully paid). Paid / tuition always
+   * come from that newest row so overview does not keep showing an old balance.
+   * Installment dates come from the newest row that still has a plan.
+   */
+  function getCanonicalFeeState(receipts) {
+    var latest = getLatestReceipt(receipts);
+    var planReceipt = getLatestReceiptWithPlan(receipts);
+    if (!latest && !planReceipt) return null;
+    var finance = latest || planReceipt;
+    var tuition = getTuitionFromReceipt(finance);
+    if (tuition <= 0) {
+      (receipts || []).forEach(function (r) {
+        var t = getTuitionFromReceipt(r);
+        if (t > tuition) tuition = t;
+      });
+    }
+    var totalPaid = getPaidFromReceipt(finance);
+    return {
+      latest: finance,
+      planReceipt: planReceipt || finance,
+      tuition: tuition,
+      totalPaid: totalPaid,
+      balance: tuition - totalPaid,
+      installments: planReceipt ? normalizeInstallments(planReceipt.installment_plan) : [],
+    };
   }
 
   function overdueSeverity(daysOverdue) {
@@ -353,10 +414,11 @@
    * Students with past-due installments where tuition ≠ total paid (balance remains).
    * One entry per student — worst (most days overdue) installment shown.
    *
-   * Use the latest receipt that has an installment_plan as the source of truth
-   * (tuition / paid / plan). Many Yelahanka (and some other) students have an older
-   * duplicate receipt; summing amount_paid across duplicates double-counts the same
-   * payment (e.g. Mithil 50k+50k) and hides real overdue installments.
+   * Paid / tuition come from the newest receipt (the live update). An older
+   * duplicate that still has an installment_plan must not keep showing a stale
+   * balance after staff have already recorded full payment on a later receipt.
+   * Do not sum amount_paid across duplicates — that double-counts the same
+   * payment (e.g. Mithil 50k+50k).
    *
    * installment_plan is the remaining fee schedule (≈ outstanding balance). Covered
    * portion of that plan = max(0, planSum - balance).
@@ -367,23 +429,15 @@
     var out = [];
 
     Object.keys(groups).forEach(function (key) {
-      var receipts = groups[key];
-      var planReceipt = getLatestReceiptWithPlan(receipts);
-      if (!planReceipt) return;
+      var state = getCanonicalFeeState(groups[key]);
+      if (!state) return;
 
-      var tuition = getTuitionFromReceipt(planReceipt);
-      if (tuition <= 0) {
-        receipts.forEach(function (r) {
-          var t = getTuitionFromReceipt(r);
-          if (t > tuition) tuition = t;
-        });
-      }
-
-      var totalPaid = getPaidFromReceipt(planReceipt);
-      var balance = tuition - totalPaid;
+      var tuition = state.tuition;
+      var totalPaid = state.totalPaid;
+      var balance = state.balance;
       if (balance <= 0.5) return;
 
-      var installments = normalizeInstallments(planReceipt.installment_plan);
+      var installments = state.installments;
       if (!installments.length) return;
 
       var planSum = 0;
@@ -421,7 +475,7 @@
         remainingPaid = 0;
 
         var entry = {
-          receipt: planReceipt,
+          receipt: state.latest,
           studentKey: key,
           installment: inst,
           label: ordinal(inst.number) + ' installment',
@@ -467,6 +521,8 @@
     hasInstallmentPlan: hasInstallmentPlan,
     getPaidFromReceipt: getPaidFromReceipt,
     getTuitionFromReceipt: getTuitionFromReceipt,
+    getLatestReceipt: getLatestReceipt,
+    getCanonicalFeeState: getCanonicalFeeState,
     sortReceiptsByNextInstallment: sortReceiptsByNextInstallment,
     getInstallmentsDueThisMonth: getInstallmentsDueThisMonth,
     getAllUpcomingInstallments: getAllUpcomingInstallments,

@@ -35,13 +35,13 @@
   };
 
   var ALLOWED_BRANCHES = {
-    Yelahanka: true,
-    Malleshwaram: true,
+    Online: true,
+    Jayanagar: true,
   };
 
   var LEAD_TEXT = {
-    info: '4-hour GK & Current Affairs session with NLS Bangalore faculty and rank holders. Workshop fee ₹49.',
-    branch: 'Choose your preferred centre.',
+    info: 'Taught by NLS Bangalore faculty and rank holders. Workshop fee ₹49.',
+    branch: 'Online GK workshop — 23 Aug 2026, Sunday 10:00 AM to 2:30 PM. Offline Jayanagar — 22 Aug 2026, Saturday 3:00 PM to 7:00 PM.',
     form: 'Pay ₹49, upload your payment screenshot, and share your details.',
   };
 
