@@ -38,6 +38,7 @@
     'dashboard.html',
     'students.html',
     'addTest.html',
+    'fetch-from-topranker.html',
     'testAnalysis.html',
     'fees.html',
     'attendance.html',
@@ -177,7 +178,10 @@
     },
 
     canAccessCrmPage(page) {
-      const file = String(page || '').split('/').pop() || '';
+      const file = decodeURIComponent(String(page || '').split('/').pop() || '').replace(
+        /\s+/g,
+        '-'
+      );
       if (file === 'inbox.html') {
         return this.canAccessBusinessEmail();
       }

@@ -1512,7 +1512,6 @@
     .at-type-card__icon--indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
     .at-type-card__icon--purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
     .at-type-card__icon--rose { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-    .at-type-card__icon--sky { background: linear-gradient(135deg, #38bdf8, #0284c7); }
     .at-type-card__icon--amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .at-type-card--clat { border-bottom-color: #2563eb; }
     .at-type-card--ailet { border-bottom-color: #16a34a; }
@@ -1522,7 +1521,6 @@
     .at-type-card--logical { border-bottom-color: #4f46e5; }
     .at-type-card--legal { border-bottom-color: #9333ea; }
     .at-type-card--math { border-bottom-color: #e11d48; }
-    .at-type-card--qt { border-bottom-color: #0284c7; }
     .at-type-card--gk { border-bottom-color: #d97706; }
     .at-type-card__title {
       margin: 0;
@@ -1883,24 +1881,6 @@
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
             </button>
             </div>
-            <div class="at-type-card-wrap" data-kind="sectional" data-category="QT">
-            <button
-              type="button"
-              class="at-type-card at-type-card--qt"
-              data-kind="sectional"
-              data-category="QT"
-              data-section-tag="QT"
-              data-sub="Use (QT Information starts)…(QT Information ends), (QT Paragraph starts)…(QT Paragraph ends), or ((QT Starts))…((QT Ends)). Quantitative Techniques tag also works."
-              data-placeholder="e.g. QT graphs — Set 4"
-            >
-              <span class="at-type-card__icon at-type-card__icon--sky" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>
-              <span class="at-type-card__title">QT</span>
-              <span class="at-type-card__desc">Quantitative Techniques — charts, tables, and data interpretation.</span>
-            </button>
-            <button type="button" class="at-type-card__history" data-kind="sectional" data-category="QT">
-              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
-            </button>
-            </div>
             <div class="at-type-card-wrap" data-kind="sectional" data-category="GK">
             <button
               type="button"
@@ -2244,7 +2224,7 @@
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20260710g"></script>
+  <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -2687,7 +2667,6 @@
           if (c === 'LOGICAL') return 24;
           if (c === 'LEGAL') return 32;
           if (c === 'MATH') return 12;
-          if (c === 'QT') return 12;
           if (c === 'GK') return 28;
         }
         return NaN;

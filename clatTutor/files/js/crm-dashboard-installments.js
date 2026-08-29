@@ -87,8 +87,7 @@
     }
 
     if (monthEl) {
-      monthEl.textContent =
-        FI.currentMonthLabel() + ' — upcoming installments from Jun 2026 onwards';
+      monthEl.textContent = FI.currentMonthLabel() + ' — unpaid installments still due this month';
     }
 
     var api = getFeesApiUrl();
@@ -114,11 +113,13 @@
       tbody.innerHTML = '';
 
       if (!dueList.length) {
-        tbody.innerHTML =
-          '<tr><td colspan="7" class="crm-install-empty">No upcoming installments due this month.</td></tr>';
-        if (wrapEl) wrapEl.hidden = false;
+        section.hidden = true;
+        if (wrapEl) wrapEl.hidden = true;
+        if (tbody) tbody.innerHTML = '';
         return;
       }
+
+      section.hidden = false;
 
       dueList.forEach(function (item) {
         var r = item.receipt || {};

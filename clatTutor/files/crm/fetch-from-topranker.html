@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fetch from Toprankers — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/fetch-from-topranker.css?v=20260826fetch" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="trf-page">
+      <section class="trf-hero">
+        <h2><img src="../image/fetch.png" alt="" class="trf-hero-icon" /> Fetch from Toprankers</h2>
+        <p>Paste the test HTML. Fetch pulls passages, questions, and options. Add an answer key to mark the correct option under each question.</p>
+      </section>
+
+      <div class="trf-card">
+        <div class="trf-body">
+          <ol class="trf-steps">
+            <li>Open the test on Toprankers while logged in.</li>
+            <li>Press <kbd>Ctrl</kbd>+<kbd>U</kbd>, then <kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Ctrl</kbd>+<kbd>C</kbd>.</li>
+            <li>Paste below and click Fetch.</li>
+          </ol>
+          <label for="trf-code">Test HTML</label>
+          <textarea
+            id="trf-code"
+            spellcheck="false"
+            placeholder="Paste the full page source here (1000+ lines is fine)…"
+          ></textarea>
+          <p class="trf-hint">Paste the HTML, not a <kbd>view-source:</kbd> link. The live test page has no official key. After you submit, paste the <strong>report</strong> page source — or paste letters below.</p>
+          <label for="trf-key">Answer key (optional)</label>
+          <textarea
+            id="trf-key"
+            class="trf-key-input"
+            spellcheck="false"
+            placeholder="B A B C B A A B B B …  or  1 B · 2 A · 3 B"
+          ></textarea>
+          <p class="trf-hint">One letter per question, in paper order. Example: <code>B A B C B</code></p>
+          <div class="trf-actions">
+            <button type="button" class="trf-btn trf-btn--gold" id="trf-fetch-code">
+              <img src="../image/fetch.png" alt="" class="trf-btn-icon" /> Fetch
+            </button>
+            <button type="button" class="trf-btn trf-btn--ghost" id="trf-clear-code">
+              <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+          </div>
+          <div class="trf-alert" id="trf-code-status" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <div id="trf-modal" class="trf-modal" hidden role="dialog" aria-modal="true" aria-labelledby="trf-modal-title">
+    <div class="trf-modal__backdrop" id="trf-modal-backdrop"></div>
+    <div class="trf-modal__dialog">
+      <div class="trf-modal__head">
+        <div>
+          <h3 id="trf-modal-title">Test</h3>
+          <p class="trf-modal__meta" id="trf-modal-meta"></p>
+        </div>
+        <div class="trf-modal__tools">
+          <button type="button" class="trf-btn trf-btn--ghost" id="trf-copy">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+          <button type="button" class="trf-btn trf-btn--gold" id="trf-word">
+            <i class="fa-solid fa-file-word"></i> Download Word
+          </button>
+          <button type="button" class="trf-modal__close" id="trf-modal-close" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div class="trf-modal__body" id="trf-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260826fetch"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/toprankers-parser.js?v=20260826tr9"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({
+        role: 'crm',
+        active: 'fetch-from-topranker.html',
+        title: 'Fetch from Toprankers',
+        contentEl: stock,
+      });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (stock && !document.getElementById('page-inner')) {
+        stock.style.display = '';
+      }
+
+      var P = window.ToprankersParser;
+      var lastData = null;
+      var lastKeyRaw = '';
+      var codeInput = document.getElementById('trf-code');
+      var keyInput = document.getElementById('trf-key');
+      var fetchCodeBtn = document.getElementById('trf-fetch-code');
+      var clearCodeBtn = document.getElementById('trf-clear-code');
+      var codeStatus = document.getElementById('trf-code-status');
+      var modal = document.getElementById('trf-modal');
+      var modalBody = document.getElementById('trf-modal-body');
+      var modalTitle = document.getElementById('trf-modal-title');
+      var modalMeta = document.getElementById('trf-modal-meta');
+      var copyBtn = document.getElementById('trf-copy');
+      var wordBtn = document.getElementById('trf-word');
+
+      function setStatus(el, kind, title, detail) {
+        if (!el) return;
+        el.hidden = !title;
+        el.classList.remove('is-err', 'is-ok', 'is-info');
+        if (!title) {
+          el.innerHTML = '';
+          return;
+        }
+        if (kind) el.classList.add(kind);
+        var icon =
+          kind === 'is-ok'
+            ? 'fa-circle-check'
+            : kind === 'is-info'
+              ? 'fa-circle-info'
+              : 'fa-circle-exclamation';
+        el.innerHTML =
+          '<i class="fa-solid ' +
+          icon +
+          '"></i><div><strong>' +
+          P.escapeHtml(title) +
+          '</strong>' +
+          (detail ? '<p>' + P.escapeHtml(detail) + '</p>' : '') +
+          '</div>';
+      }
+
+      function lettersFromData(data) {
+        var out = [];
+        if (!data || !data.passages) return '';
+        data.passages.forEach(function (p) {
+          p.questions.forEach(function (q) {
+            out.push(q.correctLetter || '');
+          });
+        });
+        return out.filter(Boolean).length ? out.join(' ') : '';
+      }
+
+      function attachKey(data, rawKey, statusEl) {
+        var parsed = P.parseAnswerKey(rawKey, data.questionCount);
+        if (!parsed.ok) {
+          if (statusEl) setStatus(statusEl, 'is-err', 'Answer key not read', parsed.error || '');
+          return false;
+        }
+        if (parsed.letters.length < data.questionCount) {
+          if (statusEl) {
+            setStatus(
+              statusEl,
+              'is-info',
+              'Key has ' + parsed.count + ' of ' + data.questionCount + ' letters',
+              'Missing questions stay unmarked.'
+            );
+          }
+        }
+        P.applyAnswerKey(data, parsed.letters, 'pasted');
+        lastKeyRaw = rawKey;
+        if (keyInput && rawKey && keyInput.value !== rawKey) keyInput.value = rawKey;
+        return true;
+      }
+
+      function renderPopup(data) {
+        lastData = data;
+        modalTitle.textContent = data.title || 'Toprankers Test';
+        var keyLabel =
+          data.answerSource === 'official'
+            ? data.correctCount + ' official answers'
+            : data.correctCount
+              ? data.correctCount + ' answers marked'
+              : 'no answers marked yet';
+        modalMeta.textContent =
+          (data.duration ? data.duration + ' min · ' : '') +
+          data.questionCount +
+          ' questions · ' +
+          data.passageCount +
+          ' passages · ' +
+          keyLabel;
+
+        var html = '';
+        if (data.warning) {
+          html += '<p class="trf-warn">' + P.escapeHtml(data.warning) + '</p>';
+        }
+        html += '<div class="trf-keybox">';
+        html += '<p class="trf-keybox__title">Answer key</p>';
+        if (data.correctCount) {
+          html += '<div class="trf-key">';
+          data.passages.forEach(function (p) {
+            p.questions.forEach(function (q) {
+              html +=
+                '<span class="trf-key-chip' +
+                (q.correctLetter ? ' is-on' : '') +
+                '"><b>Q' +
+                q.n +
+                '</b> ' +
+                P.escapeHtml(q.correctLetter || '—') +
+                '</span>';
+            });
+          });
+          html += '</div>';
+        }
+        html +=
+          '<div class="trf-key-row"><input type="text" id="trf-modal-key" spellcheck="false" placeholder="B A B C B A A B …" value="' +
+          P.escapeHtml(lastKeyRaw || lettersFromData(data)) +
+          '" /><button type="button" class="trf-btn trf-btn--gold" id="trf-apply-key">Show on questions</button></div>';
+        html += '</div>';
+
+        data.passages.forEach(function (p) {
+          html += '<article class="trf-passage">';
+          html += '<h4>Passage ' + p.index + '</h4>';
+          html += '<div class="trf-passage__text">' + P.escapeHtml(p.text || '(No passage)') + '</div>';
+          p.questions.forEach(function (q) {
+            html += '<div class="trf-q" id="trf-q-' + q.n + '">';
+            html +=
+              '<p class="trf-q__stem">Q' + q.n + '. ' + P.escapeHtml(q.stem || '') + '</p>';
+            q.options.forEach(function (opt) {
+              var isC = q.correctLetter && opt.letter === q.correctLetter;
+              html +=
+                '<div class="' +
+                (isC ? 'trf-opt is-correct' : 'trf-opt') +
+                '">' +
+                P.escapeHtml(opt.letter + '. ' + opt.text) +
+                (isC ? ' ✓' : '') +
+                '</div>';
+            });
+            if (q.correctLetter) {
+              html +=
+                '<p class="trf-ans"><strong>Correct answer:</strong> ' +
+                P.escapeHtml(q.correctLetter) +
+                (q.correctText ? ' — ' + P.escapeHtml(q.correctText) : '') +
+                '</p>';
+            }
+            html += '</div>';
+          });
+          html += '</article>';
+        });
+        modalBody.innerHTML = html;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function showParsed(raw) {
+        var data = P.parse(raw);
+        if (!data.ok) {
+          if (data.code === 'LOCKED') {
+            setStatus(
+              codeStatus,
+              'is-err',
+              'This HTML is the login wall',
+              'Open the test while logged in, press Ctrl+U, and paste that source.'
+            );
+            return;
+          }
+          if (data.code === 'REPORT') {
+            setStatus(
+              codeStatus,
+              'is-err',
+              'This is the score report, not the answer key',
+              data.solutionsUrl
+                ? 'Open Solutions, press Ctrl+U, copy all, and paste that source. Link: ' +
+                  data.solutionsUrl
+                : 'On Toprankers click Solutions (not Report), then Ctrl+U and paste that page.'
+            );
+            return;
+          }
+          if (data.code === 'NO_QUESTIONS') {
+            setStatus(
+              codeStatus,
+              'is-err',
+              'No questions in this paste',
+              'Paste the full page source (Ctrl+U), not the address bar link.'
+            );
+            return;
+          }
+          setStatus(codeStatus, 'is-err', 'Nothing to parse', 'Paste the full page source and try again.');
+          return;
+        }
+        var rawKey = String((keyInput && keyInput.value) || lastKeyRaw || '').trim();
+        var keyOk = true;
+        if (rawKey && !data.correctCount) {
+          keyOk = attachKey(data, rawKey, codeStatus);
+        }
+        if (!rawKey || keyOk) {
+          setStatus(
+            codeStatus,
+            'is-ok',
+            'Loaded ' + data.questionCount + ' questions',
+            data.correctCount
+              ? data.passageCount +
+                ' passages · ' +
+                data.correctCount +
+                (data.answerSource === 'official' ? ' official answers' : ' answers marked under each question')
+              : data.passageCount +
+                ' passages · options included. Paste a key to mark Correct answer under each question.'
+          );
+        }
+        renderPopup(data);
+      }
+
+      fetchCodeBtn.addEventListener('click', function () {
+        var raw = String(codeInput.value || '').trim();
+        if (!raw) {
+          setStatus(codeStatus, 'is-err', 'Nothing pasted', 'Paste the Ctrl+U HTML, then click Fetch.');
+          return;
+        }
+        if (/^(view-source:)?https?:\/\//i.test(raw) && raw.length < 500) {
+          setStatus(
+            codeStatus,
+            'is-err',
+            'That is a link, not the test',
+            'Last time this worked because the full HTML was pasted. Press Ctrl+U, copy everything, and paste that.'
+          );
+          return;
+        }
+        setStatus(codeStatus, 'is-info', 'Reading source…', '');
+        showParsed(raw);
+      });
+
+      clearCodeBtn.addEventListener('click', function () {
+        codeInput.value = '';
+        if (keyInput) keyInput.value = '';
+        lastKeyRaw = '';
+        setStatus(codeStatus, '', '');
+        codeInput.focus();
+      });
+
+      modalBody.addEventListener('click', function (e) {
+        var chip = e.target.closest && e.target.closest('.trf-key-chip');
+        if (chip) {
+          var m = String(chip.textContent || '').match(/Q(\d+)/);
+          var el = m && document.getElementById('trf-q-' + m[1]);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('is-flash');
+            setTimeout(function () {
+              el.classList.remove('is-flash');
+            }, 1200);
+          }
+          return;
+        }
+        var btn = e.target.closest && e.target.closest('#trf-apply-key');
+        if (!btn || !lastData) return;
+        var box = document.getElementById('trf-modal-key');
+        var raw = String((box && box.value) || '').trim();
+        if (!raw) {
+          setStatus(codeStatus, 'is-err', 'No key pasted', 'Type letters like B A B C B, then Show on questions.');
+          return;
+        }
+        if (attachKey(lastData, raw, codeStatus)) renderPopup(lastData);
+      });
+
+      modalBody.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' || !e.target || e.target.id !== 'trf-modal-key') return;
+        e.preventDefault();
+        var apply = document.getElementById('trf-apply-key');
+        if (apply) apply.click();
+      });
+
+      copyBtn.addEventListener('click', function () {
+        if (!lastData) return;
+        var text = P.toPlainText(lastData);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            function () {
+              copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+              setTimeout(function () {
+                copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+              }, 1600);
+            },
+            function () {
+              window.prompt('Copy this text:', text);
+            }
+          );
+        } else {
+          window.prompt('Copy this text:', text);
+        }
+      });
+
+      wordBtn.addEventListener('click', function () {
+        if (!lastData) return;
+        P.downloadWord(lastData);
+      });
+
+      document.getElementById('trf-modal-close').addEventListener('click', closeModal);
+      document.getElementById('trf-modal-backdrop').addEventListener('click', closeModal);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) closeModal();
+      });
+    });
+  </script>
+</body>
+</html>

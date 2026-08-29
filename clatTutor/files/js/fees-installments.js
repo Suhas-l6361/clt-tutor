@@ -223,6 +223,66 @@
     return count;
   }
 
+  function installmentToDueItem(receipt, inst, extra) {
+    extra = extra || {};
+    var today = todayStart();
+    var dueDay = startOfDay(inst.dueDate);
+    var daysUntil =
+      extra.daysUntil != null
+        ? extra.daysUntil
+        : Math.round((dueDay.getTime() - today.getTime()) / 86400000);
+    var now = new Date();
+    return {
+      receipt: receipt,
+      installment: {
+        dueDate: inst.dueDate,
+        dueIso: inst.dueIso,
+        amount: extra.amount != null ? extra.amount : inst.amount,
+        number: inst.number,
+      },
+      label: extra.label || ordinal(inst.number) + ' installment',
+      daysUntil: daysUntil,
+      daysOverdue: extra.daysOverdue,
+      isOverdue: !!extra.isOverdue,
+      isDueThisMonth:
+        extra.isDueThisMonth != null
+          ? extra.isDueThisMonth
+          : inst.dueDate.getFullYear() === now.getFullYear() &&
+            inst.dueDate.getMonth() === now.getMonth(),
+      isDueSoon: extra.isDueSoon != null ? extra.isDueSoon : daysUntil <= 14,
+    };
+  }
+
+  /**
+   * Dashboard list: overdue unpaid + remaining dues in the current calendar month.
+   * Later months (e.g. 3–4 months out) are excluded.
+   */
+  function getDashboardDueAndCurrentMonthInstallments(rows) {
+    var overdue = getOverdueUnpaidInstallments(rows).map(function (item) {
+      var inst = item.installment || {};
+      var amount =
+        item.installmentAmount != null && item.installmentAmount > 0
+          ? item.installmentAmount
+          : inst.amount;
+      return installmentToDueItem(item.receipt, inst, {
+        amount: amount,
+        label: item.label,
+        daysUntil: -Number(item.daysOverdue || 0),
+        daysOverdue: item.daysOverdue,
+        isOverdue: true,
+        isDueThisMonth: false,
+        isDueSoon: true,
+      });
+    });
+    var thisMonth = getInstallmentsDueThisMonth(rows).map(function (item) {
+      item.isOverdue = false;
+      item.isDueThisMonth = true;
+      item.isDueSoon = item.daysUntil != null && item.daysUntil <= 14;
+      return item;
+    });
+    return overdue.concat(thisMonth);
+  }
+
   /** Every student with a next installment (today or later), nearest due first — one row per student. */
   function getAllUpcomingInstallments(rows) {
     var today = todayStart();
@@ -525,6 +585,7 @@
     getCanonicalFeeState: getCanonicalFeeState,
     sortReceiptsByNextInstallment: sortReceiptsByNextInstallment,
     getInstallmentsDueThisMonth: getInstallmentsDueThisMonth,
+    getDashboardDueAndCurrentMonthInstallments: getDashboardDueAndCurrentMonthInstallments,
     getAllUpcomingInstallments: getAllUpcomingInstallments,
     countUniqueStudentsDueThisMonth: countUniqueStudentsDueThisMonth,
     getOverdueUnpaidInstallments: getOverdueUnpaidInstallments,

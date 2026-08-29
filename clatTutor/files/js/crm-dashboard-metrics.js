@@ -1144,6 +1144,11 @@
       dueAmount += parseAmount(item.installment && item.installment.amount);
     });
     var dueStudents = FI ? FI.countUniqueStudentsDueThisMonth(rows) : dueList.length;
+    var overdueList = FI && FI.getOverdueUnpaidInstallments ? FI.getOverdueUnpaidInstallments(rows) : [];
+    var overdueAmount = 0;
+    overdueList.forEach(function (item) {
+      overdueAmount += parseAmount(item.amountOverdue != null ? item.amountOverdue : item.balance);
+    });
     return {
       collectedMonth: collectedMonth,
       receiptMonth: receiptMonth,
@@ -1151,6 +1156,9 @@
       dueCount: dueStudents,
       dueAmount: dueAmount,
       dueList: dueList,
+      overdueCount: overdueList.length,
+      overdueAmount: overdueAmount,
+      overdueList: overdueList,
     };
   }
 
@@ -1322,7 +1330,7 @@
     setText('k-tests-total', String(data.tests.openCount != null ? data.tests.openCount : data.tests.testCount));
     setText('k-test-attempts', String(data.tests.totalAttempts));
     setText('k-attendance-pct', formatPct(data.attendance.pct));
-    setText('k-fees-month', formatInr(data.fees.collectedMonth));
+    setText('k-fees-month', formatInr(data.fees.overdueAmount));
     setText('k-installments', String(data.fees.dueCount));
 
     setText('k-leads', String(data.leads.total));
@@ -1493,60 +1501,102 @@
 
     var heroEl = document.getElementById('crm-fees-hero');
     if (heroEl) {
-      var dueClass = fees.dueCount > 0 ? ' crm-fees-hero__due--alert' : '';
-      heroEl.innerHTML =
-        '<div class="crm-fees-hero__col crm-fees-hero__col--main">' +
-        '<p class="crm-fees-hero__eyebrow">Total collected</p>' +
+      var overdueClass = fees.overdueCount > 0 ? ' crm-fees-hero__due--alert' : '';
+      var showThisMonth = fees.dueCount > 0;
+      var heroHtml =
+        '<div class="crm-fees-hero__col crm-fees-hero__col--main' +
+        overdueClass +
+        '">' +
+        '<p class="crm-fees-hero__eyebrow">Due fees</p>' +
         '<p class="crm-fees-hero__amount">' +
-        esc(formatInr(fees.collectedMonth)) +
+        esc(formatInr(fees.overdueAmount)) +
         '</p>' +
         '<p class="crm-fees-hero__meta">' +
-        esc(String(fees.receiptMonth)) +
-        ' fee receipt' +
-        (fees.receiptMonth === 1 ? '' : 's') +
-        ' recorded this month</p></div>' +
-        '<div class="crm-fees-hero__col crm-fees-hero__due' +
-        dueClass +
-        '">' +
-        '<p class="crm-fees-hero__eyebrow">Installments due</p>' +
-        '<p class="crm-fees-hero__due-val">' +
-        esc(String(fees.dueCount)) +
-        ' <span>student' +
-        (fees.dueCount === 1 ? '' : 's') +
-        '</span></p>' +
-        '<p class="crm-fees-hero__meta">' +
-        (fees.dueAmount ? esc(formatInr(fees.dueAmount)) + ' pending' : 'No pending dues this month') +
+        (fees.overdueCount
+          ? esc(String(fees.overdueCount)) +
+            ' student' +
+            (fees.overdueCount === 1 ? '' : 's') +
+            ' overdue'
+          : 'No overdue unpaid fees') +
         '</p></div>';
+      if (showThisMonth) {
+        heroHtml +=
+          '<div class="crm-fees-hero__col crm-fees-hero__due crm-fees-hero__due--alert">' +
+          '<p class="crm-fees-hero__eyebrow">This month</p>' +
+          '<p class="crm-fees-hero__due-val">' +
+          esc(String(fees.dueCount)) +
+          ' <span>student' +
+          (fees.dueCount === 1 ? '' : 's') +
+          '</span></p>' +
+          '<p class="crm-fees-hero__meta">' +
+          (fees.dueAmount ? esc(formatInr(fees.dueAmount)) + ' due this month' : 'Installments due this month') +
+          '</p></div>';
+      }
+      heroEl.className = 'crm-fees-hero' + (showThisMonth ? '' : ' crm-fees-hero--single');
+      heroEl.innerHTML = heroHtml;
     }
 
     var statsEl = document.getElementById('crm-fees-stats');
     if (statsEl) {
-      statsEl.innerHTML =
-        renderMiniStat('Receipts', fees.receiptMonth, 'This month') +
-        renderMiniStat('Fee records', fees.totalReceipts, 'All time in system') +
-        renderMiniStat('Due amount', formatInr(fees.dueAmount), 'Installments this month', fees.dueAmount ? 'warn' : '');
+      var statsHtml =
+        renderMiniStat('Due fees', formatInr(fees.overdueAmount), 'Overdue unpaid', fees.overdueAmount ? 'warn' : '');
+      if (fees.dueCount) {
+        statsHtml += renderMiniStat(
+          'This month',
+          formatInr(fees.dueAmount),
+          fees.dueCount + ' installment' + (fees.dueCount === 1 ? '' : 's'),
+          fees.dueAmount ? 'warn' : ''
+        );
+      }
+      statsHtml += renderMiniStat('Collected', formatInr(fees.collectedMonth), 'Receipts this month');
+      statsEl.innerHTML = statsHtml;
     }
 
     var feesEl = document.getElementById('crm-metrics-fees-body');
     if (feesEl) {
-      if (fees.dueList && fees.dueList.length) {
-        var dueRows = fees.dueList
-          .slice(0, 5)
+      var tableItems = [];
+      (fees.overdueList || []).forEach(function (item) {
+        tableItems.push({
+          kind: 'Due',
+          receipt: item.receipt || {},
+          amount: item.installmentAmount != null ? item.installmentAmount : item.installment && item.installment.amount,
+          dueDate: item.installment && item.installment.dueDate,
+        });
+      });
+      (fees.dueList || []).forEach(function (item) {
+        tableItems.push({
+          kind: 'This month',
+          receipt: item.receipt || {},
+          amount: item.installment && item.installment.amount,
+          dueDate: item.installment && item.installment.dueDate,
+        });
+      });
+
+      if (tableItems.length) {
+        var title =
+          fees.overdueCount && fees.dueCount
+            ? 'Due fees & this month'
+            : fees.overdueCount
+              ? 'Due fees'
+              : 'This month';
+        var dueRows = tableItems
+          .slice(0, 8)
           .map(function (item) {
             var r = item.receipt || {};
-            var inst = item.installment || {};
             var name = r.name || r.student_name || r.student_id || 'Student';
             return (
               '<tr><td><strong>' +
               esc(name) +
               '</strong></td><td>' +
               esc(branchLabel(r.branch)) +
+              '</td><td>' +
+              esc(item.kind) +
               '</td><td class="crm-metrics-num">' +
-              esc(formatInr(inst.amount)) +
+              esc(formatInr(item.amount)) +
               '</td><td class="crm-dash-date">' +
               esc(
-                inst.dueDate
-                  ? inst.dueDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                item.dueDate
+                  ? item.dueDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
                   : '—'
               ) +
               '</td></tr>'
@@ -1554,10 +1604,12 @@
           })
           .join('');
         feesEl.innerHTML =
-          '<h4 class="crm-dash-block-title">Upcoming dues (top 5)</h4>' +
+          '<h4 class="crm-dash-block-title">' +
+          esc(title) +
+          '</h4>' +
           '<div class="crm-metrics-table-wrap">' +
           '<table class="crm-metrics-table">' +
-          '<thead><tr><th>Student</th><th>Branch</th><th>Amount</th><th>Due date</th></tr></thead>' +
+          '<thead><tr><th>Student</th><th>Branch</th><th>Type</th><th>Amount</th><th>Due date</th></tr></thead>' +
           '<tbody>' +
           dueRows +
           '</tbody></table></div>';
@@ -1565,7 +1617,7 @@
         feesEl.innerHTML =
           '<div class="crm-fees-clear">' +
           '<i class="fa-solid fa-circle-check"></i>' +
-          '<p><strong>All clear</strong> — no installment dues for this month.</p></div>';
+          '<p><strong>All clear</strong> — no due fees and no installments this month.</p></div>';
       }
     }
   }

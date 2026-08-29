@@ -10,6 +10,7 @@
     { key: 'dashboard.html', label: 'Overview' },
     { key: 'students.html', label: 'Add Data' },
     { key: 'addTest.html', label: 'Add Test' },
+    { key: 'fetch-from-topranker.html', label: 'Fetch Toprankers' },
     { key: 'testAnalysis.html', label: 'Test Results' },
     { key: 'fees.html', label: 'Fees' },
     { key: 'attendance.html', label: 'Attendance' },

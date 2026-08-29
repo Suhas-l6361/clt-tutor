@@ -122,20 +122,23 @@
     return b || 'Unassigned';
   }
 
-  function getAllUpcomingDue(rows) {
+  function getDueAndCurrentMonth(rows) {
     var FI = window.FeesInstallments;
-    if (!FI || !FI.getAllUpcomingInstallments) return [];
-    return FI.getAllUpcomingInstallments(rows);
+    if (!FI) return [];
+    if (FI.getDashboardDueAndCurrentMonthInstallments) {
+      return FI.getDashboardDueAndCurrentMonthInstallments(rows);
+    }
+    return FI.getInstallmentsDueThisMonth ? FI.getInstallmentsDueThisMonth(rows) : [];
   }
 
   function splitDueLists(dueList) {
-    var urgent = [];
-    var regular = [];
+    var overdue = [];
+    var thisMonth = [];
     dueList.forEach(function (item) {
-      if (isUrgentDue(item)) urgent.push(item);
-      else regular.push(item);
+      if (item.isOverdue || (item.daysUntil != null && item.daysUntil < 0)) overdue.push(item);
+      else thisMonth.push(item);
     });
-    return { urgent: urgent, regular: regular };
+    return { overdue: overdue, thisMonth: thisMonth };
   }
 
   function fetchJson(url) {
@@ -181,7 +184,14 @@
     return '₹ ' + num.toLocaleString('en-IN');
   }
 
-  function daysLeftLabel(daysUntil) {
+  function daysLeftLabel(item) {
+    if (item && (item.isOverdue || (item.daysUntil != null && item.daysUntil < 0))) {
+      var overdueDays = item.daysOverdue != null ? item.daysOverdue : Math.abs(item.daysUntil);
+      if (!overdueDays) return 'Overdue';
+      if (overdueDays === 1) return '1 day overdue';
+      return overdueDays + ' days overdue';
+    }
+    var daysUntil = item && item.daysUntil;
     if (daysUntil == null || !isFinite(daysUntil)) return '';
     if (daysUntil === 0) return 'Due today';
     if (daysUntil === 1) return '1 day left';
@@ -189,6 +199,7 @@
   }
 
   function shortDueLabel(item, FI) {
+    if (item && (item.isOverdue || (item.daysUntil != null && item.daysUntil < 0))) return 'Overdue';
     var inst = item.installment || {};
     if (item.daysUntil === 0) return 'Due today';
     if (item.daysUntil === 1) return 'Tomorrow';
@@ -207,14 +218,16 @@
     var name = String((matched && matched.name) || r.name || 'Student').trim() || 'Student';
     var branch = branchLabel((matched && matched.branch) || r.branch);
     var imgKey = studentImgKey(matched);
-    var isUrgent = !!urgent;
+    var isOverdue = !!(item.isOverdue || (item.daysUntil != null && item.daysUntil < 0));
+    var isUrgent = !!urgent || isOverdue;
     var dueBadge = shortDueLabel(item, FI);
     var installLabel = item.label || 'Installment';
     var inst = item.installment || {};
     var amount = formatInrAmount(inst.amount);
-    var daysLeft = daysLeftLabel(item.daysUntil);
+    var daysLeft = daysLeftLabel(item);
     var cardClass = 'crm-due-fees-card';
-    if (isUrgent) cardClass += ' crm-due-fees-card--urgent crm-due-fees-card--soon';
+    if (isOverdue) cardClass += ' crm-due-fees-card--urgent crm-due-fees-card--overdue';
+    else if (isUrgent || isUrgentDue(item)) cardClass += ' crm-due-fees-card--urgent crm-due-fees-card--soon';
 
     return (
       '<article class="' +
@@ -290,7 +303,7 @@
 
     if (subEl) {
       subEl.textContent =
-        'Urgent dues (< 5 days) highlighted above · Jun 2026 batch installments only';
+        'Overdue unpaid and this month only — later months are hidden';
     }
 
     function showPanel() {
@@ -302,7 +315,7 @@
       if (errEl) errEl.hidden = true;
       showPanel();
 
-      var dueList = getAllUpcomingDue(feesRows);
+      var dueList = getDueAndCurrentMonth(feesRows);
       var lookup = buildStudentLookup(students);
       var split = splitDueLists(dueList);
 
@@ -328,13 +341,13 @@
       if (emptyEl) emptyEl.hidden = true;
 
       if (urgentWrap && urgentTrack) {
-        if (split.urgent.length) {
+        if (split.overdue.length) {
           urgentWrap.hidden = false;
           if (urgentCountEl) {
             urgentCountEl.textContent =
-              split.urgent.length + ' urgent';
+              split.overdue.length + ' overdue';
           }
-          urgentTrack.innerHTML = split.urgent
+          urgentTrack.innerHTML = split.overdue
             .map(function (item) {
               return renderDueFeesCard(item, lookup, true);
             })
@@ -346,18 +359,19 @@
       }
 
       if (wrapEl && trackEl) {
-        if (split.regular.length) {
+        if (split.thisMonth.length) {
           wrapEl.hidden = false;
-          if (marqueeLabel) marqueeLabel.hidden = !split.urgent.length;
-          var cards = split.regular
+          if (marqueeLabel) marqueeLabel.hidden = false;
+          var cards = split.thisMonth
             .map(function (item) {
-              return renderDueFeesCard(item, lookup, false);
+              return renderDueFeesCard(item, lookup, isUrgentDue(item));
             })
             .join('');
           trackEl.innerHTML = cards + cards;
         } else {
           wrapEl.hidden = true;
           trackEl.innerHTML = '';
+          if (marqueeLabel) marqueeLabel.hidden = true;
         }
       }
 

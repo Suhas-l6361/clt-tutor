@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20260730batchbig1" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260827fees1" />
   <link rel="stylesheet" href="../css/enrollment.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
@@ -104,11 +104,11 @@
         </div>
       </div>
 
-      <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Upcoming fee installments">
+      <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Due fees and this month installments">
         <div class="crm-due-fees__head">
           <div>
-            <h3 class="crm-due-fees__title"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i> Upcoming due fees</h3>
-            <p class="crm-due-fees__sub" id="crm-due-fees-sub">Upcoming installments from Jun 2026 onwards — nearest due first</p>
+            <h3 class="crm-due-fees__title"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i> Due fees &amp; this month</h3>
+            <p class="crm-due-fees__sub" id="crm-due-fees-sub">Overdue unpaid and installments due this month — later months are hidden</p>
           </div>
           <div class="crm-due-fees__head-actions">
             <span class="crm-due-fees__hint">Hover to pause</span>
@@ -120,8 +120,8 @@
         <p class="crm-due-fees__error" id="crm-due-fees-error" hidden></p>
         <div class="crm-due-fees__urgent" id="crm-due-fees-urgent" hidden>
           <p class="crm-due-fees__urgent-label">
-            <i class="fa-solid fa-bell" aria-hidden="true"></i>
-            Due within 5 days
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            Due fees
             <span class="crm-due-fees__urgent-count" id="crm-due-fees-urgent-count"></span>
           </p>
           <div class="crm-due-fees__urgent-scroll">
@@ -129,12 +129,12 @@
           </div>
         </div>
         <div class="crm-due-fees__marquee-wrap" id="crm-due-fees-marquee-wrap" hidden>
-          <p class="crm-due-fees__marquee-label" id="crm-due-fees-marquee-label" hidden>All upcoming</p>
+          <p class="crm-due-fees__marquee-label" id="crm-due-fees-marquee-label" hidden>This month</p>
           <div class="crm-due-fees__marquee" id="crm-due-fees-marquee">
             <div class="crm-due-fees__track" id="crm-due-fees-track" aria-live="polite"></div>
           </div>
         </div>
-        <p class="crm-due-fees__empty" id="crm-due-fees-empty" hidden>All clear — no upcoming installment dues.</p>
+        <p class="crm-due-fees__empty" id="crm-due-fees-empty" hidden>All clear — no due fees and no installments this month.</p>
       </section>
 
       <section class="crm-pending-requests" id="crm-pending-requests" hidden aria-label="Pending enquiry responses">
@@ -181,11 +181,11 @@
         </article>
         <article class="crm-kpi">
           <i class="fa-solid fa-indian-rupee-sign"></i>
-          <div><p class="num" id="k-fees-month">—</p><p class="lbl">Fees this month</p></div>
+          <div><p class="num" id="k-fees-month">—</p><p class="lbl">Due fees</p></div>
         </article>
         <article class="crm-kpi">
           <i class="fa-solid fa-calendar-check"></i>
-          <div><p class="num" id="k-installments">—</p><p class="lbl">Installments due</p></div>
+          <div><p class="num" id="k-installments">—</p><p class="lbl">This month dues</p></div>
         </article>
       </section>
 
@@ -237,6 +237,7 @@
           <div class="crm-actions">
             <a href="testAnalysis.html" class="crm-action crm-action--primary"><i class="fa-solid fa-chart-line"></i> Full test analysis</a>
             <a href="addTest.html" class="crm-action"><i class="fa-solid fa-circle-plus"></i> Add test</a>
+            <a href="fetch-from-topranker.html" class="crm-action"><img src="../image/fetch.png" alt="" /> Fetch Toprankers</a>
           </div>
         </div>
 
@@ -262,10 +263,10 @@
 
         <div class="crm-card crm-card--metrics">
           <div class="crm-card-head">
-            <h3><i class="fa-solid fa-money-bill-wave"></i> Fees this month</h3>
+            <h3><i class="fa-solid fa-money-bill-wave"></i> Due fees &amp; this month</h3>
             <span class="crm-card-kicker" id="crm-fees-kicker">—</span>
           </div>
-          <p class="crm-section-desc">Collections and pending installments for the current month.</p>
+          <p class="crm-section-desc">Overdue unpaid and installments due this month. Later months are not shown.</p>
           <div id="crm-fees-hero" class="crm-fees-hero"></div>
           <div class="crm-mini-stats crm-mini-stats--fees" id="crm-fees-stats"></div>
           <div id="crm-metrics-fees-body" class="crm-metrics-body"></div>
@@ -290,7 +291,7 @@
         </article>
       </section>
 
-      <section class="crm-installments" id="crm-installments-section">
+      <section class="crm-installments" id="crm-installments-section" hidden>
         <div class="crm-card crm-card--wide">
           <h3>
             <i class="fa-solid fa-money-bill-wave"></i>
@@ -519,21 +520,21 @@
   <script src="../js/auth.js?v=20260723b"></script>
   <script src="../js/crm-branch-scope.js?v=20260726yel1"></script>
   <script src="../js/guard.js?v=20260723b"></script>
-  <script src="../js/nav.js?v=20260710g"></script>
+  <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/fees-installments.js?v=20260819paid1"></script>
+  <script src="../js/fees-installments.js?v=20260827fees1"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-branch-filter.js"></script>
-  <script src="../js/crm-dashboard-metrics.js?v=20260815phone1"></script>
+  <script src="../js/crm-dashboard-metrics.js?v=20260827fees1"></script>
   <script src="../js/crm-dashboard-overdue-fees.js?v=20260819paid1"></script>
-  <script src="../js/crm-dashboard-due-fees.js?v=20260819paid1"></script>
+  <script src="../js/crm-dashboard-due-fees.js?v=20260827fees1"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
   <script src="../js/crm-dashboard-workshop.js?v=20260730aug2"></script>
   <script src="../js/friendly-popup.js"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
-  <script src="../js/crm-dashboard-installments.js?v=20260815phone1"></script>
+  <script src="../js/crm-dashboard-installments.js?v=20260827fees1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
