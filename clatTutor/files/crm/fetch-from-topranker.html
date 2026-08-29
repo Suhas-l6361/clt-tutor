@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/fetch-from-topranker.css?v=20260826fetch" />
+  <link rel="stylesheet" href="../css/fetch-from-topranker.css?v=20260829soln1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -19,10 +19,19 @@
     <div class="trf-page">
       <section class="trf-hero">
         <h2><img src="../image/fetch.png" alt="" class="trf-hero-icon" /> Fetch from Toprankers</h2>
-        <p>Paste the test HTML. Fetch pulls passages, questions, and options. Add an answer key to mark the correct option under each question.</p>
+        <p>Paste the test HTML for questions, or switch to Solutions to pull the official option and the written reason. Copy or download Word from the popup.</p>
       </section>
 
       <div class="trf-card">
+        <div class="trf-tabs" role="tablist">
+          <button type="button" class="trf-tab is-on" id="trf-tab-questions" role="tab" aria-selected="true" aria-controls="trf-panel-questions">
+            <i class="fa-regular fa-file-lines" aria-hidden="true"></i> Questions
+          </button>
+          <button type="button" class="trf-tab" id="trf-tab-solutions" role="tab" aria-selected="false" aria-controls="trf-panel-solutions">
+            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Solutions
+          </button>
+        </div>
+        <div class="trf-panel" id="trf-panel-questions" role="tabpanel">
         <div class="trf-body">
           <ol class="trf-steps">
             <li>Open the test on Toprankers while logged in.</li>
@@ -53,6 +62,32 @@
             </button>
           </div>
           <div class="trf-alert" id="trf-code-status" hidden></div>
+        </div>
+        </div>
+        <div class="trf-panel" id="trf-panel-solutions" role="tabpanel" hidden>
+        <div class="trf-body">
+          <ol class="trf-steps">
+            <li>On Toprankers open <strong>Solutions</strong> (not Report, not the live test).</li>
+            <li>Press <kbd>Ctrl</kbd>+<kbd>U</kbd>, then <kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Ctrl</kbd>+<kbd>C</kbd>.</li>
+            <li>Paste below and click Fetch solutions.</li>
+          </ol>
+          <label for="trf-soln-code">Solutions HTML</label>
+          <textarea
+            id="trf-soln-code"
+            spellcheck="false"
+            placeholder="Paste the Solutions page source here…"
+          ></textarea>
+          <p class="trf-hint">This pull keeps the official option plus the reason under each question. Questions fetch is unchanged. In the popup, click a question number to jump to it.</p>
+          <div class="trf-actions">
+            <button type="button" class="trf-btn trf-btn--gold" id="trf-fetch-soln">
+              <img src="../image/fetch.png" alt="" class="trf-btn-icon" /> Fetch solutions
+            </button>
+            <button type="button" class="trf-btn trf-btn--ghost" id="trf-clear-soln">
+              <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+          </div>
+          <div class="trf-alert" id="trf-soln-status" hidden></div>
+        </div>
         </div>
       </div>
     </div>
@@ -89,7 +124,7 @@
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/toprankers-parser.js?v=20260826tr9"></script>
+  <script src="../js/toprankers-parser.js?v=20260829soln6"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
@@ -106,18 +141,45 @@
 
       var P = window.ToprankersParser;
       var lastData = null;
+      var lastMode = 'questions';
       var lastKeyRaw = '';
       var codeInput = document.getElementById('trf-code');
       var keyInput = document.getElementById('trf-key');
       var fetchCodeBtn = document.getElementById('trf-fetch-code');
       var clearCodeBtn = document.getElementById('trf-clear-code');
       var codeStatus = document.getElementById('trf-code-status');
+      var solnInput = document.getElementById('trf-soln-code');
+      var fetchSolnBtn = document.getElementById('trf-fetch-soln');
+      var clearSolnBtn = document.getElementById('trf-clear-soln');
+      var solnStatus = document.getElementById('trf-soln-status');
+      var tabQuestions = document.getElementById('trf-tab-questions');
+      var tabSolutions = document.getElementById('trf-tab-solutions');
+      var panelQuestions = document.getElementById('trf-panel-questions');
+      var panelSolutions = document.getElementById('trf-panel-solutions');
       var modal = document.getElementById('trf-modal');
       var modalBody = document.getElementById('trf-modal-body');
       var modalTitle = document.getElementById('trf-modal-title');
       var modalMeta = document.getElementById('trf-modal-meta');
       var copyBtn = document.getElementById('trf-copy');
       var wordBtn = document.getElementById('trf-word');
+
+      function setTab(name) {
+        var qOn = name !== 'solutions';
+        if (tabQuestions) {
+          tabQuestions.classList.toggle('is-on', qOn);
+          tabQuestions.setAttribute('aria-selected', qOn ? 'true' : 'false');
+        }
+        if (tabSolutions) {
+          tabSolutions.classList.toggle('is-on', !qOn);
+          tabSolutions.setAttribute('aria-selected', qOn ? 'false' : 'true');
+        }
+        if (panelQuestions) panelQuestions.hidden = !qOn;
+        if (panelSolutions) panelSolutions.hidden = qOn;
+      }
+
+      function activeStatus() {
+        return lastMode === 'solutions' ? solnStatus : codeStatus;
+      }
 
       function setStatus(el, kind, title, detail) {
         if (!el) return;
@@ -152,7 +214,7 @@
             out.push(q.correctLetter || '');
           });
         });
-        return out.filter(Boolean).length ? out.join(' ') : '';
+        return out.some(Boolean) ? out.join(' ') : '';
       }
 
       function attachKey(data, rawKey, statusEl) {
@@ -177,15 +239,21 @@
         return true;
       }
 
-      function renderPopup(data) {
+      function renderPopup(data, mode) {
         lastData = data;
-        modalTitle.textContent = data.title || 'Toprankers Test';
+        lastMode = mode === 'solutions' ? 'solutions' : 'questions';
+        var showSolutions = lastMode === 'solutions';
+        modalTitle.textContent =
+          (data.title || 'Toprankers Test') + (showSolutions ? ' — Solutions' : '');
         var keyLabel =
           data.answerSource === 'official'
             ? data.correctCount + ' official answers'
             : data.correctCount
               ? data.correctCount + ' answers marked'
               : 'no answers marked yet';
+        if (showSolutions && data.solutionCount) {
+          keyLabel += ' · ' + data.solutionCount + ' solutions';
+        }
         modalMeta.textContent =
           (data.duration ? data.duration + ' min · ' : '') +
           data.questionCount +
@@ -195,19 +263,26 @@
           keyLabel;
 
         var html = '';
-        if (data.warning) {
+        if (data.warning && !(showSolutions && data.correctCount)) {
           html += '<p class="trf-warn">' + P.escapeHtml(data.warning) + '</p>';
         }
+        if (showSolutions && !data.solutionCount) {
+          html +=
+            '<p class="trf-warn">No written reasons in this paste. Open <strong>Solutions</strong> on Toprankers, press Ctrl+U, and paste that page.</p>';
+        }
         html += '<div class="trf-keybox">';
-        html += '<p class="trf-keybox__title">Answer key</p>';
-        if (data.correctCount) {
+        html +=
+          '<p class="trf-keybox__title">' +
+          (showSolutions ? 'Answers — click a question to jump to it' : 'Answer key') +
+          '</p>';
+        if (data.correctCount || showSolutions) {
           html += '<div class="trf-key">';
           data.passages.forEach(function (p) {
             p.questions.forEach(function (q) {
               html +=
                 '<span class="trf-key-chip' +
                 (q.correctLetter ? ' is-on' : '') +
-                '"><b>Q' +
+                '" role="button" tabindex="0"><b>Q' +
                 q.n +
                 '</b> ' +
                 P.escapeHtml(q.correctLetter || '—') +
@@ -219,7 +294,9 @@
         html +=
           '<div class="trf-key-row"><input type="text" id="trf-modal-key" spellcheck="false" placeholder="B A B C B A A B …" value="' +
           P.escapeHtml(lastKeyRaw || lettersFromData(data)) +
-          '" /><button type="button" class="trf-btn trf-btn--gold" id="trf-apply-key">Show on questions</button></div>';
+          '" /><button type="button" class="trf-btn trf-btn--gold" id="trf-apply-key">' +
+          (showSolutions ? 'Paste answers' : 'Show on questions') +
+          '</button></div>';
         html += '</div>';
 
         data.passages.forEach(function (p) {
@@ -230,6 +307,26 @@
             html += '<div class="trf-q" id="trf-q-' + q.n + '">';
             html +=
               '<p class="trf-q__stem">Q' + q.n + '. ' + P.escapeHtml(q.stem || '') + '</p>';
+            if (showSolutions) {
+              if (q.correctLetter) {
+                var correctOpt = null;
+                q.options.forEach(function (opt) {
+                  if (opt.letter === q.correctLetter) correctOpt = opt;
+                });
+                html +=
+                  '<div class="trf-opt is-correct">' +
+                  P.escapeHtml(
+                    q.correctLetter +
+                      '. ' +
+                      ((correctOpt && correctOpt.text) || q.correctText || '')
+                  ) +
+                  ' ✓</div>';
+              }
+              html +=
+                '<div class="trf-soln"><strong>Reason</strong><p>' +
+                P.escapeHtml(q.reason || q.solution || 'No written reason for this question in the pasted page.') +
+                '</p></div>';
+            } else {
             q.options.forEach(function (opt) {
               var isC = q.correctLetter && opt.letter === q.correctLetter;
               html +=
@@ -246,6 +343,7 @@
                 P.escapeHtml(q.correctLetter) +
                 (q.correctText ? ' — ' + P.escapeHtml(q.correctText) : '') +
                 '</p>';
+            }
             }
             html += '</div>';
           });
@@ -316,7 +414,7 @@
                 ' passages · options included. Paste a key to mark Correct answer under each question.'
           );
         }
-        renderPopup(data);
+        renderPopup(data, 'questions');
       }
 
       fetchCodeBtn.addEventListener('click', function () {
@@ -346,6 +444,100 @@
         codeInput.focus();
       });
 
+      function showParsedSolutions(raw) {
+        var data = P.parse(raw);
+        if (!data.ok) {
+          if (data.code === 'LOCKED') {
+            setStatus(
+              solnStatus,
+              'is-err',
+              'This HTML is the login wall',
+              'Open Solutions while logged in, press Ctrl+U, and paste that source.'
+            );
+            return;
+          }
+          if (data.code === 'REPORT') {
+            setStatus(
+              solnStatus,
+              'is-err',
+              'This is the score report, not Solutions',
+              data.solutionsUrl
+                ? 'Open Solutions, press Ctrl+U, copy all, and paste that source. Link: ' +
+                  data.solutionsUrl
+                : 'On Toprankers click Solutions (not Report), then Ctrl+U and paste that page.'
+            );
+            return;
+          }
+          if (data.code === 'NO_QUESTIONS') {
+            setStatus(
+              solnStatus,
+              'is-err',
+              'No questions in this paste',
+              'Paste the Solutions page source (Ctrl+U), not the address bar link.'
+            );
+            return;
+          }
+          setStatus(solnStatus, 'is-err', 'Nothing to parse', 'Paste the full Solutions page source and try again.');
+          return;
+        }
+        var detail =
+          data.correctCount +
+          ' official answers · ' +
+          (data.solutionCount || 0) +
+          ' written reasons · ' +
+          data.passageCount +
+          ' passages';
+        setStatus(
+          solnStatus,
+          data.solutionCount ? 'is-ok' : 'is-info',
+          'Loaded ' + data.questionCount + ' questions',
+          data.solutionCount
+            ? detail
+            : detail + '. If reasons are missing, paste the Solutions page, not the live test.'
+        );
+        renderPopup(data, 'solutions');
+      }
+
+      if (tabQuestions) {
+        tabQuestions.addEventListener('click', function () {
+          setTab('questions');
+        });
+      }
+      if (tabSolutions) {
+        tabSolutions.addEventListener('click', function () {
+          setTab('solutions');
+        });
+      }
+
+      if (fetchSolnBtn) {
+        fetchSolnBtn.addEventListener('click', function () {
+          var raw = String((solnInput && solnInput.value) || '').trim();
+          if (!raw) {
+            setStatus(solnStatus, 'is-err', 'Nothing pasted', 'Paste the Solutions Ctrl+U HTML, then click Fetch solutions.');
+            return;
+          }
+          if (/^(view-source:)?https?:\/\//i.test(raw) && raw.length < 500) {
+            setStatus(
+              solnStatus,
+              'is-err',
+              'That is a link, not the page',
+              'Press Ctrl+U on the Solutions page, copy everything, and paste that.'
+            );
+            return;
+          }
+          setStatus(solnStatus, 'is-info', 'Reading solutions…', '');
+          showParsedSolutions(raw);
+        });
+      }
+
+      if (clearSolnBtn) {
+        clearSolnBtn.addEventListener('click', function () {
+          if (solnInput) solnInput.value = '';
+          setStatus(solnStatus, '', '');
+          if (solnInput) solnInput.focus();
+        });
+      }
+
       modalBody.addEventListener('click', function (e) {
         var chip = e.target.closest && e.target.closest('.trf-key-chip');
         if (chip) {
@@ -365,13 +557,26 @@
         var box = document.getElementById('trf-modal-key');
         var raw = String((box && box.value) || '').trim();
         if (!raw) {
-          setStatus(codeStatus, 'is-err', 'No key pasted', 'Type letters like B A B C B, then Show on questions.');
+          setStatus(
+            activeStatus(),
+            'is-err',
+            'No key pasted',
+            lastMode === 'solutions'
+              ? 'Type letters like B A B C B, then Paste answers.'
+              : 'Type letters like B A B C B, then Show on questions.'
+          );
           return;
         }
-        if (attachKey(lastData, raw, codeStatus)) renderPopup(lastData);
+        if (attachKey(lastData, raw, activeStatus())) renderPopup(lastData, lastMode);
       });
 
       modalBody.addEventListener('keydown', function (e) {
+        var chipKey = e.target && e.target.closest && e.target.closest('.trf-key-chip');
+        if (chipKey && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          chipKey.click();
+          return;
+        }
         if (e.key !== 'Enter' || !e.target || e.target.id !== 'trf-modal-key') return;
         e.preventDefault();
         var apply = document.getElementById('trf-apply-key');
@@ -380,7 +585,7 @@
 
       copyBtn.addEventListener('click', function () {
         if (!lastData) return;
-        var text = P.toPlainText(lastData);
+        var text = P.toPlainText(lastData, { solutions: lastMode === 'solutions' });
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(
             function () {
@@ -400,7 +605,7 @@
 
       wordBtn.addEventListener('click', function () {
         if (!lastData) return;
-        P.downloadWord(lastData);
+        P.downloadWord(lastData, { solutions: lastMode === 'solutions' });
       });
 
       document.getElementById('trf-modal-close').addEventListener('click', closeModal);

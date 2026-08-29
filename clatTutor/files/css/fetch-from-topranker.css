@@ -528,6 +528,36 @@
   white-space: nowrap;
 }
 
+.trf-soln {
+  margin: 0.55rem 0 0;
+  padding: 0.7rem 0.8rem;
+  background: #f4fbf6;
+  border: 1px solid #c6ebd5;
+  border-radius: 10px;
+}
+
+.trf-soln strong {
+  display: block;
+  margin: 0 0 0.3rem;
+  color: #05603a;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.trf-soln p {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #144d32;
+}
+
+.trf-key-chip:focus {
+  outline: 2px solid #c9a000;
+  outline-offset: 1px;
+}
+
 .trf-q.is-flash {
   outline: 2px solid #c9a000;
 }

@@ -470,6 +470,51 @@
     return 'moderate';
   }
 
+  function endOfCurrentMonthStart() {
+    var now = new Date();
+    return startOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+  }
+
+  /**
+   * Unpaid amount that is already past due, plus this calendar month if unpaid.
+   * Later months in the installment plan are excluded. Never exceeds remaining tuition.
+   * Does not change who is overdue — only how much to collect now.
+   */
+  function getDueNowAmount(state) {
+    if (!state || state.balance <= 0.5) return 0;
+    var installments = state.installments || [];
+    if (!installments.length) return 0;
+
+    var endThisMonth = endOfCurrentMonthStart();
+    var planSum = 0;
+    for (var p = 0; p < installments.length; p++) {
+      planSum += parseAmount(installments[p].amount);
+    }
+    var remainingPaid = Math.max(0, planSum - Math.max(0, state.balance));
+    var dueNow = 0;
+
+    for (var i = 0; i < installments.length; i++) {
+      var inst = installments[i];
+      var instAmt = parseAmount(inst.amount);
+      var due = startOfDay(inst.dueDate);
+
+      if (instAmt > 0 && remainingPaid >= instAmt) {
+        remainingPaid -= instAmt;
+        continue;
+      }
+
+      var unpaidOnInstallment = instAmt > 0 ? Math.max(0, instAmt - remainingPaid) : Math.max(0, state.balance);
+      remainingPaid = 0;
+
+      if (!isInstallmentInScope(inst.dueDate)) continue;
+      if (due.getTime() > endThisMonth.getTime()) break;
+
+      dueNow += unpaidOnInstallment;
+    }
+
+    return Math.min(dueNow, Math.max(0, state.balance));
+  }
+
   /**
    * Students with past-due installments where tuition ≠ total paid (balance remains).
    * One entry per student — worst (most days overdue) installment shown.
@@ -552,7 +597,10 @@
         if (!worst || entry.daysOverdue > worst.daysOverdue) worst = entry;
       }
 
-      if (worst) out.push(worst);
+      if (worst) {
+        worst.dueNowAmount = getDueNowAmount(state);
+        out.push(worst);
+      }
     });
 
     out.sort(function (a, b) {
@@ -589,6 +637,7 @@
     getAllUpcomingInstallments: getAllUpcomingInstallments,
     countUniqueStudentsDueThisMonth: countUniqueStudentsDueThisMonth,
     getOverdueUnpaidInstallments: getOverdueUnpaidInstallments,
+    getDueNowAmount: getDueNowAmount,
     countOverdueUnpaidStudents: countOverdueUnpaidStudents,
     sumOverdueBalances: sumOverdueBalances,
     parseAmount: parseAmount,

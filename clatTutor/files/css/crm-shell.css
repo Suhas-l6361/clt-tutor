@@ -910,6 +910,15 @@ body.app-body.crm-dashboard {
 .crm-overdue-branch-modal__table tbody tr:hover {
   background: #fff7f7;
 }
+.crm-overdue-branch-modal__table .crm-student-cell {
+  min-width: 11rem;
+}
+.crm-overdue-branch-modal__table .crm-student-cell__avatar {
+  width: 38px;
+  height: 38px;
+  border-color: #fecaca;
+  box-shadow: 0 1px 4px rgba(185, 28, 28, 0.12);
+}
 .crm-overdue-branch-modal__num {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

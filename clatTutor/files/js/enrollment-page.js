@@ -54,6 +54,122 @@
     return normalizeDateTs(new Date(t));
   }
 
+  var ENROLL_IMAGE_BUCKET = 'enrollment-image-clatutor';
+  var DEFAULT_USER_ICON =
+    '<i class="fa-solid fa-user enrollment-photo__icon" aria-hidden="true"></i>';
+
+  function firstStoredKey(val) {
+    if (val == null || val === '') return '';
+    if (typeof val === 'object' && !Array.isArray(val) && val.key) return String(val.key);
+    if (typeof val === 'string') {
+      try {
+        var p = JSON.parse(val);
+        if (Array.isArray(p) && p.length) {
+          var x = p[0];
+          if (typeof x === 'string') return x;
+          if (x && x.key) return String(x.key);
+          if (x && x.url) return String(x.url);
+        }
+        if (typeof p === 'string') return p;
+      } catch (_) {}
+    }
+    if (Array.isArray(val) && val.length) {
+      var y = val[0];
+      if (typeof y === 'string') return y;
+      if (y && y.key) return String(y.key);
+    }
+    return '';
+  }
+
+  /** S3 object key from photo_url (plain key, JSON, or HTTPS URL). */
+  function enrollPhotoKey(raw) {
+    var stored = firstStoredKey(raw) || (raw != null && raw !== '' ? String(raw).trim() : '');
+    if (!stored) return '';
+    if (!/^https?:\/\//i.test(stored)) return stored.replace(/^\/+/, '');
+    try {
+      var u = new URL(stored);
+      var path = decodeURIComponent((u.pathname || '').replace(/^\/+/, ''));
+      if (path.indexOf(ENROLL_IMAGE_BUCKET + '/') === 0) {
+        path = path.slice(ENROLL_IMAGE_BUCKET.length + 1);
+      }
+      return path;
+    } catch (_) {
+      return stored;
+    }
+  }
+
+  function enrollPhotoMarkup(rawPhoto, extraClass) {
+    var key = enrollPhotoKey(rawPhoto);
+    var stored =
+      rawPhoto != null && String(rawPhoto).trim() !== '' ? String(rawPhoto).trim() : key;
+    return (
+      '<span class="enrollment-photo' +
+      (extraClass ? ' ' + extraClass : '') +
+      '"' +
+      (key ? ' data-enroll-photo="' + escHtml(stored || key) + '"' : '') +
+      ' aria-hidden="true">' +
+      DEFAULT_USER_ICON +
+      '</span>'
+    );
+  }
+
+  function resolveEnrollPhotoUrl(raw) {
+    var key = enrollPhotoKey(raw);
+    if (!key) return Promise.resolve('');
+    var c = window.APP_CONFIG || {};
+    var base = c.ENROLL_REQUEST_API ? String(c.ENROLL_REQUEST_API).trim() : '';
+    var original = raw != null ? String(raw).trim() : '';
+    if (!base) {
+      return Promise.resolve(/^https?:\/\//i.test(original) ? original : '');
+    }
+    var endpoint =
+      base + '?action=get_download_url&inline=1&key=' + encodeURIComponent(key);
+    return fetch(endpoint, { method: 'GET', headers: { Accept: 'application/json' } })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (res.ok && data && (data.downloadUrl || data.url)) {
+            return data.downloadUrl || data.url;
+          }
+          return /^https?:\/\//i.test(original) ? original : '';
+        });
+      })
+      .catch(function () {
+        return /^https?:\/\//i.test(original) ? original : '';
+      });
+  }
+
+  function hydrateEnrollPhotos(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-enroll-photo]').forEach(function (el) {
+      var key = el.getAttribute('data-enroll-photo') || '';
+      if (!key) return;
+      resolveEnrollPhotoUrl(key).then(function (url) {
+        if (!url || !el.parentNode) return;
+        var img = document.createElement('img');
+        img.className = 'enrollment-photo__img';
+        img.alt = '';
+        img.onerror = function () {
+          el.innerHTML = DEFAULT_USER_ICON;
+          el.classList.remove('enrollment-photo--clickable');
+          el.removeAttribute('role');
+          el.removeAttribute('tabindex');
+          el.removeAttribute('aria-label');
+          el.setAttribute('aria-hidden', 'true');
+        };
+        img.onload = function () {
+          el.innerHTML = '';
+          el.appendChild(img);
+          el.classList.add('enrollment-photo--clickable');
+          el.setAttribute('role', 'button');
+          el.setAttribute('tabindex', '0');
+          el.setAttribute('aria-label', 'View student photo');
+          el.removeAttribute('aria-hidden');
+        };
+        img.src = url;
+      });
+    });
+  }
+
   function dlRow(k, v, block) {
     return (
       '<div class="enrollment-dl__row">' +
@@ -213,7 +329,11 @@
         return (
           '<tr>' +
           '<td>' +
+          '<span class="enrollment-student-cell">' +
+          enrollPhotoMarkup(r.photo_url, 'enrollment-photo--table') +
+          '<span class="enrollment-student-cell__name">' +
           val(r.student_name) +
+          '</span></span>' +
           '</td>' +
           '<td>' +
           val(r.student_email) +
@@ -409,11 +529,14 @@
 
   function modalBodyEnroll(r) {
     return (
+      '<div class="enrollment-modal__photo-head">' +
+      enrollPhotoMarkup(r.photo_url, 'enrollment-photo--modal') +
       '<p class="enrollment-modal__meta">#' +
       escHtml(String(r.id)) +
       ' · ' +
       fmtTs(r.created_at) +
       '</p>' +
+      '</div>' +
       '<dl class="enrollment-dl enrollment-dl--modal">' +
       dlRow('Target year', val(r.target_year)) +
       dlRow('Course', val(r.course)) +
@@ -427,6 +550,8 @@
       dlRow('Address', r.address != null && String(r.address).trim() !== '' ? escHtml(r.address) : '—', true) +
       dlRow('School / college', val(r.school_college)) +
       dlRow('Stream', val(r.stream)) +
+      dlRow('Parent profession', val(r.parent_profession)) +
+      dlRow('Caste', val(r.caste)) +
       dlRow('Source of info', val(r.source_of_info)) +
       '</dl>'
     );
@@ -546,6 +671,7 @@
       titleEl.textContent = (titles[kind] || 'Details') + ' #' + String(r.id);
       bodyEl.innerHTML = buildModalHtml(kind, r);
       setModalSaveStatus('');
+      if (kind === 'enroll') hydrateEnrollPhotos(bodyEl);
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
@@ -616,13 +742,72 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !modal.hidden) closeModal();
+      if (e.key !== 'Escape' || modal.hidden) return;
+      var lb = document.getElementById('enrollment-photo-lightbox');
+      if (lb && !lb.hidden) return;
+      closeModal();
     });
 
     return { openModal: openModal };
   }
 
+  function wirePhotoLightbox() {
+    var lightbox = document.getElementById('enrollment-photo-lightbox');
+    var lightboxImg = document.getElementById('enrollment-photo-lightbox-img');
+    if (!lightbox || !lightboxImg) return;
+
+    function closePhotoLightbox() {
+      lightbox.hidden = true;
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImg.removeAttribute('src');
+    }
+
+    function openPhotoLightbox(src) {
+      if (!src) return;
+      lightboxImg.src = src;
+      lightbox.hidden = false;
+      lightbox.setAttribute('aria-hidden', 'false');
+      var closeBtn = lightbox.querySelector('[data-enroll-photo-close].enrollment-photo-lightbox__close');
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function photoFromEvent(e) {
+      return e.target && e.target.closest ? e.target.closest('.enrollment-photo--clickable') : null;
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-enroll-photo-close]')) {
+        e.preventDefault();
+        closePhotoLightbox();
+        return;
+      }
+      var photo = photoFromEvent(e);
+      if (!photo) return;
+      var img = photo.querySelector('img');
+      if (!img || !img.src) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openPhotoLightbox(img.src);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !lightbox.hidden) {
+        e.preventDefault();
+        closePhotoLightbox();
+        return;
+      }
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var photo = photoFromEvent(e);
+      if (!photo) return;
+      var img = photo.querySelector('img');
+      if (!img || !img.src) return;
+      e.preventDefault();
+      openPhotoLightbox(img.src);
+    });
+  }
+
   function wire() {
+    wirePhotoLightbox();
     var panel = document.getElementById('enrollment-results');
     var heading = document.getElementById('enrollment-results-heading');
     var listEl = document.getElementById('enrollment-list');
@@ -707,6 +892,7 @@
       else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
       else if (kind === 'demo') listEl.innerHTML = renderDemo(rows);
       else listEl.innerHTML = renderContact(rows);
+      if (kind === 'enroll') hydrateEnrollPhotos(listEl);
     }
 
     function updateRowRespondedInMemory(kind, id, checked) {

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/parent-portal.css?v=20260815f" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260829books" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body parent-portal-body">
@@ -43,6 +43,24 @@
           <span class="hint" id="pp-stat-fees-hint">Receipts on file</span>
         </div>
       </div>
+
+      <section class="pp-card pp-books" aria-labelledby="pp-books-heading">
+        <div class="pp-books__head">
+          <div>
+            <h3 id="pp-books-heading">Books issued</h3>
+            <p class="pp-card__lead" id="pp-books-lead">Loading editions issued to your child…</p>
+          </div>
+          <span class="pp-books__count" id="pp-books-count">0 issued</span>
+        </div>
+        <div id="pp-books-grid" aria-live="polite"></div>
+        <p class="pp-books__contact">
+          If a book is missing, damaged, or the date looks wrong, please contact us.
+          <span class="pp-books__contact-links">
+            <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i> 8150884422</a>
+            <a href="https://wa.me/918150884422" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+          </span>
+        </p>
+      </section>
 
       <div class="pp-grid-2">
         <section class="pp-card">
@@ -83,12 +101,12 @@
 
   <div id="app-root" class="app-shell"></div>
 
-  <script src="../js/config.js?v=20260815a"></script>
+  <script src="../js/config.js?v=20260829book"></script>
   <script src="../js/auth.js?v=20260815a"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260815b"></script>
   <script src="../js/parent-portal.js?v=20260815f"></script>
-  <script src="../js/parent-dashboard-page.js?v=20260815e"></script>
+  <script src="../js/parent-dashboard-page.js?v=20260829clear"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

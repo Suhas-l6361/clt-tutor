@@ -25,6 +25,59 @@
     return d.innerHTML;
   }
 
+  function firstStoredKey(val) {
+    if (val == null || val === '') return '';
+    if (typeof val === 'object' && !Array.isArray(val) && val.key) return String(val.key);
+    if (typeof val === 'string') {
+      try {
+        var p = JSON.parse(val);
+        if (Array.isArray(p) && p.length) {
+          var x = p[0];
+          if (typeof x === 'string') return x;
+          if (x && x.key) return String(x.key);
+        }
+      } catch (_) {}
+    }
+    if (Array.isArray(val) && val.length) {
+      var y = val[0];
+      if (typeof y === 'string') return y;
+      if (y && y.key) return String(y.key);
+    }
+    return '';
+  }
+
+  function studentImgKey(student) {
+    if (!student) return '';
+    return firstStoredKey(student.img_url) || (student.img_url ? String(student.img_url) : '');
+  }
+
+  function getInitials(name) {
+    return (
+      String(name || '')
+        .trim()
+        .split(/\s+/)
+        .map(function (p) {
+          return p[0];
+        })
+        .join('')
+        .slice(0, 2)
+        .toUpperCase() || 'ST'
+    );
+  }
+
+  function applyOverdueModalAvatars(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-crm-overdue-avatar]').forEach(function (el) {
+      var name = el.getAttribute('data-crm-name') || '';
+      var imgKey = el.getAttribute('data-crm-img') || '';
+      if (typeof window.applyStudentAvatarToElement === 'function') {
+        window.applyStudentAvatarToElement(el, name, imgKey, 'crm-dash-avatar-img');
+        return;
+      }
+      el.textContent = getInitials(name);
+    });
+  }
+
   function normalizeBranchKey(raw) {
     if (window.CrmBranchScope && typeof window.CrmBranchScope.normalizeKey === 'function') {
       return window.CrmBranchScope.normalizeKey(raw);
@@ -47,6 +100,15 @@
     var num = Number(n);
     if (!isFinite(num)) return '₹ 0';
     return '₹ ' + Math.round(num).toLocaleString('en-IN');
+  }
+
+  /** Overdue unpaid + this month only — never the full remaining tuition. */
+  function itemDueNowAmount(item) {
+    if (!item) return 0;
+    var n = Number(item.dueNowAmount);
+    if (isFinite(n) && n >= 0) return n;
+    n = Number(item.amountOverdue != null ? item.amountOverdue : item.installmentAmount);
+    return isFinite(n) && n > 0 ? n : 0;
   }
 
   function cleanPhone(v) {
@@ -194,7 +256,7 @@
       if (!modal || !modalBody) return;
       var key = normalizeBranchKey(branchLabel);
       var items = (branchBuckets[key] && branchBuckets[key].items) || [];
-      var balance = (branchBuckets[key] && branchBuckets[key].balance) || 0;
+      var dueNow = (branchBuckets[key] && branchBuckets[key].dueNow) || 0;
 
       if (modalTitle) modalTitle.textContent = branchLabel + ' — overdue fees';
       if (modalSub) {
@@ -202,8 +264,8 @@
           items.length +
           ' student' +
           (items.length === 1 ? '' : 's') +
-          ' · Balance ' +
-          formatInrAmount(balance);
+          ' · Due now ' +
+          formatInrAmount(dueNow);
       }
 
       if (!items.length) {
@@ -227,11 +289,18 @@
                   : item.amountOverdue;
             var receiptId = r.id != null ? r.id : '';
             var href = feesEditUrl(receiptId);
+            var imgKey = studentImgKey(matched);
             return (
               '<tr>' +
-              '<td><strong>' +
+              '<td><div class="crm-student-cell">' +
+              '<div class="crm-student-cell__avatar" data-crm-overdue-avatar data-crm-name="' +
               escHtml(name) +
-              '</strong></td>' +
+              '" data-crm-img="' +
+              escHtml(imgKey) +
+              '"></div>' +
+              '<strong class="crm-student-cell__name">' +
+              escHtml(name) +
+              '</strong></div></td>' +
               '<td>' +
               escHtml(phone) +
               '</td>' +
@@ -251,7 +320,7 @@
               escHtml(formatInrAmount(planInstAmt)) +
               '</td>' +
               '<td class="crm-overdue-branch-modal__num crm-overdue-branch-modal__bal">' +
-              escHtml(formatInrAmount(item.balance)) +
+              escHtml(formatInrAmount(itemDueNowAmount(item))) +
               '</td>' +
               '<td class="crm-overdue-branch-modal__actions">' +
               '<a class="crm-overdue-branch-modal__btn crm-overdue-branch-modal__btn--show" href="' +
@@ -275,11 +344,13 @@
           '<table class="crm-overdue-branch-modal__table">' +
           '<thead><tr>' +
           '<th>Student</th><th>Phone</th><th>Email</th><th>Installment</th><th>Due</th>' +
-          '<th>Days late</th><th>Installment</th><th>Balance</th><th>Actions</th>' +
+          '<th>Days late</th><th>Installment</th><th>Due now</th><th>Actions</th>' +
           '</tr></thead><tbody>' +
           rows +
           '</tbody></table></div>' +
           '</div>';
+
+        applyOverdueModalAvatars(modalBody);
 
         var topScroll = modalBody.querySelector('[data-crm-overdue-scroll-top]');
         var topInner = modalBody.querySelector('[data-crm-overdue-scroll-top-inner]');
@@ -312,7 +383,7 @@
 
     function renderBranchCard(label, bucket) {
       var count = bucket && bucket.items ? bucket.items.length : 0;
-      var balance = bucket && bucket.balance != null ? bucket.balance : 0;
+      var dueNow = bucket && bucket.dueNow != null ? bucket.dueNow : 0;
       var disabled = count === 0;
       return (
         '<button type="button" class="crm-overdue-branch-card' +
@@ -326,7 +397,7 @@
         escHtml(label) +
         '</span>' +
         '<span class="crm-overdue-branch-card__balance">' +
-        escHtml(formatInrAmount(balance)) +
+        escHtml(formatInrAmount(dueNow)) +
         '</span>' +
         '<span class="crm-overdue-branch-card__meta">' +
         (count
@@ -349,9 +420,10 @@
       currentLookup = buildStudentLookup(students);
       branchBuckets = Object.create(null);
 
-      var totalOutstanding = 0;
+      var totalDueNow = 0;
       overdueList.forEach(function (item) {
-        totalOutstanding += item.balance || 0;
+        var dueNow = itemDueNowAmount(item);
+        totalDueNow += dueNow;
         var raw = itemBranchRaw(item, currentLookup);
         var key = normalizeBranchKey(raw);
         if (!key || MAIN_BRANCHES.every(function (b) {
@@ -363,17 +435,17 @@
           branchBuckets[key] = {
             label: key === '_other' ? 'Other' : branchDisplayLabel(raw || key),
             items: [],
-            balance: 0,
+            dueNow: 0,
           };
         }
         branchBuckets[key].items.push(item);
-        branchBuckets[key].balance += item.balance || 0;
+        branchBuckets[key].dueNow += dueNow;
       });
 
       MAIN_BRANCHES.forEach(function (label) {
         var key = normalizeBranchKey(label);
         if (!branchBuckets[key]) {
-          branchBuckets[key] = { label: label, items: [], balance: 0 };
+          branchBuckets[key] = { label: label, items: [], dueNow: 0 };
         } else {
           branchBuckets[key].label = label;
         }
@@ -381,7 +453,7 @@
 
       if (subEl) {
         subEl.textContent = overdueList.length
-          ? 'Tap a centre to see overdue students. Show / Edit opens that student on Fees.'
+          ? 'Overdue unpaid + this month only — later months are not included. Tap a centre for students.'
           : 'No students with past-due unpaid installments from Jun 2026 onwards';
       }
 
@@ -396,8 +468,8 @@
       }
 
       if (statsEl && totalAmtEl) {
-        if (overdueList.length && totalOutstanding > 0) {
-          totalAmtEl.textContent = formatInrAmount(totalOutstanding);
+        if (overdueList.length && totalDueNow > 0) {
+          totalAmtEl.textContent = formatInrAmount(totalDueNow);
           statsEl.hidden = false;
         } else {
           statsEl.hidden = true;

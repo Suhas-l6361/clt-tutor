@@ -70,19 +70,15 @@
   }
 
   function applyDueFeesAvatars() {
-    document
-      .querySelectorAll(
-        '#crm-due-fees-track [data-crm-marquee-avatar], #crm-due-fees-urgent-track [data-crm-marquee-avatar]'
-      )
-      .forEach(function (el) {
-        var name = el.getAttribute('data-crm-name') || '';
-        var imgKey = el.getAttribute('data-crm-img') || '';
-        if (typeof window.applyStudentAvatarToElement === 'function') {
-          window.applyStudentAvatarToElement(el, name, imgKey, 'crm-dash-avatar-img');
-          return;
-        }
-        el.textContent = getInitials(name);
-      });
+    document.querySelectorAll('#crm-due-fees-track [data-crm-marquee-avatar]').forEach(function (el) {
+      var name = el.getAttribute('data-crm-name') || '';
+      var imgKey = el.getAttribute('data-crm-img') || '';
+      if (typeof window.applyStudentAvatarToElement === 'function') {
+        window.applyStudentAvatarToElement(el, name, imgKey, 'crm-dash-avatar-img');
+        return;
+      }
+      el.textContent = getInitials(name);
+    });
   }
 
   function buildStudentLookup(students) {
@@ -122,23 +118,10 @@
     return b || 'Unassigned';
   }
 
-  function getDueAndCurrentMonth(rows) {
+  function getUpcomingDue(rows) {
     var FI = window.FeesInstallments;
-    if (!FI) return [];
-    if (FI.getDashboardDueAndCurrentMonthInstallments) {
-      return FI.getDashboardDueAndCurrentMonthInstallments(rows);
-    }
-    return FI.getInstallmentsDueThisMonth ? FI.getInstallmentsDueThisMonth(rows) : [];
-  }
-
-  function splitDueLists(dueList) {
-    var overdue = [];
-    var thisMonth = [];
-    dueList.forEach(function (item) {
-      if (item.isOverdue || (item.daysUntil != null && item.daysUntil < 0)) overdue.push(item);
-      else thisMonth.push(item);
-    });
-    return { overdue: overdue, thisMonth: thisMonth };
+    if (!FI || !FI.getAllUpcomingInstallments) return [];
+    return FI.getAllUpcomingInstallments(rows);
   }
 
   function fetchJson(url) {
@@ -282,11 +265,7 @@
     var countEl = document.getElementById('crm-due-fees-count');
     var loadingEl = document.getElementById('crm-due-fees-loading');
     var errEl = document.getElementById('crm-due-fees-error');
-    var urgentWrap = document.getElementById('crm-due-fees-urgent');
-    var urgentTrack = document.getElementById('crm-due-fees-urgent-track');
-    var urgentCountEl = document.getElementById('crm-due-fees-urgent-count');
     var wrapEl = document.getElementById('crm-due-fees-marquee-wrap');
-    var marqueeLabel = document.getElementById('crm-due-fees-marquee-label');
     var trackEl = document.getElementById('crm-due-fees-track');
     var emptyEl = document.getElementById('crm-due-fees-empty');
 
@@ -302,8 +281,7 @@
     }
 
     if (subEl) {
-      subEl.textContent =
-        'Overdue unpaid and this month only — later months are hidden';
+      subEl.textContent = 'Next unpaid installment (today or later).';
     }
 
     function showPanel() {
@@ -315,23 +293,21 @@
       if (errEl) errEl.hidden = true;
       showPanel();
 
-      var dueList = getDueAndCurrentMonth(feesRows);
+      var upcomingList = getUpcomingDue(feesRows);
       var lookup = buildStudentLookup(students);
-      var split = splitDueLists(dueList);
+      var totalCount = upcomingList.length;
 
       if (countEl) {
-        if (dueList.length) {
+        if (totalCount) {
           countEl.textContent =
-            dueList.length + ' student' + (dueList.length === 1 ? '' : 's');
+            totalCount + ' student' + (totalCount === 1 ? '' : 's');
           countEl.hidden = false;
         } else {
           countEl.hidden = true;
         }
       }
 
-      if (!dueList.length) {
-        if (urgentWrap) urgentWrap.hidden = true;
-        if (urgentTrack) urgentTrack.innerHTML = '';
+      if (!totalCount) {
         if (wrapEl) wrapEl.hidden = true;
         if (trackEl) trackEl.innerHTML = '';
         if (emptyEl) emptyEl.hidden = false;
@@ -340,39 +316,14 @@
 
       if (emptyEl) emptyEl.hidden = true;
 
-      if (urgentWrap && urgentTrack) {
-        if (split.overdue.length) {
-          urgentWrap.hidden = false;
-          if (urgentCountEl) {
-            urgentCountEl.textContent =
-              split.overdue.length + ' overdue';
-          }
-          urgentTrack.innerHTML = split.overdue
-            .map(function (item) {
-              return renderDueFeesCard(item, lookup, true);
-            })
-            .join('');
-        } else {
-          urgentWrap.hidden = true;
-          urgentTrack.innerHTML = '';
-        }
-      }
-
       if (wrapEl && trackEl) {
-        if (split.thisMonth.length) {
-          wrapEl.hidden = false;
-          if (marqueeLabel) marqueeLabel.hidden = false;
-          var cards = split.thisMonth
-            .map(function (item) {
-              return renderDueFeesCard(item, lookup, isUrgentDue(item));
-            })
-            .join('');
-          trackEl.innerHTML = cards + cards;
-        } else {
-          wrapEl.hidden = true;
-          trackEl.innerHTML = '';
-          if (marqueeLabel) marqueeLabel.hidden = true;
-        }
+        wrapEl.hidden = false;
+        var cards = upcomingList
+          .map(function (item) {
+            return renderDueFeesCard(item, lookup, isUrgentDue(item));
+          })
+          .join('');
+        trackEl.innerHTML = cards + cards;
       }
 
       applyDueFeesAvatars();
@@ -380,7 +331,6 @@
 
     function onError(err) {
       if (loadingEl) loadingEl.hidden = true;
-      if (urgentWrap) urgentWrap.hidden = true;
       if (wrapEl) wrapEl.hidden = true;
       if (emptyEl) emptyEl.hidden = true;
       if (errEl) {

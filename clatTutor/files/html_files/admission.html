@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/demo-class-widget.css" />
 
   <link rel="stylesheet" href="../css/index.css" />
-  <link rel="stylesheet" href="../css/admission.css" />
+  <link rel="stylesheet" href="../css/admission.css?v=20260829fields" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="public"></script>
   <script src="../js/branch-home.js"></script>
@@ -182,11 +182,11 @@
                 <label class="admission-field__label" for="admission-dob">Student Date Of Birth:</label>
                 <input
                   class="admission-field__input"
-                  type="text"
+                  type="date"
                   id="admission-dob"
                   name="studentDob"
                   autocomplete="bday"
-                  placeholder="Example: 02/12/2006"
+                  max="2026-08-29"
                 />
               </div>
               <div class="admission-field">
@@ -221,6 +221,51 @@
                   autocomplete="off"
                   placeholder="Example: Humanities"
                 />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-parent-profession">Parent Profession:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-parent-profession"
+                  name="parentProfession"
+                  maxlength="50"
+                  autocomplete="organization-title"
+                  placeholder="Example: Teacher"
+                />
+              </div>
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-caste">Caste:</label>
+                <select class="admission-field__input admission-field__select" id="admission-caste" name="caste">
+                  <option value="">Select caste (optional)</option>
+                  <option value="General">General</option>
+                  <option value="OBC">OBC</option>
+                  <option value="SC">SC</option>
+                  <option value="ST">ST</option>
+                  <option value="EWS">EWS</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="admission-field admission-field--full">
+                <label class="admission-field__label" for="admission-photo">Student photo (optional):</label>
+                <div class="admission-photo">
+                  <div class="admission-photo__preview" id="admission-photo-preview" hidden>
+                    <i class="fa-solid fa-user admission-photo__icon" id="admission-photo-icon"></i>
+                    <img id="admission-photo-img" class="admission-photo__img" alt="" hidden />
+                  </div>
+                  <div class="admission-photo__pick">
+                    <input
+                      class="admission-field__input admission-photo__file"
+                      type="file"
+                      id="admission-photo"
+                      name="studentPhoto"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                    />
+                    <p class="admission-photo__hint">JPG, PNG or WebP, up to 3.5 MB. Optional — helps us recognise you at the centre.</p>
+                  </div>
+                </div>
               </div>
 
               <div class="admission-field admission-field--full">
@@ -344,11 +389,126 @@
     (function () {
       var form = document.getElementById('form-admission');
       var alertBox = document.getElementById('admission-alert');
+      var photoInput = document.getElementById('admission-photo');
+      var photoPreview = document.getElementById('admission-photo-preview');
+      var photoImg = document.getElementById('admission-photo-img');
+      var photoIcon = document.getElementById('admission-photo-icon');
+      var dobInput = document.getElementById('admission-dob');
+      var previewObjectUrl = '';
+      var MAX_PHOTO_BYTES = 3.5 * 1024 * 1024;
+
+      if (dobInput) {
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        dobInput.max = yyyy + '-' + mm + '-' + dd;
+        dobInput.min = String(yyyy - 25) + '-01-01';
+      }
+
       function showAdmissionPopup(type, message) {
         if (typeof window.showFriendlyPopup === 'function') {
           window.showFriendlyPopup({ type: type, message: message });
         }
       }
+
+      function showAdmissionError(msg) {
+        if (alertBox) {
+          alertBox.innerHTML =
+            '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></div>';
+          var span = alertBox.querySelector('.alert-error span');
+          if (span) span.textContent = msg;
+        }
+        showAdmissionPopup('error', msg);
+      }
+
+      function enrollApi() {
+        var c = window.APP_CONFIG || {};
+        return c.ENROLL_REQUEST_API ? String(c.ENROLL_REQUEST_API).trim() : '';
+      }
+
+      function safeFileName(name) {
+        return String(name || 'photo.jpg').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'photo.jpg';
+      }
+
+      function fileToDataUrl(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function () {
+            resolve(String(reader.result || ''));
+          };
+          reader.onerror = function () {
+            reject(new Error('Could not read the photo'));
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function resetPhotoPreview() {
+        if (previewObjectUrl) {
+          URL.revokeObjectURL(previewObjectUrl);
+          previewObjectUrl = '';
+        }
+        if (photoImg) {
+          photoImg.hidden = true;
+          photoImg.removeAttribute('src');
+        }
+        if (photoIcon) photoIcon.hidden = false;
+        if (photoPreview) photoPreview.hidden = true;
+      }
+
+      function uploadAdmissionPhoto(file) {
+        var api = enrollApi();
+        if (!api) return Promise.reject(new Error('Photo upload is not configured'));
+        var fileName = 'enroll/' + Date.now() + '-' + safeFileName(file.name);
+        var fileType = file.type || 'image/jpeg';
+        return fetch(api, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (x) {
+            if (!x.ok || !x.data || !x.data.uploadUrl) {
+              throw new Error((x.data && x.data.message) || 'Could not start photo upload');
+            }
+            return fetch(x.data.uploadUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': fileType },
+              body: file,
+            }).then(function (putRes) {
+              if (putRes.ok) {
+                return { photo_url: x.data.fileUrl || x.data.key || fileName };
+              }
+              return fileToDataUrl(file).then(function (dataUrl) {
+                return {
+                  img_base64: dataUrl,
+                  img_file_name: fileName,
+                  img_file_type: fileType,
+                };
+              });
+            });
+          });
+      }
+
+      if (photoInput) {
+        photoInput.addEventListener('change', function () {
+          resetPhotoPreview();
+          var f = photoInput.files && photoInput.files[0];
+          if (!f || !photoImg) return;
+          previewObjectUrl = URL.createObjectURL(f);
+          photoImg.src = previewObjectUrl;
+          photoImg.alt = '';
+          photoImg.hidden = false;
+          if (photoIcon) photoIcon.hidden = true;
+          if (photoPreview) photoPreview.hidden = false;
+        });
+      }
+
       if (!form) return;
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -357,11 +517,7 @@
           return;
         }
         if (typeof PublicFormsApi === 'undefined') {
-          if (alertBox) {
-            alertBox.innerHTML =
-              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Form could not load. Please refresh the page.</span></div>';
-          }
-          showAdmissionPopup('error', 'Form could not load. Please refresh the page.');
+          showAdmissionError('Form could not load. Please refresh the page.');
           return;
         }
         var fd = new FormData(form);
@@ -370,22 +526,25 @@
         var phoneRaw = (fd.get('studentPhone') || '').toString().trim();
         var studentPhoneNum = PublicFormsApi.phoneToNumber(phoneRaw);
         if (!Number.isFinite(studentPhoneNum)) {
-          if (alertBox) {
-            alertBox.innerHTML =
-              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid student phone number.</span></div>';
-          }
-          showAdmissionPopup('error', 'Please enter a valid student phone number.');
+          showAdmissionError('Please enter a valid student phone number.');
           return;
         }
         var parentPhoneRaw = (fd.get('parentPhone') || '').toString().trim();
         var parentPhoneNum = parentPhoneRaw ? PublicFormsApi.phoneToNumber(parentPhoneRaw) : null;
         if (parentPhoneRaw && !Number.isFinite(parentPhoneNum)) {
-          if (alertBox) {
-            alertBox.innerHTML =
-              '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Please enter a valid parent phone number.</span></div>';
-          }
-          showAdmissionPopup('error', 'Please enter a valid parent phone number.');
+          showAdmissionError('Please enter a valid parent phone number.');
           return;
+        }
+        var photoFile = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
+        if (photoFile) {
+          if (photoFile.type && photoFile.type.indexOf('image/') !== 0) {
+            showAdmissionError('Please choose a photo file (JPG, PNG or WebP).');
+            return;
+          }
+          if (photoFile.size > MAX_PHOTO_BYTES) {
+            showAdmissionError('Photo must be 3.5 MB or smaller.');
+            return;
+          }
         }
         var courseBits = [
           'Target: ' + (fd.get('targetYear') || '').toString().trim(),
@@ -414,11 +573,25 @@
           address: (fd.get('address') || '').toString().trim() || null,
           school_college: (fd.get('school') || '').toString().trim() || null,
           stream: (fd.get('stream') || '').toString().trim() || null,
+          parent_profession: (fd.get('parentProfession') || '').toString().trim().slice(0, 50) || null,
+          caste: (fd.get('caste') || '').toString().trim().slice(0, 50) || null,
           source_of_info: sourceInfo || null,
         };
         var submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
-        PublicFormsApi.postEnrollRequest(payload)
+        var photoStep = photoFile ? uploadAdmissionPhoto(photoFile) : Promise.resolve(null);
+        photoStep
+          .then(function (photoFields) {
+            if (photoFields) {
+              if (photoFields.photo_url) payload.photo_url = photoFields.photo_url;
+              if (photoFields.img_base64) {
+                payload.img_base64 = photoFields.img_base64;
+                payload.img_file_name = photoFields.img_file_name;
+                payload.img_file_type = photoFields.img_file_type;
+              }
+            }
+            return PublicFormsApi.postEnrollRequest(payload);
+          })
           .then(function (res) {
             if (submitBtn) submitBtn.disabled = false;
             if (res.ok && (res.status === 201 || res.status === 200)) {
@@ -443,27 +616,22 @@
               }
               showAdmissionPopup('success', 'Thank you. Our team will contact you shortly.');
               form.reset();
+              resetPhotoPreview();
             } else {
               var msg =
                 res.data && res.data.message
                   ? res.data.message
                   : 'Something went wrong. Please try again.';
-              if (alertBox) {
-                alertBox.innerHTML =
-                  '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span></span></div>';
-                var span = alertBox.querySelector('.alert-error span');
-                if (span) span.textContent = msg;
-              }
-              showAdmissionPopup('error', msg);
+              showAdmissionError(msg);
             }
           })
-          .catch(function () {
+          .catch(function (err) {
             if (submitBtn) submitBtn.disabled = false;
-            if (alertBox) {
-              alertBox.innerHTML =
-                '<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i><span>Network error. Please try again.</span></div>';
-            }
-            showAdmissionPopup('error', 'Network error. Please try again.');
+            var failMsg =
+              err && err.message && err.message !== 'Failed to fetch'
+                ? err.message
+                : 'Network error. Please try again.';
+            showAdmissionError(failMsg);
           });
       });
     })();

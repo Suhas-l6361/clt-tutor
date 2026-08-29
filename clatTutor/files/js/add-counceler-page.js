@@ -14,6 +14,7 @@
     { key: 'testAnalysis.html', label: 'Test Results' },
     { key: 'fees.html', label: 'Fees' },
     { key: 'attendance.html', label: 'Attendance' },
+    { key: 'bookAssigned.html', label: 'Book assigned' },
     { key: 'parent-credentials.html', label: 'Parent credentials' },
     { key: 'retrival.html', label: 'Retrieve Data' },
     { key: 'enrollment.html', label: 'Enrollment' },

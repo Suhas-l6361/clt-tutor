@@ -395,6 +395,120 @@
       }
     }
 
+    /* —— Books received —— */
+    .sd-books {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.05rem 1.15rem 1rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .sd-books__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+    .sd-books h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sd-books h3 i {
+      color: #ca8a04;
+    }
+    .sd-books__lead {
+      margin: 0.28rem 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .sd-books__count {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      background: #fff8dd;
+      border: 1px solid #f1de9a;
+      color: #7a5a00;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .sd-books__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .sd-book {
+      border: 1px solid #ece4d4;
+      border-radius: 12px;
+      padding: 0.78rem 0.8rem 0.82rem;
+      background: linear-gradient(180deg, #fffdf6 0%, #ffffff 100%);
+      min-width: 0;
+    }
+    .sd-book__label {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #78716c;
+    }
+    .sd-book__date {
+      margin: 0.32rem 0 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    .sd-books__empty,
+    .sd-books__error {
+      margin: 0;
+      padding: 0.9rem 0.8rem;
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--muted);
+      background: #fcfcfc;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+    }
+    .sd-books__contact {
+      margin: 0.9rem 0 0;
+      padding: 0.72rem 0.8rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e8edf3;
+      font-size: 0.82rem;
+      color: #475569;
+      line-height: 1.45;
+    }
+    .sd-books__contact a {
+      color: #111827;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .sd-books__contact a:hover {
+      color: #a16207;
+    }
+    .sd-books__contact-links {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 0.85rem;
+      margin-top: 0.28rem;
+    }
+    @media (max-width: 720px) {
+      .sd-books__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 480px) {
+      .sd-books__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* —— Test Evaluation (OMR) —— */
     .sd-eval-card {
       background: #fff;
@@ -711,6 +825,27 @@
         </article>
       </section>
 
+      <section class="sd-books" aria-labelledby="sd-books-heading">
+        <div class="sd-books__head">
+          <div>
+            <h3 id="sd-books-heading">
+              <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+              Books you received
+            </h3>
+            <p class="sd-books__lead">Editions issued to you by CLATutor, with the date each one was given.</p>
+          </div>
+          <span class="sd-books__count" id="sd-books-count">0 issued</span>
+        </div>
+        <div id="sd-books-grid" class="sd-books__grid" aria-live="polite"></div>
+        <p class="sd-books__contact">
+          If a book is missing, damaged, or the date looks wrong, please contact us.
+          <span class="sd-books__contact-links">
+            <a href="tel:+918150884422"><i class="fa-solid fa-phone" aria-hidden="true"></i> 8150884422</a>
+            <a href="https://wa.me/918150884422" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+          </span>
+        </p>
+      </section>
+
       <section class="sd-eval-card" aria-labelledby="sd-eval-heading">
         <h3 id="sd-eval-heading">
           <img class="sd-heading-icon" src="../image/test-evaluation.png" alt="" width="20" height="20" loading="lazy" decoding="async" />
@@ -933,6 +1068,158 @@
       applyStudentChrome();
       var titleEl = document.getElementById('hero-title');
       if (titleEl) titleEl.textContent = 'Welcome back, ' + studentName;
+      var ASSIGN_BOOK_API =
+        (window.APP_CONFIG && window.APP_CONFIG.ASSIGN_BOOK_API) ||
+        'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/assignBook';
+      var BOOK_EDITIONS = [
+        { key: 'oneAssigned', label: 'Edition 1' },
+        { key: 'sixAssigned', label: 'Edition 6' },
+        { key: 'sevenAssigned', label: 'Edition 7' },
+        { key: 'eightAssigned', label: 'Edition 8' },
+        { key: 'nineAssigned', label: 'Edition 9' },
+        { key: 'tenthAssigned', label: 'Edition 10' },
+      ];
+
+      function toBookDateIso(value) {
+        if (value == null || value === '') return '';
+        var s = String(value).trim();
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (!m) return '';
+        if (m[1] === '0000' || m[2] === '00' || m[3] === '00') return '';
+        return m[1] + '-' + m[2] + '-' + m[3];
+      }
+
+      function formatBookDate(value) {
+        var iso = toBookDateIso(value);
+        if (!iso) return '';
+        var parts = iso.split('-');
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return Number(parts[2]) + ' ' + months[Number(parts[1]) - 1] + ' ' + parts[0];
+      }
+
+      function parseBookExtra(raw) {
+        var value = raw;
+        if (value == null || value === '') return [];
+        if (typeof value === 'string') {
+          try {
+            value = JSON.parse(value);
+          } catch (_) {
+            return [];
+          }
+        }
+        var items = [];
+        if (Array.isArray(value)) {
+          value.forEach(function (entry) {
+            if (!entry || typeof entry !== 'object') return;
+            var book = String(entry.book != null ? entry.book : entry.name || '').trim();
+            var date = toBookDateIso(entry.date != null ? entry.date : entry.assigned);
+            if (!date) return;
+            var book = String(entry.book != null ? entry.book : entry.name || '').trim();
+            var label = !book
+              ? 'Extra edition'
+              : /^edition\s+/i.test(book)
+                ? book
+                : /^\d+$/.test(book)
+                  ? 'Edition ' + book
+                  : book;
+            items.push({ label: label, date: date });
+          });
+          return items;
+        }
+        if (typeof value === 'object') {
+          Object.keys(value).forEach(function (key) {
+            var date = toBookDateIso(value[key]);
+            if (!date) return;
+            items.push({
+              label: /^\d+$/.test(key) ? 'Edition ' + key : key,
+              date: date,
+            });
+          });
+        }
+        return items;
+      }
+
+      function renderReceivedBooks(items) {
+        var grid = document.getElementById('sd-books-grid');
+        var countEl = document.getElementById('sd-books-count');
+        if (!grid) return;
+        if (countEl) countEl.textContent = items.length + ' issued';
+        if (!items.length) {
+          grid.className = '';
+          grid.innerHTML =
+            '<p class="sd-books__empty">No editions have been issued to you yet. If you were expecting a book, call or WhatsApp 8150884422.</p>';
+          return;
+        }
+        grid.className = 'sd-books__grid';
+        grid.innerHTML = items
+          .map(function (item) {
+            var label = String(item.label || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+            var date = String(item.date || '')
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;');
+            return (
+              '<article class="sd-book">' +
+              '<p class="sd-book__label">' +
+              label +
+              '</p>' +
+              '<p class="sd-book__date">' +
+              date +
+              '</p>' +
+              '</article>'
+            );
+          })
+          .join('');
+      }
+
+      async function loadReceivedBooks() {
+        var grid = document.getElementById('sd-books-grid');
+        var u = session && session.user ? session.user : null;
+        var sid = u && (u.student_id != null ? u.student_id : u.id);
+        if (!sid || String(sid).trim() === '') {
+          renderReceivedBooks([]);
+          return;
+        }
+        if (grid) {
+          grid.className = '';
+          grid.innerHTML = '<p class="sd-books__empty">Loading your books…</p>';
+        }
+        try {
+          var res = await fetch(
+            ASSIGN_BOOK_API + '?student_id=' + encodeURIComponent(String(sid).trim()),
+            { method: 'GET', headers: { Accept: 'application/json' } },
+          );
+          var data = [];
+          try {
+            data = await res.json();
+          } catch (_) {
+            data = [];
+          }
+          if (!res.ok) throw new Error((data && data.message) || 'Could not load books');
+          var row = Array.isArray(data) ? data[0] : data;
+          var items = [];
+          if (row) {
+            BOOK_EDITIONS.forEach(function (col) {
+              var iso = toBookDateIso(row[col.key]);
+              if (iso) items.push({ label: col.label, date: formatBookDate(iso) });
+            });
+            parseBookExtra(row.extra).forEach(function (ex) {
+              items.push({ label: ex.label, date: formatBookDate(ex.date) });
+            });
+          }
+          renderReceivedBooks(items);
+        } catch (_) {
+          if (grid) {
+            grid.className = '';
+            grid.innerHTML =
+              '<p class="sd-books__error">We could not load your book list right now. Please try again, or contact 8150884422.</p>';
+          }
+        }
+      }
+
+      loadReceivedBooks();
       var sidebarNameEl = document.querySelector('.user-meta strong');
       var sidebarAvatarEl = document.querySelector('.user-avatar');
       var topbar = document.querySelector('.topbar');

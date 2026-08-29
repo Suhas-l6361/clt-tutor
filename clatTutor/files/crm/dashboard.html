@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20260827fees1" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260829photo1" />
   <link rel="stylesheet" href="../css/enrollment.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
@@ -36,12 +36,8 @@
         <div class="crm-pill"><i class="fa-regular fa-clock"></i><span id="crm-date">Today</span></div>
       </section>
 
-      <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="August workshop registrations">
+      <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="Dashboard actions">
         <div class="crm-workshop-overview__head">
-          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-workshop-btn-show" aria-haspopup="dialog" aria-controls="crm-workshop-modal" aria-expanded="false">
-            <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
-            <span>August registration</span>
-          </button>
           <button type="button" class="enrollment-btn" id="crm-batch-btn-create" aria-haspopup="dialog" aria-controls="crm-batch-modal" aria-expanded="false">
             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
             <span>Create batch</span>
@@ -56,14 +52,14 @@
             <span class="crm-overdue-fees__pulse" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div>
               <h3 class="crm-overdue-fees__title">Overdue fees — action needed</h3>
-              <p class="crm-overdue-fees__sub" id="crm-overdue-fees-sub">Installment due from Jun 2026 onwards · tuition not fully paid</p>
+              <p class="crm-overdue-fees__sub" id="crm-overdue-fees-sub">Overdue unpaid + this month only · later months hidden</p>
             </div>
           </div>
           <div class="crm-overdue-fees__head-actions">
             <div class="crm-overdue-fees__stats" id="crm-overdue-fees-stats" hidden>
               <span class="crm-overdue-fees__stat">
                 <span class="crm-overdue-fees__stat-num" id="crm-overdue-fees-total-amt">—</span>
-                <span class="crm-overdue-fees__stat-lbl">outstanding</span>
+                <span class="crm-overdue-fees__stat-lbl">due now</span>
               </span>
             </div>
             <span class="crm-overdue-fees__count" id="crm-overdue-fees-count" hidden></span>
@@ -104,11 +100,11 @@
         </div>
       </div>
 
-      <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Due fees and this month installments">
+      <section class="crm-due-fees" id="crm-due-fees" hidden aria-label="Upcoming due fees">
         <div class="crm-due-fees__head">
           <div>
-            <h3 class="crm-due-fees__title"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i> Due fees &amp; this month</h3>
-            <p class="crm-due-fees__sub" id="crm-due-fees-sub">Overdue unpaid and installments due this month — later months are hidden</p>
+            <h3 class="crm-due-fees__title"><i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i> Upcoming due fees</h3>
+            <p class="crm-due-fees__sub" id="crm-due-fees-sub">Next unpaid installment (today or later).</p>
           </div>
           <div class="crm-due-fees__head-actions">
             <span class="crm-due-fees__hint">Hover to pause</span>
@@ -118,23 +114,12 @@
         </div>
         <p class="crm-due-fees__loading" id="crm-due-fees-loading">Loading due fees…</p>
         <p class="crm-due-fees__error" id="crm-due-fees-error" hidden></p>
-        <div class="crm-due-fees__urgent" id="crm-due-fees-urgent" hidden>
-          <p class="crm-due-fees__urgent-label">
-            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            Due fees
-            <span class="crm-due-fees__urgent-count" id="crm-due-fees-urgent-count"></span>
-          </p>
-          <div class="crm-due-fees__urgent-scroll">
-            <div class="crm-due-fees__urgent-track" id="crm-due-fees-urgent-track" aria-live="polite"></div>
-          </div>
-        </div>
         <div class="crm-due-fees__marquee-wrap" id="crm-due-fees-marquee-wrap" hidden>
-          <p class="crm-due-fees__marquee-label" id="crm-due-fees-marquee-label" hidden>This month</p>
           <div class="crm-due-fees__marquee" id="crm-due-fees-marquee">
             <div class="crm-due-fees__track" id="crm-due-fees-track" aria-live="polite"></div>
           </div>
         </div>
-        <p class="crm-due-fees__empty" id="crm-due-fees-empty" hidden>All clear — no due fees and no installments this month.</p>
+        <p class="crm-due-fees__empty" id="crm-due-fees-empty" hidden>All clear — no upcoming dues.</p>
       </section>
 
       <section class="crm-pending-requests" id="crm-pending-requests" hidden aria-label="Pending enquiry responses">
@@ -378,65 +363,6 @@
   </div>
 
   <div
-    id="crm-workshop-modal"
-    class="crm-workshop-modal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="crm-workshop-modal-title"
-  >
-    <div class="crm-workshop-modal__backdrop" data-crm-workshop-modal-close tabindex="-1"></div>
-    <div class="crm-workshop-modal__dialog">
-      <div class="crm-workshop-modal__head">
-        <div class="crm-workshop-modal__head-text">
-          <p class="crm-workshop-modal__eyebrow">
-            <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>
-            August GK Workshop
-          </p>
-          <h2 id="crm-workshop-modal-title" class="crm-workshop-modal__title">August registrations</h2>
-          <p class="crm-workshop-modal__lead">
-            All centres — view payment screenshots, mark responded, and save your follow-up note.
-          </p>
-        </div>
-        <button type="button" class="crm-workshop-modal__close" data-crm-workshop-modal-close aria-label="Close registration details">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="crm-workshop-modal__body">
-        <p id="crm-workshop-loading" class="enrollment-loading" hidden>Loading…</p>
-        <p id="crm-workshop-error" class="enrollment-error" hidden></p>
-        <div id="crm-workshop-list" class="enrollment-list crm-workshop-modal__list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div
-    id="crm-workshop-shot-modal"
-    class="crm-workshop-shot-modal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="crm-workshop-shot-title"
-  >
-    <div class="crm-workshop-shot-modal__backdrop" data-crm-workshop-shot-close tabindex="-1"></div>
-    <div class="crm-workshop-shot-modal__dialog">
-      <div class="crm-workshop-shot-modal__head">
-        <h3 id="crm-workshop-shot-title">Payment screenshot</h3>
-        <button type="button" class="crm-workshop-shot-modal__close" data-crm-workshop-shot-close aria-label="Close screenshot">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-      <p id="crm-workshop-shot-status" class="crm-workshop-shot-modal__status">Loading…</p>
-      <div class="crm-workshop-shot-modal__preview">
-        <img id="crm-workshop-shot-img" alt="Payment screenshot" hidden />
-      </div>
-      <p class="crm-workshop-shot-modal__actions">
-        <a id="crm-workshop-shot-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Open full size</a>
-      </p>
-    </div>
-  </div>
-
-  <div
     id="crm-batch-modal"
     class="crm-batch-modal"
     hidden
@@ -522,16 +448,15 @@
   <script src="../js/guard.js?v=20260723b"></script>
   <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/fees-installments.js?v=20260827fees1"></script>
+  <script src="../js/fees-installments.js?v=20260829due1"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-branch-filter.js"></script>
   <script src="../js/crm-dashboard-metrics.js?v=20260827fees1"></script>
-  <script src="../js/crm-dashboard-overdue-fees.js?v=20260819paid1"></script>
-  <script src="../js/crm-dashboard-due-fees.js?v=20260827fees1"></script>
+  <script src="../js/crm-dashboard-overdue-fees.js?v=20260829photo1"></script>
+  <script src="../js/crm-dashboard-due-fees.js?v=20260829up2"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
-  <script src="../js/crm-dashboard-workshop.js?v=20260730aug2"></script>
   <script src="../js/friendly-popup.js"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
   <script src="../js/crm-dashboard-installments.js?v=20260827fees1"></script>

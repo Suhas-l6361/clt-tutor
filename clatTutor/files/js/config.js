@@ -32,6 +32,9 @@ const APP_CONFIG = {
   /** Public site — PYQ download modal (POST JSON) */
   DOWNLOAD_ANSWER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/downloadAnswer',
+  /** CRM — book assignment dates per student (GET/POST/PUT/DELETE JSON) */
+  ASSIGN_BOOK_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/assignBook',
   /** Public site — PYQ resource list (GET JSON) */
   PREVIOUS_QUEATION_PAPER_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/previous_queation_paper',

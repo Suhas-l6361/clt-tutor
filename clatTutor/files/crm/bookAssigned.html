@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book assigned — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <link rel="stylesheet" href="../css/book-assigned.css?v=20260829b" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard book-assigned-page">
+  <div id="stock" style="display: none">
+    <div class="ba-crm">
+      <section class="ba-crm__filters" aria-label="Book assigned filters">
+        <div class="ba-crm__filters-head">
+          <h2><i class="fa-solid fa-book" aria-hidden="true"></i> Book assigned</h2>
+        </div>
+        <p class="ba-crm__lead">
+          Choose a branch, load students, then set the date each book (1, 6, 7, 8, 9, 10) was given. Use Extra for any other books. Save per student or save all at once.
+        </p>
+        <div class="ba-filter-grid">
+          <div class="ba-field">
+            <label for="ba-branch">Branch</label>
+            <select id="ba-branch" required>
+              <option value="">Select branch</option>
+            </select>
+          </div>
+          <div class="ba-field ba-field--search">
+            <label for="ba-search">Search</label>
+            <input id="ba-search" type="search" placeholder="Name or student ID" autocomplete="off" />
+          </div>
+        </div>
+        <div class="ba-filter-actions">
+          <button type="button" class="ba-btn ba-btn--primary" id="ba-load">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            Load students
+          </button>
+        </div>
+      </section>
+
+      <div class="ba-stats" aria-live="polite">
+        <div class="ba-stat">
+          <strong id="ba-stat-total">0</strong>
+          <span>Students</span>
+        </div>
+        <div class="ba-stat ba-stat--ok">
+          <strong id="ba-stat-assigned">0</strong>
+          <span>With dates</span>
+        </div>
+        <div class="ba-stat ba-stat--pending">
+          <strong id="ba-stat-pending">0</strong>
+          <span>No dates yet</span>
+        </div>
+      </div>
+
+      <p id="ba-loading" class="ba-loading" hidden>
+        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Loading…
+      </p>
+
+      <div id="ba-empty" class="ba-empty">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+        Select a branch, then click <strong>Load students</strong>.
+      </div>
+
+      <section id="ba-panel" class="ba-panel" hidden aria-label="Book assignment list">
+        <div class="ba-panel__head">
+          <h2>Students</h2>
+          <span class="ba-panel__meta" id="ba-list-meta">0 students</span>
+          <button type="button" class="ba-btn ba-btn--primary" id="ba-save-all">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+            Save all
+          </button>
+        </div>
+        <div class="ba-table-wrap">
+          <table class="ba-table">
+            <thead>
+              <tr>
+                <th class="col-student">Student</th>
+                <th>Book 1</th>
+                <th>Book 6</th>
+                <th>Book 7</th>
+                <th>Book 8</th>
+                <th>Book 9</th>
+                <th>Book 10</th>
+                <th class="col-extra">Extra</th>
+                <th class="col-actions">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ba-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260829book"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/crm-branch-scope.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/book-assigned-page.js?v=20260829b"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'bookAssigned.html', title: 'Book assigned', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof BookAssignedPage !== 'undefined' && BookAssignedPage.init) {
+        BookAssignedPage.init();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/enrollment.css" />
+  <link rel="stylesheet" href="../css/enrollment.css?v=20260829photolb" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard enrollment-page">
@@ -79,6 +79,28 @@
     </div>
   </div>
 
+  <div
+    id="enrollment-photo-lightbox"
+    class="enrollment-photo-lightbox"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-label="Student photo"
+  >
+    <div class="enrollment-photo-lightbox__backdrop" data-enroll-photo-close tabindex="-1"></div>
+    <div class="enrollment-photo-lightbox__dialog">
+      <button
+        type="button"
+        class="enrollment-photo-lightbox__close"
+        data-enroll-photo-close
+        aria-label="Close"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <img id="enrollment-photo-lightbox-img" class="enrollment-photo-lightbox__img" alt="Student photo" />
+    </div>
+  </div>
+
   <div id="app-root" class="app-shell"></div>
 
   <script src="../js/config.js"></script>
@@ -87,7 +109,7 @@
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/enrollment-page.js"></script>
+  <script src="../js/enrollment-page.js?v=20260829enrollfields"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

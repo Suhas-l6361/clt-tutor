@@ -179,6 +179,19 @@
         attr(node, 'correctanswer');
       var letter = valueToLetter(cans);
       if (!letter) {
+        var seq = node.querySelector('._correctAnsSeq_');
+        if (seq) {
+          var flags = seq.querySelectorAll('._isCorrect_');
+          for (var f = 0; f < flags.length; f++) {
+            var flagVal = String(flags[f].textContent || flags[f].innerHTML || '').trim();
+            if (flagVal === '1' || /^true$/i.test(flagVal)) {
+              letter = indexToLetter(f);
+              break;
+            }
+          }
+        }
+      }
+      if (!letter) {
         var answers = node.querySelectorAll('._answers_ ._answer_, ._answer_');
         for (var i = 0; i < answers.length; i++) {
           if (optionLooksCorrect(answers[i])) {
@@ -194,6 +207,251 @@
       mergeLetter(map, qId, sQId, letter);
     });
 
+    return map;
+  }
+
+  function mergeSolution(map, qid, sq, text) {
+    var t = String(text || '').trim();
+    if (!qid || !t) return;
+    if (!map[qid]) map[qid] = [];
+    if (!map[qid][sq]) map[qid][sq] = t;
+  }
+
+  function compactRatio(s) {
+    return String(s || '').replace(/\s+/g, '');
+  }
+
+  function letterFromRatio(text, options) {
+    var packed = compactRatio(text);
+    var ratios = packed.match(/\d+:\d+/g);
+    if (!ratios || !ratios.length || !options || !options.length) return '';
+    var last = ratios[ratios.length - 1];
+    var hits = [];
+    options.forEach(function (opt) {
+      var o = compactRatio((opt && opt.text) || '');
+      if (!o) return;
+      if (o === last || o.indexOf(last) >= 0 || last.indexOf(o) >= 0) {
+        hits.push(opt.letter);
+      }
+    });
+    return hits.length === 1 ? hits[0] : '';
+  }
+
+  function letterFromFinalClause(text, options) {
+    var t = String(text || '');
+    if (!options || !options.length) return '';
+    var eq = t.lastIndexOf('=');
+    var rhs = (eq >= 0 ? t.slice(eq + 1) : t.slice(-100)).replace(/\s+/g, ' ').trim();
+    if (!rhs) return '';
+    var pack = compactRatio(rhs).toLowerCase();
+    var hits = [];
+    options.forEach(function (opt) {
+      var o = compactRatio((opt && opt.text) || '').toLowerCase();
+      if (o.length >= 3 && pack.indexOf(o) >= 0) hits.push(opt.letter);
+    });
+    return hits.length === 1 ? hits[0] : '';
+  }
+
+  function letterFromLastAmount(text, options) {
+    var t = String(text || '');
+    if (!options || !options.length) return '';
+    var rupees = t.match(/₹\s*[\d,]+(?:\.\d+)?/g);
+    var lastNum = '';
+    if (rupees && rupees.length) {
+      lastNum = rupees[rupees.length - 1].replace(/[^\d]/g, '');
+    }
+    var percents = t.match(/\d+(?:\.\d+)?\s*%/g);
+    var lastPct = percents && percents.length ? percents[percents.length - 1].replace(/\s+/g, '') : '';
+    var eq = t.lastIndexOf('=');
+    var clause = (eq >= 0 ? t.slice(eq + 1) : t.slice(-80)).toLowerCase();
+    var hits = [];
+    options.forEach(function (opt) {
+      var raw = String((opt && opt.text) || '').trim();
+      if (!raw) return;
+      var od = raw.replace(/[^\d]/g, '');
+      var oLow = raw.toLowerCase();
+      var oPack = compactRatio(raw);
+      var score = 0;
+      if (lastNum && od && od === lastNum) {
+        score = 120;
+        var clues = oLow.split(/[^a-z]+/).filter(function (w) {
+          return w.length > 3;
+        });
+        clues.forEach(function (w) {
+          if (clause.indexOf(w) >= 0) score += 40;
+        });
+      }
+      if (lastPct && oPack.indexOf(lastPct.toLowerCase()) >= 0) {
+        score = Math.max(score, 130);
+      }
+      if (score) hits.push({ letter: opt.letter, score: score });
+    });
+    hits.sort(function (a, b) {
+      return b.score - a.score;
+    });
+    if (!hits.length) return '';
+    if (hits.length === 1) return hits[0].letter;
+    if (hits[0].score >= hits[1].score + 20) return hits[0].letter;
+    return '';
+  }
+
+  function letterNearCorrectPhrase(text) {
+    var t = String(text || '');
+    var idx = t.search(/this is the correct answer/i);
+    if (idx < 0) idx = t.search(/is the correct answer/i);
+    if (idx < 0) return '';
+    var before = t.slice(Math.max(0, idx - 80), idx);
+    var m =
+      before.match(/option\s*\(\s*([a-d])\s*\)\s*[:.]?[^()]*$/i) ||
+      before.match(/(?:^|[\s.])([a-d])\s*\)\s*[:.]?[^()]*$/i);
+    return m ? m[1].toUpperCase() : '';
+  }
+
+  function letterByOptionMatch(text, options) {
+    var t = String(text || '');
+    var tLow = t.toLowerCase().replace(/\s+/g, ' ');
+    var scored = [];
+    (options || []).forEach(function (opt) {
+      var letter = opt && opt.letter ? opt.letter : '';
+      var raw = String((opt && opt.text) != null ? opt.text : opt || '').trim();
+      if (!letter || !raw) return;
+      var oLow = raw.toLowerCase().replace(/\s+/g, ' ');
+      var score = 0;
+      if (oLow.length >= 12 && tLow.indexOf(oLow) >= 0) {
+        score = 200 + oLow.length;
+      } else {
+        var tokens = oLow.split(/[^a-z0-9]+/).filter(function (w) {
+          return w.length > 3;
+        });
+        if (tokens.length) {
+          var hit = tokens.filter(function (w) {
+            return tLow.indexOf(w) >= 0;
+          }).length;
+          var ratio = hit / tokens.length;
+          if (ratio >= 0.55 && hit >= 2) score = 40 + hit * 12 + Math.round(ratio * 40);
+        }
+      }
+      if (score) scored.push({ letter: letter, score: score });
+    });
+    scored.sort(function (a, b) {
+      return b.score - a.score;
+    });
+    if (!scored.length) return '';
+    if (scored.length === 1) return scored[0].score >= 45 ? scored[0].letter : '';
+    if (scored[0].score >= 50 && scored[0].score >= scored[1].score + 12) return scored[0].letter;
+    return '';
+  }
+
+  function letterFromSolution(text, options) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    var patterns = [
+      /\b([A-Da-d])\s+is\s+the\s+(?:right|correct)\s+answer\b/i,
+      /\b(?:the\s+)?correct\s+option\s+is\s+(?:option\s*)?\(?\s*([A-Da-d])\s*\)?/i,
+      /\b(?:the\s+)?(?:correct\s+)?answer\s+is\s+(?:option\s*)?\(?\s*([A-Da-d])\s*\)?/i,
+      /\bcorrect\s+answer\s*[:.]?\s*(?:option\s*)?\(?\s*([A-Da-d])\s*\)/i,
+      /^\s*(?:sol(?:ution)?\.?)\s*\(?\s*([A-Da-d])\s*\)/i,
+      /^\s*answer\s*[:.]?\s*(?:option\s*)?\(?\s*([A-Da-d])\s*\)/i,
+      /^\s*\(\s*([A-Da-d])\s*\)/i,
+      /\boption\s*\(\s*([A-Da-d])\s*\)\s+is\s+(?:the\s+)?(?:only\s+)?correct\b/i,
+      /\btherefore(?:[,]?\s+option\s*)?\(?\s*([A-Da-d])\s*\)?\s+is\b/i,
+      /\b(?:hence|thus|so)\s*,?\s+(?:the\s+)?(?:correct\s+)?(?:option|answer)\s+is\s+(?:option\s*)?\(?\s*([A-Da-d])\s*\)?/i,
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var m = t.match(patterns[i]);
+      if (m && m[1]) return m[1].toUpperCase();
+    }
+    var near = letterNearCorrectPhrase(t);
+    if (near) return near;
+    var fromRatio = letterFromRatio(t, options);
+    if (fromRatio) return fromRatio;
+    var fromAmt = letterFromLastAmount(t, options);
+    if (fromAmt) return fromAmt;
+    var fromClause = letterFromFinalClause(t, options);
+    if (fromClause) return fromClause;
+    return letterByOptionMatch(t, options);
+  }
+
+  function reasonForCorrect(text, letter) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    var L = String(letter || '').toLowerCase();
+    if (!L) return t;
+    var labeled = t.match(/\boption\s*\(\s*[a-d]\s*\)\s*[:.]/gi);
+    if (labeled && labeled.length >= 2) {
+      var startRe = new RegExp('\\boption\\s*\\(\\s*' + L + '\\s*\\)\\s*[:.]?\\s*', 'i');
+      var start = t.search(startRe);
+      if (start >= 0) {
+        var after = t.slice(start).replace(startRe, '');
+        var next = after.search(/\boption\s*\(\s*[a-d]\s*\)\s*[:.]/i);
+        var chunk = (next >= 0 ? after.slice(0, next) : after).trim();
+        chunk = chunk.replace(/^this is the correct answer\.?\s*/i, '').trim();
+        if (chunk) return chunk;
+      }
+    }
+    return (
+      t
+        .replace(
+          /^\s*(?:[A-D]\s+is\s+the\s+(?:right|correct)\s+answer(?:\s+because\s+it\s+is\s+the\s+exception)?[. ]*)/i,
+          ''
+        )
+        .replace(/^\s*(?:the\s+)?correct\s+option\s+is\s+(?:option\s*)?\(?\s*[A-D]\s*\)?\s*[. ]*/i, '')
+        .replace(
+          /^\s*(?:sol(?:ution)?\.?\s*)?(?:correct\s*answer|answer)\s*[:.]?\s*(?:option\s*)?\(?\s*[a-d]\s*\)\s*[:.)]?\s*/i,
+          ''
+        )
+        .replace(/^\s*\(?\s*[a-d]\s*\)\s*[:.)]?\s*/i, '')
+        .trim() || t
+    );
+  }
+
+  function applySolutionAnswers(passages) {
+    var filled = 0;
+    passages.forEach(function (p) {
+      p.questions.forEach(function (q) {
+        if (!q.correctLetter && q.solution) {
+          q.correctLetter = letterFromSolution(q.solution, q.options);
+          if (q.correctLetter) {
+            q.answerSource = 'official';
+            var ci = LETTERS.indexOf(q.correctLetter);
+            if (ci >= 0 && q.options[ci]) {
+              q.correctText = q.options[ci].text || q.options[ci];
+            }
+          }
+        }
+        q.reason = q.solution ? reasonForCorrect(q.solution, q.correctLetter) : '';
+        if (q.correctLetter) filled += 1;
+      });
+    });
+    return filled;
+  }
+
+  function extractSolutionMap(doc) {
+    var map = {};
+    doc.querySelectorAll('._question_').forEach(function (node) {
+      var qId = attr(node, 'qid') || attr(node, 'qId');
+      var sQId = parseInt(attr(node, 'sqid') || attr(node, 'sQId') || '0', 10) || 0;
+      if (!qId) return;
+      var solEl =
+        node.querySelector('._soln_') ||
+        node.querySelector('._solution_') ||
+        node.querySelector('._exp_') ||
+        node.querySelector('.solution');
+      mergeSolution(map, qId, sQId, htmlToText(solEl));
+    });
+    doc.querySelectorAll('#_solns_ ._soln_, ._solns_ ._soln_, div._soln_[qid], div._soln_[qId]').forEach(
+      function (el) {
+        var qId = attr(el, 'qid') || attr(el, 'qId');
+        var sQId = parseInt(attr(el, 'sqid') || attr(el, 'sQId') || '0', 10) || 0;
+        mergeSolution(map, qId, sQId, htmlToText(el));
+      }
+    );
+    doc.querySelectorAll('[id^="_soln_"]').forEach(function (el) {
+      var id = String(el.id || '');
+      var m = id.match(/^_soln_(\d+)_(\d+)$/);
+      if (!m) return;
+      mergeSolution(map, m[1], parseInt(m[2], 10) || 0, htmlToText(el));
+    });
     return map;
   }
 
@@ -354,10 +612,12 @@
       : firstSeen;
 
     var correctMap = extractCorrectMap(doc, html);
+    var solutionMap = extractSolutionMap(doc);
     var passages = [];
     var passageIndex = {};
     var n = 0;
     var correctFound = 0;
+    var solutionFound = 0;
 
     sequence.forEach(function (key) {
       var q = byKey[key];
@@ -390,6 +650,12 @@
         var ci = LETTERS.indexOf(correctLetter);
         if (ci >= 0 && q.options[ci]) correctText = q.options[ci];
       }
+      var solution = '';
+      var solArr = solutionMap[q.qId];
+      if (Array.isArray(solArr) && !isNaN(sqNum) && solArr[sqNum]) {
+        solution = String(solArr[sqNum]).trim();
+      }
+      if (solution) solutionFound += 1;
       passageIndex[pid].questions.push({
         n: n,
         stem: q.stem,
@@ -399,8 +665,34 @@
         correctLetter: correctLetter,
         correctText: correctText,
         answerSource: correctLetter ? 'official' : '',
+        solution: solution,
       });
     });
+
+    if (solutionFound === 0) {
+      var loose = [];
+      doc.querySelectorAll('#_solns_ ._soln_, ._solns_ ._soln_, div._soln_').forEach(function (el) {
+        if (el.closest && el.closest('._question_')) return;
+        if (attr(el, 'qid') || attr(el, 'qId')) return;
+        var t = htmlToText(el);
+        if (t) loose.push(t);
+      });
+      if (loose.length) {
+        var li = 0;
+        passages.forEach(function (p) {
+          p.questions.forEach(function (q) {
+            if (!q.solution && loose[li]) {
+              q.solution = loose[li];
+              solutionFound += 1;
+            }
+            li += 1;
+          });
+        });
+      }
+    }
+
+    var filledFromSol = applySolutionAnswers(passages);
+    if (filledFromSol > correctFound) correctFound = filledFromSol;
 
     if (!n) {
       return { ok: false, error: 'Questions were found in markup but could not be read.' };
@@ -415,6 +707,7 @@
       questionCount: n,
       passageCount: passages.length,
       correctCount: correctFound,
+      solutionCount: solutionFound,
       answerSource: correctFound ? 'official' : '',
       warning:
         correctFound === 0
@@ -470,6 +763,7 @@
         var ci = LETTERS.indexOf(letter);
         q.correctText =
           ci >= 0 && q.options[ci] ? q.options[ci].text : '';
+        if (q.solution) q.reason = reasonForCorrect(q.solution, letter);
         filled += 1;
       });
     });
@@ -495,7 +789,8 @@
     return parts.join(' · ');
   }
 
-  function toPlainText(data) {
+  function toPlainText(data, opts) {
+    opts = opts || {};
     if (!data || !data.ok) return '';
     var lines = [];
     lines.push(data.title || 'Toprankers Test');
@@ -507,6 +802,9 @@
         (data.answerSource === 'official' ? 'Official key: ' : 'Answer key: ') + answerKeyLine(data)
       );
     }
+    if (opts.solutions && data.solutionCount) {
+      lines.push('Solutions: ' + data.solutionCount);
+    }
     lines.push('');
     data.passages.forEach(function (p) {
       lines.push('========== PASSAGE ' + p.index + ' ==========');
@@ -517,10 +815,24 @@
         lines.push('Q' + q.n + '. ' + (q.stem || ''));
         q.options.forEach(function (opt) {
           var mark = q.correctLetter && opt.letter === q.correctLetter ? '  ✓' : '';
+          if (opts.solutions) {
+            if (q.correctLetter && opt.letter === q.correctLetter) {
+              lines.push('Correct option: ' + opt.letter + '. ' + opt.text);
+            }
+            return;
+          }
           lines.push(opt.letter + '. ' + opt.text + mark);
         });
-        if (q.correctLetter) {
+        if (!opts.solutions && q.correctLetter) {
           lines.push('Correct answer: ' + q.correctLetter);
+        }
+        if (opts.solutions) {
+          if (q.correctLetter && !q.options.some(function (opt) { return opt.letter === q.correctLetter; })) {
+            lines.push('Correct option: ' + q.correctLetter);
+          }
+          if (q.reason || q.solution) {
+            lines.push('Reason: ' + (q.reason || q.solution));
+          }
         }
         lines.push('');
       });
@@ -531,7 +843,8 @@
     return lines.join('\n');
   }
 
-  function toHtmlDocument(data) {
+  function toHtmlDocument(data, opts) {
+    opts = opts || {};
     if (!data || !data.ok) return '';
     var parts = [];
     parts.push('<h1 style="font-family:Calibri,Arial,sans-serif;">' + escapeHtml(data.title) + '</h1>');
@@ -547,7 +860,8 @@
               ? ' · ' +
                 data.correctCount +
                 (data.answerSource === 'official' ? ' official answers' : ' answers')
-              : '')
+              : '') +
+            (opts.solutions && data.solutionCount ? ' · ' + data.solutionCount + ' solutions' : '')
         ) +
         '</p>'
     );
@@ -580,6 +894,7 @@
         parts.push('<p style="margin-left:18px;font-family:Calibri,Arial,sans-serif;">');
         q.options.forEach(function (opt) {
           var isC = q.correctLetter && opt.letter === q.correctLetter;
+          if (opts.solutions && !isC) return;
           parts.push(
             (isC ? '<strong style="color:#0a7;">' : '') +
               escapeHtml(opt.letter + '. ' + opt.text) +
@@ -588,10 +903,17 @@
           );
         });
         parts.push('</p>');
-        if (q.correctLetter) {
+        if (q.correctLetter && !opts.solutions) {
           parts.push(
             '<p style="font-family:Calibri,Arial,sans-serif;color:#0a7;"><strong>Correct answer:</strong> ' +
               escapeHtml(q.correctLetter) +
+              '</p>'
+          );
+        }
+        if (opts.solutions && (q.reason || q.solution)) {
+          parts.push(
+            '<p style="font-family:Calibri,Arial,sans-serif;background:#f4fbf6;border:1px solid #c6ebd5;padding:8px 10px;"><strong>Reason:</strong><br/>' +
+              escapeHtml(q.reason || q.solution).replace(/\n/g, '<br/>') +
               '</p>'
           );
         }
@@ -632,9 +954,10 @@
       .slice(0, 80) || 'toprankers-test';
   }
 
-  function downloadWord(data) {
+  function downloadWord(data, opts) {
+    opts = opts || {};
     if (!data || !data.ok) return;
-    var inner = toHtmlDocument(data);
+    var inner = toHtmlDocument(data, opts);
     var html =
       '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">' +
       '<title>' +
@@ -645,7 +968,7 @@
     var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = fileSafeName(data.title) + '.doc';
+    a.download = fileSafeName(data.title) + (opts.solutions ? '-solutions' : '') + '.doc';
     document.body.appendChild(a);
     a.click();
     a.remove();

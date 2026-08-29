@@ -129,7 +129,8 @@
 }
 
 .admission-field__input,
-.admission-field__textarea {
+.admission-field__textarea,
+.admission-field__select {
   width: 100%;
   box-sizing: border-box;
   outline: none;
@@ -150,18 +151,33 @@
   line-height: 1.45;
 }
 
+.admission-field__select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%231e3a5f' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2.1rem;
+}
+
+input[type='date'].admission-field__input {
+  min-height: 2.7rem;
+}
+
 .admission-field__input::placeholder,
 .admission-field__textarea::placeholder {
   color: #94a3b8;
 }
 
 .admission-field__input:hover,
-.admission-field__textarea:hover {
+.admission-field__textarea:hover,
+.admission-field__select:hover {
   border-color: #2d4a6f;
 }
 
 .admission-field__input:focus,
-.admission-field__textarea:focus {
+.admission-field__textarea:focus,
+.admission-field__select:focus {
   border-color: var(--adm-accent);
   transform: translate(2px, 3px);
   box-shadow: 1px 2px 0 0 rgba(196, 165, 116, 0.45);
@@ -226,4 +242,64 @@
 .admission-submit:active {
   transform: translate(3px, 4px);
   box-shadow: 1px 2px 0 0 var(--adm-shadow);
+}
+
+.admission-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+.admission-photo {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.admission-photo__preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--adm-border);
+  background: var(--adm-surface);
+  box-shadow: 3px 4px 0 0 rgba(196, 165, 116, 0.55);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--adm-muted);
+}
+
+.admission-photo__preview[hidden],
+.admission-photo__img[hidden],
+.admission-photo__icon[hidden] {
+  display: none !important;
+}
+
+.admission-photo__icon {
+  font-size: 1.65rem;
+}
+
+.admission-photo__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admission-photo__pick {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.admission-photo__file {
+  padding: 0.45rem 0.55rem;
+}
+
+.admission-photo__hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+  color: var(--adm-muted);
+  line-height: 1.4;
 }

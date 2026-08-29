@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/retrival.css" />
+  <link rel="stylesheet" href="../css/retrival.css?v=20260829ab3" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -120,11 +120,12 @@
                 <th>Added By</th>
                 <th>Image</th>
                 <th>Actions</th>
+                <th>Assign Book</th>
               </tr>
             </thead>
             <tbody id="retrival-table-body">
               <tr>
-                <td class="retrival-empty" colspan="13">Select "Student" to load data.</td>
+                <td class="retrival-empty" colspan="14">Select "Student" to load data.</td>
               </tr>
             </tbody>
           </table>
@@ -456,6 +457,51 @@
     </div>
   </div>
 
+  <div id="assign-book-modal" class="crm-modal ab-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-assign-book-modal></div>
+    <div class="crm-modal__dialog ab-dialog">
+      <form id="assign-book-form" class="ab-card">
+        <header class="ab-card__head">
+          <div class="ab-card__brand">
+            <span class="ab-card__icon" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+            <div>
+              <h2 class="ab-card__title" id="assign-book-title">Assign Book</h2>
+              <p class="ab-card__hint">Choose the date each edition was given</p>
+            </div>
+          </div>
+          <button type="button" class="ab-card__close" data-close-assign-book-modal aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </header>
+        <div id="assign-book-meta" class="ab-card__student"></div>
+        <div class="ab-card__body">
+          <section class="ab-section">
+            <h3 class="ab-section__title">Core editions</h3>
+            <div id="ab-core-grid" class="ab-grid"></div>
+          </section>
+          <section class="ab-section">
+            <div class="ab-section__bar">
+              <h3 class="ab-section__title">Extra editions</h3>
+              <button type="button" class="ab-add-btn" id="ab-add-col">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Add edition
+              </button>
+            </div>
+            <div id="ab-extra-list" class="ab-extra-list"></div>
+          </section>
+        </div>
+        <p id="assign-book-status" class="ab-status"></p>
+        <footer class="ab-card__foot">
+          <button type="button" class="ab-btn ab-btn--ghost" data-close-assign-book-modal>Cancel</button>
+          <button type="submit" class="ab-btn ab-btn--primary" id="assign-book-save">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+            Save assignment
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -478,6 +524,9 @@
       var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
       var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
       var COURSE_VIDEO_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_video';
+      var ASSIGN_BOOK_API =
+        (window.APP_CONFIG && window.APP_CONFIG.ASSIGN_BOOK_API) ||
+        'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/assignBook';
       var tableTitleEl = document.getElementById('retrival-table-title');
       var theadEl = document.getElementById('retrival-thead');
       var searchLabelEl = document.getElementById('search-field-label');
@@ -592,6 +641,24 @@
       var currentEditId = null;
       var currentEditStudentImgKey = '';
       var currentEditAchieverId = null;
+      var assignBookByStudent = Object.create(null);
+      var currentAssignStudent = null;
+      var assignBookExtras = [];
+      var assignBookDraftDates = Object.create(null);
+      var ASSIGN_BOOK_EDITIONS = [
+        { key: 'oneAssigned', label: 'Edition 1' },
+        { key: 'sixAssigned', label: 'Edition 6' },
+        { key: 'sevenAssigned', label: 'Edition 7' },
+        { key: 'eightAssigned', label: 'Edition 8' },
+        { key: 'nineAssigned', label: 'Edition 9' },
+        { key: 'tenthAssigned', label: 'Edition 10' },
+      ];
+      var assignBookModal = document.getElementById('assign-book-modal');
+      var assignBookForm = document.getElementById('assign-book-form');
+      var assignBookTitleEl = document.getElementById('assign-book-title');
+      var assignBookMetaEl = document.getElementById('assign-book-meta');
+      var assignBookStatusEl = document.getElementById('assign-book-status');
+      var assignBookSaveBtn = document.getElementById('assign-book-save');
       var efImageInput = document.getElementById('ef-image');
       var efImageNameEl = document.getElementById('ef-image-name');
       var efImageLabelEl = document.getElementById('ef-image-label');
@@ -603,7 +670,7 @@
       var STUDENT_HEAD_HTML =
         '<tr>' +
         '<th>Name</th><th>Email</th><th>Password</th><th>Phone</th><th>Parent Phone</th><th>DOB</th><th>Source</th>' +
-        '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th>' +
+        '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th><th>Assign Book</th>' +
         '</tr>';
       var ACHIEVER_HEAD_HTML =
         '<tr>' +
@@ -803,7 +870,7 @@
         }
         if (!role) {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="13">Select a category above to load data.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="14">Select a category above to load data.</td></tr>';
           countEl.textContent = '0 rows';
           roleMessageEl.textContent = 'Select a button above to view data.';
           metaEl.textContent = 'Choose a category to load records.';
@@ -832,7 +899,7 @@
           loadCourseVideoData();
         } else {
           tbody.innerHTML =
-            '<tr><td class="retrival-empty" colspan="13">Unknown category.</td></tr>';
+            '<tr><td class="retrival-empty" colspan="14">Unknown category.</td></tr>';
           countEl.textContent = '0 rows';
           metaEl.textContent = 'Unknown action.';
         }
@@ -904,9 +971,84 @@
         return false;
       }
 
+      function toAssignDateVal(value) {
+        if (value == null || value === '') return '';
+        var s = String(value).trim();
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (!m) return '';
+        if (m[1] === '0000' || m[2] === '00' || m[3] === '00') return '';
+        return m[1] + '-' + m[2] + '-' + m[3];
+      }
+
+      function parseAssignExtra(raw) {
+        var value = raw;
+        if (value == null || value === '') return [];
+        if (typeof value === 'string') {
+          try {
+            value = JSON.parse(value);
+          } catch (_) {
+            return [];
+          }
+        }
+        var items = [];
+        if (Array.isArray(value)) {
+          value.forEach(function (entry) {
+            if (entry == null) return;
+            if (typeof entry === 'string' || typeof entry === 'number') {
+              items.push({ book: String(entry).trim(), date: '' });
+              return;
+            }
+            if (typeof entry !== 'object') return;
+            var book = String(
+              entry.book != null ? entry.book : entry.name != null ? entry.name : entry.title || '',
+            ).trim();
+            var date = toAssignDateVal(entry.date != null ? entry.date : entry.assigned);
+            if (!book && !date) return;
+            items.push({ book: book, date: date });
+          });
+          return items;
+        }
+        if (typeof value === 'object') {
+          Object.keys(value).forEach(function (key) {
+            items.push({ book: String(key).trim(), date: toAssignDateVal(value[key]) });
+          });
+        }
+        return items;
+      }
+
+      function recordHasIssuedDates(rec) {
+        if (!rec) return false;
+        var i;
+        for (i = 0; i < ASSIGN_BOOK_EDITIONS.length; i += 1) {
+          if (toAssignDateVal(rec[ASSIGN_BOOK_EDITIONS[i].key])) return true;
+        }
+        return parseAssignExtra(rec.extra).some(function (item) {
+          return !!(item && toAssignDateVal(item.date));
+        });
+      }
+
+      function studentHasAssignment(sid) {
+        return recordHasIssuedDates(assignBookByStudent[String(sid)]);
+      }
+
+      function assignBookButtonHtml(sid) {
+        if (studentHasAssignment(sid)) {
+          return (
+            '<button class="retrival-text-btn retrival-text-btn--assigned" type="button" data-assign-book-id="' +
+            safeHtml(sid) +
+            '" title="View or edit assigned books">Assigned</button>'
+          );
+        }
+        return (
+          '<button class="retrival-text-btn retrival-text-btn--assign" type="button" data-assign-book-id="' +
+          safeHtml(sid) +
+          '" title="Assign books">Assign Book</button>'
+        );
+      }
+
       function renderRows(rows) {
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="13">No student records found.</td></tr>';
+          tbody.innerHTML = '<tr><td class="retrival-empty" colspan="14">No student records found.</td></tr>';
           countEl.textContent = '0 rows';
           return;
         }
@@ -942,6 +1084,7 @@
             dropResumeBtn +
             '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
             '</span></td>' +
+            '<td>' + assignBookButtonHtml(r.student_id || r.id) + '</td>' +
             '</tr>'
           );
         }).join('');
@@ -1938,6 +2081,210 @@
         }
       }
 
+      function closeAssignBookModal() {
+        if (assignBookModal) assignBookModal.hidden = true;
+        currentAssignStudent = null;
+        assignBookExtras = [];
+        assignBookDraftDates = Object.create(null);
+        if (assignBookStatusEl) assignBookStatusEl.textContent = '';
+        if (assignBookSaveBtn) assignBookSaveBtn.disabled = false;
+      }
+
+      function syncAssignExtrasFromDom() {
+        var names = document.querySelectorAll('.ab-extra-name');
+        var dates = document.querySelectorAll('.ab-extra-date');
+        var next = [];
+        Array.prototype.slice.call(names).forEach(function (nameEl, i) {
+          var dateEl = dates[i];
+          next.push({
+            book: nameEl ? String(nameEl.value || '') : '',
+            date: dateEl ? String(dateEl.value || '').trim() : '',
+          });
+        });
+        assignBookExtras = next;
+      }
+
+      function syncAssignDraftFromDom() {
+        ASSIGN_BOOK_EDITIONS.forEach(function (col) {
+          var el = document.querySelector('.ab-date[data-ab-col="' + col.key + '"]');
+          if (el) assignBookDraftDates[col.key] = el.value || '';
+        });
+        syncAssignExtrasFromDom();
+      }
+
+      function renderAssignBookTable() {
+        var core = document.getElementById('ab-core-grid');
+        var extra = document.getElementById('ab-extra-list');
+        if (!core || !extra) return;
+        core.innerHTML = ASSIGN_BOOK_EDITIONS.map(function (col) {
+          var val = toAssignDateVal(assignBookDraftDates[col.key]);
+          return (
+            '<div class="ab-field' +
+            (val ? ' is-filled' : '') +
+            '"><div class="ab-field__top"><span class="ab-field__label">' +
+            col.label +
+            '</span><button type="button" class="ab-clear" data-ab-clear-col="' +
+            col.key +
+            '" title="Clear date">Clear</button></div><input type="date" class="ab-date" data-ab-col="' +
+            col.key +
+            '" value="' +
+            safeHtml(val) +
+            '" /></div>'
+          );
+        }).join('');
+        if (!assignBookExtras.length) {
+          extra.innerHTML = '<p class="ab-empty">No extra editions yet. Use Add edition for anything beyond 1, 6–10.</p>';
+          return;
+        }
+        extra.innerHTML = assignBookExtras
+          .map(function (ex, idx) {
+            return (
+              '<div class="ab-extra-row">' +
+              '<input type="text" class="ab-extra-name" maxlength="40" placeholder="Edition name" value="' +
+              safeHtml(ex.book || '') +
+              '" />' +
+              '<div class="ab-date-wrap">' +
+              '<input type="date" class="ab-date ab-extra-date" value="' +
+              safeHtml(toAssignDateVal(ex.date)) +
+              '" />' +
+              '<button type="button" class="ab-clear-icon" data-ab-clear-extra title="Clear date" aria-label="Clear date"><i class="fa-solid fa-xmark"></i></button>' +
+              '</div>' +
+              '<button type="button" class="ab-extra-x" data-ab-extra-del="' +
+              idx +
+              '" aria-label="Remove extra edition"><i class="fa-solid fa-trash"></i></button>' +
+              '</div>'
+            );
+          })
+          .join('');
+      }
+
+      function openAssignBookModal(row) {
+        currentAssignStudent = row || null;
+        if (!currentAssignStudent) return;
+        var sid = String(currentAssignStudent.student_id || currentAssignStudent.id || '').trim();
+        var rec = assignBookByStudent[sid] || {};
+        assignBookDraftDates = Object.create(null);
+        ASSIGN_BOOK_EDITIONS.forEach(function (col) {
+          assignBookDraftDates[col.key] = toAssignDateVal(rec[col.key]);
+        });
+        assignBookExtras = parseAssignExtra(rec.extra);
+        if (assignBookTitleEl) {
+          assignBookTitleEl.textContent = studentHasAssignment(sid) ? 'Assigned books' : 'Assign Book';
+        }
+        if (assignBookMetaEl) {
+          assignBookMetaEl.innerHTML =
+            '<span class="ab-chip ab-chip--name"><i class="fa-solid fa-user"></i> ' +
+            safeHtml(currentAssignStudent.name || 'Student') +
+            '</span>' +
+            '<span class="ab-chip"><i class="fa-solid fa-id-card"></i> ID ' +
+            safeHtml(sid) +
+            '</span>' +
+            (currentAssignStudent.branch
+              ? '<span class="ab-chip"><i class="fa-solid fa-location-dot"></i> ' +
+                safeHtml(currentAssignStudent.branch) +
+                '</span>'
+              : '');
+        }
+        if (assignBookStatusEl) assignBookStatusEl.textContent = '';
+        renderAssignBookTable();
+        if (assignBookModal) assignBookModal.hidden = false;
+      }
+
+      function refreshStudentTableAfterAssign() {
+        var query = nameEmailInput && (nameEmailInput.value || '').trim();
+        var fromDate = fromDateInput && fromDateInput.value;
+        var toDate = toDateInput && toDateInput.value;
+        var branchRaw =
+          branchFilterSelect && branchFilterWrap && !branchFilterWrap.hidden ? branchFilterSelect.value : '';
+        if (query || fromDate || toDate || branchRaw) applyFilters();
+        else renderRows(allRows);
+      }
+
+      async function loadAssignBookMap() {
+        assignBookByStudent = Object.create(null);
+        try {
+          var res = await fetch(ASSIGN_BOOK_API, { method: 'GET', headers: { Accept: 'application/json' } });
+          var data = {};
+          try {
+            data = await res.json();
+          } catch (_) {
+            data = [];
+          }
+          if (!res.ok || !Array.isArray(data)) return;
+          data.forEach(function (r) {
+            if (!r || r.student_id == null) return;
+            assignBookByStudent[String(r.student_id).trim()] = r;
+          });
+        } catch (_) {}
+      }
+
+      async function saveAssignBook(e) {
+        if (e) e.preventDefault();
+        if (!currentAssignStudent) return;
+        var sid = String(currentAssignStudent.student_id || currentAssignStudent.id || '').trim();
+        if (!sid) {
+          if (assignBookStatusEl) assignBookStatusEl.textContent = 'Missing student_id.';
+          return;
+        }
+        syncAssignExtrasFromDom();
+        var payload = {
+          student_id: Number(sid) || sid,
+          student_name: currentAssignStudent.name || '',
+          branch: currentAssignStudent.branch || '',
+          added_by: '',
+        };
+        try {
+          var session = window.Auth && typeof window.Auth.getSession === 'function' ? window.Auth.getSession() : null;
+          if (session && session.user) payload.added_by = session.user.email || session.user.name || '';
+        } catch (_) {}
+        ASSIGN_BOOK_EDITIONS.forEach(function (col) {
+          var el = document.querySelector('.ab-date[data-ab-col="' + col.key + '"]');
+          payload[col.key] = el && el.value ? el.value : null;
+        });
+        payload.extra = assignBookExtras
+          .map(function (item) {
+            return { book: String(item.book || '').trim(), date: toAssignDateVal(item.date) || null };
+          })
+          .filter(function (item) {
+            return !!(item.book || item.date);
+          });
+
+        if (assignBookSaveBtn) assignBookSaveBtn.disabled = true;
+        if (assignBookStatusEl) assignBookStatusEl.textContent = 'Saving...';
+        try {
+          var res = await fetch(ASSIGN_BOOK_API, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          var data = {};
+          try {
+            data = await res.json();
+          } catch (_) {
+            data = {};
+          }
+          if (!res.ok) throw new Error(data.message || 'Save failed');
+          var saved = data && data.row ? data.row : null;
+          if (saved && recordHasIssuedDates(saved)) {
+            assignBookByStudent[sid] = saved;
+          } else {
+            delete assignBookByStudent[sid];
+          }
+          closeAssignBookModal();
+          refreshStudentTableAfterAssign();
+          showSuccessPopup(
+            saved && recordHasIssuedDates(saved) ? 'Saved' : 'Cleared',
+            saved && recordHasIssuedDates(saved)
+              ? 'Book assignment saved for ' + (payload.student_name || sid) + '.'
+              : 'All edition dates cleared for ' + (payload.student_name || sid) + '.',
+          );
+        } catch (err) {
+          if (assignBookStatusEl) assignBookStatusEl.textContent = err.message || 'Save failed';
+        } finally {
+          if (assignBookSaveBtn) assignBookSaveBtn.disabled = false;
+        }
+      }
+
       function bindRowActionEvents(rows) {
         Array.prototype.slice.call(document.querySelectorAll('[data-show-image]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
@@ -1982,6 +2329,15 @@
               resumeStudentById(btn.getAttribute('data-resume-id'));
             });
           });
+          Array.prototype.slice.call(document.querySelectorAll('[data-assign-book-id]')).forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = btn.getAttribute('data-assign-book-id');
+              var row = rows.find(function (r) {
+                return String(r.student_id || r.id) === String(id);
+              });
+              if (row) openAssignBookModal(row);
+            });
+          });
         }
       }
 
@@ -1989,12 +2345,17 @@
         if (currentMode !== 'student') return;
         metaEl.textContent = 'Loading student data...';
         try {
-          var res = await fetch(API_URL, { method: 'GET' });
+          var studentReq = fetch(API_URL, { method: 'GET' });
+          var bookReq = loadAssignBookMap();
+          var res = await studentReq;
           var data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
           var rows = Array.isArray(data) ? data : [];
           if (window.CrmBranchScope) rows = CrmBranchScope.filterStudents(rows);
           allRows = rows;
+          try {
+            await bookReq;
+          } catch (_) {}
           if (
             branchFilterSelect &&
             branchFilterWrap &&
@@ -2189,6 +2550,60 @@
       Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-modal]')).forEach(function (el) {
         el.addEventListener('click', closeEditModal);
       });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-assign-book-modal]')).forEach(function (el) {
+        el.addEventListener('click', closeAssignBookModal);
+      });
+      if (assignBookForm) {
+        assignBookForm.addEventListener('submit', saveAssignBook);
+        assignBookForm.addEventListener('change', function (e) {
+          var input = e.target;
+          if (!input || !input.matches || !input.matches('.ab-date[data-ab-col]')) return;
+          var field = input.closest('.ab-field');
+          if (field) field.classList.toggle('is-filled', !!input.value);
+        });
+      }
+      if (assignBookModal) {
+        assignBookModal.addEventListener('click', function (e) {
+          var t = e.target;
+          if (!t) return;
+          if (t.closest('#ab-add-col')) {
+            e.preventDefault();
+            syncAssignDraftFromDom();
+            assignBookExtras.push({ book: '', date: '' });
+            renderAssignBookTable();
+            return;
+          }
+          var clearCol = t.closest('[data-ab-clear-col]');
+          if (clearCol) {
+            e.preventDefault();
+            var key = clearCol.getAttribute('data-ab-clear-col');
+            var input = document.querySelector('.ab-date[data-ab-col="' + key + '"]');
+            if (input) {
+              input.value = '';
+              assignBookDraftDates[key] = '';
+              var field = input.closest('.ab-field');
+              if (field) field.classList.remove('is-filled');
+            }
+            return;
+          }
+          var clearExtra = t.closest('[data-ab-clear-extra]');
+          if (clearExtra) {
+            e.preventDefault();
+            var extraRow = clearExtra.closest('.ab-extra-row');
+            var extraDate = extraRow ? extraRow.querySelector('.ab-extra-date') : null;
+            if (extraDate) extraDate.value = '';
+            return;
+          }
+          var delBtn = t.closest('[data-ab-extra-del]');
+          if (delBtn) {
+            e.preventDefault();
+            syncAssignDraftFromDom();
+            var idx = parseInt(delBtn.getAttribute('data-ab-extra-del'), 10);
+            if (!Number.isNaN(idx)) assignBookExtras.splice(idx, 1);
+            renderAssignBookTable();
+          }
+        });
+      }
       Array.prototype.slice.call(document.querySelectorAll('[data-close-edit-achiever-modal]')).forEach(function (el) {
         el.addEventListener('click', closeEditAchieverModal);
       });

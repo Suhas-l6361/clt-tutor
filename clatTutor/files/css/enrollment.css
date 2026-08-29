@@ -572,3 +572,140 @@
   background: #f1f5f9;
   color: #475569;
 }
+
+.enrollment-student-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.enrollment-student-cell__name {
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.enrollment-photo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+}
+
+.enrollment-photo__icon {
+  font-size: 0.85rem;
+}
+
+.enrollment-photo__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.enrollment-photo--modal {
+  width: 96px;
+  height: 96px;
+}
+
+.enrollment-photo--modal .enrollment-photo__icon {
+  font-size: 2.1rem;
+}
+
+.enrollment-modal__photo-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.enrollment-modal__photo-head .enrollment-modal__meta {
+  margin: 0;
+}
+
+.enrollment-photo--clickable {
+  cursor: pointer;
+}
+
+.enrollment-photo--clickable:hover {
+  box-shadow: 0 0 0 2px #ca8a04, 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+.enrollment-photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.enrollment-photo-lightbox[hidden] {
+  display: none !important;
+}
+
+.enrollment-photo-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.enrollment-photo-lightbox__dialog {
+  position: relative;
+  z-index: 1;
+  max-width: min(920px, 100%);
+  max-height: min(90vh, 860px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enrollment-photo-lightbox__img {
+  display: block;
+  max-width: min(920px, calc(100vw - 2.5rem));
+  max-height: min(86vh, 820px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  background: #0f172a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.enrollment-photo-lightbox__close {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+}
+
+.enrollment-photo-lightbox__close:hover {
+  background: #fef3c7;
+  color: #854d0e;
+}
