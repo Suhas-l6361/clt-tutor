@@ -44,6 +44,16 @@ const APP_CONFIG = {
   /** CRM — student list (GET array) — same stage as auth student_general_info */
   STUDENT_GENERAL_INFO_API:
     'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info',
+  /** Public / CRM — mock test papers (GET/POST/PUT/DELETE). Same Gateway as STUDENT_GENERAL_INFO_API. Deploy: serverless from Backend/general_info */
+  MOCK_TEST_API:
+    'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/mockTest',
+  /** S3 targets for mockTest signed uploads. Student filled OMR → clatutor-student-omr */
+  MOCK_TEST_S3: {
+    paper: { kind: 'paper', bucket: 'clatutor-mocktest', prefix: 'mock-question-papers' },
+    omr: { kind: 'omr', bucket: 'clatutor-omr', prefix: 'mock-omr-sheets' },
+    solution: { kind: 'solution', bucket: 'clatutor-solution', prefix: 'mock-solutions' },
+    studentOmr: { kind: 'uploaded_omr', bucket: 'clatutor-student-omr', prefix: 'student-omr' },
+  },
   /** CRM — OMR scan (POST JSON { image_base64 }). Deploy: npm run deploy:omr in Backend/crm_files */
   SCAN_OMR_API:
     'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/scan_omr',

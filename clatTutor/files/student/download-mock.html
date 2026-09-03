@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Download Mock - Student</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/student-download-mock.css?v=20260903cam" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body student-dashboard page-student-download-mock">
+  <div id="stock" style="display: none">
+    <div class="dm-wrap">
+      <section class="dm-hero" aria-label="Download mock tests">
+        <div class="dm-hero__icon" aria-hidden="true">
+          <img src="../image/download mock.png" alt="" />
+        </div>
+        <div>
+          <h2>Download Mock Tests</h2>
+          <p>Download the paper and OMR, then download the solution after you upload your filled sheet.</p>
+        </div>
+      </section>
+
+      <section class="dm-toolbar" aria-label="Search mock tests">
+        <div class="dm-field">
+          <label for="dm-search">Search by mock name</label>
+          <input id="dm-search" type="search" placeholder="Type mock title" />
+        </div>
+        <button type="button" class="dm-toolbar__btn" id="dm-apply-filters">
+          <i class="fa-solid fa-filter" aria-hidden="true"></i> Apply
+        </button>
+      </section>
+
+      <p id="dm-status" class="dm-status" aria-live="polite"></p>
+      <div id="dm-empty" class="dm-empty" hidden>
+        <img src="../image/download mock.png" alt="" />
+        <p><strong>No mock tests found.</strong></p>
+        <p>Try a different search, or check back after a mock is published.</p>
+      </div>
+      <div id="dm-list" class="dm-grid"></div>
+    </div>
+  </div>
+
+  <div id="dm-popup" class="dm-popup" hidden>
+    <div class="dm-popup__backdrop" data-dm-popup-close aria-hidden="true"></div>
+    <div class="dm-popup__card" role="dialog" aria-modal="true" aria-labelledby="dm-popup-title">
+      <div class="dm-popup__icon is-spin" id="dm-popup-icon" aria-hidden="true">
+        <img src="../image/download mock.png" alt="" />
+      </div>
+      <h3 id="dm-popup-title" class="dm-popup__title">Preparing download</h3>
+      <p id="dm-popup-file" class="dm-popup__file">Getting your PDF ready.</p>
+      <div class="dm-progress" aria-hidden="true">
+        <div class="dm-progress__bar" id="dm-progress-bar"></div>
+      </div>
+      <p id="dm-popup-hint" class="dm-popup__hint">Please keep this window open.</p>
+      <button type="button" class="dm-popup__close" id="dm-popup-close" data-dm-popup-close>Close</button>
+    </div>
+  </div>
+
+  <div id="dm-omr-modal" class="dm-omr-modal" hidden>
+    <div class="dm-omr-modal__backdrop" data-dm-omr-close aria-hidden="true"></div>
+    <div class="dm-omr-modal__card" role="dialog" aria-modal="true" aria-labelledby="dm-omr-title">
+      <div class="dm-omr-modal__head">
+        <h3 id="dm-omr-title">Submit your filled OMR</h3>
+        <button type="button" class="dm-omr-modal__x" data-dm-omr-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="dm-omr-modal__lead">
+        Download the blank OMR, fill the A–D bubbles, then upload a photo of your completed sheet.
+        After a valid OMR is submitted, the answer key starts downloading.
+      </p>
+      <p class="dm-omr-modal__mock" id="dm-omr-mock-name"></p>
+      <ol class="dm-omr-steps">
+        <li>Download the blank OMR sheet</li>
+        <li>Fill your answers on paper</li>
+        <li>Upload the filled OMR sheet and submit</li>
+      </ol>
+      <button type="button" class="dm-omr-blank" id="dm-omr-download-blank">
+        <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+        Download blank OMR
+      </button>
+
+      <div id="dm-omr-desktop" class="dm-omr-desktop">
+        <label class="dm-omr-file">
+          <span>Select OMR photo</span>
+          <input id="dm-omr-file" type="file" accept="image/*" />
+          <em id="dm-omr-file-name">No file selected</em>
+        </label>
+      </div>
+
+      <div id="dm-omr-camera" class="dm-omr-phone" hidden>
+        <p class="dm-omr-phone__hint">On this screen you must photograph the OMR sheet with your camera.</p>
+        <div class="dm-omr-view">
+          <video id="dm-omr-video" playsinline autoplay muted></video>
+          <img id="dm-omr-preview" alt="Captured OMR" hidden />
+          <div class="dm-omr-frame" aria-hidden="true"></div>
+        </div>
+        <p id="dm-omr-cam-status" class="dm-omr-cam-status">Camera is off</p>
+        <div class="dm-omr-cam-btns">
+          <button type="button" class="dm-omr-blank" id="dm-omr-start-cam">
+            <i class="fa-solid fa-camera" aria-hidden="true"></i> Open camera
+          </button>
+          <button type="button" class="dm-omr-submit" id="dm-omr-capture" hidden>
+            <i class="fa-solid fa-circle" aria-hidden="true"></i> Capture OMR
+          </button>
+          <button type="button" class="dm-omr-cancel" id="dm-omr-retake" hidden>Retake</button>
+        </div>
+        <input id="dm-omr-camera-fallback" type="file" accept="image/*" capture="environment" hidden />
+      </div>
+      <div class="dm-omr-modal__btns">
+        <button type="button" class="dm-omr-cancel" data-dm-omr-close>Cancel</button>
+        <button type="button" class="dm-omr-submit" id="dm-omr-submit">Submit OMR</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dm-mismatch" class="dm-popup" hidden>
+    <div class="dm-popup__backdrop" data-dm-mismatch-close aria-hidden="true"></div>
+    <div class="dm-popup__card dm-popup__card--warn" role="alertdialog" aria-labelledby="dm-mismatch-title">
+      <div class="dm-popup__icon" aria-hidden="true">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="dm-mismatch-title" class="dm-popup__title">OMR mismatch</h3>
+      <p class="dm-popup__file">This is not the CLATutor OMR answer sheet. Capture the full sheet with NAME, Roll No, and A–D bubbles only.</p>
+      <p class="dm-popup__hint">Remove other papers, faces, or objects from the frame and try again.</p>
+      <button type="button" class="dm-popup__close" data-dm-mismatch-close>Try again</button>
+    </div>
+  </div>
+
+  <div id="dm-convert-host" class="dm-convert-host" aria-hidden="true"></div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="../js/config.js?v=20260903studentomr"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/student-access.js?v=20260903mock"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260903mock"></script>
+  <script src="../js/student-chrome.js?v=20260903mock"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      if (!requireRole('student')) return;
+      initAppChrome({ role: 'student', active: 'download-mock.html', title: 'Download Mock', contentEl: stock });
+      applyStudentChrome();
+
+      var MOCK_TEST_API =
+        (window.APP_CONFIG && window.APP_CONFIG.MOCK_TEST_API) ||
+        'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/mockTest';
+      var STUDENT_OMR_S3 =
+        (window.APP_CONFIG && window.APP_CONFIG.MOCK_TEST_S3 && window.APP_CONFIG.MOCK_TEST_S3.studentOmr) ||
+        { kind: 'uploaded_omr', bucket: 'clatutor-student-omr', prefix: 'student-omr' };
+      var ICON_SRC = '../image/download mock.png';
+      var listEl = document.getElementById('dm-list');
+      var emptyEl = document.getElementById('dm-empty');
+      var statusEl = document.getElementById('dm-status');
+      var searchEl = document.getElementById('dm-search');
+      var popup = document.getElementById('dm-popup');
+      var popupTitle = document.getElementById('dm-popup-title');
+      var popupFile = document.getElementById('dm-popup-file');
+      var popupHint = document.getElementById('dm-popup-hint');
+      var popupIcon = document.getElementById('dm-popup-icon');
+      var downloadBusy = false;
+      var closeTimer = null;
+
+      var allRows = [];
+      var filtered = [];
+      var omrModal = document.getElementById('dm-omr-modal');
+      var omrFileInput = document.getElementById('dm-omr-file');
+      var omrFileNameEl = document.getElementById('dm-omr-file-name');
+      var omrMockNameEl = document.getElementById('dm-omr-mock-name');
+      var pendingOmrRow = null;
+      var pendingOmrBlob = null;
+      var cameraStream = null;
+      var mismatchEl = document.getElementById('dm-mismatch');
+      var desktopPane = document.getElementById('dm-omr-desktop');
+      var cameraPane = document.getElementById('dm-omr-camera');
+      var videoEl = document.getElementById('dm-omr-video');
+      var previewEl = document.getElementById('dm-omr-preview');
+      var camStatusEl = document.getElementById('dm-omr-cam-status');
+      var startCamBtn = document.getElementById('dm-omr-start-cam');
+      var captureBtn = document.getElementById('dm-omr-capture');
+      var retakeBtn = document.getElementById('dm-omr-retake');
+      var cameraFallback = document.getElementById('dm-omr-camera-fallback');
+
+      function isBigScreen() {
+        return window.matchMedia('(min-width: 1100px)').matches;
+      }
+
+      function showMismatch() {
+        if (mismatchEl) mismatchEl.hidden = false;
+      }
+
+      function hideMismatch() {
+        if (mismatchEl) mismatchEl.hidden = true;
+      }
+
+      function stopCamera() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(function (t) {
+            try {
+              t.stop();
+            } catch (_) {}
+          });
+          cameraStream = null;
+        }
+        if (videoEl) videoEl.srcObject = null;
+      }
+
+      function setCamStatus(text) {
+        if (camStatusEl) camStatusEl.textContent = text || '';
+      }
+
+      function resetCaptureUi() {
+        pendingOmrBlob = null;
+        if (omrFileInput) omrFileInput.value = '';
+        if (cameraFallback) cameraFallback.value = '';
+        if (omrFileNameEl) omrFileNameEl.textContent = isBigScreen() ? 'No file selected' : 'No OMR captured yet';
+        if (previewEl) {
+          previewEl.hidden = true;
+          previewEl.removeAttribute('src');
+        }
+        if (videoEl) videoEl.hidden = false;
+        if (captureBtn) captureBtn.hidden = true;
+        if (retakeBtn) retakeBtn.hidden = true;
+        if (startCamBtn) startCamBtn.hidden = false;
+        setCamStatus('Camera is off');
+      }
+
+      function loadImageFromBlob(blob) {
+        return new Promise(function (resolve, reject) {
+          if (!blob) {
+            reject(new Error('No image'));
+            return;
+          }
+          var url = URL.createObjectURL(blob);
+          var img = new Image();
+          img.onload = function () {
+            URL.revokeObjectURL(url);
+            resolve(img);
+          };
+          img.onerror = function () {
+            URL.revokeObjectURL(url);
+            reject(new Error('Could not read the image'));
+          };
+          img.src = url;
+        });
+      }
+
+      function looksLikeOmrSheet(img) {
+        if (!img || !img.width || !img.height) return false;
+        var maxW = 420;
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.max(80, Math.round(img.width * scale));
+        var h = Math.max(80, Math.round(img.height * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return false;
+        ctx.drawImage(img, 0, 0, w, h);
+        var data = ctx.getImageData(0, 0, w, h).data;
+        var n = w * h;
+        var gray = new Uint8Array(n);
+        var bright = 0;
+        var dark = 0;
+        var skin = 0;
+        var i;
+        var p;
+        for (i = 0, p = 0; i < data.length; i += 4, p += 1) {
+          var r = data[i];
+          var g = data[i + 1];
+          var b = data[i + 2];
+          var y = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+          gray[p] = y;
+          if (y > 175) bright += 1;
+          if (y < 88) dark += 1;
+          var mx = Math.max(r, g, b);
+          var mn = Math.min(r, g, b);
+          if (r > 95 && g > 40 && g < 190 && b < 140 && r > g && r - g > 18 && mx - mn > 20) skin += 1;
+        }
+        var brightRatio = bright / n;
+        var darkRatio = dark / n;
+        var skinRatio = skin / n;
+        var aspect = h / w;
+        var a4Like = (aspect >= 1.12 && aspect <= 1.9) || (aspect >= 0.52 && aspect <= 0.9);
+        if (!a4Like) return false;
+        if (brightRatio < 0.42) return false;
+        if (darkRatio < 0.025 || darkRatio > 0.32) return false;
+        if (skinRatio > 0.18) return false;
+
+        function cornerFiducial(x0, y0, x1, y1) {
+          var pts = [];
+          var x;
+          var y;
+          for (y = y0; y < y1; y += 2) {
+            for (x = x0; x < x1; x += 2) {
+              if (gray[y * w + x] < 80) pts.push(x, y);
+            }
+          }
+          var area = Math.max(1, (x1 - x0) * (y1 - y0));
+          var frac = (pts.length / 2) * 4 / area;
+          if (frac < 0.018 || frac > 0.5) return 0;
+          var sx = 0;
+          var sy = 0;
+          var c = pts.length / 2;
+          for (i = 0; i < pts.length; i += 2) {
+            sx += pts[i];
+            sy += pts[i + 1];
+          }
+          var mx = sx / c;
+          var my = sy / c;
+          var varSum = 0;
+          for (i = 0; i < pts.length; i += 2) {
+            var dx = pts[i] - mx;
+            var dy = pts[i + 1] - my;
+            varSum += dx * dx + dy * dy;
+          }
+          var spread = Math.sqrt(varSum / c);
+          var box = Math.min(x1 - x0, y1 - y0);
+          if (spread < box * 0.06 || spread > box * 0.42) return 0;
+          return 1;
+        }
+
+        var m = Math.round(Math.min(w, h) * 0.16);
+        var corners =
+          cornerFiducial(0, 0, m, m) +
+          cornerFiducial(w - m, 0, w, m) +
+          cornerFiducial(0, h - m, m, h) +
+          cornerFiducial(w - m, h - m, w, h);
+
+        var bubbles = 0;
+        var samples = 0;
+        var stepX = Math.max(8, Math.floor(w / 22));
+        var stepY = Math.max(8, Math.floor(h / 28));
+        var rad = Math.max(2, Math.round(Math.min(stepX, stepY) * 0.28));
+        function grayAt(x, y) {
+          if (x < 0 || y < 0 || x >= w || y >= h) return 255;
+          return gray[y * w + x];
+        }
+        var x;
+        var y;
+        for (y = Math.floor(h * 0.18); y < h * 0.96; y += stepY) {
+          for (x = Math.floor(w * 0.06); x < w * 0.94; x += stepX) {
+            samples += 1;
+            var center = grayAt(x, y);
+            var ring = 0;
+            ring += grayAt(x + rad, y);
+            ring += grayAt(x - rad, y);
+            ring += grayAt(x, y + rad);
+            ring += grayAt(x, y - rad);
+            ring = ring / 4;
+            if (ring < 110 && center > ring + 18 && center > 130) bubbles += 1;
+            else if (center < 95 && ring > center + 10) bubbles += 1;
+          }
+        }
+        var bubbleRatio = samples ? bubbles / samples : 0;
+        if (corners >= 2 && bubbleRatio >= 0.04) return true;
+        if (corners >= 1 && bubbleRatio >= 0.08) return true;
+        if (corners === 0 && bubbleRatio >= 0.14) return true;
+        return false;
+      }
+
+      async function acceptOmrBlob(blob, label) {
+        if (!blob) return false;
+        var type = String(blob.type || '').toLowerCase();
+        if (type && type.indexOf('image/') !== 0 && type !== 'application/octet-stream') {
+          showMismatch();
+          return false;
+        }
+        try {
+          var img = await loadImageFromBlob(blob);
+          if (!looksLikeOmrSheet(img)) {
+            showMismatch();
+            pendingOmrBlob = null;
+            return false;
+          }
+          pendingOmrBlob = blob;
+          if (omrFileNameEl) omrFileNameEl.textContent = label || 'OMR sheet ready';
+          return true;
+        } catch (_) {
+          showMismatch();
+          pendingOmrBlob = null;
+          return false;
+        }
+      }
+
+      async function startCamera() {
+        stopCamera();
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setCamStatus('Camera is not available. Use the capture button below.');
+          if (cameraFallback) cameraFallback.click();
+          return;
+        }
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1920 } },
+          });
+        } catch (_) {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+          } catch (err2) {
+            setCamStatus('Allow camera access, or use the phone capture option.');
+            if (cameraFallback) cameraFallback.click();
+            return;
+          }
+        }
+        if (videoEl) {
+          videoEl.hidden = false;
+          videoEl.srcObject = cameraStream;
+          try {
+            await videoEl.play();
+          } catch (_) {}
+        }
+        if (previewEl) previewEl.hidden = true;
+        if (startCamBtn) startCamBtn.hidden = true;
+        if (captureBtn) captureBtn.hidden = false;
+        if (retakeBtn) retakeBtn.hidden = true;
+        setCamStatus('Fit the full OMR sheet inside the frame, then capture.');
+      }
+
+      async function captureFromVideo() {
+        if (!videoEl || videoEl.readyState < 2) {
+          setCamStatus('Camera is still starting. Wait a moment.');
+          return;
+        }
+        var cw = videoEl.videoWidth || 720;
+        var ch = videoEl.videoHeight || 960;
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(videoEl, 0, 0, cw, ch);
+        var blob = await new Promise(function (resolve) {
+          canvas.toBlob(resolve, 'image/jpeg', 0.92);
+        });
+        if (!blob) {
+          showMismatch();
+          return;
+        }
+        var ok = await acceptOmrBlob(blob, 'Captured OMR photo');
+        if (!ok) return;
+        if (previewEl) {
+          previewEl.src = URL.createObjectURL(blob);
+          previewEl.hidden = false;
+        }
+        videoEl.hidden = true;
+        stopCamera();
+        if (captureBtn) captureBtn.hidden = true;
+        if (retakeBtn) retakeBtn.hidden = false;
+        if (startCamBtn) startCamBtn.hidden = true;
+        setCamStatus('OMR sheet captured. Submit to download the answer key.');
+      }
+
+      function getStudentIdentity() {
+        var session = Auth.getSession ? Auth.getSession() : null;
+        var u = session && session.user ? session.user : {};
+        return {
+          email: String(u.email || u.login || '').trim(),
+          name: String(u.name || '').trim(),
+          student_id: u.student_id != null && String(u.student_id).trim() ? String(u.student_id).trim() : '',
+        };
+      }
+
+      var student = getStudentIdentity();
+
+      function isOmrSubmitted(row) {
+        if (!row) return false;
+        if (row.omr_submitted === true || row.solution_locked === false) return true;
+        return !!firstKey(row.uploaded_omr);
+      }
+
+      function openOmrModal(row) {
+        pendingOmrRow = row || null;
+        hideMismatch();
+        resetCaptureUi();
+        var big = isBigScreen();
+        if (desktopPane) desktopPane.hidden = !big;
+        if (cameraPane) cameraPane.hidden = big;
+        if (omrMockNameEl) {
+          omrMockNameEl.textContent = pendingOmrRow ? titleFromRow(pendingOmrRow) : '';
+        }
+        if (omrModal) {
+          omrModal.hidden = false;
+          document.body.style.overflow = 'hidden';
+        }
+        if (!big) {
+          startCamera();
+        }
+      }
+
+      function closeOmrModal() {
+        if (downloadBusy) return;
+        pendingOmrRow = null;
+        pendingOmrBlob = null;
+        stopCamera();
+        hideMismatch();
+        if (omrModal) omrModal.hidden = true;
+        if (popup && popup.hidden) document.body.style.overflow = '';
+      }
+
+      function safeUploadName(name) {
+        return String(name || 'omr')
+          .replace(/[^\w.\-]+/g, '_')
+          .replace(/_+/g, '_')
+          .slice(0, 80);
+      }
+
+      async function uploadFilledOmr(file) {
+        var prefix = String(STUDENT_OMR_S3.prefix || 'student-omr').replace(/^\/+|\/+$/g, '');
+        var ident = safeUploadName((student && student.email) || 'student').toLowerCase();
+        var mockPart = pendingOmrRow && pendingOmrRow.id != null ? String(pendingOmrRow.id) : 'mock';
+        var fileName =
+          prefix +
+          '/' +
+          ident +
+          '/' +
+          mockPart +
+          '-' +
+          Date.now() +
+          '-' +
+          safeUploadName((file && file.name) || 'omr.jpg');
+        var fileType = (file && file.type) || 'image/jpeg';
+        var signedRes = await fetch(MOCK_TEST_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'get_upload_url',
+            kind: STUDENT_OMR_S3.kind || 'uploaded_omr',
+            bucket: STUDENT_OMR_S3.bucket || 'clatutor-student-omr',
+            fileName: fileName,
+            fileType: fileType,
+          }),
+        });
+        var signedData = {};
+        try {
+          signedData = await signedRes.json();
+        } catch (_) {
+          signedData = {};
+        }
+        if (!signedRes.ok || !signedData.uploadUrl) {
+          throw new Error(signedData.message || 'Failed to get upload URL');
+        }
+        var putRes = await fetch(signedData.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': fileType },
+          body: file,
+        });
+        if (!putRes.ok) throw new Error('Could not save the OMR to storage');
+        return signedData.key || fileName;
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function firstKey(val) {
+        if (val == null || val === '') return '';
+        if (Array.isArray(val)) return String(val[0] || '').trim();
+        if (typeof val === 'string') {
+          var t = val.trim();
+          if (!t) return '';
+          try {
+            var p = JSON.parse(t);
+            if (Array.isArray(p)) return String(p[0] || '').trim();
+          } catch (_) {}
+          return t;
+        }
+        return '';
+      }
+
+      function titleFromRow(r) {
+        var t = r && (r.Title || r.title || '');
+        return String(t || '').trim() || 'Untitled mock';
+      }
+
+      function formatDate(value) {
+        if (!value) return '';
+        var d = new Date(value);
+        if (isNaN(d.getTime())) return '';
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      }
+
+      function extOf(key) {
+        var m = String(key || '').toLowerCase().match(/\.([a-z0-9]{2,5})$/);
+        return m ? m[1] : 'pdf';
+      }
+
+      function safeFileName(title, label) {
+        var base = String(title || 'mock')
+          .replace(/[\\/:"*?<>|]+/g, '-')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 70);
+        return (base || 'mock') + ' - ' + label + '.pdf';
+      }
+
+      function setPopupState(state, title, file, hint) {
+        if (!popup) return;
+        popup.classList.remove('is-busy', 'is-done', 'is-error');
+        if (state) popup.classList.add(state);
+        if (popupIcon) popupIcon.classList.toggle('is-spin', state === 'is-busy');
+        if (popupTitle) popupTitle.textContent = title || 'Download';
+        if (popupFile) popupFile.textContent = file || '';
+        if (popupHint) popupHint.textContent = hint || '';
+      }
+
+      function openPopup() {
+        if (!popup) return;
+        popup.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closePopup() {
+        if (downloadBusy) return;
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+        if (!popup) return;
+        popup.hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function triggerSave(blob, filename) {
+        var href = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = href;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () {
+          URL.revokeObjectURL(href);
+        }, 1500);
+      }
+
+      function isImageExt(ext) {
+        return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].indexOf(ext) !== -1;
+      }
+
+      function isWordExt(ext) {
+        return ext === 'doc' || ext === 'docx';
+      }
+
+      async function blobIsPdf(blob) {
+        if (!blob) return false;
+        if (blob.type && blob.type.toLowerCase().indexOf('pdf') !== -1) return true;
+        try {
+          var head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+          return String.fromCharCode.apply(null, head) === '%PDF-';
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function getJsPdf() {
+        if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+        if (window.jsPDF) return window.jsPDF;
+        return null;
+      }
+
+      function imageToPdfBlob(blob) {
+        return new Promise(function (resolve, reject) {
+          var JsPDF = getJsPdf();
+          if (!JsPDF) {
+            reject(new Error('PDF library failed to load.'));
+            return;
+          }
+          var objectUrl = URL.createObjectURL(blob);
+          var img = new Image();
+          img.onload = function () {
+            try {
+              var canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              var ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0);
+              var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+              var landscape = img.width > img.height;
+              var pdf = new JsPDF({
+                unit: 'mm',
+                format: 'a4',
+                orientation: landscape ? 'landscape' : 'portrait',
+              });
+              var pageW = pdf.internal.pageSize.getWidth();
+              var pageH = pdf.internal.pageSize.getHeight();
+              var margin = 8;
+              var maxW = pageW - margin * 2;
+              var maxH = pageH - margin * 2;
+              var w = maxW;
+              var h = (img.height / img.width) * w;
+              if (h > maxH) {
+                h = maxH;
+                w = (img.width / img.height) * h;
+              }
+              pdf.addImage(dataUrl, 'JPEG', (pageW - w) / 2, (pageH - h) / 2, w, h);
+              resolve(pdf.output('blob'));
+            } catch (err) {
+              reject(err);
+            } finally {
+              URL.revokeObjectURL(objectUrl);
+            }
+          };
+          img.onerror = function () {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Could not read the image.'));
+          };
+          img.src = objectUrl;
+        });
+      }
+
+      async function wordToPdfBlob(blob) {
+        if (!window.mammoth || typeof window.html2pdf !== 'function') {
+          throw new Error('PDF converter failed to load. Please refresh and try again.');
+        }
+        var arrayBuffer = await blob.arrayBuffer();
+        var result = await window.mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+        var host = document.getElementById('dm-convert-host');
+        if (!host) throw new Error('Could not prepare the PDF preview.');
+        host.innerHTML =
+          '<div class="dm-convert-page">' +
+          '<style>img{max-width:100%;height:auto}table{border-collapse:collapse;width:100%}td,th{border:1px solid #222;padding:6px;font-size:12px}p{margin:0 0 10px}</style>' +
+          (result.value || '<p>This file had no readable content.</p>') +
+          '</div>';
+        var page = host.querySelector('.dm-convert-page');
+        var pdfOut = await window
+          .html2pdf()
+          .set({
+            margin: [10, 10, 12, 10],
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] },
+          })
+          .from(page)
+          .outputPdf('blob');
+        if (pdfOut && typeof pdfOut.output === 'function') {
+          pdfOut = pdfOut.output('blob');
+        }
+        if (!(pdfOut instanceof Blob)) {
+          throw new Error('Could not convert this Word file to PDF.');
+        }
+        host.innerHTML = '';
+        return pdfOut;
+      }
+
+      async function toPdfBlob(blob, ext) {
+        if (await blobIsPdf(blob) || ext === 'pdf') {
+          return blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+        }
+        if (isImageExt(ext) || (blob.type && blob.type.indexOf('image/') === 0)) {
+          return imageToPdfBlob(blob);
+        }
+        if (isWordExt(ext) || !ext) {
+          return wordToPdfBlob(blob);
+        }
+        throw new Error('This file type cannot be converted to PDF.');
+      }
+
+      async function resolveDownloadUrl(kind, key, filename) {
+        var u =
+          MOCK_TEST_API +
+          '?action=get_download_url&kind=' +
+          encodeURIComponent(kind) +
+          '&key=' +
+          encodeURIComponent(key) +
+          '&filename=' +
+          encodeURIComponent(filename);
+        var res = await fetch(u, { method: 'GET' });
+        var data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          data = {};
+        }
+        if (!res.ok || !data.downloadUrl) {
+          throw new Error(data.message || 'Could not prepare the download.');
+        }
+        return data.downloadUrl;
+      }
+
+      async function downloadPdf(kind, key, title, label) {
+        if (downloadBusy) return;
+        if (!key) {
+          setPopupState('is-error', 'File unavailable', 'This ' + label.toLowerCase() + ' has not been uploaded yet.', 'Please try another file.');
+          openPopup();
+          return;
+        }
+        var filename = safeFileName(title, label);
+        var ext = extOf(key);
+        downloadBusy = true;
+        openPopup();
+        setPopupState('is-busy', 'Downloading PDF', filename, 'Preparing a secure download link...');
+        try {
+          var url = await resolveDownloadUrl(kind, key, filename);
+          setPopupState('is-busy', 'Downloading PDF', filename, 'Fetching the mock file...');
+          var fileRes = await fetch(url);
+          if (!fileRes.ok) throw new Error('Could not fetch the file.');
+          var sourceBlob = await fileRes.blob();
+          var alreadyPdf = await blobIsPdf(sourceBlob) || ext === 'pdf';
+          if (!alreadyPdf) {
+            setPopupState('is-busy', 'Converting to PDF', filename, 'Turning the Word file into a PDF. Please wait...');
+          } else {
+            setPopupState('is-busy', 'Downloading PDF', filename, 'Saving the PDF to your device...');
+          }
+          var pdfBlob = await toPdfBlob(sourceBlob, ext);
+          triggerSave(pdfBlob, filename);
+          downloadBusy = false;
+          setPopupState('is-done', 'PDF ready', filename, 'Check your downloads folder for the PDF.');
+          closeTimer = setTimeout(closePopup, 1600);
+        } catch (err) {
+          downloadBusy = false;
+          setPopupState(
+            'is-error',
+            'Could not download PDF',
+            err.message || 'Please try again in a moment.',
+            'If this continues, ask your faculty to re-upload the file as a PDF.'
+          );
+        }
+      }
+
+      function applyClientFilters() {
+        var q = (searchEl && searchEl.value ? searchEl.value : '').trim().toLowerCase();
+        filtered = allRows.filter(function (r) {
+          return !q || titleFromRow(r).toLowerCase().indexOf(q) !== -1;
+        });
+        render();
+      }
+
+      function render() {
+        if (!filtered.length) {
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = allRows.length ? 'No matches — adjust your search.' : 'No mock tests published yet.';
+          return;
+        }
+        emptyEl.hidden = true;
+        statusEl.textContent = 'Showing ' + filtered.length + ' of ' + allRows.length + ' mock test(s).';
+        listEl.innerHTML = filtered
+          .map(function (r, idx) {
+            var title = titleFromRow(r);
+            var paper = firstKey(r.queationPaper_url);
+            var omr = firstKey(r.omr_url);
+            var added = formatDate(r.created_at);
+            return (
+              '<article class="dm-card">' +
+              '<div class="dm-card__head">' +
+              '<div class="dm-card__mark" aria-hidden="true"><img src="' +
+              ICON_SRC +
+              '" alt="" /></div>' +
+              '<div>' +
+              '<h3 class="dm-card__title">' +
+              esc(title) +
+              '</h3>' +
+              '<p class="dm-card__meta">' +
+              (added ? 'Added ' + esc(added) : 'Ready to download') +
+              '</p>' +
+              '</div></div>' +
+              '<div class="dm-actions">' +
+              '<button type="button" class="dm-dl dm-dl--paper" data-dm-kind="paper" data-dm-idx="' +
+              idx +
+              '"' +
+              (paper ? '' : ' disabled') +
+              '><i class="fa-solid fa-file-pdf" aria-hidden="true"></i><span>Download mock paper</span><small>PDF</small></button>' +
+              '<button type="button" class="dm-dl dm-dl--omr" data-dm-kind="omr" data-dm-idx="' +
+              idx +
+              '"' +
+              (omr ? '' : ' disabled') +
+              '><i class="fa-solid fa-table-cells" aria-hidden="true"></i><span>Download OMR</span><small>PDF</small></button>' +
+              '<button type="button" class="dm-dl dm-dl--solution" data-dm-kind="solution" data-dm-idx="' +
+              idx +
+              '">' +
+              '<i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>Download solution</span><small>PDF</small>' +
+              '</button>' +
+              '</div></article>'
+            );
+          })
+          .join('');
+
+        listEl.querySelectorAll('[data-dm-kind]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var idx = Number(btn.getAttribute('data-dm-idx'));
+            var kind = btn.getAttribute('data-dm-kind');
+            var row = filtered[idx];
+            if (!row) return;
+            var title = titleFromRow(row);
+            if (kind === 'solution' && !isOmrSubmitted(row)) {
+              openOmrModal(row);
+              return;
+            }
+            var map = {
+              paper: { key: firstKey(row.queationPaper_url), label: 'Question Paper' },
+              omr: { key: firstKey(row.omr_url), label: 'OMR Sheet' },
+              solution: { key: firstKey(row.answerkeyUrl), label: 'Solution' },
+            };
+            var item = map[kind];
+            if (!item) return;
+            downloadPdf(kind, item.key, title, item.label);
+          });
+        });
+      }
+
+      async function load() {
+        statusEl.textContent = 'Loading mock tests...';
+        listEl.innerHTML = '';
+        emptyEl.hidden = true;
+        try {
+          var qs = student.email ? ('?student_email=' + encodeURIComponent(student.email.toLowerCase())) : '';
+          var res = await fetch(MOCK_TEST_API + qs, { method: 'GET' });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to load');
+          allRows = Array.isArray(data) ? data : [];
+          allRows.sort(function (a, b) {
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+          });
+          applyClientFilters();
+        } catch (err) {
+          allRows = [];
+          filtered = [];
+          listEl.innerHTML = '';
+          emptyEl.hidden = false;
+          statusEl.textContent = 'Error: ' + (err.message || 'Could not load mock tests');
+        }
+      }
+
+      document.getElementById('dm-apply-filters').addEventListener('click', applyClientFilters);
+      if (searchEl) {
+        searchEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            applyClientFilters();
+          }
+        });
+      }
+      popup.querySelectorAll('[data-dm-popup-close]').forEach(function (el) {
+        el.addEventListener('click', closePopup);
+      });
+
+      if (omrFileInput && omrFileNameEl) {
+        omrFileInput.addEventListener('change', async function () {
+          var f = omrFileInput.files && omrFileInput.files[0];
+          if (!f) {
+            pendingOmrBlob = null;
+            omrFileNameEl.textContent = 'No file selected';
+            return;
+          }
+          var ok = await acceptOmrBlob(f, f.name);
+          if (!ok) {
+            omrFileInput.value = '';
+            omrFileNameEl.textContent = 'No file selected';
+          }
+        });
+      }
+      document.querySelectorAll('[data-dm-mismatch-close]').forEach(function (el) {
+        el.addEventListener('click', hideMismatch);
+      });
+      if (startCamBtn) startCamBtn.addEventListener('click', startCamera);
+      if (captureBtn) captureBtn.addEventListener('click', captureFromVideo);
+      if (retakeBtn) {
+        retakeBtn.addEventListener('click', function () {
+          pendingOmrBlob = null;
+          if (previewEl) {
+            previewEl.hidden = true;
+            previewEl.removeAttribute('src');
+          }
+          startCamera();
+        });
+      }
+      if (cameraFallback) {
+        cameraFallback.addEventListener('change', async function () {
+          var f = cameraFallback.files && cameraFallback.files[0];
+          if (!f) return;
+          var ok = await acceptOmrBlob(f, 'Captured OMR photo');
+          if (ok && previewEl) {
+            previewEl.src = URL.createObjectURL(f);
+            previewEl.hidden = false;
+            if (videoEl) videoEl.hidden = true;
+            if (captureBtn) captureBtn.hidden = true;
+            if (retakeBtn) retakeBtn.hidden = false;
+            if (startCamBtn) startCamBtn.hidden = true;
+            setCamStatus('OMR sheet captured. Submit to download the answer key.');
+          }
+        });
+      }
+      document.querySelectorAll('[data-dm-omr-close]').forEach(function (el) {
+        el.addEventListener('click', closeOmrModal);
+      });
+      var blankBtn = document.getElementById('dm-omr-download-blank');
+      if (blankBtn) {
+        blankBtn.addEventListener('click', function () {
+          if (!pendingOmrRow) return;
+          downloadPdf('omr', firstKey(pendingOmrRow.omr_url), titleFromRow(pendingOmrRow), 'OMR Sheet');
+        });
+      }
+      var submitBtn = document.getElementById('dm-omr-submit');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', async function () {
+          if (downloadBusy) return;
+          if (!pendingOmrRow || pendingOmrRow.id == null) {
+            setPopupState('is-error', 'Could not submit', 'Please choose a mock test first.', '');
+            openPopup();
+            return;
+          }
+          if (!student.email) {
+            setPopupState('is-error', 'Could not submit', 'Please log in again, then upload your OMR.', '');
+            openPopup();
+            return;
+          }
+          var file = pendingOmrBlob;
+          if (!file) {
+            setPopupState(
+              'is-error',
+              'OMR required',
+              isBigScreen()
+                ? 'Please select a photo of your filled OMR sheet.'
+                : 'Please capture the OMR sheet with your camera.',
+              ''
+            );
+            openPopup();
+            return;
+          }
+          var mockId = pendingOmrRow.id;
+          var mockTitle = titleFromRow(pendingOmrRow);
+          downloadBusy = true;
+          submitBtn.disabled = true;
+          openPopup();
+          setPopupState('is-busy', 'Uploading OMR', file.name, 'Saving your filled answer sheet...');
+          try {
+            var key = await uploadFilledOmr(file);
+            var res = await fetch(MOCK_TEST_API, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'submit_omr',
+                id: mockId,
+                uploaded_omr: key,
+                uploaded_by: student.email,
+                student_email: student.email,
+                student_name: student.name,
+                student_id: student.student_id,
+              }),
+            });
+            var data = {};
+            try {
+              data = await res.json();
+            } catch (_) {
+              data = {};
+            }
+            if (!res.ok) throw new Error(data.message || 'Failed to submit OMR');
+            downloadBusy = false;
+            closeOmrModal();
+            setPopupState('is-busy', 'Downloading answer key', mockTitle, 'OMR accepted. Preparing the solution PDF...');
+            await load();
+            var submittedRow = allRows.filter(function (r) { return Number(r.id) === Number(mockId); })[0];
+            var solutionKey = submittedRow ? firstKey(submittedRow.answerkeyUrl) : '';
+            if (!solutionKey) {
+              try {
+                var keyRes = await fetch(
+                  MOCK_TEST_API +
+                    '?id=' +
+                    encodeURIComponent(mockId) +
+                    (student.email ? '&student_email=' + encodeURIComponent(student.email.toLowerCase()) : '')
+                );
+                var keyData = await keyRes.json();
+                var keyRows = Array.isArray(keyData) ? keyData : [];
+                solutionKey = keyRows[0] ? firstKey(keyRows[0].answerkeyUrl) : '';
+              } catch (_) {}
+            }
+            if (solutionKey) {
+              downloadPdf('solution', solutionKey, mockTitle, 'Solution');
+            } else {
+              setPopupState('is-error', 'OMR saved', mockTitle, 'Your OMR was saved, but the answer key could not be fetched. Try Download solution again.');
+            }
+          } catch (err) {
+            downloadBusy = false;
+            setPopupState(
+              'is-error',
+              'Could not submit OMR',
+              err.message || 'Please try again.',
+              'Check your file and upload again.'
+            );
+          }
+          submitBtn.disabled = false;
+        });
+      }
+
+      load();
+    });
+  </script>
+</body>
+</html>

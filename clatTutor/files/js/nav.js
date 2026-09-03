@@ -39,6 +39,7 @@ function initAppChrome(opts) {
     { href: 'notes.html', icon: 'fa-note-sticky', label: 'Note' },
     { href: 'course-video.html', icon: 'fa-video', label: 'Course Video' },
     { href: 'onlinetest.html', icon: 'fa-pen', label: 'Test' },
+    { href: 'download-mock.html', icon: 'fa-file-arrow-down', label: 'Download Mock' },
   ];
 
   var studentRoles =

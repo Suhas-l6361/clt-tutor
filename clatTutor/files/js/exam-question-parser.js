@@ -35,12 +35,23 @@
       if (n < 1 || n > activeQuestionLimit) return full;
       var lineStart = whole.lastIndexOf('\n', offset);
       var beforeNum = whole.slice(lineStart + 1, offset) + before + sp;
-      if (/(?:Article|Section|Chapter|Rule|Act|Part|Schedule|CrPC|IPC)\s+\d{1,3}\s*$/i.test(beforeNum + num)) {
+      var numbered = beforeNum + num;
+      if (/(?:Article|Section|Chapter|Rule|Act|Part|Schedule|CrPC|IPC)\s+\d{1,3}\s*$/i.test(numbered)) {
         return full;
       }
       if (/(?:Section|Article|Act|Order|Rule|Chapter|Part|No|CrPC|IPC|Schedule)\s*$/i.test(beforeNum)) {
         return full;
       }
+      /** "turns 18. Unfortunately" / "age of 18. Two years later" — not Q18. */
+      if (
+        /(?:turns|turned|aged|age of|years?\s+old|born)\s+\d{1,3}$/i.test(
+          numbered
+        )
+      ) {
+        return full;
+      }
+      var afterSplit = whole.slice(offset + full.length, offset + full.length + 48).trim();
+      if (isSentenceContinuationStem(afterSplit)) return full;
       if (n > activeQuestionLimit) return full;
       return before + '\n' + num + '. ';
     });
@@ -123,9 +134,11 @@
     return (
       /\?/.test(s) ||
       /\bwhich of the following\b/i.test(s) ||
+      /\bwhich literary\b/i.test(s) ||
       /\bwhat is the most appropriate\b/i.test(s) ||
       /\bmost accurately\b/i.test(s) ||
       /\baccording to (?:the )?passage\b/i.test(s) ||
+      /\bbased on the (?:passage|principles)\b/i.test(s) ||
       /\bchoose the (?:correct|best)\b/i.test(s) ||
       /\bselect the (?:correct|best)\b/i.test(s)
     );
@@ -712,6 +725,28 @@
     };
   }
 
+  /** Word often wraps markers as ((Paragraph starts)) or "(Paragraph starts) I. Passage…" */
+  function unwrapParagraphMarkerLine(line) {
+    var s = normalizeMarkerOuter(line);
+    var wrapped = s.match(/^\(\(\s*(Paragraph\s+(?:starts?|ends?))\s*\)\)$/i);
+    if (wrapped) return '(' + wrapped[1] + ')';
+    return s;
+  }
+
+  function paragraphStartRemainder(line) {
+    var s = unwrapParagraphMarkerLine(line);
+    var m = s.match(
+      /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?Paragraph\s+starts?\s*\)\s*[:.\-–—]*\s*(.*)$/i
+    );
+    if (!m) return null;
+    return String(m[1] || '').trim();
+  }
+
+  function isParagraphEndMarker(line) {
+    var s = unwrapParagraphMarkerLine(line);
+    return /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?Paragraph\s+ends?\s*\)\s*[:.\-–—]*\s*$/i.test(s);
+  }
+
   function createMarkerMatchers(sectionalPatterns) {
     function isInformationStart(line) {
       var s = normalizeMarkerOuter(line);
@@ -734,16 +769,18 @@
     }
 
     function isParagraphStart(line) {
-      var s = normalizeMarkerOuter(line);
-      if (/^\(Paragraph\s+starts?\s*\)$/i.test(s)) return true;
-      if (sectionalPatterns && sectionalPatterns.paragraphStart.test(s)) return true;
+      if (paragraphStartRemainder(line) != null) return true;
+      if (sectionalPatterns && sectionalPatterns.paragraphStart.test(normalizeMarkerOuter(line))) {
+        return true;
+      }
       return false;
     }
 
     function isParagraphEnd(line) {
-      var s = normalizeMarkerOuter(line);
-      if (/^\(Paragraph\s+ends?\s*\)$/i.test(s)) return true;
-      if (sectionalPatterns && sectionalPatterns.paragraphEnd.test(s)) return true;
+      if (isParagraphEndMarker(line)) return true;
+      if (sectionalPatterns && sectionalPatterns.paragraphEnd.test(normalizeMarkerOuter(line))) {
+        return true;
+      }
       return false;
     }
 
@@ -799,10 +836,34 @@
     return createMarkerMatchers(null).isParagraphEnd(line);
   }
 
+  /**
+   * Ages / years in a running sentence: "turns 18. Unfortunately…" must not become Q18.
+   */
+  function isSentenceContinuationStem(stem) {
+    var s = String(stem || '').trim();
+    if (!s) return false;
+    if (hasMcqPromptCue(s) || /\?/.test(s)) return false;
+    if (/^[a-z]/.test(s)) return true;
+    return /^(Unfortunately|However|Therefore|Moreover|Additionally|Similarly|Thereafter|Meanwhile|Consequently|Nevertheless|Furthermore|Hence|Thus|Still|Yet|Two years|A few months|After that|Before the|When combined)\b/.test(
+      s
+    );
+  }
+
+  function isSentenceNumberGhostLine(line) {
+    var s = String(line || '')
+      .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
+      .replace(/\uFF0E/g, '.')
+      .trim();
+    var m = s.match(/^(\d{1,3})\.\s+(\S[\s\S]*)$/);
+    if (!m) return false;
+    return isSentenceContinuationStem(m[2]);
+  }
+
   function matchQuestionHeaderLine(line, lines, idx) {
     var s = String(line || '')
       .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '')
       .replace(/\uFF0E/g, '.');
+    if (isSentenceNumberGhostLine(s)) return null;
     var m = s.match(/^\s*(\d{1,3})\.\s+(\S)/);
     if (m) {
       var n1 = parseInt(m[1], 10);
@@ -919,6 +980,11 @@
     if (!s || isPassageBleedStem(s)) return false;
     if (/\?/.test(s)) return true;
     if (hasMcqPromptCue(s)) return true;
+    if (/^(Which|What|Why|How|Who|When|Where|Whose|Identify|Choose|Select|Based|According|Consider|In the country)\b/i.test(s)) {
+      return true;
+    }
+    /** Assertion-reason / three-statement CLAT items: "I: … II: … III: …" */
+    if (/^I\s*[:.]\s*\S/i.test(s) && /\bII\s*[:.]/.test(s)) return true;
     if (/^["\u201C\u201D']/.test(s) && /\b(is a|was a|has been)\b/i.test(s)) return true;
     if (/\bwhich writ\b/i.test(s)) return true;
     if (/\bin which of the following\b/i.test(s)) return true;
@@ -965,7 +1031,7 @@
     if (n < 1 || n > activeQuestionLimit || idx + 1 >= lines.length) return null;
     var stem = String(lines[idx + 1] || '').trim();
     if (!stem || isStrictOptionLine(stem)) return null;
-    if (isPassageBleedStem(stem)) return null;
+    if (isPassageBleedStem(stem) || isSentenceContinuationStem(stem)) return null;
     if (isParagraphStartLine(lines[idx + 1]) || isParagraphEndLine(lines[idx + 1])) return null;
     if (!/^[A-Za-z"(]/.test(stem) && !/^(a|an)\s/i.test(stem)) return null;
     return n;
@@ -1017,7 +1083,24 @@
     }
     if (matchQuestionHeaderLine(lines[idx], lines, idx) == null) return false;
     if (stemLooksLikeMcqQuestionAt(lines, idx)) return true;
-    return lineHasMcqOptionsAhead(lines, idx) || lineHasGluedOptionsOnSameLine(lines[idx]);
+    if (lineHasGluedOptionsOnSameLine(lines[idx])) return true;
+    /** Nearby A–D always wins: long legal stems, I/II/III items, truncated "…. Is". */
+    if (lineHasMcqOptionsAhead(lines, idx, 16)) return true;
+    if (!lineHasMcqOptionsAhead(lines, idx, 40)) return false;
+    /**
+     * Options far below — only then treat a long narrative sentence as passage,
+     * not as the question (e.g. "1. For half a century…").
+     */
+    var aheadStem = questionStemTextAt(lines, idx);
+    if (
+      aheadStem &&
+      aheadStem.length > 160 &&
+      !hasMcqPromptCue(aheadStem) &&
+      !/\?/.test(aheadStem)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   function countDistinctOptionLettersInBlock(block) {
@@ -1305,12 +1388,15 @@
     /**
      * expectedQuestionCount is how many questions the paper contains, not the highest
      * printed number. Legal sectionals often keep full-CLAT numbering (Q53–Q84).
-     * Capping headers at 32 would drop those questions.
+     * Capping headers at 32 would drop those questions. A 119 count on a CLAT
+     * mock must still accept Q120.
      */
     activeQuestionLimit = isSectional
       ? MAX_QUESTION_LIMIT
       : hasExpectedLimit
-        ? requestedLimit
+        ? requestedLimit >= DEFAULT_QUESTION_LIMIT - 5
+          ? Math.max(requestedLimit, DEFAULT_QUESTION_LIMIT)
+          : requestedLimit
         : DEFAULT_QUESTION_LIMIT;
     var sectionalCategory =
       isSectional && opts.category ? String(opts.category).trim() : '';
@@ -1334,6 +1420,27 @@
     var currentSectionName = '';
     var rawQuestions = [];
     var lastQuestionNum = 0;
+    var pendingProse = [];
+
+    function adoptPendingParagraph() {
+      var kept = [];
+      for (var p = 0; p < pendingProse.length; p++) {
+        var ln = pendingProse[p];
+        var rem = paragraphStartRemainder(ln);
+        if (rem != null) {
+          if (rem) kept.push(rem);
+          continue;
+        }
+        if (isParagraphEndMarker(ln)) continue;
+        kept.push(ln);
+      }
+      pendingProse = [];
+      var pendingText = kept.join('\n').trim();
+      if (pendingText.length < 50) return;
+      globPara = pendingText;
+      passageCount++;
+      currentPassageIndex = passageCount;
+    }
 
     var i = 0;
     while (i < lines.length) {
@@ -1352,8 +1459,10 @@
       }
 
       if (isParagraphStart(lines[i])) {
+        pendingProse = [];
+        var paraRemainder = paragraphStartRemainder(lines[i]) || '';
         i++;
-        var pb = [];
+        var pb = paraRemainder ? [paraRemainder] : [];
         while (i < lines.length && !isParagraphEnd(lines[i])) {
           if (looksLikeRealQuestionHeaderAt(lines, i)) break;
           if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
@@ -1410,10 +1519,12 @@
           !looksLikeRealQuestionHeaderAt(lines, i) &&
           !lineHasGluedOptionsOnSameLine(lines[i])
         ) {
+          pendingProse.push(lines[i]);
           i++;
           continue;
         }
         var snapInfo = globInfo;
+        if (pendingProse.length) adoptPendingParagraph();
         var snapPara = globPara;
         var snapPassageIndex = snapPara ? currentPassageIndex : 0;
         var start = i;
@@ -1439,6 +1550,14 @@
         continue;
       }
 
+      var orphan = String(lines[i] || '').trim();
+      if (
+        orphan &&
+        !isStrictOptionLine(orphan) &&
+        !isReadingPassageBoundaryLine(orphan)
+      ) {
+        pendingProse.push(lines[i]);
+      }
       i++;
     }
 
@@ -1511,7 +1630,8 @@
         if (!foundNums[expS]) missingNumbers.push(expS);
       }
     } else if (!isSectional) {
-      for (var exp = 1; exp <= activeQuestionLimit; exp++) {
+      var missingUntil = hasExpectedLimit ? requestedLimit : activeQuestionLimit;
+      for (var exp = 1; exp <= missingUntil; exp++) {
         if (!foundNums[exp]) missingNumbers.push(exp);
       }
     }

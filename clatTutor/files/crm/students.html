@@ -1126,6 +1126,13 @@
             <span class="radio-label">ADD COURSE VIDEO</span>
           </span>
         </label>
+        <label>
+          <input class="radio-input" type="radio" name="crm-quick-action" />
+          <span class="radio-tile" data-go="students.html#add-mock-test">
+            <span class="radio-icon"><i class="fa-solid fa-file-pen"></i></span>
+            <span class="radio-label">ADD MOCK TEST</span>
+          </span>
+        </label>
       </div>
     </div>
   </div>
@@ -1552,6 +1559,48 @@
     </div>
   </div>
 
+  <div id="add-mock-test-modal" class="crm-modal" hidden>
+    <div class="crm-modal__backdrop" data-close-mock-test-modal></div>
+    <div class="crm-modal__dialog">
+      <form id="add-mock-test-form" class="reg-form">
+        <div class="reg-head">
+          <h2 class="reg-title">Add Mock Test</h2>
+          <button type="button" class="reg-close" data-close-mock-test-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="reg-message">Upload the question paper, OMR sheet, and solution for this mock.</p>
+        <div class="reg-grid">
+          <label class="full"><input id="mt-title" class="input" type="text" placeholder=" " required maxlength="50" /><span>Title</span></label>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="mt-paper">Question paper</label>
+              <input id="mt-paper" type="file" required accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            </div>
+            <div id="mt-paper-name" class="upload-file-name">No file selected</div>
+          </div>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="mt-omr">OMR sheet</label>
+              <input id="mt-omr" type="file" required accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            </div>
+            <div id="mt-omr-name" class="upload-file-name">No file selected</div>
+          </div>
+          <div class="full">
+            <div class="file-input-wrap">
+              <label for="mt-solution">Solution / answer key</label>
+              <input id="mt-solution" type="file" required accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            </div>
+            <div id="mt-solution-name" class="upload-file-name">No file selected</div>
+          </div>
+        </div>
+        <div class="reg-btns">
+          <button type="reset" class="fancy-btn fancy-btn--reset"><span></span><span></span>Reset</button>
+          <button type="submit" class="fancy-btn fancy-btn--submit"><span></span><span></span>Submit</button>
+        </div>
+        <p id="mt-status" class="reg-status"></p>
+      </form>
+    </div>
+  </div>
+
   <div id="crm-generic-success" class="crm-success" hidden>
     <div class="crm-success__backdrop"></div>
     <div class="crm-success__card">
@@ -1603,6 +1652,10 @@
         <div class="crm-notes-loader" aria-hidden="true"><div class="crm-nl-spin"></div></div>
         <p class="crm-loader-caption">Saving course video...</p>
       </div>
+      <div id="crm-loader-mock-test" class="crm-loader-panel" hidden>
+        <div class="crm-notes-loader" aria-hidden="true"><div class="crm-nl-spin"></div></div>
+        <p class="crm-loader-caption">Uploading mock test files...</p>
+      </div>
     </div>
   </div>
 
@@ -1610,7 +1663,7 @@
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/crm-branch-scope.js"></script>
-  <script src="../js/student-access.js"></script>
+  <script src="../js/student-access.js?v=20260903mock"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260826fetch"></script>
   <script src="../js/crm-chrome.js"></script>
@@ -1665,6 +1718,9 @@
       var CLASS_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/class';
       var CA_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/currentAffairs';
       var NOTES_API_URL = 'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/notes';
+      var MOCK_TEST_API_URL =
+        (window.APP_CONFIG && window.APP_CONFIG.MOCK_TEST_API) ||
+        'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/mockTest';
       var COURSE_VIDEO_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/course_video';
       var PREV_YEAR_API_URL = 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/previous_queation_paper';
 
@@ -1674,6 +1730,7 @@
       var caModal = document.getElementById('add-ca-modal');
       var notesModal = document.getElementById('add-notes-modal');
       var courseVideoModal = document.getElementById('add-course-video-modal');
+      var mockTestModal = document.getElementById('add-mock-test-modal');
       var genericLoading = document.getElementById('crm-generic-loading');
       var genericSuccess = document.getElementById('crm-generic-success');
       var genericError = document.getElementById('crm-generic-error');
@@ -1707,7 +1764,7 @@
 
       function showCrmLoading(kind) {
         crmLoadingStartedAt = Date.now();
-        var panels = ['faculty', 'paper', 'class', 'ca', 'notes', 'course-video'];
+        var panels = ['faculty', 'paper', 'class', 'ca', 'notes', 'course-video', 'mock-test'];
         panels.forEach(function (k) {
           var p = document.getElementById('crm-loader-' + k);
           if (p) p.hidden = k !== kind;
@@ -1729,14 +1786,18 @@
         for (var i = 0; i < 10; i += 1) s += chars[Math.floor(Math.random() * chars.length)];
         return s;
       }
-      async function uploadFileToBucket(apiBase, file, folderPrefix) {
+      async function uploadFileToBucket(apiBase, file, folderPrefix, extraBody) {
         if (!file) return null;
         var fileName = folderPrefix + '/' + Date.now() + '-' + safeFileName(file.name);
         var fileType = file.type || 'application/octet-stream';
+        var payload = Object.assign(
+          { action: 'get_upload_url', fileName: fileName, fileType: fileType },
+          extraBody && typeof extraBody === 'object' ? extraBody : {}
+        );
         var signedRes = await fetch(apiBase, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get_upload_url', fileName: fileName, fileType: fileType }),
+          body: JSON.stringify(payload),
         });
         var signedData = await signedRes.json();
         if (!signedRes.ok || !signedData.uploadUrl) throw new Error(signedData.message || 'Failed to get upload URL');
@@ -1808,6 +1869,10 @@
             openCrmModal(courseVideoModal);
             return;
           }
+          if (target === 'students.html#add-mock-test') {
+            openCrmModal(mockTestModal);
+            return;
+          }
           if (target) window.location.href = target;
         });
       });
@@ -1847,6 +1912,9 @@
       });
       Array.prototype.slice.call(document.querySelectorAll('[data-close-course-video-modal]')).forEach(function (el) {
         el.addEventListener('click', function () { closeCrmModal(courseVideoModal); });
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-close-mock-test-modal]')).forEach(function (el) {
+        el.addEventListener('click', function () { closeCrmModal(mockTestModal); });
       });
       var ffImage = document.getElementById('ff-image');
       var ffImageName = document.getElementById('ff-image-name');
@@ -1896,6 +1964,18 @@
           pyqFileName.textContent = f ? f.name : 'No file selected';
         });
       }
+      function bindMockFileLabel(inputId, nameId, emptyText) {
+        var input = document.getElementById(inputId);
+        var nameEl = document.getElementById(nameId);
+        if (!input || !nameEl) return;
+        input.addEventListener('change', function () {
+          var f = input.files && input.files[0];
+          nameEl.textContent = f ? f.name : emptyText;
+        });
+      }
+      bindMockFileLabel('mt-paper', 'mt-paper-name', 'No file selected');
+      bindMockFileLabel('mt-omr', 'mt-omr-name', 'No file selected');
+      bindMockFileLabel('mt-solution', 'mt-solution-name', 'No file selected');
       var gsClose = document.getElementById('crm-generic-success-close');
       var geClose = document.getElementById('crm-generic-error-close');
       if (gsClose && genericSuccess) gsClose.addEventListener('click', function () { genericSuccess.hidden = true; });
@@ -2551,6 +2631,73 @@
             await hideCrmLoading();
             if (st) st.textContent = '';
             showGenericError(err.message || 'Failed to save course video.', 'Could not save course video');
+          }
+        });
+      }
+
+      var mockTestForm = document.getElementById('add-mock-test-form');
+      if (mockTestForm) {
+        mockTestForm.addEventListener('reset', function () {
+          ['mt-paper-name', 'mt-omr-name', 'mt-solution-name'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = 'No file selected';
+          });
+          var st = document.getElementById('mt-status');
+          if (st) st.textContent = '';
+        });
+        mockTestForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var st = document.getElementById('mt-status');
+          if (st) st.textContent = '';
+          var title = document.getElementById('mt-title').value.trim();
+          var paperFile = document.getElementById('mt-paper').files[0];
+          var omrFile = document.getElementById('mt-omr').files[0];
+          var solutionFile = document.getElementById('mt-solution').files[0];
+          if (!title) {
+            showGenericError('Please enter a title.', 'Could not save mock test');
+            return;
+          }
+          if (!paperFile || !omrFile || !solutionFile) {
+            showGenericError('Please upload the question paper, OMR sheet, and solution.', 'Could not save mock test');
+            return;
+          }
+          showCrmLoading('mock-test');
+          try {
+            var paperKey = await uploadFileToBucket(MOCK_TEST_API_URL, paperFile, 'mock-question-papers', { kind: 'paper' });
+            var omrKey = await uploadFileToBucket(MOCK_TEST_API_URL, omrFile, 'mock-omr-sheets', { kind: 'omr' });
+            var solutionKey = await uploadFileToBucket(MOCK_TEST_API_URL, solutionFile, 'mock-solutions', { kind: 'solution' });
+            var session = Auth.getSession ? Auth.getSession() : null;
+            var addedBy = session && session.user ? (session.user.email || session.user.name || null) : null;
+            var res = await fetch(MOCK_TEST_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                Title: title,
+                queationPaper_url: paperKey,
+                omr_url: omrKey,
+                answerkeyUrl: solutionKey,
+                added_by: addedBy,
+              }),
+            });
+            var data = {};
+            try {
+              data = await res.json();
+            } catch (_) {
+              data = {};
+            }
+            if (!res.ok) throw new Error(data.message || 'Failed to save');
+            await hideCrmLoading();
+            closeCrmModal(mockTestModal);
+            mockTestForm.reset();
+            ['mt-paper-name', 'mt-omr-name', 'mt-solution-name'].forEach(function (id) {
+              var el = document.getElementById(id);
+              if (el) el.textContent = 'No file selected';
+            });
+            showGenericSuccess('Mock test saved successfully', 'Question paper, OMR, and solution have been uploaded.');
+          } catch (err) {
+            await hideCrmLoading();
+            if (st) st.textContent = '';
+            showGenericError(err.message || 'Failed to save mock test.', 'Could not save mock test');
           }
         });
       }

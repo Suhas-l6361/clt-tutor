@@ -14,6 +14,7 @@
     'dashboard.html#downloads': '../image/download.png',
     'course-video.html': '../image/video.png',
     'onlinetest.html': '../image/test.png',
+    'download-mock.html': '../image/download mock.png',
     'dashboard.html#reports': '../image/report.png',
   };
 

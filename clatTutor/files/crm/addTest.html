@@ -2217,7 +2217,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20260822qt"></script>
+  <script src="../js/exam-question-parser.js?v=20260902mcq"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/config.js"></script>
@@ -4134,8 +4134,8 @@
             };
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
-            applyDetectedQuestionCount(parsed.questions.length, true);
             var parseOpts = currentParseOpts();
+            applyDetectedQuestionCount(parsed.questions.length, true);
             if (parsed.missingNumbers && parsed.missingNumbers.length) {
               var miss = parsed.missingNumbers.slice(0, 12).join(', ');
               if (parsed.missingNumbers.length > 12) {
@@ -4145,22 +4145,32 @@
               var lastQn = parsed.questions.length
                 ? parsed.questions[parsed.questions.length - 1].number
                 : '?';
+              var expectedCount =
+                parseOpts && parseOpts.expectedQuestionCount
+                  ? parseOpts.expectedQuestionCount
+                  : 120;
               var expectedLabel =
                 parseOpts && parseOpts.kind === 'sectional'
                   ? firstQn > 1
                     ? 'Expected questions from Q' + firstQn + ' through Q' + lastQn
                     : 'Expected all questions through Q' + lastQn
-                  : parseOpts && parseOpts.expectedQuestionCount
-                  ? 'Expected ' + parseOpts.expectedQuestionCount
-                  : 'Expected 120';
+                  : 'Expected ' + expectedCount;
+              var countNote =
+                parsed.questions.length === expectedCount && parseOpts && parseOpts.kind !== 'sectional'
+                  ? ' Parsed count matches, but numbering skips Q' +
+                    miss +
+                    ' (a later question was likely swallowed).'
+                  : ' Parsed ' +
+                    parsed.questions.length +
+                    '. Missing Q' +
+                    miss +
+                    '.';
               showToast(
                 'Some questions missing',
                 expectedLabel +
-                  ' but got ' +
-                  parsed.questions.length +
-                  '. Missing Q' +
-                  miss +
-                  '. Word may have glued options on one line — re-save or fix those questions.'
+                  '.' +
+                  countNote +
+                  ' Check that question — ages like "turns 18. Unfortunately" or glued A–D options can hide it.'
               );
             } else if (parsed.dropped && parsed.dropped.length) {
               var dropNums = parsed.dropped

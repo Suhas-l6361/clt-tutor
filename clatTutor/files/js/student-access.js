@@ -10,6 +10,7 @@
     { key: 'notes', href: 'notes.html', label: 'Notes access' },
     { key: 'notifications', href: 'notifications.html', label: 'Notifications access' },
     { key: 'online_test', href: 'onlinetest.html', label: 'Online test access' },
+    { key: 'download_mock', href: 'download-mock.html', label: 'Download mock access' },
   ];
 
   var ALWAYS_ALLOWED_PAGES = ['dashboard.html', 'changepassword.html'];
@@ -58,6 +59,7 @@
     if (!featureKey) return true;
     if (hasFullAccess(roles)) return true;
     var r = normalizeRoles(roles);
+    if (!r || r[featureKey] === undefined) return true;
     return isTruthyRoleValue(r[featureKey]);
   }
 
