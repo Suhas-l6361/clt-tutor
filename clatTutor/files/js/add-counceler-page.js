@@ -20,7 +20,7 @@
     { key: 'enrollment.html', label: 'Enrollment' },
     { key: 'leads.html', label: 'Leads' },
     { key: 'communications.html', label: 'Communications' },
-    { key: 'uploadOmr.html', label: 'Upload OMR' },
+    { key: 'uploadOmr.html', label: 'Scan OMR' },
     { key: 'upload-general-info.html', label: 'Upload General Info' },
   ];
 

@@ -65,6 +65,7 @@ function initAppChrome(opts) {
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
     { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'inbox.html', icon: 'fa-envelope', label: 'Business Email' },
+    { href: 'uploadOmr.html', icon: 'fa-camera', label: 'Scan OMR' },
     { href: 'addCounceler.html', icon: 'fa-user-shield', label: 'Add Counceler' },
   ];
 
@@ -98,6 +99,7 @@ function initAppChrome(opts) {
     'leads.html': '../image/leads.png',
     'retrival.html': '../image/retrive data.png',
     'inbox.html': '../image/Business Mail.png',
+    'uploadOmr.html': '../image/scan-omr.png',
     'addCounceler.html': '../image/add councelor.png',
   };
 
@@ -108,7 +110,11 @@ function initAppChrome(opts) {
         isCrm && crmIconMap[l.href]
           ? '<img src="' +
             crmIconMap[l.href] +
-            '" alt="" class="nav-link-img" onerror="this.style.display=\'none\'" />'
+            '" alt="" class="nav-link-img" onerror="' +
+            (l.href === 'uploadOmr.html'
+              ? "this.onerror=null;this.src='../image/scan-omr.svg'"
+              : "this.style.display='none'") +
+            '" />'
           : '';
       var iconClass = iconHtml ? 'nav-has-img' : 'fa-solid ' + l.icon;
       return (
