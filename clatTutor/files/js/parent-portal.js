@@ -135,6 +135,119 @@
     );
   }
 
+  function scheduleApi() {
+    var c = cfg();
+    return c.SCHEDULE_CLASS_API
+      ? String(c.SCHEDULE_CLASS_API).trim()
+      : 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/scheduleClass';
+  }
+
+  function branchKey(value) {
+    var s = String(value || '')
+      .toLowerCase()
+      .replace(/[^a-z]/g, '');
+    if (s.indexOf('malle') === 0) return 'malleshwaram';
+    if (s.indexOf('jayan') === 0) return 'jayanagara';
+    if (s.indexOf('yel') === 0 || s.indexOf('yal') === 0) return 'yelahanka';
+    if (s.indexOf('online') === 0) return 'online';
+    return s;
+  }
+
+  function scheduleDateFromRow(row) {
+    if (!row) return null;
+    var n = Number(row.date);
+    if (!Number.isFinite(n)) return null;
+    if (n > 100000000000) {
+      var ts = new Date(n);
+      return Number.isNaN(ts.getTime()) ? null : new Date(ts.getFullYear(), ts.getMonth(), ts.getDate());
+    }
+    var s = String(Math.trunc(n));
+    if (s.length === 8) {
+      return new Date(Number(s.slice(0, 4)), Number(s.slice(4, 6)) - 1, Number(s.slice(6, 8)));
+    }
+    return null;
+  }
+
+  function startOfWeek(d) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = x.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    x.setDate(x.getDate() + diff);
+    return x;
+  }
+
+  function addDays(d, n) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    x.setDate(x.getDate() + n);
+    return x;
+  }
+
+  function sameDay(a, b) {
+    return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  function ymdNumber(d) {
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  }
+
+  function loadClassSchedule() {
+    var url = scheduleApi();
+    if (!url) return Promise.resolve([]);
+    return fetchJson(url, { method: 'GET', headers: { Accept: 'application/json' } }).then(function (data) {
+      return Array.isArray(data) ? data : [];
+    });
+  }
+
+  function filterSchedulesForStudent(rows, user) {
+    var list = Array.isArray(rows) ? rows.slice() : [];
+    var centerKey = branchKey(user && user.branch);
+    var batch = String((user && user.batch) || '')
+      .trim()
+      .toLowerCase();
+    var year = String((user && user.targetYear) || '').trim();
+    if (centerKey) {
+      list = list.filter(function (row) {
+        return branchKey(row && row.center) === centerKey;
+      });
+    }
+    if (batch) {
+      var byBatch = list.filter(function (row) {
+        return String((row && row.batches) || '')
+          .trim()
+          .toLowerCase() === batch;
+      });
+      if (byBatch.length) list = byBatch;
+    }
+    if (year) {
+      var byYear = list.filter(function (row) {
+        return String((row && row.targetYear) || '').trim() === year;
+      });
+      if (byYear.length) list = byYear;
+    }
+    return list;
+  }
+
+  function filterSchedulesForWeek(rows, weekStart) {
+    var start = startOfWeek(weekStart || new Date());
+    var end = addDays(start, 6);
+    var from = ymdNumber(start);
+    var to = ymdNumber(end);
+    return (rows || [])
+      .map(function (row) {
+        var d = scheduleDateFromRow(row);
+        return { row: row, date: d, ymd: d ? ymdNumber(d) : null };
+      })
+      .filter(function (item) {
+        return item.ymd != null && item.ymd >= from && item.ymd <= to;
+      })
+      .sort(function (a, b) {
+        if (a.ymd !== b.ymd) return a.ymd - b.ymd;
+        return String((a.row && (a.row.timeings || a.row.timings)) || '').localeCompare(
+          String((b.row && (b.row.timeings || b.row.timings)) || '')
+        );
+      });
+  }
+
   function loadTestAttempts() {
     var u = parentUser();
     var api = cfg().SUBMIT_ONLINE_TEST_API;
@@ -1244,6 +1357,13 @@
     money: money,
     loadAttendance: loadAttendance,
     loadFees: loadFees,
+    loadClassSchedule: loadClassSchedule,
+    filterSchedulesForStudent: filterSchedulesForStudent,
+    filterSchedulesForWeek: filterSchedulesForWeek,
+    scheduleDateFromRow: scheduleDateFromRow,
+    startOfWeek: startOfWeek,
+    addDays: addDays,
+    sameDay: sameDay,
     loadTestAttempts: loadTestAttempts,
     loadAll: loadAll,
     summarizeAttendance: summarizeAttendance,

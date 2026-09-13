@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule Class — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <style>
+    .sc-wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 1.25rem; }
+    .sc-card {
+      background: #fff;
+      border: 1px solid var(--line, #e5e7eb);
+      border-radius: 14px;
+      padding: 1.15rem 1.2rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .sc-title { margin: 0 0 0.35rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .sc-sub { margin: 0 0 1rem; color: var(--muted, #667085); font-size: 0.9rem; }
+    .sc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .sc-grid .full { grid-column: 1 / -1; }
+    .sc-grid .span-2 { grid-column: span 2; }
+    .sc-grid label { display: block; margin-bottom: 0.35rem; font-weight: 600; font-size: 0.85rem; color: #344054; }
+    .sc-grid input,
+    .sc-grid select {
+      width: 100%;
+      border: 1px solid #d4dae4;
+      border-radius: 10px;
+      padding: 0.66rem 0.72rem;
+      font-size: 0.92rem;
+      font-family: inherit;
+      background: #fff;
+    }
+    .sc-grid input:focus,
+    .sc-grid select:focus {
+      outline: none;
+      border-color: #111;
+      box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.06);
+    }
+    .sc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.15rem;
+    }
+    .sc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.38rem 0.65rem;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e4e7ec;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #344054;
+    }
+    .sc-chip span { color: #667085; font-weight: 500; }
+    .sc-actions { display: flex; gap: 0.65rem; margin-top: 0.25rem; flex-wrap: wrap; }
+    .sc-actions button {
+      border-radius: 10px;
+      padding: 0.66rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .sc-submit { background: #ffcc00; color: #111; border-color: #e6b800; }
+    .sc-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+    .sc-submit.is-update { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    .sc-reset { background: #fff; color: #1f2937; border-color: #d4dae4; }
+    .sc-editing-banner {
+      display: none;
+      margin: 0 0 0.9rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 0.88rem;
+      font-weight: 600;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .sc-editing-banner.is-visible { display: flex; }
+    .sc-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .sc-filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.9rem;
+    }
+    .sc-filters label { display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.78rem; color: #667085; }
+    .sc-filters input,
+    .sc-filters select {
+      width: 100%;
+      border: 1px solid #d4dae4;
+      border-radius: 10px;
+      padding: 0.55rem 0.65rem;
+      font-size: 0.86rem;
+      font-family: inherit;
+      background: #fff;
+    }
+    .sc-table-wrap { overflow-x: auto; }
+    .sc-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .sc-table th,
+    .sc-table td {
+      border-bottom: 1px solid #eef2f6;
+      padding: 0.65rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .sc-table th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #667085; }
+    .sc-empty { color: #667085; font-size: 0.9rem; padding: 0.75rem 0; }
+    .sc-row-actions { display: inline-flex; gap: 0.35rem; flex-wrap: wrap; }
+    .sc-row-actions button {
+      border: 1px solid #d4dae4;
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.38rem 0.62rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .sc-row-actions .sc-edit { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+    .sc-row-actions .sc-delete { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
+    tr.sc-row-editing { background: #f8fbff; }
+    .sc-subject {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: #fff7d6;
+      color: #7a5c00;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    @media (max-width: 900px) {
+      .sc-grid, .sc-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sc-grid .span-2 { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+      .sc-grid, .sc-filters { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="sc-wrap">
+      <section class="sc-card">
+        <h2 class="sc-title" id="sc-form-title"><i class="fa-solid fa-calendar-plus" style="color: var(--accent)"></i> Schedule a class</h2>
+        <p class="sc-sub" id="sc-form-sub">Pick a date, centre, batch, and faculty. Month, week, and day fill in automatically.</p>
+
+        <div id="sc-editing-banner" class="sc-editing-banner" role="status">
+          <span>Editing schedule <strong id="sc-editing-id">—</strong></span>
+          <button type="button" class="sc-reset" id="sc-cancel-edit-btn"><i class="fa-solid fa-xmark"></i> Cancel edit</button>
+        </div>
+
+        <form id="sc-form" class="sc-grid">
+          <input type="hidden" id="sc-edit-id" value="" />
+          <div>
+            <label for="sc-date">Date</label>
+            <input id="sc-date" name="date" type="date" required />
+          </div>
+          <div>
+            <label for="sc-center">Centre</label>
+            <select id="sc-center" name="center" required>
+              <option value="">Select centre</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Jayanagara">Jayanagara</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-batches">Batch</label>
+            <input id="sc-batches" name="batches" list="sc-batches-list" required placeholder="Select or type batch" maxlength="30" autocomplete="off" />
+            <datalist id="sc-batches-list"></datalist>
+          </div>
+          <div>
+            <label for="sc-subject">Subject</label>
+            <select id="sc-subject" name="subject" required>
+              <option value="">Select subject</option>
+              <option value="English">English</option>
+              <option value="Logical Reasoning">Logical Reasoning</option>
+              <option value="Legal Reasoning">Legal Reasoning</option>
+              <option value="GK">GK</option>
+              <option value="Current Affairs">Current Affairs</option>
+              <option value="Quantitative Techniques">Quantitative Techniques</option>
+              <option value="Full Length">Full Length</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-timeings">Timings</label>
+            <select id="sc-timeings" name="timeings">
+              <option value="">Select timing</option>
+              <option value="6:00 AM - 8:00 AM">6:00 AM - 8:00 AM</option>
+              <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
+              <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+              <option value="12:00 PM - 2:00 PM">12:00 PM - 2:00 PM</option>
+              <option value="2:00 PM - 4:00 PM">2:00 PM - 4:00 PM</option>
+              <option value="4:00 PM - 6:00 PM">4:00 PM - 6:00 PM</option>
+              <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
+              <option value="8:00 PM - 10:00 PM">8:00 PM - 10:00 PM</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-faculty">Faculty</label>
+            <input id="sc-faculty" name="faculty" maxlength="30" placeholder="Faculty name" />
+          </div>
+          <div>
+            <label for="sc-targetYear">Target year</label>
+            <select id="sc-targetYear" name="targetYear">
+              <option value="">Select year</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-sheetYr">Sheet year</label>
+            <input id="sc-sheetYr" name="sheetYr" maxlength="30" placeholder="e.g. CLAT 2026" />
+          </div>
+          <div>
+            <label for="sc-number">Class number</label>
+            <input id="sc-number" name="number" maxlength="30" placeholder="e.g. 12" />
+          </div>
+          <div class="full">
+            <div class="sc-meta" id="sc-auto-meta" aria-live="polite">
+              <span class="sc-chip"><span>Month</span> <strong id="sc-month-chip">—</strong></span>
+              <span class="sc-chip"><span>Week</span> <strong id="sc-week-chip">—</strong></span>
+              <span class="sc-chip"><span>Day</span> <strong id="sc-day-chip">—</strong></span>
+            </div>
+          </div>
+          <div class="full sc-actions">
+            <button type="submit" class="sc-submit" id="sc-submit-btn">
+              <i class="fa-solid fa-calendar-plus"></i> Save schedule
+            </button>
+            <button type="button" class="sc-reset" id="sc-clear-btn">Clear form</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="sc-card">
+        <div class="sc-toolbar">
+          <div>
+            <h2 class="sc-title" style="margin: 0"><i class="fa-solid fa-table" style="color: var(--accent)"></i> Class schedules</h2>
+            <p class="sc-sub" style="margin: 0.35rem 0 0" id="sc-count">Loading…</p>
+          </div>
+          <button type="button" class="sc-reset" id="sc-refresh-btn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="sc-filters">
+          <div>
+            <label for="sc-filter-center">Centre</label>
+            <select id="sc-filter-center">
+              <option value="">All centres</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Jayanagara">Jayanagara</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-filter-subject">Subject</label>
+            <select id="sc-filter-subject">
+              <option value="">All subjects</option>
+              <option value="English">English</option>
+              <option value="Logical Reasoning">Logical Reasoning</option>
+              <option value="Legal Reasoning">Legal Reasoning</option>
+              <option value="GK">GK</option>
+              <option value="Current Affairs">Current Affairs</option>
+              <option value="Quantitative Techniques">Quantitative Techniques</option>
+              <option value="Full Length">Full Length</option>
+            </select>
+          </div>
+          <div>
+            <label for="sc-filter-month">Month</label>
+            <input id="sc-filter-month" placeholder="e.g. September" />
+          </div>
+          <div>
+            <label for="sc-filter-faculty">Faculty</label>
+            <input id="sc-filter-faculty" placeholder="Search faculty" />
+          </div>
+        </div>
+        <div class="sc-table-wrap">
+          <table class="sc-table" id="sc-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Day</th>
+                <th>Centre</th>
+                <th>Batch</th>
+                <th>Subject</th>
+                <th>Timings</th>
+                <th>Faculty</th>
+                <th>Year</th>
+                <th>No.</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sc-tbody">
+              <tr><td colspan="10" class="sc-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260910sched2"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/schedule-class-page.js?v=20260910sched"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'scheduleClass.html', title: 'Schedule Class', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof initScheduleClassPage === 'function') initScheduleClassPage();
+    });
+  </script>
+</body>
+</html>

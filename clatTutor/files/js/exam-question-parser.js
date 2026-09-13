@@ -717,18 +717,24 @@
       informationEnd: new RegExp('^\\(' + namePat + '\\s+Information ends\\)$', 'i'),
       infromationStart: new RegExp('^\\(' + namePat + '\\s+Infromation starts\\)$', 'i'),
       infromationEnd: new RegExp('^\\(' + namePat + '\\s+Infromation ends\\)$', 'i'),
-      paragraphStart: new RegExp('^\\(' + namePat + '\\s+Paragraph starts\\)$', 'i'),
-      paragraphEnd: new RegExp('^\\(' + namePat + '\\s+Paragraph ends\\)$', 'i'),
+      paragraphStart: new RegExp(
+        '^\\(' + namePat + '\\s+(?:Paragraph|Passage) starts\\)$',
+        'i'
+      ),
+      paragraphEnd: new RegExp(
+        '^\\(' + namePat + '\\s+(?:Paragraph|Passage) ends\\)$',
+        'i'
+      ),
       sectionStart: new RegExp('^\\(\\(\\s*(' + namePat + ')\\s+Starts\\s*\\)\\)$', 'i'),
       sectionEnd: new RegExp('^\\(\\(\\s*(' + namePat + ')\\s+Ends\\s*\\)\\)$', 'i'),
       sectionEndLoose: new RegExp('^\\((' + namePat + ')\\s+Ends\\)\\)$', 'i'),
     };
   }
 
-  /** Word often wraps markers as ((Paragraph starts)) or "(Paragraph starts) I. Passage…" */
+  /** Word often wraps markers as ((Paragraph starts)) / ((Passage starts)). */
   function unwrapParagraphMarkerLine(line) {
     var s = normalizeMarkerOuter(line);
-    var wrapped = s.match(/^\(\(\s*(Paragraph\s+(?:starts?|ends?))\s*\)\)$/i);
+    var wrapped = s.match(/^\(\(\s*((?:Paragraph|Passage)\s+(?:starts?|ends?))\s*\)\)$/i);
     if (wrapped) return '(' + wrapped[1] + ')';
     return s;
   }
@@ -736,21 +742,30 @@
   function paragraphStartRemainder(line) {
     var s = unwrapParagraphMarkerLine(line);
     var m = s.match(
-      /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?Paragraph\s+starts?\s*\)\s*[:.\-–—]*\s*(.*)$/i
+      /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?(?:Paragraph|Passage)\s+starts?\s*\)\s*[:.\-–—]*\s*(.*)$/i
     );
-    if (!m) return null;
-    return String(m[1] || '').trim();
+    if (m) return String(m[1] || '').trim();
+    if (/^(?:Paragraph|Passage)\s+starts?\s*[:.\-–—]*\s*$/i.test(s)) return '';
+    return null;
   }
 
   function isParagraphEndMarker(line) {
     var s = unwrapParagraphMarkerLine(line);
-    return /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?Paragraph\s+ends?\s*\)\s*[:.\-–—]*\s*$/i.test(s);
+    if (
+      /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?(?:Paragraph|Passage)\s+ends?\s*\)\s*[:.\-–—]*\s*$/i.test(
+        s
+      )
+    ) {
+      return true;
+    }
+    return /^(?:Paragraph|Passage)\s+ends?\s*$/i.test(s);
   }
 
   function createMarkerMatchers(sectionalPatterns) {
     function isInformationStart(line) {
       var s = normalizeMarkerOuter(line);
-      if (/^\(Information starts\)$/i.test(s) || /^\(Infromation starts\)$/i.test(s)) return true;
+      if (/^\(\s*Information starts\s*\)$/i.test(s) || /^\(\s*Infromation starts\s*\)$/i.test(s))
+        return true;
       if (sectionalPatterns) {
         return (
           sectionalPatterns.informationStart.test(s) || sectionalPatterns.infromationStart.test(s)
@@ -761,7 +776,8 @@
 
     function isInformationEnd(line) {
       var s = normalizeMarkerOuter(line);
-      if (/^\(Information ends\)$/i.test(s) || /^\(Infromation ends\)$/i.test(s)) return true;
+      if (/^\(\s*Information ends\s*\)$/i.test(s) || /^\(\s*Infromation ends\s*\)$/i.test(s))
+        return true;
       if (sectionalPatterns) {
         return sectionalPatterns.informationEnd.test(s) || sectionalPatterns.infromationEnd.test(s);
       }
@@ -1432,6 +1448,9 @@
           continue;
         }
         if (isParagraphEndMarker(ln)) continue;
+        if (/^\(\s*(?:Information|Infromation)\s+ends?\s*\)$/i.test(normalizeMarkerOuter(ln))) {
+          continue;
+        }
         kept.push(ln);
       }
       pendingProse = [];
@@ -1447,13 +1466,14 @@
       if (isInformationStart(lines[i])) {
         i++;
         var ib = [];
-        while (i < lines.length && !isInformationEnd(lines[i])) {
+        while (i < lines.length && !isInformationEnd(lines[i]) && !isParagraphEnd(lines[i])) {
+          if (isParagraphStart(lines[i])) break;
           if (looksLikeRealQuestionHeaderAt(lines, i)) break;
           if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           ib.push(lines[i]);
           i++;
         }
-        if (i < lines.length && isInformationEnd(lines[i])) i++;
+        if (i < lines.length && (isInformationEnd(lines[i]) || isParagraphEnd(lines[i]))) i++;
         globInfo = ib.join('\n').trim();
         continue;
       }
@@ -1463,13 +1483,14 @@
         var paraRemainder = paragraphStartRemainder(lines[i]) || '';
         i++;
         var pb = paraRemainder ? [paraRemainder] : [];
-        while (i < lines.length && !isParagraphEnd(lines[i])) {
+        while (i < lines.length && !isParagraphEnd(lines[i]) && !isInformationEnd(lines[i])) {
+          if (isInformationStart(lines[i]) || isParagraphStart(lines[i])) break;
           if (looksLikeRealQuestionHeaderAt(lines, i)) break;
           if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           pb.push(lines[i]);
           i++;
         }
-        if (i < lines.length && isParagraphEnd(lines[i])) i++;
+        if (i < lines.length && (isParagraphEnd(lines[i]) || isInformationEnd(lines[i]))) i++;
         globPara = pb.join('\n').trim();
         passageCount++;
         currentPassageIndex = passageCount;
@@ -1484,6 +1505,10 @@
       var sectionStartName = matchCustomSectionStartLine(lines[i]);
       if (sectionStartName) {
         currentSectionName = sectionStartName;
+        globPara = '';
+        globInfo = '';
+        currentPassageIndex = 0;
+        pendingProse = [];
         i++;
         continue;
       }
@@ -1491,6 +1516,10 @@
       var sectionEndName = matchCustomSectionEndLine(lines[i]);
       if (sectionEndName) {
         currentSectionName = '';
+        globPara = '';
+        globInfo = '';
+        currentPassageIndex = 0;
+        pendingProse = [];
         i++;
         continue;
       }
@@ -1665,7 +1694,7 @@
         questions: [],
         error: rawQuestions.length
           ? 'Found numbered questions but no A–D options. Check option lines (A/B/C/D or [A]…).'
-          : 'No questions found. Use lines like "1. …", wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)…(Paragraph ends), and sections with ((Section Name Starts))…((Section Name Ends)).' +
+          : 'No questions found. Use lines like "1. …", wrap shared text in (Information starts)…(Information ends) or (Paragraph starts)/(Passage starts)…(Paragraph ends)/(Passage ends), and sections with ((Section Name Starts))…((Section Name Ends)).' +
             sectionalHint,
         dropped: dropped,
         missingNumbers: missingNumbers,

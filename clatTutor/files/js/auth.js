@@ -42,6 +42,7 @@
     'testAnalysis.html',
     'fees.html',
     'attendance.html',
+    'scheduleClass.html',
     'bookAssigned.html',
     'parent-credentials.html',
     'retrival.html',

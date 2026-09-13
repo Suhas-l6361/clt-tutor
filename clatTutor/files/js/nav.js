@@ -59,6 +59,7 @@ function initAppChrome(opts) {
     { href: 'testAnalysis.html', icon: 'fa-chart-pie', label: 'Test Results' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
+    { href: 'scheduleClass.html', icon: 'fa-calendar-plus', label: 'Schedule Class' },
     { href: 'bookAssigned.html', icon: 'fa-book', label: 'Book assigned' },
     { href: 'parent-credentials.html', icon: 'fa-key', label: 'Parent credentials' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
@@ -71,6 +72,7 @@ function initAppChrome(opts) {
 
   var parentLinks = [
     { href: 'dashboard.html', icon: 'fa-chart-pie', label: 'Overview' },
+    { href: 'scheduleClass.html', icon: 'fa-calendar-week', label: 'Class schedule' },
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'tests.html', icon: 'fa-pen-to-square', label: 'Mock tests' },
     { href: 'fees.html', icon: 'fa-receipt', label: 'Fees' },
@@ -93,6 +95,7 @@ function initAppChrome(opts) {
     'testAnalysis.html': '../image/test-submit.png',
     'fees.html': '../image/fees.png',
     'attendance.html': '../image/attendance.png',
+    'scheduleClass.html': '../image/schedule.png',
     'bookAssigned.html': '../image/resources.png',
     'parent-credentials.html': '../image/add councelor.png',
     'enrollment.html': '../image/enrollment.png',
@@ -103,13 +106,25 @@ function initAppChrome(opts) {
     'addCounceler.html': '../image/add councelor.png',
   };
 
+  var parentIconMap = {
+    'dashboard.html': '../image/main.png',
+    'scheduleClass.html': '../image/schedule.png',
+    'attendance.html': '../image/attendance.png',
+    'tests.html': '../image/test.png',
+    'fees.html': '../image/fees.png',
+  };
+
   var navHtml = links
     .map(function (l) {
       var cls = opts.active === l.href ? 'active' : '';
-      var iconHtml =
-        isCrm && crmIconMap[l.href]
+      var navImg = isCrm
+        ? crmIconMap[l.href]
+        : isParent
+          ? parentIconMap[l.href]
+          : '';
+      var iconHtml = navImg
           ? '<img src="' +
-            crmIconMap[l.href] +
+            navImg +
             '" alt="" class="nav-link-img" onerror="' +
             (l.href === 'uploadOmr.html'
               ? "this.onerror=null;this.src='../image/scan-omr.svg'"

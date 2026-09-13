@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/parent-portal.css?v=20260829books" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260910dashsked" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body parent-portal-body">
@@ -43,6 +43,43 @@
           <span class="hint" id="pp-stat-fees-hint">Receipts on file</span>
         </div>
       </div>
+
+      <section class="pp-card" aria-labelledby="pp-dash-schedule-heading">
+        <div class="pp-week-toolbar">
+          <div>
+            <h3 id="pp-dash-schedule-heading">This week’s class schedule</h3>
+            <p class="pp-card__lead" id="pp-schedule-status" style="margin: 0.35rem 0 0">Loading this week’s timetable…</p>
+          </div>
+          <div class="pp-week-nav">
+            <button type="button" id="pp-schedule-prev" aria-label="Previous week"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="pp-week-label" id="pp-schedule-week-label">This week</span>
+            <button type="button" id="pp-schedule-next" aria-label="Next week"><i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" id="pp-schedule-this-week" class="is-active">This week</button>
+            <a class="pp-week-nav__link" href="scheduleClass.html">Full schedule</a>
+          </div>
+        </div>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Day</th>
+                <th>Centre</th>
+                <th>Batch</th>
+                <th>Subject</th>
+                <th>Timings</th>
+                <th>Faculty</th>
+                <th>Target year</th>
+                <th>Sheet year</th>
+                <th>No.</th>
+              </tr>
+            </thead>
+            <tbody id="pp-schedule-tbody">
+              <tr><td colspan="10" class="pp-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section class="pp-card pp-books" aria-labelledby="pp-books-heading">
         <div class="pp-books__head">
@@ -84,6 +121,7 @@
           <h3>Explore in detail</h3>
           <p class="pp-card__lead">Open any section for full history of your child’s records.</p>
           <div class="pp-quick">
+            <a href="scheduleClass.html"><i class="fa-solid fa-calendar-week"></i><span><strong>Class schedule</strong><br /><small>This week’s timetable</small></span></a>
             <a href="attendance.html"><i class="fa-solid fa-clipboard-check"></i><span><strong>Attendance</strong><br /><small>Present / absent by date</small></span></a>
             <a href="tests.html"><i class="fa-solid fa-pen-to-square"></i><span><strong>Mock tests</strong><br /><small>Test names, scores, and analysis</small></span></a>
             <a href="fees.html"><i class="fa-solid fa-receipt"></i><span><strong>Fees</strong><br /><small>Payments and receipts</small></span></a>
@@ -101,17 +139,19 @@
 
   <div id="app-root" class="app-shell"></div>
 
-  <script src="../js/config.js?v=20260829book"></script>
+  <script src="../js/config.js?v=20260910sched"></script>
   <script src="../js/auth.js?v=20260815a"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20260815b"></script>
-  <script src="../js/parent-portal.js?v=20260815f"></script>
+  <script src="../js/nav.js?v=20260910picons"></script>
+  <script src="../js/parent-portal.js?v=20260910sched"></script>
   <script src="../js/parent-dashboard-page.js?v=20260829clear"></script>
+  <script src="../js/parent-schedule-page.js?v=20260910sched"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
       initAppChrome({ role: 'parent', active: 'dashboard.html', title: 'Overview', contentEl: stock });
       if (window.ParentDashboardPage) ParentDashboardPage.init();
+      if (window.ParentSchedulePage) ParentSchedulePage.init();
     });
   </script>
 </body>

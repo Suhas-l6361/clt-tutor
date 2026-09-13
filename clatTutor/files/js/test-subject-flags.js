@@ -22,6 +22,22 @@
     isQT: 'QT',
   };
 
+  var DEFAULT_TEST_DURATION_MINUTES = 120;
+  /** Sectional exam clock (minutes). Mocks keep DEFAULT_TEST_DURATION_MINUTES. */
+  var SECTIONAL_DURATION_MINUTES = {
+    english: 22,
+    gk: 8,
+    'general knowledge': 8,
+    legal: 35,
+    logical: 28,
+    logic: 28,
+    math: 16,
+    qa: 16,
+    'quantitative aptitude': 16,
+    qt: 16,
+    'quantitative techniques': 16,
+  };
+
   function normKey(v) {
     return String(v || '')
       .trim()
@@ -139,6 +155,21 @@
     return { kind: 'mock', category: 'CLAT' };
   }
 
+  function durationMinutesForKindCategory(kind, category) {
+    if (normKey(kind) === 'sectional') {
+      var mins = SECTIONAL_DURATION_MINUTES[normKey(category)];
+      if (mins) return mins;
+    }
+    return DEFAULT_TEST_DURATION_MINUTES;
+  }
+
+  function durationMinutesForTest(row) {
+    var stored = row && row.durationMinutes != null ? Number(row.durationMinutes) : NaN;
+    if (Number.isFinite(stored) && stored > 0) return stored;
+    var classified = classifyTestRow(row);
+    return durationMinutesForKindCategory(classified.kind, classified.category);
+  }
+
   function rowMatchesTestFilter(row, filter) {
     if (!filter || !filter.kind || !filter.category) return true;
     var classified = classifyTestRow(row);
@@ -210,6 +241,10 @@
     isTestOpen: isTestOpen,
     hasTypedTestMeta: hasTypedTestMeta,
     isLegacyUntypedTest: isLegacyUntypedTest,
+    DEFAULT_TEST_DURATION_MINUTES: DEFAULT_TEST_DURATION_MINUTES,
+    SECTIONAL_DURATION_MINUTES: SECTIONAL_DURATION_MINUTES,
+    durationMinutesForKindCategory: durationMinutesForKindCategory,
+    durationMinutesForTest: durationMinutesForTest,
     classifyTestRow: classifyTestRow,
     rowMatchesTestFilter: rowMatchesTestFilter,
     testRowId: testRowId,

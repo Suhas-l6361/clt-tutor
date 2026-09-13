@@ -1821,7 +1821,7 @@
             >
               <span class="at-type-card__icon at-type-card__icon--teal" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
               <span class="at-type-card__title">ENGLISH</span>
-              <span class="at-type-card__desc">Focus on vocabulary, grammar, comprehension and more.</span>
+              <span class="at-type-card__desc">22 minutes · vocabulary, grammar, comprehension and more.</span>
             </button>
             <button type="button" class="at-type-card__history" data-kind="sectional" data-category="English">
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
@@ -1839,7 +1839,7 @@
             >
               <span class="at-type-card__icon at-type-card__icon--indigo" aria-hidden="true"><i class="fa-solid fa-brain"></i></span>
               <span class="at-type-card__title">LOGIC</span>
-              <span class="at-type-card__desc">Strengthen logical reasoning with topic-wise practice.</span>
+              <span class="at-type-card__desc">28 minutes · logical reasoning with topic-wise practice.</span>
             </button>
             <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Logical">
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
@@ -1857,7 +1857,7 @@
             >
               <span class="at-type-card__icon at-type-card__icon--purple" aria-hidden="true"><i class="fa-solid fa-gavel"></i></span>
               <span class="at-type-card__title">LEGAL</span>
-              <span class="at-type-card__desc">Practice legal aptitude with concept-based questions.</span>
+              <span class="at-type-card__desc">35 minutes · legal aptitude with concept-based questions.</span>
             </button>
             <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Legal">
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
@@ -1875,7 +1875,7 @@
             >
               <span class="at-type-card__icon at-type-card__icon--rose" aria-hidden="true"><i class="fa-solid fa-calculator"></i></span>
               <span class="at-type-card__title">MATH</span>
-              <span class="at-type-card__desc">Improve numerical ability with structured practice.</span>
+              <span class="at-type-card__desc">16 minutes · quantitative aptitude with structured practice.</span>
             </button>
             <button type="button" class="at-type-card__history" data-kind="sectional" data-category="Math">
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
@@ -1893,7 +1893,7 @@
             >
               <span class="at-type-card__icon at-type-card__icon--amber" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
               <span class="at-type-card__title">GK</span>
-              <span class="at-type-card__desc">Stay updated with current affairs and general knowledge.</span>
+              <span class="at-type-card__desc">8 minutes · current affairs and general knowledge.</span>
             </button>
             <button type="button" class="at-type-card__history" data-kind="sectional" data-category="GK">
               <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
@@ -1929,7 +1929,7 @@
         <input type="hidden" id="at-section-tag" name="sectionTag" value="" />
         <div class="at-card at-card--upload">
           <h2><i class="fa-solid fa-file-arrow-up"></i> Test materials</h2>
-          <p class="at-sub">Accepted: PDF, Microsoft Word (.doc, .docx). One file each for question paper and answer key.</p>
+          <p class="at-sub">Accepted: PDF, Microsoft Word (.doc, .docx). One file each for question paper and answer key. Wrap shared RC text in <strong>(Passage starts)</strong>…<strong>(Passage ends)</strong> or <strong>(Paragraph starts)</strong>…<strong>(Paragraph ends)</strong>.</p>
           <div class="at-field" style="margin-bottom: 0.75rem">
             <label for="at-title">Assessment title</label>
             <input id="at-title" name="title" type="text" required placeholder="e.g. Legal reasoning — Weekly drill 12" autocomplete="off" />
@@ -2217,14 +2217,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20260902mcq"></script>
+  <script src="../js/exam-question-parser.js?v=20260910passage"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
-  <script src="../js/test-subject-flags.js?v=20260822qt"></script>
+  <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20260826fetch"></script>
+  <script src="../js/nav.js?v=20260910sched2"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -2296,6 +2296,8 @@
       var testOpenInput = document.getElementById('at-test-open');
       var visibilityStatusEl = document.getElementById('at-visibility-status');
       var uploadModalOpen = false;
+      var editingTest = null;
+      var pendingHistoryReload = null;
       var activeHistoryFilter = null;
       var historyModal = document.getElementById('at-history-modal');
       var historyTitle = document.getElementById('at-history-title');
@@ -2490,13 +2492,21 @@
       function hideSuccessModal() {
         if (successModal) successModal.hidden = true;
         document.body.style.overflow = '';
+        if (pendingHistoryReload) {
+          var filter = pendingHistoryReload;
+          pendingHistoryReload = null;
+          openHistoryModal(filter);
+        }
       }
 
       function showSuccessModal(details) {
         var tid = details && details.testId != null ? details.testId : '';
         var branches = (details && details.branches) || [];
         var scheduledDate = details && details.scheduledDate ? details.scheduledDate : null;
-        if (successTitleEl) successTitleEl.textContent = 'Test saved successfully';
+        if (successTitleEl) {
+          successTitleEl.textContent =
+            details && details.updated ? 'Test updated successfully' : 'Test saved successfully';
+        }
         var lines = [];
         if (tid !== '' && tid != null) {
           lines.push('<strong>Test ID</strong> ' + escapeHtml(String(tid)));
@@ -2521,6 +2531,7 @@
       if (errorOkBtn) errorOkBtn.addEventListener('click', hideErrorModal);
 
       function resetUploadForm() {
+        editingTest = null;
         form.reset();
         fileQ.value = '';
         fileA.value = '';
@@ -2542,6 +2553,12 @@
         if (sectionTagInput) sectionTagInput.value = '';
         if (titleInput) titleInput.placeholder = 'e.g. Legal reasoning — Weekly drill 12';
         syncTestOpenUi(false);
+        setUploadSubmitLabel(false);
+      }
+
+      function setUploadSubmitLabel(isEdit) {
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = isEdit ? 'Update test' : 'Submit';
       }
 
       function syncTestOpenUi(open) {
@@ -2699,6 +2716,117 @@
         }
         if (uploadModalSub) uploadModalSub.textContent = subtitle || '';
         if (titleInput && placeholder) titleInput.placeholder = placeholder;
+        uploadModal.hidden = false;
+        uploadModalOpen = true;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(function () {
+          if (titleInput) titleInput.focus();
+        });
+      }
+
+      function fileNameFromUrl(url) {
+        var u = String(url || '').split('?')[0];
+        if (!u) return '';
+        try {
+          u = decodeURIComponent(u);
+        } catch (e) {}
+        var parts = u.split('/');
+        return parts[parts.length - 1] || 'Current file';
+      }
+
+      function showKeptFileHint(metaEl, url) {
+        if (!metaEl) return;
+        var name = fileNameFromUrl(url);
+        if (!name) {
+          metaEl.hidden = true;
+          metaEl.textContent = '';
+          metaEl.classList.remove('at-ok');
+          return;
+        }
+        metaEl.hidden = false;
+        metaEl.classList.add('at-ok');
+        metaEl.textContent = 'Current file kept: ' + name + ' — upload a new file only if you want to replace it.';
+      }
+
+      function normBranchValue(v) {
+        var s = String(v || '')
+          .trim()
+          .toUpperCase()
+          .replace(/\s+/g, ' ');
+        if (s.indexOf('MALLE') >= 0) return 'MALLESHWARAM';
+        if (s.indexOf('JAYAN') >= 0) return 'JAYANAGARA';
+        if (s.indexOf('YEL') >= 0 || s.indexOf('YAL') >= 0) return 'YALAAHANKA';
+        if (s.indexOf('ONLINE') >= 0) return 'ONLINE';
+        if (s.indexOf('ALL') >= 0) return 'ALL BRANCH';
+        return s;
+      }
+
+      function applyBranchesToForm(list) {
+        var wanted = {};
+        (list || []).forEach(function (b) {
+          wanted[normBranchValue(b)] = true;
+        });
+        syncing = true;
+        locBoxes.forEach(function (el) {
+          if (el) el.checked = !!wanted[el.value];
+        });
+        if (brOnline) brOnline.checked = !!wanted.ONLINE;
+        var allLoc = locBoxes.every(function (el) {
+          return el && el.checked;
+        });
+        if (brAll) brAll.checked = !!wanted['ALL BRANCH'] || allLoc;
+        if (brAll && brAll.checked) {
+          locBoxes.forEach(function (el) {
+            if (el) el.checked = true;
+          });
+        }
+        syncing = false;
+      }
+
+      function openEditFromHistory(row) {
+        if (!row || row.test_id == null) return;
+        var classified =
+          typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.classifyTestRow
+            ? TestSubjectFlags.classifyTestRow(row)
+            : null;
+        var kind = row.test_kind || (classified && classified.kind) || '';
+        var category = row.test_category || (classified && classified.category) || '';
+        resetUploadForm();
+        editingTest = row;
+        if (testKindInput) testKindInput.value = kind;
+        if (testCategoryInput) testCategoryInput.value = category;
+        if (sectionTagInput) sectionTagInput.value = category || '';
+        if (titleInput) titleInput.value = row.title || '';
+        if (questionCountInput && row.question_count != null && row.question_count !== '') {
+          questionCountInput.value = String(row.question_count);
+        }
+        applyBranchesToForm(splitBranchesLabel(row.selected_branch));
+        var closed =
+          typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.isTestClosed
+            ? TestSubjectFlags.isTestClosed(row)
+            : !!row.isClose;
+        syncTestOpenUi(!closed);
+        if (row.scheduled) {
+          var d = new Date(row.scheduled);
+          if (!Number.isNaN(d.getTime())) {
+            if (fpWhen) fpWhen.setDate(d, true);
+            else whenInput.value = row.scheduled;
+            schedulePanel.classList.add('at-open');
+            scheduleToggle.setAttribute('aria-expanded', 'true');
+          }
+        }
+        showKeptFileHint(metaQ, row.question_paper_url);
+        showKeptFileHint(metaA, row.answer_key_url);
+        if (uploadModalTitle) {
+          uploadModalTitle.textContent =
+            'Edit test #' + String(row.test_id) + (category ? ' — ' + category : '');
+        }
+        if (uploadModalSub) {
+          uploadModalSub.textContent =
+            'Update title, schedule, branches, or student access. Files stay as they are unless you upload replacements.';
+        }
+        setUploadSubmitLabel(true);
+        if (historyModal) historyModal.hidden = true;
         uploadModal.hidden = false;
         uploadModalOpen = true;
         document.body.style.overflow = 'hidden';
@@ -3055,25 +3183,36 @@
       function isInformationStartLine(line) {
         var s = normalizeMarkerOuter(line);
         return (
-          /^\(Information starts\)$/i.test(s) ||
-          /^\(Infromation starts\)$/i.test(s)
+          /^\(\s*Information starts\s*\)$/i.test(s) ||
+          /^\(\s*Infromation starts\s*\)$/i.test(s)
         );
       }
 
       function isInformationEndLine(line) {
         var s = normalizeMarkerOuter(line);
         return (
-          /^\(Information ends\)$/i.test(s) ||
-          /^\(Infromation ends\)$/i.test(s)
+          /^\(\s*Information ends\s*\)$/i.test(s) ||
+          /^\(\s*Infromation ends\s*\)$/i.test(s)
         );
       }
 
+      function unwrapParagraphOrPassageMarker(line) {
+        var s = normalizeMarkerOuter(line);
+        var wrapped = s.match(/^\(\(\s*((?:Paragraph|Passage)\s+(?:starts?|ends?))\s*\)\)$/i);
+        if (wrapped) return '(' + wrapped[1] + ')';
+        return s;
+      }
+
       function isParagraphStartLine(line) {
-        return /^\(Paragraph starts\)$/i.test(normalizeMarkerOuter(line));
+        var s = unwrapParagraphOrPassageMarker(line);
+        return /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?(?:Paragraph|Passage)\s+starts?\s*\)/i.test(s);
       }
 
       function isParagraphEndLine(line) {
-        return /^\(Paragraph ends\)$/i.test(normalizeMarkerOuter(line));
+        var s = unwrapParagraphOrPassageMarker(line);
+        return /^\(\s*(?:[A-Za-z][A-Za-z0-9 ]{0,40}\s+)?(?:Paragraph|Passage)\s+ends?\s*\)\s*[:.\-–—]*\s*$/i.test(
+          s
+        );
       }
 
       /**
@@ -4834,6 +4973,8 @@
             (branches.length ? '<span class="at-history-badge">' + escapeHtml(branches.join(', ')) + '</span>' : '') +
             '</div></div>' +
             '<div class="at-history-actions">' +
+            '<button type="button" class="at-btn at-btn--ghost" data-h-action="edit">' +
+            '<i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</button>' +
             '<button type="button" class="at-btn at-btn--ghost" data-h-action="toggle">' +
             '<i class="fa-solid ' +
             (isClosed ? 'fa-lock-open' : 'fa-lock') +
@@ -4849,10 +4990,16 @@
             '<button type="button" class="at-btn at-btn--danger" data-h-action="d">' +
             '<i class="fa-solid fa-trash" aria-hidden="true"></i> Delete</button>' +
             '</div>';
+          var editBtn = card.querySelector('[data-h-action="edit"]');
           var toggleBtn = card.querySelector('[data-h-action="toggle"]');
           var qBtn = card.querySelector('[data-h-action="q"]');
           var aBtn = card.querySelector('[data-h-action="a"]');
           var dBtn = card.querySelector('[data-h-action="d"]');
+          if (editBtn) {
+            editBtn.addEventListener('click', function () {
+              openEditFromHistory(row);
+            });
+          }
           if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
               var nextClosed = !isClosed;
@@ -5030,6 +5177,15 @@
           }
         }
         if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
+          if (editingTest && editingTest.question_count != null) {
+            var existingCount = parseInt(String(editingTest.question_count), 10);
+            if (Number.isInteger(existingCount) && existingCount >= 1 && existingCount <= 200) {
+              questionCount = existingCount;
+              if (questionCountInput) questionCountInput.value = String(existingCount);
+            }
+          }
+        }
+        if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
           var paperForCount = fileQ.files && fileQ.files[0];
           if (
             paperForCount &&
@@ -5080,15 +5236,30 @@
           if (questionCountInput) questionCountInput.focus();
           return;
         }
-        if (!fileQ.files || !fileQ.files.length || !extOk(fileQ.files[0].name)) {
+        var isEdit = !!(editingTest && editingTest.test_id != null);
+        var fq = fileQ.files && fileQ.files[0] ? fileQ.files[0] : null;
+        var fa = fileA.files && fileA.files[0] ? fileA.files[0] : null;
+        if (fq && !extOk(fq.name)) {
           showToast('Question paper required', 'Upload a PDF or Word file for the question paper.');
           dropQ.focus();
           return;
         }
-        if (!fileA.files || !fileA.files.length || !extOk(fileA.files[0].name)) {
+        if (fa && !extOk(fa.name)) {
           showToast('Answer key required', 'Upload a PDF or Word file for the answer key.');
           dropA.focus();
           return;
+        }
+        if (!isEdit) {
+          if (!fq) {
+            showToast('Question paper required', 'Upload a PDF or Word file for the question paper.');
+            dropQ.focus();
+            return;
+          }
+          if (!fa) {
+            showToast('Answer key required', 'Upload a PDF or Word file for the answer key.');
+            dropA.focus();
+            return;
+          }
         }
         var branches = resolveBranchesForPayload();
         if (!branches.length) {
@@ -5100,16 +5271,13 @@
           scheduledFull = fpWhen.formatDate(fpWhen.selectedDates[0], 'Y-m-d H:i');
         }
 
-        var fq = fileQ.files[0];
-        var fa = fileA.files[0];
         var submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
-        if (loaderTitleEl) loaderTitleEl.textContent = 'Submitting your test';
-        loaderCaption.textContent = 'Preparing files…';
+        if (loaderTitleEl) loaderTitleEl.textContent = isEdit ? 'Updating your test' : 'Submitting your test';
+        loaderCaption.textContent = 'Preparing…';
         loaderOverlay.hidden = false;
         document.body.style.overflow = 'hidden';
 
-        loaderCaption.textContent = 'Creating test record…';
         var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
         var addedBy = sess && sess.user && sess.user.email ? String(sess.user.email).trim() : null;
 
@@ -5139,55 +5307,98 @@
         }
         if (addedBy) postPayload.added_by = addedBy;
 
-        fetch(addTestApiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(postPayload),
-        })
-          .then(parseAddTestResponse)
-          .then(function (postResult) {
-            if (!postResult.ok) return postResult;
-            var tid =
-              postResult.data && postResult.data.test_id != null ? postResult.data.test_id : null;
-            if (tid == null) {
-              return {
-                ok: false,
-                status: postResult.status,
-                data: { message: 'Server did not return test id' },
-              };
-            }
-            loaderCaption.textContent = 'Uploading question paper (1/2)…';
-            return uploadTestFile(tid, fq, 'question_paper').then(function (qResult) {
-              if (!qResult.ok) {
-                return deleteTestById(tid).then(function () {
-                  return qResult;
+        var savePromise;
+        if (isEdit) {
+          var editId = parseInt(String(editingTest.test_id), 10);
+          postPayload.test_id = editId;
+          loaderCaption.textContent = 'Saving changes…';
+          savePromise = fetch(addTestApiUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postPayload),
+          })
+            .then(parseAddTestResponse)
+            .then(function (putResult) {
+              if (!putResult.ok) return putResult;
+              var chain = Promise.resolve({ ok: true, status: 200, data: { test_id: editId } });
+              if (fq) {
+                chain = chain.then(function (prev) {
+                  if (!prev.ok) return prev;
+                  loaderCaption.textContent = 'Uploading question paper…';
+                  return uploadTestFile(editId, fq, 'question_paper');
                 });
               }
-              loaderCaption.textContent = 'Uploading answer key (2/2)…';
-              return uploadTestFile(tid, fa, 'answer_key').then(function (aResult) {
-                if (!aResult.ok) {
-                  return deleteTestById(tid).then(function () {
-                    return aResult;
-                  });
-                }
-                return { ok: true, status: 200, data: { test_id: tid } };
+              if (fa) {
+                chain = chain.then(function (prev) {
+                  if (!prev.ok) return prev;
+                  loaderCaption.textContent = 'Uploading answer key…';
+                  return uploadTestFile(editId, fa, 'answer_key');
+                });
+              }
+              return chain.then(function (fileResult) {
+                if (fileResult && fileResult.ok === false) return fileResult;
+                return { ok: true, status: 200, data: { test_id: editId, updated: true } };
               });
             });
+        } else {
+          loaderCaption.textContent = 'Creating test record…';
+          savePromise = fetch(addTestApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postPayload),
           })
+            .then(parseAddTestResponse)
+            .then(function (postResult) {
+              if (!postResult.ok) return postResult;
+              var tid =
+                postResult.data && postResult.data.test_id != null ? postResult.data.test_id : null;
+              if (tid == null) {
+                return {
+                  ok: false,
+                  status: postResult.status,
+                  data: { message: 'Server did not return test id' },
+                };
+              }
+              loaderCaption.textContent = 'Uploading question paper (1/2)…';
+              return uploadTestFile(tid, fq, 'question_paper').then(function (qResult) {
+                if (!qResult.ok) {
+                  return deleteTestById(tid).then(function () {
+                    return qResult;
+                  });
+                }
+                loaderCaption.textContent = 'Uploading answer key (2/2)…';
+                return uploadTestFile(tid, fa, 'answer_key').then(function (aResult) {
+                  if (!aResult.ok) {
+                    return deleteTestById(tid).then(function () {
+                      return aResult;
+                    });
+                  }
+                  return { ok: true, status: 200, data: { test_id: tid } };
+                });
+              });
+            });
+        }
+
+        savePromise
           .then(function (result) {
             loaderOverlay.hidden = true;
             document.body.style.overflow = '';
             if (submitBtn) submitBtn.disabled = false;
             if (result.ok) {
               var tid = result.data && result.data.test_id != null ? result.data.test_id : '';
+              var wasUpdate = !!(result.data && result.data.updated);
+              if (wasUpdate && activeHistoryFilter) pendingHistoryReload = activeHistoryFilter;
               closeUploadModal();
               showSuccessModal({
                 testId: tid,
                 branches: branches,
                 scheduledDate: scheduledFull || null,
+                updated: wasUpdate,
               });
               if (typeof Auth !== 'undefined' && Auth.trackActivity) {
-                Auth.trackActivity('add_test_submit', { test_id: tid || null });
+                Auth.trackActivity(wasUpdate ? 'add_test_update' : 'add_test_submit', {
+                  test_id: tid || null,
+                });
               }
             } else {
               showToast('Could not save', friendlyAddTestError(result));

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class schedule — Parent</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/parent-portal.css?v=20260910picons" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body parent-portal-body">
+  <div id="stock" style="display: none">
+    <div class="pp-wrap">
+      <section class="pp-hero">
+        <p class="pp-hero__eyebrow">Class schedule</p>
+        <h2>This week’s classes</h2>
+        <p>All scheduled classes for your child’s centre and batch, shown week by week.</p>
+      </section>
+      <div class="pp-stats">
+        <div class="pp-stat"><span class="pp-stat__label">This week</span><strong id="pp-schedule-count">0</strong><span class="hint">Scheduled classes</span></div>
+        <div class="pp-stat"><span class="pp-stat__label">Centre</span><strong id="pp-schedule-center">—</strong><span class="hint">Linked branch</span></div>
+        <div class="pp-stat"><span class="pp-stat__label">Batch</span><strong id="pp-schedule-batch">—</strong><span class="hint">Child’s batch</span></div>
+        <div class="pp-stat"><span class="pp-stat__label">Week</span><strong id="pp-schedule-week-chip">Mon–Sun</strong><span class="hint">Calendar week</span></div>
+      </div>
+      <section class="pp-card">
+        <div class="pp-week-toolbar">
+          <div>
+            <h3>Weekly timetable</h3>
+            <p class="pp-card__lead" id="pp-schedule-status" style="margin: 0.35rem 0 0">Loading this week’s classes…</p>
+          </div>
+          <div class="pp-week-nav">
+            <button type="button" id="pp-schedule-prev" aria-label="Previous week"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="pp-week-label" id="pp-schedule-week-label">This week</span>
+            <button type="button" id="pp-schedule-next" aria-label="Next week"><i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" id="pp-schedule-this-week" class="is-active">This week</button>
+          </div>
+        </div>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Day</th>
+                <th>Centre</th>
+                <th>Batch</th>
+                <th>Subject</th>
+                <th>Timings</th>
+                <th>Faculty</th>
+                <th>Target year</th>
+                <th>Sheet year</th>
+                <th>No.</th>
+              </tr>
+            </thead>
+            <tbody id="pp-schedule-tbody">
+              <tr><td colspan="10" class="pp-empty">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+  <script src="../js/config.js?v=20260910sched"></script>
+  <script src="../js/auth.js?v=20260815a"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20260910picons"></script>
+  <script src="../js/parent-portal.js?v=20260910sched"></script>
+  <script src="../js/parent-schedule-page.js?v=20260910sched"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      initAppChrome({ role: 'parent', active: 'scheduleClass.html', title: 'Class schedule', contentEl: document.getElementById('stock') });
+      if (window.ParentSchedulePage) ParentSchedulePage.init();
+    });
+  </script>
+</body>
+</html>

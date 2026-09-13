@@ -2765,9 +2765,9 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20260902mcq"></script>
+  <script src="../js/exam-question-parser.js?v=20260910passage"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
-  <script src="../js/test-subject-flags.js?v=20260822qt2"></script>
+  <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/student-access.js?v=20260903mock"></script>
@@ -2881,7 +2881,7 @@
               cardClass: 'exam-pick-card--english',
               iconClass: 'exam-pick-card__icon--teal',
               fa: 'fa-book-open',
-              desc: 'Focus on vocabulary, grammar, comprehension and more.',
+              desc: '22 minutes · vocabulary, grammar, and comprehension.',
             },
             {
               category: 'Logical',
@@ -2889,7 +2889,7 @@
               cardClass: 'exam-pick-card--logical',
               iconClass: 'exam-pick-card__icon--indigo',
               fa: 'fa-brain',
-              desc: 'Strengthen logical reasoning with topic-wise practice.',
+              desc: '28 minutes · logical reasoning practice.',
             },
             {
               category: 'Legal',
@@ -2897,7 +2897,7 @@
               cardClass: 'exam-pick-card--legal',
               iconClass: 'exam-pick-card__icon--purple',
               fa: 'fa-gavel',
-              desc: 'Practice legal aptitude with concept-based questions.',
+              desc: '35 minutes · legal aptitude and concept-based questions.',
             },
             {
               category: 'Math',
@@ -2905,7 +2905,7 @@
               cardClass: 'exam-pick-card--math',
               iconClass: 'exam-pick-card__icon--rose',
               fa: 'fa-calculator',
-              desc: 'Improve numerical ability with structured practice.',
+              desc: '16 minutes · quantitative aptitude practice.',
             },
             {
               category: 'GK',
@@ -2913,7 +2913,7 @@
               cardClass: 'exam-pick-card--gk',
               iconClass: 'exam-pick-card__icon--amber',
               fa: 'fa-globe',
-              desc: 'Stay updated with current affairs and general knowledge.',
+              desc: '8 minutes · current affairs and general knowledge.',
             },
           ],
         },
@@ -4600,7 +4600,12 @@
             letter: letter,
             passed: !!(att && att.passed),
             submittedAt: att && att.created_at ? att.created_at : null,
-            durationMinutes: row && row.durationMinutes != null ? row.durationMinutes : 120,
+            durationMinutes:
+              typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.durationMinutesForTest
+                ? TestSubjectFlags.durationMinutesForTest(row)
+                : row && row.durationMinutes != null
+                  ? row.durationMinutes
+                  : 120,
             sections: sections,
             testKind: classified.kind,
             testCategory: classified.category,
@@ -5351,7 +5356,8 @@
 
         function startTimer() {
           var timerSpan = document.querySelector('#exam-timer span');
-          var durationMin = paper && paper.durationMinutes != null ? Number(paper.durationMinutes) : 120;
+          var durationMin =
+            paper && paper.durationMinutes != null ? Number(paper.durationMinutes) : 120;
           if (params.get('minutes')) {
             var pm = Number(params.get('minutes'));
             if (!Number.isNaN(pm) && pm > 0) durationMin = pm;
@@ -5422,12 +5428,21 @@
           renderQuestion();
         }
 
+        function durationMinutesForPaper(row) {
+          if (typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.durationMinutesForTest) {
+            return TestSubjectFlags.durationMinutesForTest(row);
+          }
+          var stored = row && row.durationMinutes != null ? Number(row.durationMinutes) : NaN;
+          if (Number.isFinite(stored) && stored > 0) return stored;
+          return 120;
+        }
+
         function buildPaperFromApiRow(row, parseResult) {
           var title = row.title || 'Test';
           return {
             test_id: row.test_id,
             title: title,
-            durationMinutes: 120,
+            durationMinutes: durationMinutesForPaper(row),
             marksCorrect: 1,
             marksNegative: 0.25,
             questions: parseResult.questions || [],
