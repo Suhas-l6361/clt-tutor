@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20260829photo1" />
-  <link rel="stylesheet" href="../css/enrollment.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20260917mock1" />
+  <link rel="stylesheet" href="../css/enrollment.css?v=20260917feehide" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -41,6 +41,14 @@
           <button type="button" class="enrollment-btn" id="crm-batch-btn-create" aria-haspopup="dialog" aria-controls="crm-batch-modal" aria-expanded="false">
             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
             <span>Create batch</span>
+          </button>
+          <button type="button" class="enrollment-btn" id="crm-mock-reg-btn" aria-haspopup="dialog" aria-controls="crm-mock-reg-modal" aria-expanded="false">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+            <span>Mock test registrations</span>
+          </button>
+          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-course-fee-btn" hidden aria-haspopup="dialog" aria-controls="crm-course-fee-modal" aria-expanded="false">
+            <i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i>
+            <span>Course fee update</span>
           </button>
         </div>
       </section>
@@ -441,7 +449,89 @@
     </div>
   </div>
 
-  <script src="../js/config.js"></script>
+  <div
+    id="crm-mock-reg-modal"
+    class="crm-workshop-modal crm-mock-reg-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-mock-reg-modal-title"
+  >
+    <div class="crm-workshop-modal__backdrop" data-crm-mock-reg-close tabindex="-1"></div>
+    <div class="crm-workshop-modal__dialog">
+      <div class="crm-workshop-modal__head">
+        <div class="crm-workshop-modal__head-text">
+          <p class="crm-workshop-modal__eyebrow">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+            Student enquiries
+          </p>
+          <h3 class="crm-workshop-modal__title" id="crm-mock-reg-modal-title">Mock test registrations</h3>
+          <p class="crm-workshop-modal__lead">All student registrations received from the mock-test form. Responded status is saved in this browser.</p>
+        </div>
+        <button type="button" class="crm-workshop-modal__close" data-crm-mock-reg-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="crm-workshop-modal__body">
+        <p id="crm-mock-reg-loading" class="enrollment-loading" hidden>Loading registrations…</p>
+        <p id="crm-mock-reg-error" class="enrollment-error" hidden></p>
+        <div id="crm-mock-reg-list" class="crm-workshop-modal__list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="crm-course-fee-modal"
+    class="crm-batch-modal crm-course-fee-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-course-fee-modal-title"
+  >
+    <div class="crm-batch-modal__backdrop" data-crm-course-fee-close tabindex="-1"></div>
+    <div class="crm-batch-modal__dialog">
+      <div class="crm-batch-modal__head">
+        <div>
+          <h3 id="crm-course-fee-modal-title">Course fee update</h3>
+          <p class="crm-batch-modal__lead">Enter rupees for each programme, then save.</p>
+        </div>
+        <button type="button" class="crm-batch-modal__close" data-crm-course-fee-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="crm-batch-modal__body">
+        <p id="crm-course-fee-error" class="crm-batch-modal__error" hidden></p>
+        <form id="crm-course-fee-form" class="crm-batch-form crm-course-fee-form" novalidate>
+          <input type="hidden" id="crm-course-fee-id" name="id" value="" />
+          <div class="crm-batch-form__field">
+            <label for="crm-fee-clat-2027-online">CLAT 2027 Online</label>
+            <input id="crm-fee-clat-2027-online" name="clat_2027_online" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 75000" />
+          </div>
+          <div class="crm-batch-form__field">
+            <label for="crm-fee-clat-2027-offline">CLAT 2027 Offline</label>
+            <input id="crm-fee-clat-2027-offline" name="clat_2027_offline" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 90000" />
+          </div>
+          <div class="crm-batch-form__field">
+            <label for="crm-fee-clat-2028-offline">CLAT 2028 Offline</label>
+            <input id="crm-fee-clat-2028-offline" name="clat_2028_offline" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 85000" />
+          </div>
+          <div class="crm-batch-form__field">
+            <label for="crm-fee-clat-2027-crash">CLAT 2027 Offline Crash</label>
+            <input id="crm-fee-clat-2027-crash" name="clat_2027_offline_crash" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 35000" />
+          </div>
+          <div class="crm-batch-form__field crm-course-fee-form__field--full">
+            <label for="crm-fee-clat-2027-repeater">CLAT 2027 Offline Repeater</label>
+            <input id="crm-fee-clat-2027-repeater" name="clat_2027_offline_repeater" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 80000" />
+          </div>
+          <button type="submit" class="crm-batch-form__submit" id="crm-course-fee-submit">
+            <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js?v=20260917mock1"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js?v=20260723b"></script>
   <script src="../js/crm-branch-scope.js?v=20260726yel1"></script>
@@ -459,6 +549,8 @@
   <script src="../js/crm-dashboard-pending-requests.js"></script>
   <script src="../js/friendly-popup.js"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
+  <script src="../js/crm-dashboard-mock-registrations.js?v=20260917mock1"></script>
+  <script src="../js/crm-dashboard-course-fee.js?v=20260917fee4"></script>
   <script src="../js/crm-dashboard-installments.js?v=20260827fees1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

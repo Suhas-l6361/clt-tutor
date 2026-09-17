@@ -1294,6 +1294,14 @@ body.crm-overdue-branch-modal-open {
 .crm-workshop-modal__list .enrollment-table {
   min-width: 1100px;
 }
+.crm-mock-reg-table a {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+.crm-mock-reg-table a:hover {
+  text-decoration: underline;
+}
 .crm-workshop-modal .enrollment-table__td-message {
   max-width: 240px;
   white-space: normal;
@@ -3213,5 +3221,22 @@ body.crm-overdue-branch-modal-open {
 }
 body.crm-batch-modal-open {
   overflow: hidden;
+}
+
+.crm-course-fee-modal .crm-batch-modal__dialog {
+  width: min(100%, 560px);
+  max-height: min(92vh, 720px);
+}
+.crm-course-fee-form {
+  grid-template-columns: 1fr 1fr;
+}
+.crm-course-fee-form__field--full,
+.crm-course-fee-form .crm-batch-form__submit {
+  grid-column: 1 / -1;
+}
+@media (max-width: 560px) {
+  .crm-course-fee-form {
+    grid-template-columns: 1fr;
+  }
 }
 

@@ -68,6 +68,10 @@
   border-color: #d5b14a;
 }
 
+#crm-course-fee-btn[hidden] {
+  display: none !important;
+}
+
 .enrollment-btn.is-active {
   outline: 2px solid #ca8a04;
   outline-offset: 2px;

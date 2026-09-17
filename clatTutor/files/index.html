@@ -15,11 +15,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/header-nav.css" />
-  <link rel="stylesheet" href="css/index.css?v=20260825sideinfo" />
-  <link rel="stylesheet" href="css/modal.css?v=20260715m2" />
+  <link rel="stylesheet" href="css/index.css?v=20260917sidecard" />
+  <link rel="stylesheet" href="css/modal.css?v=20260917enrollneat4" />
   <link rel="stylesheet" href="css/pyq-modal.css" />
   <link rel="stylesheet" href="css/pyq-book-loader.css" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
@@ -96,7 +96,7 @@
   <script src="js/site-protection.js" data-protection-mode="public" defer></script>
   <script src="js/branch-home.js" defer></script>
   <script src="js/hero-testimonials-carousel.js" defer></script>
-  <script src="js/home-slider.js?v=20260825slidefill" defer></script>
+  <script src="js/home-slider.js?v=20260917banner34" defer></script>
 </head>
 <body class="page-public">
   <div class="site-top-bars" id="site-top-bars">
@@ -324,15 +324,17 @@
       <div class="ws-home-offer__copy">
         <div class="ws-home-offer__top">
           <span class="ws-home-offer__live">Seats filling fast</span>
-          <span class="ws-home-offer__exam">CLAT Dec 2026</span>
+          <span class="ws-home-offer__exam">CLAT Dec 2027</span>
         </div>
-        <div class="ws-home-mini-slider" data-home-slider aria-label="Featured slides">
+        <div class="ws-home-mini-slider" data-home-slider aria-label="Featured banners">
           <div class="ws-home-mini-slider__viewport">
             <div class="ws-home-mini-slider__slide is-active" data-home-slide aria-hidden="false">
               <a class="ws-home-mini-slider__link" href="html_files/admission.html">
                 <img
-                  src="image/slide%20one.jpeg"
-                  alt="CLAT Score Booster Series. Click to enroll."
+                  src="image/banner3.jpg"
+                  alt="CLATutor banner. Click to enroll."
+                  width="1200"
+                  height="675"
                   decoding="async"
                 />
               </a>
@@ -340,16 +342,18 @@
             <div class="ws-home-mini-slider__slide" data-home-slide aria-hidden="true">
               <a class="ws-home-mini-slider__link" href="html_files/admission.html">
                 <img
-                  src="image/slide%202.jpeg"
-                  alt="Online programmes for CLAT. Click to enroll."
+                  src="image/banner4.jpg"
+                  alt="CLATutor banner. Click to enroll."
+                  width="1200"
+                  height="675"
                   decoding="async"
                 />
               </a>
             </div>
           </div>
-          <div class="ws-home-mini-slider__dots" role="group" aria-label="Choose slide">
-            <button type="button" class="ws-home-mini-slider__dot is-active" data-home-slider-dot aria-label="Show slide 1" aria-current="true"></button>
-            <button type="button" class="ws-home-mini-slider__dot" data-home-slider-dot aria-label="Show slide 2"></button>
+          <div class="ws-home-mini-slider__dots" role="group" aria-label="Choose banner">
+            <button type="button" class="ws-home-mini-slider__dot is-active" data-home-slider-dot aria-label="Show banner 3" aria-current="true"></button>
+            <button type="button" class="ws-home-mini-slider__dot" data-home-slider-dot aria-label="Show banner 4"></button>
           </div>
         </div>
       </div>
@@ -357,29 +361,26 @@
       <aside class="ws-home-offer__visual" aria-label="Batch details and enrollment">
         <div class="ws-home-side">
           <p class="ws-home-side__eyebrow">New batch opening</p>
-          <h2 class="ws-home-side__title">CLAT Dec 2026 / 2027</h2>
+          <h2 class="ws-home-side__title">CLAT Dec 2027</h2>
           <p class="ws-home-side__date">
             <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-            <span>Starts <strong>7 September</strong></span>
+            <span>Starts from <strong>25th September</strong></span>
           </p>
           <ul class="ws-home-side__facts">
-            <li>
-              <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-              <span><strong>NLS faculty</strong> Expert classroom guidance</span>
+            <li class="ws-home-side__fact ws-home-side__fact--gold">
+              <span class="ws-home-side__icon" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
+              <span><strong>NLS Faculty</strong> Learn from the Best</span>
             </li>
-            <li>
-              <i class="fa-solid fa-star" aria-hidden="true"></i>
+            <li class="ws-home-side__fact ws-home-side__fact--blue">
+              <span class="ws-home-side__icon" aria-hidden="true"><i class="fa-solid fa-star"></i></span>
               <span><strong>Since 2008</strong> Bangalore’s trusted coaching</span>
             </li>
-            <li>
-              <i class="fa-solid fa-users" aria-hidden="true"></i>
-              <span><strong>50+ seats</strong> per centre</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
-              <span><strong>Mocks &amp; analysis</strong> Latest CLAT pattern</span>
+            <li class="ws-home-side__fact ws-home-side__fact--pink">
+              <span class="ws-home-side__icon" aria-hidden="true"><i class="fa-solid fa-user-group"></i></span>
+              <span><strong>NOT Franchise Owned</strong> Run by Faculty team</span>
             </li>
           </ul>
+          <p class="ws-home-side__tagline">Guidance Today. <em>A Brighter Tomorrow.</em></p>
           <a class="ws-home-offer__cta" href="html_files/admission.html">
             <span class="ws-home-offer__cta-label">Enroll now</span>
             <span class="ws-home-offer__cta-arrow" aria-hidden="true">
@@ -1533,15 +1534,17 @@
           '  <button type="button" class="enroll-modal__close" data-close="true" aria-label="Close popup">' +
           '    <i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
           '  </button>' +
-          '  <div class="enroll-modal__content">' +
-          '    <div class="enroll-modal__badge"><img src="image/Clat%20Logo.png" alt="" class="enroll-modal__badge-icon" width="14" height="14" loading="lazy" /> CLAT Dec 2026/2027</div>' +
+          '  <div class="enroll-modal__head">' +
+          '    <div class="enroll-modal__badge"><img src="image/Clat%20Logo.png" alt="" class="enroll-modal__badge-icon" width="14" height="14" loading="lazy" /> CLAT Dec 2027</div>' +
           '    <h2 id="enroll-modal-title" class="enroll-modal__title">Your NLS Journey <span>Starts Here</span></h2>' +
           '    <p class="enroll-modal__quote">The students who rise highest are the ones who start before everyone else.</p>' +
+          '  </div>' +
+          '  <div class="enroll-modal__content">' +
           '    <div class="enroll-modal__date">' +
           '      <span class="enroll-modal__date-icon" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>' +
           '      <div class="enroll-modal__date-copy">' +
           '        <span class="enroll-modal__date-label">New batch opens</span>' +
-          '        <span class="enroll-modal__date-value">15th September · CLAT Dec 2026/2027</span>' +
+          '        <span class="enroll-modal__date-value">25th September · CLAT Dec 2027</span>' +
           '      </div>' +
           '    </div>' +
           '    <ul class="enroll-modal__list">' +
@@ -1549,10 +1552,10 @@
           '      <li><span class="enroll-modal__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span><span>Seats are filling fast. Take the first step today.</span></li>' +
           '      <li><span class="enroll-modal__check" aria-hidden="true"><i class="fa-solid fa-check"></i></span><span>Call <a class="enroll-modal__tel" href="tel:8150884422">8150884422</a> or enroll below to lock your spot.</span></li>' +
           '    </ul>' +
-          '    <div class="enroll-modal__cta">' +
-          '      <a href="html_files/admission.html" class="enroll-modal__cta-btn"><span>Enroll Now</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
-          '      <p class="enroll-modal__hint">Free counselling · Confirm in under 2 minutes</p>' +
-          '    </div>' +
+          '  </div>' +
+          '  <div class="enroll-modal__cta">' +
+          '    <a href="html_files/admission.html" class="enroll-modal__cta-btn"><span>Enroll Now</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
+          '    <p class="enroll-modal__hint">Free counselling · Confirm in under 2 minutes</p>' +
           '  </div>' +
           '</div>';
         document.body.appendChild(modal);
@@ -1627,11 +1630,12 @@
         if (nextBtn) {
           nextBtn.addEventListener('click', function () {
             if (page < maxPage) {
+              
               page += 1;
               render();
             }
           });
-        }
+        } 
 
         render();
       }

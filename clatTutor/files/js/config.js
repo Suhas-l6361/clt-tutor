@@ -63,10 +63,15 @@ const APP_CONFIG = {
   /** Public site + CRM — July GK workshop registration */
   JULY_WORKSHOP_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/julyWorkshop',
+  /** Public site — September mock test registration */
+  MOCK_REG_SEP_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/mockRegSep',
   /** CRM — leads capture + pipeline */
   LEADS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/leads',
   /** CRM — branch batches (create / history) */
   BATCHES_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/batches',
+  /** CRM / public — course fees (GET public, POST/PUT/DELETE CRM JWT). Deploy extra_quries */
+  COURSES_FEE_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/coursesFee',
   /** CRM — assign students to a branch batch (log only; does not update general_info) */
   ASSIGN_STUDENT_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',

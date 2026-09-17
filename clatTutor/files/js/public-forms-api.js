@@ -181,6 +181,84 @@
       }
       return postJson(u, payload);
     },
+    postMockRegSep: function (payload) {
+      var u = C.MOCK_REG_SEP_API;
+      if (!u) {
+        return Promise.resolve({
+          ok: false,
+          status: 0,
+          data: { message: 'MOCK_REG_SEP_API not configured' },
+        });
+      }
+      var body = payload && typeof payload === 'object' ? Object.assign({}, payload) : {};
+      var name = sanitizePlainText(body.name, 100);
+      var email = String(body.email || '')
+        .trim()
+        .toLowerCase()
+        .slice(0, 100);
+      var studentClass = sanitizePlainText(body.class, 20);
+      var location = sanitizePlainText(
+        body.prefeered_location != null ? body.prefeered_location : body.preferred_location,
+        50,
+      );
+      if (!name || name.length < 2) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter your full name (2–100 characters).' },
+        });
+      }
+      if (!/^[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@gmail\.com$/i.test(email)) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter a valid Gmail address ending with @gmail.com.' },
+        });
+      }
+      var mobileDigits = normalizeIndianMobile10(body.mobile_number);
+      if (!INDIAN_MOBILE_10_RE.test(mobileDigits)) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter a valid 10-digit mobile starting with 6, 7, 8, or 9.' },
+        });
+      }
+      var whatsappRaw = body.whatsapp_number;
+      var whatsappNumber = null;
+      if (whatsappRaw != null && String(whatsappRaw).trim() !== '') {
+        var whatsappDigits = normalizeIndianMobile10(whatsappRaw);
+        if (!INDIAN_MOBILE_10_RE.test(whatsappDigits)) {
+          return Promise.resolve({
+            ok: false,
+            status: 400,
+            data: { message: 'Enter a valid 10-digit WhatsApp number, or leave it blank.' },
+          });
+        }
+        whatsappNumber = Number(whatsappDigits);
+      }
+      if (!studentClass) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Select your class.' },
+        });
+      }
+      if (!location) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Select a preferred centre.' },
+        });
+      }
+      return postJson(u, {
+        name: name,
+        email: email,
+        mobile_number: Number(mobileDigits),
+        whatsapp_number: whatsappNumber,
+        class: studentClass,
+        prefeered_location: location,
+      });
+    },
     postJulyWorkshop: function (payload) {
       var u = C.JULY_WORKSHOP_API;
       if (!u) {

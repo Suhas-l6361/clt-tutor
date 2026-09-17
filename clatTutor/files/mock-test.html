@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CLATutor weekly CLAT mock tests. Three online mocks and two centre mocks every week. First five tests free. Register for Malleswaram, Jayanagar or Yelahanka." />
+  <title>Weekly CLAT Mock Tests — CLATutor</title>
+  <link rel="icon" type="image/png" href="image/Clat%20Logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/mock-test.css?v=20260917b" />
+  <link rel="stylesheet" href="css/friendly-popup.css" />
+  <script src="js/site-protection.js" data-protection-mode="public"></script>
+</head>
+<body>
+  <main class="mt-page">
+    <section class="mt-form-card" aria-labelledby="mt-reg-title">
+      <header class="mt-form-head">
+        <img src="image/Clat%20Logo.png" alt="CLATutor" width="48" height="48" />
+        <div>
+          <p class="mt-kicker">CLATutor weekly mock tests</p>
+          <h1 id="mt-reg-title">Student registration</h1>
+          <p>Enter your details below to register for the mock-test programme.</p>
+        </div>
+      </header>
+
+      <form id="mt-reg-form" class="mt-form" novalidate>
+        <div class="mt-form__hp" aria-hidden="true">
+          <label for="mt-reg-website">Website</label>
+          <input id="mt-reg-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="mt-form__grid">
+          <div class="mt-field mt-field--full">
+            <label for="mt-reg-name">Full name</label>
+            <input id="mt-reg-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="100" placeholder="Your full name" />
+          </div>
+          <div class="mt-field">
+            <label for="mt-reg-mobile">Mobile number</label>
+            <input id="mt-reg-mobile" name="mobile_number" type="tel" inputmode="numeric" autocomplete="tel" required minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" title="Enter a 10-digit Indian mobile number starting with 6, 7, 8, or 9." placeholder="10-digit mobile" />
+          </div>
+          <div class="mt-field">
+            <label for="mt-reg-whatsapp">WhatsApp number</label>
+            <input id="mt-reg-whatsapp" name="whatsapp_number" type="tel" inputmode="numeric" minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" title="Enter a 10-digit WhatsApp number starting with 6, 7, 8, or 9." placeholder="Optional" />
+            <label class="mt-check">
+              <input type="checkbox" id="mt-whatsapp-same" />
+              Same as mobile
+            </label>
+          </div>
+          <div class="mt-field mt-field--full">
+            <label for="mt-reg-email">Gmail address</label>
+            <input id="mt-reg-email" name="email" type="email" autocomplete="email" required maxlength="100" pattern="[a-zA-Z0-9._%+\-]+@gmail\.com" title="Enter a valid email address ending with @gmail.com." placeholder="name@gmail.com" />
+          </div>
+          <div class="mt-field">
+            <label for="mt-reg-class">Class</label>
+            <select id="mt-reg-class" name="class" required>
+              <option value="" disabled selected>Select class</option>
+              <option value="Class 11">Class 11</option>
+              <option value="Class 12">Class 12</option>
+              <option value="Graduate">Graduate</option>
+              <option value="Dropper">Dropper</option>
+            </select>
+          </div>
+          <div class="mt-field">
+            <label for="mt-reg-location">Preferred centre</label>
+            <select id="mt-reg-location" name="prefeered_location" required>
+              <option value="" disabled selected>Select centre</option>
+              <option value="Malleswaram">Malleswaram</option>
+              <option value="Jayanagar">Jayanagar</option>
+              <option value="Yelahanka">Yelahanka</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="mt-btn mt-btn--gold mt-form__submit" id="mt-reg-submit">
+          Submit registration
+        </button>
+        <p id="mt-reg-status" class="mt-status" role="status" aria-live="polite" hidden></p>
+      </form>
+      <p class="mt-help">Need help? Call <a href="tel:8747884422">8747884422</a></p>
+    </section>
+  </main>
+
+  <div id="mt-success-modal" class="mt-modal mt-modal--success" aria-hidden="true">
+    <div class="mt-modal__backdrop" data-mt-success-close tabindex="-1" aria-hidden="true"></div>
+    <div class="mt-success" role="dialog" aria-modal="true" aria-labelledby="mt-success-title">
+      <div class="mt-success__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></div>
+      <h2 id="mt-success-title">Registration successful</h2>
+      <p id="mt-success-text">You are registered for the weekly mock programme. Our team will share the next steps shortly.</p>
+      <button type="button" class="mt-btn mt-btn--navy" data-mt-success-close>Done</button>
+    </div>
+  </div>
+
+  <script src="js/config.js?v=20260917mock2"></script>
+  <script src="js/public-forms-api.js?v=20260917mock2"></script>
+  <script src="js/friendly-popup.js"></script>
+  <script src="js/mock-test-register.js?v=20260917mock2"></script>
+</body>
+</html>

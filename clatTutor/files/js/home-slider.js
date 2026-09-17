@@ -1,6 +1,6 @@
 /**
  * Compact homepage slider in the workshop heading slot.
- * Two images, auto-advance every 3 seconds.
+ * Banner 3 and banner 4, auto-advance every 3 seconds.
  */
 (function () {
   'use strict';
