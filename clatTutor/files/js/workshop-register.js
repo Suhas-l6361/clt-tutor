@@ -40,8 +40,8 @@
   };
 
   var LEAD_TEXT = {
-    info: 'Taught by NLS Bangalore faculty and rank holders. Workshop fee ₹49.',
-    branch: 'Online GK workshop — Sunday 10:00 AM to 2:30 PM. Offline Jayanagar — Saturday 3:00 PM to 7:00 PM.',
+    info: 'Legal Reasoning tricks from someone who aced CLAT at NLS & NALSAR. Workshop fee ₹49.',
+    branch: 'Jayanagar — Saturday 26 Sep 2026, 3:00 PM to 7:00 PM. Sunday session — 27 Sep 2026, 10:00 AM to 2:00 PM.',
     form: 'Pay ₹49, upload your payment screenshot, and share your details.',
   };
 

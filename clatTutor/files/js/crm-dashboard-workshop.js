@@ -1,5 +1,5 @@
 /**
- * CRM dashboard — August workshop registrations (all branches, all CRM users).
+ * CRM dashboard — September workshop registrations (all branches, all CRM users).
  * Opens in a large modal with close (X), backdrop, and Escape.
  * Payment screenshots resolve via get_download_url (same pattern as retrival.html).
  */
@@ -194,7 +194,7 @@
     var el = document.getElementById('crm-workshop-list');
     if (!el) return;
     if (!list.length) {
-      el.innerHTML = '<p class="enrollment-empty">No August registrations yet.</p>';
+      el.innerHTML = '<p class="enrollment-empty">No September workshop registrations yet.</p>';
       return;
     }
     var thead =
@@ -301,14 +301,14 @@
       .then(function (res) {
         return res.json().then(function (j) {
           if (!res.ok || !Array.isArray(j)) {
-            throw new Error((j && j.message) || 'Failed to load August registrations');
+            throw new Error((j && j.message) || 'Failed to load September workshop registrations');
           }
           rows = j;
           renderTable(rows);
         });
       })
       .catch(function (err) {
-        setError(err && err.message ? err.message : 'Could not load August registrations.');
+        setError(err && err.message ? err.message : 'Could not load September workshop registrations.');
       })
       .finally(function () {
         setLoading(false);
