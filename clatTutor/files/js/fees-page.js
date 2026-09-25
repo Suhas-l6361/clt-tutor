@@ -1851,6 +1851,34 @@
       });
   }
 
+  /** Clear payment, tuition, and installments without touching the selected student. */
+  function clearFeeEntryFields() {
+    clearFeesEditMode();
+    var idEl = document.getElementById('fees-receipt-id');
+    var dateEl = document.getElementById('fees-receipt-date');
+    if (idEl) idEl.textContent = '—';
+    if (dateEl) dateEl.textContent = '—';
+
+    setInputVal('fees-pay-mode', '');
+    var modeEl = document.getElementById('fees-pay-mode');
+    if (modeEl) modeEl.dispatchEvent(new Event('change', { bubbles: true }));
+    clearAllPaymentDetailFields();
+    setInputVal('fees-amount-words', '');
+    populatePaymentsFromHistory([]);
+    ensureDefaultPaymentRow();
+    setInputVal('fees-base', '');
+    setInputVal('fees-net-words', '');
+    var amtWords = document.getElementById('fees-amount-words');
+    var netWords = document.getElementById('fees-net-words');
+    if (amtWords) delete amtWords.dataset.touched;
+    if (netWords) delete netWords.dataset.touched;
+
+    populateInstallmentsFromPlan([]);
+    ensureDefaultInstallmentRow();
+    updateFeesActionsBar();
+    if (typeof updateTally === 'function') updateTally();
+  }
+
   function resetFeesFormForNewReceipt() {
     clearFeesEditMode();
     var idEl = document.getElementById('fees-receipt-id');
@@ -2885,6 +2913,7 @@
     var filtered = [];
     var isLoading = false;
     var hasLoaded = false;
+    var feeLoadSeq = 0;
 
     var disp = {
       name: document.getElementById('fees-disp-name'),
@@ -2927,6 +2956,107 @@
       showFeesStudentPhoto(s);
     }
 
+    function phoneDigits(value) {
+      var digits = String(value == null ? '' : value).replace(/\D/g, '');
+      if (digits.length > 10) digits = digits.slice(-10);
+      return digits;
+    }
+
+    function normName(value) {
+      return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+    }
+
+    function pickStudentReceipt(rows, student) {
+      var sid = student && student.student_id != null ? String(student.student_id).trim() : '';
+      var phones = {};
+      [student && student.phone, student && student.parents_number, student && student.parentsNumber].forEach(
+        function (phone) {
+          var digits = phoneDigits(phone);
+          if (digits) phones[digits] = true;
+        }
+      );
+      var name = normName(student && student.name);
+      var byId = [];
+      var byPhone = [];
+      var byName = [];
+      (rows || []).forEach(function (row) {
+        if (!row) return;
+        var rowId = row.student_id != null ? String(row.student_id).trim() : '';
+        if (sid && rowId && rowId === sid) {
+          byId.push(row);
+          return;
+        }
+        var rowPhone = phoneDigits(row.phone);
+        if (rowPhone && phones[rowPhone]) {
+          byPhone.push(row);
+          return;
+        }
+        if (name && normName(row.name) === name) byName.push(row);
+      });
+      var pool = byId.length ? byId : byPhone.length ? byPhone : byName;
+      return { row: pool[0] || null, count: pool.length };
+    }
+
+    function loadFeeDetails(s) {
+      var sid = s && s.student_id != null ? String(s.student_id).trim() : '';
+      var seq = ++feeLoadSeq;
+      clearFeeEntryFields();
+      fillDetail(s);
+      var api = getFeesApiUrl();
+      if (!api) {
+        setStatus('Fees API is not configured.', true);
+        return;
+      }
+      setStatus('Loading fee details…');
+      fetch(api, { method: 'GET', headers: { Accept: 'application/json' } })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { res: res, data: data };
+          });
+        })
+        .then(function (x) {
+          if (seq !== feeLoadSeq) return;
+          if (sid && String(hiddenId.value || '').trim() !== sid) return;
+          if (!x.res.ok || !Array.isArray(x.data)) {
+            throw new Error((x.data && x.data.message) || 'Could not load fee details.');
+          }
+          var list = x.data;
+          if (window.CrmBranchScope && CrmBranchScope.filterList) {
+            list = CrmBranchScope.filterList(list, function (row) {
+              return row && row.branch;
+            });
+          }
+          var picked = pickStudentReceipt(list, s);
+          if (!picked.row) {
+            var idEl = document.getElementById('fees-receipt-id');
+            var dateEl = document.getElementById('fees-receipt-date');
+            if (idEl) idEl.textContent = nextReceiptId();
+            if (dateEl) dateEl.textContent = formatReceiptDate(new Date());
+            setStatus('No fee receipt for this student yet. You can create one below.');
+            return;
+          }
+          var row = picked.row;
+          feesEditState.id = row.id;
+          feesEditState.email = row.email != null ? row.email : null;
+          populateFormFromRecord(row);
+          setFeesEditUi(true, row);
+          selectedLabel = String(search.value || s.name || '').trim();
+          fillDetail(s);
+          setStatus(
+            picked.count > 1
+              ? 'Showing the latest receipt. ' + picked.count + ' receipts are on file.'
+              : 'Fee details loaded.'
+          );
+        })
+        .catch(function (err) {
+          if (seq !== feeLoadSeq) return;
+          setStatus(err && err.message ? err.message : 'Could not load fee details.', true);
+        });
+    }
+
     function selectStudent(s) {
       if (!s) return;
       selectedLabel = String(s.name || '').trim();
@@ -2934,8 +3064,8 @@
       search.value = selectedLabel;
       closeList();
       fillDetail(s);
-      setStatus('');
       updateFeesActionsBar();
+      loadFeeDetails(s);
     }
 
     function filterList(q) {

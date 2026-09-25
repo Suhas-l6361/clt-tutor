@@ -71,22 +71,124 @@
     .lms-continue__text { margin: 0; font-size: 0.9rem; color: #334155; }
     .lms-continue__text strong { color: #0f172a; }
 
+    .lms-library__head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .lms-library__head h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+    .lms-library__head p { margin: 0; font-size: 0.8rem; color: #64748b; }
+    .lms-library[hidden] { display: none !important; }
+    .lms-library__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .yt-pl {
+      display: grid;
+      grid-template-columns: 176px minmax(0, 1fr);
+      gap: 0.85rem;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #e6eaf0;
+      border-radius: 14px;
+      padding: 0.7rem;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    }
+    .yt-pl:hover { border-color: #e6b800; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
+    .yt-pl__media {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      background: #0b0f14;
+    }
+    .yt-pl__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .yt-pl__badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 38%;
+      background: rgba(15, 23, 42, 0.78);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .yt-pl__badge i { font-size: 0.72rem; opacity: 0.9; }
+    .yt-pl__title {
+      display: block;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .yt-pl__meta {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .yt-pl__bar {
+      height: 4px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin-top: 0.55rem;
+    }
+    .yt-pl__bar-fill {
+      height: 100%;
+      background: #e6b800;
+      width: 0%;
+    }
+
     .lms-studio {
       display: grid;
-      grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.95fr);
-      gap: 1rem;
+      grid-template-columns: minmax(0, 1.7fr) minmax(300px, 380px);
+      gap: 0.85rem;
       align-items: start;
     }
+    .lms-studio[hidden] { display: none !important; }
+    .lms-back-bar {
+      grid-column: 1 / -1;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      border: 1px solid #e6b800;
+      background: #fffbeb;
+      color: #0f172a;
+      border-radius: 999px;
+      padding: 0.48rem 0.95rem;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lms-back-bar:hover { background: #fde68a; }
     .lms-player-card {
       background: #fff;
-      border: 1px solid var(--line);
+      border: 1px solid #e6eaf0;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
     }
     .lms-player-card__frame {
       position: relative;
-      background: #000;
+      background: #0b0f14;
       aspect-ratio: 16 / 9;
     }
     .lms-player-card__frame iframe {
@@ -98,6 +200,14 @@
       background: #000;
     }
     .lms-player-card__body { padding: 1rem 1.1rem 1.15rem; }
+    .lms-player-card__kicker {
+      margin: 0 0 0.25rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #946200;
+    }
     .lms-player-card__title { margin: 0 0 0.35rem; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
     .lms-player-card__meta {
       margin: 0 0 0.85rem;
@@ -141,47 +251,88 @@
 
     .lms-playlist-panel {
       background: #fff;
-      border: 1px solid var(--line);
+      border: 1px solid #e6eaf0;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
       display: flex;
       flex-direction: column;
-      max-height: min(72vh, 640px);
+      position: sticky;
+      top: 0.75rem;
+      height: min(78vh, 720px);
+      max-height: min(78vh, 720px);
     }
     .lms-playlist-panel__head {
-      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.75rem 0.85rem;
       border-bottom: 1px solid #eef2f7;
-      background: #f8fafc;
+      background: #fff;
     }
-    .lms-playlist-panel__head h3 { margin: 0 0 0.2rem; font-size: 0.95rem; }
-    .lms-playlist-panel__head p { margin: 0; font-size: 0.78rem; color: var(--muted); }
+    .lms-playlist-panel__titles { min-width: 0; flex: 1; }
+    .lms-playlist-kicker {
+      margin: 0 0 0.15rem;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #946200;
+    }
+    .lms-playlist-panel__head h3 { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .lms-playlist-panel__head p {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      white-space: nowrap;
+    }
     .lms-playlist-scroll {
       overflow-y: auto;
       flex: 1;
       min-height: 0;
+      background: #fafbfc;
+    }
+    .lms-playlist-scroll::-webkit-scrollbar { width: 8px; }
+    .lms-playlist-scroll::-webkit-scrollbar-thumb {
+      background: #d6dbe4;
+      border-radius: 999px;
     }
     .lms-playlist-item {
       display: grid;
-      grid-template-columns: 96px 1fr;
-      gap: 0.65rem;
+      grid-template-columns: 1.6rem 104px minmax(0, 1fr);
+      gap: 0.55rem;
+      align-items: center;
       width: 100%;
       border: 0;
-      border-bottom: 1px solid #f1f5f9;
-      background: #fff;
-      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid #eef2f7;
+      background: transparent;
+      padding: 0.55rem 0.7rem;
       text-align: left;
       cursor: pointer;
+      color: inherit;
+      font: inherit;
     }
-    .lms-playlist-item:hover { background: #f8fafc; }
-    .lms-playlist-item.is-active { background: #fffbeb; border-left: 3px solid #e6b800; }
-    .lms-playlist-item.is-done .lms-playlist-item__badge { background: #dcfce7; color: #166534; }
+    .lms-playlist-item:hover { background: #fff; }
+    .lms-playlist-item.is-active {
+      background: #fff;
+      box-shadow: inset 3px 0 0 #e6b800;
+    }
+    .lms-playlist-item__index {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-align: center;
+    }
+    .lms-playlist-item.is-active .lms-playlist-item__index { color: #946200; }
+    .lms-playlist-item.is-done .lms-playlist-item__index { color: #166534; }
     .lms-playlist-item__thumb {
       position: relative;
       border-radius: 8px;
       overflow: hidden;
       aspect-ratio: 16 / 9;
-      background: #e2e8f0;
+      background: #0b0f14;
     }
     .lms-playlist-item__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .lms-playlist-item__dur {
@@ -190,40 +341,47 @@
       bottom: 4px;
       font-size: 0.62rem;
       font-weight: 700;
-      background: rgba(0, 0, 0, 0.78);
+      letter-spacing: 0.01em;
+      background: rgba(0, 0, 0, 0.82);
       color: #fff;
-      padding: 0.12rem 0.3rem;
+      padding: 0.1rem 0.28rem;
       border-radius: 4px;
     }
-    .lms-playlist-item__body { min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
-    .lms-playlist-item__num { font-size: 0.68rem; font-weight: 700; color: #946200; text-transform: uppercase; }
+    .lms-playlist-item.is-active .lms-playlist-item__thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.28);
+    }
+    .lms-playlist-item__body { min-width: 0; display: flex; flex-direction: column; gap: 0.18rem; }
     .lms-playlist-item__name {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #0f172a;
-      line-height: 1.35;
+      line-height: 1.3;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .lms-playlist-item.is-active .lms-playlist-item__name { color: #111827; }
+    .lms-playlist-item__status {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .lms-playlist-item.is-active .lms-playlist-item__status { color: #946200; }
+    .lms-playlist-item.is-done .lms-playlist-item__status { color: #166534; }
     .lms-playlist-item__prog {
-      height: 3px;
+      height: 2px;
       border-radius: 999px;
       background: #e2e8f0;
       overflow: hidden;
+      margin-top: 0.15rem;
     }
     .lms-playlist-item__prog-fill { height: 100%; background: #e6b800; width: 0%; }
-    .lms-playlist-item__badge {
-      align-self: flex-start;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 0.15rem 0.4rem;
-      border-radius: 999px;
-      background: #f1f5f9;
-      color: #64748b;
-    }
+    .lms-playlist-item.is-done .lms-playlist-item__prog-fill { background: #22c55e; }
 
     .lms-file-hint {
       margin: 0;
@@ -239,12 +397,18 @@
     @media (max-width: 960px) {
       .lms-hero { grid-template-columns: 1fr; }
       .lms-hero__stats { grid-template-columns: repeat(3, 1fr); }
+      .lms-library__grid { grid-template-columns: 1fr; }
       .lms-studio { grid-template-columns: 1fr; }
-      .lms-playlist-panel { max-height: 420px; }
+      .lms-playlist-panel {
+        position: static;
+        height: auto;
+        max-height: 460px;
+      }
     }
     @media (max-width: 520px) {
       .lms-hero__stats { grid-template-columns: 1fr; }
-      .lms-playlist-item { grid-template-columns: 80px 1fr; }
+      .yt-pl { grid-template-columns: 132px minmax(0, 1fr); gap: 0.65rem; }
+      .lms-playlist-item { grid-template-columns: 1.4rem 84px minmax(0, 1fr); }
     }
   </style>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
@@ -257,7 +421,7 @@
           <p class="lms-hero__eyebrow">CLATutor LMS</p>
           <h2 class="lms-hero__title">CLAT Video Library</h2>
           <p class="lms-hero__sub">
-            Watch lessons at your pace. Progress, watch time, and resume position are saved for your account on this device.
+            Open a topic playlist, then play any lesson in the large player. Progress and resume stay saved on this device.
           </p>
         </div>
         <div class="lms-hero__stats" id="lms-hero-stats"></div>
@@ -275,9 +439,21 @@
         (e.g. <code>http://127.0.0.1:5501/...</code>) or HTTPS.
       </p>
 
-      <div class="lms-studio">
+      <section class="lms-library" id="lms-library" aria-label="Topic playlists">
+        <div class="lms-library__head">
+          <h3>Playlists</h3>
+          <p id="lms-library-count">Choose a topic</p>
+        </div>
+        <div class="lms-library__grid" id="lms-library-grid"></div>
+      </section>
+
+      <div class="lms-studio" id="lms-studio" hidden>
+        <button type="button" class="lms-back-bar" id="lms-back-playlists">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          Back to playlists
+        </button>
         <section class="lms-player-card" aria-label="Video player">
-          <div class="lms-player-card__frame">
+          <div class="lms-player-card__frame" id="lms-player-slot">
             <iframe
               id="lms-player-iframe"
               title="Course video player"
@@ -287,6 +463,7 @@
             ></iframe>
           </div>
           <div class="lms-player-card__body">
+            <p class="lms-player-card__kicker">Now playing</p>
             <h3 class="lms-player-card__title" id="lms-now-title">Select a lesson to start</h3>
             <p class="lms-player-card__meta" id="lms-now-meta"></p>
             <div class="lms-player-card__bar" aria-hidden="true">
@@ -308,8 +485,11 @@
 
         <aside class="lms-playlist-panel" aria-label="Course playlist">
           <div class="lms-playlist-panel__head">
-            <h3>Course playlist</h3>
-            <p id="lms-playlist-summary">13 lessons · CLAT prep</p>
+            <div class="lms-playlist-panel__titles">
+              <p class="lms-playlist-kicker">Playlist</p>
+              <h3 id="lms-playlist-title">CLAT Prep</h3>
+            </div>
+            <p id="lms-playlist-summary">1 / 3</p>
           </div>
           <div class="lms-playlist-scroll" id="lms-playlist"></div>
         </aside>
@@ -330,24 +510,52 @@
       var COURSE_ID = 'clat-youtube-library';
       var COMPLETE_RATIO = 0.9;
 
-      var LESSONS = [
-        { id: 'PrBln1_3ZcA', title: 'CLAT Prep — Lesson 1' },
-        { id: 'qS5LB_2JPGw', title: 'CLAT Prep — Lesson 2' },
-        { id: '9rsEsT3YceM', title: 'CLAT Prep — Lesson 3' },
-        { id: 'capohu3KbF4', title: 'CLAT Prep — Lesson 4' },
-        { id: 'vYv9HuoarH4', title: 'CLAT Prep — Lesson 5' },
-        { id: 'WybQpZALnuk', title: 'CLAT Prep — Lesson 6' },
-        { id: 'Sv7F59slRwk', title: 'CLAT Prep — Lesson 7' },
-        { id: 'WNdbdWHrx1w', title: 'CLAT Prep — Lesson 8' },
-        { id: '3C45k3M3a8g', title: 'CLAT Prep — Lesson 9' },
-        { id: 'g9PUAl_eris', title: 'CLAT Prep — Lesson 10' },
-        { id: '452yYjwaQs8', title: 'CLAT Prep — Lesson 11' },
-        { id: 'uFQSV0s-nOE', title: 'CLAT Prep — Lesson 12' },
-        { id: 'hrtGl8oxWcU', title: 'CLAT Prep — Lesson 13' },
+      var PLAYLISTS = [
+        { id: 'torts', title: 'Torts', blurb: 'Nature of a tort, major torts, and defences.' },
+        { id: 'criminal', title: 'Criminal Law', blurb: 'Four-part criminal law series.' },
+        { id: 'constitution', title: 'Constitution', blurb: 'Constituent Assembly, sources, and the Preamble.' },
+        { id: 'contracts', title: 'Law of Contracts', blurb: 'Three-part law of contracts series.' },
       ];
+
+      var LESSONS = [
+        { playlist: 'torts', title: 'Torts I ( Nature of Torts )', url: 'https://youtu.be/PrBln1_3ZcA' },
+        { playlist: 'torts', title: 'Torts II ( Major Torts )', url: 'https://youtu.be/qS5LB_2JPGw' },
+        { playlist: 'torts', title: 'Torts III ( Defence )', url: 'https://youtu.be/9rsEsT3YceM' },
+        { playlist: 'criminal', title: 'Criminal Law : Part I', url: 'https://youtu.be/capohu3KbF4' },
+        { playlist: 'criminal', title: 'Criminal Law : Part II', url: 'https://youtu.be/vYv9HuoarH4' },
+        { playlist: 'criminal', title: 'Criminal Law : Part III', url: 'https://youtu.be/WybQpZALnuk' },
+        { playlist: 'criminal', title: 'Criminal Law : Part IV', url: 'https://youtu.be/Sv7F59slRwk' },
+        { playlist: 'constitution', title: 'Constitution : Part 1 (Constituent Assembly)', url: 'https://youtu.be/WNdbdWHrx1w' },
+        { playlist: 'constitution', title: 'Constitution: Part 2 (Sources)', url: 'https://youtu.be/3C45k3M3a8g' },
+        { playlist: 'constitution', title: 'Constitution: Part 3 (Preamble)', url: 'https://youtu.be/g9PUAl_eris' },
+        { playlist: 'contracts', title: 'Law of Contracts: Part I', url: 'https://youtu.be/452yYjwaQs8' },
+        { playlist: 'contracts', title: 'Law of Contracts: Part II', url: 'https://youtu.be/uFQSV0s-nOE' },
+        { playlist: 'contracts', title: 'Law of Contracts: Part III', url: 'https://youtu.be/hrtGl8oxWcU' },
+      ];
+
+      function videoIdFromUrl(url) {
+        var text = String(url || '').trim();
+        var match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);
+        return match ? match[1] : text;
+      }
+
+      LESSONS.forEach(function (lesson) {
+        lesson.id = videoIdFromUrl(lesson.url);
+      });
 
       function ytThumb(id) {
         return 'https://img.youtube.com/vi/' + id + '/mqdefault.jpg';
+      }
+
+      function formatClock(sec) {
+        var s = Math.max(0, Math.floor(Number(sec) || 0));
+        if (!s) return '';
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var r = s % 60;
+        var rs = r < 10 ? '0' + r : String(r);
+        if (h > 0) return h + ':' + (m < 10 ? '0' : '') + m + ':' + rs;
+        return m + ':' + rs;
       }
 
       function formatDuration(sec) {
@@ -402,6 +610,12 @@
         var resumeBadge = document.getElementById('lms-resume-badge');
         var playlistEl = document.getElementById('lms-playlist');
         var playlistSummary = document.getElementById('lms-playlist-summary');
+        var playlistTitleEl = document.getElementById('lms-playlist-title');
+        var libraryEl = document.getElementById('lms-library');
+        var libraryGrid = document.getElementById('lms-library-grid');
+        var libraryCount = document.getElementById('lms-library-count');
+        var studioEl = document.getElementById('lms-studio');
+        var backBtn = document.getElementById('lms-back-playlists');
 
         var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
         var userKey =
@@ -422,11 +636,13 @@
 
         var isFileProtocol = window.location.protocol === 'file:';
         var activeIndex = 0;
+        var activePlaylistId = PLAYLISTS[0] ? PLAYLISTS[0].id : '';
         var player = null;
         var progressTimer = null;
         var ytApiReady = false;
         var pendingSeek = 0;
         var lastTickAt = 0;
+        var playSerial = 0;
 
         function getPageOrigin() {
           try {
@@ -437,7 +653,7 @@
         }
 
         function buildEmbedUrl(videoId, startSeconds) {
-          var params = ['rel=0', 'modestbranding=1', 'playsinline=1', 'enablejsapi=1'];
+          var params = ['rel=0', 'modestbranding=1', 'playsinline=1', 'enablejsapi=1', 'autoplay=1'];
           var start = Math.max(0, Math.floor(Number(startSeconds) || 0));
           if (start > 0) params.push('start=' + start);
           var origin = getPageOrigin();
@@ -452,9 +668,48 @@
           );
         }
 
+        function playerHost() {
+          return document.getElementById('lms-player-slot');
+        }
+
+        function ensureFrame() {
+          var slot = playerHost();
+          var frame = document.getElementById('lms-player-iframe');
+          if (frame && slot && slot.contains(frame)) {
+            iframe = frame;
+            return frame;
+          }
+          if (!slot) return null;
+          slot.innerHTML = '';
+          frame = document.createElement('iframe');
+          frame.id = 'lms-player-iframe';
+          frame.title = 'Course video player';
+          frame.setAttribute(
+            'allow',
+            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen'
+          );
+          frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+          frame.setAttribute('allowfullscreen', '');
+          slot.appendChild(frame);
+          iframe = frame;
+          return frame;
+        }
+
+        function playerIsLive() {
+          if (!player || typeof player.loadVideoById !== 'function') return false;
+          try {
+            var live = player.getIframe ? player.getIframe() : null;
+            var slot = playerHost();
+            return !!(live && slot && slot.contains(live));
+          } catch (_) {
+            return false;
+          }
+        }
+
         function applyDirectEmbed(videoId, startSeconds) {
-          if (!iframe || !videoId) return;
-          iframe.src = buildEmbedUrl(videoId, startSeconds);
+          var frame = ensureFrame();
+          if (!frame || !videoId) return;
+          frame.src = buildEmbedUrl(videoId, startSeconds);
         }
 
         function saveState() {
@@ -468,6 +723,43 @@
             if (LESSONS[i].id === id) return { lesson: LESSONS[i], index: i };
           }
           return null;
+        }
+
+        function playlistById(id) {
+          for (var i = 0; i < PLAYLISTS.length; i++) {
+            if (PLAYLISTS[i].id === id) return PLAYLISTS[i];
+          }
+          return null;
+        }
+
+        function lessonsInPlaylist(pid) {
+          var out = [];
+          LESSONS.forEach(function (lesson, index) {
+            if (lesson.playlist === pid) out.push({ lesson: lesson, index: index });
+          });
+          return out;
+        }
+
+        function localPosition(pid, globalIndex) {
+          var items = lessonsInPlaylist(pid);
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].index === globalIndex) return { local: i + 1, total: items.length, items: items };
+          }
+          return { local: 1, total: items.length, items: items };
+        }
+
+        function pickStartIndex(items) {
+          var i;
+          var vs;
+          for (i = 0; i < items.length; i++) {
+            vs = getVideoState(items[i].lesson.id);
+            if (!vs.completed && (vs.position || 0) > 3) return items[i].index;
+          }
+          for (i = 0; i < items.length; i++) {
+            vs = getVideoState(items[i].lesson.id);
+            if (!vs.completed) return items[i].index;
+          }
+          return items.length ? items[0].index : 0;
         }
 
         function getVideoState(videoId) {
@@ -533,10 +825,82 @@
             '<div class="lms-stat-card"><strong>' +
             overall +
             '%</strong><span>Progress</span></div>';
-          if (playlistSummary) {
-            playlistSummary.textContent =
-              LESSONS.length + ' lessons · ' + done + ' completed · ' + formatHours(watch) + ' watched';
+          var place = localPosition(activePlaylistId, activeIndex);
+          if (playlistSummary) playlistSummary.textContent = place.local + ' / ' + place.total;
+          if (libraryCount) libraryCount.textContent = PLAYLISTS.length + ' topics';
+        }
+
+        function renderLibrary() {
+          if (!libraryGrid) return;
+          libraryGrid.innerHTML = PLAYLISTS.map(function (pl) {
+            var items = lessonsInPlaylist(pl.id);
+            var done = 0;
+            items.forEach(function (item) {
+              if (getVideoState(item.lesson.id).completed) done++;
+            });
+            var pct = items.length ? Math.round((done / items.length) * 100) : 0;
+            var cover = items.length ? ytThumb(items[0].lesson.id) : '';
+            return (
+              '<button type="button" class="yt-pl" data-playlist="' +
+              escHtml(pl.id) +
+              '">' +
+              '<span class="yt-pl__media">' +
+              '<img src="' +
+              cover +
+              '" alt="" />' +
+              '<span class="yt-pl__badge"><span>' +
+              items.length +
+              '</span><i class="fa-solid fa-list" aria-hidden="true"></i></span>' +
+              '</span>' +
+              '<span>' +
+              '<span class="yt-pl__title">' +
+              escHtml(pl.title) +
+              '</span>' +
+              '<span class="yt-pl__meta">' +
+              items.length +
+              ' videos · ' +
+              done +
+              ' completed</span>' +
+              '<span class="yt-pl__bar" aria-hidden="true"><span class="yt-pl__bar-fill" style="width:' +
+              pct +
+              '%"></span></span>' +
+              '</span>' +
+              '</button>'
+            );
+          }).join('');
+        }
+
+        function showLibrary() {
+          stopProgressTimer();
+          try {
+            if (player && player.pauseVideo) player.pauseVideo();
+          } catch (_) {}
+          try {
+            syncFromPlayer();
+          } catch (_) {}
+          activePlaylistId = '';
+          if (libraryEl) libraryEl.hidden = false;
+          if (studioEl) studioEl.hidden = true;
+          renderLibrary();
+          renderHeroStats();
+          renderContinue();
+        }
+
+        function openPlaylist(pid, globalIndex) {
+          var pl = playlistById(pid);
+          var items = lessonsInPlaylist(pid);
+          if (!pl || !items.length) return;
+          activePlaylistId = pid;
+          if (playlistTitleEl) playlistTitleEl.textContent = pl.title;
+          if (libraryEl) libraryEl.hidden = true;
+          if (studioEl) studioEl.hidden = false;
+          var index = globalIndex;
+          var belongs = false;
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].index === index) belongs = true;
           }
+          if (!belongs) index = pickStartIndex(items);
+          playLesson(index, true);
         }
 
         function renderContinue() {
@@ -566,12 +930,22 @@
 
         function renderPlaylist() {
           if (!playlistEl) return;
-          playlistEl.innerHTML = LESSONS.map(function (lesson, idx) {
+          var items = lessonsInPlaylist(activePlaylistId);
+          playlistEl.innerHTML = items.map(function (item, localIdx) {
+            var lesson = item.lesson;
+            var idx = item.index;
             var vs = getVideoState(lesson.id);
             var pct = videoProgressPct(vs);
             var active = idx === activeIndex ? ' is-active' : '';
             var done = vs.completed ? ' is-done' : '';
-            var badge = vs.completed ? 'Done' : pct > 0 ? pct + '% watched' : 'Not started';
+            var status = vs.completed
+              ? 'Completed'
+              : idx === activeIndex
+                ? 'Now playing'
+                : pct > 0
+                  ? pct + '% watched'
+                  : 'Up next';
+            var clock = formatClock(vs.duration);
             return (
               '<button type="button" class="lms-playlist-item' +
               active +
@@ -579,25 +953,27 @@
               '" data-index="' +
               idx +
               '">' +
+              '<span class="lms-playlist-item__index">' +
+              (vs.completed ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : String(localIdx + 1)) +
+              '</span>' +
               '<span class="lms-playlist-item__thumb">' +
               '<img src="' +
               ytThumb(lesson.id) +
               '" alt="" loading="lazy" />' +
-              (vs.duration > 0 ? '<span class="lms-playlist-item__dur">' + formatDuration(vs.duration) + '</span>' : '') +
+              (clock ? '<span class="lms-playlist-item__dur">' + clock + '</span>' : '') +
               '</span>' +
               '<span class="lms-playlist-item__body">' +
-              '<span class="lms-playlist-item__num">Lesson ' +
-              (idx + 1) +
-              '</span>' +
               '<span class="lms-playlist-item__name">' +
               escHtml(lesson.title) +
               '</span>' +
-              '<span class="lms-playlist-item__prog"><span class="lms-playlist-item__prog-fill" style="width:' +
-              pct +
-              '%"></span></span>' +
-              '<span class="lms-playlist-item__badge">' +
-              badge +
+              '<span class="lms-playlist-item__status">' +
+              status +
               '</span>' +
+              (pct > 0
+                ? '<span class="lms-playlist-item__prog"><span class="lms-playlist-item__prog-fill" style="width:' +
+                  pct +
+                  '%"></span></span>'
+                : '') +
               '</span>' +
               '</button>'
             );
@@ -610,12 +986,16 @@
           var vs = getVideoState(lesson.id);
           var pct = videoProgressPct(vs);
           if (nowTitle) nowTitle.textContent = lesson.title;
+          var place = localPosition(lesson.playlist || activePlaylistId, activeIndex);
+          var pl = playlistById(lesson.playlist);
           if (nowMeta) {
             nowMeta.innerHTML =
-              '<span>Lesson ' +
-              (activeIndex + 1) +
+              '<span>' +
+              escHtml(pl ? pl.title : 'Playlist') +
+              ' · ' +
+              place.local +
               ' of ' +
-              LESSONS.length +
+              place.total +
               '</span>' +
               '<span>' +
               (vs.completed ? 'Completed' : pct + '% watched') +
@@ -740,9 +1120,11 @@
               }
             },
             onError: function () {
-              applyDirectEmbed(lesson.id, pendingSeek);
+              var current = LESSONS[activeIndex] || lesson;
+              applyDirectEmbed(current.id, pendingSeek);
             },
             onStateChange: function (ev) {
+              var current = LESSONS[activeIndex] || lesson;
               if (ev.data === window.YT.PlayerState.PLAYING) {
                 stopProgressTimer();
                 lastTickAt = Date.now();
@@ -759,14 +1141,21 @@
                 syncFromPlayer();
               }
               if (ev.data === window.YT.PlayerState.ENDED) {
-                var vs = getVideoState(lesson.id);
+                var vs = getVideoState(current.id);
                 vs.completed = true;
                 vs.position = vs.duration || vs.position;
                 saveState();
                 stopProgressTimer();
-                if (activeIndex < LESSONS.length - 1) {
+                var queue = lessonsInPlaylist(current.playlist || activePlaylistId);
+                var nextIndex = -1;
+                for (var qi = 0; qi < queue.length; qi++) {
+                  if (queue[qi].index === activeIndex && qi < queue.length - 1) {
+                    nextIndex = queue[qi + 1].index;
+                  }
+                }
+                if (nextIndex >= 0) {
                   setTimeout(function () {
-                    playLesson(activeIndex + 1, false);
+                    playLesson(nextIndex, false);
                   }, 800);
                 }
               }
@@ -782,10 +1171,11 @@
           if (fileHint) fileHint.hidden = true;
 
           var lesson = LESSONS[activeIndex];
-          if (!lesson || !iframe) return;
+          var serial = ++playSerial;
+          if (!lesson || !ensureFrame()) return;
           pendingSeek = Math.max(0, Math.floor(Number(startSeconds) || 0));
 
-          if (player && typeof player.loadVideoById === 'function') {
+          if (playerIsLive()) {
             try {
               player.loadVideoById({ videoId: lesson.id, startSeconds: pendingSeek });
               updateNowPlaying(showResumed && pendingSeek > 0);
@@ -793,21 +1183,23 @@
             } catch (_) {}
           }
 
+          if (player && typeof player.destroy === 'function') {
+            try {
+              player.destroy();
+            } catch (_) {}
+          }
+          player = null;
           applyDirectEmbed(lesson.id, pendingSeek);
           updateNowPlaying(showResumed && pendingSeek > 0);
 
           loadYouTubeApi().then(function () {
+            if (serial !== playSerial) return;
             if (!(window.YT && window.YT.Player)) return;
+            if (!LESSONS[activeIndex] || LESSONS[activeIndex].id !== lesson.id) return;
+            if (!ensureFrame()) return;
 
             try {
-              if (player && typeof player.destroy === 'function') {
-                try {
-                  player.destroy();
-                } catch (_) {}
-                player = null;
-              }
-
-              player = new window.YT.Player(iframe, {
+              player = new window.YT.Player('lms-player-iframe', {
                 events: attachPlayerEvents(lesson),
               });
             } catch (_) {
@@ -818,8 +1210,13 @@
 
         function playLesson(index, preferResume) {
           if (index < 0 || index >= LESSONS.length) return;
+          if (player && index !== activeIndex) syncFromPlayer();
+          stopProgressTimer();
           activeIndex = index;
           var lesson = LESSONS[index];
+          if (lesson.playlist) activePlaylistId = lesson.playlist;
+          var pl = playlistById(activePlaylistId);
+          if (playlistTitleEl && pl) playlistTitleEl.textContent = pl.title;
           var vs = getVideoState(lesson.id);
           var startAt = 0;
           if (preferResume !== false && !vs.completed && (vs.position || 0) > 3) {
@@ -827,11 +1224,14 @@
           }
           state.lastVideoId = lesson.id;
           saveState();
-          stopProgressTimer();
-          syncFromPlayer();
           renderPlaylist();
+          var activeRow = playlistEl && playlistEl.querySelector('.lms-playlist-item.is-active');
+          if (activeRow && activeRow.scrollIntoView) {
+            activeRow.scrollIntoView({ block: 'nearest' });
+          }
           bootPlayer(startAt, startAt > 3);
           updateNowPlaying(startAt > 3);
+          renderHeroStats();
           renderContinue();
         }
 
@@ -878,10 +1278,21 @@
             if (!state.lastVideoId) return;
             var found = lessonById(state.lastVideoId);
             if (!found) return;
-            playLesson(found.index, true);
+            openPlaylist(found.lesson.playlist, found.index);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           });
         }
+
+        if (libraryGrid) {
+          libraryGrid.addEventListener('click', function (e) {
+            var card = e.target.closest('[data-playlist]');
+            if (!card) return;
+            openPlaylist(card.getAttribute('data-playlist'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
+
+        if (backBtn) backBtn.addEventListener('click', showLibrary);
 
         if (markDoneBtn) markDoneBtn.addEventListener('click', markCurrentComplete);
         if (restartBtn) restartBtn.addEventListener('click', restartCurrent);
@@ -900,16 +1311,9 @@
 
         renderHeroStats();
         renderContinue();
-        renderPlaylist();
+        renderLibrary();
 
         if (isFileProtocol && fileHint) fileHint.hidden = false;
-
-        var startIndex = 0;
-        if (state.lastVideoId) {
-          var last = lessonById(state.lastVideoId);
-          if (last) startIndex = last.index;
-        }
-        playLesson(startIndex, true);
       });
     })();
   </script>
