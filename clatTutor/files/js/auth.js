@@ -38,7 +38,7 @@
     'dashboard.html',
     'students.html',
     'addTest.html',
-    'fetch-from-topranker.html',
+    'fetch-from-ITS.html',
     'testAnalysis.html',
     'fees.html',
     'attendance.html',
@@ -192,6 +192,9 @@
       }
       if (!this.isCounceler()) return true;
       const access = this.getCouncelerAccess();
+      if (file === 'fetch-from-ITS.html') {
+        return !!(access[file] || access['fetch-from-topranker.html']);
+      }
       return !!access[file];
     },
 
@@ -200,7 +203,9 @@
       const access = this.getCouncelerAccess();
       for (let i = 0; i < CRM_NAV_PAGES.length; i++) {
         const p = CRM_NAV_PAGES[i];
-        if (access[p]) return 'crm/' + p;
+        if (access[p] || (p === 'fetch-from-ITS.html' && access['fetch-from-topranker.html'])) {
+          return 'crm/' + p;
+        }
       }
       return 'crm/dashboard.html';
     },
@@ -217,7 +222,10 @@
         filtered = list.filter(function (l) {
           if (!l || !l.href) return false;
           if (l.href === 'addCounceler.html') return false;
-          return !!access[l.href];
+          return !!(
+            access[l.href] ||
+            (l.href === 'fetch-from-ITS.html' && access['fetch-from-topranker.html'])
+          );
         });
       }
       if (!this.canAccessBusinessEmail()) {

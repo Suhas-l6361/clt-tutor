@@ -10,7 +10,7 @@
     { key: 'dashboard.html', label: 'Overview' },
     { key: 'students.html', label: 'Add Data' },
     { key: 'addTest.html', label: 'Add Test' },
-    { key: 'fetch-from-topranker.html', label: 'Fetch Toprankers' },
+    { key: 'fetch-from-ITS.html', label: 'Fetch from ITS' },
     { key: 'testAnalysis.html', label: 'Test Results' },
     { key: 'fees.html', label: 'Fees' },
     { key: 'attendance.html', label: 'Attendance' },
@@ -74,7 +74,9 @@
   function setAccessCheckboxes(form, access) {
     var map = access && typeof access === 'object' ? access : {};
     form.querySelectorAll('input[name="access"]').forEach(function (cb) {
-      cb.checked = !!map[cb.value];
+      cb.checked =
+        !!map[cb.value] ||
+        (cb.value === 'fetch-from-ITS.html' && !!map['fetch-from-topranker.html']);
     });
   }
 
