@@ -70,8 +70,13 @@ const APP_CONFIG = {
   LEADS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/leads',
   /** CRM — branch batches (create / history) */
   BATCHES_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/batches',
+  /** CRM — student question feedback from the online test (GET/PUT CRM JWT, POST public) */
+  QUESTION_FEEDBACK_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/queationFeedback',
   /** CRM / public — course fees (GET public, POST/PUT/DELETE CRM JWT). Deploy extra_quries */
   COURSES_FEE_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/coursesFee',
+  /** Today's birthdays (GET public). POST sends a wish and needs a CRM JWT. */
+  BIRTHDAY_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/birthdayWish',
   /** CRM — assign students to a branch batch (log only; does not update general_info) */
   ASSIGN_STUDENT_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',

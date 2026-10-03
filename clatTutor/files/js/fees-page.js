@@ -392,6 +392,72 @@
     return 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/fees';
   }
 
+  var FEE_DELETE_EMAILS = {
+    'pranab.mehta@gmail.com': true,
+    'niraj.clatutor@gmai.com': true,
+    'niraj.clatutor@gmail.com': true,
+    'biplavmehta@gmail.com': true,
+  };
+
+  function currentLoginEmail() {
+    var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+    var user = session && session.user ? session.user : null;
+    return String((user && (user.email || user.login)) || '')
+      .trim()
+      .toLowerCase();
+  }
+
+  function canDeleteFeeRows() {
+    return !!FEE_DELETE_EMAILS[currentLoginEmail()];
+  }
+
+  function feesNotify(type, message) {
+    if (typeof window.showFriendlyPopup === 'function') {
+      window.showFriendlyPopup({
+        type: type === 'success' ? 'success' : 'error',
+        message: message,
+        durationMs: 4000,
+      });
+      return;
+    }
+    window.alert(message);
+  }
+
+  function hasSavedStudentReceipt() {
+    var sid = document.getElementById('fees-student-id');
+    var studentId = sid ? String(sid.value || '').trim() : '';
+    return !!(studentId && studentId !== '—' && feesEditState && feesEditState.id != null);
+  }
+
+  function applyFeeDeleteControls(root) {
+    var allow = canDeleteFeeRows();
+    var canRequest = !allow && hasSavedStudentReceipt();
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll('.fees-row-remove').forEach(function (btn) {
+      btn.hidden = !allow;
+    });
+    scope.querySelectorAll('.fees-request-delete').forEach(function (btn) {
+      btn.hidden = !canRequest;
+    });
+    document.querySelectorAll('.fees-th-action').forEach(function (th) {
+      th.textContent = allow ? 'Remove' : canRequest ? 'Request' : '';
+    });
+    var hint = document.getElementById('fees-install-remove-hint');
+    if (hint) {
+      if (allow) {
+        hint.hidden = false;
+        hint.innerHTML =
+          'Use <i class="fa-solid fa-trash-can" aria-hidden="true"></i> on a row to remove it when editing.';
+      } else if (canRequest) {
+        hint.hidden = false;
+        hint.textContent = 'Request delete is for this student’s saved receipt.';
+      } else {
+        hint.hidden = true;
+        hint.textContent = '';
+      }
+    }
+  }
+
   function formatDobDisplay(dob) {
     if (dob == null || dob === '') return '—';
     var d = new Date(dob);
@@ -703,12 +769,12 @@
       }
       var rm = row.querySelector('.fees-row-remove');
       if (rm) {
-        rm.hidden = false;
         var label = rows.length > 1 ? 'Remove payment ' + (i + 1) : 'Remove this payment';
         rm.setAttribute('aria-label', label);
         rm.title = label;
       }
     });
+    applyFeeDeleteControls(tbody);
   }
 
   function addPaymentRow(iso, amount, meta) {
@@ -961,6 +1027,7 @@
     });
 
     ensureDefaultPaymentRow();
+    applyFeeDeleteControls(tbody);
     recomputePaymentTotals();
   }
 
@@ -1648,6 +1715,7 @@
   }
 
   var feesEditState = { id: null, email: null };
+  var feesExportRows = [];
   var feesLastSavedPrintPayload = null;
 
   function setInputVal(id, val) {
@@ -1821,6 +1889,7 @@
         ? 'Update the fields below, then click Update to save changes to this receipt.'
         : 'Student, payment mode, and amount paid are set. Save your receipt — you can print right after a successful save.';
     }
+    applyFeeDeleteControls(document);
   }
 
   function clearFeesEditMode() {
@@ -1998,6 +2067,133 @@
       .catch(function (err) {
         window.alert(err && err.message ? err.message : 'Could not open fee record.');
       });
+  }
+
+  function excelDate(value) {
+    if (value == null || value === '') return '';
+    var text = String(value).slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+      var parts = text.split('-');
+      return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+    return formatReceiptDateFromApi(value) || text;
+  }
+
+  function excelPlan(plan) {
+    return parseInstallmentPlanList(plan)
+      .map(function (item, index) {
+        var due = item && (item.due_date != null ? item.due_date : item.dueDate);
+        var amount = item && item.amount != null ? String(item.amount).trim() : '';
+        if (!due && !amount) return '';
+        return index + 1 + '. ' + excelDate(due) + (amount ? ' — ' + amount : '');
+      })
+      .filter(Boolean)
+      .join('; ');
+  }
+
+  function excelPayments(history) {
+    return normalizePaymentHistory(history)
+      .map(function (item, index) {
+        var amount = item && item.amount != null ? String(item.amount).trim() : '';
+        var mode = item && item.mode ? String(item.mode) : '';
+        return (
+          index +
+          1 +
+          '. ' +
+          excelDate(item && item.date) +
+          (amount ? ' — ' + amount : '') +
+          (mode ? ' — ' + mode : '')
+        );
+      })
+      .join('; ');
+  }
+
+  function excelAmount(value) {
+    if (value == null || value === '') return '';
+    var number = parseFloat(String(value).replace(/,/g, '').trim());
+    return Number.isFinite(number) ? number : String(value);
+  }
+
+  function downloadFeesExcel() {
+    var rows = (feesExportRows || []).slice().sort(function (a, b) {
+      var branch = String((a && a.branch) || '').localeCompare(String((b && b.branch) || ''), undefined, {
+        sensitivity: 'base',
+      });
+      if (branch) return branch;
+      return String((b && b.receipt_date) || '').localeCompare(String((a && a.receipt_date) || ''));
+    });
+    if (!rows.length) {
+      feesNotify('error', 'Open fee history first. There is no fee data to download.');
+      return;
+    }
+    var data = rows.map(function (row) {
+      return {
+        'Receipt ID': row.receipt_id || '',
+        'Receipt date': excelDate(row.receipt_date),
+        'Student ID': row.student_id || '',
+        'Student name': row.name || '',
+        Phone: row.phone || '',
+        Email: row.email || '',
+        DOB: excelDate(row.dob),
+        Batch: row.batch || '',
+        Branch: row.branch || '',
+        Address: row.address || '',
+        'Payment mode': row.payement_mode || '',
+        'Payment date': excelDate(row.payment_date),
+        'Amount paid': excelAmount(row.amount_paid),
+        'Tuition fee': excelAmount(row.tution_fess),
+        'Amount in words': row.amount_in_words || '',
+        'Total in words': row.amount_in_words_total || '',
+        'Cheque no': row.cheque_no || '',
+        Bank: row.bank || row.DraweeBank || '',
+        'Transaction ID': row.transation_id || '',
+        'UPI transaction ID': row.upiTransation_id || '',
+        'Installment plan': excelPlan(row.installment_plan),
+        'Payments received': excelPayments(row.payment_history),
+        'Added by': row.added_by || '',
+      };
+    });
+    var today = new Date();
+    var stamp =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(today.getDate()).padStart(2, '0');
+    var filename = 'clatutor-fees-all-branches-' + stamp + '.xlsx';
+    if (window.XLSX && XLSX.utils) {
+      var worksheet = XLSX.utils.json_to_sheet(data);
+      worksheet['!cols'] = [
+        { wch: 22 },
+        { wch: 14 },
+        { wch: 12 },
+        { wch: 24 },
+        { wch: 14 },
+        { wch: 28 },
+        { wch: 12 },
+        { wch: 16 },
+        { wch: 16 },
+        { wch: 28 },
+        { wch: 16 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 28 },
+        { wch: 28 },
+        { wch: 14 },
+        { wch: 18 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 36 },
+        { wch: 36 },
+        { wch: 28 },
+      ];
+      var workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'All branches');
+      XLSX.writeFile(workbook, filename);
+      return;
+    }
+    feesNotify('error', 'Excel download is not available in this browser. Refresh and try again.');
   }
 
   function wireFeesHistory() {
@@ -2508,6 +2704,7 @@
             throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
           }
           var list = Array.isArray(x.j) ? x.j : [];
+          feesExportRows = list.slice();
           if (window.CrmBranchScope) {
             list = CrmBranchScope.filterList(list, function (r) {
               return r.branch;
@@ -2552,6 +2749,8 @@
     if (backdrop) backdrop.addEventListener('click', closeHistoryModal);
     if (applyBtn) applyBtn.addEventListener('click', applyHistoryFilter);
     if (resetBtn) resetBtn.addEventListener('click', resetHistoryFilter);
+    var excelBtn = document.getElementById('fees-history-excel');
+    if (excelBtn) excelBtn.addEventListener('click', downloadFeesExcel);
     if (searchEl) {
       searchEl.addEventListener('input', computeAndRenderHistory);
       searchEl.addEventListener('keydown', function (e) {
@@ -3035,6 +3234,7 @@
             var dateEl = document.getElementById('fees-receipt-date');
             if (idEl) idEl.textContent = nextReceiptId();
             if (dateEl) dateEl.textContent = formatReceiptDate(new Date());
+            applyFeeDeleteControls(document);
             setStatus('No fee receipt for this student yet. You can create one below.');
             return;
           }
@@ -3355,7 +3555,6 @@
       if (dateGroup) wireDateSelGroup(dateGroup);
       var rm = row.querySelector('.fees-row-remove');
       if (rm) {
-        rm.hidden = false;
         var label =
           rows.length > 1
             ? 'Remove installment ' + (i + 1)
@@ -3364,6 +3563,7 @@
         rm.title = label;
       }
     });
+    applyFeeDeleteControls(tbody);
   }
 
   function wireInstallments() {
@@ -3390,6 +3590,116 @@
     ensureDefaultInstallmentRow();
   }
 
+  function wireRequestDelete() {
+    var modal = document.getElementById('fees-request-delete-modal');
+    var reasonEl = document.getElementById('fees-request-delete-reason');
+    var submitBtn = document.getElementById('fees-request-delete-submit');
+    var cancelBtn = document.getElementById('fees-request-delete-cancel');
+    var backdrop = modal ? modal.querySelector('[data-fees-request-delete-close]') : null;
+    var form = document.getElementById('fees-receipt-form');
+    if (!modal || !form) return;
+    var sending = false;
+    var escHandler = null;
+
+    function closeModal() {
+      modal.hidden = true;
+      document.body.classList.remove('fees-print-offer-open');
+      if (escHandler) {
+        document.removeEventListener('keydown', escHandler);
+        escHandler = null;
+      }
+    }
+
+    function openModal() {
+      if (canDeleteFeeRows() || !hasSavedStudentReceipt()) {
+        feesNotify('error', 'Select a student with a saved receipt before requesting delete.');
+        return;
+      }
+      if (reasonEl) reasonEl.value = '';
+      modal.hidden = false;
+      document.body.classList.add('fees-print-offer-open');
+      escHandler = function (e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeModal();
+        }
+      };
+      document.addEventListener('keydown', escHandler);
+      if (reasonEl) reasonEl.focus();
+    }
+
+    form.addEventListener('click', function (e) {
+      var btn = e.target.closest('.fees-request-delete');
+      if (!btn || btn.hidden) return;
+      e.preventDefault();
+      openModal();
+    });
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (backdrop) backdrop.addEventListener('click', closeModal);
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function () {
+        if (sending) return;
+        var reason = reasonEl ? String(reasonEl.value || '').trim() : '';
+        if (!reason) {
+          feesNotify('error', 'Please enter a reason for delete.');
+          if (reasonEl) reasonEl.focus();
+          return;
+        }
+        if (feesEditState.id == null) {
+          feesNotify('error', 'Open a saved receipt from History before requesting delete.');
+          return;
+        }
+        var email = currentLoginEmail();
+        if (!email) {
+          feesNotify('error', 'Please sign in again before requesting delete.');
+          return;
+        }
+        var api = getFeesApiUrl();
+        if (!api) {
+          feesNotify('error', 'Fees API is not configured.');
+          return;
+        }
+        sending = true;
+        submitBtn.disabled = true;
+        fetch(api, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            action: 'request_delete',
+            id: feesEditState.id,
+            request_delete: true,
+            reasonDeleted: reason.slice(0, 50),
+            deleteFeebackBy: email.slice(0, 50),
+          }),
+        })
+          .then(function (res) {
+            return res.json().then(
+              function (data) {
+                return { ok: res.ok, data: data };
+              },
+              function () {
+                return { ok: res.ok, data: {} };
+              }
+            );
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              throw new Error((result.data && result.data.message) || 'Could not save the delete request.');
+            }
+            closeModal();
+            feesNotify('success', 'Delete request saved.');
+          })
+          .catch(function (err) {
+            feesNotify('error', (err && err.message) || 'Could not save the delete request.');
+          })
+          .then(function () {
+            sending = false;
+            submitBtn.disabled = false;
+          });
+      });
+    }
+  }
+
   function wireNumericOnlyAmounts() {
     enforceNumericInput(document.getElementById('fees-base'));
   }
@@ -3412,6 +3722,8 @@
     wireStudentPicker();
     wireInstallments();
     wirePayments();
+    wireRequestDelete();
+    applyFeeDeleteControls(document);
     wireNumericOnlyAmounts();
     wireTotals();
     wirePaymentWords();

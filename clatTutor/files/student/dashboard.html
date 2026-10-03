@@ -65,6 +65,45 @@
       align-items: center;
       gap: 0.55rem;
     }
+    .sd-birthdays {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+    .sd-birthdays[hidden] { display: none !important; }
+    .sd-bday-card {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: min(100%, 260px);
+      flex: 1 1 260px;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid #f3e2c2;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff8e8 0%, #ffffff 70%);
+    }
+    .sd-bday-card__photo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex: 0 0 auto;
+      background: #fff4d6;
+    }
+    .sd-bday-card__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sd-bday-card__kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #b45309;
+    }
+    .sd-bday-card__name {
+      margin: 0.12rem 0 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #111827;
+    }
     .sd-profile-btn {
       width: 38px;
       height: 38px;
@@ -786,6 +825,8 @@
         </div>
       </section>
 
+      <section id="sd-birthdays" class="sd-birthdays" hidden aria-label="Birthdays today"></section>
+
       <section class="sd-stats">
         <article class="sd-stat">
           <div class="sd-stat__icon">
@@ -1033,13 +1074,14 @@
   </div>
   <div id="app-root" class="app-shell"></div>
 
-  <script src="../js/config.js"></script>
+  <script src="../js/config.js?v=20261003bd2"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/student-access.js?v=20260903mock"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260903mock"></script>
   <script src="../js/student-chrome.js?v=20260903mock"></script>
+  <script src="../js/student-birthday.js?v=20261003bd2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

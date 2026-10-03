@@ -68,7 +68,8 @@
   border-color: #d5b14a;
 }
 
-#crm-course-fee-btn[hidden] {
+#crm-course-fee-btn[hidden],
+#crm-product-details-btn[hidden] {
   display: none !important;
 }
 

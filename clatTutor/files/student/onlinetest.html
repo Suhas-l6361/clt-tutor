@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
   <style>
     body.page-exam.exam-active .sidebar,
     body.page-exam.exam-active .sidebar-backdrop {
@@ -551,6 +552,12 @@
         font-size: 0.78rem;
       }
 
+      .exam-panel--review .exam-palette-next {
+        width: calc(100% - 1.2rem);
+        margin-left: 0.6rem;
+        margin-right: 0.6rem;
+      }
+
       .exam-panel--review .exam-legend {
         font-size: 0.68rem;
         padding: 0.5rem 0.6rem 0.65rem;
@@ -783,7 +790,7 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 0.45rem;
-      margin-bottom: 0.7rem;
+      margin-bottom: 0;
     }
     .exam-palette button {
       aspect-ratio: 1;
@@ -833,9 +840,77 @@
       color: #14532d;
     }
     .exam-palette-next {
+      display: flex;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      width: calc(100% - 1.5rem);
+      margin: 0.45rem 0.75rem 0.15rem;
+      padding: 0.5rem 0.4rem;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.25;
+      white-space: normal;
+    }
+    .exam-palette-next[hidden] {
+      display: none !important;
+    }
+
+    .exam-q-feedback {
+      flex-shrink: 0;
+      display: grid;
+      gap: 0.4rem;
+      padding: 0.65rem 0.75rem 0.75rem;
+      border-top: 1px solid rgba(234, 217, 163, 0.45);
+      background: rgba(255, 255, 255, 0.72);
+    }
+    .exam-q-feedback__label {
+      margin: 0;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #7a5d1a;
+    }
+    .exam-q-feedback__input {
+      width: 100%;
+      min-height: 4.2rem;
+      max-height: 6.5rem;
+      resize: vertical;
+      box-sizing: border-box;
+      border: 1px solid #e6d7a2;
+      border-radius: 10px;
+      padding: 0.45rem 0.55rem;
+      font: inherit;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #1f2937;
+      background: #fff;
+    }
+    .exam-q-feedback__input:focus {
+      outline: 2px solid #f5c400;
+      outline-offset: 1px;
+      border-color: #e6b800;
+    }
+    .exam-q-feedback__submit {
       width: 100%;
       justify-content: center;
-      font-weight: 600;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.6rem;
+    }
+    .exam-q-feedback__submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .exam-q-feedback__msg {
+      margin: 0;
+      font-size: 0.7rem;
+      line-height: 1.35;
+      color: #166534;
+    }
+    .exam-q-feedback__msg.is-error {
+      color: #b91c1c;
     }
 
     .exam-legend {
@@ -2522,9 +2597,23 @@
           <div class="exam-side__head">Review &amp; navigation</div>
           <div class="exam-palette-scroll">
             <div class="exam-palette" id="exam-palette"></div>
-            <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-next">
-              Show next question list
+          </div>
+          <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-next">
+            Show next question list
+          </button>
+          <div class="exam-q-feedback">
+            <p class="exam-q-feedback__label">Give feedback</p>
+            <textarea
+              id="exam-q-feedback-text"
+              class="exam-q-feedback__input"
+              maxlength="300"
+              rows="3"
+              placeholder="Write your feedback for this question"
+            ></textarea>
+            <button type="button" class="btn btn-exam-primary exam-q-feedback__submit" id="btn-q-feedback">
+              Submit
             </button>
+            <p class="exam-q-feedback__msg" id="exam-q-feedback-msg" hidden></p>
           </div>
           <div class="exam-legend">
             <div class="exam-legend__row"><span class="exam-dot exam-dot--a"></span> Answered</div>
@@ -2774,6 +2863,7 @@
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260903mock"></script>
   <script src="../js/student-chrome.js?v=20260903mock"></script>
+  <script src="../js/friendly-popup.js"></script>
   <script>
     (function () {
       function pad2(n) {
@@ -3420,8 +3510,152 @@
         var btnPrevQuestion = document.getElementById('btn-prev-question');
         var btnClear = document.getElementById('btn-clear');
         var btnPaletteNext = document.getElementById('btn-palette-next');
+        var feedbackTextEl = document.getElementById('exam-q-feedback-text');
+        var btnQFeedback = document.getElementById('btn-q-feedback');
+        var feedbackMsgEl = document.getElementById('exam-q-feedback-msg');
+        var feedbackDrafts = {};
+        var feedbackSending = false;
+        var QUESTION_FEEDBACK_API =
+          'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/queationFeedback';
         var palettePageStart = 0;
         var PALETTE_PAGE_SIZE = 10;
+
+        function setFeedbackMsg(text, isError) {
+          if (!feedbackMsgEl) return;
+          if (!text) {
+            feedbackMsgEl.hidden = true;
+            feedbackMsgEl.textContent = '';
+            feedbackMsgEl.classList.remove('is-error');
+            return;
+          }
+          feedbackMsgEl.hidden = false;
+          feedbackMsgEl.textContent = text;
+          feedbackMsgEl.classList.toggle('is-error', !!isError);
+        }
+
+        function showFeedbackPopup(type, message) {
+          setFeedbackMsg('');
+          if (typeof window.showFriendlyPopup === 'function') {
+            window.showFriendlyPopup({
+              type: type === 'success' ? 'success' : 'error',
+              message: message,
+              durationMs: 4000,
+            });
+            return;
+          }
+          setFeedbackMsg(message, type !== 'success');
+        }
+
+        function friendlyFeedbackError(err) {
+          var raw = err && err.message ? String(err.message).trim() : '';
+          if (/authentication required/i.test(raw)) {
+            return 'We could not save your feedback just now. Please try again in a moment.';
+          }
+          if (/failed to fetch|network|timed out/i.test(raw)) {
+            return 'Please check your connection and try again.';
+          }
+          if (raw && raw.length < 160) return raw;
+          return 'We could not save your feedback. Please try again.';
+        }
+
+        function feedbackAddedBy() {
+          var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+          var user = session && session.user ? session.user : null;
+          if (!user) return '';
+          var email = String(user.email || user.login || '').trim();
+          if (email) return email.slice(0, 50);
+          var name = String(user.name || '').trim();
+          var studentId = user.student_id != null ? String(user.student_id).trim() : '';
+          return (name || studentId).slice(0, 50);
+        }
+
+        function paperCodeForFeedback() {
+          var code = paper && paper.title != null ? String(paper.title).trim() : '';
+          if (!code && paper && paper.test_id != null) code = String(paper.test_id).trim();
+          return code.slice(0, 30);
+        }
+
+        function syncFeedbackBox() {
+          if (!feedbackTextEl) return;
+          var q = currentQ();
+          var key = q ? String(q.number) : '';
+          feedbackTextEl.value = key && feedbackDrafts[key] ? feedbackDrafts[key] : '';
+          setFeedbackMsg('');
+        }
+
+        function submitQuestionFeedback() {
+          if (feedbackSending || !feedbackTextEl) return;
+          var q = currentQ();
+          if (!q) return;
+          var text = String(feedbackTextEl.value || '').trim();
+          if (!text) {
+            showFeedbackPopup('error', 'Please write your feedback before submitting.');
+            feedbackTextEl.focus();
+            return;
+          }
+          var paperCode = paperCodeForFeedback();
+          if (!paperCode) {
+            showFeedbackPopup('error', 'This question paper is not ready yet. Please try again.');
+            return;
+          }
+          var addedBy = feedbackAddedBy();
+          if (!addedBy) {
+            showFeedbackPopup('error', 'Please sign in as a student to send feedback.');
+            return;
+          }
+          var queationNumber = Number(q.number);
+          if (!Number.isFinite(queationNumber) || queationNumber <= 0) {
+            showFeedbackPopup('error', 'We could not find this question number.');
+            return;
+          }
+
+          feedbackSending = true;
+          if (btnQFeedback) {
+            btnQFeedback.disabled = true;
+            btnQFeedback.textContent = 'Submitting…';
+          }
+          fetch(QUESTION_FEEDBACK_API, {
+            method: 'POST',
+            credentials: 'omit',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paperCode: paperCode,
+              queationNumber: queationNumber,
+              feedBack: text.slice(0, 300),
+              added_by: addedBy,
+            }),
+          })
+            .then(function (r) {
+              return r.json().then(
+                function (data) {
+                  return { ok: r.ok, data: data };
+                },
+                function () {
+                  return { ok: r.ok, data: {} };
+                }
+              );
+            })
+            .then(function (res) {
+              if (!res.ok) {
+                throw new Error((res.data && res.data.message) || 'Could not save feedback');
+              }
+              delete feedbackDrafts[String(q.number)];
+              if (currentQ() && String(currentQ().number) === String(q.number) && feedbackTextEl) {
+                feedbackTextEl.value = '';
+              }
+              showFeedbackPopup('success', 'Your feedback for question ' + q.number + ' was saved.');
+            })
+            .catch(function (err) {
+              showFeedbackPopup('error', friendlyFeedbackError(err));
+            })
+            .then(function () {
+              feedbackSending = false;
+              if (btnQFeedback && !isSubmitting) {
+                btnQFeedback.disabled = false;
+                btnQFeedback.textContent = 'Submit';
+              }
+            });
+        }
 
         function currentQ() {
           return qs[idx];
@@ -3574,6 +3808,7 @@
           renderPalette();
           updateCounts();
           updateActionVisibility();
+          syncFeedbackBox();
         }
 
         function paletteClass(q, i) {
@@ -3676,6 +3911,18 @@
             if (palettePageStart >= qs.length) palettePageStart = 0;
             renderPalette();
           });
+        }
+
+        if (feedbackTextEl) {
+          feedbackTextEl.addEventListener('input', function () {
+            var q = currentQ();
+            if (!q) return;
+            feedbackDrafts[String(q.number)] = feedbackTextEl.value;
+            setFeedbackMsg('');
+          });
+        }
+        if (btnQFeedback) {
+          btnQFeedback.addEventListener('click', submitQuestionFeedback);
         }
 
         var modalConfirm = document.getElementById('modal-confirm');
@@ -3783,6 +4030,8 @@
           if (btnPrevQuestion) btnPrevQuestion.disabled = true;
           if (btnClear) btnClear.disabled = true;
           if (btnPaletteNext) btnPaletteNext.disabled = true;
+          if (btnQFeedback) btnQFeedback.disabled = true;
+          if (feedbackTextEl) feedbackTextEl.disabled = true;
           var radios = optsEl.querySelectorAll('input[type="radio"]');
           for (var i = 0; i < radios.length; i++) radios[i].disabled = true;
           if (paletteEl) {
@@ -5412,6 +5661,7 @@
           answers = {};
           visited = {};
           review = {};
+          feedbackDrafts = {};
           isSubmitting = false;
           idx = 0;
           if (bootstrapEl) bootstrapEl.hidden = true;

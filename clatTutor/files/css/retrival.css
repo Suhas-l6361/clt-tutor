@@ -156,6 +156,15 @@
   color: #fff;
 }
 
+.retrival-btn--excel {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #fff;
+}
+
+.retrival-btn[hidden] {
+  display: none !important;
+}
+
 .retrival-meta {
   margin-top: 0.55rem;
   font-size: 0.8rem;

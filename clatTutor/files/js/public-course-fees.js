@@ -25,6 +25,25 @@
     return style === 'inr' ? '\u20B9' + body : 'Rs ' + body;
   }
 
+  var PANEL_KEYS = {
+    'panel-online': 'clat_2027_online',
+    'panel-off12': 'clat_2027_offline',
+    'panel-off11': 'clat_2028_offline',
+    'panel-crash': 'clat_2027_offline_crash',
+    'panel-repeater': 'clat_2027_offline_repeater',
+    'course-online-1112': 'clat_2027_online',
+    'course-offline-12': 'clat_2027_offline',
+    'course-offline-11': 'clat_2028_offline',
+    'course-crash': 'clat_2027_offline_crash',
+    'course-repeater': 'clat_2027_offline_repeater',
+  };
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+    });
+  }
+
   function applyFees(row) {
     if (!row) return;
     KEYS.forEach(function (key) {
@@ -38,7 +57,55 @@
     });
   }
 
-  var nodes = document.querySelectorAll('[data-course-fee]');
+  function markProductLists() {
+    Object.keys(PANEL_KEYS).forEach(function (id) {
+      var panel = document.getElementById(id);
+      if (!panel) return;
+      var list = panel.querySelector('.courses-highlights__list, ul.clat-course-highlights');
+      if (list) list.setAttribute('data-course-products', PANEL_KEYS[id]);
+    });
+  }
+
+  function productItemHtml(list, text) {
+    var safe = escapeHtml(text);
+    if (list.classList.contains('clat-course-highlights')) {
+      return '<li><i class="fa-solid fa-circle-check" aria-hidden="true"></i> ' + safe + '</li>';
+    }
+    var img = list.querySelector('img');
+    var src = img ? img.getAttribute('src') || '' : '';
+    return (
+      '<li><span class="courses-check" aria-hidden="true"><img src="' +
+      escapeHtml(src) +
+      '" alt="" width="18" height="18" loading="lazy" /></span><span>' +
+      safe +
+      '</span></li>'
+    );
+  }
+
+  function applyProducts(row) {
+    var details = row && row.productDetails;
+    if (!details || typeof details !== 'object') return;
+    KEYS.forEach(function (key) {
+      var items = details[key];
+      if (!Array.isArray(items) || !items.length) return;
+      document.querySelectorAll('[data-course-products="' + key + '"]').forEach(function (list) {
+        var html = items
+          .map(function (item) {
+            return String(item || '').trim();
+          })
+          .filter(Boolean)
+          .map(function (item) {
+            return productItemHtml(list, item);
+          })
+          .join('');
+        if (html) list.innerHTML = html;
+      });
+    });
+  }
+
+  markProductLists();
+
+  var nodes = document.querySelectorAll('[data-course-fee], [data-course-products]');
   if (!nodes.length) return;
 
   var url = apiUrl();
@@ -49,7 +116,9 @@
       return res.json().then(function (j) {
         if (!res.ok) return;
         var rows = Array.isArray(j) ? j : [];
-        applyFees(rows.length ? rows[0] : null);
+        var row = rows.length ? rows[0] : null;
+        applyFees(row);
+        applyProducts(row);
       });
     })
     .catch(function () {});

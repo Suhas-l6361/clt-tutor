@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/retrival.css?v=20260829ab3" />
+  <link rel="stylesheet" href="../css/retrival.css?v=20261003excel" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -71,6 +71,9 @@
           </button>
           <button id="btn-refresh-data" class="retrival-btn retrival-btn--success" type="button">
             <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+          </button>
+          <button id="btn-download-students-excel" class="retrival-btn retrival-btn--excel" type="button" hidden>
+            <i class="fa-solid fa-file-excel"></i> Download Excel
           </button>
         </div>
       </section>
@@ -502,6 +505,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
@@ -637,6 +641,7 @@
       var currentEditCourseVideoKey = '';
 
       var allRows = [];
+      var studentExportRows = [];
       var currentMode = '';
       var currentEditId = null;
       var currentEditStudentImgKey = '';
@@ -814,6 +819,8 @@
         var caOnly = role === 'ca';
         var refreshOnly = role === 'classroom' || role === 'notes' || role === 'coursevideo';
         var showBranch = role === 'student' && canUseStudentBranchFilter();
+        var excelBtn = document.getElementById('btn-download-students-excel');
+        if (excelBtn) excelBtn.hidden = role !== 'student';
         if (branchFilterWrap) branchFilterWrap.hidden = !showBranch;
         filtersSection.classList.toggle('retrival-filters--with-branch', showBranch);
         if (full || caOnly) {
@@ -2351,6 +2358,7 @@
           var data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to fetch data');
           var rows = Array.isArray(data) ? data : [];
+          studentExportRows = rows.slice();
           if (window.CrmBranchScope) rows = CrmBranchScope.filterStudents(rows);
           allRows = rows;
           try {
@@ -2369,9 +2377,133 @@
           }
         } catch (err) {
           allRows = [];
+          studentExportRows = [];
           renderRows([]);
           metaEl.textContent = 'Unable to load data: ' + err.message;
         }
+      }
+
+      function excelStudentDate(value) {
+        return asDateOnly(value) || '';
+      }
+
+      function excelPortalAccess(row) {
+        if (!window.StudentAccess || !StudentAccess.FEATURES) return '';
+        if (typeof StudentAccess.hasFullAccess === 'function' && StudentAccess.hasFullAccess(row && row.roles)) {
+          return 'All features';
+        }
+        var roles = StudentAccess.normalizeRoles ? StudentAccess.normalizeRoles(row && row.roles) : null;
+        if (!roles) return 'All features';
+        return StudentAccess.FEATURES.filter(function (feature) {
+          var value = roles[feature.key];
+          return value === true || value === 1 || value === '1' || String(value).toLowerCase() === 'true';
+        })
+          .map(function (feature) {
+            return feature.label.replace(/ access$/i, '');
+          })
+          .join(', ');
+      }
+
+      function excelAssignedBooks(studentId) {
+        var rec = assignBookByStudent[String(studentId || '').trim()];
+        if (!rec) return '';
+        var parts = [];
+        ASSIGN_BOOK_EDITIONS.forEach(function (col) {
+          var date = toAssignDateVal(rec[col.key]);
+          if (date) parts.push(col.label + ': ' + date);
+        });
+        parseAssignExtra(rec.extra).forEach(function (item) {
+          if (!item) return;
+          var date = toAssignDateVal(item.date);
+          var name = String(item.book || '').trim();
+          if (!name && !date) return;
+          parts.push((name || 'Extra edition') + (date ? ': ' + date : ''));
+        });
+        return parts.join('; ');
+      }
+
+      function downloadStudentsExcel() {
+        var rows = (studentExportRows || []).slice().sort(function (a, b) {
+          var branch = String((a && a.branch) || '').localeCompare(String((b && b.branch) || ''), undefined, {
+            sensitivity: 'base',
+          });
+          if (branch) return branch;
+          return String((a && a.name) || '').localeCompare(String((b && b.name) || ''), undefined, {
+            sensitivity: 'base',
+          });
+        });
+        if (!rows.length) {
+          metaEl.textContent = 'Open Student first. There is no student data to download.';
+          return;
+        }
+        var data = rows.map(function (row) {
+          var studentId = row.student_id != null ? row.student_id : row.id;
+          return {
+            'Student ID': studentId != null ? studentId : '',
+            Name: row.name || '',
+            Email: row.email || '',
+            Password: getPasswordValue(row),
+            Phone: row.phone != null ? String(row.phone) : '',
+            'Parent phone':
+              row.parents_number != null
+                ? String(row.parents_number)
+                : row.parentsNumber != null
+                  ? String(row.parentsNumber)
+                  : '',
+            'Date of birth': excelStudentDate(row.dob),
+            'School / College': row.previous_organisation || '',
+            Stream: row.stream || '',
+            Source: row.source_of_info || '',
+            Batch: row.batch || '',
+            Branch: row.branch || '',
+            'Target year': row.targetYear || '',
+            Address: row.address || '',
+            Status: studentIsDropped(row) ? 'Dropped' : 'Active',
+            'Added by': row.added_by || '',
+            'Added on': excelStudentDate(row.created_at),
+            Photo: firstStoredKey(row.img_url) ? 'Yes' : 'No',
+            'Portal access': excelPortalAccess(row),
+            'Assigned books': excelAssignedBooks(studentId),
+          };
+        });
+        var today = new Date();
+        var stamp =
+          today.getFullYear() +
+          '-' +
+          String(today.getMonth() + 1).padStart(2, '0') +
+          '-' +
+          String(today.getDate()).padStart(2, '0');
+        if (!(window.XLSX && XLSX.utils)) {
+          metaEl.textContent = 'Excel download is not available in this browser. Refresh and try again.';
+          return;
+        }
+        var worksheet = XLSX.utils.json_to_sheet(data);
+        worksheet['!cols'] = [
+          { wch: 12 },
+          { wch: 24 },
+          { wch: 32 },
+          { wch: 16 },
+          { wch: 14 },
+          { wch: 16 },
+          { wch: 14 },
+          { wch: 28 },
+          { wch: 16 },
+          { wch: 22 },
+          { wch: 16 },
+          { wch: 16 },
+          { wch: 14 },
+          { wch: 32 },
+          { wch: 12 },
+          { wch: 28 },
+          { wch: 14 },
+          { wch: 10 },
+          { wch: 36 },
+          { wch: 42 },
+        ];
+        var workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'All students');
+        XLSX.writeFile(workbook, 'clatutor-students-all-branches-' + stamp + '.xlsx');
+        metaEl.textContent = 'Downloaded ' + rows.length + ' student records from all branches.';
       }
 
       async function loadAchieverData() {
@@ -2507,6 +2639,8 @@
         });
       });
 
+      var studentExcelBtn = document.getElementById('btn-download-students-excel');
+      if (studentExcelBtn) studentExcelBtn.addEventListener('click', downloadStudentsExcel);
       applyBtn.addEventListener('click', applyFilters);
       resetBtn.addEventListener('click', function () {
         nameEmailInput.value = '';

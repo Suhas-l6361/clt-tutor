@@ -711,8 +711,45 @@
   transform: scale(1.04);
 }
 
-.fees-receipt-scope .fees-row-remove[hidden] {
+.fees-receipt-scope .fees-row-remove[hidden],
+.fees-receipt-scope .fees-request-delete[hidden] {
   display: none !important;
+}
+
+.fees-receipt-scope .fees-request-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 5.4rem;
+  padding: 0.28rem 0.35rem;
+  border: 1px solid #fdba74;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  cursor: pointer;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.fees-receipt-scope .fees-request-delete:hover {
+  background: #ffedd5;
+}
+
+.fees-request-delete__input {
+  width: 100%;
+  margin: 0.35rem 0 0.85rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.fees-receipt-scope .fees-table--install .fees-th-action {
+  width: 5.6rem;
 }
 
 /* Payments received ledger */
