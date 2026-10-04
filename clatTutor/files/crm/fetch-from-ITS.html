@@ -124,7 +124,7 @@
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260928its"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/toprankers-parser.js?v=20260829soln6"></script>
+  <script src="../js/toprankers-parser.js?v=20261004sqrt1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
@@ -257,9 +257,9 @@
         modalMeta.textContent =
           (data.duration ? data.duration + ' min · ' : '') +
           data.questionCount +
-          ' questions · ' +
-          data.passageCount +
-          ' passages · ' +
+          ' questions' +
+          (data.passageCount ? ' · ' + data.passageCount + ' passages' : '') +
+          ' · ' +
           keyLabel;
 
         var html = '';
@@ -300,9 +300,12 @@
         html += '</div>';
 
         data.passages.forEach(function (p) {
+          var passageText = showSolutions ? '' : String(p.text || '').trim();
           html += '<article class="trf-passage">';
-          html += '<h4>Passage ' + p.index + '</h4>';
-          html += '<div class="trf-passage__text">' + P.escapeHtml(p.text || '(No passage)') + '</div>';
+          if (passageText) {
+            html += '<h4>Passage ' + p.index + '</h4>';
+            html += '<div class="trf-passage__text">' + P.escapeHtml(passageText) + '</div>';
+          }
           p.questions.forEach(function (q) {
             html += '<div class="trf-q" id="trf-q-' + q.n + '">';
             html +=

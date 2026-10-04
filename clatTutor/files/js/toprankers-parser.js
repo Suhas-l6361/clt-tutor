@@ -17,9 +17,181 @@
       .replace(/&gt;/g, '>');
   }
 
+  function classText(el) {
+    if (!el) return '';
+    if (typeof el.className === 'string') return el.className;
+    if (el.className && el.className.baseVal) return el.className.baseVal;
+    return String(el.getAttribute && el.getAttribute('class') || '');
+  }
+
+  function replaceWithText(el, text) {
+    if (!el || !el.parentNode) return;
+    el.parentNode.replaceChild(document.createTextNode(text), el);
+  }
+
+  function hasRadical(el) {
+    var t = String(el && el.textContent || '');
+    return t.indexOf('√') !== -1 || t.indexOf('\u221A') !== -1;
+  }
+
+  function formatRoot(index, body) {
+    body = String(body || '').trim();
+    var wrapped = body.length > 1 && /[+\-*/=]/.test(body) ? '(' + body + ')' : body;
+    var n = String(index || '').trim();
+    if (!n || n === '2') return '√' + wrapped;
+    return n + '√' + wrapped;
+  }
+
+  function replaceSqrtLatex(src) {
+    var s = String(src || '');
+    var out = '';
+    var i = 0;
+    while (i < s.length) {
+      if (s.substr(i, 5) === '\\sqrt') {
+        var j = i + 5;
+        var index = '';
+        while (j < s.length && /\s/.test(s.charAt(j))) j += 1;
+        if (s.charAt(j) === '[') {
+          var end = s.indexOf(']', j);
+          if (end < 0) {
+            out += s.charAt(i);
+            i += 1;
+            continue;
+          }
+          index = s.slice(j + 1, end);
+          j = end + 1;
+          while (j < s.length && /\s/.test(s.charAt(j))) j += 1;
+        }
+        if (s.charAt(j) === '{') {
+          var depth = 0;
+          var k = j;
+          for (; k < s.length; k += 1) {
+            if (s.charAt(k) === '{') depth += 1;
+            else if (s.charAt(k) === '}') {
+              depth -= 1;
+              if (depth === 0) {
+                k += 1;
+                break;
+              }
+            }
+          }
+          out += formatRoot(index, replaceSqrtLatex(s.slice(j + 1, k - 1)));
+          i = k;
+          continue;
+        }
+        var m = s.slice(j).match(/^[A-Za-z0-9.]+/);
+        if (m) {
+          out += formatRoot(index, m[0]);
+          i = j + m[0].length;
+          continue;
+        }
+        out += '√';
+        i = j;
+        continue;
+      }
+      out += s.charAt(i);
+      i += 1;
+    }
+    return out;
+  }
+
+  function latexToPlain(src) {
+    var s = String(src || '').trim();
+    if (!s) return '';
+    s = s.replace(/^\$\$|^\$|^\\\(|^\\\[/, '').replace(/\$\$|\$|\\\)|\\\]$/, '').trim();
+    s = replaceSqrtLatex(s);
+    s = s.replace(/\\(?:mathrm|text|textrm|operatorname)\{([^{}]*)\}/g, '$1');
+    s = s.replace(/\\,/g, ' ').replace(/\\;/g, ' ').replace(/\\ /g, ' ').replace(/~/g, ' ');
+    s = s.replace(/[{}]/g, '');
+    return s.replace(/[ \t]{2,}/g, ' ').trim();
+  }
+
+  function formulaSource(el) {
+    if (!el || !el.getAttribute) return '';
+    return (
+      el.getAttribute('data-latex') ||
+      el.getAttribute('data-formula') ||
+      el.getAttribute('data-tex') ||
+      el.getAttribute('data-equation') ||
+      el.getAttribute('data-math') ||
+      ''
+    );
+  }
+
+  function keepMathGlyphs(root) {
+    if (!root || !root.querySelectorAll) return;
+
+    var formulaNodes = root.querySelectorAll(
+      '[data-latex], [data-formula], [data-tex], [data-equation], [data-math]'
+    );
+    Array.prototype.slice.call(formulaNodes).forEach(function (n) {
+      var plain = latexToPlain(formulaSource(n));
+      if (plain && /√|\\sqrt/.test(plain + formulaSource(n))) replaceWithText(n, plain);
+    });
+
+    root.querySelectorAll('script').forEach(function (n) {
+      var type = String(n.getAttribute('type') || '').toLowerCase();
+      if (type.indexOf('math/tex') === 0 || type.indexOf('math/asciimath') === 0) {
+        replaceWithText(n, latexToPlain(n.textContent || ''));
+      }
+    });
+
+    root.querySelectorAll('annotation').forEach(function (n) {
+      var enc = String(n.getAttribute('encoding') || '');
+      if (!/tex/i.test(enc)) return;
+      var plain = latexToPlain(n.textContent || '');
+      if (!plain) return;
+      var katex = n.closest ? n.closest('.katex') : null;
+      var math = n.closest ? n.closest('math') : null;
+      if (katex) replaceWithText(katex, plain);
+      else if (math) replaceWithText(math, plain);
+      else replaceWithText(n, plain);
+    });
+
+    var sqrtNodes = [];
+    root.querySelectorAll('msqrt, mjx-msqrt, .mq-sqrt-prefix, .sqrt').forEach(function (n) {
+      var tokens = classText(n).split(/\s+/);
+      var tag = String(n.tagName || '').toLowerCase();
+      var isSqrt =
+        tag === 'msqrt' ||
+        tag === 'mjx-msqrt' ||
+        tokens.indexOf('mq-sqrt-prefix') !== -1 ||
+        tokens.indexOf('sqrt') !== -1;
+      if (isSqrt) sqrtNodes.push(n);
+    });
+    for (var i = sqrtNodes.length - 1; i >= 0; i -= 1) {
+      var node = sqrtNodes[i];
+      if (!node.parentNode || hasRadical(node)) continue;
+      var tokens = classText(node).split(/\s+/);
+      if (tokens.indexOf('mq-sqrt-prefix') !== -1) {
+        node.textContent = '√';
+        continue;
+      }
+      node.insertBefore(document.createTextNode('√'), node.firstChild);
+    }
+
+    root.querySelectorAll('img, svg').forEach(function (el) {
+      if (!el.parentNode || hasRadical(el)) return;
+      var hint =
+        (el.getAttribute('alt') || '') +
+        ' ' +
+        (el.getAttribute('title') || '') +
+        ' ' +
+        (el.getAttribute('src') || '') +
+        ' ' +
+        (el.getAttribute('data-mathml') || '') +
+        ' ' +
+        classText(el);
+      if (!/sqrt|radic|surd|√|221a/i.test(hint)) return;
+      var alt = latexToPlain(el.getAttribute('alt') || el.getAttribute('title') || '');
+      replaceWithText(el, alt && /√/.test(alt) ? alt : '√');
+    });
+  }
+
   function htmlToText(el) {
     if (!el) return '';
     var clone = el.cloneNode(true);
+    keepMathGlyphs(clone);
     clone.querySelectorAll('script, style, noscript').forEach(function (n) {
       n.remove();
     });
@@ -29,12 +201,14 @@
       .replace(/<li[^>]*>/gi, '• ');
     var tmp = document.createElement('div');
     tmp.innerHTML = html;
-    return String(tmp.textContent || '')
+    var text = String(tmp.textContent || '')
       .replace(/\u00a0/g, ' ')
       .replace(/\r\n/g, '\n')
       .replace(/[ \t]+\n/g, '\n')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
+    if (text.indexOf('\\sqrt') !== -1) text = latexToPlain(text);
+    return text;
   }
 
   function attr(el, name) {
@@ -405,6 +579,37 @@
     );
   }
 
+  function foldQuestionText(value) {
+    return String(value || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  /** Standalone questions are stored twice: full text as the passage, and a cut-off copy as the stem. */
+  function collapseRepeatedQuestionText(passages) {
+    passages.forEach(function (p) {
+      if (!p || !p.questions || p.questions.length !== 1) return;
+      var q = p.questions[0];
+      var passage = String(p.text || '').trim();
+      var stem = String(q.stem || '').trim();
+      if (!passage) return;
+      var foldedPassage = foldQuestionText(passage);
+      var foldedStem = foldQuestionText(stem);
+      var repeated = !foldedStem;
+      if (!repeated && foldedPassage !== foldedStem) {
+        var shorter = foldedPassage.length <= foldedStem.length ? foldedPassage : foldedStem;
+        var longer = foldedPassage.length <= foldedStem.length ? foldedStem : foldedPassage;
+        repeated = shorter.length >= 12 && longer.indexOf(shorter) === 0;
+      } else if (foldedPassage === foldedStem) {
+        repeated = true;
+      }
+      if (!repeated) return;
+      q.stem = passage.length >= stem.length ? passage : stem;
+      p.text = '';
+    });
+  }
+
   function applySolutionAnswers(passages) {
     var filled = 0;
     passages.forEach(function (p) {
@@ -693,10 +898,16 @@
 
     var filledFromSol = applySolutionAnswers(passages);
     if (filledFromSol > correctFound) correctFound = filledFromSol;
+    collapseRepeatedQuestionText(passages);
 
     if (!n) {
       return { ok: false, error: 'Questions were found in markup but could not be read.' };
     }
+
+    var passageCount = 0;
+    passages.forEach(function (p) {
+      if (String(p.text || '').trim()) passageCount += 1;
+    });
 
     return {
       ok: true,
@@ -705,7 +916,7 @@
       negative: negative,
       passages: passages,
       questionCount: n,
-      passageCount: passages.length,
+      passageCount: passageCount,
       correctCount: correctFound,
       solutionCount: solutionFound,
       answerSource: correctFound ? 'official' : '',
@@ -793,6 +1004,29 @@
     opts = opts || {};
     if (!data || !data.ok) return '';
     var lines = [];
+    if (opts.solutions) {
+      lines.push(data.title || 'Toprankers Test');
+      lines.push('');
+      data.passages.forEach(function (p) {
+        p.questions.forEach(function (q) {
+          lines.push('Q' + q.n + '. ' + (q.stem || ''));
+          q.options.forEach(function (opt) {
+            if (q.correctLetter && opt.letter === q.correctLetter) {
+              lines.push(opt.letter + '. ' + opt.text);
+            }
+          });
+          if (q.correctLetter && !q.options.some(function (opt) { return opt.letter === q.correctLetter; })) {
+            lines.push(q.correctLetter);
+          }
+          if (q.reason || q.solution) {
+            lines.push('Reason:');
+            lines.push(q.reason || q.solution);
+          }
+          lines.push('');
+        });
+      });
+      return lines.join('\n');
+    }
     lines.push(data.title || 'Toprankers Test');
     if (data.duration) lines.push('Time: ' + data.duration + ' minutes');
     if (data.negative) lines.push('Negative marking: ' + data.negative);
@@ -807,32 +1041,21 @@
     }
     lines.push('');
     data.passages.forEach(function (p) {
-      lines.push('========== PASSAGE ' + p.index + ' ==========');
-      lines.push('');
-      lines.push(p.text || '(No passage text)');
-      lines.push('');
+      var passageText = String(p.text || '').trim();
+      if (passageText) {
+        lines.push('========== PASSAGE ' + p.index + ' ==========');
+        lines.push('');
+        lines.push(passageText);
+        lines.push('');
+      }
       p.questions.forEach(function (q) {
         lines.push('Q' + q.n + '. ' + (q.stem || ''));
         q.options.forEach(function (opt) {
           var mark = q.correctLetter && opt.letter === q.correctLetter ? '  ✓' : '';
-          if (opts.solutions) {
-            if (q.correctLetter && opt.letter === q.correctLetter) {
-              lines.push('Correct option: ' + opt.letter + '. ' + opt.text);
-            }
-            return;
-          }
           lines.push(opt.letter + '. ' + opt.text + mark);
         });
-        if (!opts.solutions && q.correctLetter) {
+        if (q.correctLetter) {
           lines.push('Correct answer: ' + q.correctLetter);
-        }
-        if (opts.solutions) {
-          if (q.correctLetter && !q.options.some(function (opt) { return opt.letter === q.correctLetter; })) {
-            lines.push('Correct option: ' + q.correctLetter);
-          }
-          if (q.reason || q.solution) {
-            lines.push('Reason: ' + (q.reason || q.solution));
-          }
         }
         lines.push('');
       });
@@ -848,14 +1071,42 @@
     if (!data || !data.ok) return '';
     var parts = [];
     parts.push('<h1 style="font-family:Calibri,Arial,sans-serif;">' + escapeHtml(data.title) + '</h1>');
+    if (opts.solutions) {
+      data.passages.forEach(function (p) {
+        p.questions.forEach(function (q) {
+          parts.push(
+            '<p style="font-family:Calibri,Arial,sans-serif;"><strong>Q' +
+              q.n +
+              '.</strong> ' +
+              escapeHtml(q.stem || '') +
+              '</p>'
+          );
+          q.options.forEach(function (opt) {
+            if (!(q.correctLetter && opt.letter === q.correctLetter)) return;
+            parts.push(
+              '<p style="margin-left:18px;font-family:Calibri,Arial,sans-serif;"><strong style="color:#0a7;">' +
+                escapeHtml(opt.letter + '. ' + opt.text) +
+                ' ✓</strong></p>'
+            );
+          });
+          if (q.reason || q.solution) {
+            parts.push(
+              '<p style="font-family:Calibri,Arial,sans-serif;background:#f4fbf6;border:1px solid #c6ebd5;padding:8px 10px;"><strong>Reason:</strong><br/>' +
+                escapeHtml(q.reason || q.solution).replace(/\n/g, '<br/>') +
+                '</p>'
+            );
+          }
+        });
+      });
+      return parts.join('\n');
+    }
     parts.push(
       '<p style="color:#555;font-family:Calibri,Arial,sans-serif;">' +
         escapeHtml(
           (data.duration ? 'Time: ' + data.duration + ' min. ' : '') +
             data.questionCount +
-            ' questions · ' +
-            data.passageCount +
-            ' passages' +
+            ' questions' +
+            (data.passageCount ? ' · ' + data.passageCount + ' passages' : '') +
             (data.correctCount
               ? ' · ' +
                 data.correctCount +
@@ -873,16 +1124,19 @@
       );
     }
     data.passages.forEach(function (p) {
-      parts.push(
-        '<h2 style="font-family:Calibri,Arial,sans-serif;color:#1a1408;border-bottom:1px solid #ead9a3;padding-bottom:6px;">Passage ' +
-          p.index +
-          '</h2>'
-      );
-      parts.push(
-        '<p style="white-space:pre-wrap;line-height:1.55;font-family:Calibri,Arial,sans-serif;">' +
-          escapeHtml(p.text || '') +
-          '</p>'
-      );
+      var passageText = String(p.text || '').trim();
+      if (passageText) {
+        parts.push(
+          '<h2 style="font-family:Calibri,Arial,sans-serif;color:#1a1408;border-bottom:1px solid #ead9a3;padding-bottom:6px;">Passage ' +
+            p.index +
+            '</h2>'
+        );
+        parts.push(
+          '<p style="white-space:pre-wrap;line-height:1.55;font-family:Calibri,Arial,sans-serif;">' +
+            escapeHtml(passageText) +
+            '</p>'
+        );
+      }
       p.questions.forEach(function (q) {
         parts.push(
           '<p style="font-family:Calibri,Arial,sans-serif;"><strong>Q' +
