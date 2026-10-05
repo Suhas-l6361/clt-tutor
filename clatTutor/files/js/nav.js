@@ -55,7 +55,7 @@ function initAppChrome(opts) {
     { href: 'dashboard.html', icon: 'fa-chart-line', label: 'Overview' },
     { href: 'students.html', icon: 'fa-database', label: 'Add Data' },
     { href: 'addTest.html', icon: 'fa-circle-plus', label: 'Add Test' },
-    { href: 'fetch-from-ITS.html', icon: 'fa-cloud-arrow-down', label: 'Fetch from ITS' },
+    { href: 'fetch-from-ITS.html', icon: 'fa-cloud-arrow-down', label: 'Fetch From ITC' },
     { href: 'testAnalysis.html', icon: 'fa-chart-pie', label: 'Test Results' },
     { href: 'fees.html', icon: 'fa-money-bill-wave', label: 'Fees' },
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },

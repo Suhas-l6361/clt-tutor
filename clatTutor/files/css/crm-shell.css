@@ -3405,18 +3405,18 @@ body.crm-batch-modal-open {
   }
 }
 
-/* Question feedback alert — top of the CRM dashboard */
+/* Question report alert — top of the CRM dashboard */
 .qf-alert {
   margin: 0 0 0.9rem;
   padding: 0.9rem 0.95rem 0.85rem;
-  border: 1px solid #f3d48a;
+  border: 1px solid #fecaca;
   border-radius: 16px;
-  background: linear-gradient(180deg, #fffaf0 0%, #ffffff 55%);
-  box-shadow: 0 8px 24px rgba(146, 94, 14, 0.06);
+  background: linear-gradient(180deg, #fff5f5 0%, #ffffff 55%);
+  box-shadow: 0 8px 24px rgba(185, 28, 28, 0.06);
 }
 .qf-alert--open {
-  border-color: #f0b429;
-  box-shadow: 0 10px 28px rgba(180, 110, 10, 0.12);
+  border-color: #f87171;
+  box-shadow: 0 10px 28px rgba(185, 28, 28, 0.1);
 }
 .qf-alert--clear {
   border-color: #bbf7d0;
@@ -3444,8 +3444,8 @@ body.crm-batch-modal-open {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: #fff4d6;
-  color: #b45309;
+  background: #fee2e2;
+  color: #dc2626;
   font-size: 0.95rem;
 }
 .qf-alert--clear .qf-alert__icon {
@@ -3456,7 +3456,8 @@ body.crm-batch-modal-open {
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #dc2626;
+  letter-spacing: 0.01em;
 }
 .qf-alert__sub {
   margin: 0.15rem 0 0;
@@ -3468,7 +3469,7 @@ body.crm-batch-modal-open {
   flex-shrink: 0;
   padding: 0.28rem 0.6rem;
   border-radius: 999px;
-  background: #b45309;
+  background: #dc2626;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
@@ -3613,6 +3614,18 @@ body.crm-batch-modal-open {
 .qf-item__q {
   background: #eef2ff;
   color: #3730a3;
+}
+button.qf-item__paper {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+button.qf-item__paper:hover,
+button.qf-item__paper:focus-visible {
+  background: #fee2e2;
+  color: #dc2626;
+  outline: 2px solid #fecaca;
+  outline-offset: 1px;
 }
 .qf-item__who {
   margin: 0.12rem 0 0;

@@ -132,7 +132,18 @@
         var name = student && student.name ? String(student.name).trim() : '';
         var email = String(row.added_by || '').trim();
         var paper = row.paperCode || 'Paper';
-        var question = row.queationNumber != null ? 'Q ' + row.queationNumber : 'Question';
+        var questionNo = row.queationNumber != null ? String(row.queationNumber) : '';
+        var question = questionNo ? 'Q ' + questionNo : 'Question';
+        var paperBtn =
+          paper && paper !== 'Paper'
+            ? '<button type="button" class="qf-item__paper qf-item__paper--link" data-qf-paper="' +
+              esc(paper) +
+              '" data-qf-q="' +
+              esc(questionNo) +
+              '" title="Open this question paper in Add Test history">' +
+              esc(paper) +
+              '</button>'
+            : '<span class="qf-item__paper">' + esc(paper) + '</span>';
         var imgKey = firstStoredKey(student && student.img_url);
         return (
           '<article class="qf-item' +
@@ -151,9 +162,7 @@
           '<strong class="qf-item__name">' +
           esc(name || 'Student') +
           '</strong>' +
-          '<span class="qf-item__paper">' +
-          esc(paper) +
-          '</span>' +
+          paperBtn +
           '<span class="qf-item__q">' +
           esc(question) +
           '</span>' +
@@ -310,6 +319,16 @@
   }
 
   if (listEl) {
+    listEl.addEventListener('click', function (event) {
+      var btn = event.target && event.target.closest ? event.target.closest('[data-qf-paper]') : null;
+      if (!btn) return;
+      var paper = String(btn.getAttribute('data-qf-paper') || '').trim();
+      if (!paper) return;
+      var q = String(btn.getAttribute('data-qf-q') || '').trim();
+      var url = 'addTest.html?paper=' + encodeURIComponent(paper);
+      if (q) url += '&q=' + encodeURIComponent(q);
+      window.location.href = url;
+    });
     listEl.addEventListener('change', function (event) {
       var input = event.target;
       if (!input || !input.getAttribute || !input.getAttribute('data-qf-solved')) return;

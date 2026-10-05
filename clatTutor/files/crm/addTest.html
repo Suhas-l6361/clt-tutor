@@ -1266,6 +1266,11 @@
       border-radius: 12px;
       background: #fffdf8;
     }
+    .at-doc-viewer__loading[hidden],
+    .at-doc-viewer__html[hidden],
+    .at-doc-viewer__frame[hidden] {
+      display: none !important;
+    }
     .at-ak-block {
       margin-bottom: 1.25rem;
       padding-bottom: 1rem;
@@ -1703,6 +1708,19 @@
     }
     .at-history-card--open {
       border-color: rgba(34, 197, 94, 0.22);
+    }
+    .at-history-card--reported {
+      border-color: #f87171;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18);
+    }
+    #at-doc-viewer-modal {
+      z-index: 10020;
+    }
+    .at-doc-q-hit {
+      background: #fee2e2;
+      border-radius: 8px;
+      outline: 2px solid #dc2626;
+      outline-offset: 2px;
     }
     .at-history-card--closed {
       border-color: rgba(239, 68, 68, 0.18);
@@ -2224,7 +2242,7 @@
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20260928its"></script>
+  <script src="../js/nav.js?v=20261005itc"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -2299,6 +2317,7 @@
       var editingTest = null;
       var pendingHistoryReload = null;
       var activeHistoryFilter = null;
+      var pendingPaperOpen = null;
       var historyModal = document.getElementById('at-history-modal');
       var historyTitle = document.getElementById('at-history-title');
       var historyClose = document.getElementById('at-history-close');
@@ -2315,6 +2334,12 @@
       var docViewerHtml = document.getElementById('at-doc-viewer-html');
       var docViewerLoading = document.getElementById('at-doc-viewer-loading');
       var docViewerOpen = document.getElementById('at-doc-viewer-open');
+      var docViewerHoldCloseUntil = 0;
+
+      function holdDocViewerOpen(ms) {
+        var until = Date.now() + (ms || 2500);
+        if (until > docViewerHoldCloseUntil) docViewerHoldCloseUntil = until;
+      }
 
       function showLoader(caption, ms, done) {
         if (loaderTitleEl) loaderTitleEl.textContent = 'Please wait';
@@ -4739,11 +4764,37 @@
 
       function showDocViewerMode(mode, loadingText) {
         if (docViewerLoading) {
-          docViewerLoading.hidden = mode !== 'loading';
-          if (!docViewerLoading.hidden) docViewerLoading.textContent = loadingText || 'Loading preview…';
+          var showLoading = mode === 'loading';
+          docViewerLoading.hidden = !showLoading;
+          docViewerLoading.style.display = showLoading ? 'grid' : 'none';
+          if (showLoading) docViewerLoading.textContent = loadingText || 'Loading preview…';
         }
-        if (docViewerHtml) docViewerHtml.hidden = mode !== 'html';
-        if (docViewerFrame) docViewerFrame.hidden = mode !== 'frame';
+        if (docViewerHtml) {
+          var showHtml = mode === 'html';
+          docViewerHtml.hidden = !showHtml;
+          docViewerHtml.style.display = showHtml ? 'block' : 'none';
+        }
+        if (docViewerFrame) {
+          var showFrame = mode === 'frame';
+          docViewerFrame.hidden = !showFrame;
+          docViewerFrame.style.display = showFrame ? 'block' : 'none';
+        }
+      }
+
+      function fileBytesFromTestPayload(data) {
+        if (data && data.download_url) {
+          showDocViewerMode('loading', 'Downloading question paper…');
+          return fetch(data.download_url, { method: 'GET', credentials: 'omit' }).then(function (fileRes) {
+            if (!fileRes.ok) {
+              throw new Error('Could not download the file (HTTP ' + fileRes.status + ')');
+            }
+            return fileRes.arrayBuffer();
+          });
+        }
+        if (data && data.content_base64) {
+          return Promise.resolve(base64ToArrayBuffer(data.content_base64));
+        }
+        return Promise.reject(new Error('Server did not return the file.'));
       }
 
       function showFileFromApiInline(testRow, fileUrl, kind) {
@@ -4764,32 +4815,63 @@
             });
           })
           .then(function (data) {
-            if (!data.content_base64) throw new Error('Missing file payload');
+            if (data.download_url && docViewerOpen) docViewerOpen.href = data.download_url;
             var fileName = String(data.file_name || fileUrl || '').toLowerCase();
-            if (fileName.endsWith('.pdf')) {
-              var pdfBuf = base64ToArrayBuffer(data.content_base64);
-              var blob = new Blob([pdfBuf], { type: data.content_type || 'application/pdf' });
-              var pdfUrl = URL.createObjectURL(blob);
-              if (docViewerFrame) docViewerFrame.src = pdfUrl;
-              showDocViewerMode('frame');
-              return;
-            }
-            var buf = base64ToArrayBuffer(data.content_base64);
-            var htmlOpts = {
-              convertImage: mammoth.images.inline(mammothConvertImageToDataUri),
-              includeEmbeddedStyleMap: true,
-              includeDefaultStyleMap: true,
-            };
-            return mammoth.convertToHtml({ arrayBuffer: buf }, htmlOpts).then(function (htmlRes) {
-              var html = (htmlRes && htmlRes.value) || '';
-              if (!html.trim()) throw new Error('Could not parse Word content');
-              if (docViewerHtml) docViewerHtml.innerHTML = html;
-              showDocViewerMode('html');
+            var contentType = String(data.content_type || '').toLowerCase();
+            var isPdf = fileName.endsWith('.pdf') || contentType.indexOf('pdf') >= 0;
+            return fileBytesFromTestPayload(data).then(function (buf) {
+              if (isPdf) {
+                var blob = new Blob([buf], { type: data.content_type || 'application/pdf' });
+                var pdfUrl = URL.createObjectURL(blob);
+                if (docViewerFrame) docViewerFrame.src = pdfUrl;
+                showDocViewerMode('frame');
+                return;
+              }
+              if (typeof mammoth === 'undefined') throw new Error('Document reader failed to load. Refresh the page.');
+              showDocViewerMode('loading', 'Opening the questions…');
+              var htmlOpts = {
+                convertImage: mammoth.images.inline(mammothConvertImageToDataUri),
+                includeEmbeddedStyleMap: true,
+                includeDefaultStyleMap: true,
+              };
+              return new Promise(function (resolve) {
+                setTimeout(resolve, 20);
+              }).then(function () {
+                return mammoth.convertToHtml({ arrayBuffer: buf }, htmlOpts);
+              }).then(function (htmlRes) {
+                var html = (htmlRes && htmlRes.value) || '';
+                if (!html.trim()) throw new Error('Could not parse Word content');
+                holdDocViewerOpen(2500);
+                if (docViewerHtml) docViewerHtml.innerHTML = html;
+                showDocViewerMode('html');
+              });
             });
           });
       }
 
-      function openDocViewer(kindLabel, testRow, fileUrl) {
+      function scrollNodeInside(box, node) {
+        if (!box || !node || !node.getBoundingClientRect) return;
+        var boxRect = box.getBoundingClientRect();
+        var nodeRect = node.getBoundingClientRect();
+        box.scrollTop += nodeRect.top - boxRect.top - Math.max(12, box.clientHeight / 5);
+      }
+
+      function focusReportedQuestion(questionNumber) {
+        var n = parseInt(String(questionNumber || ''), 10);
+        if (!docViewerHtml || !Number.isFinite(n) || n <= 0) return;
+        var nodes = docViewerHtml.querySelectorAll('p, li, h1, h2, h3, h4, td');
+        var re = new RegExp('^(?:question\\s+|q\\s*)?' + n + '\\s*[\\.)\\]:]', 'i');
+        var i;
+        for (i = 0; i < nodes.length; i += 1) {
+          var text = String(nodes[i].textContent || '').replace(/\s+/g, ' ').trim();
+          if (!re.test(text)) continue;
+          nodes[i].classList.add('at-doc-q-hit');
+          scrollNodeInside(docViewerHtml, nodes[i]);
+          return;
+        }
+      }
+
+      function openDocViewer(kindLabel, testRow, fileUrl, questionNumber) {
         if (!docViewerModal || !docViewerFrame || !fileUrl) return;
         var viewerUrl = resolveFileViewerUrl(fileUrl);
         var lowerUrl = String(fileUrl || '').split('?')[0].toLowerCase();
@@ -4798,16 +4880,28 @@
           showToast('File unavailable', 'Could not open this file.');
           return;
         }
+        if (docViewerModal.parentNode !== document.body) document.body.appendChild(docViewerModal);
+        holdDocViewerOpen(3000);
         if (docViewerTitle) docViewerTitle.textContent = kindLabel + ' · Test #' + (testRow.test_id || '');
         if (docViewerSub) docViewerSub.textContent = testRow.title || 'Untitled test';
         if (docViewerFrame) docViewerFrame.src = 'about:blank';
         if (docViewerHtml) docViewerHtml.innerHTML = '';
-        showDocViewerMode('frame');
+        showDocViewerMode('loading', 'Loading question paper…');
         if (/^Question paper$/i.test(kindLabel) || /^Answer key$/i.test(kindLabel)) {
-          showFileFromApiInline(testRow, fileUrl, /^Answer key$/i.test(kindLabel) ? 'answer' : 'paper').catch(function () {
+          showFileFromApiInline(testRow, fileUrl, /^Answer key$/i.test(kindLabel) ? 'answer' : 'paper')
+            .then(function () {
+              if (/^Question paper$/i.test(kindLabel)) focusReportedQuestion(questionNumber);
+            })
+            .catch(function (err) {
+            var detail = err && err.message ? String(err.message) : '';
             if (isWordFile) {
               if (docViewerFrame) docViewerFrame.src = 'about:blank';
-              showDocViewerMode('loading', 'Preview failed. Please use "Open in new tab" to download/view this file.');
+              showDocViewerMode(
+                'loading',
+                detail
+                  ? 'Preview failed. ' + detail
+                  : 'Preview failed. Please use "Open in new tab" to download/view this file.'
+              );
               return;
             }
             if (docViewerFrame) docViewerFrame.src = viewerUrl;
@@ -4815,21 +4909,28 @@
           });
         } else if (docViewerFrame) {
           docViewerFrame.src = viewerUrl;
+          showDocViewerMode('frame');
         }
         if (docViewerOpen) docViewerOpen.href = fileUrl;
         docViewerModal.hidden = false;
         document.body.style.overflow = 'hidden';
       }
 
-      function closeDocViewer() {
+      function closeDocViewer(force) {
+        if (!force && Date.now() < docViewerHoldCloseUntil) return;
         if (docViewerModal) docViewerModal.hidden = true;
         if (docViewerFrame) docViewerFrame.src = 'about:blank';
         if (docViewerHtml) docViewerHtml.innerHTML = '';
         showDocViewerMode('frame');
+        if (historyModal && !historyModal.hidden) {
+          document.body.style.overflow = 'hidden';
+          return;
+        }
         document.body.style.overflow = '';
       }
 
       function closeHistoryModal() {
+        if (docViewerModal && !docViewerModal.hidden) return;
         if (historyModal) historyModal.hidden = true;
         if (uploadModalOpen && uploadModal && !uploadModal.hidden) {
           document.body.style.overflow = 'hidden';
@@ -4953,6 +5054,7 @@
             '</span>';
           var card = document.createElement('article');
           card.className = 'at-history-card';
+          card.setAttribute('data-history-title', String(row.title || ''));
           if (accessMark === 'last') card.classList.add('at-history-card--last-opened');
           else if (accessMark === 'closed') card.classList.add('at-history-card--closed');
           else if (accessMark === 'open') card.classList.add('at-history-card--open');
@@ -5112,8 +5214,14 @@
               return db - da;
             });
             renderHistoryRows(filtered, useFilter);
+            if (pendingPaperOpen) {
+              var pending = pendingPaperOpen;
+              pendingPaperOpen = null;
+              revealReportedPaper(filtered, pending);
+            }
           })
           .catch(function (err) {
+            pendingPaperOpen = null;
             if (historyList) {
               historyList.innerHTML =
                 '<div class="at-history-empty">Could not load history right now. ' +
@@ -5124,15 +5232,119 @@
           });
       }
 
+      function paperTitlesMatch(a, b) {
+        return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+      }
+
+      function revealReportedPaper(rows, pending) {
+        var match = null;
+        (rows || []).some(function (row) {
+          if (paperTitlesMatch(row && row.title, pending && pending.code)) {
+            match = row;
+            return true;
+          }
+          return false;
+        });
+        if (!match) {
+          showToast('Paper not found', 'No test titled ' + (pending && pending.code ? pending.code : 'that paper') + ' is in this history.');
+          return;
+        }
+        if (historyList) {
+          historyList.querySelectorAll('.at-history-card').forEach(function (card) {
+            if (paperTitlesMatch(card.getAttribute('data-history-title'), pending.code)) {
+              card.classList.add('at-history-card--reported');
+            }
+          });
+        }
+        var qUrl = match.question_paper_url ? String(match.question_paper_url).trim() : '';
+        if (!qUrl) {
+          showToast('Question paper', 'This test has no question paper file yet.');
+          return;
+        }
+        openDocViewer('Question paper', match, qUrl, pending.q);
+      }
+
+      function openReportedPaperFromQuery() {
+        var params = new URLSearchParams(window.location.search);
+        var code = String(params.get('paper') || '').trim();
+        if (!code) return;
+        var q = String(params.get('q') || '').trim();
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+        var sess = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        if (!sess || sess.role !== 'crm') return;
+        fetch(addTestApiUrl, { method: 'GET' })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) throw new Error((data && data.message) || 'Could not load history');
+              return Array.isArray(data) ? data : [];
+            });
+          })
+          .then(function (rows) {
+            var match = null;
+            rows.some(function (row) {
+              if (paperTitlesMatch(row && row.title, code)) {
+                match = row;
+                return true;
+              }
+              return false;
+            });
+            if (!match) {
+              showToast('Paper not found', 'No test titled ' + code + ' was found in Add Test.');
+              return;
+            }
+            var classified =
+              typeof TestSubjectFlags !== 'undefined' && TestSubjectFlags.classifyTestRow
+                ? TestSubjectFlags.classifyTestRow(match)
+                : { kind: match.test_kind || 'mock', category: match.test_category || 'CLAT' };
+            pendingPaperOpen = { code: code, q: q };
+            openHistoryModal({
+              kind: (classified && classified.kind) || 'mock',
+              category: (classified && classified.category) || 'CLAT',
+            });
+          })
+          .catch(function (err) {
+            showToast('History', (err && err.message) || 'Could not open this question paper.');
+          });
+      }
+
+      openReportedPaperFromQuery();
+
       if (historyClose) historyClose.addEventListener('click', closeHistoryModal);
       if (historyBackdrop) historyBackdrop.addEventListener('click', closeHistoryModal);
-      if (docViewerClose) docViewerClose.addEventListener('click', closeDocViewer);
-      if (docViewerBackdrop) docViewerBackdrop.addEventListener('click', closeDocViewer);
+      if (docViewerClose) {
+        docViewerClose.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeDocViewer(true);
+        });
+      }
+      if (docViewerBackdrop) {
+        docViewerBackdrop.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeDocViewer(false);
+        });
+      }
+      if (docViewerModal) {
+        docViewerModal.addEventListener(
+          'click',
+          function (event) {
+            if (Date.now() >= docViewerHoldCloseUntil) return;
+            if (event.target === docViewerBackdrop) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          },
+          true
+        );
+      }
 
       document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
         if (docViewerModal && !docViewerModal.hidden) {
-          closeDocViewer();
+          closeDocViewer(true);
           return;
         }
         if (historyModal && !historyModal.hidden) {

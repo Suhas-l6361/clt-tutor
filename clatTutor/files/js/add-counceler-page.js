@@ -10,7 +10,7 @@
     { key: 'dashboard.html', label: 'Overview' },
     { key: 'students.html', label: 'Add Data' },
     { key: 'addTest.html', label: 'Add Test' },
-    { key: 'fetch-from-ITS.html', label: 'Fetch from ITS' },
+    { key: 'fetch-from-ITS.html', label: 'Fetch From ITC' },
     { key: 'testAnalysis.html', label: 'Test Results' },
     { key: 'fees.html', label: 'Fees' },
     { key: 'attendance.html', label: 'Attendance' },
