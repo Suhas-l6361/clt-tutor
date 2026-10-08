@@ -22,7 +22,6 @@
       --ov-muted: #4b5563;
       --ov-line: rgba(15, 20, 25, 0.08);
       --ov-gold: var(--accent, #ffcc00);
-      --ov-gold-soft: rgba(255, 204, 0, 0.14);
       --ov-surface: #ffffff;
       --ov-canvas: #f0f2f7;
       min-height: 60vh;
@@ -185,10 +184,83 @@
       line-height: 1.5;
     }
     .page-overview .ov-prose {
-      margin: 0;
+      margin: 0 0 1rem;
       font-size: 1rem;
       line-height: 1.8;
       color: var(--ov-muted);
+    }
+    .page-overview .ov-prose:last-of-type {
+      margin-bottom: 0;
+    }
+    .page-overview .ov-glance {
+      margin-top: 1.75rem;
+      border: 1px solid #d6e0ea;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .page-overview .ov-glance__title {
+      margin: 0;
+      padding: 0.95rem 1.15rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #1e3a5f;
+      background: #fff;
+      border-bottom: 1px solid #d6e0ea;
+    }
+    .page-overview .ov-glance__table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .page-overview .ov-glance__table th,
+    .page-overview .ov-glance__table td {
+      padding: 0.72rem 1.15rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid #d6e0ea;
+    }
+    .page-overview .ov-glance__table tr:last-child th,
+    .page-overview .ov-glance__table tr:last-child td {
+      border-bottom: 0;
+    }
+    .page-overview .ov-glance__table th {
+      width: 11.5rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      background: #e8eef5;
+    }
+    .page-overview .ov-glance__table td {
+      color: var(--ov-ink);
+      background: #fff;
+    }
+    .page-overview .ov-glance__table tr:nth-child(even) th {
+      background: #f4f7fb;
+    }
+    .page-overview .ov-glance__table tr:nth-child(even) td {
+      background: #f7fafc;
+    }
+    .page-overview .ov-glance__table a {
+      color: #1d4ed8;
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    @media (max-width: 560px) {
+      .page-overview .ov-glance__table th,
+      .page-overview .ov-glance__table td {
+        display: block;
+        width: 100%;
+      }
+      .page-overview .ov-glance__table th {
+        padding-bottom: 0.15rem;
+        border-bottom: 0;
+      }
+      .page-overview .ov-glance__table td {
+        padding-top: 0.1rem;
+      }
     }
     .page-overview .ov-story-visual {
       position: relative;
@@ -219,93 +291,6 @@
       object-fit: cover;
       display: block;
     }
-    /* Core beliefs — staggered cards */
-    .page-overview .ov-beliefs {
-      margin-top: 3rem;
-    }
-    .page-overview .ov-beliefs-head {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .page-overview .ov-beliefs-head .ov-label-line {
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .page-overview .ov-beliefs-layout {
-      display: grid;
-      gap: 1.5rem;
-      align-items: stretch;
-    }
-    @media (min-width: 900px) {
-      .page-overview .ov-beliefs-layout {
-        grid-template-columns: 0.95fr 1.05fr;
-        gap: 2rem;
-      }
-    }
-    .page-overview .ov-beliefs-photo {
-      border-radius: 22px;
-      overflow: hidden;
-      min-height: 260px;
-      box-shadow: 0 20px 50px rgba(15, 20, 25, 0.1);
-      border: 1px solid var(--ov-line);
-    }
-    .page-overview .ov-beliefs-photo img {
-      width: 100%;
-      height: 100%;
-      min-height: 260px;
-      object-fit: cover;
-      display: block;
-    }
-    .page-overview .ov-belief-list {
-      display: grid;
-      gap: 1rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .page-overview .ov-belief-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      padding: 1.1rem 1.15rem;
-      border-radius: 16px;
-      background: var(--ov-surface);
-      border: 1px solid var(--ov-line);
-      box-shadow: 0 6px 24px rgba(15, 20, 25, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .page-overview .ov-belief-item:nth-child(2) {
-      margin-inline-start: 0;
-    }
-    @media (min-width: 640px) {
-      .page-overview .ov-belief-item:nth-child(2),
-      .page-overview .ov-belief-item:nth-child(4) {
-        margin-inline-start: 1.25rem;
-      }
-    }
-    .page-overview .ov-belief-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(15, 20, 25, 0.09);
-    }
-    .page-overview .ov-belief-item i {
-      flex-shrink: 0;
-      width: 2rem;
-      height: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      background: var(--ov-gold-soft);
-      color: #b45309;
-      font-size: 0.95rem;
-    }
-    .page-overview .ov-belief-item p {
-      margin: 0;
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--ov-muted);
-    }
-
     /* Faculty — editorial strips */
     .page-overview .ov-faculty {
       margin-top: 3.5rem;
@@ -511,7 +496,7 @@
       <div class="ov-hero-inner">
         <p class="ov-hero-kicker">About us</p>
         <h1 id="ov-hero-title" class="ov-hero-title">Overview</h1>
-        <p class="ov-hero-sub">Purpose, beliefs, and the people guiding academics at CLAT<span class="logo__accent">utor</span>.</p>
+        <p class="ov-hero-sub">The exam, and the people guiding academics at CLAT<span class="logo__accent">utor</span>.</p>
         <div class="ov-hero-stats" role="list">
           <div class="ov-stat" role="listitem">
             <strong>10,000+</strong>
@@ -527,50 +512,57 @@
 
     <div class="ov-wrap">
       <section class="ov-section" aria-labelledby="ov-story-title">
-        <div class="ov-story-grid">
-          <div class="ov-card ov-story-copy">
-            <h2 id="ov-story-title" class="ov-label">Our story</h2>
-            <span class="ov-label-line" aria-hidden="true"></span>
-            <p class="ov-lead">It is a long established fact that a read.</p>
-            <p class="ov-prose">
-              CLATutor.com is founded with a vision to imparting education through a different medium that can make a student understand and learn comfortably We believe in blending technology and experience to enable a student to achieve excellence. We are a team of experts from various industrial backgrounds and alumni of IIM/IIT/NLS. CLATutor.com provides the best minds to coach and help the student community. The team has together taught and counselled more than 10000 students for various competitive examinations with great success.
-            </p>
-          </div>
-          <div class="ov-story-visual">
-            <div class="ov-story-frame">
-              <img src="../image/faculty%20poster.png" alt="CLATutor centre" width="640" height="480" loading="lazy" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="ov-beliefs" aria-labelledby="ov-beliefs-title">
-        <div class="ov-beliefs-head">
-          <h2 id="ov-beliefs-title" class="ov-label">Core beliefs</h2>
+        <div class="ov-card ov-story-copy">
+          <h2 id="ov-story-title" class="ov-label">CLAT</h2>
           <span class="ov-label-line" aria-hidden="true"></span>
-        </div>
-        <div class="ov-beliefs-layout">
-          <div class="ov-beliefs-photo">
-            <img src="../image/team.png" alt="" width="640" height="480" loading="lazy" />
+          <p class="ov-prose">The Common Law Admission Test (CLAT) is India’s leading national-level entrance exam for law. It is conducted every year by the Consortium of National Law Universities (NLUs) and is the main route into the country’s top law schools.</p>
+          <p class="ov-prose">CLAT UG is for students who have passed or are appearing for Class 12. It leads to five-year integrated law programs such as the BA LL.B (Hons.), with some NLUs also offering BBA LL.B, BSc LL.B and BCom LL.B. CLAT PG is for law graduates seeking admission to the one-year LL.M program. Several public sector undertakings also use CLAT PG scores for recruitment.</p>
+          <p class="ov-prose">Unlike many entrance exams, CLAT does not test memorised facts or prior legal knowledge. It is a reading-based test of how well you understand, reason and apply ideas. The UG paper has 120 passage-based questions across five sections: English Language, Current Affairs including General Knowledge, Legal Reasoning, Logical Reasoning and Quantitative Techniques.</p>
+          <p class="ov-prose">First held in 2008, CLAT is conducted once a year, usually on the first Sunday of December, in offline (pen-and-paper) mode. CLAT 2027 is scheduled for 6 December 2026.</p>
+
+          <div class="ov-glance">
+            <h3 id="ov-glance-title" class="ov-glance__title">CLAT at a Glance</h3>
+            <table class="ov-glance__table" aria-labelledby="ov-glance-title">
+              <tbody>
+                <tr>
+                  <th scope="row">Conducted by</th>
+                  <td>Consortium of National Law Universities</td>
+                </tr>
+                <tr>
+                  <th scope="row">Level</th>
+                  <td>National, once a year</td>
+                </tr>
+                <tr>
+                  <th scope="row">Programs</th>
+                  <td>UG (integrated LL.B) and PG (LL.M)</td>
+                </tr>
+                <tr>
+                  <th scope="row">Mode</th>
+                  <td>Offline, pen-and-paper</td>
+                </tr>
+                <tr>
+                  <th scope="row">Duration</th>
+                  <td>2 hours</td>
+                </tr>
+                <tr>
+                  <th scope="row">Questions</th>
+                  <td>120 MCQs (+1 for correct, −0.25 for wrong)</td>
+                </tr>
+                <tr>
+                  <th scope="row">Accepted by</th>
+                  <td>24+ NLUs, plus many private universities and PSUs</td>
+                </tr>
+                <tr>
+                  <th scope="row">Next exam</th>
+                  <td>CLAT 2027 — 6 December 2026</td>
+                </tr>
+                <tr>
+                  <th scope="row">Official website</th>
+                  <td><a href="https://consortiumofnlus.ac.in" target="_blank" rel="noopener noreferrer">consortiumofnlus.ac.in</a></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <ul class="ov-belief-list">
-            <li class="ov-belief-item">
-              <i class="fa-solid fa-check" aria-hidden="true"></i>
-              <p>Overall student development and growth is of utmost importance. Student's academic growth and excellence</p>
-            </li>
-            <li class="ov-belief-item">
-              <i class="fa-solid fa-check" aria-hidden="true"></i>
-              <p>Honesty in goals and methods</p>
-            </li>
-            <li class="ov-belief-item">
-              <i class="fa-solid fa-check" aria-hidden="true"></i>
-              <p>Transparency</p>
-            </li>
-            <li class="ov-belief-item">
-              <i class="fa-solid fa-check" aria-hidden="true"></i>
-              <p>All stakeholders should be dealt with honesty and transparency by delivering the promise.</p>
-            </li>
-          </ul>
         </div>
       </section>
 

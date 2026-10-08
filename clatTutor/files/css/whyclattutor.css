@@ -619,6 +619,14 @@ body.page-whyclattutor .why-faq__bullets li:last-child {
   margin-bottom: 0;
 }
 
+body.page-whyclattutor .why-faq__note {
+  max-width: 42rem;
+  margin: 1rem auto 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
 @media (max-width: 520px) {
   body.page-whyclattutor .why-faq__body {
     padding-left: 1rem;
