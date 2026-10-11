@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
-  <link rel="stylesheet" href="../css/crm-shell.css?v=20261005paper1" />
+  <link rel="stylesheet" href="../css/crm-shell.css?v=20261009bak3" />
   <link rel="stylesheet" href="../css/enrollment.css?v=20261003pd1" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
@@ -18,6 +18,8 @@
 <body class="app-body crm-dashboard">
   <div id="stock" style="display: none">
     <div class="crm-wrap" id="crm-analytics-root">
+      <section id="crm-birthdays" class="crm-bday" hidden aria-label="Birthdays today"></section>
+
       <section class="qf-alert" id="qf-alert" aria-label="Queation report">
         <div class="qf-alert__head">
           <div class="qf-alert__title-wrap">
@@ -97,8 +99,6 @@
           </button>
         </div>
       </section>
-
-      <section id="crm-birthdays" class="crm-bday" hidden aria-label="Birthdays today"></section>
 
       <section class="crm-overdue-fees" id="crm-overdue-fees" hidden aria-label="Overdue unpaid installments">
         <div class="crm-overdue-fees__glow" aria-hidden="true"></div>
@@ -705,7 +705,7 @@
   <script src="../js/student-chrome.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="../js/crm-dashboard-branch-filter.js"></script>
-  <script src="../js/crm-dashboard-question-feedback.js?v=20261005paper1"></script>
+  <script src="../js/crm-dashboard-question-feedback.js?v=20261009qf1"></script>
   <script src="../js/crm-dashboard-fee-delete-requests.js?v=20261003fd3"></script>
   <script src="../js/crm-dashboard-weekly-attendance.js?v=20261003wk3"></script>
   <script src="../js/crm-dashboard-metrics.js?v=20260827fees1"></script>
@@ -713,6 +713,8 @@
   <script src="../js/crm-dashboard-due-fees.js?v=20260829up2"></script>
   <script src="../js/crm-dashboard-pending-requests.js"></script>
   <script src="../js/friendly-popup.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/crm-dashboard-fees-backup.js?v=20261009bak5"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
   <script src="../js/crm-dashboard-workshop.js?v=20260921sepws"></script>
   <script src="../js/crm-dashboard-mock-registrations.js?v=20260917mock1"></script>

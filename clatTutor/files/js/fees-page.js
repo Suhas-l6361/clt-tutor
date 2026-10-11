@@ -721,6 +721,108 @@
     return { total: total, latestIso: latestIso, count: count };
   }
 
+  var settlementAnchor = { installments: [], paid: 0 };
+  var settlementLock = false;
+
+  function roundMoney(n) {
+    var v = Number(n);
+    if (!Number.isFinite(v)) return 0;
+    return Math.round(v * 100) / 100;
+  }
+
+  function readInstallmentModels() {
+    var out = [];
+    document.querySelectorAll('#fees-installment-tbody tr.fees-install-row').forEach(function (row) {
+      var group = row.querySelector('[data-datesel]');
+      if (group) dateselSyncHidden(group);
+      var dateIn = row.querySelector('.fees-install-date');
+      var amtIn = row.querySelector('.fees-install-amt');
+      var due = dateIn && dateIn.value ? String(dateIn.value).slice(0, 10) : '';
+      if (!due && group) due = dateselGetIso(group) || '';
+      var amt = amtIn ? parseFloat(String(amtIn.value || '').replace(/,/g, '').trim()) : NaN;
+      if (!(Number.isFinite(amt) && amt > 0.004)) return;
+      out.push({ due: due, amount: roundMoney(amt) });
+    });
+    return out;
+  }
+
+  function captureSettlementAnchor() {
+    if (settlementLock) return;
+    settlementAnchor = {
+      installments: readInstallmentModels(),
+      paid: roundMoney(getPaymentTotals().total),
+    };
+  }
+
+  function settleInstallmentModels(baseline, extraPaid) {
+    var rows = (baseline || []).map(function (row) {
+      return { due: row.due || '', amount: roundMoney(row.amount) };
+    });
+    var extra = roundMoney(extraPaid);
+    if (extra > 0.004) {
+      var order = rows.map(function (row, index) {
+        return { index: index, due: row.due || '9999-99-99' };
+      });
+      order.sort(function (a, b) {
+        if (a.due !== b.due) return a.due < b.due ? -1 : 1;
+        return a.index - b.index;
+      });
+      var left = extra;
+      for (var i = 0; i < order.length && left > 0.004; i++) {
+        var row = rows[order[i].index];
+        if (row.amount <= 0.004) continue;
+        if (row.amount <= left + 0.004) {
+          left = roundMoney(left - row.amount);
+          row.amount = 0;
+        } else {
+          row.amount = roundMoney(row.amount - left);
+          left = 0;
+        }
+      }
+    } else if (extra < -0.004) {
+      var give = roundMoney(-extra);
+      var target = null;
+      rows.forEach(function (row) {
+        if (!target || (row.due && (!target.due || row.due < target.due))) target = row;
+      });
+      if (target) target.amount = roundMoney(target.amount + give);
+      else {
+        var due = '';
+        (baseline || []).forEach(function (row) {
+          if (row.due && (!due || row.due < due)) due = row.due;
+        });
+        rows.push({ due: due, amount: give });
+      }
+    }
+    return rows.filter(function (row) {
+      return row.amount > 0.004;
+    });
+  }
+
+  function writeInstallmentModels(models) {
+    var current = readInstallmentModels();
+    var same =
+      current.length === models.length &&
+      current.every(function (row, index) {
+        return row.due === models[index].due && row.amount === models[index].amount;
+      });
+    if (same) return;
+    settlementLock = true;
+    populateInstallmentsFromPlan(
+      models.map(function (row) {
+        return { due_date: row.due, amount: String(row.amount) };
+      })
+    );
+    settlementLock = false;
+    updateTally();
+  }
+
+  function applyPaymentToInstallments() {
+    if (settlementLock) return;
+    var extra = roundMoney(getPaymentTotals().total - settlementAnchor.paid);
+    writeInstallmentModels(settleInstallmentModels(settlementAnchor.installments, extra));
+  }
+
   function recomputePaymentTotals() {
     var totals = getPaymentTotals();
     var hiddenAmt = document.getElementById('fees-amount-paid');
@@ -1015,10 +1117,14 @@
       row.remove();
       syncPaymentRows(tbody);
       recomputePaymentTotals();
+      applyPaymentToInstallments();
     });
 
     tbody.addEventListener('input', function (e) {
-      if (e.target.classList.contains('fees-payment-amt')) recomputePaymentTotals();
+      if (e.target.classList.contains('fees-payment-amt')) {
+        recomputePaymentTotals();
+        applyPaymentToInstallments();
+      }
     });
     tbody.addEventListener('change', function (e) {
       if (e.target.classList.contains('fees-payment-date') || e.target.closest('[data-datesel]')) {
@@ -1029,6 +1135,7 @@
     ensureDefaultPaymentRow();
     applyFeeDeleteControls(tbody);
     recomputePaymentTotals();
+    captureSettlementAnchor();
   }
 
   function escHtml(s) {
@@ -1862,6 +1969,7 @@
     if (netWords) netWords.dataset.touched = row.amount_in_words_total ? '1' : '';
 
     populateInstallmentsFromPlan(row.installment_plan);
+    captureSettlementAnchor();
     updateFeesActionsBar();
   }
 
@@ -1944,6 +2052,7 @@
 
     populateInstallmentsFromPlan([]);
     ensureDefaultInstallmentRow();
+    captureSettlementAnchor();
     updateFeesActionsBar();
     if (typeof updateTally === 'function') updateTally();
   }
@@ -1991,6 +2100,7 @@
 
     populateInstallmentsFromPlan([]);
     ensureDefaultInstallmentRow();
+    captureSettlementAnchor();
     updateFeesActionsBar();
   }
 
@@ -2114,6 +2224,25 @@
     return Number.isFinite(number) ? number : String(value);
   }
 
+  function markWeeklyFeesBackup() {
+    try {
+      var session = window.Auth && Auth.getSession ? Auth.getSession() : null;
+      var user = session && session.user;
+      var who = user ? String(user.email || user.login || user.id || 'crm') : 'crm';
+      var today = new Date();
+      var d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      var day = d.getDay();
+      d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+      var week =
+        d.getFullYear() +
+        '-' +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(d.getDate()).padStart(2, '0');
+      localStorage.setItem('clatutor.feesBackupWeek.' + who.toLowerCase(), week);
+    } catch (e) {}
+  }
+
   function downloadFeesExcel() {
     var rows = (feesExportRows || []).slice().sort(function (a, b) {
       var branch = String((a && a.branch) || '').localeCompare(String((b && b.branch) || ''), undefined, {
@@ -2191,6 +2320,7 @@
       var workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'All branches');
       XLSX.writeFile(workbook, filename);
+      markWeeklyFeesBackup();
       return;
     }
     feesNotify('error', 'Excel download is not available in this browser. Refresh and try again.');
@@ -3573,6 +3703,7 @@
 
     btnAdd.addEventListener('click', function () {
       addInstallmentRow();
+      captureSettlementAnchor();
     });
 
     tbody.addEventListener('click', function (e) {
@@ -3584,7 +3715,19 @@
       destroyFp(dateIn);
       row.remove();
       syncInstallmentRows(tbody);
+      captureSettlementAnchor();
       updateTally();
+    });
+
+    tbody.addEventListener('input', function (e) {
+      if (settlementLock) return;
+      if (e.target.classList.contains('fees-install-amt')) captureSettlementAnchor();
+    });
+    tbody.addEventListener('change', function (e) {
+      if (settlementLock) return;
+      if (e.target.classList.contains('fees-install-date') || e.target.closest('[data-datesel]')) {
+        captureSettlementAnchor();
+      }
     });
 
     ensureDefaultInstallmentRow();

@@ -87,6 +87,14 @@
       message.textContent = (options && options.message) || 'Review the details before continuing.';
       cancel.textContent = (options && options.cancelText) || 'Cancel';
       confirmText.textContent = (options && options.confirmText) || 'Confirm';
+      if (options && options.icon) {
+        var headIcon = overlay.querySelector('.friendly-confirm__icon i');
+        if (headIcon) headIcon.className = options.icon;
+      }
+      if (options && options.confirmIcon) {
+        var actionIcon = confirm.querySelector('i');
+        if (actionIcon) actionIcon.className = options.confirmIcon;
+      }
 
       var rows = options && Array.isArray(options.details) ? options.details : [];
       rows.forEach(function (row) {

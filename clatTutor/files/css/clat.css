@@ -308,6 +308,87 @@ a.clat-tab--link {
   border-bottom-color: var(--link-hover);
 }
 
+.clat-glance {
+  margin-top: 0.35rem;
+  border: 1px solid #d6e0ea;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.clat-glance__title {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1e3a5f;
+  border-bottom: 1px solid #d6e0ea;
+}
+
+.clat-glance__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.clat-glance__table th,
+.clat-glance__table td {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #d6e0ea;
+}
+
+.clat-glance__table tr:last-child th,
+.clat-glance__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.clat-glance__table th {
+  width: 9.5rem;
+  font-weight: 700;
+  color: #1e3a5f;
+  background: #e8eef5;
+}
+
+.clat-glance__table td {
+  color: #0f172a;
+  background: #fff;
+}
+
+.clat-glance__table tr:nth-child(even) th {
+  background: #f4f7fb;
+}
+
+.clat-glance__table tr:nth-child(even) td {
+  background: #f7fafc;
+}
+
+.clat-glance__table a {
+  border-bottom: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .clat-glance__table th,
+  .clat-glance__table td {
+    display: block;
+    width: 100%;
+  }
+
+  .clat-glance__table th {
+    padding-bottom: 0.1rem;
+    border-bottom: 0;
+  }
+
+  .clat-glance__table td {
+    padding-top: 0.05rem;
+  }
+}
+
 .clat-panel__list {
   margin: 0.5rem 0 1.15rem;
   padding: 0.85rem 1rem 0.85rem 1.75rem;
@@ -657,6 +738,26 @@ a.clat-tab--link {
 
 .clat-faq__answer a:hover {
   color: #312e81;
+}
+
+.clat-faq__list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.clat-faq__list li {
+  margin-bottom: 0.3rem;
+}
+
+.clat-faq__list li:last-child {
+  margin-bottom: 0;
+}
+
+.clat-faq__note {
+  margin: 1.15rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #64748b;
 }
 
 .clat-faq__footer {

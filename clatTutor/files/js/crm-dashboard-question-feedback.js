@@ -273,16 +273,15 @@
       });
   }
 
-  function load() {
-    setState('loading');
-    Promise.all([
-      fetch(API, {
-        method: 'GET',
-        headers:
-          window.Auth && Auth.authHeaders
-            ? Auth.authHeaders({ Accept: 'application/json' })
-            : { Accept: 'application/json' },
-      }).then(function (res) {
+  function requestFeedback(attempt) {
+    return fetch(API, {
+      method: 'GET',
+      headers:
+        window.Auth && Auth.authHeaders
+          ? Auth.authHeaders({ Accept: 'application/json' })
+          : { Accept: 'application/json' },
+    })
+      .then(function (res) {
         return res.json().then(
           function (data) {
             return { ok: res.ok, status: res.status, data: data };
@@ -291,7 +290,33 @@
             return { ok: res.ok, status: res.status, data: null };
           }
         );
-      }),
+      })
+      .then(function (result) {
+        if (attempt < 1 && !result.ok && result.status >= 500) {
+          return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+              requestFeedback(attempt + 1).then(resolve, reject);
+            }, 400);
+          });
+        }
+        return result;
+      })
+      .catch(function (err) {
+        if (attempt < 1) {
+          return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+              requestFeedback(attempt + 1).then(resolve, reject);
+            }, 400);
+          });
+        }
+        throw err;
+      });
+  }
+
+  function load() {
+    setState('loading');
+    Promise.all([
+      requestFeedback(0),
       loadStudents(),
     ])
       .then(function (pair) {

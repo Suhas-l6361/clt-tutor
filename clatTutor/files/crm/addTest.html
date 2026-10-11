@@ -2235,7 +2235,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20260910passage"></script>
+  <script src="../js/exam-question-parser.js?v=20261009q98"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
   <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/config.js"></script>
@@ -4229,6 +4229,11 @@
         var expectedQuestionCount = questionCountInput
           ? parseInt(questionCountInput.value, 10)
           : NaN;
+        var ailetMock = kind === 'mock' && category.toUpperCase() === 'AILET';
+        if (ailetMock && (!Number.isInteger(expectedQuestionCount) || expectedQuestionCount < 150)) {
+          expectedQuestionCount = 150;
+          if (questionCountInput) questionCountInput.value = '150';
+        }
         var opts = {};
         if (kind === 'sectional' && category) {
           opts.kind = 'sectional';
@@ -4299,7 +4304,13 @@
             document.getElementById('at-preview-title').textContent =
               'Quiz preview · ' + parsed.questions.length + ' question(s)';
             var parseOpts = currentParseOpts();
-            applyDetectedQuestionCount(parsed.questions.length, true);
+            var ailetMock =
+              testKindInput &&
+              String(testKindInput.value || '').trim().toLowerCase() === 'mock' &&
+              testCategoryInput &&
+              String(testCategoryInput.value || '').trim().toUpperCase() === 'AILET';
+            if (ailetMock && questionCountInput) questionCountInput.value = '150';
+            else applyDetectedQuestionCount(parsed.questions.length, true);
             if (parsed.missingNumbers && parsed.missingNumbers.length) {
               var miss = parsed.missingNumbers.slice(0, 12).join(', ');
               if (parsed.missingNumbers.length > 12) {
@@ -5378,6 +5389,13 @@
         var questionCount = questionCountInput
           ? parseInt(questionCountInput.value, 10)
           : NaN;
+        var submitKind = testKindInput && testKindInput.value ? String(testKindInput.value).trim().toLowerCase() : '';
+        var submitCategory =
+          testCategoryInput && testCategoryInput.value ? String(testCategoryInput.value).trim().toUpperCase() : '';
+        if (submitKind === 'mock' && submitCategory === 'AILET' && (!Number.isInteger(questionCount) || questionCount < 150)) {
+          questionCount = 150;
+          if (questionCountInput) questionCountInput.value = '150';
+        }
         if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > 200) {
           var guessed = defaultQuestionCountForType(
             testKindInput && testKindInput.value,

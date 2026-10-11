@@ -244,9 +244,34 @@
     return true;
   }
 
+  /**
+   * Puzzle stems name people as "A. B, C, D, E, F and G".
+   * That is a list of initials, not options A–D.
+   */
+  function isPersonInitialRunAt(text, index) {
+    var slice = String(text || '')
+      .slice(Math.max(0, index || 0))
+      .replace(/^\s+/, '');
+    return /^A\.\s+B\s*,\s*C\s*,\s*D\b/.test(slice);
+  }
+
+  function hasPersonInitialList(text) {
+    return /(?:^|\s)A\.\s+B\s*,\s*C\s*,\s*D\b/.test(String(text || ''));
+  }
+
+  /** "and A, which is lighter" names a box. It is not option A. */
+  function isSentenceLetterComma(text, index) {
+    var slice = String(text || '')
+      .slice(Math.max(0, index || 0))
+      .replace(/^\s+/, '');
+    return /^A,\s+[a-z]/.test(slice);
+  }
+
   function isStrictOptionLine(line) {
     var s = String(line || '').trim();
     if (!s) return false;
+    if (/^A\.\s+B\s*,\s*C\s*,\s*D\b/.test(s)) return false;
+    if (/^A,\s+[a-z]/.test(s)) return false;
     /** Article 19(1) passage lists "(a) freedom…" — not MCQ options. */
     if (/^\([a-d]\)\s/.test(s)) return false;
     if (/^\([A-D]\)\s*\S/.test(s)) return true;
@@ -270,6 +295,8 @@
   function matchOptionLineStart(s) {
     var t = String(s || '').trim();
     if (!t) return null;
+    if (/^A\.\s+B\s*,\s*C\s*,\s*D\b/.test(t)) return null;
+    if (/^A,\s+[a-z]/.test(t)) return null;
     if (/^\([a-d]\)\s/.test(t)) return null;
     var m = t.match(/^\(([A-Da-d])\)\s*(.*)$/);
     if (m) return { letter: m[1].toUpperCase(), rest: (m[2] || '').trim(), raw: t };
@@ -471,17 +498,36 @@
   function splitStemFromGluedLine(trimmed) {
     var t = String(trimmed || '').trim();
     if (!t) return t;
+    var realIdx = findInlineMcqOptionIndex(t);
+    if (realIdx > 0) {
+      var realBefore = t.slice(0, realIdx).trim();
+      var realAfter = t.slice(realIdx).trim();
+      if (realBefore && /\sB[\.:\),]/i.test(' ' + realAfter)) {
+        return realBefore + '\n' + realAfter;
+      }
+    }
     var hasOpts =
       /\s[A-Da-d][\.:\),]\s/.test(t) ||
       /\s[A-Da-d][\.:\),][A-Za-z"(0-9]/.test(t) ||
       /\sB[\.:\),]\s/i.test(t);
     if (!hasOpts) return t;
     var m = t.match(/^([\s\S]*?\?)\s+(A[\.:\),][\s\S]*)$/i);
-    if (m && /\sB[\.:\),]\s/i.test(m[2])) return m[1].trim() + '\n' + m[2].trim();
+    if (m && /\sB[\.:\),]\s/i.test(m[2]) && !isPersonInitialRunAt(m[2], 0) && !isSentenceLetterComma(m[2], 0)) {
+      return m[1].trim() + '\n' + m[2].trim();
+    }
     m = t.match(/^(\d{1,3}\.\s+[\s\S]*?)\s+(A[\.:\),][\s\S]*)$/i);
-    if (m && /\sB[\.:\),]\s/i.test(m[2])) return m[1].trim() + '\n' + m[2].trim();
+    if (m && /\sB[\.:\),]\s/i.test(m[2]) && !isPersonInitialRunAt(m[2], 0) && !isSentenceLetterComma(m[2], 0)) {
+      return m[1].trim() + '\n' + m[2].trim();
+    }
     m = t.match(/^([\s\S]{24,}?)\s+(A[\.:\),]\s*[\s\S]*?\sB[\.:\),]\s[\s\S]*)$/i);
-    if (m && !/^[A-Da-d][\.:\),]/i.test(m[1])) return m[1].trim() + '\n' + m[2].trim();
+    if (
+      m &&
+      !/^[A-Da-d][\.:\),]/i.test(m[1]) &&
+      !isPersonInitialRunAt(m[2], 0) &&
+      !isSentenceLetterComma(m[2], 0)
+    ) {
+      return m[1].trim() + '\n' + m[2].trim();
+    }
     return t;
   }
 
@@ -497,9 +543,10 @@
         parts = t.split(/(?=\s+[B-Da-d][\.:\),]\s)/);
       }
       if (parts.length < 2) {
-        parts = t.split(/(?=\s[A-Da-d][\.:\),]\s)/);
+        parts = t.split(/(?=\s[A-Da-d](?:[\.:\)]\s|,\s+(?![a-z])))/);
       }
     }
+    if (hasPersonInitialList(t) && findInlineMcqOptionIndex(t) < 0) return [t];
     if (!parts || parts.length < 2) return [t];
     var segs = [];
     for (var p = 0; p < parts.length; p++) {
@@ -532,16 +579,25 @@
 
   function findInlineMcqOptionIndex(body) {
     var t = String(body || '');
-    var re =
-      /\s(A[\.:\),]\s*[^\s][\s\S]*?\sB[\.:\),]\s*[^\s][\s\S]*?\sC[\.:\),]\s*[^\s][\s\S]*?\sD[\.:\),]\s*[^\s])/i;
-    var m = t.match(re);
-    if (m && m.index != null) return m.index;
+    var re = /\sA[\.:\),]\s*[^\s]/gi;
+    var m;
+    while ((m = re.exec(t))) {
+      if (isPersonInitialRunAt(t, m.index) || isSentenceLetterComma(t, m.index)) continue;
+      var rest = t.slice(m.index);
+      if (
+        /\sB[\.:\),]\s*[^\s]/.test(rest) &&
+        /\sC[\.:\),]\s*[^\s]/.test(rest) &&
+        /\sD[\.:\),]\s*[^\s]/.test(rest)
+      ) {
+        return m.index;
+      }
+    }
     re =
-      /\s(A[\.:\),]\s*(?:1 only|2 only|Both|Neither)[\s\S]*?\sB[\.:\),]\s*(?:1 only|2 only|Both|Neither)[\s\S]*?\sC[\.:\),][\s\S]*?\sD[\.:\),])/i;
-    m = t.match(re);
-    if (m && m.index != null) return m.index;
-    m = t.match(/\s(A[\.:\),]\s*[^\s])/i);
-    if (m && m.index != null) return m.index;
+      /\s(A[\.:\),]\s*(?:1 only|2 only|Both|Neither)[\s\S]*?\sB[\.:\),]\s*(?:1 only|2 only|Both|Neither)[\s\S]*?\sC[\.:\),][\s\S]*?\sD[\.:\),])/gi;
+    while ((m = re.exec(t))) {
+      if (isPersonInitialRunAt(t, m.index)) continue;
+      return m.index;
+    }
     return -1;
   }
 
@@ -1102,6 +1158,12 @@
     if (lineHasGluedOptionsOnSameLine(lines[idx])) return true;
     /** Nearby A–D always wins: long legal stems, I/II/III items, truncated "…. Is". */
     if (lineHasMcqOptionsAhead(lines, idx, 16)) return true;
+    /**
+     * Directions plus Statements/Conclusions can push the real A–D lines past 16 lines.
+     * Count only strict option lines, and stop at the next question number, so a long
+     * passage sentence is not treated as a question.
+     */
+    if (countStrictOptionLinesAhead(lines, idx, 60) >= 2) return true;
     if (!lineHasMcqOptionsAhead(lines, idx, 40)) return false;
     /**
      * Options far below — only then treat a long narrative sentence as passage,
@@ -1210,6 +1272,19 @@
     if (/\sA[\.:\),]\s*[^\s]/.test(s) && /\sB[\.:\),]\s*[^\s]/i.test(s)) return true;
     if (/\sA[\.:\),]\s*(?:1 only|2 only)/i.test(s) && /\sB[\.:\),]/i.test(s)) return true;
     return false;
+  }
+
+  function countStrictOptionLinesAhead(lines, idx, maxLook) {
+    var limit = typeof maxLook === 'number' && maxLook > 0 ? maxLook : 60;
+    var optCount = 0;
+    for (var j = idx + 1; j < lines.length && j <= idx + limit; j++) {
+      var t = String(lines[j] || '').trim();
+      if (!t) continue;
+      if (matchQuestionHeaderLine(lines[j]) != null) break;
+      if (matchSplitQuestionHeader(lines, j) != null) break;
+      if (isStrictOptionLine(t)) optCount++;
+    }
+    return optCount;
   }
 
   function lineHasMcqOptionsAhead(lines, idx, maxLook) {
@@ -1725,7 +1800,7 @@
     }
     var count = parseInt(row.question_count, 10);
     var hasCount = Number.isFinite(count) && count >= 1 && count <= MAX_QUESTION_LIMIT;
-    if (!hasCount && category.toUpperCase() === 'AILET') {
+    if (category.toUpperCase() === 'AILET' && kind !== 'sectional' && (!hasCount || count < 150)) {
       count = 150;
       hasCount = true;
     }

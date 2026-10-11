@@ -2598,6 +2598,9 @@
           <div class="exam-palette-scroll">
             <div class="exam-palette" id="exam-palette"></div>
           </div>
+          <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-prev" hidden>
+            Show previous question list
+          </button>
           <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-next">
             Show next question list
           </button>
@@ -2854,7 +2857,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20260910passage"></script>
+  <script src="../js/exam-question-parser.js?v=20261009q98"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
   <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/data-store.js"></script>
@@ -3509,6 +3512,7 @@
         var btnSaveNext = document.getElementById('btn-save-next');
         var btnPrevQuestion = document.getElementById('btn-prev-question');
         var btnClear = document.getElementById('btn-clear');
+        var btnPalettePrev = document.getElementById('btn-palette-prev');
         var btnPaletteNext = document.getElementById('btn-palette-next');
         var feedbackTextEl = document.getElementById('exam-q-feedback-text');
         var btnQFeedback = document.getElementById('btn-q-feedback');
@@ -3844,6 +3848,9 @@
             })(i);
             paletteEl.appendChild(btn);
           }
+          if (btnPalettePrev) {
+            btnPalettePrev.hidden = qs.length <= PALETTE_PAGE_SIZE || palettePageStart <= 0;
+          }
           if (btnPaletteNext) {
             btnPaletteNext.hidden = qs.length <= PALETTE_PAGE_SIZE;
             btnPaletteNext.textContent =
@@ -3903,6 +3910,15 @@
             renderQuestion();
           }
         });
+
+        if (btnPalettePrev) {
+          btnPalettePrev.addEventListener('click', function () {
+            if (!qs.length || palettePageStart <= 0) return;
+            palettePageStart -= PALETTE_PAGE_SIZE;
+            if (palettePageStart < 0) palettePageStart = 0;
+            renderPalette();
+          });
+        }
 
         if (btnPaletteNext) {
           btnPaletteNext.addEventListener('click', function () {
