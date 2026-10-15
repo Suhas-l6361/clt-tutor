@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/inbox.css?v=20260819html1" />
+  <link rel="stylesheet" href="../css/inbox.css?v=20261011compose" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -56,6 +56,11 @@
               <span id="inbox-active-email">—</span>
             </div>
           </div>
+
+          <button type="button" class="inbox-mail__compose" id="inbox-btn-compose">
+            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+            <span>Compose</span>
+          </button>
 
           <nav class="inbox-mail__nav" role="tablist">
             <button type="button" class="inbox-mail__nav-btn is-active" id="inbox-tab-inbox" role="tab" aria-selected="true">
@@ -177,7 +182,7 @@
   <script src="../js/nav.js?v=20261005itc"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/inbox-page.js?v=20260819html1"></script>
+  <script src="../js/inbox-page.js?v=20261011compose"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

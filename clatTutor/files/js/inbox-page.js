@@ -1174,7 +1174,7 @@
     }
     var items = getFilteredSentItems();
     if (!state.sentItems.length) {
-      list.innerHTML = renderListEmpty('', 'No sent replies yet.');
+      list.innerHTML = renderListEmpty('', 'No sent emails yet.');
       updateDeleteUi();
       return;
     }
@@ -1585,6 +1585,48 @@
     }
   }
 
+  function openCompose() {
+    if (!state.mailbox) return;
+    var detail = $('inbox-detail');
+    if (!detail) return;
+    state.selectedKey = null;
+    state.selectedEmail = null;
+    state.activeDraftKey = null;
+    openMessageModal('New message');
+    detail.innerHTML =
+      '<section class="inbox-reply inbox-reply--compose" aria-label="New message">' +
+      '<h3><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> New message from ' +
+      escHtml(state.mailbox.id) +
+      '</h3>' +
+      '<form id="inbox-reply-form">' +
+      '<div class="inbox-field"><label for="inbox-reply-to">To</label>' +
+      '<input id="inbox-reply-to" type="email" required placeholder="name@example.com" autocomplete="email" /></div>' +
+      '<div class="inbox-field"><label for="inbox-reply-subject">Subject</label>' +
+      '<input id="inbox-reply-subject" type="text" required placeholder="Subject" /></div>' +
+      '<div class="inbox-field"><label for="inbox-reply-body">Message</label>' +
+      '<textarea id="inbox-reply-body" required placeholder="Write your message…"></textarea></div>' +
+      '<div class="inbox-reply__actions">' +
+      '<button type="submit" class="inbox-btn inbox-btn--primary" id="inbox-send-btn">' +
+      '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send</button>' +
+      '<button type="button" class="inbox-btn" id="inbox-save-draft-btn"><i class="fa-solid fa-file-pen" aria-hidden="true"></i> Save draft</button>' +
+      '</div>' +
+      '<p id="inbox-status" class="inbox-status" hidden></p>' +
+      '</form></section>';
+
+    $('inbox-reply-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      sendReply(null);
+    });
+    var saveDraftBtn = $('inbox-save-draft-btn');
+    if (saveDraftBtn) {
+      saveDraftBtn.addEventListener('click', function () {
+        saveDraftFromForm({ originalKey: null });
+      });
+    }
+    var toInput = $('inbox-reply-to');
+    if (toInput) toInput.focus();
+  }
+
   async function sendReply(email) {
     var to = $('inbox-reply-to');
     var subject = $('inbox-reply-subject');
@@ -1594,6 +1636,7 @@
 
     var session = window.Auth && typeof window.Auth.getSession === 'function' ? window.Auth.getSession() : null;
     var sentBy = session && session.user ? session.user.email || session.user.name : null;
+    var isNewMessage = !(email && email.key);
 
     if (btn) {
       btn.disabled = true;
@@ -1602,25 +1645,28 @@
     setStatus('Sending…', '');
 
     try {
+      var payload = {
+        action: 'send_reply',
+        mailbox: state.mailbox.id,
+        to: to.value.trim(),
+        subject: subject.value.trim(),
+        body: body.value.trim(),
+        sentBy: sentBy,
+      };
+      if (!isNewMessage) {
+        payload.originalKey = email.key;
+        payload.inReplyTo = email.messageId || email.key;
+      }
       var res = await fetch(getApi(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'send_reply',
-          mailbox: state.mailbox.id,
-          to: to.value.trim(),
-          subject: subject.value.trim(),
-          body: body.value.trim(),
-          originalKey: email.key,
-          inReplyTo: email.messageId || email.key,
-          sentBy: sentBy,
-        }),
+        body: JSON.stringify(payload),
       });
       var data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Send failed');
       setStatus('', '');
       body.value = '';
-      showToast('success', 'Reply sent successfully.');
+      showToast('success', isNewMessage ? 'Email sent.' : 'Reply sent successfully.');
       if (state.activeDraftKey) {
         try {
           await fetch(getApi(), {
@@ -1635,11 +1681,20 @@
         } catch (_) {}
         state.activeDraftKey = null;
       }
-      await loadMailboxData();
-      fetchReplies(email.key);
+      if (isNewMessage) {
+        closeMessageModal();
+        state.view = 'sent';
+        state.listFilter = 'all';
+        setActiveNavTab('sent');
+        updateWorkspaceHeader();
+        await loadMailboxData(true);
+      } else {
+        await loadMailboxData();
+        fetchReplies(email.key);
+      }
     } catch (e) {
       setStatus('', '');
-      showToast('error', e.message || 'Could not send reply. Please try again.');
+      showToast('error', e.message || (isNewMessage ? 'Could not send email. Please try again.' : 'Could not send reply. Please try again.'));
     } finally {
       if (btn) {
         btn.disabled = false;
@@ -1770,6 +1825,15 @@
       if (!card) return;
       openMailbox(card.getAttribute('data-mailbox'));
     });
+
+    var composeBtn = $('inbox-btn-compose');
+    if (composeBtn) {
+      composeBtn.addEventListener('click', function () {
+        if (!state.mailbox) return;
+        exitSelectMode();
+        openCompose();
+      });
+    }
 
     $('inbox-btn-back').addEventListener('click', function () {
       exitSelectMode();

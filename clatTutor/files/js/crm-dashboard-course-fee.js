@@ -135,20 +135,11 @@
     });
   }
 
-  function canEditCourseFees() {
-    return !!(window.Auth && typeof window.Auth.canAccessBusinessEmail === 'function' && window.Auth.canAccessBusinessEmail());
-  }
-
   function initCrmCourseFeePanel() {
     var openBtn = document.getElementById('crm-course-fee-btn');
     var modal = document.getElementById('crm-course-fee-modal');
     if (!openBtn || !modal) return;
 
-    if (!canEditCourseFees()) {
-      openBtn.hidden = true;
-      openBtn.style.setProperty('display', 'none', 'important');
-      return;
-    }
     openBtn.hidden = false;
     openBtn.style.removeProperty('display');
 

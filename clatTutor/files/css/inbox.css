@@ -366,6 +366,28 @@ body.inbox-page.crm-dashboard .page-content {
   text-overflow: ellipsis;
 }
 
+.inbox-mail__compose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1c1917;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inbox-mail__compose:hover {
+  filter: brightness(1.03);
+}
+
 .inbox-mail__nav {
   display: flex;
   flex-direction: column;
@@ -1137,6 +1159,15 @@ body.inbox-modal-open {
   padding-top: 1.25rem;
 }
 
+.inbox-reply--compose {
+  border-top: none;
+  padding-top: 0;
+}
+
+.inbox-reply--compose textarea {
+  min-height: 180px;
+}
+
 .inbox-reply h3 {
   margin: 0 0 0.85rem;
   font-size: 0.9rem;
@@ -1370,6 +1401,12 @@ body.inbox-loading-open {
     flex: 1;
     margin-bottom: 0;
     padding-bottom: 0;
+  }
+
+  .inbox-mail__compose {
+    width: 100%;
+    order: 2;
+    margin: 0.55rem 0 0.35rem;
   }
 
   .inbox-mail__nav {
