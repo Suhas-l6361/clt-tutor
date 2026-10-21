@@ -18,7 +18,7 @@
       label: 'Enrollment forms',
       short: 'Enrollment',
       icon: 'fa-file-signature',
-      apiKey: 'ENROLL_REQUEST_API',
+      apiKey: 'ENROLL_API',
     },
     {
       key: 'contact',

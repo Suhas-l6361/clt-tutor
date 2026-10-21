@@ -14,6 +14,11 @@ clatTutor/New folder/crm_files/omr-checker/
 clatTutor/New folder/crm_files/lib/
 clatTutor/New folder/crm_files/scripts/
 
+# Secrets — never commit
+**/.env
+**/.env.*
+!**/.env.example
+
 # OS / editor
 .DS_Store
 Thumbs.db

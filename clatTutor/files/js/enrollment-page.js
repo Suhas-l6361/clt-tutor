@@ -315,44 +315,38 @@
     }
     var thead =
       '<thead><tr>' +
-      '<th scope="col">Student name</th>' +
-      '<th scope="col">Student email</th>' +
-      '<th scope="col">Course</th>' +
+      '<th scope="col">Name</th>' +
+      '<th scope="col">Phone</th>' +
+      '<th scope="col">Grade</th>' +
       '<th scope="col">Target year</th>' +
+      '<th scope="col">Known by</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
-      tableResponseHeader() +
-      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
       .map(function (r) {
         return (
           '<tr>' +
           '<td>' +
-          '<span class="enrollment-student-cell">' +
-          enrollPhotoMarkup(r.photo_url, 'enrollment-photo--table') +
-          '<span class="enrollment-student-cell__name">' +
-          val(r.student_name) +
-          '</span></span>' +
+          val(r.name) +
           '</td>' +
           '<td>' +
-          val(r.student_email) +
+          val(r.phone_number) +
           '</td>' +
           '<td>' +
-          val(r.course) +
+          val(r.grade) +
           '</td>' +
           '<td>' +
-          val(r.target_year) +
+          val(r.targetYear != null ? r.targetYear : r.target_year) +
+          '</td>' +
+          '<td>' +
+          val(r.known_by) +
           '</td>' +
           '<td>' +
           fmtTs(r.created_at) +
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('enroll', r.id) +
-          '</td>' +
-          responseMessageCell('enroll', r) +
-          '<td class="enrollment-table__td-responded">' +
-          respondedToggle('enroll', r) +
           '</td>' +
           '</tr>'
         );
@@ -529,30 +523,17 @@
 
   function modalBodyEnroll(r) {
     return (
-      '<div class="enrollment-modal__photo-head">' +
-      enrollPhotoMarkup(r.photo_url, 'enrollment-photo--modal') +
       '<p class="enrollment-modal__meta">#' +
       escHtml(String(r.id)) +
       ' · ' +
       fmtTs(r.created_at) +
       '</p>' +
-      '</div>' +
       '<dl class="enrollment-dl enrollment-dl--modal">' +
-      dlRow('Target year', val(r.target_year)) +
-      dlRow('Course', val(r.course)) +
-      dlRow('Student name', val(r.student_name)) +
-      dlRow('Parent name', val(r.parentName)) +
-      dlRow('Student email', val(r.student_email)) +
-      dlRow('Parent email', val(r.parent_email)) +
-      dlRow('Student phone', val(r.student_PhoneNumber)) +
-      dlRow('Parent phone', val(r.parent_PhoneNumber)) +
-      dlRow('Student DOB', val(r.student_dob)) +
-      dlRow('Address', r.address != null && String(r.address).trim() !== '' ? escHtml(r.address) : '—', true) +
-      dlRow('School / college', val(r.school_college)) +
-      dlRow('Stream', val(r.stream)) +
-      dlRow('Parent profession', val(r.parent_profession)) +
-      dlRow('Caste', val(r.caste)) +
-      dlRow('Source of info', val(r.source_of_info)) +
+      dlRow('Name', val(r.name)) +
+      dlRow('Phone', val(r.phone_number)) +
+      dlRow('Grade', val(r.grade)) +
+      dlRow('Target year', val(r.targetYear != null ? r.targetYear : r.target_year)) +
+      dlRow('Known by', val(r.known_by)) +
       '</dl>'
     );
   }
@@ -600,6 +581,8 @@
     else if (kind === 'enroll') details = modalBodyEnroll(r);
     else if (kind === 'demo') details = modalBodyDemo(r);
     else details = modalBodyContact(r);
+    /* New ENROLL_API leads have no staff-response fields */
+    if (kind === 'enroll') return details;
     return appendModalResponseForm(details, r);
   }
 
@@ -607,7 +590,7 @@
     var c = window.APP_CONFIG || {};
     return {
       callback: c.REQUEST_CALLBACK_API || '',
-      enroll: c.ENROLL_REQUEST_API || '',
+      enroll: c.ENROLL_API || '',
       contact: c.CONTACT_US_API || '',
       demo: c.DEMO_CLASS_API || '',
     };
@@ -671,7 +654,6 @@
       titleEl.textContent = (titles[kind] || 'Details') + ' #' + String(r.id);
       bodyEl.innerHTML = buildModalHtml(kind, r);
       setModalSaveStatus('');
-      if (kind === 'enroll') hydrateEnrollPhotos(bodyEl);
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
@@ -892,7 +874,6 @@
       else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
       else if (kind === 'demo') listEl.innerHTML = renderDemo(rows);
       else listEl.innerHTML = renderContact(rows);
-      if (kind === 'enroll') hydrateEnrollPhotos(listEl);
     }
 
     function updateRowRespondedInMemory(kind, id, checked) {

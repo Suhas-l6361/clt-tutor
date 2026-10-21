@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/student-shell.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <link rel="stylesheet" href="../css/clat-exam-analysis.css?v=20261022exam2" />
   <style>
     body.page-exam.exam-active .sidebar,
     body.page-exam.exam-active .sidebar-backdrop {
@@ -2605,7 +2606,7 @@
             Show next question list
           </button>
           <div class="exam-q-feedback">
-            <p class="exam-q-feedback__label">Report An Error</p>
+            <p class="exam-q-feedback__label">Please write 2 to 3 lines about the error</p>
             <textarea
               id="exam-q-feedback-text"
               class="exam-q-feedback__input"
@@ -2753,6 +2754,9 @@
           <button type="button" class="btn btn-exam-secondary" id="modal-done-view-answer" hidden>
             <i class="fa-regular fa-eye"></i> View answer
           </button>
+          <button type="button" class="cea-trigger" id="modal-done-clat-analysis" hidden>
+            <i class="fa-solid fa-ranking-star" aria-hidden="true"></i> All-India CLAT analysis
+          </button>
           <button type="button" class="btn btn-exam-primary" id="modal-done-back">Back to dashboard</button>
         </div>
       </div>
@@ -2855,7 +2859,8 @@
   <div id="app-root" class="app-shell"></div>
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <script src="../js/config.js"></script>
+  <script src="../js/config.js?v=20261022exam2"></script>
+  <script src="../js/clat-exam-analysis.js?v=20261022exam2"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../js/exam-question-parser.js?v=20261009q98"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
@@ -5466,6 +5471,33 @@
           } else if (secRoot) secRoot.innerHTML = '';
         }
 
+        var lastSubmitResultForAnalysis = null;
+
+        function buildClatAnalysisPayload(submitResult) {
+          if (!window.ClatExamAnalysis || typeof window.ClatExamAnalysis.payloadFromSubmitResult !== 'function') {
+            return null;
+          }
+          var mc = paper && paper.marksCorrect != null ? Number(paper.marksCorrect) : 1;
+          var mn = paper && paper.marksNegative != null ? Number(paper.marksNegative) : 0.25;
+          return window.ClatExamAnalysis.payloadFromSubmitResult(submitResult, {
+            title: (submitResult && submitResult.title) || (paper && paper.title) || 'Mock test',
+            isOmr: !!(submitResult && (submitResult.isOmr === true || submitResult.isOmr === 1)),
+            marksCorrect: mc,
+            marksNegative: mn,
+            totalQuestions:
+              (submitResult && submitResult.total_questions_in_key) ||
+              (qs && qs.length) ||
+              0,
+            unanswered: submitResult && submitResult.unanswered_questions,
+          });
+        }
+
+        function runClatExamAnalysis(submitResult) {
+          var payload = buildClatAnalysisPayload(submitResult);
+          if (!payload || !window.ClatExamAnalysis || typeof window.ClatExamAnalysis.open !== 'function') return;
+          window.ClatExamAnalysis.open(payload);
+        }
+
         function openDoneModal(timedOut, submitResult) {
           stopExamTimer();
           hideGradingLoading();
@@ -5477,9 +5509,12 @@
               (submitResult.totalgrade != null ||
                 submitResult.percentage != null ||
                 submitResult.correctAnswer != null);
+            lastSubmitResultForAnalysis = hasStats ? submitResult : null;
 
             if (modalDoneSummary) modalDoneSummary.hidden = true;
             if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = true;
+            var clatBtn = document.getElementById('modal-done-clat-analysis');
+            if (clatBtn) clatBtn.hidden = true;
 
             var answered = countAnsweredInSession();
             if (body) {
@@ -5531,6 +5566,10 @@
               fillResultsDashboard(submitResult);
               modalDoneSummary.hidden = false;
               if (modalDoneViewAnswer) modalDoneViewAnswer.hidden = false;
+              if (clatBtn) clatBtn.hidden = false;
+              setTimeout(function () {
+                runClatExamAnalysis(submitResult);
+              }, 450);
             }
           }
         }
@@ -5538,6 +5577,13 @@
         document.getElementById('modal-confirm-ok').addEventListener('click', function () {
           submitTestAttempt({ timedOut: false, fromConfirm: true });
         });
+
+        var modalDoneClatBtn = document.getElementById('modal-done-clat-analysis');
+        if (modalDoneClatBtn) {
+          modalDoneClatBtn.addEventListener('click', function () {
+            if (lastSubmitResultForAnalysis) runClatExamAnalysis(lastSubmitResultForAnalysis);
+          });
+        }
 
         Array.prototype.slice.call(document.querySelectorAll('[data-close-modal]')).forEach(function (el) {
           el.addEventListener('click', function () {

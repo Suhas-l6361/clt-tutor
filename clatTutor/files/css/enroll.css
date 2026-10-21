@@ -1,0 +1,474 @@
+/* CLATutor — shareable enroll landing (standalone, no site chrome) */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body.enroll-body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  color: #f4f1ea;
+  background: #0b1210;
+  overflow-x: hidden;
+}
+
+.enroll-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 12% 18%, rgba(212, 175, 55, 0.22), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 88% 72%, rgba(45, 122, 98, 0.35), transparent 50%),
+    radial-gradient(ellipse 40% 30% at 60% 8%, rgba(255, 255, 255, 0.04), transparent 45%),
+    linear-gradient(165deg, #0b1210 0%, #12201c 48%, #0a0f0e 100%);
+}
+
+.enroll-bg__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(244, 241, 234, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 241, 234, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+}
+
+.enroll-bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: enroll-float 14s ease-in-out infinite;
+}
+
+.enroll-bg__orb--a {
+  width: min(42vw, 320px);
+  height: min(42vw, 320px);
+  top: -8%;
+  right: -6%;
+  background: rgba(212, 175, 55, 0.18);
+}
+
+.enroll-bg__orb--b {
+  width: min(50vw, 380px);
+  height: min(50vw, 380px);
+  bottom: -12%;
+  left: -10%;
+  background: rgba(45, 122, 98, 0.28);
+  animation-delay: -5s;
+}
+
+@keyframes enroll-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(12px, -18px, 0) scale(1.05);
+  }
+}
+
+.enroll-shell {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.enroll-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  animation: enroll-rise 0.7s ease both;
+}
+
+.enroll-brand__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.enroll-brand__mark img {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.enroll-brand__name {
+  font-family: 'Syne', 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.enroll-brand__name span {
+  color: #d4af37;
+}
+
+.enroll-brand__since {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.55);
+  text-align: right;
+  line-height: 1.35;
+}
+
+.enroll-layout {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(1.25rem, 3vw, 2.75rem);
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .enroll-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.enroll-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  animation: enroll-rise 0.85s ease 0.08s both;
+}
+
+.enroll-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e8d48b;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.enroll-title {
+  margin: 0;
+  font-family: 'Syne', 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.35rem, 5.5vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.enroll-title em {
+  font-style: normal;
+  color: #d4af37;
+}
+
+.enroll-lead {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(244, 241, 234, 0.72);
+}
+
+.enroll-points {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.enroll-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: rgba(244, 241, 234, 0.82);
+}
+
+.enroll-points i {
+  margin-top: 0.2rem;
+  color: #d4af37;
+}
+
+.enroll-card {
+  position: relative;
+  border-radius: 28px;
+  padding: clamp(1.35rem, 3vw, 1.85rem);
+  background: rgba(18, 28, 25, 0.72);
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 28px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: enroll-rise 0.9s ease 0.16s both;
+}
+
+.enroll-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), transparent 40%);
+}
+
+.enroll-card__head {
+  position: relative;
+  margin-bottom: 1.15rem;
+}
+
+.enroll-card__title {
+  margin: 0 0 0.35rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.enroll-card__sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(244, 241, 234, 0.6);
+}
+
+.enroll-form {
+  position: relative;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.enroll-field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.58);
+}
+
+.enroll-field input,
+.enroll-field select {
+  width: 100%;
+  appearance: none;
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  border-radius: 14px;
+  background: rgba(8, 12, 11, 0.55);
+  color: #f4f1ea;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.enroll-field select {
+  background-image: linear-gradient(45deg, transparent 50%, #d4af37 50%),
+    linear-gradient(135deg, #d4af37 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.4rem;
+}
+
+.enroll-field input::placeholder {
+  color: rgba(244, 241, 234, 0.35);
+}
+
+.enroll-field input:focus,
+.enroll-field select:focus {
+  border-color: rgba(212, 175, 55, 0.65);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  background: rgba(8, 12, 11, 0.75);
+}
+
+.enroll-field select option {
+  color: #0b1210;
+  background: #f4f1ea;
+}
+
+.enroll-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.enroll-status {
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 0.88rem;
+  color: rgba(244, 241, 234, 0.7);
+}
+
+.enroll-status.is-error {
+  color: #ff8f8f;
+}
+
+.enroll-status.is-ok {
+  color: #8fe0b5;
+}
+
+.enroll-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: 0.25rem;
+  border: 0;
+  border-radius: 16px;
+  padding: 0.95rem 1.2rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: #0b1210;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f0d66b 0%, #d4af37 55%, #b8901f 100%);
+  box-shadow: 0 12px 28px rgba(212, 175, 55, 0.28);
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.enroll-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 34px rgba(212, 175, 55, 0.34);
+}
+
+.enroll-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.enroll-note {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(244, 241, 234, 0.45);
+  text-align: center;
+}
+
+.enroll-success {
+  display: none;
+  position: relative;
+  text-align: center;
+  padding: 1.5rem 0.5rem 0.5rem;
+  animation: enroll-rise 0.55s ease both;
+}
+
+.enroll-card.is-success .enroll-form,
+.enroll-card.is-success .enroll-card__head {
+  display: none;
+}
+
+.enroll-card.is-success .enroll-success {
+  display: block;
+}
+
+.enroll-success__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(45, 122, 98, 0.35);
+  color: #8fe0b5;
+  font-size: 1.5rem;
+}
+
+.enroll-success h2 {
+  margin: 0 0 0.5rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+}
+
+.enroll-success p {
+  margin: 0 0 1.25rem;
+  color: rgba(244, 241, 234, 0.7);
+  line-height: 1.5;
+}
+
+.enroll-success__again {
+  border: 1px solid rgba(244, 241, 234, 0.2);
+  background: transparent;
+  color: #f4f1ea;
+  border-radius: 12px;
+  padding: 0.7rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.enroll-success__again:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #e8d48b;
+}
+
+.enroll-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(244, 241, 234, 0.5);
+  animation: enroll-rise 1s ease 0.22s both;
+}
+
+.enroll-foot a {
+  color: #e8d48b;
+  text-decoration: none;
+}
+
+.enroll-foot a:hover {
+  text-decoration: underline;
+}
+
+@keyframes enroll-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enroll-bg__orb,
+  .enroll-brand,
+  .enroll-hero,
+  .enroll-card,
+  .enroll-foot,
+  .enroll-success {
+    animation: none !important;
+  }
+}

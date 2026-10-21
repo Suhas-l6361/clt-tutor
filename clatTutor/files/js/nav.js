@@ -67,6 +67,7 @@ function initAppChrome(opts) {
     { href: 'leads.html', icon: 'fa-user-plus', label: 'Leads' },
     { href: 'inbox.html', icon: 'fa-envelope', label: 'Business Email' },
     { href: 'uploadOmr.html', icon: 'fa-camera', label: 'Scan OMR' },
+    { href: 'testGpt.html', icon: 'fa-robot', label: 'Test GPT' },
     { href: 'addCounceler.html', icon: 'fa-user-shield', label: 'Add Counceler' },
   ];
 
@@ -103,6 +104,7 @@ function initAppChrome(opts) {
     'retrival.html': '../image/retrive data.png',
     'inbox.html': '../image/Business Mail.png',
     'uploadOmr.html': '../image/scan-omr.png',
+    'testGpt.html': '../image/test.png',
     'addCounceler.html': '../image/add councelor.png',
   };
 

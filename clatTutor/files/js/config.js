@@ -77,6 +77,14 @@ const APP_CONFIG = {
   COURSES_FEE_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/coursesFee',
   /** Today's birthdays (GET public). POST sends a wish and needs a CRM JWT. */
   BIRTHDAY_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/birthdayWish',
+  /** CRM — Test GPT chat (POST JSON { message, history? }). Deploy: Backend/extra_quries testGpt */
+  TEST_GPT_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/testGpt',
+  /** Student — All-India CLAT analysis after exam submit (POST). Deployed: extra_quries examAnalysis */
+  EXAM_ANALYSIS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/examAnalysis',
+  /** CRM — DAM documents (S3 dam-clatutor). Deploy: Backend/extra_quries dam */
+  DAM_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/dam',
+  /** Public / CRM — enrollment leads. Deploy: Backend/extra_quries enroll */
+  ENROLL_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/enroll',
   /** CRM — assign students to a branch batch (log only; does not update general_info) */
   ASSIGN_STUDENT_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',

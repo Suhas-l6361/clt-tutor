@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/student-shell.css" />
+  <link rel="stylesheet" href="../css/clat-exam-analysis.css?v=20261022exam2" />
   <style>
     .sd-wrap {
       display: grid;
@@ -792,6 +793,9 @@
       background: #fff;
       display: flex;
       justify-content: flex-end;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
     .sd-omr-foot .btn-close-sheet {
       border: 1px solid #d1d5db;
@@ -1017,6 +1021,9 @@
           </div>
         </div>
         <div class="sd-omr-foot">
+          <button type="button" class="cea-trigger" id="sd-omr-clat-analysis" hidden>
+            <i class="fa-solid fa-ranking-star" aria-hidden="true"></i> All-India CLAT analysis
+          </button>
           <button type="button" class="btn-close-sheet" id="sd-omr-close-foot">Close</button>
         </div>
       </div>
@@ -1074,7 +1081,8 @@
   </div>
   <div id="app-root" class="app-shell"></div>
 
-  <script src="../js/config.js?v=20261003bd2"></script>
+  <script src="../js/config.js?v=20261022exam2"></script>
+  <script src="../js/clat-exam-analysis.js?v=20261022exam2"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/student-access.js?v=20260903mock"></script>
@@ -1420,24 +1428,63 @@
         return rows;
       }
 
+      function runOmrClatAnalysis(attempt) {
+        if (!attempt || !window.ClatExamAnalysis || typeof window.ClatExamAnalysis.open !== 'function') return;
+        var correct = attempt.correctAnswer != null ? Number(attempt.correctAnswer) : 0;
+        var answered =
+          attempt.answered_questions != null
+            ? Number(attempt.answered_questions)
+            : attempt.attended_queations != null
+              ? Number(attempt.attended_queations)
+              : 0;
+        if (!Number.isFinite(correct)) correct = 0;
+        if (!Number.isFinite(answered)) answered = 0;
+        var wrong = Math.max(0, answered - correct);
+        var totalKey =
+          attempt.total_questions_in_key != null
+            ? Number(attempt.total_questions_in_key)
+            : resolveTotalQuestions(attempt, normalizeAnswersMap(attempt.answers));
+        var payload = {
+          title: attempt.title || 'OMR mock',
+          isOmr: true,
+          correct: correct,
+          wrong: wrong,
+          unanswered: attempt.unanswered_questions != null ? Number(attempt.unanswered_questions) : 0,
+          total_questions: Number.isFinite(totalKey) ? totalKey : 0,
+          marks_correct: 1,
+          marks_negative: 0.25,
+          percentage: attempt.percentage != null ? Number(attempt.percentage) : null,
+          grade: attempt.letter_grade || null,
+        };
+        window.ClatExamAnalysis.open(payload);
+      }
+
       function renderOmrSheet(attempt) {
         var sheet = document.getElementById('sd-omr-sheet');
         var colsEl = document.getElementById('sd-omr-cols');
         var statusEl = document.getElementById('sd-omr-status');
         var metaL = document.getElementById('sd-omr-meta-left');
         var metaR = document.getElementById('sd-omr-meta-right');
+        var clatBtn = document.getElementById('sd-omr-clat-analysis');
         if (!sheet || !colsEl) return;
         var ansNorm = normalizeAnswersMap(attempt && attempt.answers);
         var totalQ = resolveTotalQuestions(attempt, ansNorm);
         if (totalQ < 1) {
           sheet.hidden = true;
           colsEl.innerHTML = '';
+          if (clatBtn) clatBtn.hidden = true;
           if (statusEl) {
             statusEl.textContent =
               'No question count or answers found for this OMR submission. If this is an old record, submit again from Online test → Enter OMR.';
             statusEl.classList.add('sd-omr-status--err');
           }
           return;
+        }
+        if (clatBtn) {
+          clatBtn.hidden = !(
+            attempt &&
+            (attempt.percentage != null || attempt.correctAnswer != null || attempt.letter_grade)
+          );
         }
         if (statusEl) {
           statusEl.classList.remove('sd-omr-status--err');
@@ -1588,10 +1635,18 @@
         var btnX = document.getElementById('sd-omr-close');
         var btnFoot = document.getElementById('sd-omr-close-foot');
         var sel = document.getElementById('sd-omr-select');
+        var clatBtn = document.getElementById('sd-omr-clat-analysis');
         if (btnOpen) btnOpen.addEventListener('click', openOmrModal);
         if (backdrop) backdrop.addEventListener('click', closeOmrModal);
         if (btnX) btnX.addEventListener('click', closeOmrModal);
         if (btnFoot) btnFoot.addEventListener('click', closeOmrModal);
+        if (clatBtn) {
+          clatBtn.addEventListener('click', function () {
+            var i = sel ? parseInt(sel.value, 10) : 0;
+            if (Number.isNaN(i) || i < 0 || i >= dashOmrAttempts.length) i = 0;
+            runOmrClatAnalysis(dashOmrAttempts[i]);
+          });
+        }
         if (sel) {
           sel.addEventListener('change', function () {
             var i = parseInt(sel.value, 10);

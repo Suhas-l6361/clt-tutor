@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../css/crm-shell.css?v=20261009bak3" />
   <link rel="stylesheet" href="../css/enrollment.css?v=20261003pd1" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <link rel="stylesheet" href="../css/crm-dam.css?v=20261022dam1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -77,17 +78,13 @@
 
       <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="Dashboard actions">
         <div class="crm-workshop-overview__head">
+          <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-dam-btn" aria-haspopup="dialog" aria-controls="crm-dam-modal" aria-expanded="false">
+            <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+            <span>Upload DAM</span>
+          </button>
           <button type="button" class="enrollment-btn" id="crm-batch-btn-create" aria-haspopup="dialog" aria-controls="crm-batch-modal" aria-expanded="false">
             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
             <span>Create batch</span>
-          </button>
-          <button type="button" class="enrollment-btn" id="crm-mock-reg-btn" aria-haspopup="dialog" aria-controls="crm-mock-reg-modal" aria-expanded="false">
-            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
-            <span>Mock test registrations</span>
-          </button>
-          <button type="button" class="enrollment-btn" id="crm-workshop-btn-show" aria-haspopup="dialog" aria-controls="crm-workshop-modal" aria-expanded="false">
-            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-            <span>September workshop registrations</span>
           </button>
           <button type="button" class="enrollment-btn enrollment-btn--accent" id="crm-course-fee-btn" hidden aria-haspopup="dialog" aria-controls="crm-course-fee-modal" aria-expanded="false">
             <i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i>
@@ -517,6 +514,67 @@
   </div>
 
   <div
+    id="crm-dam-modal"
+    class="crm-dam-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-dam-modal-title"
+  >
+    <div class="crm-dam-modal__backdrop" data-crm-dam-close tabindex="-1"></div>
+    <div class="crm-dam-modal__dialog">
+      <div class="crm-dam-modal__head">
+        <div>
+          <p class="crm-dam-modal__eyebrow">
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            Document archive
+          </p>
+          <h3 class="crm-dam-modal__title" id="crm-dam-modal-title">Upload DAM</h3>
+          <p class="crm-dam-modal__lead">Add a subject and upload PDF / Word files. Use + to add more documents.</p>
+        </div>
+        <button type="button" class="crm-dam-modal__close" data-crm-dam-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="crm-dam-modal__body">
+        <h4 id="crm-dam-form-title" style="margin:0 0 0.65rem;font-size:0.95rem;">Upload documents</h4>
+        <form id="crm-dam-form" class="crm-dam-form" novalidate>
+          <div class="crm-dam-field">
+            <label for="crm-dam-subject">Subject name</label>
+            <input id="crm-dam-subject" name="subject" type="text" maxlength="100" placeholder="e.g. Legal Reasoning" required />
+          </div>
+          <div class="crm-dam-field">
+            <label>Documents (PDF / Word)</label>
+            <div class="crm-dam-files">
+              <div id="crm-dam-file-rows"></div>
+              <button type="button" class="crm-dam-file-add" id="crm-dam-file-add" title="Add another document" aria-label="Add another document">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p class="crm-dam-hint">Accepted: .pdf, .doc, .docx · Click + to upload more files for the same subject.</p>
+          </div>
+          <p id="crm-dam-error" class="crm-dam-error" hidden></p>
+          <p id="crm-dam-status" class="crm-dam-status" hidden></p>
+          <div class="crm-dam-actions">
+            <button type="button" class="crm-dam-btn crm-dam-btn--ghost" id="crm-dam-cancel-edit">Reset</button>
+            <button type="submit" class="crm-dam-btn crm-dam-btn--primary" id="crm-dam-submit">Upload &amp; save</button>
+          </div>
+        </form>
+
+        <section class="crm-dam-history" id="crm-dam-history" hidden aria-label="DAM history">
+          <h4 class="crm-dam-history__title">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            History
+          </h4>
+          <p id="crm-dam-history-loading" class="crm-dam-loading" hidden>Loading history…</p>
+          <p id="crm-dam-history-empty" class="crm-dam-empty" hidden>No DAM uploads yet.</p>
+          <div id="crm-dam-history-list" class="crm-dam-history__list"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="crm-workshop-modal"
     class="crm-workshop-modal"
     hidden
@@ -717,6 +775,7 @@
   <script src="../js/crm-dashboard-fees-backup.js?v=20261009bak5"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
   <script src="../js/crm-dashboard-workshop.js?v=20260921sepws"></script>
+  <script src="../js/crm-dashboard-dam.js?v=20261022dam2"></script>
   <script src="../js/crm-dashboard-mock-registrations.js?v=20260917mock1"></script>
   <script src="../js/crm-dashboard-course-fee.js?v=20261012fee1"></script>
   <script src="../js/crm-dashboard-product-details.js?v=20261003pd1"></script>

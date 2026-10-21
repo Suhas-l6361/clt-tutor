@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test GPT — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/test-gpt.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard">
+  <div id="stock" style="display: none">
+    <div class="tgpt-wrap">
+      <header class="tgpt-head">
+        <h1><i class="fa-solid fa-robot" style="color: var(--accent, #c9a227)"></i> Test GPT</h1>
+        <p>Chat with AI (Groq) here to try replies. Only for CRM admins — does not change other CRM data.</p>
+      </header>
+
+      <div class="tgpt-toolbar">
+        <button type="button" class="tgpt-clear" id="tgpt-clear">
+          <i class="fa-solid fa-broom"></i> Clear chat
+        </button>
+      </div>
+
+      <section class="tgpt-chat" aria-label="AI test chat">
+        <div class="tgpt-messages" id="tgpt-messages">
+          <div class="tgpt-empty" id="tgpt-empty">
+            <div><i class="fa-solid fa-comments"></i></div>
+            <strong>Ask anything</strong>
+            <p style="margin: 0.4rem 0 0">Type a question below and get a clear reply from AI.</p>
+          </div>
+        </div>
+        <form class="tgpt-composer" id="tgpt-form">
+          <textarea
+            id="tgpt-input"
+            rows="2"
+            placeholder="Type your message… (Enter to send, Shift+Enter for new line)"
+            maxlength="4000"
+            aria-label="Message"
+          ></textarea>
+          <button type="submit" id="tgpt-send">
+            <i class="fa-solid fa-paper-plane"></i> Send
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/test-gpt-page.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'testGpt.html', title: 'Test GPT', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof initTestGptPage === 'function') initTestGptPage();
+    });
+  </script>
+</body>
+</html>

@@ -52,6 +52,7 @@
     'communications.html',
     'uploadOmr.html',
     'upload-general-info.html',
+    'testGpt.html',
     'addCounceler.html',
   ];
 
@@ -187,7 +188,11 @@
       if (file === 'inbox.html') {
         return this.canAccessBusinessEmail();
       }
-      if (file === 'changePassword.html' || file === 'addCounceler.html') {
+      if (
+        file === 'changePassword.html' ||
+        file === 'addCounceler.html' ||
+        file === 'testGpt.html'
+      ) {
         return this.isFullCrmAdmin();
       }
       if (!this.isCounceler()) return true;
@@ -221,7 +226,7 @@
         const access = this.getCouncelerAccess();
         filtered = list.filter(function (l) {
           if (!l || !l.href) return false;
-          if (l.href === 'addCounceler.html') return false;
+          if (l.href === 'addCounceler.html' || l.href === 'testGpt.html') return false;
           return !!(
             access[l.href] ||
             (l.href === 'fetch-from-ITS.html' && access['fetch-from-topranker.html'])
