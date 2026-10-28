@@ -7,12 +7,31 @@
   var MODAL_ID = 'cea-modal-root';
   var DEFAULT_EXAM_ANALYSIS_API =
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/examAnalysis';
+  /** Same score payload → reuse last result (avoids flicker / tip drift on re-click). */
+  var resultCache = {};
 
   function apiUrl() {
     return (
       (global.APP_CONFIG && global.APP_CONFIG.EXAM_ANALYSIS_API) ||
       DEFAULT_EXAM_ANALYSIS_API
     );
+  }
+
+  function payloadCacheKey(payload) {
+    var p = payload || {};
+    return [
+      p.correct,
+      p.wrong,
+      p.unanswered,
+      p.total_questions,
+      p.marks_correct,
+      p.marks_negative,
+      p.net_marks,
+      p.max_marks,
+      p.percentage,
+      p.grade,
+      p.isOmr ? 1 : 0,
+    ].join('|');
   }
 
   function ensureModal() {
@@ -140,7 +159,12 @@
         esc(tip) +
         '</p>' +
         '</div>' +
-        '<p class="cea-disclaimer">Estimate from recent CLAT trends — not an official Consortium rank.</p>' +
+        '<p class="cea-disclaimer">' +
+        esc(
+          all.disclaimer ||
+            'Approx. All-India rank from a fixed marks→AIR band table (same marks = same rank every time). Not an official Consortium of NLUs rank.'
+        ) +
+        '</p>' +
         '</div>';
     }
   }
@@ -205,6 +229,12 @@
       showError('EXAM_ANALYSIS_API is not configured.');
       return;
     }
+    var cacheKey = payloadCacheKey(payload);
+    if (resultCache[cacheKey]) {
+      ensureModal().hidden = false;
+      renderResult(resultCache[cacheKey]);
+      return;
+    }
     showLoading(payload && payload.title ? String(payload.title) : 'Checking…');
     try {
       var res = await fetch(url, {
@@ -222,6 +252,7 @@
         showError(data.message || 'Could not analyse this attempt.');
         return;
       }
+      resultCache[cacheKey] = data;
       renderResult(data);
     } catch (_) {
       showError('Network error. Check your connection and try again.');

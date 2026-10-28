@@ -544,25 +544,13 @@
       }
 
       .exam-panel--review .exam-palette {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 0.35rem;
       }
 
       .exam-panel--review .exam-palette button {
         min-height: 34px;
         font-size: 0.78rem;
-      }
-
-      .exam-panel--review .exam-palette-next {
-        width: calc(100% - 1.2rem);
-        margin-left: 0.6rem;
-        margin-right: 0.6rem;
-      }
-
-      .exam-panel--review .exam-legend {
-        font-size: 0.68rem;
-        padding: 0.5rem 0.6rem 0.65rem;
-        gap: 0.3rem;
       }
 
       .exam-panel--review .exam-counts {
@@ -840,50 +828,32 @@
       box-shadow: inset 0 0 0 2px #7c3aed;
       color: #14532d;
     }
-    .exam-palette-next {
-      display: flex;
-      flex-shrink: 0;
-      box-sizing: border-box;
-      width: calc(100% - 1.5rem);
-      margin: 0.45rem 0.75rem 0.15rem;
-      padding: 0.5rem 0.4rem;
-      justify-content: center;
-      text-align: center;
-      font-size: 0.78rem;
-      font-weight: 600;
-      line-height: 1.25;
-      white-space: normal;
-    }
-    .exam-palette-next[hidden] {
-      display: none !important;
-    }
-
     .exam-q-feedback {
       flex-shrink: 0;
       display: grid;
-      gap: 0.4rem;
-      padding: 0.65rem 0.75rem 0.75rem;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem 0.55rem;
       border-top: 1px solid rgba(234, 217, 163, 0.45);
       background: rgba(255, 255, 255, 0.72);
     }
     .exam-q-feedback__label {
       margin: 0;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: #dc2626;
     }
     .exam-q-feedback__input {
       width: 100%;
-      min-height: 4.2rem;
-      max-height: 6.5rem;
+      min-height: 2.8rem;
+      max-height: 4.5rem;
       resize: vertical;
       box-sizing: border-box;
       border: 1px solid #e6d7a2;
       border-radius: 10px;
-      padding: 0.45rem 0.55rem;
+      padding: 0.4rem 0.5rem;
       font: inherit;
-      font-size: 0.78rem;
-      line-height: 1.4;
+      font-size: 0.76rem;
+      line-height: 1.35;
       color: #1f2937;
       background: #fff;
     }
@@ -896,9 +866,9 @@
       width: 100%;
       justify-content: center;
       border-radius: 10px;
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 0.4rem 0.6rem;
+      padding: 0.35rem 0.55rem;
     }
     .exam-q-feedback__submit:disabled {
       opacity: 0.65;
@@ -914,42 +884,24 @@
       color: #b91c1c;
     }
 
-    .exam-legend {
-      padding: 0.65rem 0.75rem 0.85rem;
-      border-top: 1px solid rgba(234, 217, 163, 0.45);
-      font-size: 0.72rem;
-      color: var(--muted);
-      display: grid;
-      gap: 0.35rem;
-    }
-    .exam-legend__row {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .exam-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 4px;
+    .exam-submit-wrap {
       flex-shrink: 0;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 0.35rem 0.75rem 0.55rem;
     }
-    .exam-dot--a {
-      background: #dcfce7;
-      border-color: #86efac;
+    .exam-submit-test {
+      width: 100%;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 0.55rem 0.7rem;
+      gap: 0.4rem;
     }
-    .exam-dot--v {
-      background: #f3f4f6;
-      border-color: #e5e7eb;
+    .exam-submit-test:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
-    .exam-dot--n {
-      background: #fce7f3;
-      border-color: #fbcfe8;
-    }
-    .exam-dot--r {
-      background: #f5f3ff;
-      box-shadow: inset 0 0 0 1px #7c3aed;
-    }
+
     .exam-counts {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -2209,8 +2161,8 @@
       .exam-panel--review .exam-palette-scroll {
         flex: 0 1 auto;
         min-height: 0;
-        max-height: min(28vh, 220px);
-        max-height: min(28dvh, 220px);
+        max-height: min(36vh, 300px);
+        max-height: min(36dvh, 300px);
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
@@ -2218,14 +2170,6 @@
 
       .exam-palette {
         grid-template-columns: repeat(8, 1fr);
-      }
-
-      .exam-legend {
-        flex-shrink: 0;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.4rem 0.65rem;
-        padding: 0.55rem 0.75rem 0.65rem;
       }
 
       .exam-counts {
@@ -2250,8 +2194,8 @@
       }
 
       .exam-panel--review .exam-palette-scroll {
-        max-height: min(26vh, 200px);
-        max-height: min(26dvh, 200px);
+        max-height: min(34vh, 280px);
+        max-height: min(34dvh, 280px);
       }
 
       .exam-palette {
@@ -2308,10 +2252,6 @@
       .exam-palette button {
         min-height: 34px;
         font-size: 0.8rem;
-      }
-
-      .exam-legend {
-        grid-template-columns: 1fr;
       }
 
       .exam-counts {
@@ -2599,33 +2539,26 @@
           <div class="exam-palette-scroll">
             <div class="exam-palette" id="exam-palette"></div>
           </div>
-          <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-prev" hidden>
-            Show previous question list
-          </button>
-          <button type="button" class="btn btn-exam-secondary exam-palette-next" id="btn-palette-next">
-            Show next question list
-          </button>
           <div class="exam-q-feedback">
             <p class="exam-q-feedback__label">Please write 2 to 3 lines about the error</p>
             <textarea
               id="exam-q-feedback-text"
               class="exam-q-feedback__input"
               maxlength="300"
-              rows="3"
+              rows="2"
               placeholder="Write your feedback for this question"
             ></textarea>
-            <button type="button" class="btn btn-exam-primary exam-q-feedback__submit" id="btn-q-feedback">
-              Submit
+            <button type="button" class="btn btn-exam-secondary exam-q-feedback__submit" id="btn-q-feedback">
+              Send feedback
             </button>
             <p class="exam-q-feedback__msg" id="exam-q-feedback-msg" hidden></p>
           </div>
-          <div class="exam-legend">
-            <div class="exam-legend__row"><span class="exam-dot exam-dot--a"></span> Answered</div>
-            <div class="exam-legend__row"><span class="exam-dot exam-dot--v"></span> Not visited</div>
-            <div class="exam-legend__row"><span class="exam-dot exam-dot--n"></span> Visited, not answered</div>
-            <div class="exam-legend__row"><span class="exam-dot exam-dot--r"></span> Marked for review</div>
+          <div class="exam-submit-wrap">
+            <button type="button" class="btn btn-exam-primary exam-submit-test" id="btn-submit-test">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit test
+            </button>
           </div>
-            <div class="exam-counts">
+          <div class="exam-counts">
             <div>
               <span class="n" id="cnt-answered">0</span>
               <span class="lbl">Answered</span>
@@ -2860,13 +2793,13 @@
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <script src="../js/config.js?v=20261022exam2"></script>
-  <script src="../js/clat-exam-analysis.js?v=20261022exam2"></script>
+  <script src="../js/clat-exam-analysis.js?v=20261028rankfix1"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../js/exam-question-parser.js?v=20261009q98"></script>
   <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
   <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/data-store.js"></script>
-  <script src="../js/auth.js"></script>
+  <script src="../js/auth.js?v=20261028stafflogin1"></script>
   <script src="../js/student-access.js?v=20260903mock"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20260903mock"></script>
@@ -3517,8 +3450,7 @@
         var btnSaveNext = document.getElementById('btn-save-next');
         var btnPrevQuestion = document.getElementById('btn-prev-question');
         var btnClear = document.getElementById('btn-clear');
-        var btnPalettePrev = document.getElementById('btn-palette-prev');
-        var btnPaletteNext = document.getElementById('btn-palette-next');
+        var btnSubmitTest = document.getElementById('btn-submit-test');
         var feedbackTextEl = document.getElementById('exam-q-feedback-text');
         var btnQFeedback = document.getElementById('btn-q-feedback');
         var feedbackMsgEl = document.getElementById('exam-q-feedback-msg');
@@ -3526,8 +3458,6 @@
         var feedbackSending = false;
         var QUESTION_FEEDBACK_API =
           'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/queationFeedback';
-        var palettePageStart = 0;
-        var PALETTE_PAGE_SIZE = 10;
 
         function setFeedbackMsg(text, isError) {
           if (!feedbackMsgEl) return;
@@ -3678,12 +3608,6 @@
           return String(v == null ? '' : v).trim();
         }
 
-        function ensurePalettePageIncludesCurrent() {
-          if (idx < palettePageStart || idx >= palettePageStart + PALETTE_PAGE_SIZE) {
-            palettePageStart = Math.floor(idx / PALETTE_PAGE_SIZE) * PALETTE_PAGE_SIZE;
-          }
-        }
-
         function updateActionVisibility() {
           if (!btnSaveNext) return;
           var isLast = qs.length > 0 && idx >= qs.length - 1;
@@ -3696,17 +3620,63 @@
           }
         }
 
-        function openConfirmSubmitModal() {
+        function getAttemptSummary() {
+          flushCurrentAnswer();
+          var answered = 0;
           var unanswered = 0;
+          var total = qs.length || 0;
           for (var i = 0; i < qs.length; i++) {
-            if (!answers[qKey(qs[i])]) unanswered++;
+            if (answers[qKey(qs[i])]) answered++;
+            else unanswered++;
           }
+          return { answered: answered, unanswered: unanswered, total: total };
+        }
+
+        function openConfirmSubmitModal() {
+          if (isSubmitting) return;
+          var summary = getAttemptSummary();
+          var message =
+            summary.unanswered > 0
+              ? 'You still have unanswered questions. You can submit now — analysis will use the answers you marked.'
+              : 'Ready to submit? Your attempt will be graded and the analysis will open next.';
+
+          if (typeof window.showFriendlyConfirm === 'function') {
+            window
+              .showFriendlyConfirm({
+                title: 'Submit this test?',
+                message: message,
+                icon: 'fa-solid fa-clipboard-check',
+                confirmIcon: 'fa-solid fa-paper-plane',
+                cancelText: 'Keep attempting',
+                confirmText: 'Yes, submit',
+                details: [
+                  { label: 'Answered', value: String(summary.answered), tone: 'success' },
+                  {
+                    label: 'Not answered',
+                    value: String(summary.unanswered),
+                    tone: summary.unanswered ? 'warning' : 'neutral',
+                  },
+                  { label: 'Total questions', value: String(summary.total), tone: 'neutral' },
+                ],
+              })
+              .then(function (confirmed) {
+                if (confirmed) submitTestAttempt({ timedOut: false, fromConfirm: true });
+              });
+            return;
+          }
+
           var cbody = document.getElementById('modal-confirm-body');
           if (cbody) {
             cbody.textContent =
-              unanswered > 0
-                ? 'You have ' + unanswered + ' unanswered question(s). Submit anyway?'
-                : 'You are about to submit the test. Continue?';
+              summary.unanswered > 0
+                ? 'You answered ' +
+                  summary.answered +
+                  ' of ' +
+                  summary.total +
+                  '. ' +
+                  summary.unanswered +
+                  ' unanswered. Submit anyway?'
+                : 'You answered all ' + summary.total + ' questions. Submit now?';
           }
           var mc = document.getElementById('modal-confirm');
           if (mc) mc.hidden = false;
@@ -3771,7 +3741,6 @@
         function renderQuestion() {
           var q = currentQ();
           visited[qKey(q)] = true;
-          ensurePalettePageIncludesCurrent();
           renderRef(q);
           qnoEl.textContent = 'Question ' + q.number;
           if (sectionChipEl) {
@@ -3837,8 +3806,7 @@
 
         function renderPalette() {
           paletteEl.innerHTML = '';
-          var end = Math.min(palettePageStart + PALETTE_PAGE_SIZE, qs.length);
-          for (var i = palettePageStart; i < end; i++) {
+          for (var i = 0; i < qs.length; i++) {
             var q = qs[i];
             var btn = document.createElement('button');
             btn.type = 'button';
@@ -3852,14 +3820,6 @@
               });
             })(i);
             paletteEl.appendChild(btn);
-          }
-          if (btnPalettePrev) {
-            btnPalettePrev.hidden = qs.length <= PALETTE_PAGE_SIZE || palettePageStart <= 0;
-          }
-          if (btnPaletteNext) {
-            btnPaletteNext.hidden = qs.length <= PALETTE_PAGE_SIZE;
-            btnPaletteNext.textContent =
-              end >= qs.length ? 'Show question list 1-10' : 'Show next question list';
           }
         }
 
@@ -3916,21 +3876,9 @@
           }
         });
 
-        if (btnPalettePrev) {
-          btnPalettePrev.addEventListener('click', function () {
-            if (!qs.length || palettePageStart <= 0) return;
-            palettePageStart -= PALETTE_PAGE_SIZE;
-            if (palettePageStart < 0) palettePageStart = 0;
-            renderPalette();
-          });
-        }
-
-        if (btnPaletteNext) {
-          btnPaletteNext.addEventListener('click', function () {
-            if (!qs.length) return;
-            palettePageStart += PALETTE_PAGE_SIZE;
-            if (palettePageStart >= qs.length) palettePageStart = 0;
-            renderPalette();
+        if (btnSubmitTest) {
+          btnSubmitTest.addEventListener('click', function () {
+            openConfirmSubmitModal();
           });
         }
 
@@ -4050,7 +3998,7 @@
           if (btnSaveNext) btnSaveNext.disabled = true;
           if (btnPrevQuestion) btnPrevQuestion.disabled = true;
           if (btnClear) btnClear.disabled = true;
-          if (btnPaletteNext) btnPaletteNext.disabled = true;
+          if (btnSubmitTest) btnSubmitTest.disabled = true;
           if (btnQFeedback) btnQFeedback.disabled = true;
           if (feedbackTextEl) feedbackTextEl.disabled = true;
           var radios = optsEl.querySelectorAll('input[type="radio"]');
@@ -4116,28 +4064,50 @@
             okBtn.disabled = true;
             okBtn.textContent = 'Submitting…';
           }
+          if (btnSubmitTest) {
+            btnSubmitTest.disabled = true;
+            btnSubmitTest.innerHTML =
+              '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Submitting…';
+          }
 
-          function finishSubmitUi() {
+          function setSubmitTestIdle() {
+            if (!btnSubmitTest) return;
+            btnSubmitTest.disabled = false;
+            btnSubmitTest.innerHTML =
+              '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit test';
+          }
+
+          function setSubmitTestDone() {
+            if (!btnSubmitTest) return;
+            btnSubmitTest.disabled = true;
+            btnSubmitTest.innerHTML =
+              '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submitted';
+          }
+
+          function finishSubmitUi(restoreSubmit) {
             isSubmitting = false;
             if (okBtn) {
               okBtn.disabled = false;
               okBtn.textContent = 'Yes, submit';
             }
+            if (restoreSubmit) setSubmitTestIdle();
+            else setSubmitTestDone();
           }
 
           if (demoParam || !paper || paper.test_id == null || paper.test_id === '') {
-            finishSubmitUi();
+            finishSubmitUi(false);
             openDoneModal(timedOut, null);
             return;
           }
 
           var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
           if (!session || session.role !== 'student' || !session.user) {
-            finishSubmitUi();
             if (timedOut) {
+              finishSubmitUi(false);
               openDoneModal(true, null);
               alert('Time is up. Sign in as a student to save attempts to the server.');
             } else {
+              finishSubmitUi(true);
               alert('Please sign in as a student to submit your test.');
             }
             return;
@@ -4145,12 +4115,13 @@
 
           var apiSubmit = getSubmitOnlineTestApiUrl();
           if (!apiSubmit) {
-            finishSubmitUi();
             var apiMsg = 'Submit API is not configured (SUBMIT_ONLINE_TEST_API in config.js).';
             if (timedOut) {
+              finishSubmitUi(false);
               openDoneModal(true, null);
               alert('Time is up. ' + apiMsg);
             } else {
+              finishSubmitUi(true);
               alert(apiMsg);
             }
             return;
@@ -4158,9 +4129,13 @@
 
           var payload = buildSubmitPayload();
           if (!payload) {
-            finishSubmitUi();
-            if (timedOut) openDoneModal(true, null);
-            else alert('Please sign in as a student to submit your test.');
+            if (timedOut) {
+              finishSubmitUi(false);
+              openDoneModal(true, null);
+            } else {
+              finishSubmitUi(true);
+              alert('Please sign in as a student to submit your test.');
+            }
             return;
           }
 
@@ -4175,6 +4150,7 @@
                   })
                   .catch(function () {});
 
+          var submitFailed = false;
           prepareAnswerKey
             .then(function () {
               var submitPayload = buildSubmitPayload();
@@ -4189,6 +4165,7 @@
               openDoneModal(timedOut, data);
             })
             .catch(function (err) {
+              submitFailed = true;
               hideGradingLoading();
               if (modalDone) modalDone.hidden = true;
               alert(
@@ -4196,7 +4173,9 @@
                   (err && err.message ? err.message : 'Could not submit test.')
               );
             })
-            .finally(finishSubmitUi);
+            .finally(function () {
+              finishSubmitUi(submitFailed);
+            });
         }
 
         function extractTextFromAnswerViaApi(testId) {
@@ -5534,11 +5513,21 @@
                   (qs.length || '—') +
                   ' question(s) answered.';
               } else if (hasStats) {
-                body.textContent = 'Your attempt was saved. Review your performance below.';
+                body.textContent =
+                  'You attempted ' +
+                  answered +
+                  ' of ' +
+                  (qs.length || '—') +
+                  ' questions. Review your performance below.';
               } else if (submitResult && submitResult.grading_warning) {
                 body.textContent = submitResult.grading_warning;
               } else {
-                body.textContent = 'Your responses have been recorded for this session.';
+                body.textContent =
+                  'Your responses have been recorded (' +
+                  answered +
+                  ' of ' +
+                  (qs.length || '—') +
+                  ' attempted).';
               }
             }
 
@@ -6347,11 +6336,31 @@
           return card;
         }
 
+        function isTestAttended(row, attemptsByTestId) {
+          if (!row || row.test_id == null) return false;
+          var map = attemptsByTestId || {};
+          var att = map[row.test_id] != null ? map[row.test_id] : map[String(row.test_id)];
+          return !!(att && att.completed);
+        }
+
+        /** Open / not-yet-taken first, then attended; newer test ids first within each group. */
+        function sortTestsOpenThenAttended(rows, attemptsByTestId) {
+          return (rows || []).slice().sort(function (a, b) {
+            var doneA = isTestAttended(a, attemptsByTestId);
+            var doneB = isTestAttended(b, attemptsByTestId);
+            if (doneA !== doneB) return doneA ? 1 : -1;
+            var idA = Number(a && a.test_id);
+            var idB = Number(b && b.test_id);
+            if (Number.isFinite(idA) && Number.isFinite(idB) && idA !== idB) return idB - idA;
+            return 0;
+          });
+        }
+
         function renderTestCardsInto(container, rows, attemptsByTestId) {
           if (!container) return;
           container.innerHTML = '';
           var map = attemptsByTestId || {};
-          rows.forEach(function (row) {
+          sortTestsOpenThenAttended(rows, map).forEach(function (row) {
             container.appendChild(buildTestCardElement(row, map));
           });
         }

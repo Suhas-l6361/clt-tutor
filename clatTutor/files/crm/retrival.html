@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/retrival.css?v=20261003excel" />
+  <link rel="stylesheet" href="../css/retrival.css?v=20261028stafflogin1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard">
@@ -111,8 +111,8 @@
             <thead id="retrival-thead">
               <tr>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Password</th>
+                <th class="retrival-th-cred">Email</th>
+                <th class="retrival-th-cred">Password</th>
                 <th>Phone</th>
                 <th>Parent Phone</th>
                 <th>DOB</th>
@@ -123,7 +123,7 @@
                 <th>Added By</th>
                 <th>Image</th>
                 <th>Actions</th>
-                <th>Assign Book</th>
+                <th>Assign Book / Login</th>
               </tr>
             </thead>
             <tbody id="retrival-table-body">
@@ -508,12 +508,12 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
-  <script src="../js/auth.js"></script>
+  <script src="../js/auth.js?v=20261028stafflogin2"></script>
   <script src="../js/crm-branch-scope.js"></script>
   <script src="../js/student-access.js?v=20260903mock"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20261005itc"></script>
+  <script src="../js/nav.js?v=20261028dam21"></script>
   <script src="../js/crm-chrome.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -675,7 +675,7 @@
       var STUDENT_HEAD_HTML =
         '<tr>' +
         '<th>Name</th><th>Email</th><th>Password</th><th>Phone</th><th>Parent Phone</th><th>DOB</th><th>Source</th>' +
-        '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th><th>Assign Book</th>' +
+        '<th>Batch</th><th>Branch</th><th>Target Year</th><th>Added By</th><th>Image</th><th>Actions</th><th>Assign Book / Login</th>' +
         '</tr>';
       var ACHIEVER_HEAD_HTML =
         '<tr>' +
@@ -708,6 +708,85 @@
         return text(v).replace(/[&<>"']/g, function (ch) {
           return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
         });
+      }
+
+      /** Highlighted email / password cell with one-click copy. */
+      function credentialCell(value, kind) {
+        var raw = value == null ? '' : String(value).trim();
+        if (!raw) {
+          return '<span class="cred-cell cred-cell--empty">—</span>';
+        }
+        var isPass = kind === 'password';
+        var kindClass = isPass ? 'cred-cell--pass' : 'cred-cell--email';
+        var leadIcon = isPass ? 'fa-key' : 'fa-at';
+        var label = isPass ? 'Copy password' : 'Copy email';
+        return (
+          '<div class="cred-cell ' +
+          kindClass +
+          '">' +
+          '<span class="cred-cell__mark" aria-hidden="true"><i class="fa-solid ' +
+          leadIcon +
+          '"></i></span>' +
+          '<span class="cred-cell__value" title="' +
+          safeHtml(raw) +
+          '">' +
+          safeHtml(raw) +
+          '</span>' +
+          '<button type="button" class="cred-cell__copy" data-copy-text="' +
+          safeHtml(raw) +
+          '" title="' +
+          label +
+          '" aria-label="' +
+          label +
+          '">' +
+          '<i class="fa-regular fa-copy" aria-hidden="true"></i>' +
+          '</button>' +
+          '</div>'
+        );
+      }
+
+      function copyCredentialText(raw, btn) {
+        var value = String(raw || '');
+        if (!value || !btn) return;
+
+        function markCopied() {
+          btn.classList.add('is-copied');
+          btn.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
+          btn.setAttribute('title', 'Copied');
+          window.clearTimeout(btn._credCopyTimer);
+          btn._credCopyTimer = window.setTimeout(function () {
+            btn.classList.remove('is-copied');
+            btn.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i>';
+            btn.setAttribute(
+              'title',
+              btn.classList.contains('cred-cell__copy') &&
+                btn.closest('.cred-cell--pass')
+                ? 'Copy password'
+                : 'Copy email'
+            );
+          }, 1400);
+        }
+
+        function fallbackCopy() {
+          var ta = document.createElement('textarea');
+          ta.value = value;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            markCopied();
+          } catch (_) {}
+          document.body.removeChild(ta);
+        }
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          navigator.clipboard.writeText(value).then(markCopied).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
       }
 
       function getPasswordValue(row) {
@@ -1053,6 +1132,27 @@
         );
       }
 
+      function studentLoginButtonHtml(row) {
+        var email = String((row && row.email) || '').trim();
+        var password = String(getPasswordValue(row) || '').trim();
+        var sid = row && (row.student_id != null ? row.student_id : row.id);
+        var disabled = !email || !password || studentIsDropped(row);
+        var title = disabled
+          ? studentIsDropped(row)
+            ? 'Dropped students cannot login'
+            : 'Email or password missing'
+          : 'Open student dashboard as this student (new tab — CRM stays logged in)';
+        return (
+          '<button class="retrival-text-btn retrival-text-btn--login" type="button" data-student-login-id="' +
+          safeHtml(sid) +
+          '"' +
+          (disabled ? ' disabled' : '') +
+          ' title="' +
+          safeHtml(title) +
+          '"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Login</button>'
+        );
+      }
+
       function renderRows(rows) {
         if (!rows.length) {
           tbody.innerHTML = '<tr><td class="retrival-empty" colspan="14">No student records found.</td></tr>';
@@ -1075,8 +1175,8 @@
           return (
             '<tr>' +
             '<td>' + safeHtml(r.name) + '</td>' +
-            '<td>' + safeHtml(r.email) + '</td>' +
-            '<td>' + safeHtml(passwordValue) + '</td>' +
+            '<td class="retrival-td-cred">' + credentialCell(r.email, 'email') + '</td>' +
+            '<td class="retrival-td-cred">' + credentialCell(passwordValue, 'password') + '</td>' +
             '<td>' + safeHtml(r.phone) + '</td>' +
             '<td>' + safeHtml(r.parents_number) + '</td>' +
             '<td>' + safeHtml(r.dob ? asDateOnly(r.dob) : '') + '</td>' +
@@ -1091,7 +1191,10 @@
             dropResumeBtn +
             '<button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button>' +
             '</span></td>' +
-            '<td>' + assignBookButtonHtml(r.student_id || r.id) + '</td>' +
+            '<td><div class="retrival-book-login">' +
+            assignBookButtonHtml(r.student_id || r.id) +
+            studentLoginButtonHtml(r) +
+            '</div></td>' +
             '</tr>'
           );
         }).join('');
@@ -1172,7 +1275,7 @@
             : '-';
           var id = safeHtml(r.id);
           return (
-            '<tr><td>' + safeHtml(r.name) + '</td><td>' + safeHtml(r.email) + '</td><td>' + safeHtml(r.phone) + '</td><td>' + safeHtml(r.branch) + '</td><td>' + safeHtml(r.city) + '</td><td>' + safeHtml(r.added_by) + '</td><td>' + img + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
+            '<tr><td>' + safeHtml(r.name) + '</td><td class="retrival-td-cred">' + credentialCell(r.email, 'email') + '</td><td>' + safeHtml(r.phone) + '</td><td>' + safeHtml(r.branch) + '</td><td>' + safeHtml(r.city) + '</td><td>' + safeHtml(r.added_by) + '</td><td>' + img + '</td><td><button class="retrival-icon-btn retrival-icon-btn--delete" type="button" data-delete-id="' + id + '" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>'
           );
         }).join('');
         countEl.textContent = rows.length + ' rows';
@@ -2293,6 +2396,13 @@
       }
 
       function bindRowActionEvents(rows) {
+        Array.prototype.slice.call(document.querySelectorAll('.cred-cell__copy[data-copy-text]')).forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            copyCredentialText(btn.getAttribute('data-copy-text') || '', btn);
+          });
+        });
         Array.prototype.slice.call(document.querySelectorAll('[data-show-image]')).forEach(function (btn) {
           btn.addEventListener('click', function () {
             var api = btn.getAttribute('data-image-api') || 'student';
@@ -2343,6 +2453,43 @@
                 return String(r.student_id || r.id) === String(id);
               });
               if (row) openAssignBookModal(row);
+            });
+          });
+          Array.prototype.slice.call(document.querySelectorAll('[data-student-login-id]')).forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              if (btn.disabled) return;
+              var id = btn.getAttribute('data-student-login-id');
+              var row = rows.find(function (r) {
+                return String(r.student_id || r.id) === String(id);
+              });
+              if (!row) return;
+              var email = String(row.email || '').trim();
+              var password = String(getPasswordValue(row) || '').trim();
+              if (!email || !password) {
+                window.alert('Email or password missing for this student.');
+                return;
+              }
+              var prevHtml = btn.innerHTML;
+              btn.disabled = true;
+              btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Opening…';
+              try {
+                if (!window.Auth || typeof window.Auth.openStudentDashboardAsStaff !== 'function') {
+                  throw new Error('Login helper not available. Hard-refresh and try again.');
+                }
+                var result = await window.Auth.openStudentDashboardAsStaff(email, password);
+                if (!result || !result.ok) {
+                  throw new Error((result && result.error) || 'Could not open student login');
+                }
+                showSuccessPopup(
+                  'Student Login',
+                  'Opened dashboard for ' + (row.name || email) + ' in a new tab. Your CRM session stays logged in.'
+                );
+              } catch (err) {
+                window.alert((err && err.message) || 'Could not open student login');
+              } finally {
+                btn.disabled = !email || !password || studentIsDropped(row);
+                btn.innerHTML = prevHtml;
+              }
             });
           });
         }

@@ -14,11 +14,33 @@
   var againBtn = document.getElementById('enroll-again');
   var nameInput = document.getElementById('enroll-name');
   var phoneInput = document.getElementById('enroll-phone');
+  var schoolInput = document.getElementById('enroll-school');
+  var centerInput = document.getElementById('enroll-center');
   var gradeInput = document.getElementById('enroll-grade');
   var yearInput = document.getElementById('enroll-year');
   var knownInput = document.getElementById('enroll-known');
+  var otherWrap = document.getElementById('enroll-other-wrap');
+  var otherInput = document.getElementById('enroll-other');
   var honeypot = document.getElementById('enroll-website');
   var successText = document.getElementById('enroll-success-text');
+  var SCHOOL_MSG = 'Enter your school name (at least 2 characters).';
+  var OTHER_MSG = 'Please tell us how you heard about us.';
+
+  function isOtherKnown() {
+    return String((knownInput && knownInput.value) || '').trim().toLowerCase() === 'other';
+  }
+
+  function syncOtherField() {
+    var show = isOtherKnown();
+    if (otherWrap) otherWrap.hidden = !show;
+    if (otherInput) {
+      otherInput.required = !!show;
+      if (!show) {
+        otherInput.value = '';
+        otherInput.setCustomValidity('');
+      }
+    }
+  }
 
   function apiUrl() {
     var c = window.APP_CONFIG || {};
@@ -124,6 +146,22 @@
     }
     if (phoneInput) phoneInput.setCustomValidity('');
 
+    var schoolName = String((schoolInput && schoolInput.value) || '').trim();
+    if (schoolName.length < 2 || schoolName.length > 100) {
+      setStatus(SCHOOL_MSG, 'error');
+      if (schoolInput) {
+        schoolInput.setCustomValidity(SCHOOL_MSG);
+        schoolInput.reportValidity();
+      }
+      return false;
+    }
+    if (schoolInput) schoolInput.setCustomValidity('');
+
+    if (!centerInput || !centerInput.value) {
+      setStatus('Please select a branch.', 'error');
+      if (centerInput) centerInput.focus();
+      return false;
+    }
     if (!gradeInput || !gradeInput.value) {
       setStatus('Please select your grade.', 'error');
       if (gradeInput) gradeInput.focus();
@@ -139,6 +177,19 @@
       if (knownInput) knownInput.focus();
       return false;
     }
+    if (isOtherKnown()) {
+      var otherVal = String((otherInput && otherInput.value) || '').trim();
+      if (otherVal.length < 2 || otherVal.length > 100) {
+        setStatus(OTHER_MSG, 'error');
+        if (otherInput) {
+          otherInput.setCustomValidity(OTHER_MSG);
+          otherInput.reportValidity();
+          otherInput.focus();
+        }
+        return false;
+      }
+      if (otherInput) otherInput.setCustomValidity('');
+    }
     return true;
   }
 
@@ -153,12 +204,16 @@
       return;
     }
 
+    var knownBy = String(knownInput.value).trim();
     var payload = {
       name: String(nameInput.value).trim(),
       phone_number: normalizePhone(phoneInput.value),
+      school_name: String(schoolInput.value).trim(),
+      center: String(centerInput.value).trim(),
       grade: String(gradeInput.value).trim(),
       targetYear: String(yearInput.value).trim(),
-      known_by: String(knownInput.value).trim(),
+      known_by: knownBy,
+      other: knownBy.toLowerCase() === 'other' ? String(otherInput.value || '').trim() : null,
     };
 
     setBusy(true);
@@ -204,8 +259,15 @@
   function init() {
     if (!form) return;
     bindPhoneMask();
+    syncOtherField();
+    if (knownInput) knownInput.addEventListener('change', syncOtherField);
     form.addEventListener('submit', onSubmit);
-    if (againBtn) againBtn.addEventListener('click', resetFormView);
+    if (againBtn) {
+      againBtn.addEventListener('click', function () {
+        resetFormView();
+        syncOtherField();
+      });
+    }
   }
 
   if (document.readyState === 'loading') {

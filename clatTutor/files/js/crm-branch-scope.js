@@ -151,17 +151,23 @@
     });
   }
 
+  function isBlankBranch(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    return !s || s === '—' || s === '-' || s === '–' || !normalizeKey(s);
+  }
+
   function filterFeeReceipts(rows, lookup) {
     if (!isScoped()) return Array.isArray(rows) ? rows.slice() : [];
     return (Array.isArray(rows) ? rows : []).filter(function (r) {
       if (!r) return false;
       var br = r.branch;
-      if (!br && lookup) {
+      // Placeholder "—" must fall through to student lookup (counsellor History bug)
+      if (isBlankBranch(br) && lookup) {
         var sid = r.student_id != null ? String(r.student_id).trim() : '';
         if (sid && lookup.byId && lookup.byId[sid]) {
           br = lookup.byId[sid].branch;
         }
-        if (!br) {
+        if (isBlankBranch(br)) {
           var em = String(r.email || '')
             .trim()
             .toLowerCase();
@@ -169,7 +175,7 @@
             br = lookup.byEmail[em].branch;
           }
         }
-        if (!br) {
+        if (isBlankBranch(br)) {
           var nm = String(r.name || '')
             .trim()
             .toLowerCase();
@@ -248,12 +254,12 @@
     return (Array.isArray(rows) ? rows : []).filter(function (r) {
       if (!r) return false;
       var br = r.branch;
-      if (!br && lookup) {
+      if (isBlankBranch(br) && lookup) {
         var sid = r.student_id != null ? String(r.student_id).trim() : '';
         if (sid && lookup.byId && lookup.byId[sid]) {
           br = lookup.byId[sid].branch;
         }
-        if (!br) {
+        if (isBlankBranch(br)) {
           var em = String(r.email || '')
             .trim()
             .toLowerCase();
@@ -261,7 +267,7 @@
             br = lookup.byEmail[em].branch;
           }
         }
-        if (!br) {
+        if (isBlankBranch(br)) {
           var nm = String(r.name || '')
             .trim()
             .toLowerCase();

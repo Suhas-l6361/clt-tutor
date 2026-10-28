@@ -16,6 +16,7 @@
     { key: 'attendance.html', label: 'Attendance' },
     { key: 'scheduleClass.html', label: 'Schedule Class' },
     { key: 'bookAssigned.html', label: 'Book assigned' },
+    { key: 'DAM.html', label: 'DAM (upload only)' },
     { key: 'parent-credentials.html', label: 'Parent credentials' },
     { key: 'retrival.html', label: 'Retrieve Data' },
     { key: 'enrollment.html', label: 'Enrollment' },

@@ -1324,6 +1324,66 @@ textarea {
   margin-bottom: 0;
 }
 
+/* Live Google rating badge (homepage testimonials) */
+.google-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.85rem 0 0;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #e8eaed;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.1);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: box-shadow 0.2s var(--ease), transform 0.15s var(--ease);
+}
+
+.google-rating-badge:hover {
+  box-shadow: 0 4px 12px rgba(60, 64, 67, 0.14);
+  transform: translateY(-1px);
+}
+
+.google-rating-badge img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.google-rating-badge__score {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #202124;
+}
+
+.google-rating-badge__stars {
+  display: inline-flex;
+  gap: 1px;
+  color: #fbbc04;
+  font-size: 0.78rem;
+}
+
+.google-rating-badge__count {
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 0.86rem;
+}
+
+.testimonial-card__initials {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1a73e8;
+  background: #e8f0fe;
+}
+
 /* Section note — Google reviews cue */
 .section__sub--google-note {
   display: inline-flex;

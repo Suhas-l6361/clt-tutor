@@ -19,7 +19,7 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
   />
-  <link rel="stylesheet" href="css/enroll.css?v=20261022en1" />
+  <link rel="stylesheet" href="css/enroll.css?v=20261028other1" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
   <script src="js/site-protection.js" data-protection-mode="public"></script>
 </head>
@@ -107,6 +107,30 @@
           </div>
 
           <div class="enroll-field">
+            <label for="enroll-school">School name</label>
+            <input
+              id="enroll-school"
+              name="school_name"
+              type="text"
+              autocomplete="organization"
+              maxlength="100"
+              required
+              placeholder="e.g. National Public School"
+            />
+          </div>
+
+          <div class="enroll-field">
+            <label for="enroll-center">Preferred branch</label>
+            <select id="enroll-center" name="center" required>
+              <option value="" selected disabled>Select branch</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Jayanagara">Jayanagara</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+
+          <div class="enroll-field">
             <label for="enroll-grade">Current grade</label>
             <select id="enroll-grade" name="grade" required>
               <option value="" selected disabled>Select grade</option>
@@ -120,8 +144,8 @@
             <label for="enroll-year">Target year</label>
             <select id="enroll-year" name="targetYear" required>
               <option value="" selected disabled>Select year</option>
-              <option value="2026">2026</option>
               <option value="2027">2027</option>
+              <option value="2028">2028</option>
             </select>
           </div>
 
@@ -134,6 +158,18 @@
               <option value="Google">Google</option>
               <option value="Other">Other</option>
             </select>
+          </div>
+
+          <div class="enroll-field enroll-field--other" id="enroll-other-wrap" hidden>
+            <label for="enroll-other">Please specify</label>
+            <input
+              id="enroll-other"
+              name="other"
+              type="text"
+              maxlength="100"
+              placeholder="e.g. YouTube / school seminar"
+              autocomplete="off"
+            />
           </div>
 
           <p id="enroll-status" class="enroll-status" role="status" aria-live="polite"></p>
@@ -168,6 +204,6 @@
 
   <script src="js/config.js"></script>
   <script src="js/friendly-popup.js"></script>
-  <script src="js/enroll-page.js?v=20261022en1"></script>
+  <script src="js/enroll-page.js?v=20261028other1"></script>
 </body>
 </html>

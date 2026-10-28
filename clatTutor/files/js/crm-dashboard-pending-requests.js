@@ -14,10 +14,17 @@
       apiKey: 'REQUEST_CALLBACK_API',
     },
     {
-      key: 'enroll',
+      key: 'admission',
       label: 'Enrollment forms',
       short: 'Enrollment',
       icon: 'fa-file-signature',
+      apiKey: 'ENROLL_REQUEST_API',
+    },
+    {
+      key: 'enroll',
+      label: 'Enroll leads',
+      short: 'Enroll',
+      icon: 'fa-user-plus',
       apiKey: 'ENROLL_API',
     },
     {

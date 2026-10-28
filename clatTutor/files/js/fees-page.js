@@ -2151,7 +2151,12 @@
           throw new Error((x.j && x.j.message) || 'HTTP ' + x.res.status);
         }
         var list = Array.isArray(x.j) ? x.j : [];
-        if (window.CrmBranchScope) {
+        if (window.CrmBranchScope && CrmBranchScope.filterFeeReceipts) {
+          var lookupEdit = CrmBranchScope.buildStudentLookup
+            ? CrmBranchScope.buildStudentLookup(feesStudentsCache)
+            : null;
+          list = CrmBranchScope.filterFeeReceipts(list, lookupEdit);
+        } else if (window.CrmBranchScope) {
           list = CrmBranchScope.filterList(list, function (r) {
             return r && r.branch;
           });
@@ -2835,7 +2840,12 @@
           }
           var list = Array.isArray(x.j) ? x.j : [];
           feesExportRows = list.slice();
-          if (window.CrmBranchScope) {
+          if (window.CrmBranchScope && CrmBranchScope.filterFeeReceipts) {
+            var lookupHist = CrmBranchScope.buildStudentLookup
+              ? CrmBranchScope.buildStudentLookup(feesStudentsCache)
+              : null;
+            list = CrmBranchScope.filterFeeReceipts(list, lookupHist);
+          } else if (window.CrmBranchScope) {
             list = CrmBranchScope.filterList(list, function (r) {
               return r.branch;
             });
@@ -2993,23 +3003,54 @@
       return el ? String(el.textContent || '').trim() : '';
     }
 
+    function cleanDisp(v) {
+      var s = v == null ? '' : String(v).trim();
+      if (!s || s === '—' || s === '-' || s === '–' || s === 'null' || s === 'undefined') return '';
+      return s;
+    }
+
+    /** Real campus branch for save — never persist "—" (hides row from counsellor History). */
+    function resolveBranchForSave() {
+      var fromUi = cleanDisp(textSnap('fees-disp-branch'));
+      if (fromUi) return fromUi;
+      var sid = cleanDisp(textSnap('fees-disp-student-id'));
+      if (sid) {
+        for (var i = 0; i < feesStudentsCache.length; i++) {
+          var st = feesStudentsCache[i];
+          if (st && String(st.student_id != null ? st.student_id : '').trim() === sid) {
+            var sb = cleanDisp(st.branch);
+            if (sb) return sb;
+            break;
+          }
+        }
+      }
+      try {
+        var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
+        var ub = session && session.user ? cleanDisp(session.user.branch) : '';
+        if (ub) return ub;
+      } catch (_) {}
+      return '';
+    }
+
     function collectSnapshot() {
       recomputePaymentTotals();
       var base = formToObject(form);
       var session = typeof Auth !== 'undefined' && Auth.getSession ? Auth.getSession() : null;
       var user = session && session.user ? session.user : null;
       var addedBy = user ? (user.email || user.login || user.name || '') : '';
+      var branchSave = resolveBranchForSave();
       base.receiptIdDisplay = textSnap('fees-receipt-id');
       base.receiptDateDisplay = textSnap('fees-receipt-date');
       base.addedBy = String(addedBy || '').trim() || null;
+      base.branch = branchSave || null;
       base.studentDetail = {
-        name: textSnap('fees-disp-name'),
-        studentId: textSnap('fees-disp-student-id'),
-        phone: textSnap('fees-disp-phone'),
-        dob: textSnap('fees-disp-dob'),
-        batch: textSnap('fees-disp-batch'),
-        branch: textSnap('fees-disp-branch'),
-        address: textSnap('fees-disp-address'),
+        name: cleanDisp(textSnap('fees-disp-name')) || textSnap('fees-disp-name'),
+        studentId: cleanDisp(textSnap('fees-disp-student-id')) || textSnap('fees-disp-student-id'),
+        phone: cleanDisp(textSnap('fees-disp-phone')) || textSnap('fees-disp-phone'),
+        dob: cleanDisp(textSnap('fees-disp-dob')) || textSnap('fees-disp-dob'),
+        batch: cleanDisp(textSnap('fees-disp-batch')) || textSnap('fees-disp-batch'),
+        branch: branchSave || null,
+        address: cleanDisp(textSnap('fees-disp-address')) || textSnap('fees-disp-address'),
       };
       base.installmentPlan = collectInstallmentPlanFromDom();
       base.paymentHistory = collectPaymentHistoryFromDom();
@@ -3353,7 +3394,12 @@
             throw new Error((x.data && x.data.message) || 'Could not load fee details.');
           }
           var list = x.data;
-          if (window.CrmBranchScope && CrmBranchScope.filterList) {
+          if (window.CrmBranchScope && CrmBranchScope.filterFeeReceipts) {
+            var lookupLoad = CrmBranchScope.buildStudentLookup
+              ? CrmBranchScope.buildStudentLookup(feesStudentsCache)
+              : null;
+            list = CrmBranchScope.filterFeeReceipts(list, lookupLoad);
+          } else if (window.CrmBranchScope && CrmBranchScope.filterList) {
             list = CrmBranchScope.filterList(list, function (row) {
               return row && row.branch;
             });

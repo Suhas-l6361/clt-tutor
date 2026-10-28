@@ -1,6 +1,6 @@
 /**
  * CRM dashboard — Upload DAM (PDF/Word → S3 dam-clatutor → DB).
- * Counsellors: upload only. Admins: history + edit + delete.
+ * Counsellors: upload only. Pranab / Niraj: history + edit + delete.
  */
 (function () {
   'use strict';
@@ -23,8 +23,32 @@
     return Object.assign({ Accept: 'application/json' }, extra || {});
   }
 
-  function isAdmin() {
-    return !!(window.Auth && typeof window.Auth.isFullCrmAdmin === 'function' && window.Auth.isFullCrmAdmin());
+  function canManageHistory() {
+    return !!(
+      window.Auth &&
+      typeof window.Auth.canManageDamHistory === 'function' &&
+      window.Auth.canManageDamHistory()
+    );
+  }
+
+  function confirmDeleteDam(subject) {
+    if (typeof window.showFriendlyConfirm === 'function') {
+      return window.showFriendlyConfirm({
+        title: 'Delete DAM entry?',
+        message: 'This subject and its document list will be removed from the database. This cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        icon: 'fa-solid fa-trash',
+        confirmIcon: 'fa-solid fa-trash',
+        details: [
+          { label: 'Subject', value: subject || '—', tone: 'neutral' },
+          { label: 'Action', value: 'Permanent delete', tone: 'danger' },
+        ],
+      });
+    }
+    return Promise.resolve(
+      window.confirm('Delete this DAM entry and its document list? This cannot be undone.')
+    );
   }
 
   function esc(s) {
@@ -253,7 +277,7 @@
     var empty = el('crm-dam-history-empty');
     if (!wrap || !list) return;
 
-    if (!isAdmin()) {
+    if (!canManageHistory()) {
       wrap.hidden = true;
       return;
     }
@@ -376,7 +400,7 @@
     var loading = el('crm-dam-history-loading');
     var empty = el('crm-dam-history-empty');
     var list = el('crm-dam-history-list');
-    if (!isAdmin()) {
+    if (!canManageHistory()) {
       if (wrap) wrap.hidden = true;
       return;
     }
@@ -547,7 +571,11 @@
   }
 
   async function deleteRow(id) {
-    if (!confirm('Delete this DAM entry and its document list from the database?')) return;
+    var row = historyRows.find(function (r) {
+      return String(r.id) === String(id);
+    });
+    var ok = await confirmDeleteDam(row && row.subject);
+    if (!ok) return;
     setError('');
     try {
       var res = await fetch(apiUrl(), {

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAM — CRM</title>
+  <link rel="icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="shortcut icon" type="image/png" href="../image/Clat%20Logo.png" />
+  <link rel="apple-touch-icon" href="../image/Clat%20Logo.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/app.css" />
+  <link rel="stylesheet" href="../css/crm-shell.css" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
+  <link rel="stylesheet" href="../css/crm-dam.css?v=20261028dam22" />
+  <script src="../js/site-protection.js" data-protection-mode="app"></script>
+</head>
+<body class="app-body crm-dashboard dam-crm-page">
+  <div id="stock" style="display: none">
+    <!-- Counsellor: upload only (no history) -->
+    <div id="dam-counsellor-view" class="dam-page" hidden>
+      <header class="dam-hero">
+        <h2>DAM</h2>
+        <p>Upload study material for admin review. You will not see upload history.</p>
+      </header>
+      <div class="dam-counsellor-card">
+        <p class="dam-counsellor-card__lead">
+          Pick PDF / Word files. They go to admin <strong>Incoming</strong>
+          (Malleshwaram → Pranab; other branches → Niraj).
+        </p>
+        <button type="button" class="dam-btn dam-btn--primary" id="dam-counsellor-upload">
+          <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+          Upload data
+        </button>
+        <input
+          id="dam-counsellor-file-input"
+          type="file"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          multiple
+          hidden
+        />
+        <p id="dam-counsellor-error" class="dam-error" hidden></p>
+      </div>
+    </div>
+
+    <!-- Admin: folder browser -->
+    <div id="dam-admin-view" class="dam-page" hidden>
+      <header class="dam-hero">
+        <h2>DAM</h2>
+        <p>Shared folders for Pranab &amp; Niraj. Counsellor uploads land in <strong>Incoming</strong> — select and move them into a folder.</p>
+      </header>
+
+      <div class="dam-topbar">
+        <nav id="dam-breadcrumb" class="dam-breadcrumb" aria-label="Folder path"></nav>
+        <div class="dam-actions-bar">
+          <button type="button" class="dam-btn dam-btn--primary" id="dam-create-folder">
+            <i class="fa-solid fa-folder-plus" aria-hidden="true"></i>
+            Create folder
+          </button>
+          <button type="button" class="dam-btn dam-btn--soft" id="dam-upload-data" hidden>
+            <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+            Upload data
+          </button>
+          <button type="button" class="dam-btn dam-btn--primary" id="dam-move-selected" hidden>
+            <i class="fa-solid fa-folder-tree" aria-hidden="true"></i>
+            Move selected
+          </button>
+          <input
+            id="dam-file-input"
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            multiple
+            hidden
+          />
+        </div>
+      </div>
+
+      <p id="dam-admin-note" class="dam-admin-note" hidden></p>
+      <p id="dam-loading" class="dam-loading" hidden>Loading…</p>
+      <p id="dam-error" class="dam-error" hidden></p>
+      <p id="dam-status" class="dam-status" hidden></p>
+
+      <section class="dam-desktop" aria-label="Folder contents">
+        <div class="dam-desktop__head">
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <span id="dam-location-label">DAM</span>
+        </div>
+        <div class="dam-desktop__body">
+          <div id="dam-empty" class="dam-empty" hidden></div>
+          <div id="dam-grid" class="dam-icon-grid"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="dam-folder-modal" class="dam-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dam-folder-modal-title">
+    <div class="dam-modal__backdrop" data-dam-folder-close tabindex="-1"></div>
+    <div class="dam-modal__card">
+      <div class="dam-modal__icon"><i class="fa-solid fa-folder-plus" aria-hidden="true"></i></div>
+      <h3 id="dam-folder-modal-title">Create folder</h3>
+      <p class="dam-modal__lead" id="dam-folder-modal-lead">Type a name, or use Daman/Part1 for a folder inside a folder.</p>
+      <label class="dam-modal__label" for="dam-folder-name-input">Folder name</label>
+      <input id="dam-folder-name-input" type="text" maxlength="160" placeholder="e.g. Legal Reasoning or Daman/Part1" autocomplete="off" />
+      <div class="dam-modal__actions">
+        <button type="button" class="dam-btn dam-btn--ghost" data-dam-folder-close>Cancel</button>
+        <button type="button" class="dam-btn dam-btn--primary" id="dam-folder-modal-ok">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dam-move-modal" class="dam-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dam-move-modal-title">
+    <div class="dam-modal__backdrop" data-dam-move-close tabindex="-1"></div>
+    <div class="dam-modal__card">
+      <div class="dam-modal__icon"><i class="fa-solid fa-folder-tree" aria-hidden="true"></i></div>
+      <h3 id="dam-move-modal-title">Move to folder</h3>
+      <p class="dam-modal__lead" id="dam-move-file-label">Choose any folder (including nested), or create a new path.</p>
+      <label class="dam-modal__label" for="dam-move-folder-select">Existing folder</label>
+      <select id="dam-move-folder-select" class="dam-modal__select"></select>
+      <label class="dam-modal__label" for="dam-move-new-folder">Or create new folder / nested path</label>
+      <input id="dam-move-new-folder" type="text" maxlength="160" placeholder="e.g. Daman/Part1 (or subfolder if a parent is selected)" autocomplete="off" />
+      <div class="dam-modal__actions">
+        <button type="button" class="dam-btn dam-btn--ghost" data-dam-move-close>Cancel</button>
+        <button type="button" class="dam-btn dam-btn--primary" id="dam-move-modal-ok">Move</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-root" class="app-shell"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/data-store.js"></script>
+  <script src="../js/auth.js?v=20261028dam21"></script>
+  <script src="../js/guard.js"></script>
+  <script src="../js/nav.js?v=20261028dam21"></script>
+  <script src="../js/crm-chrome.js"></script>
+  <script src="../js/friendly-popup.js"></script>
+  <script src="../js/dam-page.js?v=20261028dam23"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stock = document.getElementById('stock');
+      initAppChrome({ role: 'crm', active: 'DAM.html', title: 'DAM', contentEl: stock });
+      if (typeof applyCrmChrome === 'function') applyCrmChrome();
+      if (typeof DamPage !== 'undefined' && DamPage.init) DamPage.init();
+    });
+  </script>
+</body>
+</html>

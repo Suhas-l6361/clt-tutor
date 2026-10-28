@@ -338,6 +338,124 @@
   gap: 0.35rem;
 }
 
+/* Email / password highlight + copy */
+.retrival-th-cred {
+  letter-spacing: 0.03em;
+}
+
+.retrival-td-cred {
+  vertical-align: middle;
+  min-width: 11.5rem;
+}
+
+.cred-cell {
+  --cred-ink: #0f172a;
+  --cred-soft: #f8fafc;
+  --cred-line: #e2e8f0;
+  --cred-accent: #0f766e;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 15.5rem;
+  min-height: 2rem;
+  padding: 0.15rem 0.18rem 0.15rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--cred-line);
+  background: var(--cred-soft);
+  color: var(--cred-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.cred-cell--email {
+  --cred-ink: #134e4a;
+  --cred-soft: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 55%, #f8fafc 100%);
+  --cred-line: #99f6e4;
+  --cred-accent: #0d9488;
+  background: var(--cred-soft);
+}
+
+.cred-cell--pass {
+  --cred-ink: #78350f;
+  --cred-soft: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%);
+  --cred-line: #fcd34d;
+  --cred-accent: #d97706;
+  background: var(--cred-soft);
+}
+
+.cred-cell--empty {
+  color: #94a3b8;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.cred-cell__mark {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  color: #fff;
+  background: var(--cred-accent);
+}
+
+.cred-cell__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cred-cell--pass .cred-cell__value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 0.76rem;
+}
+
+.cred-cell__copy {
+  flex: 0 0 auto;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cred-accent);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.cred-cell__copy:hover {
+  transform: scale(1.06);
+  background: #fff;
+  color: var(--cred-ink);
+}
+
+.cred-cell__copy:focus-visible {
+  outline: 2px solid var(--cred-accent);
+  outline-offset: 2px;
+}
+
+.cred-cell__copy.is-copied {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: none;
+}
+
 .retrival-icon-btn {
   width: 30px;
   height: 30px;
@@ -680,6 +798,29 @@
   background: #ecfdf5;
   color: #047857;
   border-color: #6ee7b7;
+}
+
+.retrival-book-login {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.retrival-text-btn--login {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #1e293b;
+  gap: 0.35rem;
+}
+
+.retrival-text-btn--login:hover:not(:disabled) {
+  background: #1e293b;
+}
+
+.retrival-text-btn--login:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .ab-dialog {

@@ -1,13 +1,13 @@
-// // /**
-// //  * Client-side hardening (nuisance reduction — not real security).
-// //  * Blocks context menu, page text selection, drag on images, copy/cut outside
-// //  * form controls, and common DevTools / view-source / save / print shortcuts.
-// //  *
-// //  * Form fields: typing, selection, and keyboard shortcuts still work. Right-click
-// //  * context menu (including Inspect) is blocked everywhere for public, login, and app.
-// //  *
-// //  * data-protection-mode: "public" | "login" | "app"
-// //  */
+// // // /**
+// // //  * Client-side hardening (nuisance reduction — not real security).
+// // //  * Blocks context menu, page text selection, drag on images, copy/cut outside
+// // //  * form controls, and common DevTools / view-source / save / print shortcuts.
+// // //  *
+// // //  * Form fields: typing, selection, and keyboard shortcuts still work. Right-click
+// // //  * context menu (including Inspect) is blocked everywhere for public, login, and app.
+// // //  *
+// // //  * data-protection-mode: "public" | "login" | "app"
+// // //  */
 (function () {
   'use strict';
 

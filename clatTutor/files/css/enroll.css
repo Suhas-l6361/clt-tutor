@@ -272,6 +272,10 @@ body.enroll-body {
   color: rgba(244, 241, 234, 0.58);
 }
 
+.enroll-field--other[hidden] {
+  display: none !important;
+}
+
 .enroll-field input,
 .enroll-field select {
   width: 100%;

@@ -574,6 +574,13 @@
 .ta-mini-stat--w { color: var(--ta-wrong); }
 .ta-mini-stat--u { color: var(--ta-unans); }
 
+.ta-row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .ta-row-btn {
   padding: 0.32rem 0.6rem;
   border-radius: 8px;
@@ -585,11 +592,31 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
 }
 
 .ta-row-btn:hover {
   background: #fff4d6;
   transform: translateY(-1px);
+}
+
+.ta-row-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+.ta-row-btn--ai {
+  border-color: #0f766e;
+  background: linear-gradient(180deg, #ecfdf5, #f0fdfa);
+  color: #115e59;
+}
+
+.ta-row-btn--ai:hover {
+  background: #d1fae5;
 }
 
 .ta-student-cell {

@@ -710,9 +710,14 @@
           '<td style="white-space:nowrap;font-size:0.76rem">' +
           esc(formatDate(a.created_at)) +
           '</td>' +
-          '<td><button type="button" class="ta-row-btn" data-analyze="' +
+          '<td><div class="ta-row-actions">' +
+          '<button type="button" class="ta-row-btn" data-analyze="' +
           esc(String(a.id)) +
-          '"><i class="fa-solid fa-chart-pie"></i> Analysis</button></td>' +
+          '"><i class="fa-solid fa-chart-pie"></i> Analysis</button>' +
+          '<button type="button" class="ta-row-btn ta-row-btn--ai" data-ai-rank="' +
+          esc(String(a.id)) +
+          '" title="All-India CLAT rank estimate (Groq)"><i class="fa-solid fa-ranking-star"></i> AI Ranking</button>' +
+          '</div></td>' +
           '</tr>'
         );
       })
@@ -729,6 +734,68 @@
         if (att) openDrawer(att);
       });
     });
+
+    els.tableBody.querySelectorAll('[data-ai-rank]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = parseInt(btn.getAttribute('data-ai-rank'), 10);
+        var att = attempts.find(function (x) {
+          return x.id === id;
+        });
+        if (att) openAiRanking(att, btn);
+      });
+    });
+  }
+
+  /** Same Groq /examAnalysis flow as student onlinetest All-India CLAT analysis. */
+  function buildAiRankingPayload(att) {
+    var stats = computeStats(att);
+    var m = attemptMarks(att);
+    var studentName = String(att.student_name || 'Student').trim() || 'Student';
+    var testTitle = String(att.title || getTestTitle(currentTestId) || 'Mock test').trim();
+    return {
+      title: studentName + ' · ' + testTitle,
+      isOmr: !!(att.isOmr === true || att.isOmr === 1 || Number(att.isOmr) === 1),
+      correct: stats.correct,
+      wrong: stats.wrong,
+      unanswered: stats.unanswered,
+      total_questions: stats.total,
+      marks_correct: m.mc,
+      marks_negative: m.mn,
+      percentage: attemptScorePct(att),
+      grade: att.letter_grade || null,
+    };
+  }
+
+  function openAiRanking(att, btn) {
+    if (!window.ClatExamAnalysis || typeof window.ClatExamAnalysis.open !== 'function') {
+      window.alert('AI Ranking is not loaded. Hard-refresh this page and try again.');
+      return;
+    }
+    var payload = buildAiRankingPayload(att);
+    if (!payload.total_questions && payload.correct === 0 && payload.wrong === 0) {
+      window.alert('Not enough score data on this attempt for AI ranking.');
+      return;
+    }
+    var prevHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ranking…';
+    }
+    Promise.resolve(window.ClatExamAnalysis.open(payload))
+      .catch(function () {})
+      .then(function () {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = prevHtml;
+        }
+      });
+    // Popup shows its own loading state; restore button shortly even if open() is sync-start
+    window.setTimeout(function () {
+      if (btn && btn.disabled) {
+        btn.disabled = false;
+        btn.innerHTML = prevHtml;
+      }
+    }, 1200);
   }
 
   function computeStats(att) {

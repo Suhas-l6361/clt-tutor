@@ -8,6 +8,7 @@
   var lastRowsByKind = {
     callback: [],
     enroll: [],
+    admission: [],
     contact: [],
     demo: [],
   };
@@ -249,6 +250,9 @@
     if (r.response_message != null && String(r.response_message).trim() !== '') {
       return String(r.response_message);
     }
+    if (r.responseMessage != null && String(r.responseMessage).trim() !== '') {
+      return String(r.responseMessage);
+    }
     if (r.respondedMessage != null && String(r.respondedMessage).trim() !== '') {
       return String(r.respondedMessage);
     }
@@ -309,19 +313,25 @@
     );
   }
 
-  function renderEnroll(rows) {
+  /** Leads from public enroll.html (ENROLL_API) — same responded UI as contact us */
+  function renderEnrollQuick(rows) {
     if (!rows.length) {
-      return '<p class="enrollment-empty">No enrollment form submissions yet.</p>';
+      return '<p class="enrollment-empty">No enroll.html submissions yet.</p>';
     }
     var thead =
       '<thead><tr>' +
       '<th scope="col">Name</th>' +
       '<th scope="col">Phone</th>' +
+      '<th scope="col">School</th>' +
+      '<th scope="col">Branch</th>' +
       '<th scope="col">Grade</th>' +
       '<th scope="col">Target year</th>' +
       '<th scope="col">Known by</th>' +
+      '<th scope="col">Other detail</th>' +
       '<th scope="col">Created At</th>' +
       '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
       '</tr></thead>';
     var body = rows
       .map(function (r) {
@@ -334,6 +344,12 @@
           val(r.phone_number) +
           '</td>' +
           '<td>' +
+          val(r.school_name || r.schoolName) +
+          '</td>' +
+          '<td>' +
+          val(r.center) +
+          '</td>' +
+          '<td>' +
           val(r.grade) +
           '</td>' +
           '<td>' +
@@ -343,10 +359,76 @@
           val(r.known_by) +
           '</td>' +
           '<td>' +
+          val(r.other) +
+          '</td>' +
+          '<td>' +
           fmtTs(r.created_at) +
           '</td>' +
           '<td class="enrollment-table__td-actions">' +
           viewFullBtn('enroll', r.id) +
+          '</td>' +
+          responseMessageCell('enroll', r) +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('enroll', r) +
+          '</td>' +
+          '</tr>'
+        );
+      })
+      .join('');
+    return (
+      '<div class="enrollment-table-wrap"><table class="enrollment-table">' +
+      thead +
+      '<tbody>' +
+      body +
+      '</tbody></table></div>'
+    );
+  }
+
+  /** Full admission form from admission.html (ENROLL_REQUEST_API) */
+  function renderAdmission(rows) {
+    if (!rows.length) {
+      return '<p class="enrollment-empty">No admission form submissions yet.</p>';
+    }
+    var thead =
+      '<thead><tr>' +
+      '<th scope="col">Student name</th>' +
+      '<th scope="col">Student email</th>' +
+      '<th scope="col">Course</th>' +
+      '<th scope="col">Target year</th>' +
+      '<th scope="col">Created At</th>' +
+      '<th scope="col" class="enrollment-table__th-actions">Actions</th>' +
+      tableResponseHeader() +
+      '<th scope="col" class="enrollment-table__th-responded">Responded</th>' +
+      '</tr></thead>';
+    var body = rows
+      .map(function (r) {
+        return (
+          '<tr>' +
+          '<td>' +
+          '<span class="enrollment-student-cell">' +
+          enrollPhotoMarkup(r.photo_url, 'enrollment-photo--table') +
+          '<span class="enrollment-student-cell__name">' +
+          val(r.student_name) +
+          '</span></span>' +
+          '</td>' +
+          '<td>' +
+          val(r.student_email) +
+          '</td>' +
+          '<td>' +
+          val(r.course) +
+          '</td>' +
+          '<td>' +
+          val(r.target_year) +
+          '</td>' +
+          '<td>' +
+          fmtTs(r.created_at) +
+          '</td>' +
+          '<td class="enrollment-table__td-actions">' +
+          viewFullBtn('admission', r.id) +
+          '</td>' +
+          responseMessageCell('admission', r) +
+          '<td class="enrollment-table__td-responded">' +
+          respondedToggle('admission', r) +
           '</td>' +
           '</tr>'
         );
@@ -523,7 +605,7 @@
 
   function modalBodyEnroll(r) {
     return (
-      '<p class="enrollment-modal__meta">#' +
+      '<p class="enrollment-modal__meta">Enroll · #' +
       escHtml(String(r.id)) +
       ' · ' +
       fmtTs(r.created_at) +
@@ -531,9 +613,42 @@
       '<dl class="enrollment-dl enrollment-dl--modal">' +
       dlRow('Name', val(r.name)) +
       dlRow('Phone', val(r.phone_number)) +
+      dlRow('School name', val(r.school_name || r.schoolName)) +
+      dlRow('Branch', val(r.center)) +
       dlRow('Grade', val(r.grade)) +
       dlRow('Target year', val(r.targetYear != null ? r.targetYear : r.target_year)) +
       dlRow('Known by', val(r.known_by)) +
+      dlRow('Other detail', val(r.other)) +
+      '</dl>'
+    );
+  }
+
+  function modalBodyAdmission(r) {
+    return (
+      '<div class="enrollment-modal__photo-head">' +
+      enrollPhotoMarkup(r.photo_url, 'enrollment-photo--modal') +
+      '<p class="enrollment-modal__meta">Admission form · #' +
+      escHtml(String(r.id)) +
+      ' · ' +
+      fmtTs(r.created_at) +
+      '</p>' +
+      '</div>' +
+      '<dl class="enrollment-dl enrollment-dl--modal">' +
+      dlRow('Target year', val(r.target_year)) +
+      dlRow('Course', val(r.course)) +
+      dlRow('Student name', val(r.student_name)) +
+      dlRow('Parent name', val(r.parentName)) +
+      dlRow('Student email', val(r.student_email)) +
+      dlRow('Parent email', val(r.parent_email)) +
+      dlRow('Student phone', val(r.student_PhoneNumber)) +
+      dlRow('Parent phone', val(r.parent_PhoneNumber)) +
+      dlRow('Student DOB', val(r.student_dob)) +
+      dlRow('Address', r.address != null && String(r.address).trim() !== '' ? escHtml(r.address) : '—', true) +
+      dlRow('School / college', val(r.school_college)) +
+      dlRow('Stream', val(r.stream)) +
+      dlRow('Parent profession', val(r.parent_profession)) +
+      dlRow('Caste', val(r.caste)) +
+      dlRow('Source of info', val(r.source_of_info)) +
       '</dl>'
     );
   }
@@ -579,10 +694,9 @@
     var details = '';
     if (kind === 'callback') details = modalBodyCallback(r);
     else if (kind === 'enroll') details = modalBodyEnroll(r);
+    else if (kind === 'admission') details = modalBodyAdmission(r);
     else if (kind === 'demo') details = modalBodyDemo(r);
     else details = modalBodyContact(r);
-    /* New ENROLL_API leads have no staff-response fields */
-    if (kind === 'enroll') return details;
     return appendModalResponseForm(details, r);
   }
 
@@ -591,6 +705,7 @@
     return {
       callback: c.REQUEST_CALLBACK_API || '',
       enroll: c.ENROLL_API || '',
+      admission: c.ENROLL_REQUEST_API || '',
       contact: c.CONTACT_US_API || '',
       demo: c.DEMO_CLASS_API || '',
     };
@@ -647,13 +762,15 @@
 
       var titles = {
         callback: 'Request callback',
-        enroll: 'Enrollment details',
+        enroll: 'Enroll details',
+        admission: 'Enrollment details',
         contact: 'Contact us',
         demo: 'Demo class request',
       };
       titleEl.textContent = (titles[kind] || 'Details') + ' #' + String(r.id);
       bodyEl.innerHTML = buildModalHtml(kind, r);
       setModalSaveStatus('');
+      if (kind === 'admission') hydrateEnrollPhotos(bodyEl);
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
@@ -804,7 +921,8 @@
     var urls = getUrls();
     var titles = {
       callback: 'Request callback',
-      enroll: 'Enrollment details',
+      admission: 'Enrollment details',
+      enroll: 'Enroll details',
       contact: 'Contact us',
       demo: 'Demo class requests',
     };
@@ -871,8 +989,11 @@
     function renderKindRows(kind) {
       var rows = getFilteredRows(kind);
       if (kind === 'callback') listEl.innerHTML = renderCallback(rows);
-      else if (kind === 'enroll') listEl.innerHTML = renderEnroll(rows);
-      else if (kind === 'demo') listEl.innerHTML = renderDemo(rows);
+      else if (kind === 'enroll') listEl.innerHTML = renderEnrollQuick(rows);
+      else if (kind === 'admission') {
+        listEl.innerHTML = renderAdmission(rows);
+        hydrateEnrollPhotos(listEl);
+      } else if (kind === 'demo') listEl.innerHTML = renderDemo(rows);
       else listEl.innerHTML = renderContact(rows);
     }
 
@@ -892,6 +1013,7 @@
       if (!target) return;
       target.isResponded = responded ? 1 : 0;
       target.response_message = message || null;
+      target.responseMessage = message || null;
       if (target.respondedMessage !== undefined) target.respondedMessage = message || null;
     }
 
@@ -1078,6 +1200,15 @@
       });
     }
 
+    function fetchKindRows(url) {
+      if (!url) return Promise.resolve({ ok: false, j: { message: 'API URL is not configured' } });
+      return fetch(url, { method: 'GET', headers: { Accept: 'application/json' } }).then(function (res) {
+        return res.json().then(function (j) {
+          return { ok: res.ok, j: j };
+        });
+      });
+    }
+
     function load(kind) {
       var url = urls[kind];
       if (!url) {
@@ -1094,12 +1225,7 @@
       setActive(kind);
       currentKind = kind;
 
-      fetch(url, { method: 'GET', headers: { Accept: 'application/json' } })
-        .then(function (res) {
-          return res.json().then(function (j) {
-            return { ok: res.ok, j: j };
-          });
-        })
+      fetchKindRows(url)
         .then(function (x) {
           setLoading(false);
           if (!x.ok) {

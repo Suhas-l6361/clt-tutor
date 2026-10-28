@@ -61,6 +61,7 @@ function initAppChrome(opts) {
     { href: 'attendance.html', icon: 'fa-clipboard-check', label: 'Attendance' },
     { href: 'scheduleClass.html', icon: 'fa-calendar-plus', label: 'Schedule Class' },
     { href: 'bookAssigned.html', icon: 'fa-book', label: 'Book assigned' },
+    { href: 'DAM.html', icon: 'fa-folder-tree', label: 'DAM' },
     { href: 'parent-credentials.html', icon: 'fa-key', label: 'Parent credentials' },
     { href: 'retrival.html', icon: 'fa-database', label: 'Retrieve Data' },
     { href: 'enrollment.html', icon: 'fa-inbox', label: 'Enrollment' },
@@ -84,6 +85,30 @@ function initAppChrome(opts) {
   if (opts.role === 'crm' && window.Auth && typeof window.Auth.filterCrmNavLinks === 'function') {
     links = window.Auth.filterCrmNavLinks(crmLinks);
   }
+
+  // --- DAM sidebar: ALWAYS keep for CRM (counsellor upload + Pranab/Niraj manage) ---
+  // Never strip DAM based on detection — counsellors need it to upload files.
+  if (opts.role === 'crm') {
+    function insertDamLink(arr) {
+      var list = (arr || []).slice();
+      var exists = list.some(function (l) {
+        return l && (l.href === 'DAM.html' || l.href === 'dam.html');
+      });
+      if (exists) return list;
+      var damItem = { href: 'DAM.html', icon: 'fa-folder-tree', label: 'DAM' };
+      var at = -1;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] && list[i].href === 'bookAssigned.html') {
+          at = i + 1;
+          break;
+        }
+      }
+      if (at < 0) list.push(damItem);
+      else list.splice(at, 0, damItem);
+      return list;
+    }
+    links = insertDamLink(links);
+  }
   var brand =
     opts.role === 'student' ? 'Student' : opts.role === 'parent' ? 'Parent' : 'CRM';
   var isCrm = opts.role === 'crm';
@@ -98,6 +123,7 @@ function initAppChrome(opts) {
     'attendance.html': '../image/attendance.png',
     'scheduleClass.html': '../image/schedule.png',
     'bookAssigned.html': '../image/resources.png',
+    'DAM.html': '../image/dam.png',
     'parent-credentials.html': '../image/add councelor.png',
     'enrollment.html': '../image/enrollment.png',
     'leads.html': '../image/leads.png',
@@ -298,4 +324,21 @@ function initAppChrome(opts) {
     },
     { passive: true }
   );
+
+  // Final DOM guarantee: every CRM sidebar must include DAM (counsellor upload)
+  if (isCrm) {
+    try {
+      var navEl = document.querySelector('.sidebar-nav');
+      if (navEl && !navEl.querySelector('a[href="DAM.html"], a[href="dam.html"]')) {
+        var damA = document.createElement('a');
+        damA.href = 'DAM.html';
+        damA.innerHTML =
+          '<i class="nav-has-img"><img src="../image/dam.png" alt="" class="nav-link-img" onerror="this.style.display=\'none\'" /></i><span>DAM</span>';
+        var bookA = navEl.querySelector('a[href="bookAssigned.html"]');
+        if (bookA && bookA.nextSibling) navEl.insertBefore(damA, bookA.nextSibling);
+        else if (bookA) bookA.insertAdjacentElement('afterend', damA);
+        else navEl.appendChild(damA);
+      }
+    } catch (_) {}
+  }
 }

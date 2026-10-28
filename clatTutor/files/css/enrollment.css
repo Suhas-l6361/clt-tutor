@@ -133,6 +133,60 @@
 
 .enrollment-list {
   padding: 1rem 1.1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.enrollment-source-block {
+  border: 1px solid #ead9a3;
+  border-radius: 12px;
+  background: #fffdf7;
+  overflow: hidden;
+}
+
+.enrollment-source-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #ead9a3;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 70%);
+}
+
+.enrollment-source-block__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.enrollment-source-block__title i {
+  color: #946200;
+}
+
+.enrollment-source-block__title span {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.enrollment-source-block__meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.enrollment-source-block .enrollment-table-wrap,
+.enrollment-source-block .enrollment-empty {
+  margin: 0;
+  padding: 0.75rem 1rem 1rem;
+  background: #fff;
 }
 
 .enrollment-table-wrap {

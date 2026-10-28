@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/enrollment.css?v=20260829photolb" />
+  <link rel="stylesheet" href="../css/enrollment.css?v=20261023bothenroll" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard enrollment-page">
@@ -20,7 +20,7 @@
       <header class="enrollment-crm__intro">
         <h1 class="enrollment-crm__title">Enrollment &amp; leads</h1>
         <p class="enrollment-crm__lead">
-          View submissions from the public site: callback requests, enroll.html leads, contact messages, and demo class requests. Newest first.
+          View submissions from the public site: callback, enrollment (admission.html), enroll.html leads, contact, and demo requests. Newest first.
         </p>
       </header>
 
@@ -29,9 +29,13 @@
           <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
           <span>Show request callback</span>
         </button>
-        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-enroll" data-kind="enroll">
+        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-admission" data-kind="admission">
           <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
           <span>Show enrollment details</span>
+        </button>
+        <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-enroll" data-kind="enroll">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          <span>Show enroll details</span>
         </button>
         <button type="button" class="enrollment-btn enrollment-btn--accent" id="enrollment-btn-contact" data-kind="contact">
           <i class="fa-solid fa-address-book" aria-hidden="true"></i>
@@ -105,11 +109,11 @@
 
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
-  <script src="../js/auth.js"></script>
+  <script src="../js/auth.js?v=20261028dam15"></script>
   <script src="../js/guard.js"></script>
-  <script src="../js/nav.js?v=20261005itc"></script>
+  <script src="../js/nav.js?v=20261028dam21"></script>
   <script src="../js/crm-chrome.js"></script>
-  <script src="../js/enrollment-page.js?v=20261022enrollapi"></script>
+  <script src="../js/enrollment-page.js?v=20261028other1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
