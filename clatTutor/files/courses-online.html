@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="css/header-nav.css" />
   <link rel="stylesheet" href="css/friendly-popup.css" />
   <link rel="stylesheet" href="css/demo-class-widget.css" />
-
   <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/courses.css" />
   <script src="js/site-protection.js" data-protection-mode="public"></script>
@@ -55,19 +54,14 @@
   <main id="main-content" class="courses-main">
     <div class="courses-page-bg" aria-hidden="true"></div>
 
-    <h1 class="courses-sr-only">CLAT course batches and program details</h1>
-
-    <div class="courses-mode-bar">
-      <div class="courses-mode-toggle" role="group" aria-label="Delivery mode">
-        <button type="button" class="courses-mode-btn courses-mode-btn--active" data-courses-mode-btn="online" aria-pressed="true">Online</button>
-        <button type="button" class="courses-mode-btn" data-courses-mode-btn="offline" aria-pressed="false">Offline</button>
-      </div>
-    </div>
+    <h1 class="courses-sr-only">CLAT online course batches and program details</h1>
 
     <div class="courses-shell">
       <aside class="courses-rail" aria-label="Course tracks">
-        <p class="courses-tabs-hint" id="courses-tabs-hint">Select a program</p>
-        <div class="courses-tabs" role="tablist" aria-label="CLAT course programs" aria-describedby="courses-tabs-hint">
+        <div class="courses-rail__head">
+          <p class="courses-tabs-hint" id="courses-tabs-hint">Online programs</p>
+        </div>
+        <div class="courses-tabs" role="tablist" aria-label="CLAT online course programs" aria-describedby="courses-tabs-hint">
           <button type="button" class="courses-tab" role="tab" id="tab-online" aria-selected="true" aria-controls="panel-online" data-panel="panel-online">
             <span class="courses-tab__icon-wrap" aria-hidden="true"><img src="image/clat.png" alt="" class="courses-tab__icon" width="26" height="26" loading="lazy" /></span>
             <span class="courses-tab__text">
@@ -75,262 +69,52 @@
               <span class="courses-tab__hint">11th or 12th Grade</span>
             </span>
           </button>
-          <button type="button" class="courses-tab" role="tab" id="tab-off12" hidden aria-selected="false" aria-controls="panel-off12" tabindex="-1" data-panel="panel-off12">
-            <span class="courses-tab__icon-wrap" aria-hidden="true"><img src="image/clat.png" alt="" class="courses-tab__icon" width="26" height="26" loading="lazy" /></span>
-            <span class="courses-tab__text">
-              <span class="courses-tab__label">CLAT-2027 Offline</span>
-              <span class="courses-tab__hint">12th Grade</span>
-            </span>
-          </button>
-          <button type="button" class="courses-tab" role="tab" id="tab-off11" hidden aria-selected="false" aria-controls="panel-off11" tabindex="-1" data-panel="panel-off11">
-            <span class="courses-tab__icon-wrap" aria-hidden="true"><img src="image/clat.png" alt="" class="courses-tab__icon" width="26" height="26" loading="lazy" /></span>
-            <span class="courses-tab__text">
-              <span class="courses-tab__label">CLAT-2028 Offline</span>
-              <span class="courses-tab__hint">11th Grade</span>
-            </span>
-          </button>
-          <button type="button" class="courses-tab" role="tab" id="tab-crash" hidden aria-selected="false" aria-controls="panel-crash" tabindex="-1" data-panel="panel-crash">
-            <span class="courses-tab__icon-wrap" aria-hidden="true"><img src="image/clat.png" alt="" class="courses-tab__icon" width="26" height="26" loading="lazy" /></span>
-            <span class="courses-tab__text">
-              <span class="courses-tab__label">CLAT-2027 Offline Crash Course</span>
-              <span class="courses-tab__hint">Intensive revision</span>
-            </span>
-          </button>
-          <button type="button" class="courses-tab" role="tab" id="tab-repeater" hidden aria-selected="false" aria-controls="panel-repeater" tabindex="-1" data-panel="panel-repeater">
-            <span class="courses-tab__icon-wrap" aria-hidden="true"><img src="image/clat.png" alt="" class="courses-tab__icon" width="26" height="26" loading="lazy" /></span>
-            <span class="courses-tab__text">
-              <span class="courses-tab__label">CLAT-2027 Offline Repeater/Drop Batch</span>
-              <span class="courses-tab__hint">Second attempt focus</span>
-            </span>
-          </button>
         </div>
+        <p class="courses-tabs-note">Looking for classroom batches? <a href="offline-centers.html">Browse offline centers</a></p>
       </aside>
 
       <div class="courses-stage">
         <section class="courses-panel" role="tabpanel" id="panel-online" aria-labelledby="tab-online">
           <header class="courses-panel__head">
-            <h2 class="courses-panel__title">CLAT-2027 Online (11th or 12th Grade)</h2>
-            <span class="courses-panel__tag">Live online</span>
+            <h2 class="courses-panel__title">CLAT-2027 Online</h2>
+            <span class="courses-panel__tag">Online</span>
           </header>
+          <p class="courses-panel__lead">Live online coaching with classroom discipline.</p>
           <div class="courses-stats">
             <div class="courses-stat">
               <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Program duration</div>
-              <p class="courses-stat__value">3 to 4 months</p>
+              <p class="courses-stat__value">3–4 months</p>
             </div>
             <div class="courses-stat">
               <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Batch start</div>
-              <p class="courses-stat__value">30th of September 2026.</p>
+              <p class="courses-stat__value">15 Nov 2026</p>
             </div>
             <div class="courses-stat">
               <div class="courses-stat__label"><img src="image/user.png" alt="" width="15" height="15" loading="lazy" /> Batch size</div>
-              <p class="courses-stat__value">25 Students</p>
+              <p class="courses-stat__value">25 students</p>
             </div>
             <div class="courses-stat">
               <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Fees</div>
-              <p class="courses-stat__value" data-course-fee="clat_2027_online">Rs 40,000</p>
+              <p class="courses-stat__value" data-course-fee="clat_2027_online" data-course-fee-style="inr">₹ 40,000</p>
             </div>
           </div>
           <div class="courses-highlights">
             <h3 class="courses-highlights__title">Important Highlights</h3>
             <ul class="courses-highlights__list">
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>400+ hours of online live teaching.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 5 days' session.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Two-way communication.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for Doubt clearing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online Group for Knowledge sharing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily focus on Newspaper reading and Current Affairs for CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>20+ Recently Printed Books and unlimited E-Books.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>80+ Mock Test CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Analysis of Mock Test.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ Topic Test.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Sectional Test.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly Magazine.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU Graduates.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to Online Portal.</span></li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="courses-panel" role="tabpanel" id="panel-off12" aria-labelledby="tab-off12" hidden>
-          <header class="courses-panel__head">
-            <h2 class="courses-panel__title">CLAT-2027 Offline (12th Grade)</h2>
-            <span class="courses-panel__tag">Classroom</span>
-          </header>
-          <div class="courses-stats">
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Program duration</div>
-              <p class="courses-stat__value">3 to 4 months</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Batch start</div>
-              <p class="courses-stat__value">30th of September 2026.</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/user.png" alt="" width="15" height="15" loading="lazy" /> Batch size</div>
-              <p class="courses-stat__value">~25 Students</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Fees</div>
-              <p class="courses-stat__value" data-course-fee="clat_2027_offline">Rs 40,000</p>
-            </div>
-          </div>
-          <div class="courses-highlights">
-            <h3 class="courses-highlights__title">Important Highlights</h3>
-            <ul class="courses-highlights__list">
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>500+ hours of Classroom teaching.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 4 days' session.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Full time Faculty Available from 12pm to 7pm on Working Days for Guidance and Doubt Solving.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for Doubt clearing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online Group for Knowledge sharing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily focus on Newspaper reading and Current Affairs for CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>30+ Recently Printed Books and unlimited E-Books.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Mock Test CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Analysis of Mock Test.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ Topic Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Sectional Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly Magazine.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU Graduates.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to Online Portal.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Special Session on Time Management.</span></li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="courses-panel" role="tabpanel" id="panel-off11" aria-labelledby="tab-off11" hidden>
-          <header class="courses-panel__head">
-            <h2 class="courses-panel__title">CLAT-2028 Offline (11th Grade)</h2>
-            <span class="courses-panel__tag">Two-year classroom</span>
-          </header>
-          <div class="courses-stats">
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Program duration</div>
-              <p class="courses-stat__value">17 to 19 months</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Batch start</div>
-              <p class="courses-stat__value">30th of September 2026.</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/user.png" alt="" width="15" height="15" loading="lazy" /> Batch size</div>
-              <p class="courses-stat__value">~25 Students</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Fees</div>
-              <p class="courses-stat__value" data-course-fee="clat_2028_offline">Rs 1,50,000</p>
-            </div>
-          </div>
-          <div class="courses-highlights">
-            <h3 class="courses-highlights__title">Important Highlights</h3>
-            <ul class="courses-highlights__list">
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>1000+ hours of Classroom teaching.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 4 days' session.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Full time Faculty Available from 12pm to 7pm on Working Days for Guidance and Doubt Solving.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for Doubt clearing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online Group for Knowledge sharing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily focus on Newspaper reading and Current Affairs for CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>30+ Recently Printed Books and unlimited E-Books.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Mock Test CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Analysis of Mock Test.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ Topic Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Sectional Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly Magazine.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU Graduates.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to Online Portal.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Special Session on Time Management.</span></li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="courses-panel" role="tabpanel" id="panel-crash" aria-labelledby="tab-crash" hidden>
-          <header class="courses-panel__head">
-            <h2 class="courses-panel__title">CLAT-2027 Offline Crash Course</h2>
-            <span class="courses-panel__tag">Crash</span>
-          </header>
-          <div class="courses-stats">
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Program duration</div>
-              <p class="courses-stat__value">4-5 months</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Batch start</div>
-              <p class="courses-stat__value">16th Aug 2026.</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Time</div>
-              <p class="courses-stat__value">5 pm to 7 pm (Mon - Sat)</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/user.png" alt="" width="15" height="15" loading="lazy" /> Batch size</div>
-              <p class="courses-stat__value">25 Students</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Fees</div>
-              <p class="courses-stat__value" data-course-fee="clat_2027_offline_crash">Rs 40,000</p>
-            </div>
-          </div>
-          <div class="courses-highlights">
-            <h3 class="courses-highlights__title">Important Highlights</h3>
-            <ul class="courses-highlights__list">
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>250+ hours of Classroom teaching.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 5 days' session.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Full time Faculty Available from 12Pm to 7pm on Working Days for Guidance and Doubt Solving.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for Doubt clearing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online Group for Knowledge sharing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily focus on Newspaper reading and Current Affairs for CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>20+ Recently Printed Books and unlimited E-Books.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>80+ Mock Test CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Analysis of Mock Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ Topic Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Sectional Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly Magazine.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU Graduates.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to Online Portal.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Special Session on Time Management.</span></li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="courses-panel" role="tabpanel" id="panel-repeater" aria-labelledby="tab-repeater" hidden>
-          <header class="courses-panel__head">
-            <h2 class="courses-panel__title">CLAT-2027 Offline Repeater/Drop Batch</h2>
-            <span class="courses-panel__tag">Repeater</span>
-          </header>
-          <div class="courses-stats">
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Program duration</div>
-              <p class="courses-stat__value">7-8 months</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Batch start</div>
-              <p class="courses-stat__value">1st Week of Aug 2026.</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/user.png" alt="" width="15" height="15" loading="lazy" /> Batch size</div>
-              <p class="courses-stat__value">25 Students</p>
-            </div>
-            <div class="courses-stat">
-              <div class="courses-stat__label"><img src="image/calendar.png" alt="" width="15" height="15" loading="lazy" /> Fees</div>
-              <p class="courses-stat__value" data-course-fee="clat_2027_offline_repeater">Rs 1,25,000</p>
-            </div>
-          </div>
-          <div class="courses-highlights">
-            <h3 class="courses-highlights__title">Important Highlights</h3>
-            <ul class="courses-highlights__list">
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>800+ hours of classroom teaching.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 5 days' session. Everyday 6 Hr. to 8 Hr.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Full time Faculty Available from 12pm to 7pm on Working Days for Guidance and Doubt Solving.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for Doubt clearing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online Group for Knowledge sharing.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily focus on Newspaper reading and Current Affairs for CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>20+ Recently Printed Books and unlimited E-Books.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>80+ Mock Test CLAT, AILET, CHRIST, SAT.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Analysis of Mock Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ Topic Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ Sectional Test</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly Magazine.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU Graduates.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to Online Portal.</span></li>
-              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Special Session on Time Management.</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>400+ hours of online live teaching</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Weekly 5 days’ session</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Two-way communication</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Separate session for doubt clearing</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Dedicated online group for knowledge sharing</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Daily newspaper reading &amp; current affairs</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>20+ printed books &amp; unlimited e-books</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>80+ mock tests — CLAT, AILET, Christ, SLAT</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mock test analysis</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>200+ topic tests</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>100+ sectional tests</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Monthly magazine</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Mentoring from NLSIU graduates</span></li>
+              <li><span class="courses-check" aria-hidden="true"><img src="image/green%20check%20mark.png" alt="" width="18" height="18" loading="lazy" /></span><span>Access to online portal</span></li>
             </ul>
           </div>
         </section>
@@ -390,6 +174,7 @@
           <ul class="site-footer__links">
             <li><a href="courses-online.html">Courses</a></li>
             <li><a href="html_files/achievement.html">Achievements</a></li>
+            <li><a href="blog.html">Blog</a></li>
           </ul>
         </div>
 
@@ -433,8 +218,7 @@
   <script src="js/public-forms-api.js"></script>
   <script src="js/friendly-popup.js"></script>
   <script src="js/demo-class-widget.js"></script>
-
   <script src="js/main-dropdown.js"></script>
-    <script src="js/courses-page.js"></script>
+  <script src="js/courses-page.js"></script>
 </body>
 </html>

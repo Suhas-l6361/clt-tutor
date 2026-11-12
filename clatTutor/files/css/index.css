@@ -1,5 +1,87 @@
 /* Homepage-only overrides */
 
+/* Preview: yellow → orange shades (index only — easy to revert) */
+body.page-public {
+  --accent: #f47b20;
+  --accent-hover: #e06a12;
+  --accent-ink: #ffffff;
+}
+
+/* CLATutor “utor” stays yellow — nav + anywhere in header */
+body.page-public .logo__accent,
+body.page-public .site-header .logo__accent,
+body.page-public .site-nav .logo__accent {
+  color: #ffcc00 !important;
+}
+
+body.page-public .hero-btn-animated--ghost .circle,
+body.page-public .hero-btn-animated--primary .circle {
+  background: linear-gradient(145deg, #ffb27a 0%, var(--accent) 50%, #c44d03 100%);
+}
+
+body.page-public .hero-btn-animated--ghost:hover {
+  border-color: #e06a12;
+}
+
+body.page-public .enquiry-form__submit {
+  background: linear-gradient(180deg, #ff9f4d 0%, var(--accent) 55%, #e06a12 100%);
+  color: #fff;
+}
+
+body.page-public .badge-new {
+  background: #fff4eb;
+  color: #9a3412;
+  border-color: #fdba74;
+}
+
+/* Footer: icons + links orange; CLATutor “utor” stays yellow; copyright bar orange */
+body.page-public .site-footer {
+  --accent: #f47b20;
+  --accent-hover: #e06a12;
+  --accent-ink: #ffffff;
+}
+
+body.page-public .site-footer__logo-accent,
+body.page-public .site-footer__heading .site-footer__logo-accent {
+  color: #ffcc00 !important;
+}
+
+body.page-public .site-footer__links a,
+body.page-public .site-footer__contact a,
+body.page-public .site-footer__contact i,
+body.page-public .site-footer__contact-note,
+body.page-public .site-footer__contact-loc,
+body.page-public .site-footer__contact-loc i,
+body.page-public .site-footer__contact-loc a {
+  color: #f47b20;
+}
+
+body.page-public .site-footer__links a:hover,
+body.page-public .site-footer__contact a:hover,
+body.page-public .site-footer__contact-loc a:hover {
+  color: #ffb27a;
+}
+
+body.page-public .site-footer__bar {
+  background: #f47b20;
+  color: #fff;
+  border-top: none;
+}
+
+body.page-public .site-footer__copy,
+body.page-public .site-footer__legal a {
+  color: #fff;
+}
+
+body.page-public .site-footer__copy::after {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+body.page-public .site-footer__legal a:hover {
+  color: #fff4eb;
+  text-decoration: underline;
+}
+
 /* ——— Workshop hero (under header) ——— */
 .site-top-bars {
   position: relative;
@@ -10,8 +92,8 @@
   --ws-ink: #0b1f44;
   --ws-blue: #1d4ed8;
   --ws-blue-soft: #3b82f6;
-  --ws-gold: #f5b800;
-  --ws-gold-hot: #ffc107;
+  --ws-gold: #f47b20;
+  --ws-gold-hot: #ff8c3a;
   --ws-muted: #64748b;
   --ws-card: #ffffff;
   position: relative;
@@ -20,7 +102,7 @@
   color: var(--ws-ink);
   background:
     radial-gradient(ellipse 55% 70% at 88% 42%, rgba(59, 130, 246, 0.12), transparent 62%),
-    radial-gradient(ellipse 40% 50% at 8% 90%, rgba(245, 184, 0, 0.08), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 8% 90%, rgba(244, 123, 32, 0.1), transparent 55%),
     linear-gradient(180deg, #ffffff 0%, #f7faff 55%, #eef4ff 100%);
   border-bottom: none;
 }
@@ -60,10 +142,10 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #111827;
+  color: #ffffff;
   background: var(--ws-gold-hot);
   border-radius: 999px;
-  box-shadow: 0 6px 16px rgba(245, 184, 0, 0.28);
+  box-shadow: 0 6px 16px rgba(244, 123, 32, 0.32);
 }
 
 .ws-home-offer__exam {
@@ -451,7 +533,7 @@
 }
 
 .ws-home-side__fact--gold {
-  background: #fff8eb;
+  background: #fff4eb;
 }
 
 .ws-home-side__fact--blue {
@@ -476,7 +558,7 @@
 }
 
 .ws-home-side__fact--gold .ws-home-side__icon {
-  background: linear-gradient(180deg, #f7c948, #e6a817);
+  background: linear-gradient(180deg, #ff9f4d, #e06a12);
 }
 
 .ws-home-side__fact--blue .ws-home-side__icon {
@@ -587,7 +669,7 @@
   padding: 0.75rem 0.8rem 0.8rem;
   color: #fff;
   background:
-    radial-gradient(ellipse 80% 90% at 100% 0%, rgba(245, 184, 0, 0.28), transparent 55%),
+    radial-gradient(ellipse 80% 90% at 100% 0%, rgba(244, 123, 32, 0.32), transparent 55%),
     linear-gradient(145deg, #0b1f44 0%, #12306b 52%, #1d4ed8 100%);
   border: 1px solid #0b1f44;
   box-shadow: 0 8px 18px rgba(11, 31, 68, 0.22);
@@ -611,7 +693,7 @@
 }
 
 .ws-home-side__session--hero .ws-home-side__session-place {
-  color: #fde68a;
+  color: #ffb27a;
 }
 
 .ws-home-side__session-day {
@@ -794,7 +876,7 @@
   border-radius: 8px;
   font-size: 0.68rem;
   color: #0b1f44;
-  background: linear-gradient(160deg, #ffe566, var(--ws-gold));
+  background: linear-gradient(160deg, #ffb27a, var(--ws-gold));
 }
 
 .ws-home-offer__float-text {
@@ -837,7 +919,7 @@
   padding: 0.75rem 0 0.9rem;
   background:
     linear-gradient(90deg, rgba(11, 31, 68, 0.97) 0%, #0b1f44 40%, #0f2a56 100%);
-  border-top: 1px solid rgba(245, 184, 0, 0.22);
+  border-top: 1px solid rgba(244, 123, 32, 0.28);
 }
 
 .ws-nls-strip__viewport {

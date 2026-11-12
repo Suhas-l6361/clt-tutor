@@ -1,0 +1,42 @@
+
+((English Language Starts))
+
+(Paragraph starts)
+
+The increase in core temperature observed during illness is commonly called fever and occurs in response to infection by a pathogen or certain types of physical injury. When a person becomes infected with bacteria, the white blood cells of the immune system recognise the incoming pathogen as foreign and initiate the first stages of the immune response: the acute phase.
+In this reaction, white blood cells called monocytes release a variety of proteins called cytokines. They are central to the immune response. In particular, there is a predominance of two types of cytokine called interleukin-1 and tumor necrosis factor-alpha. These cytokines cause an increase in body temperature.
+
+(Paragraph ends)
+
+
+1. Which of the following best captures the primary function of cytokines as described in the passage?
+
+A. They act as barriers that prevent pathogens from entering the body.
+
+B. They help regulate body temperature through hormonal balance.
+
+C. They are proteins instrumental in mediating the body's immune response.
+
+D. They neutralise pathogens by directly attacking their cell membranes.
+
+
+2. What does the phrase "acute phase" most likely refer to in the context of the passage?
+
+A. The final stage of immune system recovery.
+
+B. A dormant period when the immune system rests.
+
+C. The initial, active reaction of the immune system to a pathogen.
+
+D. A genetic mutation in white blood cells during illness.
+
+
+3. According to the passage, what does the elevation in core body temperature during illness most plausibly signify?
+
+A. a physiological malfunction triggered by immune system collapse.
+
+B. a collateral effect of endocrine dysregulation during systemic stress.
+
+C. an adaptive manifestation of the body's immunological engagement with infection or trauma.
+
+D. a pathological indicator that the invading pathogen has successfully evolved to bypass host defences.

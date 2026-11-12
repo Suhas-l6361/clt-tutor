@@ -86,6 +86,31 @@
   color: rgba(255, 255, 255, 0.72);
 }
 
+.page-courses .courses-tabs-note {
+  margin: 0;
+  padding: 0 0.85rem 1rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--cp-muted);
+}
+
+.page-courses .courses-tabs-note a {
+  color: var(--cp-brand);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.page-courses .courses-tabs-note a:hover {
+  text-decoration: underline;
+}
+
+.page-courses .courses-panel__lead {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--cp-muted);
+}
+
 .page-courses .courses-tabs {
   display: flex;
   flex-direction: column;

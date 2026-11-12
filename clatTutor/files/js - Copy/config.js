@@ -1,0 +1,103 @@
+/**
+ * App configuration — swap API_BASE when backend is ready.
+ * Demo mode uses localStorage via data-store.js
+ */
+const APP_CONFIG = {
+  NAME: 'Institute Portal',
+  STORAGE_PREFIX: 'edportal_',
+  /** Set to REST root when APIs exist; fetch() will use this */
+  API_BASE: '',
+  /** CRM — Add Test: Lambda + API Gateway (POST multipart JSON with base64 files) */
+  ADD_TEST_API: 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/add_test',
+  /** Student — submit online test answers + grading (same API Gateway stage as ADD_TEST_API) */
+  SUBMIT_ONLINE_TEST_API: 'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/submit_online_test',
+  /** Public site — index “Request a callback” form (POST JSON) */
+  REQUEST_CALLBACK_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/requestCallback',
+  /** Public site — admission enrollment form (POST JSON) */
+  ENROLL_REQUEST_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/enrollrequest',
+  /** Public site — contact us form (POST JSON) */
+  CONTACT_US_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/contactUs',
+  /** CRM — fee receipts (GET/POST/PUT/DELETE JSON) — same API Gateway stage as CONTACT_US_API */
+  FEES_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/fees',
+  /** CRM — signed JWT login for admins and councelers */
+  CRM_AUTH_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/crmAuth',
+  /** CRM — protected attendance save + history and absence notifications */
+  ATTENDANCE_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/attendance',
+  /** Public site — PYQ download modal (POST JSON) */
+  DOWNLOAD_ANSWER_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/downloadAnswer',
+  /** CRM — book assignment dates per student (GET/POST/PUT/DELETE JSON) */
+  ASSIGN_BOOK_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/assignBook',
+  /** Public site — PYQ resource list (GET JSON) */
+  PREVIOUS_QUEATION_PAPER_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/previous_queation_paper',
+  /** Public site — demo class request (POST JSON) */
+  DEMO_CLASS_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/demoClass',
+  /** CRM — student list (GET array) — same stage as auth student_general_info */
+  STUDENT_GENERAL_INFO_API:
+    'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/student_general_info',
+  /** Public / CRM — mock test papers (GET/POST/PUT/DELETE). Same Gateway as STUDENT_GENERAL_INFO_API. Deploy: serverless from Backend/general_info */
+  MOCK_TEST_API:
+    'https://qxzcr95mqb.execute-api.ap-south-1.amazonaws.com/dev/mockTest',
+  /** S3 targets for mockTest signed uploads. Student filled OMR → clatutor-student-omr */
+  MOCK_TEST_S3: {
+    paper: { kind: 'paper', bucket: 'clatutor-mocktest', prefix: 'mock-question-papers' },
+    omr: { kind: 'omr', bucket: 'clatutor-omr', prefix: 'mock-omr-sheets' },
+    solution: { kind: 'solution', bucket: 'clatutor-solution', prefix: 'mock-solutions' },
+    studentOmr: { kind: 'uploaded_omr', bucket: 'clatutor-student-omr', prefix: 'student-omr' },
+  },
+  /** CRM — OMR scan (POST JSON { image_base64 }). Deploy: npm run deploy:omr in Backend/crm_files */
+  SCAN_OMR_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/scan_omr',
+  /** CRM — email inbox (GET list/read, POST send reply) */
+  EMAIL_INBOX_API:
+    'https://6cyvuzbwl2.execute-api.ap-south-1.amazonaws.com/dev/email_inbox',
+  /** Public site + CRM — July GK workshop registration */
+  JULY_WORKSHOP_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/julyWorkshop',
+  /** Public site — September mock test registration */
+  MOCK_REG_SEP_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/mockRegSep',
+  /** CRM — leads capture + pipeline */
+  LEADS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/leads',
+  /** CRM — branch batches (create / history) */
+  BATCHES_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/batches',
+  /** CRM — student question feedback from the online test (GET/PUT CRM JWT, POST public) */
+  QUESTION_FEEDBACK_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/queationFeedback',
+  /** CRM / public — course fees (GET public, POST/PUT/DELETE CRM JWT). Deploy extra_quries */
+  COURSES_FEE_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/coursesFee',
+  /** Today's birthdays (GET public). POST sends a wish and needs a CRM JWT. */
+  BIRTHDAY_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/birthdayWish',
+  /** CRM — Test GPT chat (POST JSON { message, history? }). Deploy: Backend/extra_quries testGpt */
+  TEST_GPT_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/testGpt',
+  /** Student — All-India CLAT analysis after exam submit (POST). Deployed: extra_quries examAnalysis */
+  EXAM_ANALYSIS_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/examAnalysis',
+  /** CRM — DAM documents (S3 dam-clatutor). Deploy: Backend/extra_quries dam */
+  DAM_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/dam',
+  /** Public / CRM — enrollment leads. Deploy: Backend/extra_quries enroll */
+  ENROLL_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/enroll',
+  /** CRM — assign students to a branch batch (log only; does not update general_info) */
+  ASSIGN_STUDENT_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',
+  /** CRM — class schedule (GET/POST/PUT/DELETE JSON) */
+  SCHEDULE_CLASS_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/scheduleClass',
+  /** CRM — parent login credentials (staff generate / manage) */
+  PARENT_CREDENTIALS_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentCredentials',
+  /** Public parent login (same pattern as CRM_AUTH_API — no CRM JWT) */
+  PARENT_AUTH_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/parentAuth',
+  DEMO_MODE: true,
+};
+
+window.APP_CONFIG = APP_CONFIG;

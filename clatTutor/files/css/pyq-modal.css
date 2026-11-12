@@ -9,10 +9,10 @@
   text-align: center;
   text-decoration: none;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.01em;
   padding: 0.55rem 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: none;
 }
 
 .announce-bar--cta {
@@ -20,35 +20,62 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.35rem 0.5rem;
-  background: #ffb300;
-  color: var(--black);
+  gap: 0.45rem 0.75rem;
+  color: #fff;
+  background:
+    linear-gradient(90deg, #e06a12 0%, #f47b20 48%, #ff8c3a 100%);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
   transition:
-    filter 0.15s ease,
-    background 0.15s ease;
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .announce-bar--cta:hover {
-  filter: brightness(0.97);
+  filter: brightness(1.04);
   text-decoration: none;
-  color: var(--black);
+  color: #fff;
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 4px 14px rgba(244, 123, 32, 0.28);
+}
+
+.announce-bar--cta:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -3px;
 }
 
 .announce-bar__lead {
-  font-weight: 700;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .announce-bar__icon {
   flex-shrink: 0;
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 0.95rem;
+  height: 0.95rem;
   object-fit: contain;
   display: block;
-  opacity: 0.95;
+  filter: none;
 }
 
 .announce-bar__action {
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  color: #9a3412;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.announce-bar--cta:hover .announce-bar__action {
+  transform: translateY(-1px);
+  background: #fff8f3;
 }
 
 /* Above sticky header (z-index 10000) so the bar stays clickable */

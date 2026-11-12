@@ -1,6 +1,6 @@
 /**
  * Center course pages — same layout as courses.html (orange).
- * Keeps 5 products: Weekdays/Weekends 2028 & 2029 + Repeaters.
+ * Keeps products: Weekdays/Weekends 2028 & 2029 + Repeater / PRO batch (all centres).
  * Jayanagar uses the centre-specific data from the design reference.
  */
 (function () {
@@ -71,7 +71,7 @@
     },
     {
       id: 'rep-2028',
-      label: 'CLAT 2028 Repeaters',
+      label: 'CLAT 2028 Repeater / PRO batch',
       hint: 'Exam Dec 2027',
       icon: 'fa-pen-to-square',
       mode: 'repeaters',
@@ -234,62 +234,47 @@
         { icon: 'fa-bullseye', text: 'Students seeking rigorous offline mocks and drills' },
       ],
     },
-    'rep-2028': {
-      title: 'CLAT–2028 Repeater / Drop Batch',
-      tag: 'REPEATER',
-      examLabel: 'FOR EXAM: DECEMBER 2027',
-      lead: 'Focused preparation for a second attempt at CLAT.',
-      desc:
-        'A comprehensive classroom program for repeaters and drop-year students to rebuild concepts, strengthen practice, and achieve higher scores.',
-      duration: 'Till Dec 2027',
-      start: '15th April',
-      size: '25 Students',
-      feeFallback: '₹ 75,000 (Including GST)',
-      feeStyle: 'inr',
-      script: 'Structured Preparation for a Stronger Comeback.',
-      scheduleLabel: 'Repeater Batch',
-      scheduleSlots: [
-        { day: 'Monday to Saturday (Excluding Tuesday)', time: '11 AM to 2 PM' },
-      ],
-      highlights: [
-        '500+ hours of classroom teaching',
-        "Weekly 5 days' session (3 hours daily)",
-        'Full-time faculty available (11 am to 3 pm on working days)',
-        'Separate doubt-clearing sessions',
-        'Dedicated online group for knowledge sharing',
-        'Daily focus on Newspaper reading & Current Affairs (for CLAT, AILET, CHRIST, SAT)',
-        '50+ recently published books',
-        '100+ mock tests (CLAT, AILET, CHRIST, SAT)',
-        'Detailed analysis of mock tests and performance tracking',
-      ],
-      who: [
-        { icon: 'fa-graduation-cap', text: 'Students appearing for CLAT-2028 after a previous attempt' },
-        { icon: 'fa-chart-line', text: 'Aspirants who want a higher score with structured guidance' },
-        { icon: 'fa-comments', text: 'Students who need more practice and mentoring to strengthen their weak areas' },
-        { icon: 'fa-bullseye', text: 'Discipline-focused learners ready for a dedicated preparation year' },
-      ],
-    },
   };
 
+  /* Same Program Highlights for every branch — only hours + weekly session line change */
   function offlineHighlights(isLong, sessionLine) {
     return [
-      (isLong ? '1,000+' : '500+') + ' hours of classroom teaching',
+      (isLong ? '1,000+' : '500+') + ' hours of classroom teaching.',
       sessionLine,
-      'Full-time faculty 12 pm – 7 pm for guidance & doubt solving',
-      'Separate session for doubt clearing',
-      'Dedicated online group for knowledge sharing',
-      'Daily newspaper reading & current affairs',
-      '40+ printed books & e-books',
-      '100+ mock tests — CLAT, AILET, Christ, SLAT',
-      'Mock test analysis',
-      '200+ topic tests',
-      '100+ sectional tests',
-      'Monthly magazine',
-      'Mentoring from NLSIU graduates',
-      'Access to online portal',
-      'Special session on time management',
+      'Full-time faculty 12 pm – 7 pm for guidance & doubt solving.',
+      'Separate session for doubt clearing.',
+      'Dedicated online group for knowledge sharing.',
+      'Daily newspaper reading & current affairs.',
+      '40+ printed books & e-books.',
+      '100+ mock tests — CLAT, AILET, Christ, SLAT.',
+      'Mock test analysis.',
+      '200+ topic tests.',
+      '100+ sectional tests.',
+      'Monthly magazine.',
+      'Mentoring from NLSIU graduates.',
+      'Access to online portal.',
+      'Special session on time management.',
     ];
   }
+
+  var REPEATER_HIGHLIGHTS = [
+    '500+ hours of classroom teaching.',
+    "Weekly 5 days' session (3 hours daily).",
+    'Full-time faculty available (11 am to 3 pm on working days).',
+    'Separate doubt-clearing sessions.',
+    'Dedicated online group for knowledge sharing.',
+    'Daily focus on Newspaper reading & Current Affairs (for CLAT, AILET, CHRIST, SAT).',
+    '50+ recently published books.',
+    '100+ mock tests (CLAT, AILET, CHRIST, SAT).',
+    'Detailed analysis of mock tests and performance tracking.',
+  ];
+
+  var SESSION_LINES = {
+    'wd-2028': "Weekly 3 days' session (Monday, Thursday, Saturday).",
+    'we-2028': "Weekly 3 days' session (Monday, Thursday, Saturday).",
+    'wd-2029': "Weekly 2 days' session (Wednesday, Friday).",
+    'we-2029': 'Weekly 1 day session (Sunday).',
+  };
 
   function offlineWho(year) {
     return [
@@ -298,6 +283,41 @@
       { icon: 'fa-location-dot', text: 'Bangalore aspirants wanting daily mentor access' },
       { icon: 'fa-bullseye', text: 'Students seeking rigorous offline mocks and drills' },
     ];
+  }
+
+  function repeaterWho() {
+    return [
+      { icon: 'fa-arrows-rotate', text: 'Students appearing for CLAT-2028 after a previous attempt' },
+      { icon: 'fa-chart-line', text: 'Aspirants who want a higher score with structured guidance' },
+      { icon: 'fa-handshake', text: 'Students who need more practice and mentoring to strengthen their weak areas' },
+      { icon: 'fa-bullseye', text: 'Discipline-focused learners ready for a dedicated preparation year' },
+    ];
+  }
+
+  /* Same Repeater / PRO batch content for every centre */
+  function repeaterProgramme(centerName) {
+    return {
+      title: 'CLAT–2028 Repeater / PRO Batch',
+      tag: 'PRO',
+      examLabel: 'FOR EXAM: DECEMBER 2027',
+      lead: 'Focused preparation for your second attempt at CLAT.',
+      desc:
+        'A comprehensive classroom program at CLATutor ' +
+        centerName +
+        ' designed for repeaters and drop-year students to help you rebuild concepts, strengthen practice and achieve a higher score in CLAT-2028.',
+      duration: 'Till Dec 2027',
+      start: '15th April',
+      size: '25 Students',
+      feeFallback: '₹ 75,000 (Including GST)',
+      feeStyle: 'inr',
+      script: 'Structured Preparation for a Stronger Comeback.',
+      scheduleLabel: 'Class Schedule',
+      scheduleSlots: [
+        { day: 'Monday to Saturday (Excluding Tuesday)', time: '11 AM to 2 PM' },
+      ],
+      highlights: REPEATER_HIGHLIGHTS.slice(),
+      who: repeaterWho(),
+    };
   }
 
   function offlineProgramme(opts) {
@@ -316,7 +336,7 @@
       size: '25 Students',
       feeFallback: isLong ? '₹ 1,60,000 (Including GST)' : '₹ 80,000 (Including GST)',
       feeStyle: 'inr',
-      script: 'Classroom Intensity. Personal Mentoring.',
+      script: 'Classroom Intensity, Personal Mentoring.',
       scheduleLabel: opts.scheduleLabel,
       scheduleDetail: opts.scheduleDetail || '',
       scheduleSlots: opts.scheduleSlots || null,
@@ -333,7 +353,7 @@
       centerName: 'Malleshwaram',
       scheduleLabel: 'Weekday Batch',
       scheduleSlots: [{ day: 'Monday, Thursday, Saturday', time: '5 PM to 7 PM' }],
-      sessionLine: "Weekly 3 days' session (Mon, Thu & Sat)",
+      sessionLine: SESSION_LINES['wd-2028'],
     }),
     'we-2028': offlineProgramme({
       year: '2028',
@@ -344,7 +364,7 @@
         { day: 'Saturday', time: '5 PM to 7 PM' },
         { day: 'Sunday', time: '1 PM to 5 PM' },
       ],
-      sessionLine: "Weekly weekend sessions (Sat & Sun)",
+      sessionLine: SESSION_LINES['we-2028'],
     }),
     'wd-2029': offlineProgramme({
       year: '2029',
@@ -352,7 +372,7 @@
       centerName: 'Malleshwaram',
       scheduleLabel: 'Weekday Batch',
       scheduleSlots: [{ day: 'Wednesday, Friday', time: '5 PM to 7 PM' }],
-      sessionLine: "Weekly 2 days' session (Wednesday, Friday)",
+      sessionLine: SESSION_LINES['wd-2029'],
     }),
     'we-2029': offlineProgramme({
       year: '2029',
@@ -360,7 +380,7 @@
       centerName: 'Malleshwaram',
       scheduleLabel: 'Weekend Batch',
       scheduleSlots: [{ day: 'Sunday', time: '1 PM to 5 PM' }],
-      sessionLine: "Weekly 1 day's session (Sunday)",
+      sessionLine: SESSION_LINES['we-2029'],
     }),
   };
 
@@ -375,7 +395,7 @@
         { day: 'Saturday', time: '3 PM to 5 PM' },
         { day: 'Sunday', time: '10 AM to 2 PM' },
       ],
-      sessionLine: "Weekly weekend sessions (Sat & Sun)",
+      sessionLine: SESSION_LINES['we-2028'],
     }),
     'we-2029': offlineProgramme({
       year: '2029',
@@ -386,7 +406,7 @@
         { day: 'Saturday', time: '5 PM to 7 PM' },
         { day: 'Sunday', time: '12 PM to 2 PM' },
       ],
-      sessionLine: "Weekly weekend sessions (Sat & Sun)",
+      sessionLine: SESSION_LINES['we-2029'],
     }),
   };
 
@@ -400,7 +420,7 @@
         { day: 'Saturday', time: '3 PM to 5 PM' },
         { day: 'Sunday', time: '10 AM to 2 PM' },
       ],
-      sessionLine: "Weekly weekend sessions (Sat & Sun)",
+      sessionLine: SESSION_LINES['we-2028'],
     }),
     'we-2029': offlineProgramme({
       year: '2029',
@@ -411,9 +431,40 @@
         { day: 'Saturday', time: '5 PM to 7 PM' },
         { day: 'Sunday', time: '12 PM to 2 PM' },
       ],
-      sessionLine: "Weekly weekend sessions (Sat & Sun)",
+      sessionLine: SESSION_LINES['we-2029'],
     }),
   };
+
+  /* Add Repeater / PRO batch on every centre */
+  JAYANAGAR['rep-2028'] = repeaterProgramme('Jayanagar');
+  MALLESHWARAM['rep-2028'] = repeaterProgramme('Malleshwaram');
+  YELAHANKA['rep-2028'] = repeaterProgramme('Yelahanka');
+  WHITEFIELD['rep-2028'] = repeaterProgramme('Whitefield');
+
+  /* Force identical Program Highlights on every branch (from design flyers) */
+  function syncHighlights(pack) {
+    if (!pack) return;
+    Object.keys(pack).forEach(function (id) {
+      var p = pack[id];
+      if (!p) return;
+      if (id === 'rep-2028') {
+        p.highlights = REPEATER_HIGHLIGHTS.slice();
+        p.script = 'Structured Preparation for a Stronger Comeback.';
+        p.title = 'CLAT–2028 Repeater / PRO Batch';
+        p.tag = 'PRO';
+        return;
+      }
+      if (SESSION_LINES[id]) {
+        p.highlights = offlineHighlights(/2029/.test(id), SESSION_LINES[id]);
+        p.script = 'Classroom Intensity, Personal Mentoring.';
+      }
+    });
+  }
+
+  syncHighlights(JAYANAGAR);
+  syncHighlights(MALLESHWARAM);
+  syncHighlights(YELAHANKA);
+  syncHighlights(WHITEFIELD);
 
   var CENTER_CONTENT = {
     jayanagar: JAYANAGAR,
@@ -425,42 +476,36 @@
   /* Which product tabs each center shows */
   var CENTER_PRODUCT_IDS = {
     jayanagar: ['wd-2028', 'wd-2029', 'we-2028', 'we-2029', 'rep-2028'],
-    malleshwaram: ['wd-2028', 'wd-2029', 'we-2028', 'we-2029'],
-    yelahanka: ['we-2028', 'we-2029'],
-    whitefield: ['we-2028', 'we-2029'],
+    malleshwaram: ['wd-2028', 'wd-2029', 'we-2028', 'we-2029', 'rep-2028'],
+    yelahanka: ['we-2028', 'we-2029', 'rep-2028'],
+    whitefield: ['we-2028', 'we-2029', 'rep-2028'],
   };
 
   function defaultContent(def, center) {
     var isWeekend = def.mode === 'weekends';
     var isRepeater = def.mode === 'repeaters';
     var isLong = def.year === '2029';
+    if (isRepeater) {
+      return repeaterProgramme(center.name);
+    }
     return {
       title: 'CLAT–' + def.year + ' Offline Classroom Programme',
-      tag: isRepeater ? 'REPEATER' : 'OFFLINE',
+      tag: 'OFFLINE',
       examLabel: 'FOR EXAM: ' + def.exam.toUpperCase(),
-      lead: isRepeater
-        ? 'Focused preparation for a second attempt at CLAT.'
-        : 'Classroom intensity with personal mentoring.',
+      lead: 'Classroom intensity with personal mentoring.',
       desc:
-        (isRepeater ? 'Repeater classroom programme' : 'A focused offline program') +
-        ' at CLATutor ' +
+        'A focused offline program at CLATutor ' +
         center.name +
         ' for CLAT ' +
         def.exam +
         '.',
-      duration: isRepeater ? 'Till Dec 2027' : isLong ? 'Till April 2029' : 'Till April 2028',
-      start: isRepeater ? '15th April' : isLong ? 'April 1st Week 2027' : '15 Nov 2026',
+      duration: isLong ? 'Till April 2029' : 'Till April 2028',
+      start: isLong ? 'April 1st Week 2027' : '15 Nov 2026',
       size: '25 Students',
-      feeFallback: isRepeater
-        ? '₹ 75,000 (Including GST)'
-        : isLong
-          ? '₹ 1,60,000 (Including GST)'
-          : '₹ 80,000 (Including GST)',
+      feeFallback: isLong ? '₹ 1,60,000 (Including GST)' : '₹ 80,000 (Including GST)',
       feeStyle: 'inr',
-      script: isRepeater
-        ? 'Structured Preparation for a Stronger Comeback.'
-        : 'Classroom Intensity. Personal Mentoring.',
-      scheduleLabel: isRepeater ? 'Repeater Batch' : isWeekend ? 'Weekend Batch' : 'Weekday Batch',
+      script: 'Classroom Intensity, Personal Mentoring.',
+      scheduleLabel: isWeekend ? 'Weekend Batch' : 'Weekday Batch',
       scheduleDetail: '',
       scheduleSlots: isWeekend
         ? [
@@ -468,7 +513,7 @@
             { day: 'Sunday', time: '10 AM to 2 PM' },
           ]
         : [{ day: 'Monday, Thursday, Saturday', time: '5 PM to 7 PM' }],
-      highlights: offlineHighlights(isLong, isWeekend ? "Weekly weekend sessions" : "Weekly classroom sessions"),
+      highlights: offlineHighlights(isLong, SESSION_LINES[def.id] || "Weekly classroom sessions."),
       who: offlineWho(def.year),
     };
   }
