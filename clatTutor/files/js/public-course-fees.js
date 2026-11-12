@@ -22,7 +22,7 @@
     var num = Number(n);
     if (!Number.isFinite(num)) return '';
     var body = Math.round(num).toLocaleString('en-IN');
-    return style === 'inr' ? '\u20B9' + body : 'Rs ' + body;
+    return style === 'inr' ? '\u20B9 ' + body : 'Rs ' + body;
   }
 
   var PANEL_KEYS = {
@@ -73,10 +73,17 @@
     }
     var img = list.querySelector('img');
     var src = img ? img.getAttribute('src') || '' : '';
+    if (src) {
+      return (
+        '<li><span class="courses-check" aria-hidden="true"><img src="' +
+        escapeHtml(src) +
+        '" alt="" width="18" height="18" loading="lazy" /></span><span>' +
+        safe +
+        '</span></li>'
+      );
+    }
     return (
-      '<li><span class="courses-check" aria-hidden="true"><img src="' +
-      escapeHtml(src) +
-      '" alt="" width="18" height="18" loading="lazy" /></span><span>' +
+      '<li><span class="courses-check" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span><span>' +
       safe +
       '</span></li>'
     );

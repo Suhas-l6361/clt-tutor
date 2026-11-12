@@ -128,7 +128,7 @@
         '<span class="logo__word">CLAT<span class="logo__accent">utor</span></span>';
     }
     if (brandTag) {
-      brandTag.textContent = 'Shaping Minds Since 2007';
+      brandTag.textContent = 'Shaping Minds Since 2008';
     }
   }
 

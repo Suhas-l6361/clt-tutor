@@ -273,6 +273,15 @@ a:hover {
   gap: 0.4rem;
 }
 
+.site-nav__stacked {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.12;
+  text-align: left;
+}
+
 .site-nav__link-label {
   display: inline;
 }

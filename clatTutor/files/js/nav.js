@@ -207,7 +207,7 @@ function initAppChrome(opts) {
         ? window.APP_CONFIG.NAME
         : 'Portal';
   var brandTag = isCrm
-    ? 'Shaping Minds Since 2007'
+    ? 'Shaping Minds Since 2008'
     : isParent
       ? 'Parent portal'
       : brand + ' workspace';

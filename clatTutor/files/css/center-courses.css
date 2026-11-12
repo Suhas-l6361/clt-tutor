@@ -1,0 +1,122 @@
+/* Center course pages — extras on top of courses.css (exam badge, schedule, emphasis) */
+
+.page-courses .cp-exam {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--cp-brand);
+  border-radius: 999px;
+  color: var(--cp-brand);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #fff;
+}
+
+.page-courses .cp-exam i {
+  font-size: 0.85rem;
+}
+
+.page-courses .courses-highlights__list li.is-emphasis {
+  padding: 0.45rem 0.55rem;
+  margin: -0.45rem -0.55rem;
+  border-radius: 10px;
+  background: #f8d4b8;
+  font-weight: 700;
+}
+
+.page-courses .courses-highlights__list li.is-alert span:last-child {
+  color: #c62828;
+  font-weight: 700;
+}
+
+/* Class Schedule — matches design: heading + peach pill bar */
+.page-courses .cp-schedule {
+  margin-top: 0.35rem;
+}
+
+.page-courses .cp-schedule__heading {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--cp-black);
+  letter-spacing: -0.01em;
+}
+
+.page-courses .cp-schedule__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 14px;
+  background: #fff3e8;
+  border: 1px solid #f5d0b5;
+}
+
+.page-courses .cp-schedule__icon {
+  flex: 0 0 auto;
+  color: var(--cp-brand);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.page-courses .cp-schedule__text {
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #1a1a1a;
+}
+
+.page-courses .cp-schedule__label {
+  font-weight: 800;
+  color: var(--cp-brand);
+}
+
+.page-courses .cp-schedule__detail {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.page-courses .cp-schedule__pipe {
+  color: var(--cp-brand);
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.page-courses .cp-schedule__slots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.35rem;
+}
+
+.page-courses .cp-schedule__slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.page-courses .cp-schedule__day,
+.page-courses .cp-schedule__time {
+  color: #1a1a1a;
+}
+
+@media (max-width: 640px) {
+  .page-courses .cp-schedule__bar {
+    align-items: flex-start;
+  }
+
+  .page-courses .cp-schedule__text {
+    font-size: 0.9rem;
+  }
+}

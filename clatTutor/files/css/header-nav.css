@@ -96,6 +96,16 @@ body.page-public > .site-header {
   display: block !important;
 }
 
+/* Two-line Offline Centers / and Courses label */
+.site-header .site-nav__stacked {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  line-height: 1.12 !important;
+  text-align: left !important;
+}
+
 /* Register / Log In animated buttons: icon sits with .text above the expanding circle */
 .site-header .nav-auth .nav-auth__btn-icon {
   position: relative !important;
