@@ -69,12 +69,13 @@ body.page-public .site-footer__bar {
 }
 
 body.page-public .site-footer__copy,
+body.page-public .site-footer__meta-line,
 body.page-public .site-footer__legal a {
   color: #fff;
 }
 
-body.page-public .site-footer__copy::after {
-  color: rgba(255, 255, 255, 0.82);
+body.page-public .site-footer__meta-line {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 body.page-public .site-footer__legal a:hover {

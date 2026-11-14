@@ -111,12 +111,27 @@
     );
     /** IPC clause / exception Word lists inside passage — drop alone "1.\nwith the intention…" */
     t = t.replace(
-      /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|as the\b|as an\b|as a\b|including a false\b|active concealment\b|a promise made\b|making a false\b|representing that\b|buys any goods\b|hires or avails\b|means any\b|goodwill or reputation\b|a misrepresentation by\b|actual or likely\b|prescribes for\b|Part I\b|Part II\b|he holds\b|he stands\b|he contracts\b))/gim,
+      /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|including a false\b|active concealment\b|a promise made\b|making a false\b|representing that\b|buys any goods\b|hires or avails\b|means any\b|goodwill or reputation\b|a misrepresentation by\b|actual or likely\b|prescribes for\b|Part I\b|Part II\b|he holds\b|he stands\b|he contracts\b))/gim,
       '\n'
     );
-    /** Glued same-line glossary numbers: "15. as the committing" / "11. means any fault" */
+    /**
+     * Lowercase-only "as the/as a/as an" Word-list bleed (e.g. "15.\nas the committing…").
+     * Do NOT strip capitalized MCQs like "67.\nAs the passage describes…".
+     */
     t = t.replace(
-      /(?:^|\n)\d{1,3}\.\s+(?=as the\b|as an\b|as a\b|with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|buys any\b|hires or\b|means any\b|prescribes for\b|Part I\b|Part II\b)/gim,
+      /(?:^|\n)(\d{1,3})\.\s*\n(?=[ \t]*(?:as the\b|as an\b|as a\b))/gm,
+      '\n'
+    );
+    /**
+     * Glued same-line glossary numbers: "15. as the committing" / "11. means any fault".
+     * Lowercase "as the/as a/as an" only — real stems "67. As the passage…" keep their numbers.
+     */
+    t = t.replace(
+      /(?:^|\n)\d{1,3}\.\s+(?=as the\b|as an\b|as a\b)/gm,
+      '\n'
+    );
+    t = t.replace(
+      /(?:^|\n)\d{1,3}\.\s+(?=with the intention\b|with the knowledge\b|the offender\b|a public servant\b|the person who\b|buys any\b|hires or\b|means any\b|prescribes for\b|Part I\b|Part II\b)/gim,
       '\n'
     );
     return t.trim();
@@ -209,7 +224,9 @@
     /** Short "N. Under Article…" ghosts only — real Q1 stems start the same way but continue with MCQ cue. */
     if (/^\s*\d{1,3}\.\s+Under Article\b/i.test(t) && !hasMcqPromptCue(t) && t.length < 90) return false;
     if (/^\s*\d{1,3}\.\s+(?:of the|declares that|governs|provides|subject to the)\b/i.test(t)) return false;
-    if (/^\s*\d{1,3}\.\s+(?:as the|as a|as an|with the intention|with the knowledge|the offender)\b/i.test(t)) {
+    /** Lowercase glossary bleed only — keep "67. As the passage…". */
+    if (/^\s*\d{1,3}\.\s+(?:as the|as a|as an)\b/.test(t)) return false;
+    if (/^\s*\d{1,3}\.\s+(?:with the intention|with the knowledge|the offender)\b/i.test(t)) {
       return false;
     }
     if (/^\s*\d{1,3}\.\s+(?:a public servant|the person who|including a false|active concealment)\b/i.test(t)) {
@@ -982,8 +999,8 @@
     if (/^a public servant\b/i.test(s)) return true;
     if (/^the person who suffers\b/i.test(s)) return true;
     if (/^the person who\b/i.test(s) && /\bconsents\b/i.test(s)) return true;
-    /** Contract Act "Section 15 as the committing…" Word-list ghosts */
-    if (/^as the\b/i.test(s)) return true;
+    /** Contract Act "Section 15 as the committing…" Word-list ghosts (lowercase only). */
+    if (/^as the\b/.test(s)) return true;
     if (/^as a\b/i.test(s)) return true;
     if (/^as an\b/i.test(s)) return true;
     if (/^including a false\b/i.test(s)) return true;
