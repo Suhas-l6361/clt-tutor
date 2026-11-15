@@ -31,7 +31,7 @@
   var PRODUCT_DEFS = [
     {
       id: 'wd-2028',
-      label: 'CLAT 2028 Weekdays',
+      label: 'CLAT 2028 (exam Dec 2027) Weekdays',
       hint: 'Exam Dec 2027',
       icon: 'fa-laptop',
       mode: 'weekdays',
@@ -51,7 +51,7 @@
     },
     {
       id: 'we-2028',
-      label: 'CLAT 2028 Weekends',
+      label: 'CLAT 2028 (exam Dec 2027) Weekends',
       hint: 'Exam Dec 2027',
       icon: 'fa-sun',
       mode: 'weekends',
@@ -71,7 +71,7 @@
     },
     {
       id: 'rep-2028',
-      label: 'CLAT 2028 Repeater / PRO batch',
+      label: 'CLAT 2028 Repeater / PRO batch (exam Dec 2027)',
       hint: 'Exam Dec 2027',
       icon: 'fa-pen-to-square',
       mode: 'repeaters',
@@ -84,7 +84,7 @@
   /* Jayanagar-only content from the provided design */
   var JAYANAGAR = {
     'wd-2028': {
-      title: 'CLAT-2028 Offline Classroom Programme',
+      title: 'CLAT 2028 (exam Dec 2027) Offline Classroom Programme',
       tag: 'CLASS XI',
       examLabel: 'FOR EXAM: DECEMBER 2027',
       lead: 'Build Strong Foundations for CLAT. Start Early. Stay Ahead.',
@@ -111,7 +111,7 @@
       ],
     },
     'we-2028': {
-      title: 'CLAT–2028 Offline Classroom Programme',
+      title: 'CLAT 2028 (exam Dec 2027) Offline Classroom Programme',
       tag: 'OFFLINE',
       examLabel: 'FOR EXAM: DECEMBER 2027',
       lead: 'Classroom intensity with personal mentoring.',
@@ -297,7 +297,7 @@
   /* Same Repeater / PRO batch content for every centre */
   function repeaterProgramme(centerName) {
     return {
-      title: 'CLAT–2028 Repeater / PRO Batch',
+      title: 'CLAT 2028 Repeater / PRO batch (exam Dec 2027)',
       tag: 'PRO',
       examLabel: 'FOR EXAM: DECEMBER 2027',
       lead: 'Focused preparation for your second attempt at CLAT.',
@@ -323,7 +323,10 @@
   function offlineProgramme(opts) {
     var isLong = opts.year === '2029';
     return {
-      title: 'CLAT–' + opts.year + ' Offline Classroom Programme',
+      title:
+        opts.year === '2028'
+          ? 'CLAT 2028 (exam Dec 2027) Offline Classroom Programme'
+          : 'CLAT–' + opts.year + ' Offline Classroom Programme',
       tag: 'OFFLINE',
       examLabel: 'FOR EXAM: ' + opts.exam,
       lead: 'Classroom intensity with personal mentoring.',
@@ -450,7 +453,7 @@
       if (id === 'rep-2028') {
         p.highlights = REPEATER_HIGHLIGHTS.slice();
         p.script = 'Structured Preparation for a Stronger Comeback.';
-        p.title = 'CLAT–2028 Repeater / PRO Batch';
+        p.title = 'CLAT 2028 Repeater / PRO batch (exam Dec 2027)';
         p.tag = 'PRO';
         return;
       }
@@ -489,7 +492,10 @@
       return repeaterProgramme(center.name);
     }
     return {
-      title: 'CLAT–' + def.year + ' Offline Classroom Programme',
+      title:
+        def.year === '2028'
+          ? 'CLAT 2028 (exam Dec 2027) Offline Classroom Programme'
+          : 'CLAT–' + def.year + ' Offline Classroom Programme',
       tag: 'OFFLINE',
       examLabel: 'FOR EXAM: ' + def.exam.toUpperCase(),
       lead: 'Classroom intensity with personal mentoring.',

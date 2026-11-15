@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="google-site-verification" content="u-XeCwvUwPE8Qd0AxyILYwvHiNVk0jETywVztUXFduc" />
+  <meta name="google-site-verification" content="nihNFmyE89dhunfEUS1DG81zyo1o6rreY-kY7-jJNxQ" />
   <!-- YouTube embeds need an http(s) origin. From disk, run serve-local.cmd in this folder, then open the URL it shows. -->
   <!-- Lets YouTube embeds receive a Referer; avoids Error 153 with strict/no-referrer defaults -->
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>Institute Portal — Programs &amp; Admissions</title>
+  <title>CLAT Coaching in Bangalore - CLATutor</title>
+  <meta
+    name="description"
+    content="CLATutor — CLAT coaching in Bangalore since 2008. Offline centres, online courses, mocks and free counselling for CLAT, AILET and SLAT."
+  />
   <link rel="icon" type="image/png" href="image/Clat%20Logo.png" />
   <link rel="shortcut icon" type="image/png" href="image/Clat%20Logo.png" />
   <link rel="apple-touch-icon" href="image/Clat%20Logo.png" />
@@ -55,7 +59,7 @@
     }
   </style>
   <script>
-    /* Defined in <head> so the Claim button works even if later scripts fail */
+    /* Stale ₹49 workshop retired — Claim Seat goes to admission, not the old modal */
     window.openClaimSeatPopup = function (e) {
       if (e) {
         try {
@@ -63,35 +67,11 @@
           e.stopPropagation();
         } catch (err) {}
       }
-      var modal = document.getElementById('ws-reg-modal');
-      if (!modal) {
-        window.location.hash = 'ws-reg-modal';
-        return false;
-      }
-      if (typeof window.openWorkshopRegistration === 'function') {
-        try {
-          window.openWorkshopRegistration();
-        } catch (err) {}
-      }
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      modal.style.setProperty('display', 'flex', 'important');
-      modal.style.setProperty('visibility', 'visible', 'important');
-      modal.style.setProperty('opacity', '1', 'important');
-      modal.style.setProperty('pointer-events', 'auto', 'important');
-      document.body.classList.add('ws-modal-open');
-      var stepInfo = document.getElementById('ws-step-info');
-      var stepBranch = document.getElementById('ws-step-branch');
-      var stepForm = document.getElementById('ws-step-form');
-      if (stepInfo) {
-        stepInfo.hidden = false;
-        if (stepBranch) stepBranch.hidden = true;
-        if (stepForm) stepForm.hidden = true;
-      } else {
-        if (stepBranch) stepBranch.hidden = false;
-        if (stepForm) stepForm.hidden = true;
-      }
+      window.location.href = 'html_files/admission.html';
       return false;
+    };
+    window.openWorkshopRegistration = function () {
+      window.location.href = 'html_files/admission.html';
     };
   </script>
   <script src="js/site-protection.js" data-protection-mode="public" defer></script>
@@ -305,12 +285,12 @@
     <div class="site-nav-backdrop" id="site-nav-backdrop" hidden aria-hidden="true"></div>
   </header>
 
-  <section class="ws-home-offer" aria-label="CLAT Dec 2027 batch">
+  <section class="ws-home-offer" aria-label="CLAT 2028 batch — exam December 2027">
     <div class="ws-home-offer__inner">
       <div class="ws-home-offer__copy">
         <div class="ws-home-offer__top">
           <span class="ws-home-offer__live">Seats filling fast</span>
-          <span class="ws-home-offer__exam">CLAT Dec 2027</span>
+          <span class="ws-home-offer__exam">CLAT 2028 (exam Dec 2027)</span>
         </div>
         <div class="ws-home-mini-slider" data-home-slider aria-label="Featured banners">
           <div class="ws-home-mini-slider__viewport">
@@ -347,10 +327,10 @@
       <aside class="ws-home-offer__visual" aria-label="Batch details and enrollment">
         <div class="ws-home-side">
           <p class="ws-home-side__eyebrow">New batch opening</p>
-          <h2 class="ws-home-side__title">CLAT Dec 2027</h2>
+          <h2 class="ws-home-side__title">CLAT 2028 (exam Dec 2027)</h2>
           <p class="ws-home-side__date">
             <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-            <span>Starts from <strong>15th November</strong></span>
+            <span>Starts from <strong>15th November 2026</strong></span>
           </p>
           <ul class="ws-home-side__facts">
             <li class="ws-home-side__fact ws-home-side__fact--gold">
@@ -554,9 +534,9 @@
       <div class="enquiry-layout">
         <div class="enquiry-aside">
           <ul>
-            <li><i class="fa-solid fa-circle-check"></i> Response within 1–2 business days</li>
-            <li><i class="fa-solid fa-circle-check"></i> Counselling for batch &amp; study plan</li>
-            <li><i class="fa-solid fa-circle-check"></i> Your enquiry syncs to our CRM for follow-up</li>
+            <li><i class="fa-solid fa-circle-check"></i> Response within 30 minutes during working hours</li>
+            <li><i class="fa-solid fa-circle-check"></i> Instant WhatsApp reply — <a href="https://wa.me/918150884422" target="_blank" rel="noopener noreferrer">8150884422</a></li>
+            <li><i class="fa-solid fa-circle-check"></i> Counselling for batch, fees &amp; study plan</li>
           </ul>
         </div>
         <section class="enquiry-form-box" aria-labelledby="enquiry-heading">
@@ -1044,7 +1024,7 @@
     </div>
   </footer>
 
-  <div id="ws-reg-modal" class="ws-modal" aria-hidden="true">
+  <div id="ws-reg-modal" class="ws-modal" aria-hidden="true" hidden>
     <div class="ws-modal__backdrop" data-ws-close tabindex="-1" aria-hidden="true"></div>
     <div
       class="ws-modal__dialog"

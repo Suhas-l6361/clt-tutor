@@ -70,11 +70,12 @@
                   type="text"
                   id="admission-target-year"
                   name="targetYear"
-                  autocomplete="off"
                   required
-                  placeholder="Example: 2026"
+                  maxlength="20"
+                  placeholder="Example: 2027"
                 />
               </div>
+
               <div class="admission-field">
                 <label class="admission-field__label" for="admission-course">Course:</label>
                 <input
@@ -82,7 +83,6 @@
                   type="text"
                   id="admission-course"
                   name="course"
-                  autocomplete="off"
                   required
                   placeholder="Example: CLAT 2027 Offline"
                 />
@@ -100,6 +100,7 @@
                   placeholder="Example: John Doe"
                 />
               </div>
+
               <div class="admission-field">
                 <label class="admission-field__label" for="admission-parent-name">Parent Name:</label>
                 <input
@@ -107,8 +108,8 @@
                   type="text"
                   id="admission-parent-name"
                   name="parentName"
-                  autocomplete="name"
-                  placeholder="Example: John Doe"
+                  autocomplete="off"
+                  placeholder="Example: Richard Doe"
                 />
               </div>
 
@@ -124,6 +125,7 @@
                   placeholder="Example: johndoe@gmail.com"
                 />
               </div>
+
               <div class="admission-field">
                 <label class="admission-field__label" for="admission-parent-email">Parent Email:</label>
                 <input
@@ -131,13 +133,12 @@
                   type="email"
                   id="admission-parent-email"
                   name="parentEmail"
-                  autocomplete="email"
-                  placeholder="Example: johndoe@gmail.com"
+                  autocomplete="off"
+                  placeholder="Example: parent@gmail.com"
                 />
               </div>
-
               <div class="admission-field">
-                <label class="admission-field__label" for="admission-student-phone">Student Phone Number:</label>
+                <label class="admission-field__label" for="admission-student-phone">Student Phone:</label>
                 <input
                   class="admission-field__input"
                   type="tel"
@@ -148,51 +149,54 @@
                   placeholder="Example: +91 9984003218"
                 />
               </div>
+
               <div class="admission-field">
-                <label class="admission-field__label" for="admission-parent-phone">Parent Phone Number:</label>
+                <label class="admission-field__label" for="admission-parent-phone">Parent Phone:</label>
                 <input
                   class="admission-field__input"
                   type="tel"
                   id="admission-parent-phone"
                   name="parentPhone"
-                  autocomplete="tel"
-                  placeholder="Example: +91 9984003218"
+                  autocomplete="off"
+                  placeholder="Example: +91 9876543210"
                 />
               </div>
 
               <div class="admission-field">
-                <label class="admission-field__label" for="admission-dob">Student Date Of Birth:</label>
+                <label class="admission-field__label" for="admission-student-dob">Student DOB:</label>
                 <input
                   class="admission-field__input"
                   type="date"
-                  id="admission-dob"
+                  id="admission-student-dob"
                   name="studentDob"
                   autocomplete="bday"
-                  max="2026-08-29"
                 />
-              </div>
-              <div class="admission-field">
-                <label class="admission-field__label" for="admission-address">Address:</label>
-                <textarea
-                  class="admission-field__input admission-field__textarea"
-                  id="admission-address"
-                  name="address"
-                  rows="2"
-                  placeholder="Example: House no, Apartment, Street name, Area, Zip Code"
-                ></textarea>
               </div>
 
               <div class="admission-field">
-                <label class="admission-field__label" for="admission-school">School/College:</label>
+                <label class="admission-field__label" for="admission-address">Address:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-address"
+                  name="address"
+                  autocomplete="street-address"
+                  placeholder="Example: 12, MG Road, Bangalore"
+                />
+              </div>
+
+              <div class="admission-field">
+                <label class="admission-field__label" for="admission-school">School / College:</label>
                 <input
                   class="admission-field__input"
                   type="text"
                   id="admission-school"
                   name="school"
                   autocomplete="organization"
-                  placeholder="Example: TISB"
+                  placeholder="Example: National Public School"
                 />
               </div>
+
               <div class="admission-field">
                 <label class="admission-field__label" for="admission-stream">Stream:</label>
                 <input
@@ -200,8 +204,7 @@
                   type="text"
                   id="admission-stream"
                   name="stream"
-                  autocomplete="off"
-                  placeholder="Example: Humanities"
+                  placeholder="Example: Commerce / Arts / Science"
                 />
               </div>
 
@@ -213,14 +216,15 @@
                   id="admission-parent-profession"
                   name="parentProfession"
                   maxlength="50"
-                  autocomplete="organization-title"
-                  placeholder="Example: Teacher"
+                  autocomplete="off"
+                  placeholder="Example: Business / Engineer / Teacher"
                 />
               </div>
+
               <div class="admission-field">
                 <label class="admission-field__label" for="admission-caste">Caste:</label>
                 <select class="admission-field__input admission-field__select" id="admission-caste" name="caste">
-                  <option value="">Select caste (optional)</option>
+                  <option value="">Select caste</option>
                   <option value="General">General</option>
                   <option value="OBC">OBC</option>
                   <option value="SC">SC</option>
@@ -231,11 +235,11 @@
               </div>
 
               <div class="admission-field admission-field--full">
-                <label class="admission-field__label" for="admission-photo">Student photo (optional):</label>
+                <label class="admission-field__label" for="admission-photo">Student Photo (optional):</label>
                 <div class="admission-photo">
-                  <div class="admission-photo__preview" id="admission-photo-preview" hidden>
-                    <i class="fa-solid fa-user admission-photo__icon" id="admission-photo-icon"></i>
-                    <img id="admission-photo-img" class="admission-photo__img" alt="" hidden />
+                  <div class="admission-photo__preview" id="admission-photo-preview" aria-hidden="true">
+                    <i class="fa-solid fa-user admission-photo__icon" id="admission-photo-icon" aria-hidden="true"></i>
+                    <img class="admission-photo__img" id="admission-photo-img" alt="" hidden />
                   </div>
                   <div class="admission-photo__pick">
                     <input
@@ -243,22 +247,22 @@
                       type="file"
                       id="admission-photo"
                       name="studentPhoto"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/jpeg,image/png,image/webp,image/*"
                     />
-                    <p class="admission-photo__hint">JPG, PNG or WebP, up to 3.5 MB. Optional — helps us recognise you at the centre.</p>
+                    <p class="admission-photo__hint">JPG, PNG or WebP · up to 3.5 MB</p>
                   </div>
                 </div>
               </div>
 
               <div class="admission-field admission-field--full">
-                <label class="admission-field__label" for="admission-source">Source of Information:</label>
-                <textarea
-                  class="admission-field__input admission-field__textarea"
-                  id="admission-source"
+                <label class="admission-field__label" for="admission-source-info">Source of Information:</label>
+                <input
+                  class="admission-field__input"
+                  type="text"
+                  id="admission-source-info"
                   name="sourceInfo"
-                  rows="3"
-                  placeholder="Example: Google"
-                ></textarea>
+                  placeholder="Example: Instagram / Friend / Google / Newspaper"
+                />
               </div>
             </div>
 
@@ -401,17 +405,20 @@
       var photoPreview = document.getElementById('admission-photo-preview');
       var photoImg = document.getElementById('admission-photo-img');
       var photoIcon = document.getElementById('admission-photo-icon');
-      var dobInput = document.getElementById('admission-dob');
       var previewObjectUrl = '';
       var MAX_PHOTO_BYTES = 3.5 * 1024 * 1024;
 
-      if (dobInput) {
-        var today = new Date();
-        var yyyy = today.getFullYear();
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var dd = String(today.getDate()).padStart(2, '0');
-        dobInput.max = yyyy + '-' + mm + '-' + dd;
-        dobInput.min = String(yyyy - 25) + '-01-01';
+      function fieldVal(fd, name, maxLen) {
+        var v = fd.get(name);
+        v = v == null ? '' : String(v).trim();
+        if (maxLen) v = v.slice(0, maxLen);
+        return v;
+      }
+
+      function inferTargetYear(courseText, hiddenYear) {
+        var m = /\b(20\d{2})\b/.exec(String(courseText || ''));
+        if (m) return m[1];
+        return hiddenYear || '2028';
       }
 
       function showAdmissionPopup(type, message) {
@@ -537,7 +544,7 @@
           showAdmissionError('Please enter a valid student phone number.');
           return;
         }
-        var parentPhoneRaw = (fd.get('parentPhone') || '').toString().trim();
+        var parentPhoneRaw = fieldVal(fd, 'parentPhone');
         var parentPhoneNum = parentPhoneRaw ? PublicFormsApi.phoneToNumber(parentPhoneRaw) : null;
         if (parentPhoneRaw && !Number.isFinite(parentPhoneNum)) {
           showAdmissionError('Please enter a valid parent phone number.');
@@ -554,35 +561,37 @@
             return;
           }
         }
+        var courseText = fieldVal(fd, 'course');
+        var targetYear = fieldVal(fd, 'targetYear', 20) || inferTargetYear(courseText, '');
         var courseBits = [
-          'Target: ' + (fd.get('targetYear') || '').toString().trim(),
-          'Course: ' + (fd.get('course') || '').toString().trim(),
-          'Parent: ' + (fd.get('parentName') || '').toString().trim(),
-          'School: ' + (fd.get('school') || '').toString().trim(),
-          'Stream: ' + (fd.get('stream') || '').toString().trim(),
+          'Target: ' + targetYear,
+          'Course: ' + courseText,
+          'Parent: ' + fieldVal(fd, 'parentName'),
+          'School: ' + fieldVal(fd, 'school'),
+          'Stream: ' + fieldVal(fd, 'stream'),
         ]
           .filter(function (s) {
             return !/^[^:]+:\s*$/.test(s);
           })
           .join(' · ');
-        var sourceInfo = (fd.get('sourceInfo') || '').toString().trim();
+        var sourceInfo = fieldVal(fd, 'sourceInfo');
         var interest = courseBits + (sourceInfo ? ' · Heard via: ' + sourceInfo : '');
         var payload = {
-          target_year: (fd.get('targetYear') || '').toString().trim(),
-          course: (fd.get('course') || '').toString().trim(),
+          target_year: targetYear,
+          course: courseText,
           student_name: student,
-          parentName: (fd.get('parentName') || '').toString().trim() || null,
-          student_email: email,
-          parent_email: (fd.get('parentEmail') || '').toString().trim() || null,
+          parentName: fieldVal(fd, 'parentName') || null,
+          student_email: email || null,
+          parent_email: fieldVal(fd, 'parentEmail') || null,
           student_PhoneNumber: studentPhoneNum,
           parent_PhoneNumber:
             parentPhoneNum != null && Number.isFinite(parentPhoneNum) ? parentPhoneNum : null,
-          student_dob: (fd.get('studentDob') || '').toString().trim() || null,
-          address: (fd.get('address') || '').toString().trim() || null,
-          school_college: (fd.get('school') || '').toString().trim() || null,
-          stream: (fd.get('stream') || '').toString().trim() || null,
-          parent_profession: (fd.get('parentProfession') || '').toString().trim().slice(0, 50) || null,
-          caste: (fd.get('caste') || '').toString().trim().slice(0, 50) || null,
+          student_dob: fieldVal(fd, 'studentDob') || null,
+          address: fieldVal(fd, 'address') || null,
+          school_college: fieldVal(fd, 'school') || null,
+          stream: fieldVal(fd, 'stream') || null,
+          parent_profession: fieldVal(fd, 'parentProfession', 50) || null,
+          caste: fieldVal(fd, 'caste', 50) || null,
           source_of_info: sourceInfo || null,
         };
         var submitBtn = form.querySelector('button[type="submit"]');
