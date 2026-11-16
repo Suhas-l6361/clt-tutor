@@ -1294,6 +1294,14 @@ body.crm-overdue-branch-modal-open {
 .crm-workshop-modal__list .enrollment-table {
   min-width: 1100px;
 }
+.crm-scholorship-table a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.crm-scholorship-table a:hover {
+  opacity: 0.85;
+}
 .crm-mock-reg-table a {
   color: #1d4ed8;
   font-weight: 600;

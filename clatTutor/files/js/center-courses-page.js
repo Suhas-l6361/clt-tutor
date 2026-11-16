@@ -91,7 +91,7 @@
       desc:
         'A structured weekday classroom programme at CLATutor Jayanagar for Class XI aspirants — foundations first, then progressive mocks and mentoring toward CLAT December 2027.',
       duration: 'Till April 2028',
-      start: '15 Nov 2026',
+      start: '30 Nov 2026',
       size: '25 Students',
       feeFallback: '₹ 80,000',
       feeStyle: 'inr',
@@ -118,7 +118,7 @@
       desc:
         'A focused offline program for Class 11 students — daily faculty access, newspaper drills, extensive mocks, and a peer group that keeps you accountable till exam day.',
       duration: 'Till April 2028',
-      start: '15 Nov 2026',
+      start: '30 Nov 2026',
       size: '25 Students',
       feeFallback: '₹ 80,000 (Including GST)',
       feeStyle: 'inr',
@@ -335,7 +335,7 @@
         opts.centerName +
         ' — daily faculty access, newspaper drills, extensive mocks, and a peer group that keeps you accountable till exam day.',
       duration: isLong ? 'Till April 2029' : 'Till April 2028',
-      start: isLong ? 'April 1st Week 2027' : '15 Nov 2026',
+      start: isLong ? 'April 1st Week 2027' : '30 Nov 2026',
       size: '25 Students',
       feeFallback: isLong ? '₹ 1,60,000 (Including GST)' : '₹ 80,000 (Including GST)',
       feeStyle: 'inr',
@@ -506,7 +506,7 @@
         def.exam +
         '.',
       duration: isLong ? 'Till April 2029' : 'Till April 2028',
-      start: isLong ? 'April 1st Week 2027' : '15 Nov 2026',
+      start: isLong ? 'April 1st Week 2027' : '30 Nov 2026',
       size: '25 Students',
       feeFallback: isLong ? '₹ 1,60,000 (Including GST)' : '₹ 80,000 (Including GST)',
       feeStyle: 'inr',

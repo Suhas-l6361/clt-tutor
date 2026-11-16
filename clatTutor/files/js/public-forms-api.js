@@ -320,5 +320,70 @@
       delete body.paymentImageUrl;
       return postJson(u, body);
     },
+    postScholorship: function (payload) {
+      var u = C.SCHOLORSHIP_API;
+      if (!u) {
+        return Promise.resolve({
+          ok: false,
+          status: 0,
+          data: { message: 'SCHOLORSHIP_API not configured' },
+        });
+      }
+      var body = payload && typeof payload === 'object' ? Object.assign({}, payload) : {};
+      var name = sanitizePlainText(body.name, 100);
+      var city = sanitizePlainText(body.city, 100);
+      var studentClass = sanitizePlainText(
+        body.class != null ? body.class : body.studentClass,
+        100,
+      );
+      var otherClass = sanitizePlainText(
+        body.other_class != null ? body.other_class : body.otherClass,
+        100,
+      );
+      if (!name || name.length < 2) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter your full name (2–100 characters).' },
+        });
+      }
+      if (!city) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter your city.' },
+        });
+      }
+      var mobileDigits = normalizeIndianMobile10(body.phone);
+      if (!INDIAN_MOBILE_10_RE.test(mobileDigits)) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Enter a valid 10-digit mobile starting with 6, 7, 8, or 9.' },
+        });
+      }
+      if (!studentClass) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Select your class.' },
+        });
+      }
+      if (String(studentClass).toLowerCase() === 'other' && !otherClass) {
+        return Promise.resolve({
+          ok: false,
+          status: 400,
+          data: { message: 'Please specify your class.' },
+        });
+      }
+      return postJson(u, {
+        name: name,
+        city: city,
+        phone: Number(mobileDigits),
+        class: studentClass,
+        other_class: String(studentClass).toLowerCase() === 'other' ? otherClass : null,
+      });
+    },
   };
 })();
+

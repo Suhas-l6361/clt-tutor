@@ -77,6 +77,17 @@
 
       <section class="crm-workshop-overview" id="crm-workshop-overview" aria-label="Dashboard actions">
         <div class="crm-workshop-overview__head">
+          <button
+            type="button"
+            class="enrollment-btn enrollment-btn--accent"
+            id="crm-scholorship-btn"
+            aria-haspopup="dialog"
+            aria-controls="crm-scholorship-modal"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-award" aria-hidden="true"></i>
+            <span>Scholarship request data</span>
+          </button>
           <button type="button" class="enrollment-btn" id="crm-batch-btn-create" aria-haspopup="dialog" aria-controls="crm-batch-modal" aria-expanded="false">
             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
             <span>Create batch</span>
@@ -509,6 +520,37 @@
   </div>
 
   <div
+    id="crm-scholorship-modal"
+    class="crm-workshop-modal crm-scholorship-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="crm-scholorship-modal-title"
+  >
+    <div class="crm-workshop-modal__backdrop" data-crm-scholorship-close tabindex="-1"></div>
+    <div class="crm-workshop-modal__dialog">
+      <div class="crm-workshop-modal__head">
+        <div class="crm-workshop-modal__head-text">
+          <p class="crm-workshop-modal__eyebrow">
+            <i class="fa-solid fa-award" aria-hidden="true"></i>
+            Scholarship test
+          </p>
+          <h3 class="crm-workshop-modal__title" id="crm-scholorship-modal-title">Scholarship request data</h3>
+          <p class="crm-workshop-modal__lead">All registrations from the All India Scholarship Test form. Enter a respond message and click Save after you follow up.</p>
+        </div>
+        <button type="button" class="crm-workshop-modal__close" data-crm-scholorship-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="crm-workshop-modal__body">
+        <p id="crm-scholorship-loading" class="enrollment-loading" hidden>Loading scholarship requests…</p>
+        <p id="crm-scholorship-error" class="enrollment-error" hidden></p>
+        <div id="crm-scholorship-list" class="crm-workshop-modal__list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div
     id="crm-workshop-modal"
     class="crm-workshop-modal"
     hidden
@@ -685,7 +727,7 @@
     </div>
   </div>
 
-  <script src="../js/config.js?v=20261003bd2"></script>
+  <script src="../js/config.js?v=20261116schol1"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js?v=20261028dam15"></script>
   <script src="../js/crm-branch-scope.js?v=20260726yel1"></script>
@@ -737,6 +779,7 @@
   <script src="../js/crm-dashboard-fees-backup.js?v=20261009bak5"></script>
   <script src="../js/crm-dashboard-batches.js?v=20260730batchbig1"></script>
   <script src="../js/crm-dashboard-workshop.js?v=20260921sepws"></script>
+  <script src="../js/crm-dashboard-scholorship.js?v=20261116schol2"></script>
   <script src="../js/crm-dashboard-mock-registrations.js?v=20260917mock1"></script>
   <script src="../js/crm-dashboard-course-fee.js?v=20261012fee1"></script>
   <script src="../js/crm-dashboard-product-details.js?v=20261003pd1"></script>
