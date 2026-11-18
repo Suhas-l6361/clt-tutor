@@ -23,6 +23,19 @@
   margin-bottom: 1.15rem;
 }
 
+.ta-crm__intro-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ta-crm__intro-row .ta-btn--schol {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+}
+
 .ta-crm__title {
   margin: 0 0 0.35rem;
   font-size: 1.35rem;
@@ -37,6 +50,13 @@
   line-height: 1.5;
   color: var(--ta-muted);
   max-width: 42rem;
+}
+
+@media (max-width: 720px) {
+  .ta-crm__intro-row .ta-btn--schol {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .ta-crm__filters {
@@ -264,6 +284,30 @@
 .ta-test-picker__badge--closed i {
   color: #ef4444;
   font-size: 0.62rem;
+}
+
+.ta-test-picker__badge--schol {
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+}
+
+.ta-test-picker__badge--schol i {
+  color: #d97706;
+  font-size: 0.62rem;
+}
+
+.ta-test-picker__group {
+  padding: 0.55rem 0.85rem 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.ta-test-picker__item--schol .ta-test-picker__item-text {
+  max-width: calc(100% - 7.5rem);
 }
 
 .ta-test-select-legend {
@@ -1172,10 +1216,14 @@
   place-items: center;
   padding: 1rem;
 }
+.ta-schol-modal[hidden] {
+  display: none !important;
+}
 .ta-schol-modal__backdrop {
   position: absolute;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
 }
 .ta-schol-modal__dialog {
   position: relative;
@@ -1222,6 +1270,20 @@
   background: #f8fafc;
   color: #334155;
   flex: 0 0 auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ta-schol-modal__close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.ta-schol-modal__close {
+  cursor: pointer;
+}
+.ta-schol-modal__close i {
+  pointer-events: none;
 }
 .ta-schol-modal__body {
   padding: 1rem 1.2rem 1.25rem;

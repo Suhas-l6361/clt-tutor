@@ -222,9 +222,18 @@
     return '';
   }
 
+  function isScholarshipAttempt(att) {
+    if (!att || typeof att !== 'object') return false;
+    if (att.isScholarship === true || att._scholarship === true) return true;
+    var kind = String(att.kind || att.source || att.test_kind || '').toLowerCase();
+    return kind === 'scholarship' || kind === 'scholorship';
+  }
+
   function filterAttempts(attempts, lookup) {
     if (!isScoped()) return Array.isArray(attempts) ? attempts.slice() : [];
     return (Array.isArray(attempts) ? attempts : []).filter(function (att) {
+      /** Scholarship submissions are institute-wide — visible to every admin/counsellor. */
+      if (isScholarshipAttempt(att)) return true;
       return canSeeBranch(attemptBranch(att, lookup));
     });
   }
@@ -303,6 +312,7 @@
     buildStudentLookup: buildStudentLookup,
     attemptBranch: attemptBranch,
     filterAttempts: filterAttempts,
+    isScholarshipAttempt: isScholarshipAttempt,
     canUseDashboardBranchPicker: canUseDashboardBranchPicker,
     setDashboardViewBranch: setDashboardViewBranch,
     getDashboardViewBranch: getDashboardViewBranch,

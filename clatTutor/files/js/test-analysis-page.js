@@ -88,6 +88,9 @@
   /** When set, Refresh reloads scholarship (or other external) attempts instead of online tests. */
   var externalMode = null;
   var externalReloader = null;
+  var scholarshipTests = [];
+  var scholarshipChooser = null;
+  var scholarshipLoadError = '';
 
   var BRANCH_CANONICAL = [
     { key: 'malleshwaram', label: 'Malleshwaram' },
@@ -300,6 +303,14 @@
 
   function updateTestPickerCurrent() {
     if (!els.testPickerCurrent) return;
+    if (externalMode && externalMode.kind === 'scholarship') {
+      els.testPickerCurrent.textContent =
+        (externalMode.title || 'Scholarship test') +
+        ' · Scholarship (#' +
+        externalMode.testId +
+        ')';
+      return;
+    }
     if (!currentTestId) {
       els.testPickerCurrent.textContent = '— Select a test —';
       return;
@@ -328,8 +339,47 @@
     else closeTestPicker();
   }
 
+  function scholarshipPickerId(id) {
+    return 'schol:' + String(id);
+  }
+
+  function parsePickerId(raw) {
+    var value = String(raw || '');
+    if (value.indexOf('schol:') === 0) {
+      return { kind: 'scholarship', id: value.slice(6) };
+    }
+    return { kind: 'online', id: value };
+  }
+
+  function findScholarshipTest(id) {
+    return scholarshipTests.find(function (row) {
+      return String(row.test_id != null ? row.test_id : row.id) === String(id);
+    });
+  }
+
   function chooseTest(testId) {
-    var nextId = testId ? String(testId) : '';
+    var parsed = parsePickerId(testId);
+    var nextId = parsed.id ? String(parsed.id) : '';
+
+    if (parsed.kind === 'scholarship') {
+      if (
+        externalMode &&
+        externalMode.kind === 'scholarship' &&
+        String(externalMode.testId) === nextId
+      ) {
+        closeTestPicker();
+        return;
+      }
+      closeTestPicker();
+      if (typeof scholarshipChooser === 'function') {
+        scholarshipChooser(
+          nextId,
+          (findScholarshipTest(nextId) && findScholarshipTest(nextId).title) || '',
+        );
+      }
+      return;
+    }
+
     if (nextId === String(currentTestId || '') && !externalMode) {
       closeTestPicker();
       return;
@@ -337,7 +387,10 @@
     externalMode = null;
     currentTestId = nextId;
     currentBranchFilter = '';
-    if (els.branchFilter) els.branchFilter.value = '';
+    if (els.branchFilter) {
+      els.branchFilter.value = '';
+      els.branchFilter.disabled = false;
+    }
     updateTestPickerCurrent();
     closeTestPicker();
     loadAttempts(currentTestId).then(function () {
@@ -350,9 +403,13 @@
 
     updateTestPickerCurrent();
 
-    if (!tests.length) {
+    var hasOnline = !!tests.length;
+    var hasSchol = !!scholarshipTests.length;
+    if (!hasOnline && !hasSchol) {
       els.testPickerTrigger.disabled = true;
-      if (els.testPickerCurrent) els.testPickerCurrent.textContent = 'No tests found';
+      if (els.testPickerCurrent) {
+        els.testPickerCurrent.textContent = scholarshipLoadError || 'No tests found';
+      }
       els.testPickerMenu.innerHTML = '';
       els.testPickerMenu.hidden = true;
       return;
@@ -362,38 +419,77 @@
 
     var lastOpenId = findLastOpenedTestId(tests);
     var list = sortTestsForPicker(tests, lastOpenId);
+    var activeSchol =
+      externalMode && externalMode.kind === 'scholarship' ? String(externalMode.testId) : '';
 
     var items =
       '<button type="button" class="ta-test-picker__item" data-test-id="" role="option">' +
-      '<span class="ta-test-picker__item-text">— Select a test —</span></button>' +
-      list
-        .map(function (t) {
-          var id = testRowId(t);
-          var title = t.title || 'Untitled test';
-          var mark = testStatusMark(t, lastOpenId);
-          var itemCls = 'ta-test-picker__item';
-          if (mark === 'last') itemCls += ' ta-test-picker__item--last';
-          else if (mark === 'closed') itemCls += ' ta-test-picker__item--closed';
-          else if (mark === 'open') itemCls += ' ta-test-picker__item--open';
-          if (String(id) === String(currentTestId)) itemCls += ' is-active';
-          return (
-            '<button type="button" class="' +
-            itemCls +
-            '" data-test-id="' +
-            esc(String(id)) +
-            '" role="option" aria-selected="' +
-            (String(id) === String(currentTestId) ? 'true' : 'false') +
-            '">' +
-            '<span class="ta-test-picker__item-text">' +
-            esc(title) +
-            ' <span class="ta-test-picker__item-id">#' +
-            esc(String(id)) +
-            '</span></span>' +
-            testPickerBadgeHtml(mark) +
-            '</button>'
-          );
-        })
-        .join('');
+      '<span class="ta-test-picker__item-text">— Select a test —</span></button>';
+
+    if (hasOnline) {
+      items +=
+        '<div class="ta-test-picker__group" role="presentation">Online / mock tests</div>' +
+        list
+          .map(function (t) {
+            var id = testRowId(t);
+            var title = t.title || 'Untitled test';
+            var mark = testStatusMark(t, lastOpenId);
+            var itemCls = 'ta-test-picker__item';
+            if (mark === 'last') itemCls += ' ta-test-picker__item--last';
+            else if (mark === 'closed') itemCls += ' ta-test-picker__item--closed';
+            else if (mark === 'open') itemCls += ' ta-test-picker__item--open';
+            if (!externalMode && String(id) === String(currentTestId)) itemCls += ' is-active';
+            return (
+              '<button type="button" class="' +
+              itemCls +
+              '" data-test-id="' +
+              esc(String(id)) +
+              '" role="option" aria-selected="' +
+              (!externalMode && String(id) === String(currentTestId) ? 'true' : 'false') +
+              '">' +
+              '<span class="ta-test-picker__item-text">' +
+              esc(title) +
+              ' <span class="ta-test-picker__item-id">#' +
+              esc(String(id)) +
+              '</span></span>' +
+              testPickerBadgeHtml(mark) +
+              '</button>'
+            );
+          })
+          .join('');
+    }
+
+    if (hasSchol) {
+      items +=
+        '<div class="ta-test-picker__group" role="presentation">Scholarship tests</div>' +
+        scholarshipTests
+          .map(function (t) {
+            var id = String(t.test_id != null ? t.test_id : t.id);
+            var title = t.title || 'Scholarship test';
+            var open = t.isOpen === true && t.isClose !== true;
+            var itemCls =
+              'ta-test-picker__item ta-test-picker__item--schol' +
+              (open ? ' ta-test-picker__item--open' : ' ta-test-picker__item--closed');
+            if (activeSchol && activeSchol === id) itemCls += ' is-active';
+            return (
+              '<button type="button" class="' +
+              itemCls +
+              '" data-test-id="' +
+              esc(scholarshipPickerId(id)) +
+              '" role="option" aria-selected="' +
+              (activeSchol === id ? 'true' : 'false') +
+              '">' +
+              '<span class="ta-test-picker__item-text">' +
+              esc(title) +
+              ' <span class="ta-test-picker__item-id">#' +
+              esc(id) +
+              '</span></span>' +
+              '<span class="ta-test-picker__badge ta-test-picker__badge--schol"><i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship</span>' +
+              '</button>'
+            );
+          })
+          .join('');
+    }
 
     els.testPickerMenu.innerHTML = items;
 
@@ -593,12 +689,28 @@
     requestAnimationFrame(tick);
   }
 
+  function isScholarshipAttemptRow(a) {
+    if (externalMode && externalMode.kind === 'scholarship') return true;
+    if (!a || typeof a !== 'object') return false;
+    if (a.isScholarship === true || a._scholarship === true) return true;
+    if (window.CrmBranchScope && typeof window.CrmBranchScope.isScholarshipAttempt === 'function') {
+      return window.CrmBranchScope.isScholarshipAttempt(a);
+    }
+    return false;
+  }
+
   function filterAttempts() {
     var q = (els.search && els.search.value ? els.search.value : '').trim().toLowerCase();
     var branchKey = currentBranchFilter || '';
 
     return attempts.filter(function (a) {
+      var scholarshipRow = isScholarshipAttemptRow(a);
+      /**
+       * Scholarship submissions are visible to every CRM admin and counsellor.
+       * Do not apply branch-admin scoping to them.
+       */
       if (
+        !scholarshipRow &&
         window.CrmBranchScope &&
         window.CrmBranchScope.isScoped() &&
         !window.CrmBranchScope.canSeeBranch((function () {
@@ -608,7 +720,7 @@
       ) {
         return false;
       }
-      if (branchKey && getAttemptBranchKey(a) !== branchKey) return false;
+      if (!scholarshipRow && branchKey && getAttemptBranchKey(a) !== branchKey) return false;
       if (!q) return true;
       var blob = [a.student_name, a.submitted_by, a.email, a.batch, a.branch, getAttemptBranchLabel(a)]
         .filter(Boolean)
@@ -671,6 +783,12 @@
         var sel = selectedAttemptId === a.id ? ' is-selected' : '';
         var email = String(a.submitted_by || a.email || '').trim();
         var displayName = a.student_name || '—';
+        var isScholarshipRow = !!(externalMode && externalMode.kind === 'scholarship');
+        var contactLabel = isScholarshipRow
+          ? email
+            ? 'Mobile · ' + email
+            : '—'
+          : email || '—';
         return (
           '<tr class="' +
           sel +
@@ -686,13 +804,13 @@
           '<div><strong>' +
           esc(displayName) +
           '</strong><br><span style="font-size:0.72rem;color:#64748b">' +
-          esc(email) +
+          esc(contactLabel) +
           '</span></div></div></td>' +
           '<td>' +
-          esc(a.batch || '—') +
+          esc(isScholarshipRow ? '—' : a.batch || '—') +
           '</td>' +
           '<td>' +
-          esc(getAttemptBranchLabel(a)) +
+          esc(isScholarshipRow ? 'Scholarship' : getAttemptBranchLabel(a)) +
           '</td>' +
           '<td><strong>' +
           esc(String(pct)) +
@@ -1117,10 +1235,21 @@
         title: title,
       };
       currentTestId = testId;
-      attempts = Array.isArray(data.attempts) ? data.attempts : [];
+      attempts = (Array.isArray(data.attempts) ? data.attempts : []).map(function (row) {
+        var copy = row && typeof row === 'object' ? Object.assign({}, row) : {};
+        copy.isScholarship = true;
+        copy._scholarship = true;
+        copy.kind = 'scholarship';
+        if (!copy.email && copy.submitted_by) copy.email = copy.submitted_by;
+        return copy;
+      });
       selectedAttemptId = null;
       currentBranchFilter = '';
-      if (els.branchFilter) els.branchFilter.value = '';
+      if (els.branchFilter) {
+        els.branchFilter.value = '';
+        els.branchFilter.disabled = true;
+      }
+      if (els.search) els.search.value = '';
       if (els.testPickerCurrent) {
         els.testPickerCurrent.textContent = title + ' · Scholarship (#' + testId + ')';
       }
@@ -1130,9 +1259,25 @@
       closeDrawer();
       renderBranchFilter();
       renderResults();
+      renderTestSelect();
       if (!attempts.length) {
         setStatus('No students have submitted this scholarship test yet.');
+      } else {
+        hideStatus();
       }
+    },
+    setScholarshipTests: function (list) {
+      getEls();
+      scholarshipTests = Array.isArray(list) ? list : [];
+      scholarshipLoadError = '';
+      renderTestSelect();
+    },
+    setScholarshipLoadError: function (message) {
+      scholarshipLoadError = message ? String(message) : '';
+      renderTestSelect();
+    },
+    setScholarshipChooser: function (fn) {
+      scholarshipChooser = typeof fn === 'function' ? fn : null;
     },
     setExternalReloader: function (fn) {
       externalReloader = typeof fn === 'function' ? fn : null;

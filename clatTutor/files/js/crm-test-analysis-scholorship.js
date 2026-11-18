@@ -1,5 +1,6 @@
 /**
- * CRM Test Analysis — Scholarship results picker (isolated from online-test flow).
+ * CRM Test Analysis — Scholarship test data button + picker + results loader.
+ * Visible for every CRM admin / counsellor.
  */
 (function () {
   'use strict';
@@ -27,12 +28,13 @@
     return el.innerHTML;
   }
 
-  function setStatus(message, isError) {
-    var el = document.getElementById('ta-schol-pick-status');
-    if (!el) return;
-    el.hidden = !message;
-    el.textContent = message || '';
-    el.classList.toggle('is-error', !!isError);
+  function unwrap(data) {
+    if (data && typeof data.body === 'string') {
+      try {
+        data = JSON.parse(data.body);
+      } catch (_) {}
+    }
+    return data || {};
   }
 
   function parseJson(res) {
@@ -43,6 +45,7 @@
       } catch (_) {
         data = null;
       }
+      data = unwrap(data);
       if (!res.ok) {
         throw new Error(
           (data && (data.message || data.error)) || 'Request failed (' + res.status + ')',
@@ -52,32 +55,57 @@
     });
   }
 
+  function rowsFrom(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== 'object') return [];
+    if (Array.isArray(data.items)) return data.items;
+    if (Array.isArray(data.tests)) return data.tests;
+    if (Array.isArray(data.data)) return data.data;
+    if (data.data && Array.isArray(data.data.items)) return data.data.items;
+    if (data.test_id != null || data.id != null) return [data];
+    return [];
+  }
+
+  function setStatus(message, isError) {
+    var el = document.getElementById('ta-schol-pick-status');
+    if (!el) return;
+    el.hidden = !message;
+    el.textContent = message || '';
+    el.classList.toggle('is-error', !!isError);
+  }
+
+  function isOpenPaper(row) {
+    return row && row.isOpen === true && row.isClose !== true;
+  }
+
   function openModal() {
     var modal = document.getElementById('ta-schol-pick-modal');
     var btn = document.getElementById('ta-schol-results-btn');
-    if (!modal || modalOpen) return;
+    if (!modal) return;
     modalOpen = true;
     modal.hidden = false;
+    modal.removeAttribute('hidden');
+    modal.style.display = '';
     document.body.style.overflow = 'hidden';
     if (btn) btn.setAttribute('aria-expanded', 'true');
-    loadPapers();
+    loadPapersForModal();
   }
 
   function closeModal() {
     var modal = document.getElementById('ta-schol-pick-modal');
     var btn = document.getElementById('ta-schol-results-btn');
-    if (!modal || !modalOpen) return;
+    if (!modal) return;
     modalOpen = false;
     modal.hidden = true;
+    modal.setAttribute('hidden', '');
+    modal.style.display = 'none';
     document.body.style.overflow = '';
     if (btn) {
       btn.setAttribute('aria-expanded', 'false');
-      btn.focus();
+      try {
+        btn.focus();
+      } catch (_) {}
     }
-  }
-
-  function isOpenPaper(row) {
-    return row && row.isOpen === true && row.isClose !== true;
   }
 
   function renderPapers(list) {
@@ -94,6 +122,7 @@
       .map(function (row) {
         var id = row.test_id != null ? row.test_id : row.id;
         var open = isOpenPaper(row);
+        var count = row.queation_count || row.question_count || '—';
         return (
           '<button type="button" class="ta-schol-pick-item" data-schol-test-id="' +
           esc(String(id)) +
@@ -105,8 +134,8 @@
           '<span>#' +
           esc(String(id)) +
           ' · ' +
-          esc(String(row.queation_count || row.question_count || '—')) +
-          ' questions</span>' +
+          esc(String(count)) +
+          ' questions · click to view student results</span>' +
           '</span>' +
           '<span class="ta-schol-pick-item__badge ' +
           (open ? 'is-open' : 'is-closed') +
@@ -119,30 +148,61 @@
       .join('');
   }
 
-  function loadPapers() {
+  function pushPapersToPicker(list) {
+    var pageApi = window.TestAnalysisPageApi;
+    if (!pageApi || typeof pageApi.setScholarshipTests !== 'function') return;
+    pageApi.setScholarshipTests(
+      (list || []).map(function (row) {
+        return {
+          test_id: row.test_id != null ? row.test_id : row.id,
+          title: row.title || 'Scholarship test',
+          queation_count: row.queation_count || row.question_count || null,
+          isOpen: row.isOpen === true,
+          isClose: row.isClose === true,
+          _scholarship: true,
+        };
+      }),
+    );
+  }
+
+  function loadPapersForModal() {
     var api = paperApi();
     var listEl = document.getElementById('ta-schol-pick-list');
     if (!api) {
       if (listEl) listEl.hidden = true;
       setStatus('Scholarship test API is not configured.', true);
-      return;
+      return Promise.resolve();
     }
     if (listEl) {
       listEl.hidden = true;
       listEl.innerHTML = '';
     }
     setStatus('Loading scholarship tests…');
-    fetch(api, { method: 'GET', headers: { Accept: 'application/json' } })
+    return fetch(api, { method: 'GET', headers: { Accept: 'application/json' } })
       .then(parseJson)
       .then(function (data) {
-        papers = Array.isArray(data) ? data : [];
+        papers = rowsFrom(data);
+        pushPapersToPicker(papers);
         renderPapers(papers);
       })
       .catch(function (err) {
         papers = [];
+        pushPapersToPicker([]);
         if (listEl) listEl.hidden = true;
         setStatus(err && err.message ? err.message : 'Could not load scholarship tests.', true);
       });
+  }
+
+  function normalizeAttempts(list) {
+    return (list || []).map(function (row) {
+      var copy = row && typeof row === 'object' ? Object.assign({}, row) : {};
+      copy.isScholarship = true;
+      copy._scholarship = true;
+      copy.kind = 'scholarship';
+      if (!copy.email && copy.submitted_by) copy.email = copy.submitted_by;
+      if (!copy.student_name) copy.student_name = copy.name || copy.submitted_by || 'Student';
+      return copy;
+    });
   }
 
   function loadAttemptsForTest(testId, titleHint) {
@@ -160,9 +220,12 @@
     var statusEl = document.getElementById('ta-status');
     if (statusEl) {
       statusEl.hidden = false;
-      statusEl.textContent = 'Loading scholarship results…';
+      statusEl.textContent = 'Loading scholarship student results…';
       statusEl.classList.remove('ta-loading--error');
     }
+
+    var search = document.getElementById('ta-search');
+    if (search) search.placeholder = 'Search name or phone…';
 
     var url =
       api +
@@ -173,8 +236,13 @@
     return fetch(url, { method: 'GET', headers: { Accept: 'application/json' } })
       .then(parseJson)
       .then(function (data) {
-        var attempts = data && Array.isArray(data.attempts) ? data.attempts : [];
+        var payload = data && data.data && typeof data.data === 'object' ? data.data : data;
+        var attempts = [];
+        if (payload && Array.isArray(payload.attempts)) attempts = payload.attempts;
+        else if (Array.isArray(payload)) attempts = payload;
+        else if (payload && Array.isArray(payload.items)) attempts = payload.items;
         var title =
+          (payload && payload.title) ||
           (data && data.title) ||
           titleHint ||
           'Scholarship test';
@@ -182,7 +250,7 @@
           kind: 'scholarship',
           testId: testId,
           title: title,
-          attempts: attempts,
+          attempts: normalizeAttempts(attempts),
         });
       })
       .catch(function (err) {
@@ -210,9 +278,21 @@
 
     var modal = document.getElementById('ta-schol-pick-modal');
     if (modal) {
+      function onCloseClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      }
+      modal.querySelectorAll('[data-ta-schol-close]').forEach(function (el) {
+        el.addEventListener('click', onCloseClick);
+      });
       modal.addEventListener('click', function (e) {
-        if (e.target.closest('[data-ta-schol-close]')) closeModal();
-        var item = e.target.closest('[data-schol-test-id]');
+        var closeEl = e.target && e.target.closest ? e.target.closest('[data-ta-schol-close]') : null;
+        if (closeEl) {
+          closeModal();
+          return;
+        }
+        var item = e.target.closest ? e.target.closest('[data-schol-test-id]') : null;
         if (item) selectPaper(item.getAttribute('data-schol-test-id'));
       });
     }
@@ -221,8 +301,16 @@
       if (e.key === 'Escape' && modalOpen) closeModal();
     });
 
-    if (window.TestAnalysisPageApi && typeof window.TestAnalysisPageApi.setExternalReloader === 'function') {
-      window.TestAnalysisPageApi.setExternalReloader(function (mode) {
+    var pageApi = window.TestAnalysisPageApi;
+    if (!pageApi) return;
+
+    if (typeof pageApi.setScholarshipChooser === 'function') {
+      pageApi.setScholarshipChooser(function (testId, title) {
+        return loadAttemptsForTest(testId, title);
+      });
+    }
+    if (typeof pageApi.setExternalReloader === 'function') {
+      pageApi.setExternalReloader(function (mode) {
         if (!mode || mode.kind !== 'scholarship') return;
         loadAttemptsForTest(mode.testId, mode.title);
       });
@@ -231,5 +319,6 @@
 
   window.initCrmTestAnalysisScholorship = function () {
     bindEvents();
+    loadPapersForModal().catch(function () {});
   };
 })();

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/test-analysis.css?v=20261117schol1" />
+  <link rel="stylesheet" href="../css/test-analysis.css?v=20261118scholbtn3" />
   <link rel="stylesheet" href="../css/clat-exam-analysis.css?v=20261028airank1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -19,24 +19,29 @@
   <div id="stock" style="display: none">
     <div class="ta-crm">
       <header class="ta-crm__intro">
-        <h1 class="ta-crm__title">Test Results &amp; Analysis</h1>
-        <p class="ta-crm__lead">
-          View who attended each test, branch-wise scores, and per-student breakdown of correct, wrong, and unanswered questions.
-        </p>
-      </header>
-
-      <section class="ta-crm__filters" aria-label="Test filters">
-        <div class="ta-crm__filters-head">
-          <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
+        <div class="ta-crm__intro-row">
+          <div>
+            <h1 class="ta-crm__title">Test Results &amp; Analysis</h1>
+            <p class="ta-crm__lead">
+              View who attended each test, branch-wise scores, and per-student breakdown of correct, wrong, and unanswered questions.
+            </p>
+          </div>
           <button
             type="button"
             class="ta-btn ta-btn--schol"
             id="ta-schol-results-btn"
             aria-haspopup="dialog"
             aria-controls="ta-schol-pick-modal"
+            aria-expanded="false"
           >
-            <i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship Test
+            <i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship test data
           </button>
+        </div>
+      </header>
+
+      <section class="ta-crm__filters" aria-label="Test filters">
+        <div class="ta-crm__filters-head">
+          <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
         </div>
         <div class="ta-filter-grid">
           <div class="ta-field ta-field--select">
@@ -157,7 +162,9 @@
         <div>
           <p class="ta-schol-modal__eyebrow"><i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship</p>
           <h3 id="ta-schol-pick-title">Select scholarship test</h3>
-          <p class="ta-schol-modal__lead">Pick a paper to view student submissions in the results table below.</p>
+          <p class="ta-schol-modal__lead">
+            Choose a paper to see student name, phone number, score, and open analysis.
+          </p>
         </div>
         <button type="button" class="ta-schol-modal__close" data-ta-schol-close aria-label="Close">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -175,15 +182,15 @@
   <script src="../js/config.js?v=20261117schol1"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js?v=20261028dam15"></script>
-  <script src="../js/crm-branch-scope.js"></script>
+  <script src="../js/crm-branch-scope.js?v=20261118scholvis1"></script>
   <script src="../js/guard.js"></script>
   <script src="../js/nav.js?v=20261028dam21"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/student-chrome.js"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/clat-exam-analysis.js?v=20261028rankfix1"></script>
-  <script src="../js/test-analysis-page.js?v=20261117schol1"></script>
-  <script src="../js/crm-test-analysis-scholorship.js?v=20261117schol1"></script>
+  <script src="../js/test-analysis-page.js?v=20261118scholbtn1"></script>
+  <script src="../js/crm-test-analysis-scholorship.js?v=20261118scholbtn3"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
