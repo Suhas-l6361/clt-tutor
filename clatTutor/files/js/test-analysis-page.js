@@ -85,6 +85,9 @@
   var selectedAttemptId = null;
   var loadSeq = 0;
   var loadInFlight = false;
+  /** When set, Refresh reloads scholarship (or other external) attempts instead of online tests. */
+  var externalMode = null;
+  var externalReloader = null;
 
   var BRANCH_CANONICAL = [
     { key: 'malleshwaram', label: 'Malleshwaram' },
@@ -327,10 +330,11 @@
 
   function chooseTest(testId) {
     var nextId = testId ? String(testId) : '';
-    if (nextId === String(currentTestId || '')) {
+    if (nextId === String(currentTestId || '') && !externalMode) {
       closeTestPicker();
       return;
     }
+    externalMode = null;
     currentTestId = nextId;
     currentBranchFilter = '';
     if (els.branchFilter) els.branchFilter.value = '';
@@ -1055,6 +1059,10 @@
     if (els.refreshBtn) {
       els.refreshBtn.addEventListener('click', function () {
         closeTestPicker();
+        if (externalMode && typeof externalReloader === 'function') {
+          externalReloader(externalMode);
+          return;
+        }
         Promise.all([loadTests(), loadStudents()]).then(function () {
           if (currentTestId) loadAttempts(currentTestId);
         });
@@ -1091,5 +1099,46 @@
     getEls();
     bindEvents();
     Promise.all([loadTests(), loadStudents()]);
+  };
+
+  /**
+   * Isolated hook for scholarship (and similar) results — does not change online-test loading.
+   * payload: { testId, title, attempts[], kind? }
+   */
+  window.TestAnalysisPageApi = {
+    loadExternalAttempts: function (payload) {
+      getEls();
+      var data = payload && typeof payload === 'object' ? payload : {};
+      var testId = data.testId != null ? String(data.testId) : '';
+      var title = data.title ? String(data.title) : 'Scholarship test';
+      externalMode = {
+        kind: data.kind || 'scholarship',
+        testId: testId,
+        title: title,
+      };
+      currentTestId = testId;
+      attempts = Array.isArray(data.attempts) ? data.attempts : [];
+      selectedAttemptId = null;
+      currentBranchFilter = '';
+      if (els.branchFilter) els.branchFilter.value = '';
+      if (els.testPickerCurrent) {
+        els.testPickerCurrent.textContent = title + ' · Scholarship (#' + testId + ')';
+      }
+      if (els.panelTitle) {
+        els.panelTitle.textContent = title + ' — Students';
+      }
+      closeDrawer();
+      renderBranchFilter();
+      renderResults();
+      if (!attempts.length) {
+        setStatus('No students have submitted this scholarship test yet.');
+      }
+    },
+    setExternalReloader: function (fn) {
+      externalReloader = typeof fn === 'function' ? fn : null;
+    },
+    clearExternalMode: function () {
+      externalMode = null;
+    },
   };
 })();

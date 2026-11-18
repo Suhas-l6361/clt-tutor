@@ -12,7 +12,8 @@
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
   <link rel="stylesheet" href="../css/friendly-popup.css" />
-  <link rel="stylesheet" href="../css/crm-dam.css?v=20261028dam22" />
+  <link rel="stylesheet" href="../css/crm-dam.css?v=20261118dampin1" />
+  <link rel="stylesheet" href="../css/friendly-popup.css" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
 <body class="app-body crm-dashboard dam-crm-page">
@@ -93,6 +94,31 @@
     </div>
   </div>
 
+  <div id="dam-pin-modal" class="dam-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dam-pin-modal-title">
+    <div class="dam-modal__backdrop" tabindex="-1"></div>
+    <div class="dam-modal__card dam-pin-card">
+      <div class="dam-modal__icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+      <h3 id="dam-pin-modal-title">Enter DAM ID</h3>
+      <p class="dam-modal__lead">Admin access only. Enter your DAM ID to open folders and Incoming.</p>
+      <label class="dam-modal__label" for="dam-pin-input">DAM ID</label>
+      <input
+        id="dam-pin-input"
+        type="password"
+        inputmode="numeric"
+        maxlength="8"
+        placeholder="Enter DAM ID"
+        autocomplete="off"
+      />
+      <p id="dam-pin-error" class="dam-pin-error" hidden>Incorrect DAM ID. Try again.</p>
+      <div class="dam-modal__actions">
+        <button type="button" class="dam-btn dam-btn--ghost" id="dam-pin-cancel">Cancel</button>
+        <button type="button" class="dam-btn dam-btn--primary" id="dam-pin-unlock">
+          <i class="fa-solid fa-unlock" aria-hidden="true"></i> Unlock DAM
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="dam-folder-modal" class="dam-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dam-folder-modal-title">
     <div class="dam-modal__backdrop" data-dam-folder-close tabindex="-1"></div>
     <div class="dam-modal__card">
@@ -134,7 +160,7 @@
   <script src="../js/nav.js?v=20261028dam21"></script>
   <script src="../js/crm-chrome.js"></script>
   <script src="../js/friendly-popup.js"></script>
-  <script src="../js/dam-page.js?v=20261028dam23"></script>
+  <script src="../js/dam-page.js?v=20261118dampin1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');

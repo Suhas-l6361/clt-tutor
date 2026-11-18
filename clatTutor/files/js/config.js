@@ -87,6 +87,10 @@ const APP_CONFIG = {
   ENROLL_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/enroll',
   /** Public / CRM — scholarship test registrations. Deploy: Backend/extra_quries scholorship */
   SCHOLORSHIP_API: 'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/scholorship',
+  SCHOLORSHIP_TEST_PAPER_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/scholorshipTestPaper',
+  SCHOLORSHIP_SUBMIT_API:
+    'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/scholorshipsubmit',
   /** CRM — assign students to a branch batch (log only; does not update general_info) */
   ASSIGN_STUDENT_API:
     'https://9d0v8dli3c.execute-api.ap-south-1.amazonaws.com/dev/assignStudent',

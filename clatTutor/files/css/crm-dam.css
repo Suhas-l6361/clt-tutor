@@ -632,7 +632,8 @@
   margin-bottom: 0.3rem;
 }
 
-.dam-modal__card input[type='text'] {
+.dam-modal__card input[type='text'],
+.dam-modal__card input[type='password'] {
   width: 100%;
   border: 1px solid var(--dam-line);
   border-radius: 8px;
@@ -644,10 +645,23 @@
   background: #fff;
 }
 
-.dam-modal__card input[type='text']:focus {
+.dam-modal__card input[type='text']:focus,
+.dam-modal__card input[type='password']:focus {
   outline: none;
   border-color: var(--dam-gold-border);
   box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.25);
+}
+
+.dam-pin-error {
+  margin: 0.55rem 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #b42318;
+}
+
+.dam-pin-card .dam-modal__icon {
+  background: #fff7db;
+  color: #946200;
 }
 
 .dam-modal__actions {

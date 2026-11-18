@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scholarship Test — CLATutor</title>
+  <link rel="icon" type="image/png" href="image/Clat%20Logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="css/friendly-popup.css" />
+  <style>
+    :root {
+      --gold: #d79b20;
+      --gold-dark: #946200;
+      --navy: #14213d;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #e5e7eb;
+      --paper: #f7f7f5;
+      --green: #15803d;
+      --red: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Poppins, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top, #fff9e8 0, var(--paper) 42%, #eef2f6 100%);
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+    .topbar {
+      height: 68px;
+      padding: 0 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #fff;
+      border-bottom: 1px solid #ead9a3;
+      box-shadow: 0 3px 18px rgba(20, 33, 61, 0.06);
+    }
+    .brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; }
+    .brand img { width: 44px; height: 44px; object-fit: contain; }
+    .timer {
+      padding: 0.55rem 0.8rem;
+      border: 1px solid #e7c96f;
+      border-radius: 10px;
+      background: #fffaf0;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .timer.warn { color: var(--red); border-color: #fca5a5; background: #fff1f2; }
+    .screen {
+      width: min(720px, calc(100% - 2rem));
+      margin: 7vh auto;
+      padding: clamp(1.4rem, 4vw, 2.5rem);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(20, 33, 61, 0.1);
+      text-align: center;
+    }
+    .screen__icon {
+      width: 62px; height: 62px; margin: 0 auto 1rem;
+      display: grid; place-items: center; border-radius: 18px;
+      background: #fff4cf; color: var(--gold-dark); font-size: 1.55rem;
+    }
+    h1, h2, p { margin-top: 0; }
+    .lead { color: var(--muted); line-height: 1.65; }
+    .gate-form { max-width: 420px; margin: 1.5rem auto 0; text-align: left; }
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.86rem; font-weight: 600; }
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%; padding: 0.85rem 1rem; border: 1px solid #cfd4dc;
+      border-radius: 10px; outline: none;
+    }
+    input[type="tel"] { letter-spacing: 0.08em; }
+    .gate-field + .gate-field { margin-top: 0.9rem; }
+    input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(215, 155, 32, 0.15); }
+    .btn {
+      border: 0; border-radius: 10px; padding: 0.75rem 1rem; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+    }
+    .btn--gold { color: #251600; background: linear-gradient(135deg, #f6c85b, #d79b20); }
+    .btn--navy { color: #fff; background: var(--navy); }
+    .btn--ghost { color: var(--ink); background: #fff; border: 1px solid #cfd4dc; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .gate-form .btn { width: 100%; margin-top: 1rem; }
+    .status { margin-top: 0.8rem; color: var(--red); font-size: 0.85rem; }
+    .screen--instructions {
+      width: min(760px, calc(100% - 2rem));
+      text-align: left;
+      padding: clamp(1.5rem, 4vw, 2.2rem);
+      background:
+        radial-gradient(circle at top right, rgba(246, 200, 91, 0.22), transparent 42%),
+        linear-gradient(180deg, #fffef9 0%, #ffffff 48%, #fff 100%);
+      border-color: #ead9a3;
+    }
+    .screen--instructions h1,
+    .screen--instructions .lead,
+    .screen--instructions .screen__icon { text-align: center; }
+    .screen--instructions .screen__icon {
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 10px 24px rgba(215, 155, 32, 0.18);
+    }
+    .screen--instructions h1 {
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .screen--instructions .lead { margin-bottom: 1.15rem; }
+    .instructions-body {
+      margin: 0 0 1rem;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      max-height: none;
+      overflow: visible;
+    }
+    .instructions-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.7rem;
+    }
+    .instructions-list li {
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 0.85rem;
+      align-items: start;
+      padding: 0.95rem 1rem;
+      border: 1px solid rgba(234, 217, 163, 0.7);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 20px rgba(20, 33, 61, 0.04);
+      text-align: left;
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+    .instructions-list__num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f6c85b, #d79b20);
+      color: #251600;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .instructions-marks {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin: 0.9rem 0 0;
+    }
+    .instructions-mark {
+      padding: 0.8rem 0.7rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      text-align: center;
+      background: #fff;
+    }
+    .instructions-mark strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.15rem;
+      color: var(--navy);
+    }
+    .instructions-mark span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .instructions-mark--plus { border-color: #bbf7d0; background: #f0fdf4; }
+    .instructions-mark--plus strong { color: #166534; }
+    .instructions-mark--minus { border-color: #fecaca; background: #fff1f2; }
+    .instructions-mark--minus strong { color: #9f1239; }
+    .instructions-mark--zero { border-color: #e5e7eb; background: #f8fafc; }
+    .instructions-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0 1.15rem;
+      text-align: center;
+    }
+    .instructions-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid #ead9a3;
+      background: #fff8e8;
+      color: var(--gold-dark);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .screen--instructions .btn { width: min(280px, 100%); margin: 0 auto; display: flex; }
+    @media (max-width: 560px) {
+      .instructions-marks { grid-template-columns: 1fr; }
+      .instructions-list li { grid-template-columns: 1.7rem 1fr; gap: 0.7rem; padding: 0.8rem; }
+    }
+    .exam-grid {
+      width: min(1480px, calc(100% - 2rem));
+      margin: 1rem auto 2rem;
+      display: grid;
+      grid-template-columns: minmax(280px, 1.35fr) minmax(360px, 1.65fr) minmax(220px, 280px);
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .exam-panel {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(20, 33, 61, 0.06); overflow: hidden;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .exam-panel--reading { background: linear-gradient(180deg, #fffdf7, #fff); }
+    .exam-panel--review { background: linear-gradient(180deg, #fff8df, #fffef9 35%, #fff); }
+    .exam-panel__head { padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--line); font-weight: 700; }
+    .question {
+      padding: clamp(1rem, 2.5vw, 1.5rem);
+      min-height: 440px;
+      flex: 1;
+      overflow: auto;
+    }
+    .qmeta { color: var(--gold-dark); font-weight: 700; font-size: 0.86rem; }
+    .section-tag {
+      display: inline-block;
+      margin: 0 0 0.85rem;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      background: #fff4cf;
+      color: var(--gold-dark);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .reading-content {
+      padding: 0.9rem 1rem 1.05rem;
+      flex: 1;
+      min-height: 0;
+      max-height: calc(100vh - 150px);
+      overflow: auto;
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+    #reference-wrap {
+      margin: 0;
+      padding: 0;
+    }
+    .reference__label {
+      display: block;
+      margin: 0 0 0.45rem;
+      color: #64748b;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    #reference-body {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.75;
+      color: #1f2937;
+    }
+    .reading-empty {
+      margin: 0;
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      white-space: normal;
+    }
+    .stem { font-size: 1rem; line-height: 1.7; font-weight: 600; white-space: pre-wrap; }
+    .options { display: grid; gap: 0.7rem; margin-top: 1.2rem; }
+    .option {
+      display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.85rem;
+      border: 1px solid #d8dde5; border-radius: 11px; cursor: pointer; line-height: 1.55;
+    }
+    .option:hover { border-color: #d79b20; background: #fffbeb; }
+    .option.selected { border-color: #c4860c; background: #fff7dc; }
+    .option input { margin-top: 0.28rem; }
+    .actions {
+      padding: 1rem; display: flex; flex-wrap: wrap; justify-content: space-between;
+      gap: 0.6rem; border-top: 1px solid var(--line);
+    }
+    .palette { padding: 1rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+    .palette button {
+      aspect-ratio: 1; border: 1px solid #ccd2da; border-radius: 8px; background: #fff; font-weight: 600;
+    }
+    .palette button.current { outline: 2px solid var(--gold); }
+    .palette button.answered { color: #fff; background: var(--green); border-color: var(--green); }
+    .legend { padding: 0 1rem 1rem; color: var(--muted); font-size: 0.78rem; line-height: 1.7; }
+    .side-submit { width: calc(100% - 2rem); margin: 0 1rem 1rem; }
+    .result-grid {
+      margin: 1.4rem 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;
+    }
+    .result-stat { padding: 1rem 0.5rem; border: 1px solid var(--line); border-radius: 12px; }
+    .result-stat strong { display: block; font-size: 1.45rem; color: var(--navy); }
+    .result-stat span { font-size: 0.78rem; color: var(--muted); }
+    @media (max-width: 1050px) {
+      .exam-grid { grid-template-columns: minmax(240px, 0.9fr) minmax(360px, 1.4fr); }
+      .exam-panel--review { grid-column: 1 / -1; }
+      .palette { grid-template-columns: repeat(10, 1fr); }
+      .question { min-height: 0; }
+    }
+    @media (max-width: 760px) {
+      .exam-grid { grid-template-columns: 1fr; }
+      .exam-panel--review { grid-column: auto; }
+      .reading-content { min-height: 140px; max-height: 34vh; }
+      .reading-empty { min-height: 120px; }
+      .question { min-height: 320px; }
+    }
+    @media (max-width: 560px) {
+      .topbar { padding: 0 0.75rem; }
+      .brand span { display: none; }
+      .exam-grid { width: calc(100% - 1rem); gap: 0.65rem; }
+      .palette { grid-template-columns: repeat(5, 1fr); }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="js/site-protection.js" data-protection-mode="public" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="image/Clat%20Logo.png" alt="CLATutor" /><span>CLATutor Scholarship Test</span></div>
+    <div id="timer" class="timer" hidden><i class="fa-regular fa-clock"></i> <span>00:40:00</span></div>
+  </header>
+
+  <main>
+    <section id="gate-screen" class="screen">
+      <div class="screen__icon"><i class="fa-solid fa-graduation-cap"></i></div>
+      <h1>Scholarship Test</h1>
+      <p class="lead">Enter your full name and 10-digit mobile number to continue. Each mobile number can submit this test once.</p>
+      <form id="gate-form" class="gate-form" novalidate>
+        <div class="gate-field">
+          <label for="student-name">Full name</label>
+          <input id="student-name" type="text" autocomplete="name" maxlength="100" placeholder="Enter your full name" required />
+        </div>
+        <div class="gate-field">
+          <label for="phone">Mobile number</label>
+          <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" placeholder="10-digit mobile number" required />
+        </div>
+        <button id="continue-btn" class="btn btn--gold" type="submit">Continue <i class="fa-solid fa-arrow-right"></i></button>
+        <p id="gate-error" class="status" hidden></p>
+      </form>
+    </section>
+
+    <section id="message-screen" class="screen" hidden>
+      <div class="screen__icon"><i id="message-icon" class="fa-solid fa-circle-info"></i></div>
+      <h2 id="message-title">Please wait</h2>
+      <p id="message-body" class="lead"></p>
+      <div id="message-result" class="result-grid" hidden></div>
+    </section>
+
+    <section id="instructions-screen" class="screen screen--instructions" hidden>
+      <div class="screen__icon"><i class="fa-solid fa-list-check"></i></div>
+      <h1>Instructions</h1>
+      <p class="lead">Please read carefully before you begin.</p>
+      <div id="instructions-body" class="instructions-body"></div>
+      <div id="instructions-marks" class="instructions-marks" hidden>
+        <div class="instructions-mark instructions-mark--plus"><strong>+1</strong><span>Correct</span></div>
+        <div class="instructions-mark instructions-mark--minus"><strong>−0.25</strong><span>Wrong</span></div>
+        <div class="instructions-mark instructions-mark--zero"><strong>0</strong><span>Unattempted</span></div>
+      </div>
+      <div id="instructions-meta" class="instructions-meta"></div>
+      <button id="start-exam-btn" class="btn btn--gold" type="button">
+        Start test <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </section>
+
+    <section id="exam" class="exam-grid" hidden>
+      <aside class="exam-panel exam-panel--reading" aria-label="Reading material">
+        <div class="exam-panel__head">Reading material</div>
+        <div class="reading-content">
+          <p id="reference-empty" class="reading-empty" hidden>No information or paragraph for this question.</p>
+          <div id="reference-wrap" hidden>
+            <span class="reference__label">Paragraph</span>
+            <div id="reference-body"></div>
+          </div>
+        </div>
+      </aside>
+      <section class="exam-panel exam-panel--question" aria-label="Question and answers">
+        <div class="exam-panel__head" id="exam-title">Scholarship Test</div>
+        <div class="question">
+          <p id="qmeta" class="qmeta"></p>
+          <div id="section-tag" class="section-tag" hidden></div>
+          <div id="stem" class="stem"></div>
+          <div id="options" class="options"></div>
+        </div>
+        <div class="actions">
+          <button id="prev-btn" class="btn btn--ghost" type="button"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+          <button id="clear-btn" class="btn btn--ghost" type="button">Clear answer</button>
+          <button id="next-btn" class="btn btn--navy" type="button">Next <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </section>
+      <aside class="exam-panel exam-panel--review" aria-label="Navigation and review">
+        <div class="exam-panel__head">Review &amp; navigation</div>
+        <div id="palette" class="palette"></div>
+        <div class="legend">Green: answered<br />Gold outline: current question</div>
+        <button id="submit-btn" class="btn btn--gold side-submit" type="button"><i class="fa-solid fa-paper-plane"></i> Submit test</button>
+      </aside>
+    </section>
+  </main>
+
+  <script src="js/site-protection.js" data-protection-mode="public" defer></script>
+  <script src="js/config.js?v=20261117schol1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+  <script src="js/exam-question-parser.js?v=20261118scholpaper1"></script>
+  <script src="js/exam-answer-key-parser.js?v=20261118ak2"></script>
+  <script src="js/friendly-popup.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var paperApi = window.APP_CONFIG && window.APP_CONFIG.SCHOLORSHIP_TEST_PAPER_API;
+      var submitApi = window.APP_CONFIG && window.APP_CONFIG.SCHOLORSHIP_SUBMIT_API;
+      var testId = new URLSearchParams(window.location.search).get('test_id');
+      var studentName = '';
+      var phone = '';
+      var paper = null;
+      var questions = [];
+      var answers = {};
+      var answerKey = {};
+      var instructionsText = '';
+      var index = 0;
+      var timerId = null;
+      var endsAt = 0;
+      var submitting = false;
+
+      var gate = document.getElementById('gate-screen');
+      var messageScreen = document.getElementById('message-screen');
+      var instructionsScreen = document.getElementById('instructions-screen');
+      var exam = document.getElementById('exam');
+      var timer = document.getElementById('timer');
+
+      function unwrap(data) {
+        if (data && typeof data.body === 'string') {
+          try { data = JSON.parse(data.body); } catch (ignore) {}
+        }
+        return data || {};
+      }
+
+      function fetchJson(url, options) {
+        return fetch(url, options || { method: 'GET', credentials: 'omit' }).then(function (response) {
+          return response.text().then(function (text) {
+            var data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (ignore) {}
+            data = unwrap(data);
+            if (!response.ok) {
+              throw new Error((data && (data.message || data.error)) || 'Request failed.');
+            }
+            return data;
+          });
+        });
+      }
+
+      function query(base, params) {
+        var url = new URL(base, window.location.href);
+        Object.keys(params).forEach(function (key) {
+          url.searchParams.set(key, params[key]);
+        });
+        return url.href;
+      }
+
+      function showMessage(title, body, icon) {
+        gate.hidden = true;
+        exam.hidden = true;
+        timer.hidden = true;
+        messageScreen.hidden = false;
+        document.getElementById('message-title').textContent = title;
+        document.getElementById('message-body').textContent = body;
+        document.getElementById('message-icon').className =
+          'fa-solid ' + (icon || 'fa-circle-info');
+      }
+
+      function showGateError(text) {
+        var el = document.getElementById('gate-error');
+        el.textContent = text;
+        el.hidden = false;
+      }
+
+      function attempted(result) {
+        return result.attempted === true || result.has_attempted === true ||
+          result.submitted === true || result.exists === true ||
+          (result.data && (result.data.attempted === true || result.data.submitted === true));
+      }
+
+      function resultData(result) {
+        if (result && result.attempt && typeof result.attempt === 'object') return result.attempt;
+        return result && result.data && !Array.isArray(result.data) ? result.data : result || {};
+      }
+
+      function displayExistingResult(result) {
+        var data = resultData(result);
+        showMessage('Already submitted', 'This mobile number has already submitted this scholarship test.', 'fa-circle-check');
+        if (data.percentage == null && data.correctAnswer == null && data.correct == null) return;
+        renderResult(data);
+      }
+
+      function metadataRow(result) {
+        if (Array.isArray(result)) return result[0] || {};
+        if (Array.isArray(result.items)) return result.items[0] || {};
+        if (Array.isArray(result.data)) return result.data[0] || {};
+        if (result.data && typeof result.data === 'object') return result.data;
+        return result;
+      }
+
+      function arrayBufferFromPayload(payload, label) {
+        payload = unwrap(payload);
+        if (payload.data && typeof payload.data === 'object') payload = payload.data;
+        var name = String(payload.file_name || '').toLowerCase();
+        var type = String(payload.content_type || '').toLowerCase();
+        if (name.endsWith('.pdf') || type.indexOf('pdf') >= 0) {
+          return Promise.reject(new Error(label + ' must be uploaded as a Word .docx file for the online test.'));
+        }
+        if (payload.download_url) {
+          return fetch(payload.download_url, { credentials: 'omit' }).then(function (response) {
+            if (!response.ok) throw new Error('Could not download ' + label.toLowerCase() + '.');
+            return response.arrayBuffer();
+          });
+        }
+        if (payload.content_base64) {
+          var raw = String(payload.content_base64).replace(/^data:[^,]+,/, '');
+          var binary = atob(raw);
+          var bytes = new Uint8Array(binary.length);
+          for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          return Promise.resolve(bytes.buffer);
+        }
+        return Promise.reject(new Error(label + ' is unavailable.'));
+      }
+
+      function loadDocument(kind) {
+        var params = { test_id: testId };
+        params[kind] = '1';
+        return fetchJson(query(paperApi, params), { method: 'GET', credentials: 'omit' })
+          .then(function (payload) { return arrayBufferFromPayload(payload, kind === 'paper' ? 'Question paper' : 'Answer key'); })
+          .then(function (buffer) {
+            if (!window.mammoth) throw new Error('Document reader failed to load.');
+            return window.mammoth.extractRawText({ arrayBuffer: buffer });
+          })
+          .then(function (result) { return (result && result.value) || ''; });
+      }
+
+      function beginExamUi() {
+        if (instructionsScreen) instructionsScreen.hidden = true;
+        messageScreen.hidden = true;
+        gate.hidden = true;
+        exam.hidden = false;
+        timer.hidden = false;
+        document.getElementById('exam-title').textContent = paper.title || 'Scholarship Test';
+        buildPalette();
+        renderQuestion();
+        startTimer();
+      }
+
+      function showInstructionsThenExam() {
+        messageScreen.hidden = true;
+        gate.hidden = true;
+        exam.hidden = true;
+        timer.hidden = true;
+        if (!instructionsScreen) {
+          beginExamUi();
+          return;
+        }
+        var body = document.getElementById('instructions-body');
+        var marks = document.getElementById('instructions-marks');
+        var meta = document.getElementById('instructions-meta');
+        var text = String(instructionsText || '').trim();
+        var points = text
+          ? text.split(/\n+/).map(function (line) { return line.trim(); }).filter(Boolean)
+          : [
+              'The test has multiple sections covering English, Logical Reasoning, and Current Affairs.',
+              'Every question has four options; choose exactly one correct answer.',
+              'Marking: +1 for correct, −0.25 for wrong, 0 for unattempted.',
+              'Use the palette to jump between questions. Submit before time runs out.',
+            ];
+        if (body) {
+          body.innerHTML =
+            '<ul class="instructions-list">' +
+            points.map(function (point, i) {
+              return (
+                '<li><span class="instructions-list__num">' +
+                (i + 1) +
+                '</span><span>' +
+                escapeHtml(point) +
+                '</span></li>'
+              );
+            }).join('') +
+            '</ul>';
+        }
+        if (marks) marks.hidden = false;
+        if (meta) {
+          var minutesAllowed = Math.max(1, questions.length);
+          meta.innerHTML =
+            '<span class="instructions-chip"><i class="fa-solid fa-list-ol"></i> ' +
+            questions.length +
+            ' question' +
+            (questions.length === 1 ? '' : 's') +
+            '</span>' +
+            '<span class="instructions-chip"><i class="fa-regular fa-clock"></i> ' +
+            minutesAllowed +
+            ' min total</span>' +
+            '<span class="instructions-chip"><i class="fa-solid fa-bolt"></i> 1 min / question</span>';
+        }
+        instructionsScreen.hidden = false;
+      }
+
+      function startTest() {
+        showMessage('Preparing your test', 'Downloading and preparing the question paper…', 'fa-spinner fa-spin');
+        return Promise.all([
+          loadDocument('paper'),
+          loadDocument('answer').catch(function () { return ''; }),
+        ]).then(function (files) {
+          var parser = window.ExamQuestionParser;
+          if (!parser || typeof parser.parseQuestionsFromText !== 'function') {
+            throw new Error('Question parser failed to load.');
+          }
+          /** Auto-count questions; ignore small CRM count / punctuation gaps. */
+          var parsed = parser.parseQuestionsFromText(files[0], {
+            softMissing: true,
+            autoCount: true,
+          });
+          if (parsed.error && !(parsed.questions && parsed.questions.length)) {
+            throw new Error(parsed.error);
+          }
+          questions = (parsed.questions || []).slice().sort(function (a, b) {
+            return a.number - b.number;
+          });
+          if (!questions.length) {
+            throw new Error('No questions could be read from this paper.');
+          }
+          instructionsText =
+            (parsed.instructions && String(parsed.instructions).trim()) ||
+            (parsed.directions && parsed.directions[0]) ||
+            '';
+          if (files[1] && window.ExamAnswerKeyParser) {
+            answerKey = window.ExamAnswerKeyParser.parseAnswerKeyText(files[1]) || {};
+          }
+          showInstructionsThenExam();
+        });
+      }
+
+      var startExamBtn = document.getElementById('start-exam-btn');
+      if (startExamBtn) {
+        startExamBtn.addEventListener('click', function () {
+          beginExamUi();
+        });
+      }
+
+      document.getElementById('gate-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var nameValue = document.getElementById('student-name').value.trim();
+        var value = document.getElementById('phone').value.replace(/\D/g, '');
+        if (!nameValue) {
+          showGateError('Enter your full name.');
+          return;
+        }
+        if (!/^[6-9]\d{9}$/.test(value)) {
+          showGateError('Enter a valid 10-digit Indian mobile number.');
+          return;
+        }
+        if (!testId) {
+          showMessage('Invalid test link', 'This scholarship test link is missing its test ID.', 'fa-link-slash');
+          return;
+        }
+        if (!paperApi || !submitApi) {
+          showMessage('Service unavailable', 'The scholarship test service is not configured.', 'fa-triangle-exclamation');
+          return;
+        }
+        studentName = nameValue;
+        phone = value;
+        var button = document.getElementById('continue-btn');
+        button.disabled = true;
+        button.textContent = 'Checking…';
+        document.getElementById('gate-error').hidden = true;
+
+        fetchJson(query(submitApi, { action: 'check_attempt', test_id: testId, phone: phone }), {
+          method: 'GET', credentials: 'omit'
+        })
+          .then(function (check) {
+            if (attempted(check)) {
+              displayExistingResult(check);
+              return null;
+            }
+            return fetchJson(query(paperApi, { test_id: testId }), { method: 'GET', credentials: 'omit' });
+          })
+          .then(function (metadata) {
+            if (!metadata) return;
+            paper = metadataRow(metadata);
+            if (paper.isOpen !== true || paper.isClose !== false) {
+              showMessage('Test is closed', 'This scholarship test is not currently open for attempts.', 'fa-lock');
+              return;
+            }
+            return startTest();
+          })
+          .catch(function (error) {
+            showGateError(error && error.message ? error.message : 'Could not start the test. Please try again.');
+          })
+          .finally(function () {
+            button.disabled = false;
+            button.innerHTML = 'Continue <i class="fa-solid fa-arrow-right"></i>';
+          });
+      });
+
+      function keyFor(q) { return String(q.number); }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function stripLeadingQuestionNumber(text, qNum) {
+        var esc = String(qNum == null ? '' : qNum).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (!esc) return String(text || '').trim();
+        return String(text || '')
+          .replace(new RegExp('^\\s*' + esc + '\\.\\s*'), '')
+          .trim();
+      }
+
+      function renderQuestion() {
+        var q = questions[index];
+        document.getElementById('qmeta').textContent = 'Question ' + q.number + ' of ' + questions.length;
+        var sectionTag = document.getElementById('section-tag');
+        if (sectionTag) {
+          var sectionName = q.sectionName && String(q.sectionName).trim();
+          sectionTag.hidden = !sectionName;
+          sectionTag.textContent = sectionName || '';
+        }
+        var refParts = [q.contextInfo, q.contextParagraph]
+          .filter(function (part) { return part && String(part).trim(); })
+          .map(function (part) { return String(part).replace(/^\s+/, '').replace(/\s+$/, ''); })
+          .join('\n\n')
+          .replace(/^\s+/, '');
+        var refBody = document.getElementById('reference-body');
+        var refWrap = document.getElementById('reference-wrap');
+        var refEmpty = document.getElementById('reference-empty');
+        if (refBody) refBody.textContent = refParts;
+        if (refWrap) refWrap.hidden = !refParts;
+        if (refEmpty) refEmpty.hidden = !!refParts;
+        document.getElementById('stem').textContent = stripLeadingQuestionNumber(q.stem || '', q.number);
+        var options = document.getElementById('options');
+        options.innerHTML = '';
+        (q.options || []).slice(0, 4).forEach(function (option, optionIndex) {
+          var letter = String(option.letter || String.fromCharCode(65 + optionIndex)).toUpperCase();
+          var label = document.createElement('label');
+          label.className = 'option' + (answers[keyFor(q)] === letter ? ' selected' : '');
+          var input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'scholarship-option';
+          input.value = letter;
+          input.checked = answers[keyFor(q)] === letter;
+          input.addEventListener('change', function () {
+            answers[keyFor(q)] = letter;
+            renderQuestion();
+            renderPalette();
+          });
+          var text = document.createElement('span');
+          text.textContent = letter + '. ' + (option.text || '');
+          label.appendChild(input);
+          label.appendChild(text);
+          options.appendChild(label);
+        });
+        document.getElementById('prev-btn').disabled = index === 0;
+        document.getElementById('next-btn').disabled = index === questions.length - 1;
+        renderPalette();
+      }
+
+      function buildPalette() {
+        var palette = document.getElementById('palette');
+        palette.innerHTML = '';
+        questions.forEach(function (q, i) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = q.number;
+          button.addEventListener('click', function () { index = i; renderQuestion(); });
+          palette.appendChild(button);
+        });
+      }
+
+      function renderPalette() {
+        var buttons = document.getElementById('palette').querySelectorAll('button');
+        questions.forEach(function (q, i) {
+          buttons[i].classList.toggle('current', i === index);
+          buttons[i].classList.toggle('answered', !!answers[keyFor(q)]);
+        });
+      }
+
+      document.getElementById('prev-btn').addEventListener('click', function () {
+        if (index > 0) { index--; renderQuestion(); }
+      });
+      document.getElementById('next-btn').addEventListener('click', function () {
+        if (index < questions.length - 1) { index++; renderQuestion(); }
+      });
+      document.getElementById('clear-btn').addEventListener('click', function () {
+        delete answers[keyFor(questions[index])];
+        renderQuestion();
+      });
+      document.getElementById('submit-btn').addEventListener('click', function () {
+        var answered = Object.keys(answers).length;
+        if (window.confirm('Submit now? You answered ' + answered + ' of ' + questions.length + ' questions.')) {
+          submitTest(false);
+        }
+      });
+
+      function answerKeyPayload() {
+        var out = {};
+        Object.keys(answerKey || {}).forEach(function (key) {
+          var entry = answerKey[key];
+          var letter = typeof entry === 'string' ? entry : entry && entry.letter;
+          letter = String(letter || '').toUpperCase();
+          if (/^[A-D]$/.test(letter)) out[String(key)] = letter;
+        });
+        return out;
+      }
+
+      function submitTest(timedOut) {
+        if (submitting) return;
+        submitting = true;
+        clearInterval(timerId);
+        document.getElementById('submit-btn').disabled = true;
+        showMessage('Submitting your test', 'Please wait while your answers are graded…', 'fa-spinner fa-spin');
+        var payload = {
+          test_id: testId,
+          answers: answers,
+          student_name: studentName,
+          phone: phone,
+          submitted_by: phone,
+          total_questions: questions.length,
+        };
+        var key = answerKeyPayload();
+        if (Object.keys(key).length) payload.client_answer_key = key;
+        fetchJson(submitApi, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (result) {
+            showMessage(
+              timedOut ? 'Time is up — submitted' : 'Test submitted',
+              'Your scholarship test responses have been recorded.',
+              'fa-circle-check'
+            );
+            renderResult(resultData(result));
+          })
+          .catch(function (error) {
+            submitting = false;
+            messageScreen.hidden = true;
+            exam.hidden = false;
+            timer.hidden = false;
+            document.getElementById('submit-btn').disabled = false;
+            if (!timedOut) startTimer(Math.max(60, Math.floor((endsAt - Date.now()) / 1000)));
+            window.alert(error && error.message ? error.message : 'Could not submit the test. Please try again.');
+          });
+      }
+
+      function renderResult(data) {
+        var correct = data.correctAnswer != null ? data.correctAnswer : data.correct;
+        var percentage = data.percentage != null ? Number(data.percentage) : null;
+        if (percentage == null && data.totalgrade) {
+          var percentageMatch = String(data.totalgrade).match(/(\d+(?:\.\d+)?)\s*%/);
+          if (percentageMatch) percentage = Number(percentageMatch[1]);
+        }
+        if (percentage == null && correct != null && questions.length) {
+          percentage = Math.round((Number(correct) / questions.length) * 1000) / 10;
+        }
+        var grade = data.letter_grade || data.grade || data.totalgrade || gradeFor(percentage);
+        var grid = document.getElementById('message-result');
+        grid.hidden = false;
+        grid.innerHTML = '';
+        [
+          [percentage != null && Number.isFinite(percentage) ? percentage + '%' : '—', 'Percentage'],
+          [correct != null ? correct : '—', 'Correct answers'],
+          [grade || '—', 'Grade'],
+        ].forEach(function (item) {
+          var card = document.createElement('div');
+          card.className = 'result-stat';
+          var strong = document.createElement('strong');
+          strong.textContent = item[0];
+          var span = document.createElement('span');
+          span.textContent = item[1];
+          card.appendChild(strong);
+          card.appendChild(span);
+          grid.appendChild(card);
+        });
+      }
+
+      function gradeFor(value) {
+        if (value == null || !Number.isFinite(value)) return '';
+        if (value >= 90) return 'A+';
+        if (value >= 80) return 'A';
+        if (value >= 70) return 'B';
+        if (value >= 60) return 'C';
+        if (value >= 50) return 'D';
+        return 'Needs improvement';
+      }
+
+      function examDurationSeconds() {
+        return Math.max(1, questions.length || 1) * 60;
+      }
+
+      function startTimer(seconds) {
+        var duration = seconds != null ? seconds : examDurationSeconds();
+        var warnAt = Math.min(300, Math.max(60, Math.floor(duration * 0.15)));
+        endsAt = Date.now() + duration * 1000;
+        clearInterval(timerId);
+        function tick() {
+          var left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+          var hours = Math.floor(left / 3600);
+          var minutes = Math.floor((left % 3600) / 60);
+          var secs = left % 60;
+          timer.querySelector('span').textContent =
+            String(hours).padStart(2, '0') + ':' +
+            String(minutes).padStart(2, '0') + ':' +
+            String(secs).padStart(2, '0');
+          timer.classList.toggle('warn', left <= warnAt);
+          if (left <= 0) {
+            clearInterval(timerId);
+            submitTest(true);
+          }
+        }
+        tick();
+        timerId = setInterval(tick, 1000);
+      }
+
+      if (!testId) {
+        showMessage('Invalid test link', 'This scholarship test link is missing its test ID.', 'fa-link-slash');
+      }
+    })();
+  </script>
+</body>
+</html>

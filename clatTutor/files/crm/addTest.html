@@ -1738,6 +1738,108 @@
       align-items: center;
       gap: 0.3rem;
     }
+    .at-schol-section {
+      margin-top: 2rem;
+      background: linear-gradient(180deg, #fff7ed 0%, #fff 100%);
+    }
+    .at-schol-section .at-picker__ribbon {
+      background: linear-gradient(135deg, #ea580c, #c2410c);
+    }
+    .at-schol-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 360px);
+      justify-content: center;
+    }
+    .at-schol-card-wrap {
+      position: relative;
+    }
+    .at-schol-card {
+      width: 100%;
+      min-height: 155px;
+      padding: 1.25rem;
+      border: 1px solid #fed7aa;
+      border-radius: 16px;
+      background: #fff;
+      color: var(--at-ink);
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 8px 24px rgba(194, 65, 12, 0.08);
+    }
+    .at-schol-card:hover {
+      transform: translateY(-2px);
+      border-color: #f97316;
+    }
+    .at-schol-card__icon {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 0.75rem;
+      border-radius: 12px;
+      background: #ffedd5;
+      color: #c2410c;
+      font-size: 1.15rem;
+    }
+    .at-schol-card__title {
+      display: block;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .at-schol-card__desc {
+      display: block;
+      margin-top: 0.3rem;
+      color: var(--at-muted);
+      font-size: 0.82rem;
+    }
+    .at-schol-history-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .at-schol-file {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px dashed var(--at-line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .at-schol-history-list {
+      display: grid;
+      gap: 0.75rem;
+      padding: 1rem;
+      max-height: 62vh;
+      overflow: auto;
+    }
+    .at-schol-history-item {
+      padding: 1rem;
+      border: 1px solid var(--at-line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .at-schol-history-item__head,
+    .at-schol-history-item__actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+    }
+    .at-schol-history-item__actions {
+      justify-content: flex-start;
+      margin-top: 0.75rem;
+    }
+    .at-schol-history-item__actions .at-btn.is-copied {
+      border-color: #15803d;
+      background: #ecfdf3;
+      color: #166534;
+    }
+    .at-schol-badge {
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .at-schol-badge--open { background: #dcfce7; color: #166534; }
+    .at-schol-badge--closed { background: #fee2e2; color: #991b1b; }
   </style>
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -1919,6 +2021,22 @@
             </div>
           </div>
         </section>
+
+        <section class="at-picker__section at-schol-section" aria-labelledby="at-schol-heading">
+          <div class="at-picker__ribbon" id="at-schol-heading">SCHOLARSHIP TEST</div>
+          <div class="at-schol-grid">
+            <div class="at-schol-card-wrap">
+              <button type="button" class="at-schol-card" id="at-schol-card">
+                <span class="at-schol-card__icon" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></span>
+                <span class="at-schol-card__title">Scholarship Test</span>
+                <span class="at-schol-card__desc">Create a public scholarship assessment with a question paper and answer key.</span>
+              </button>
+              <button type="button" class="at-btn at-btn--ghost at-schol-history-btn" id="at-schol-history-btn">
+                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> History
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -2048,6 +2166,104 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="at-schol-upload-modal" class="at-upload-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-schol-upload-title">
+    <div class="at-upload-modal__backdrop" id="at-schol-upload-backdrop" tabindex="-1"></div>
+    <div class="at-upload-modal__dialog" style="width: min(760px, 100%)">
+      <div class="at-upload-modal__head">
+        <div>
+          <h3 id="at-schol-upload-title">Add scholarship test</h3>
+          <p>Upload the public test materials and choose whether students can start immediately.</p>
+        </div>
+        <button type="button" class="at-upload-modal__close" id="at-schol-upload-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="at-schol-form" class="at-upload-form" novalidate>
+        <div class="at-card at-card--upload">
+          <h2><i class="fa-solid fa-file-arrow-up"></i> Test materials</h2>
+          <p class="at-sub">Accepted: PDF or Microsoft Word. Use .docx to auto-count and preview before saving.</p>
+          <div class="at-field" style="margin-bottom: 0.75rem">
+            <label for="at-schol-title">Title</label>
+            <input id="at-schol-title" type="text" required placeholder="e.g. CLATutor Scholarship Test 2026" autocomplete="off" />
+          </div>
+          <div class="at-field" style="margin-bottom: 0.75rem">
+            <label for="at-schol-question-count">Number of questions</label>
+            <input id="at-schol-question-count" type="number" min="1" max="200" step="1" placeholder="Auto from paper, or 1–200" inputmode="numeric" />
+            <p class="at-hint" style="margin: 0.35rem 0 0">Optional when a .docx paper can be auto-counted.</p>
+          </div>
+          <div class="at-upload-pair">
+            <div class="at-upload-col">
+              <div class="at-upload-col-title">Question paper</div>
+              <input id="at-schol-file-q" class="at-file-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              <div id="at-schol-drop-q" class="at-drop" tabindex="0" role="button" aria-label="Upload scholarship question paper">
+                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                <strong>Drop or click to upload</strong>
+                <span>PDF or Word</span>
+              </div>
+              <div id="at-schol-meta-q" class="at-file-meta" hidden></div>
+              <div id="at-schol-preview-wrap" class="at-preview-wrap" hidden>
+                <button type="button" id="at-schol-btn-preview" class="at-btn at-btn--ghost">
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i> Preview
+                </button>
+                <span id="at-schol-preview-hint" class="at-preview-hint"></span>
+              </div>
+            </div>
+            <div class="at-upload-col">
+              <div class="at-upload-col-title">Answer key</div>
+              <input id="at-schol-file-a" class="at-file-input" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              <div id="at-schol-drop-a" class="at-drop" tabindex="0" role="button" aria-label="Upload scholarship answer key">
+                <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                <strong>Drop or click to upload</strong>
+                <span>PDF or Word</span>
+              </div>
+              <div id="at-schol-meta-a" class="at-file-meta" hidden></div>
+              <div id="at-schol-answer-preview-wrap" class="at-preview-wrap" hidden>
+                <button type="button" id="at-schol-btn-preview-answer" class="at-btn at-btn--ghost">
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i> Answer preview
+                </button>
+                <span id="at-schol-answer-preview-hint" class="at-preview-hint"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="at-card">
+          <div class="at-field" style="margin-bottom: 0.8rem">
+            <label for="at-schol-schedule-date">Schedule date</label>
+            <input id="at-schol-schedule-date" type="date" />
+          </div>
+          <div class="at-visibility-panel">
+            <div class="at-visibility-panel__text">
+              <strong>Student access</strong>
+              <span>Open tests can be attempted from their public link.</span>
+            </div>
+            <label class="at-visibility-toggle" for="at-schol-is-open">
+              <input id="at-schol-is-open" type="checkbox" />
+              <span class="at-visibility-toggle__label">Open for students</span>
+            </label>
+          </div>
+          <div class="at-actions-bar">
+            <button type="button" class="at-btn at-btn--ghost" id="at-schol-upload-cancel">Close</button>
+            <button type="submit" class="at-btn at-btn--gold" id="at-schol-save">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="at-schol-history-modal" class="at-upload-modal" hidden role="dialog" aria-modal="true" aria-labelledby="at-schol-history-title">
+    <div class="at-upload-modal__backdrop" id="at-schol-history-backdrop" tabindex="-1"></div>
+    <div class="at-upload-modal__dialog" style="width: min(880px, 100%)">
+      <div class="at-upload-modal__head">
+        <div>
+          <h3 id="at-schol-history-title">Scholarship test history</h3>
+          <p>Manage public links and test availability.</p>
+        </div>
+        <button type="button" class="at-upload-modal__close" id="at-schol-history-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="at-schol-history-list" class="at-schol-history-list">
+        <p class="at-hint">Loading scholarship tests…</p>
+      </div>
     </div>
   </div>
 
@@ -2235,8 +2451,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
   <script src="../vendor/flatpickr/flatpickr.min.js"></script>
-  <script src="../js/exam-question-parser.js?v=20261113q67"></script>
-  <script src="../js/exam-answer-key-parser.js?v=202607102"></script>
+  <script src="../js/exam-question-parser.js?v=20261118scholpaper1"></script>
+  <script src="../js/exam-answer-key-parser.js?v=20261118ak2"></script>
   <script src="../js/test-subject-flags.js?v=20260910secmin"></script>
   <script src="../js/config.js"></script>
   <script src="../js/data-store.js"></script>
@@ -3446,11 +3662,22 @@
       }
 
       function getAnswerSolution(entry) {
+        var parser = window.ExamAnswerKeyParser;
+        if (parser && typeof parser.getAnswerSolution === 'function') {
+          return parser.getAnswerSolution(entry);
+        }
         if (entry == null || typeof entry === 'string') return '';
-        return (entry.solution && String(entry.solution).trim()) || '';
+        var reason = (entry.solution && String(entry.solution).trim()) || '';
+        var explanation = (entry.explanation && String(entry.explanation).trim()) || '';
+        if (reason && explanation) return reason + '\n\nExplanation: ' + explanation;
+        return reason || (explanation ? 'Explanation: ' + explanation : '');
       }
 
       function getAnswerSolutionImages(entry) {
+        var parser = window.ExamAnswerKeyParser;
+        if (parser && typeof parser.getAnswerSolutionImages === 'function') {
+          return parser.getAnswerSolutionImages(entry);
+        }
         if (entry == null || typeof entry === 'string') return [];
         return Array.isArray(entry.solutionImages) ? entry.solutionImages : [];
       }
@@ -5649,5 +5876,6 @@
       });
     });
   </script>
+  <script src="../js/crm-add-scholorship-test.js?v=20261118schol7"></script>
 </body>
 </html>

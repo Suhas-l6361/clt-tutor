@@ -55,10 +55,19 @@
       if (n > activeQuestionLimit) return full;
       return before + '\n' + num + '. ';
     });
-    t = t.replace(/([?.!)])\s+([A-D])\.\s+/g, '$1\n$2. ');
+    /** "B. C is the mother..." names people; C/D there are not option labels. */
+    t = t.replace(
+      /([?.!)])\s+([A-D])\.\s+(?!(?:is|are|was|were|has|have|had)\b)/gi,
+      '$1\n$2. '
+    );
     t = t.replace(/([a-z])(\s+)([B-D])\.\s+(?=[A-Z"'(])/g, '$1\n$3. ');
     t = t.replace(/\t+([A-Da-d])\.(\s*)/g, '\n$1.$2');
     t = t.replace(/([^.\n])\s+([B-Da-d])\.(\s+)(?=[A-Z0-9"'(])/g, '$1\n$2.$3');
+    /** Rejoin named-person initials split by the generic inline-option rules above. */
+    t = t.replace(
+      /\n([B-D])\.\s+(?=(?:[A-D]\s+(?:is|are|was|were|has|have|had)\b|How\s+is\s+[A-D]\s+related\b))/g,
+      ' $1. '
+    );
     t = t.replace(/\)\s*(\d{1,3})\.\s/g, function (full, num, offset, whole) {
       var n = parseInt(num, 10);
       if (n < 1 || n > activeQuestionLimit) return full;
@@ -148,6 +157,7 @@
     var s = String(t || '');
     return (
       /\?/.test(s) ||
+      /_{3,}/.test(s) ||
       /\bwhich of the following\b/i.test(s) ||
       /\bwhich literary\b/i.test(s) ||
       /\bwhat is the most appropriate\b/i.test(s) ||
@@ -621,6 +631,15 @@
   function rebuildBodyAtFirstOption(body) {
     var t = String(body || '').trim();
     if (!t) return t;
+    var sourceLines = t.split(/\n/);
+    for (var lineIdx = 1; lineIdx < sourceLines.length; lineIdx++) {
+      if (isStrictOptionLine(sourceLines[lineIdx])) {
+        return sourceLines
+          .slice(0, lineIdx)
+          .concat(expandMultiOptionLines(sourceLines.slice(lineIdx)))
+          .join('\n');
+      }
+    }
     var idx = findInlineMcqOptionIndex(t);
     if (idx < 0) return splitGluedMcqBlock(t);
     var before = t.slice(0, idx).trim();
@@ -755,6 +774,17 @@
       .replace(/\u00a0/g, ' ')
       .trim()
       .replace(/\s+/g, ' ');
+  }
+
+  /** (Instructions starts) / (Instruction ends) — also tolerates trailing : . - */
+  function isInstructionsStartLine(line) {
+    var s = normalizeMarkerOuter(line);
+    return /^\(\s*Instructions?\s+starts?\s*\)\s*[:.\-–—]*\s*$/i.test(s);
+  }
+
+  function isInstructionsEndLine(line) {
+    var s = normalizeMarkerOuter(line);
+    return /^\(\s*Instructions?\s+ends?\s*\)\s*[:.\-–—]*\s*$/i.test(s);
   }
 
   function sectionalCategoryAliases(category) {
@@ -1080,6 +1110,32 @@
     return isLostNumberQuestionStem(s);
   }
 
+  function explicitlyReferencesSharedContext(stem) {
+    var s = String(stem || '').trim();
+    return (
+      /\b(?:according to|as (?:used|stated|mentioned|described) in|based on)\s+(?:the\s+)?(?:passage|paragraph|information)\b/i.test(s) ||
+      /\b(?:the|this)\s+passage\b/i.test(s) ||
+      /\bfollowing information\b/i.test(s)
+    );
+  }
+
+  /**
+   * A marked paragraph may be followed by unrelated vocabulary/reasoning questions
+   * before the next section marker. Do not let that old paragraph become their context.
+   * Keep this deliberately prompt-shaped: broad "Who/What/How" rules would incorrectly
+   * detach questions such as "Who sits..." in a seating set.
+   */
+  function isStandaloneCompetitiveExamStem(stem) {
+    var s = String(stem || '')
+      .replace(/^\s*\d{1,3}\.\s*/, '')
+      .trim();
+    if (!s || explicitlyReferencesSharedContext(s)) return false;
+    /** Keep seating / RC set questions attached: "Who sits…", "How many people sit…". */
+    return /^(?:Choose\s+the\s+word|Fill\s+in\s+the\s+blank|Identify\s+the\s+part|What\s+does\s+the\s+idiom\b|Arrange\s+the\s+sentences?\b|Pointing\s+to\b|In\s+a\s+certain\s+code\b|What\s+number\b|Statements?\s*:|Statement\s*:|Who\s+took\b|India\s+won\b|A\s+is the sister\b|A\s+city plans\b|A\s+survey found\b|All the trains\b|Ravi walks\b|In July\b|Which Indian\b|The Viksit Bharat\b|The \d+(?:st|nd|rd|th)\b|The 20th Asian\b|Justice\b)/i.test(
+      s
+    );
+  }
+
   function stemLooksLikeMcqQuestionAt(lines, idx) {
     return stemLooksLikeMcqQuestion(questionStemTextAt(lines, idx));
   }
@@ -1358,7 +1414,7 @@
       if (splitQnOnly != null && splitQnOnly > currentQn) return true;
       return false;
     }
-    var nextQn = matchQuestionHeaderLine(lines[idx]);
+      var nextQn = matchQuestionHeaderLine(lines[idx], lines, idx);
     if (nextQn != null && nextQn === currentQn && idx > blockStart) {
       var priorBlock = lines.slice(blockStart, idx).join('\n');
       if (isPassageBleedBlock(priorBlock) && stemLooksLikeMcqQuestionAt(lines, idx)) return true;
@@ -1396,7 +1452,7 @@
   }
 
   function embeddedQuestionNumberAtLine(lines, b, segNum) {
-    var eh = matchQuestionHeaderLine(lines[b]);
+    var eh = matchQuestionHeaderLine(lines[b], lines, b);
     if (eh == null) eh = matchSplitQuestionHeader(lines, b);
     if (eh != null && eh === segNum && b > 0) {
       var prior = lines.slice(0, b).join('\n');
@@ -1493,19 +1549,23 @@
       requestedLimit >= 1 &&
       requestedLimit <= MAX_QUESTION_LIMIT;
     var isSectional = opts.kind === 'sectional';
+    /** softMissing / autoCount: accept whatever questions are found; no hard cap from CRM count. */
+    var softMissing = !!(opts.softMissing || opts.autoCount);
     /**
      * expectedQuestionCount is how many questions the paper contains, not the highest
      * printed number. Legal sectionals often keep full-CLAT numbering (Q53–Q84).
      * Capping headers at 32 would drop those questions. A 119 count on a CLAT
      * mock must still accept Q120.
      */
-    activeQuestionLimit = isSectional
+    activeQuestionLimit = softMissing
       ? MAX_QUESTION_LIMIT
-      : hasExpectedLimit
-        ? requestedLimit >= DEFAULT_QUESTION_LIMIT - 5
-          ? Math.max(requestedLimit, DEFAULT_QUESTION_LIMIT)
-          : requestedLimit
-        : DEFAULT_QUESTION_LIMIT;
+      : isSectional
+        ? MAX_QUESTION_LIMIT
+        : hasExpectedLimit
+          ? requestedLimit >= DEFAULT_QUESTION_LIMIT - 5
+            ? Math.max(requestedLimit, DEFAULT_QUESTION_LIMIT)
+            : requestedLimit
+          : DEFAULT_QUESTION_LIMIT;
     var sectionalCategory =
       isSectional && opts.category ? String(opts.category).trim() : '';
     var sectionalPatterns = sectionalCategory
@@ -1523,6 +1583,7 @@
     var lines = normalized.split('\n');
     var globInfo = '';
     var globPara = '';
+    var globInstructions = '';
     var passageCount = 0;
     var currentPassageIndex = 0;
     var currentSectionName = '';
@@ -1555,11 +1616,36 @@
 
     var i = 0;
     while (i < lines.length) {
+      if (isInstructionsStartLine(lines[i])) {
+        i++;
+        var instrBuf = [];
+        while (
+          i < lines.length &&
+          !isInstructionsEndLine(lines[i]) &&
+          !isInformationStart(lines[i]) &&
+          !isParagraphStart(lines[i]) &&
+          !matchCustomSectionStartLine(lines[i])
+        ) {
+          if (looksLikeRealQuestionHeaderAt(lines, i)) break;
+          instrBuf.push(lines[i]);
+          i++;
+        }
+        if (i < lines.length && isInstructionsEndLine(lines[i])) i++;
+        var instrText = instrBuf.join('\n').trim();
+        if (instrText) {
+          globInstructions = globInstructions
+            ? globInstructions + '\n\n' + instrText
+            : instrText;
+        }
+        continue;
+      }
+
       if (isInformationStart(lines[i])) {
         i++;
         var ib = [];
         while (i < lines.length && !isInformationEnd(lines[i]) && !isParagraphEnd(lines[i])) {
           if (isParagraphStart(lines[i])) break;
+          if (isInstructionsStartLine(lines[i])) break;
           if (looksLikeRealQuestionHeaderAt(lines, i)) break;
           if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           ib.push(lines[i]);
@@ -1577,6 +1663,7 @@
         var pb = paraRemainder ? [paraRemainder] : [];
         while (i < lines.length && !isParagraphEnd(lines[i]) && !isInformationEnd(lines[i])) {
           if (isInformationStart(lines[i]) || isParagraphStart(lines[i])) break;
+          if (isInstructionsStartLine(lines[i])) break;
           if (looksLikeRealQuestionHeaderAt(lines, i)) break;
           if (isLostNumberQuestionStem(lines[i]) && lineHasMcqOptionsAhead(lines, i)) break;
           pb.push(lines[i]);
@@ -1589,7 +1676,11 @@
         continue;
       }
 
-      if (isInformationEnd(lines[i]) || isParagraphEnd(lines[i])) {
+      if (
+        isInformationEnd(lines[i]) ||
+        isParagraphEnd(lines[i]) ||
+        isInstructionsEndLine(lines[i])
+      ) {
         i++;
         continue;
       }
@@ -1658,6 +1749,15 @@
         var block = lines.slice(start, i).join('\n').trim();
         if (isPassageBleedBlock(block)) {
           continue;
+        }
+        if (snapPara) {
+          var contextCheck = parseBlockBody(block);
+          if (isStandaloneCompetitiveExamStem(contextCheck.stem || block)) {
+            snapPara = '';
+            snapPassageIndex = 0;
+            globPara = '';
+            currentPassageIndex = 0;
+          }
         }
         rawQuestions.push({
           num: qn,
@@ -1740,20 +1840,23 @@
     for (var fn = 0; fn < questions.length; fn++) {
       foundNums[questions[fn].number] = true;
     }
-    if (isSectional && questions.length) {
-      var minQn = questions[0].number;
-      var maxQn = questions[questions.length - 1].number;
-      var rangeEnd = maxQn;
-      if (hasExpectedLimit) {
-        rangeEnd = Math.max(maxQn, minQn + requestedLimit - 1);
-      }
-      for (var expS = minQn; expS <= rangeEnd; expS++) {
-        if (!foundNums[expS]) missingNumbers.push(expS);
-      }
-    } else if (!isSectional) {
-      var missingUntil = hasExpectedLimit ? requestedLimit : activeQuestionLimit;
-      for (var exp = 1; exp <= missingUntil; exp++) {
-        if (!foundNums[exp]) missingNumbers.push(exp);
+    /** Soft / auto mode: do not flag gaps for CRM count mismatches or punctuation quirks. */
+    if (!softMissing) {
+      if (isSectional && questions.length) {
+        var minQn = questions[0].number;
+        var maxQn = questions[questions.length - 1].number;
+        var rangeEnd = maxQn;
+        if (hasExpectedLimit) {
+          rangeEnd = Math.max(maxQn, minQn + requestedLimit - 1);
+        }
+        for (var expS = minQn; expS <= rangeEnd; expS++) {
+          if (!foundNums[expS]) missingNumbers.push(expS);
+        }
+      } else if (!isSectional) {
+        var missingUntil = hasExpectedLimit ? requestedLimit : activeQuestionLimit;
+        for (var exp = 1; exp <= missingUntil; exp++) {
+          if (!foundNums[exp]) missingNumbers.push(exp);
+        }
       }
     }
     // A number that WAS parsed as a real (option-bearing) question is not "dropped": a second
@@ -1762,6 +1865,7 @@
     dropped = dropped.filter(function (d) {
       return !foundNums[d.number];
     });
+    if (softMissing) dropped = [];
 
     if (!questions.length) {
       var sectionalHint = sectionalCategory
@@ -1783,6 +1887,7 @@
         : '';
       return {
         directions: [],
+        instructions: globInstructions || '',
         questions: [],
         error: rawQuestions.length
           ? 'Found numbered questions but no A–D options. Check option lines (A/B/C/D or [A]…).'
@@ -1793,7 +1898,8 @@
       };
     }
     return {
-      directions: [],
+      directions: globInstructions ? [globInstructions] : [],
+      instructions: globInstructions || '',
       questions: questions,
       error: null,
       dropped: dropped,

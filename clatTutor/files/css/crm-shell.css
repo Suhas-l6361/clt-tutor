@@ -1302,6 +1302,30 @@ body.crm-overdue-branch-modal-open {
 .crm-scholorship-table a:hover {
   opacity: 0.85;
 }
+.crm-scholorship-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+.crm-scholorship-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.crm-scholorship-wa:hover {
+  opacity: 1;
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
 .crm-mock-reg-table a {
   color: #1d4ed8;
   font-weight: 600;

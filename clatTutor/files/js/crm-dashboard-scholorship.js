@@ -97,13 +97,18 @@
           '</td>' +
           '<td>' +
           (phone
-            ? '<a href="tel:' +
+            ? '<span class="crm-scholorship-phone">' +
+              '<a href="https://wa.me/91' +
               escapeHtml(phone) +
-              '">' +
+              '" target="_blank" rel="noopener noreferrer" title="Open WhatsApp">' +
               escapeHtml(phone) +
-              '</a> · <a href="https://wa.me/91' +
+              '</a>' +
+              '<a class="crm-scholorship-wa" href="https://wa.me/91' +
               escapeHtml(phone) +
-              '" target="_blank" rel="noopener">WA</a>'
+              '" target="_blank" rel="noopener noreferrer" title="Open WhatsApp" aria-label="Open WhatsApp for ' +
+              escapeHtml(phone) +
+              '"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>' +
+              '</span>'
             : '—') +
           '</td>' +
           '<td>' +

@@ -1,0 +1,453 @@
+CLATutor
+Scholarship Test
+
+
+(Instructions starts)
+
+The test has three sections: Section A, English (Questions 1–15); Section B, Logical Reasoning (Questions 16–30); Section C, Current Affairs (Questions 31–40).
+Every question has four options, of which exactly one is correct.
+Each correct answer earns 1 mark; 0.25 mark is deducted for each wrong answer; unattempted questions carry no marks.
+Mark your answers in the response grid on the last page of the question paper.
+Current affairs questions cover events up to November 2026.
+
+(Instructions ends)
+
+((Section A: English (Questions 1–15) starts))
+
+(Paragraph starts)
+
+Read the passage below and answer Questions 1–5.
+For most of the twentieth century, the public library was imagined as a quiet storehouse of books, a place where silence was enforced and borrowing was the main activity. That picture is now out of date. In many Indian cities, libraries that once stood half-empty have begun to fill again, not because people have suddenly rediscovered printed books, but because the library has quietly changed its purpose.
+Today a well-run library is as likely to host a coding workshop or a session on filling in government forms as a reading circle. Students who lack a quiet room at home use its tables to prepare for competitive examinations; job-seekers use its computers to apply for work; elderly residents come for the newspapers and the company. In this sense, the library has become one of the few public spaces where a person can spend hours without being expected to buy anything.
+Critics argue that this shift dilutes the library's original mission. If libraries become community centres, they say, the patient work of building and caring for collections will be neglected, and the reader who wants a rare book will be left behind. The concern is not unreasonable: budgets are limited, and every rupee spent on a computer is a rupee not spent on books.
+Yet the choice may be less stark than it appears. A library that draws people in for one purpose often turns them into readers for another. The student who comes for a quiet desk notices the shelves; the parent who brings a child to a storytelling session leaves with a borrowed novel. The library's future, then, may depend less on defending its old identity than on recognising that access to knowledge has always meant more than access to books.
+
+(Paragraph ends)
+
+1. Which of the following best expresses the main idea of the passage?
+
+A.  Public libraries should return to their traditional role of lending books.
+
+B. Libraries in Indian cities are failing because people no longer read printed books.
+
+C. Governments should spend more money on computers than on books in libraries.
+
+D. Public libraries are being revived by serving wider community needs, and this need not  conflict with their role in promoting reading.
+
+2. According to the passage, why have many city libraries begun to fill again?
+
+A. People have rediscovered the pleasure of reading printed books.
+
+B. Libraries have stopped enforcing silence.
+
+C. Libraries now serve a broader range of purposes for different groups of people.
+
+D. Governments have made library membership compulsory for students.
+
+3. As used in the passage, the word 'dilutes' most nearly means:
+
+A. strengthens
+
+B. weakens
+
+C. explains
+
+D. reverses
+
+4. Which of the following can be inferred from the passage?
+
+A. Budget constraints mean that spending on new services may involve trade-offs.
+
+B. The author believes that critics of the change are entirely mistaken.
+
+C. Most visitors to libraries today never borrow books.
+
+D. Rare books are no longer kept in public libraries.
+
+5. The tone of the author towards the changing role of libraries is best described as:
+
+A. dismissive
+
+B. nostalgic and regretful
+
+C. indifferent
+
+D. cautiously optimistic
+
+6. Choose the word closest in meaning to EPHEMERAL.
+
+A. Short-lived
+
+B. Everlasting
+
+C. Heavenly
+
+D. Enormous
+
+7. Choose the word closest in meaning to CANDID.
+
+A. Secretive
+
+B. Cautious
+
+C. Polite
+
+D. Frank
+
+8. Choose the word most nearly OPPOSITE in meaning to METICULOUS.
+
+A. Careful
+
+B. Precise
+
+C. Careless
+
+D. Thorough
+
+9. What does the idiom 'to bite the bullet' mean?
+
+A. To face a difficult or unpleasant situation with courage
+
+B. To speak rudely to someone
+
+C. To make a hasty decision
+
+D. To avoid responsibility
+
+10. Fill in the blank: Despite repeated warnings, the company continued to ______ the safety regulations.
+
+A. flaunt
+
+B. flout
+
+C. float
+
+D. flounder
+
+11. Fill in the blank: Neither the principal nor the teachers ______ aware of the change in the schedule.
+
+A. was
+
+B. is
+
+C. has been
+
+D. were
+
+12. Identify the part of the sentence that contains an error: One of the most important reasons (A) / for the delay are (B) / the shortage of trained staff. (C) / No error (D)
+
+A. A
+
+B. B
+
+C. C
+
+D. D
+
+13. Identify the part of the sentence that contains an error: He has been working (A) / in this law firm (B) / since five years. (C) / No error (D)
+
+A. A
+
+B. B
+
+C. C
+
+D. D
+
+14. Fill in the blank: Scarcely had the hearing begun ______ the lights went out.
+
+A. than
+
+B. then
+
+C. when
+
+D. that
+
+15. Arrange the sentences to form a coherent paragraph.
+(P) Within a decade, the lake had shrunk to a muddy pond.
+(Q) In the 1990s, builders began filling its edges to make room for housing.
+(R) Today, residents are paying to restore the very lake their town once paved over.
+(S) Kalyanpur was once known for its broad, clear lake.
+
+A. SQPR
+
+B. QSPR
+
+C. SPQR
+
+D. QPSR
+
+((Section A: English (Questions 1–15) ends))
+
+((Section B: Logical Reasoning (Questions 16–30) starts))
+
+16. Some educationists argue that schools should ban mobile phones because students who use phones in class score lower marks. But students who already struggle with lessons may turn to their phones out of boredom.
+Which of the following, if true, most WEAKENS the educationists' argument?
+
+A. Mobile phones are becoming cheaper every year.
+
+B. In schools that banned phones, the marks of struggling students did not improve.
+
+C. Many parents want their children to carry phones for safety.
+
+D. Teachers spend time confiscating phones during lessons.
+
+17. A city plans to reduce traffic congestion by building a new flyover on its busiest road.
+The plan assumes that:
+
+A. the flyover will be completed within one year.
+
+B. all residents of the city own cars.
+
+C. public transport in the city is free.
+
+D. congestion on the busiest road is caused largely by the flow of traffic that a flyover can carry over the junctions.
+
+18. A survey found that people who walk at least 30 minutes a day report better sleep than those who do not. A health magazine concludes that walking improves sleep.
+Which of the following, if true, most STRENGTHENS the conclusion?
+
+A. People who walk daily are more likely to be retired.
+
+B. Walking shoes are now widely available.
+
+C. When people who did not walk began walking daily, their reported sleep improved within a month.
+
+D. Many people find it hard to walk in the monsoon.
+
+19. All the trains that stop at Rampur also stop at Sitapur. The Express does not stop at Sitapur.
+Which of the following must be true?
+
+A. The Express stops at Rampur.
+
+B. Some trains stop only at Rampur.
+
+C. The Express is faster than other trains.
+
+D. The Express does not stop at Rampur.
+
+20. Statements: All judges are lawyers. Some lawyers are professors.
+Conclusions: I. Some judges are professors. II. Some professors are lawyers.
+
+A. Only conclusion I follows
+
+B. Only conclusion II follows
+
+C. Both I and II follow
+
+D. Neither I nor II follows
+
+21. Statements: No book is a pen. All pens are erasers.
+Conclusions: I. Some erasers are not books. II. No eraser is a book.
+
+A. Only conclusion I follows
+
+B. Only conclusion II follows
+
+C. Both I and II follow
+
+D. Neither I nor II follows
+
+(Paragraph starts)
+
+Questions 22–24 are based on the following information.
+Six friends, Aarav, Bhavna, Chirag, Diya, Esha and Farhan, sit in a row facing north. Chirag sits at one of the two ends. Esha sits immediately to the right of Bhavna. Exactly two people sit between Bhavna and Farhan. Diya does not sit next to Chirag. Aarav sits third from the left end. Farhan does not sit at either end.
+
+(Paragraph end)
+
+22. Who sits at the extreme right end?
+
+A. Chirag
+
+B. Diya
+
+C. Bhavna
+
+D. Esha
+
+23. Who sits immediately to the left of Bhavna?
+
+A. Aarav
+
+B. Diya
+
+C. Farhan
+
+D. Esha
+
+24. How many people sit between Chirag and Bhavna?
+
+A. Two
+
+B. One
+
+C. Three
+
+D. Four
+
+25. Pointing to a man, Meera says, 'He is the son of my grandfather's only son.' How is the man related to Meera?
+
+A. Brother
+
+B. Cousin
+
+C. Uncle
+
+D. Father
+
+26. A is the sister of B. C is the mother of B. D is the father of C. How is A related to D?
+
+A. Daughter
+
+B. Granddaughter
+
+C. Grandmother
+
+D. Niece
+
+27. In a certain code, COURT is written as DPVSU. How is JUDGE written in that code?
+
+A. KVEHF
+
+B. KUEHF
+
+C. IVEHF
+
+D. KVEGF
+
+28. What number comes next in the series 3, 8, 18, 38, 78, ?
+
+A. 156
+
+B. 160
+
+C. 154
+
+D. 158
+
+29. Ravi walks 6 km north, turns right and walks 8 km, then turns right again and walks 6 km. Where is he now with respect to his starting point?
+
+A. 8 km west
+
+B. 10 km north-east
+
+C. 8 km east
+
+D. 14 km east
+
+30. Statement: The city council has announced free bus travel for senior citizens in order to reduce their social isolation.
+Assumptions: I. The cost of travel discourages some senior citizens from going out. II. Senior citizens prefer buses to the metro.
+
+A. Only assumption I is implicit
+
+B. Only assumption II is implicit
+
+C. Both I and II are implicit
+
+D. Neither I nor II is implicit
+
+((Section B: Logical Reasoning (Questions 16–30) ends))
+
+((Section C: Current Affairs (Questions 31–40) starts))
+
+31. India won the ICC Men's T20 World Cup 2026, its third title in the format, by defeating which team in the final at Ahmedabad?
+
+A. Australia
+
+B. South Africa
+
+C. England
+
+D. New Zealand
+
+32. In July 2026, which ancient Buddhist site was inscribed on the UNESCO World Heritage List, becoming India's 45th World Heritage Site?
+
+A. Kushinagar
+
+B. Sarnath
+
+C. Rajgir
+
+D. Vaishali
+
+33. Who took charge as the 31st Chief of the Army Staff on 30 June 2026?
+
+A. General Upendra Dwivedi
+
+B. General Anil Chauhan
+
+C. General Dhiraj Seth
+
+D. General N S Raja Subramani
+
+34. Which Indian chess player won the FIDE Women's Candidates Tournament 2026 and earned the right to challenge for the Women's World Championship?
+
+A. R Vaishali
+
+B. Koneru Humpy
+
+C. Divya Deshmukh
+
+D. Harika Dronavalli
+
+35. The 18th BRICS Summit, at which the leaders adopted the 'New Delhi Declaration', was held in September 2026 in:
+
+A. Johannesburg
+
+B. Rio de Janeiro
+
+C. New Delhi
+
+D. Kazan
+
+36. The Viksit Bharat – Guarantee for Rozgar and Ajeevika Mission (Gramin) Act (VB-G RAM G), which came into effect on 1 July 2026, replaced which law?
+
+A. The National Food Security Act
+
+B. The Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA)
+
+C. The Right to Education Act
+
+D. The Pradhan Mantri Awas Yojana – Gramin
+
+37. In July–August 2026, Varsha Ashok Aglawe became the first woman to head which organisation in its 176-year history?
+
+A. Survey of India
+
+B. India Meteorological Department
+
+C. Archaeological Survey of India
+
+D. Geological Survey of India
+
+38. In July 2026, Parliament passed an amendment bill to strengthen the law dealing with which of the following?
+
+A. Paper leaks and unfair means in public examinations
+
+B. Online gaming and betting
+
+C. Data protection for children
+
+D. Cyber fraud in banking
+
+39. Justice Surya Kant, who assumed office on 24 November 2025, is the ______ Chief Justice of India.
+
+A. 51st
+
+B. 52nd
+
+C. 53rd
+
+D. 54th
+
+40. The 20th Asian Games, held from 19 September to 4 October 2026, were hosted by:
+
+A. Hangzhou, China
+
+B. Aichi–Nagoya, Japan
+
+C. Doha, Qatar
+
+D. Jakarta–Palembang, Indonesia
+
+((Section C: Current Affairs (Questions 31–40) ends))

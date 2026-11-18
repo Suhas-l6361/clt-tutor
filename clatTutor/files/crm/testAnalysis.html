@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
   <link rel="stylesheet" href="../css/crm-shell.css" />
-  <link rel="stylesheet" href="../css/test-analysis.css?v=20261028airank1" />
+  <link rel="stylesheet" href="../css/test-analysis.css?v=20261117schol1" />
   <link rel="stylesheet" href="../css/clat-exam-analysis.css?v=20261028airank1" />
   <script src="../js/site-protection.js" data-protection-mode="app"></script>
 </head>
@@ -28,6 +28,15 @@
       <section class="ta-crm__filters" aria-label="Test filters">
         <div class="ta-crm__filters-head">
           <h2><i class="fa-solid fa-filter" aria-hidden="true"></i> Session filters</h2>
+          <button
+            type="button"
+            class="ta-btn ta-btn--schol"
+            id="ta-schol-results-btn"
+            aria-haspopup="dialog"
+            aria-controls="ta-schol-pick-modal"
+          >
+            <i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship Test
+          </button>
         </div>
         <div class="ta-filter-grid">
           <div class="ta-field ta-field--select">
@@ -134,9 +143,36 @@
     </div>
   </div>
 
+  <div
+    id="ta-schol-pick-modal"
+    class="ta-schol-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ta-schol-pick-title"
+  >
+    <div class="ta-schol-modal__backdrop" data-ta-schol-close tabindex="-1"></div>
+    <div class="ta-schol-modal__dialog">
+      <div class="ta-schol-modal__head">
+        <div>
+          <p class="ta-schol-modal__eyebrow"><i class="fa-solid fa-award" aria-hidden="true"></i> Scholarship</p>
+          <h3 id="ta-schol-pick-title">Select scholarship test</h3>
+          <p class="ta-schol-modal__lead">Pick a paper to view student submissions in the results table below.</p>
+        </div>
+        <button type="button" class="ta-schol-modal__close" data-ta-schol-close aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="ta-schol-modal__body">
+        <p id="ta-schol-pick-status" class="ta-schol-modal__status">Loading scholarship tests…</p>
+        <div id="ta-schol-pick-list" class="ta-schol-pick-list" hidden></div>
+      </div>
+    </div>
+  </div>
+
   <div id="app-root" class="app-shell"></div>
 
-  <script src="../js/config.js"></script>
+  <script src="../js/config.js?v=20261117schol1"></script>
   <script src="../js/data-store.js"></script>
   <script src="../js/auth.js?v=20261028dam15"></script>
   <script src="../js/crm-branch-scope.js"></script>
@@ -146,13 +182,15 @@
   <script src="../js/student-chrome.js"></script>
   <script src="../js/test-subject-flags.js?v=20260822qt"></script>
   <script src="../js/clat-exam-analysis.js?v=20261028rankfix1"></script>
-  <script src="../js/test-analysis-page.js?v=20261028airank1"></script>
+  <script src="../js/test-analysis-page.js?v=20261117schol1"></script>
+  <script src="../js/crm-test-analysis-scholorship.js?v=20261117schol1"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var stock = document.getElementById('stock');
       initAppChrome({ role: 'crm', active: 'testAnalysis.html', title: 'Test Results', contentEl: stock });
       if (typeof applyCrmChrome === 'function') applyCrmChrome();
       if (typeof initTestAnalysisPage === 'function') initTestAnalysisPage();
+      if (typeof initCrmTestAnalysisScholorship === 'function') initCrmTestAnalysisScholorship();
     });
   </script>
 </body>

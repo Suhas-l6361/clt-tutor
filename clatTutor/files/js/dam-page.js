@@ -35,6 +35,119 @@
     );
   }
 
+  /** Admin DAM unlock IDs — Pranab 5351, Niraj 4422 */
+  var DAM_ADMIN_PINS = {
+    'pranab.mehta@gmail.com': '5351',
+    'niraj.clatutor@gmail.com': '4422',
+    'niraj.clatutor@gmai.com': '4422',
+  };
+
+  function adminEmail() {
+    try {
+      var sess = window.Auth && Auth.getSession ? Auth.getSession() : null;
+      var u = sess && sess.user ? sess.user : null;
+      if (!u) return '';
+      return String(u.email || u.login || '')
+        .trim()
+        .toLowerCase();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function expectedDamPin() {
+    return DAM_ADMIN_PINS[adminEmail()] || '';
+  }
+
+  function showDamPinError(show) {
+    var box = el('dam-pin-error');
+    if (!box) return;
+    box.hidden = !show;
+  }
+
+  function openDamPinModal() {
+    var modal = el('dam-pin-modal');
+    var input = el('dam-pin-input');
+    var adminView = el('dam-admin-view');
+    var counsellorView = el('dam-counsellor-view');
+    if (adminView) adminView.hidden = true;
+    if (counsellorView) counsellorView.hidden = true;
+    if (!modal) {
+      initAdmin();
+      return;
+    }
+    showDamPinError(false);
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (input) {
+      input.value = '';
+      setTimeout(function () {
+        input.focus();
+      }, 40);
+    }
+  }
+
+  function closeDamPinModal() {
+    var modal = el('dam-pin-modal');
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function unlockAdminDam() {
+    var input = el('dam-pin-input');
+    var typed = input ? String(input.value || '').trim() : '';
+    var expected = expectedDamPin();
+    if (!expected || typed !== expected) {
+      showDamPinError(true);
+      if (typeof window.showFriendlyPopup === 'function') {
+        window.showFriendlyPopup({
+          type: 'error',
+          message: 'Incorrect DAM ID. Please try again.',
+          durationMs: 2800,
+        });
+      }
+      if (input) {
+        input.focus();
+        input.select();
+      }
+      return;
+    }
+    showDamPinError(false);
+    closeDamPinModal();
+    if (typeof window.showFriendlyPopup === 'function') {
+      window.showFriendlyPopup({
+        type: 'success',
+        message: 'DAM unlocked.',
+        durationMs: 2200,
+      });
+    }
+    initAdmin();
+  }
+
+  function cancelDamPin() {
+    closeDamPinModal();
+    window.location.href = 'dashboard.html';
+  }
+
+  function bindDamPinModal() {
+    var unlockBtn = el('dam-pin-unlock');
+    var cancelBtn = el('dam-pin-cancel');
+    var input = el('dam-pin-input');
+    if (unlockBtn) unlockBtn.addEventListener('click', unlockAdminDam);
+    if (cancelBtn) cancelBtn.addEventListener('click', cancelDamPin);
+    if (input) {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          unlockAdminDam();
+        }
+      });
+      input.addEventListener('input', function () {
+        showDamPinError(false);
+      });
+    }
+  }
+
   function isCounsellor() {
     try {
       if (window.Auth && typeof window.Auth.isCounceler === 'function' && window.Auth.isCounceler()) {
@@ -1106,9 +1219,10 @@
   }
 
   function init() {
-    // Pranab / Niraj only — folders, Incoming, create, move
+    // Pranab / Niraj — ask for DAM ID, then folders / Incoming / create / move
     if (isAdmin()) {
-      initAdmin();
+      bindDamPinModal();
+      openDamPinModal();
       return;
     }
     // Counsellors — Upload data only (no Create folder, no history)
